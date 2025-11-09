@@ -16,6 +16,18 @@ class RegistrationModal extends StatefulWidget {
 
   @override
   State<RegistrationModal> createState() => _RegistrationModalState();
+
+  static Future<void> show(
+    BuildContext context, {
+    required VoidCallback onLogin,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) => RegistrationModal(
+        onLogin: onLogin,
+      ),
+    );
+  }
 }
 
 class _RegistrationModalState extends State<RegistrationModal> {
@@ -313,18 +325,6 @@ class _RegistrationModalState extends State<RegistrationModal> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  static Future<void> show(
-    BuildContext context, {
-    required VoidCallback onLogin,
-  }) {
-    return showDialog(
-      context: context,
-      builder: (context) => RegistrationModal(
-        onLogin: onLogin,
       ),
     );
   }
