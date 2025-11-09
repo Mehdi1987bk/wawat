@@ -16,6 +16,7 @@ import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
 import 'kango_app.dart';
+import 'wawat/wawat_app.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,7 +38,11 @@ void main() async {
     ..registerAdapter(TypeOptionAdapter());
   _registerDependency();
 
-  runApp(GrandWayApp());
+  // Запуск приложения Wawat
+  runApp(WawatApp());
+
+  // Старое приложение (закомментировано)
+  // runApp(GrandWayApp());
 }
 
 void _registerDependency() {
