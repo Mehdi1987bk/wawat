@@ -70,9 +70,14 @@ class DataAuthRepository implements AuthRepository {
    }
 
   @override
-  Future<RegistrationResponse> registration(RegistrationRequest request) {
-    return _authApi.register(request);
+  Future<void> registration(RegistrationRequest request)  async {
+  final response = await _authApi.register(request);
+  if (response != null) {
+  await _cacheManager.saveUser(response.user);
   }
+  return _cacheManager.saveAccessToken(response.token);
+  }
+
 
   @override
   Future<RegistrationResponse> otpVerify(OtpVerifyRequest request, String token) {

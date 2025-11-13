@@ -3,7 +3,6 @@ import '../../presentation/resourses/wawat_colors.dart';
 import '../../presentation/resourses/wawat_dimensions.dart';
 import '../../presentation/resourses/wawat_text_styles.dart';
 
-/// Кнопки для приложения Wawat
 class WawatButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -26,24 +25,28 @@ class WawatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDisabled = onPressed == null;
+
     return Container(
       width: width,
       height: height ?? WawatDimensions.buttonHeight,
       decoration: BoxDecoration(
-        gradient: isPrimary ? WawatColors.buttonGradient : null,
-        color: isPrimary ? null : Colors.transparent,
+        gradient: isPrimary && !isDisabled ? WawatColors.buttonGradient : null,
+        color: isDisabled
+            ? Colors.grey.withOpacity(0.5)
+            : (isPrimary ? null : Colors.transparent),
         borderRadius: BorderRadius.circular(WawatDimensions.buttonBorderRadius),
-        border: isPrimary
+        border: isPrimary || isDisabled
             ? null
             : Border.all(
-                color: WawatColors.primary,
-                width: 1,
-              ),
+          color: WawatColors.primary,
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: isLoading ? null : onPressed,
+          onTap: isLoading || isDisabled ? null : onPressed,
           borderRadius: BorderRadius.circular(WawatDimensions.buttonBorderRadius),
           child: Container(
             padding: EdgeInsets.symmetric(
@@ -52,33 +55,35 @@ class WawatButton extends StatelessWidget {
             child: Center(
               child: isLoading
                   ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          isPrimary ? Colors.white : WawatColors.primary,
-                        ),
-                      ),
-                    )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isPrimary ? Colors.white : WawatColors.primary,
+                  ),
+                ),
+              )
                   : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (icon != null) ...[
-                          icon!,
-                          SizedBox(width: WawatDimensions.spacingSm),
-                        ],
-                        Text(
-                          text,
-                          style: WawatTextStyles.button.copyWith(
-                            color: isPrimary
-                                ? Colors.white
-                                : WawatColors.primary,
-                          ),
-                        ),
-                      ],
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null) ...[
+                    icon!,
+                    SizedBox(width: WawatDimensions.spacingSm),
+                  ],
+                  Text(
+                    text,
+                    style: WawatTextStyles.button.copyWith(
+                      color: isDisabled
+                          ? Colors.white
+                          : (isPrimary
+                          ? Colors.white
+                          : WawatColors.primary),
                     ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -87,7 +92,6 @@ class WawatButton extends StatelessWidget {
   }
 }
 
-/// Outline кнопка
 class WawatOutlineButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;

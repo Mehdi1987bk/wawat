@@ -23,7 +23,7 @@ abstract class AuthRepository {
 
   Future<void> customersMe();
 
-  Future<RegistrationResponse> registration(RegistrationRequest request);
+  Future<void> registration(RegistrationRequest request);
 
   Future<RegistrationResponse> otpVerify(OtpVerifyRequest request, String token);
 

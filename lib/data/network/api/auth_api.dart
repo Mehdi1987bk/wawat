@@ -37,7 +37,7 @@ abstract class AuthApi {
       @Query("phoneNumber") int number, @Query("otpCode") int otpCode);
 
   @POST('/auth/register')
-  Future<RegistrationResponse> register(
+  Future<LoginResponse> register(
     @Body() RegistrationRequest request,
   );
 

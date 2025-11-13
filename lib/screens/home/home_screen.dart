@@ -75,19 +75,19 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
               alignment: Alignment.bottomCenter,
               child: BottomBar(
                 onChanged: (index) async {
-                  // final isLogged = await sl.get<AuthRepository>().isLogged();
-                  // if ((index != 0 && index != 1) && !isLogged) {
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (BuildContext context) {
-                  //         // return LoginScreen();
-                  //         return Container();
-                  //       },
-                  //     ),
-                  //   );
-                  //   return;
-                  // }
+                  final isLogged = await sl.get<AuthRepository>().isLogged();
+                  if ((index != 0 ) && !isLogged) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          // return LoginScreen();
+                          return Container();
+                        },
+                      ),
+                    );
+                    return;
+                  }
                   setState(() {
                     _selectedIndex = index;
                   });

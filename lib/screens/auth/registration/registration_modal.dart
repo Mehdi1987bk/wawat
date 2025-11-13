@@ -1,3 +1,6 @@
+import 'package:buking/screens/auth/registration/registration_bloc.dart';
+import 'package:buking/screens/home/home_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
@@ -5,7 +8,7 @@ import '../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
 
- class RegistrationModal extends StatefulWidget {
+class RegistrationModal extends StatefulWidget {
   final VoidCallback onLogin;
 
   const RegistrationModal({
@@ -17,9 +20,9 @@ import '../../../wawat/widgets/wawat_input_field.dart';
   State<RegistrationModal> createState() => _RegistrationModalState();
 
   static Future<void> show(
-    BuildContext context, {
-    required VoidCallback onLogin,
-  }) {
+      BuildContext context, {
+        required VoidCallback onLogin,
+      }) {
     return showDialog(
       context: context,
       builder: (context) => RegistrationModal(
@@ -39,6 +42,46 @@ class _RegistrationModalState extends State<RegistrationModal> {
   bool _agreedToTerms = false;
   String? _selectedLanguage;
 
+  final _bloc = RegistrationBloc();
+  bool _isLoading = false;
+  bool _isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bloc.loadingStream.listen((isLoading) {
+      if (mounted) {
+        setState(() {
+          _isLoading = isLoading;
+        });
+      }
+    });
+
+    _bloc.errorStream.listen((error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка регистрации: ${error.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+
+    // Добавляем слушатели на изменения текста для проверки валидности
+    _nameController.addListener(_validateForm);
+    _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+    _confirmPasswordController.addListener(_validateForm);
+  }
+
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _formKey.currentState?.validate() ?? false;
+    });
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -46,26 +89,76 @@ class _RegistrationModalState extends State<RegistrationModal> {
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _bloc.dispose();
     super.dispose();
   }
 
-  void _handleRegister() {
-    if (_formKey.currentState!.validate()) {
-      if (!_agreedToTerms) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Необходимо согласиться с условиями'),
-          ),
-        );
-        return;
-      }
-      // TODO: Implement registration logic
-      Navigator.of(context).pop();
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Введите имя';
+    }
+    if (value.length < 2) {
+      return 'Имя должно содержать минимум 2 символа';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Введите email';
+    }
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Введите корректный email';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Введите пароль';
+    }
+    if (value.length < 6) {
+      return 'Пароль должен содержать минимум 6 символов';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Подтвердите пароль';
+    }
+    if (value != _passwordController.text) {
+      return 'Пароли не совпадают';
+    }
+    return null;
+  }
+
+  void _handleRegister() async {
+    if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Регистрация успешна!'),
+        const SnackBar(
+          content: Text('Необходимо согласиться с условиями'),
         ),
       );
+      return;
+    }
+
+    if (_formKey.currentState!.validate()) {
+      try {
+        await _bloc.register(
+          _nameController.text,
+          _emailController.text,
+          _passwordController.text,
+        );
+        if (mounted) {
+          Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+            return   HomeScreen();
+          }));
+        }
+      } catch (e) {
+        print('Registration error: $e');
+      }
     }
   }
 
@@ -123,7 +216,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -145,12 +238,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         prefixIcon: Icon(Icons.person, size: WawatDimensions.iconMedium),
                         controller: _nameController,
                         isModal: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Введите имя';
-                          }
-                          return null;
-                        },
+                        validator: _validateName,
+                        onChanged: (_) => _validateForm(),
                       ),
                       SizedBox(height: WawatDimensions.spacingMd),
 
@@ -161,15 +250,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         isModal: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Введите email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Некорректный email';
-                          }
-                          return null;
-                        },
+                        validator: _validateEmail,
+                        onChanged: (_) => _validateForm(),
                       ),
                       SizedBox(height: WawatDimensions.spacingMd),
 
@@ -180,12 +262,6 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         isModal: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Введите телефон';
-                          }
-                          return null;
-                        },
                       ),
                       SizedBox(height: WawatDimensions.spacingMd),
 
@@ -196,15 +272,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         controller: _passwordController,
                         obscureText: true,
                         isModal: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Введите пароль';
-                          }
-                          if (value.length < 6) {
-                            return 'Минимум 6 символов';
-                          }
-                          return null;
-                        },
+                        validator: _validatePassword,
+                        onChanged: (_) => _validateForm(),
                       ),
                       SizedBox(height: WawatDimensions.spacingMd),
 
@@ -215,15 +284,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         controller: _confirmPasswordController,
                         obscureText: true,
                         isModal: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Подтвердите пароль';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Пароли не совпадают';
-                          }
-                          return null;
-                        },
+                        validator: _validateConfirmPassword,
+                        onChanged: (_) => _validateForm(),
                       ),
                       SizedBox(height: WawatDimensions.spacingMd),
 
@@ -248,6 +310,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                             onChanged: (value) {
                               setState(() {
                                 _agreedToTerms = value ?? false;
+                                _validateForm();
                               });
                             },
                             activeColor: WawatColors.primary,
@@ -257,6 +320,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                               onTap: () {
                                 setState(() {
                                   _agreedToTerms = !_agreedToTerms;
+                                  _validateForm();
                                 });
                               },
                               child: Padding(
@@ -265,12 +329,12 @@ class _RegistrationModalState extends State<RegistrationModal> {
                                   text: TextSpan(
                                     style: WawatTextStyles.caption,
                                     children: [
-                                      TextSpan(text: 'Регистрируясь, вы соглашаетесь с '),
+                                      const TextSpan(text: 'Регистрируясь, вы соглашаетесь с '),
                                       TextSpan(
                                         text: 'Условиями использования',
                                         style: WawatTextStyles.link.copyWith(fontSize: 12),
                                       ),
-                                      TextSpan(text: ' и '),
+                                      const TextSpan(text: ' и '),
                                       TextSpan(
                                         text: 'Политикой конфиденциальности',
                                         style: WawatTextStyles.link.copyWith(fontSize: 12),
@@ -285,12 +349,15 @@ class _RegistrationModalState extends State<RegistrationModal> {
                       ),
                       SizedBox(height: WawatDimensions.spacingLg),
 
-                      // Register Button
+                      // Register Button - СЕРАЯ, когда невалидна
                       WawatButton(
-                        text: 'Создать аккаунт',
-                        onPressed: _handleRegister,
+                        text: _isLoading ? 'Регистрация...' : 'Создать аккаунт',
+                        onPressed: (_isLoading || !_isFormValid || !_agreedToTerms)
+                            ? null
+                            : _handleRegister,
                         width: double.infinity,
                       ),
+
                       SizedBox(height: WawatDimensions.spacingMd),
 
                       // Login Link
