@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +28,16 @@ final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<v
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Инициализация Firebase
+  try {
+    await Firebase.initializeApp();
+    logger.d('Firebase initialized successfully');
+  } catch (e) {
+    logger.e('Firebase initialization failed: $e');
+    // Продолжаем работу приложения без Firebase
+  }
+
   await FlutterDownloader.initialize(
       debug: true
       );
