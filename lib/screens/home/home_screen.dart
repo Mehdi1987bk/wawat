@@ -1,4 +1,5 @@
- import 'package:flutter/material.dart';
+ import 'package:buking/screens/home/tabs/home_tab/home_tab_screen.dart';
+import 'package:flutter/material.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
@@ -123,6 +124,7 @@ class __TabsState extends State<_Tabs> {
     super.initState();
 
     _tabs = <Widget>[
+      HomeTabScreen(),
       Container(),
       Container(),
       Container(),

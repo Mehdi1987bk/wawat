@@ -13,12 +13,12 @@ import 'screens/splesh/splesh_screen.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
-class GrandWayApp extends StatefulWidget {
+class WawatApp extends StatefulWidget {
   @override
-  _GrandWayAppState createState() => _GrandWayAppState();
+  _WawatAppState createState() => _WawatAppState();
 }
 
-class _GrandWayAppState extends State<GrandWayApp> {
+class _WawatAppState extends State<WawatApp> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AppBloc>(bloc: AppBloc(), child: App());
