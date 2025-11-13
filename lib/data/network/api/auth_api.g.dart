@@ -14,7 +14,7 @@ class _AuthApi implements AuthApi {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'https://p.buking.az/api';
+    baseUrl ??= 'https://wawat.tahirguliyev.com/api/v1';
   }
 
   final Dio _dio;

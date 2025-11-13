@@ -24,7 +24,7 @@ class DataAuthRepository implements AuthRepository {
   Future<void> login(LoginRequest request) async {
     final response = await _authApi.login(request);
     if (response != null) {
-      await _cacheManager.saveUser(response.customer);
+      await _cacheManager.saveUser(response.user);
     }
     return _cacheManager.saveAccessToken(response.token);
   }

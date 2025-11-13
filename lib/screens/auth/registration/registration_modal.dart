@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../presentation/resourses/wawat_colors.dart';
-import '../../presentation/resourses/wawat_dimensions.dart';
-import '../../presentation/resourses/wawat_text_styles.dart';
-import '../widgets/wawat_button.dart';
-import '../widgets/wawat_input_field.dart';
+import '../../../presentation/resourses/wawat_colors.dart';
+import '../../../presentation/resourses/wawat_dimensions.dart';
+import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../wawat/widgets/wawat_button.dart';
+import '../../../wawat/widgets/wawat_input_field.dart';
 
-/// Модальное окно регистрации
-class RegistrationModal extends StatefulWidget {
+ class RegistrationModal extends StatefulWidget {
   final VoidCallback onLogin;
 
   const RegistrationModal({

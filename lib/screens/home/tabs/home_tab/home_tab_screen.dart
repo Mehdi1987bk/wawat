@@ -1,14 +1,13 @@
+import 'package:buking/screens/home/tabs/home_tab/widget/search_form_page.dart';
+import 'package:buking/screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
 import 'package:flutter/material.dart';
 import '../../../../presentation/bloc/base_screen.dart';
- import '../../../../presentation/resourses/wawat_colors.dart';
+import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
-import '../../../../wawat/modals/auth_required_modal.dart';
-import '../../../../wawat/modals/login_modal.dart';
-import '../../../../wawat/modals/registration_modal.dart';
-import '../../../../wawat/widgets/wawat_button.dart';
-import '../../../../wawat/widgets/wawat_courier_card.dart';
-import '../../../../wawat/widgets/wawat_input_field.dart';
+  import '../../../auth/auth_modal/auth_required_modal.dart';
+import '../../../auth/login/login_modal.dart';
+import '../../../auth/registration/registration_modal.dart';
 import 'home_tab_bloc.dart';
 
 class HomeTabScreen extends BaseScreen {
@@ -92,9 +91,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     Navigator.pushNamed(context, '/search-results');
   }
 
-
   @override
-  Widget body()  {
+  Widget body() {
     return Scaffold(
       backgroundColor: WawatColors.backgroundLight,
       body: SafeArea(
@@ -107,7 +105,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                   children: [
                     _buildHeader(),
                     _buildHeroSection(),
-                    _buildSearchForm(),
+                    SearchFormWidget(),
                     SizedBox(height: WawatDimensions.spacingLg),
                     _buildPopularOffers(),
                   ],
@@ -124,6 +122,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   Widget _buildHeader() {
     return Container(
+      color: Colors.white,
       padding: EdgeInsets.all(WawatDimensions.spacingMd),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,111 +143,45 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   }
 
   Widget _buildHeroSection() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
-      padding: EdgeInsets.all(WawatDimensions.spacingLg),
-      decoration: BoxDecoration(
-        gradient: WawatColors.primaryGradient,
-        borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.search,
-            size: 48,
-            color: Colors.white,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 20, bottom: 20),
+          child: Image.asset(
+            "asset/home_ban.png",
+            width: 127,
           ),
-          SizedBox(height: WawatDimensions.spacingMd),
-          Text(
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
+          child: Text(
             'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
-            style: WawatTextStyles.h3.copyWith(
-              color: Colors.white,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: WawatColors.textPrimary,
+              height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: WawatDimensions.spacingSm),
-          Text(
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30),
+          child: Text(
             'Быстрая и безопасная доставка посылок по всему миру',
-            style: WawatTextStyles.body.copyWith(
-              color: Colors.white.withOpacity(0.9),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              color: WawatColors.textSecondary,
+              height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildSearchForm() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
-      padding: EdgeInsets.all(WawatDimensions.spacingMd),
-      decoration: BoxDecoration(
-        color: WawatColors.backgroundWhite,
-        borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: WawatColors.shadowLight,
-            blurRadius: WawatDimensions.shadowBlurLight,
-            offset: Offset(0, WawatDimensions.shadowOffsetY),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          WawatDropdownField(
-            label: 'ОТКУДА',
-            placeholder: 'Город отправления',
-            prefixIcon: Icon(Icons.location_on, size: WawatDimensions.iconMedium),
-            onTap: () {
-              // TODO: Show city picker
-            },
-          ),
-          SizedBox(height: WawatDimensions.spacingMd),
-          WawatDropdownField(
-            label: 'КУДА',
-            placeholder: 'Город назначения',
-            prefixIcon: Icon(Icons.location_on, size: WawatDimensions.iconMedium),
-            onTap: () {
-              // TODO: Show city picker
-            },
-          ),
-          SizedBox(height: WawatDimensions.spacingMd),
-          WawatDropdownField(
-            label: 'ДАТА С',
-            placeholder: 'ДД.МММ.ГГГГ',
-            prefixIcon: Icon(Icons.calendar_today, size: WawatDimensions.iconMedium),
-            onTap: () {
-              // TODO: Show date picker
-            },
-          ),
-          SizedBox(height: WawatDimensions.spacingMd),
-          WawatDropdownField(
-            label: 'ДАТА ПО',
-            placeholder: 'ДД.МММ.ГГГГ',
-            prefixIcon: Icon(Icons.calendar_today, size: WawatDimensions.iconMedium),
-            onTap: () {
-              // TODO: Show date picker
-            },
-          ),
-          SizedBox(height: WawatDimensions.spacingMd),
-          WawatDropdownField(
-            label: 'КАТЕГОРИЯ',
-            placeholder: '🔍 Все категории',
-            onTap: () {
-              // TODO: Show category picker
-            },
-          ),
-          SizedBox(height: WawatDimensions.spacingLg),
-          WawatButton(
-            text: '🔍 ПОИСК',
-            onPressed: _handleSearch,
-            width: double.infinity,
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPopularOffers() {
     return Column(
@@ -256,13 +189,16 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
-          child: Text(
-            'Популярные предложения',
-            style: WawatTextStyles.h2,
+          child: Center(
+            child: Text(
+              'Популярные предложения',
+              style: WawatTextStyles.h2,
+            ),
           ),
         ),
         SizedBox(height: WawatDimensions.spacingMd),
         ListView.builder(
+          padding: EdgeInsets.only(bottom: 30),
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           itemCount: _popularCouriers.length,
@@ -330,7 +266,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
           Text(
             label,
             style: WawatTextStyles.caption.copyWith(
-              color: isSelected ? WawatColors.primary : WawatColors.textSecondary,
+              color:
+                  isSelected ? WawatColors.primary : WawatColors.textSecondary,
               fontSize: 10,
             ),
           ),
@@ -348,7 +285,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     _categoryController.dispose();
     super.dispose();
   }
-
 
   @override
   HomeTabBloc provideBloc() {

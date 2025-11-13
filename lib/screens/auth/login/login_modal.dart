@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../presentation/resourses/wawat_colors.dart';
-import '../../presentation/resourses/wawat_dimensions.dart';
-import '../../presentation/resourses/wawat_text_styles.dart';
-import '../widgets/wawat_button.dart';
-import '../widgets/wawat_input_field.dart';
 
+import '../../../presentation/resourses/wawat_colors.dart';
+import '../../../presentation/resourses/wawat_dimensions.dart';
+import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../wawat/widgets/wawat_button.dart';
+import '../../../wawat/widgets/wawat_input_field.dart';
 /// Модальное окно входа
 class LoginModal extends StatefulWidget {
   final VoidCallback onRegister;
@@ -84,21 +84,10 @@ class _LoginModalState extends State<LoginModal> {
             // Header
             Container(
               padding: EdgeInsets.all(WawatDimensions.spacingMd),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: WawatColors.inputBorder,
-                    width: 1,
-                  ),
-                ),
-              ),
+
               child: Row(
                 children: [
-                  Icon(
-                    Icons.flight,
-                    color: WawatColors.primary,
-                    size: WawatDimensions.iconLarge,
-                  ),
+                 Image.asset("asset/mini_logo.png",width: 35,),
                   SizedBox(width: WawatDimensions.spacingSm),
                   Expanded(
                     child: Column(
@@ -106,7 +95,12 @@ class _LoginModalState extends State<LoginModal> {
                       children: [
                         Text(
                           'Вход',
-                          style: WawatTextStyles.h3,
+                          style:  TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: WawatColors.primary,
+                            height: 1.4,
+                          )
                         ),
                         Text(
                           'Добро пожаловать обратно',
@@ -125,7 +119,7 @@ class _LoginModalState extends State<LoginModal> {
 
             // Form
             Padding(
-              padding: EdgeInsets.all(WawatDimensions.spacingLg),
+              padding: EdgeInsets.only(left: 20,right: 20,bottom: 20),
               child: Form(
                 key: _formKey,
                 child: Column(

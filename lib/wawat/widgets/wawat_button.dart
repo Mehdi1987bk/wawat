@@ -37,7 +37,7 @@ class WawatButton extends StatelessWidget {
             ? null
             : Border.all(
                 color: WawatColors.primary,
-                width: 2,
+                width: 1,
               ),
       ),
       child: Material(

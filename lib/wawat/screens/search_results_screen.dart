@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../../presentation/resourses/wawat_colors.dart';
 import '../../presentation/resourses/wawat_dimensions.dart';
 import '../../presentation/resourses/wawat_text_styles.dart';
+import '../../screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
 import '../widgets/wawat_button.dart';
-import '../widgets/wawat_courier_card.dart';
-import '../widgets/wawat_chip.dart';
+ import '../widgets/wawat_chip.dart';
 
 /// Экран результатов поиска
 class SearchResultsScreen extends StatefulWidget {

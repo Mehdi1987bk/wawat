@@ -1,66 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../presentation/resourses/app_colors.dart';
 
 class BottomBar extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final int selectedIndex;
 
-  const BottomBar({super.key, required this.onChanged, required this.selectedIndex});
+  const BottomBar({
+    super.key,
+    required this.onChanged,
+    required this.selectedIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      height: 75,
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           BottomNavigationItem(
             index: 0,
             selectedIndex: selectedIndex,
-            label: "Ana səhifə",
-            iconPath: 'asset/fi-sr-home.svg',
-            onChanged: (index) {
-              onChanged(index);
-            },
+            label: 'Поиск',
+            svgIcon: 'asset/tab1.svg',
+            onChanged: onChanged,
+            isCentral: false,
           ),
           BottomNavigationItem(
             index: 1,
             selectedIndex: selectedIndex,
-            label: "Xəritə",
-            iconPath: 'asset/fi-sr-heart.svg',
-            onChanged: (index) {
-              onChanged(index);
-            },
+            label: 'Чаты',
+            svgIcon: 'asset/tab2.svg',
+            onChanged: onChanged,
+            isCentral: false,
           ),
           BottomNavigationItem(
             index: 2,
             selectedIndex: selectedIndex,
-            label: "Rezervasiya",
-            iconPath: 'asset/fi-sr-apps.svg',
-            onChanged: (index) {
-              onChanged(index);
-            },
+            label: 'Подать',
+            svgIcon: 'asset/tab3.svg',
+            onChanged: onChanged,
+            isCentral: true, // Центральная кнопка с градиентом
           ),
           BottomNavigationItem(
             index: 3,
             selectedIndex: selectedIndex,
-            label: "AI-Chat",
-            iconPath: 'asset/fi-sr-ff.svg',
-            size: 22,
-            onChanged: (index) {
-              onChanged(index);
-            },
+            label: 'Избранное',
+            svgIcon: 'asset/tab4.svg',
+            onChanged: onChanged,
+            isCentral: false,
           ),
           BottomNavigationItem(
             index: 4,
             selectedIndex: selectedIndex,
-            label: "Profil",
-            iconPath: 'asset/fi-sr-user.svg',
-            onChanged: (index) {
-              onChanged(index);
-            },
+            label: 'Аккаунт',
+            svgIcon: 'asset/tab5.svg',
+            onChanged: onChanged,
+            isCentral: false,
           ),
         ],
       ),
@@ -72,58 +69,84 @@ class BottomNavigationItem extends StatelessWidget {
   final int index;
   final int selectedIndex;
   final String label;
-  final String iconPath;
-  final double? size ;
+  final String svgIcon;
   final ValueChanged<int> onChanged;
+  final bool isCentral;
 
   const BottomNavigationItem({
     Key? key,
     required this.index,
     required this.selectedIndex,
     required this.label,
-    required this.iconPath,
+    required this.svgIcon,
     required this.onChanged,
-      this.size = 26,
+    this.isCentral = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedIndex == index;
+    final Color activeColor = Color(0xFF2857DA);
+    final Color inactiveColor = Color(0xFF9E9E9E);
+
+    // Градиент для центральной кнопки
+    final gradient = LinearGradient(
+      colors: [Color(0xFF2662EA), Color(0xFF9333EA)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
 
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
       onTap: () => onChanged(index),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 15,
-            width: 20,
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.appColor : null,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.17,
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        decoration: BoxDecoration(
+          gradient: isCentral && isSelected ? gradient : null,
+          color: isCentral && isSelected
+              ? Colors.white
+              : (isSelected ? Color(0xFFEFF6FF) : Colors.transparent),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Обычная кнопка
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isCentral && isSelected
+                    ? Colors.white.withOpacity(0.3)
+                    : (isSelected ? Color(0xFFDBEAFE) : Colors.transparent),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SvgPicture.asset(
+                svgIcon,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(
+                  isCentral && isSelected
+                      ? Colors.white
+                      : (isSelected ? activeColor : inactiveColor),
+                  BlendMode.srcIn,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6, top: 2),
-            child: SvgPicture.asset(
-              iconPath,
-              color: isSelected ? AppColors.appColor : null,
-              height: size,
+            SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: isCentral && isSelected
+                    ? Colors.white
+                    : (isSelected ? activeColor : inactiveColor),
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? AppColors.appColor : null,
-              fontSize: 9,
-            ),
-          ),
-          SizedBox(height: 8),
-        ],
+          ],
+        ),
       ),
     );
   }

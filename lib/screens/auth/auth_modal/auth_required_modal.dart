@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../presentation/resourses/wawat_colors.dart';
-import '../../presentation/resourses/wawat_dimensions.dart';
-import '../../presentation/resourses/wawat_text_styles.dart';
-import '../widgets/wawat_button.dart';
+
+import '../../../presentation/resourses/wawat_colors.dart';
+import '../../../presentation/resourses/wawat_dimensions.dart';
+import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../wawat/widgets/wawat_button.dart';
 
 /// Модальное окно "Требуется регистрация"
 class AuthRequiredModal extends StatelessWidget {
@@ -39,7 +40,11 @@ class AuthRequiredModal extends StatelessWidget {
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: WawatColors.primary,
+                gradient: LinearGradient(
+                  colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
                 borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
               ),
               child: Icon(
@@ -53,7 +58,7 @@ class AuthRequiredModal extends StatelessWidget {
             // Title
             Text(
               'Требуется регистрация',
-              style: WawatTextStyles.h2,
+              style: WawatTextStyles.h3,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: WawatDimensions.spacingMd),
@@ -61,7 +66,7 @@ class AuthRequiredModal extends StatelessWidget {
             // Description
             Text(
               'Для доступа к этой функции необходимо зарегистрироваться или войти в аккаунт',
-              style: WawatTextStyles.body.copyWith(
+              style: WawatTextStyles.caption.copyWith(
                 color: WawatColors.textSecondary,
               ),
               textAlign: TextAlign.center,

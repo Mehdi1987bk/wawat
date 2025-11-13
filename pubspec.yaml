@@ -110,6 +110,12 @@ flutter:
     - asset/welcom.png
     - asset/notif_aa.png
     - asset/home_ban.png
+    - asset/tab1.svg
+    - asset/tab2.svg
+    - asset/tab3.svg
+    - asset/tab4.svg
+    - asset/tab5.svg
+    - asset/mini_logo.png
 
 
 

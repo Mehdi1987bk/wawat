@@ -68,6 +68,9 @@ class _WawatInputFieldState extends State<WawatInputField> {
         ? WawatDimensions.inputHeightModal
         : WawatDimensions.inputHeight;
 
+    // Проверяем наличие suffixIcon (как явного, так и автоматического для паролей)
+    final hasSuffixIcon = widget.suffixIcon != null || widget.obscureText;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -79,9 +82,9 @@ class _WawatInputFieldState extends State<WawatInputField> {
           SizedBox(height: WawatDimensions.spacingSm),
         ],
         Container(
-          height: widget.maxLines == 1 ? height : null,
+          height: 48,
           decoration: BoxDecoration(
-            color: WawatColors.inputBackground,
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(WawatDimensions.inputBorderRadius),
             border: Border.all(
               color: _isFocused
@@ -105,20 +108,25 @@ class _WawatInputFieldState extends State<WawatInputField> {
               hintText: widget.placeholder,
               hintStyle: WawatTextStyles.placeholder,
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: widget.prefixIcon != null
+              isDense: true,
+              contentPadding: EdgeInsets.only(
+                left: widget.prefixIcon != null
                     ? WawatDimensions.inputTextPadding
                     : WawatDimensions.spacingMd,
-                vertical: WawatDimensions.spacingMd,
+                right: hasSuffixIcon
+                    ? WawatDimensions.inputTextPadding
+                    : WawatDimensions.spacingMd,
+                top: 12,
+                bottom: 12,
               ),
               prefixIcon: widget.prefixIcon != null
                   ? Padding(
-                      padding: EdgeInsets.only(
-                        left: WawatDimensions.inputIconPadding,
-                        right: WawatDimensions.inputIconPadding,
-                      ),
-                      child: widget.prefixIcon,
-                    )
+                padding: EdgeInsets.only(
+                  left: WawatDimensions.inputIconPadding,
+                  right: WawatDimensions.inputIconPadding,
+                ),
+                child: widget.prefixIcon,
+              )
                   : null,
               prefixIconConstraints: BoxConstraints(
                 minWidth: WawatDimensions.iconLarge,
@@ -127,20 +135,24 @@ class _WawatInputFieldState extends State<WawatInputField> {
               suffixIcon: widget.suffixIcon != null
                   ? widget.suffixIcon
                   : widget.obscureText
-                      ? IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: WawatColors.textSecondary,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                        )
-                      : null,
+                  ? IconButton(
+                icon: Icon(
+                  _obscureText
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  color: WawatColors.textSecondary,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+                  : null,
+              suffixIconConstraints: BoxConstraints(
+                minWidth: WawatDimensions.iconLarge,
+                minHeight: WawatDimensions.iconLarge,
+              ),
             ),
           ),
         ),

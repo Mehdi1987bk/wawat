@@ -22,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
-const baseUrl = 'https://p.buking.az/api';
+const baseUrl = 'https://wawat.tahirguliyev.com/api/v1';
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() async {
