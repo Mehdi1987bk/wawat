@@ -35,6 +35,12 @@ void main() async {
     ..init(dir.path)
     ..registerAdapter(UserAdapter())
     ..registerAdapter(TypeOptionAdapter());
+
+  // Открываем Hive boxes заранее для быстрого доступа
+  await Hive.openBox('AuthCache');
+  await Hive.openBox('UserCache');
+  await Hive.openBox('SettingsCache');
+
   _registerDependency();
 
   runApp(GrandWayApp());
