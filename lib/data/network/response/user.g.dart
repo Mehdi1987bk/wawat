@@ -17,22 +17,49 @@ class UserAdapter extends TypeAdapter<User> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return User(
-      id: fields[0] as int,
+      id: fields[0] as int?,
       name: fields[1] as String,
       email: fields[2] as String?,
+      phone: fields[3] as String?,
+      avatarUrl: fields[4] as String?,
+      location: fields[5] as String?,
+      about: fields[6] as String?,
+      professional: fields[7] as Professional?,
+      privacy: fields[8] as Privacy?,
+      notifications: fields[9] as Notifications?,
+      rating: fields[10] as Rating?,
+      createdAt: fields[11] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.email);
+      ..write(obj.email)
+      ..writeByte(3)
+      ..write(obj.phone)
+      ..writeByte(4)
+      ..write(obj.avatarUrl)
+      ..writeByte(5)
+      ..write(obj.location)
+      ..writeByte(6)
+      ..write(obj.about)
+      ..writeByte(7)
+      ..write(obj.professional)
+      ..writeByte(8)
+      ..write(obj.privacy)
+      ..writeByte(9)
+      ..write(obj.notifications)
+      ..writeByte(10)
+      ..write(obj.rating)
+      ..writeByte(11)
+      ..write(obj.createdAt);
   }
 
   @override
@@ -51,13 +78,42 @@ class UserAdapter extends TypeAdapter<User> {
 // **************************************************************************
 
 User _$UserFromJson(Map<String, dynamic> json) => User(
-      id: json['id'] as int,
+      id: json['id'] as int?,
       name: json['name'] as String,
       email: json['email'] as String?,
+      phone: json['phone'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      location: json['location'] as String?,
+      about: json['about'] as String?,
+      professional: json['professional'] == null
+          ? null
+          : Professional.fromJson(json['professional'] as Map<String, dynamic>),
+      privacy: json['privacy'] == null
+          ? null
+          : Privacy.fromJson(json['privacy'] as Map<String, dynamic>),
+      notifications: json['notifications'] == null
+          ? null
+          : Notifications.fromJson(
+              json['notifications'] as Map<String, dynamic>),
+      rating: json['rating'] == null
+          ? null
+          : Rating.fromJson(json['rating'] as Map<String, dynamic>),
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'email': instance.email,
+      'phone': instance.phone,
+      'avatar_url': instance.avatarUrl,
+      'location': instance.location,
+      'about': instance.about,
+      'professional': instance.professional,
+      'privacy': instance.privacy,
+      'notifications': instance.notifications,
+      'rating': instance.rating,
+      'created_at': instance.createdAt?.toIso8601String(),
     };

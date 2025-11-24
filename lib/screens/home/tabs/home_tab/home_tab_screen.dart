@@ -1,11 +1,15 @@
+import 'package:buking/screens/home/tabs/home_tab/widget/auth_modal_utils.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/search_form_page.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../../domain/repositories/auth_repository.dart';
+import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
-  import '../../../auth/auth_modal/auth_required_modal.dart';
+import '../../../auth/auth_modal/auth_required_modal.dart';
 import '../../../auth/login/login_modal.dart';
 import '../../../auth/registration/registration_modal.dart';
 import 'home_tab_bloc.dart';
@@ -64,33 +68,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     ),
   ];
 
-  void _showAuthRequiredModal() {
-    AuthRequiredModal.show(
-      context,
-      onRegister: () => _showRegistrationModal(),
-      onLogin: () => _showLoginModal(),
-    );
-  }
-
-  void _showRegistrationModal() {
-    RegistrationModal.show(
-      context,
-      onLogin: () => _showLoginModal(),
-    );
-  }
-
-  void _showLoginModal() {
-    LoginModal.show(
-      context,
-      onRegister: () => _showRegistrationModal(),
-    );
-  }
-
-  void _handleSearch() {
-    // TODO: Implement search logic
-    Navigator.pushNamed(context, '/search-results');
-  }
-
   @override
   Widget body() {
     return Scaffold(
@@ -103,7 +80,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildHeader(),
+                    BuildHeader(context),
                     _buildHeroSection(),
                     SearchFormWidget(),
                     SizedBox(height: WawatDimensions.spacingLg),
@@ -116,28 +93,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
             _buildBottomNavigation(),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.all(WawatDimensions.spacingMd),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Image.asset(
-            'asset/logo.png',
-            fit: BoxFit.fitWidth,
-            height: 40,
-          ),
-          Image.asset(
-            'asset/notif_aa.png',
-            fit: BoxFit.fitWidth,
-            height: 40,
-          ),
-        ],
       ),
     );
   }
@@ -182,7 +137,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     );
   }
 
-
   Widget _buildPopularOffers() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,10 +159,40 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
           itemBuilder: (context, index) {
             return WawatCourierCard(
               courier: _popularCouriers[index],
-              onDetails: () {
-                // TODO: Show courier details
+              onDetails: () async {
+                final isLogged = await sl.get<AuthRepository>().isLogged();
+                if (!isLogged) {
+                  return AuthModalUtils.showAuthRequiredModal(context);
+                } else {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (BuildContext context) {
+                        return Container(
+                          child: Text("Details"),
+                        );
+                      },
+                    ),
+                  );
+                }
               },
-              onMessage: _showAuthRequiredModal,
+              onMessage: () async {
+                final isLogged = await sl.get<AuthRepository>().isLogged();
+                if (!isLogged) {
+                  return AuthModalUtils.showAuthRequiredModal(context);
+                } else {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (BuildContext context) {
+                        return Container(
+                          child: Text("Messagesss"),
+                        );
+                      },
+                    ),
+                  );
+                }
+              },
             );
           },
         ),
@@ -251,7 +235,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
         });
         if (index == 4) {
           // Account tab - show auth modal
-          _showAuthRequiredModal();
+          AuthModalUtils.showAuthRequiredModal(context);
         }
       },
       child: Column(
@@ -290,4 +274,39 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   HomeTabBloc provideBloc() {
     return HomeTabBloc();
   }
+}
+
+Widget BuildHeader(BuildContext context) {
+  return Container(
+    color: Colors.white,
+    padding: EdgeInsets.all(WawatDimensions.spacingMd),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Image.asset(
+          'asset/logo.png',
+          fit: BoxFit.fitWidth,
+          height: 40,
+        ),
+        GestureDetector(
+          onTap: () async {
+            final isLogged = await sl.get<AuthRepository>().isLogged();
+            if (!isLogged) {
+              return AuthModalUtils.showAuthRequiredModal(context);
+            } else {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (BuildContext context) {
+                return Container();
+              }));
+            }
+          },
+          child: Image.asset(
+            'asset/notif_aa.png',
+            fit: BoxFit.fitWidth,
+            height: 40,
+          ),
+        ),
+      ],
+    ),
+  );
 }

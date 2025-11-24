@@ -116,6 +116,15 @@ flutter:
     - asset/tab4.svg
     - asset/tab5.svg
     - asset/mini_logo.png
+    - asset/prof_1.png
+    - asset/prof_2.png
+    - asset/prof_3.png
+    - asset/prof_ic_1.png
+    - asset/prof_ic_2.png
+    - asset/prof_ic_3.png
+    - asset/prof_ic_4.png
+    - asset/dsr_1.png
+    - asset/dsr_2.png
 
 
 

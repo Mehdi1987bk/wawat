@@ -1,10 +1,12 @@
- import 'package:buking/screens/home/tabs/home_tab/home_tab_screen.dart';
+import 'package:buking/screens/home/tabs/home_tab/home_tab_screen.dart';
+import 'package:buking/screens/home/tabs/home_tab/widget/auth_modal_utils.dart';
+import 'package:buking/screens/home/tabs/profile_tab/profile_tab_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/bloc/base_screen.dart';
- import 'bottom_bar.dart';
+import 'bottom_bar.dart';
 import 'home_bloc.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
@@ -76,17 +78,8 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
               child: BottomBar(
                 onChanged: (index) async {
                   final isLogged = await sl.get<AuthRepository>().isLogged();
-                  if ((index != 0 ) && !isLogged) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          // return LoginScreen();
-                          return Container();
-                        },
-                      ),
-                    );
-                    return;
+                  if ((index != 0) && !isLogged) {
+                    return AuthModalUtils.showAuthRequiredModal(context);
                   }
                   setState(() {
                     _selectedIndex = index;
@@ -128,6 +121,7 @@ class __TabsState extends State<_Tabs> {
       Container(),
       Container(),
       Container(),
+      ProfileTabScreen(),
     ];
   }
 
@@ -139,5 +133,3 @@ class __TabsState extends State<_Tabs> {
     );
   }
 }
-
-

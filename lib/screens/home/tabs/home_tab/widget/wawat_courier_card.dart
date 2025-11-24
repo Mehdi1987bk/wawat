@@ -45,7 +45,7 @@ class WawatCourierCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 20,right: 20,bottom: 20),
+      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -102,7 +102,7 @@ class WawatCourierCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1A1A1A),
                           ),
-                        ),// Rating chip
+                        ), // Rating chip
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 8,
@@ -129,7 +129,7 @@ class WawatCourierCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                     // Chips
+                    // Chips
                     Wrap(
                       spacing: 5,
                       runSpacing: 8,
@@ -194,7 +194,6 @@ class WawatCourierCard extends StatelessWidget {
                               ],
                             ),
                           ),
-
                       ],
                     ),
                   ],
@@ -221,10 +220,10 @@ class WawatCourierCard extends StatelessWidget {
           Column(
             children: [
               _buildDetailRow('Маршрут:', courier.route),
-               _buildDetailRow('Дата:', courier.date),
-               _buildDetailRow('Вес:', courier.weight),
-               _buildDetailRow('Время:', courier.time),
-               _buildDetailRow('Цена:', courier.price),
+              _buildDetailRow('Дата:', courier.date),
+              _buildDetailRow('Вес:', courier.weight),
+              _buildDetailRow('Время:', courier.time),
+              _buildDetailRow('Цена:', courier.price),
             ],
           ),
           SizedBox(height: 10),
@@ -253,7 +252,7 @@ class WawatCourierCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: onMessage,
+                      onTap: onDetails,
                       borderRadius: BorderRadius.circular(16),
                       child: Center(
                         child: Text(
@@ -269,7 +268,6 @@ class WawatCourierCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               SizedBox(width: 12),
               Expanded(
                 child: Container(
@@ -284,7 +282,7 @@ class WawatCourierCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: onDetails,
+                      onTap: onMessage,
                       borderRadius: BorderRadius.circular(16),
                       child: Center(
                         child: Text(

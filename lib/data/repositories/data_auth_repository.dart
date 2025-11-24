@@ -1,15 +1,23 @@
+import 'dart:io';
+
 import 'package:rxdart/rxdart.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../cache/cache_manager.dart';
 import '../network/api/auth_api.dart';
+import '../network/request/courier_profile.dart';
+import '../network/request/delivery_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
 import '../network/request/otp_verify_request.dart';
+import '../network/request/privacy_settings.dart';
 import '../network/request/registration_request.dart';
 import '../network/response/all_request_data.dart';
+import '../network/response/language_response.dart';
 import '../network/response/login_response.dart';
+import '../network/response/offer_types_response.dart';
+import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/user.dart';
@@ -26,11 +34,12 @@ class DataAuthRepository implements AuthRepository {
     if (response != null) {
       await _cacheManager.saveUser(response.user);
     }
-    return _cacheManager.saveAccessToken(response.token);
+    return _cacheManager.saveAccessToken(response.token ?? "");
   }
 
   @override
-  Stream<User> get userDetails => _cacheManager.userDetails.whereNotNull().asBroadcastStream();
+  Stream<User> get userDetails =>
+      _cacheManager.userDetails.whereNotNull().asBroadcastStream();
 
   @override
   Future<bool> isLogged() async {
@@ -65,22 +74,22 @@ class DataAuthRepository implements AuthRepository {
   Future<void> customersMe() async {
     final response = await _authApi.customersMe();
     if (response != null) {
-      await _cacheManager.saveUser(response);
+      await _cacheManager.saveUser(response.user);
     }
-   }
-
-  @override
-  Future<void> registration(RegistrationRequest request)  async {
-  final response = await _authApi.register(request);
-  if (response != null) {
-  await _cacheManager.saveUser(response.user);
-  }
-  return _cacheManager.saveAccessToken(response.token);
   }
 
+  @override
+  Future<void> registration(RegistrationRequest request) async {
+    final response = await _authApi.register(request);
+    if (response != null) {
+      await _cacheManager.saveUser(response.user);
+    }
+    return _cacheManager.saveAccessToken(response.token ?? "");
+  }
 
   @override
-  Future<RegistrationResponse> otpVerify(OtpVerifyRequest request, String token) {
+  Future<RegistrationResponse> otpVerify(
+      OtpVerifyRequest request, String token) {
     return _authApi.otpVerify(request, token);
   }
 
@@ -90,13 +99,54 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<LanguageResponse> getLanguages() {
+    return _authApi.getLanguages();
+  }
+
+  Future<void> profileEdit(
+    String name,
+    String email,
+    String phone,
+    String location,
+    String about,
+    File? file,
+  ) {
+    return _authApi.profileEdit(name, email, phone, location, about, file);
+  }
+
+  @override
   Future<void> forgotPassword(ForgotPasswordrRequest request) {
     return _authApi.forgotPassword(request);
   }
 
   @override
-  Stream<PackagesResponse> packages() {
+  Future<void> privacyProfile(PrivacySettings request) {
+    return _authApi.privacyProfile(request);
+  }
+
+  @override
+  Future<PackagesResponse> packages() {
     return _authApi.packages();
+  }
+
+  @override
+  Future<PackageTypesResponse> getPackageType(){
+    return _authApi.getPackageType();
+  }
+
+  @override
+  Future<void> createOffers(DeliveryOfferRequest request) {
+    return _authApi.createOffers(request);
+  }
+
+  @override
+  Future<void> createProfessional(CourierProfile request) {
+    return _authApi.createProfessional(request);
+  }
+
+  @override
+  Stream<OfferTypesResponse> getOfferTypes() {
+    return _authApi.getOfferTypes();
   }
 
   @override

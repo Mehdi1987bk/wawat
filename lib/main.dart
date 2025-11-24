@@ -12,6 +12,11 @@ import 'call_interceptor.dart';
 import 'data/cache/cache_manager.dart';
 import 'data/cache/data_cache_manager.dart';
 import 'data/network/api/auth_api.dart';
+import 'data/network/response/language.dart';
+import 'data/network/response/notifications.dart';
+import 'data/network/response/privacy.dart';
+import 'data/network/response/professional.dart';
+import 'data/network/response/rating.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
@@ -22,26 +27,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
-const baseUrl = 'https://wawat.tahirguliyev.com/api/v1';
-final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+const baseUrl = 'https://wawat.tahirguliyev.com';
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-      debug: true
-      );
+
   final dir = await getApplicationDocumentsDirectory();
 
   Hive
     ..init(dir.path)
     ..registerAdapter(UserAdapter())
+    ..registerAdapter(RatingAdapter())
+    ..registerAdapter(NotificationsAdapter())
+    ..registerAdapter(PrivacyAdapter())
+    ..registerAdapter(LanguageAdapter())
+    ..registerAdapter(ProfessionalAdapter())
     ..registerAdapter(TypeOptionAdapter());
   _registerDependency();
 
-  // Запуск приложения Wawat
   runApp(WawatApp());
 
-  // Старое приложение (закомментировано)
   // runApp(GrandWayApp());
 }
 
@@ -61,7 +68,8 @@ Dio _initDio() {
   dio.options.receiveTimeout = Duration(seconds: 120);
   dio.options.sendTimeout = Duration(seconds: 120);
   dio.interceptors.add(CallInterceptor());
-  dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true, logPrint: logger.d));
+  dio.interceptors.add(LogInterceptor(
+      requestBody: true, responseBody: true, logPrint: logger.d));
   // dio.interceptors
   //     .add(DioCacheManager(CacheConfig(baseUrl: baseUrl)).interceptor);
   // dio.interceptors.add(InterceptorsWrapper(

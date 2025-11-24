@@ -19,7 +19,7 @@ class HomeTabBloc extends BaseBloc {
   @override
   void init() {
      super.init();
-     customersMe;
+     customersMe();
   }
 
   Future<void> customersMe() => userRepository.customersMe();
@@ -30,7 +30,4 @@ class HomeTabBloc extends BaseBloc {
     return userRepository.allRequest(dateFormat.format(dateTimeNow).toString());
   }
 
-  Stream<PackagesResponse> packages() {
-    return userRepository.packages();
-  }
 }

@@ -36,7 +36,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
           key: scaffoldKey,
           appBar: appBar(),
           drawer: drawer(),
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.bgColor,
           primary: primary,
           drawerEdgeDragWidth: drawerEdgeDragWidth,
           bottomNavigationBar: bottomNavigationBar(),
