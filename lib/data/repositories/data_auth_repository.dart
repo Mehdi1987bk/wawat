@@ -6,6 +6,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../cache/cache_manager.dart';
 import '../network/api/auth_api.dart';
+import '../network/request/courier_offer_model.dart';
 import '../network/request/courier_profile.dart';
 import '../network/request/delivery_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
@@ -16,8 +17,11 @@ import '../network/request/privacy_settings.dart';
 import '../network/request/registration_request.dart';
 import '../network/request/user_request.dart';
 import '../network/response/all_request_data.dart';
+import '../network/response/cities_response.dart';
 import '../network/response/language_response.dart';
 import '../network/response/login_response.dart';
+import '../network/response/offer_models.dart';
+import '../network/response/offer_type_model.dart';
 import '../network/response/offer_types_response.dart';
 import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
@@ -140,8 +144,14 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.getPackageType();
   }
 
+
   @override
-  Future<void> createOffers(DeliveryOfferRequest request) {
+  Future<CitiesResponse> getCities(){
+    return _authApi.getCities();
+  }
+
+  @override
+  Future<void> createOffers(CourierOfferModel request) {
     return _authApi.createOffers(request);
   }
 
@@ -151,13 +161,18 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Stream<OfferTypesResponse> getOfferTypes() {
+  Future<OfferTypeResponse> getOfferTypes() {
     return _authApi.getOfferTypes();
   }
 
   @override
   Stream<AllrequestData> allRequest(String data) {
     return _authApi.allRequest(data);
+  }
+
+  @override
+  Future<OfferListResponse> myOffers() {
+    return _authApi.myOffers( );
   }
 
   @override

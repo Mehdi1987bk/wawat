@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data/network/response/user.dart';
-import 'experience_tab/experience_tab_screen.dart';
+import '../settings/experience_tab/experience_tab_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final User user;

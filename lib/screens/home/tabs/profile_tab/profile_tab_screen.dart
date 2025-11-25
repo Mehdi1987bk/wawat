@@ -1,9 +1,12 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
-import 'package:buking/screens/home/tabs/profile_tab/settings/user_details_setting.dart';
+import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
+import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
+import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
 import '../home_tab/home_tab_screen.dart';
 
@@ -55,7 +58,19 @@ class _ProfileTabScreenState
                           ),
                         ),
                         const SizedBox(height: 24),
-                        _buildHistorySection(),
+                        FutureBuilder<OfferListResponse>(
+                          future: bloc.myOffers(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            if (!snapshot.hasData || snapshot.data?.data == null) {
+                              return const SizedBox();
+                            }
+                            return DeliveryHistoryWidget(response: snapshot.requireData);
+                          },
+                        ),
+
                         const SizedBox(height: 24),
                         _buildMenuSection(snapshot.requireData),
                         const SizedBox(height: 120),
@@ -171,7 +186,6 @@ class _ProfileTabScreenState
                       ),
                     ),
                   ),
-
                 ],
               ),
               const SizedBox(height: 8),
@@ -242,16 +256,14 @@ class _ProfileTabScreenState
     );
   }
 
-  Widget _buildStatItem({required String icon,
-    required String value,
-    required String label,
-    required BuildContext context }) {
+  Widget _buildStatItem(
+      {required String icon,
+      required String value,
+      required String label,
+      required BuildContext context}) {
     return Container(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
-      width: MediaQuery
-          .of(context)
-          .size
-          .width * 0.4,
+      width: MediaQuery.of(context).size.width * 0.4,
       decoration: BoxDecoration(
         color: const Color(0xFFFAFBFD),
         borderRadius: BorderRadius.circular(20),
@@ -292,294 +304,6 @@ class _ProfileTabScreenState
     );
   }
 
-  Widget _buildHistorySection() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      margin: EdgeInsets.only(left: 20, right: 20),
-      padding: EdgeInsets.all(15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'История',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF000000),
-                ),
-              ),
-              Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5B5BFF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Показать все',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildDeliveryCard(
-            icon: Icons.delivery_dining,
-            status: 'Активно',
-            statusColor: const Color(0xFF10B981),
-            route: 'Лондон → Москва',
-            date: '18 дек',
-            weight: '5 кг',
-            price: '\$50/kg',
-            views: 24,
-            comments: 3,
-          ),
-          const SizedBox(height: 12),
-          _buildDeliveryCard(
-            icon: Icons.shopping_bag,
-            status: 'На модерации',
-            statusColor: const Color(0xFFFCD34D),
-            statusBgColor: const Color(0xFFFEF3C7),
-            route: 'СПб → Лондон',
-            date: '25 янв',
-            weight: '2 кг',
-            price: '\$80/kg',
-            views: 24,
-            comments: 3,
-            isShipper: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeliveryCard({
-    required IconData icon,
-    required String status,
-    required Color statusColor,
-    Color? statusBgColor,
-    required String route,
-    required String date,
-    required String weight,
-    required String price,
-    required int views,
-    required int comments,
-    bool isShipper = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFAFBFD),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: statusBgColor ?? const Color(0xFFE0F2FE),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  size: 24,
-                  color: statusColor,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isShipper ? 'Отправитель' : 'Курьер',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: statusBgColor ?? const Color(0xFFE0F2FE),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        status,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: statusColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.visibility_outlined,
-                  size: 20, color: Color(0xFFD1D5DB)),
-              const SizedBox(width: 8),
-              const Icon(Icons.edit_outlined,
-                  size: 20, color: Color(0xFFD1D5DB)),
-              const SizedBox(width: 8),
-              const Icon(Icons.delete_outline,
-                  size: 20, color: Color(0xFFFCA5A5)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Маршрут:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      route,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF000000),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Дата:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      date,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF000000),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Вес:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      weight,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF000000),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Цена:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      price,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF000000),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Image.asset("asset/dsr_2.png", width: 18),
-              const SizedBox(width: 6),
-              Text(
-                '$views просмотров',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF9CA3AF),
-                ),
-              ),
-              Spacer(),
-              Image.asset("asset/dsr_1.png", width: 18),
-              const SizedBox(width: 6),
-              Text(
-                '$comments отклика',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF9CA3AF),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMenuSection(User user) {
     return Padding(
@@ -587,11 +311,12 @@ class _ProfileTabScreenState
       child: Column(
         children: [
           GestureDetector(
-            onTap: () =>
-                Navigator.push(context,
-                    CupertinoPageRoute(builder: (BuildContext context) {
-                      return EditProfileScreen(user:user,);
-                    })),
+            onTap: () => Navigator.push(context,
+                CupertinoPageRoute(builder: (BuildContext context) {
+              return EditProfileScreen(
+                user: user,
+              );
+            })),
             child: _buildMenuItem(
               icon: Icons.settings_outlined,
               title: 'Настройки',

@@ -42,7 +42,6 @@ class _PersonalInfoTabState
   void initState() {
     super.initState();
 
-    // Инициализируем текущие значения
     _initialFullname = widget.user.fullname ?? '';
     _initialEmail = widget.user.email ?? '';
     _initialPhone = widget.user.phone ?? '';
@@ -55,7 +54,6 @@ class _PersonalInfoTabState
     _locationController = TextEditingController(text: _initialLocation);
     _aboutController = TextEditingController(text: _initialAbout);
 
-    // Добавляем слушатели для валидации при любом изменении
     _fullNameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
@@ -84,18 +82,12 @@ class _PersonalInfoTabState
             children: [
               ProfileImageWidget(
                 imageUrl: 'url',
-                // Ссылка на фото (опционально)
                 localFile: _selectedImage,
-                // Локальный файл (опционально)
                 onCameraPressed: _selectImage,
-                // Обязательный callback
                 size: 120,
-                // Размер (по умолчанию 120)
                 borderRadius: 100,
-                // Скругление (по умолчанию 24)
                 cameraIconSize: 14,
-                // Размер иконки (по умолчанию 20)
-                showShadow: true, // Тень (по умолчанию true)
+                showShadow: true,
               ),
               const SizedBox(height: 12),
               const Text(
@@ -172,7 +164,7 @@ class _PersonalInfoTabState
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         disabledBackgroundColor:
-                        Color(0xFF5B4FFF).withOpacity(0.3),
+                            Color(0xFF5B4FFF).withOpacity(0.3),
                         backgroundColor: const Color(0xFF5B4FFF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -210,7 +202,7 @@ class _PersonalInfoTabState
     final source = await showSelectImageSourceAlert(context);
     if (source != null) {
       final image =
-      await ImagePicker().pickImage(source: source, imageQuality: 80);
+          await ImagePicker().pickImage(source: source, imageQuality: 80);
       if (image != null) {
         final file = File(image.path);
 
@@ -220,11 +212,10 @@ class _PersonalInfoTabState
         }
 
         setState(() {
-          _selectedImage = file; // 🔹 обновляем состояние для перерисовки
+          _selectedImage = file;
         });
 
         await bloc.onImageSelected(file);
-        // Фотка не влияет на валидацию кнопки
       }
     }
   }
@@ -275,10 +266,6 @@ class _PersonalInfoTabState
     );
   }
 
-  /// ✅ УЛУЧШЕННАЯ ВАЛИДАЦИЯ
-  /// Кнопка активна если:
-  /// 1. Хотя бы одно поле изменилось от исходного значения
-  /// 2. Все обязательные поля (fullname, email, phone) не пусты
   void _validateForm() {
     final currentFullname = _fullNameController.text.trim();
     final currentEmail = _emailController.text.trim();
@@ -286,33 +273,17 @@ class _PersonalInfoTabState
     final currentLocation = _locationController.text.trim();
     final currentAbout = _aboutController.text.trim();
 
-    // Проверка что обязательные поля заполнены
-    final isRequiredFieldsFilled =
-        currentFullname.isNotEmpty &&
-            currentEmail.isNotEmpty &&
-            currentPhone.isNotEmpty;
+    final isRequiredFieldsFilled = currentFullname.isNotEmpty &&
+        currentEmail.isNotEmpty &&
+        currentPhone.isNotEmpty;
 
-    // Проверка что хотя бы одно поле изменилось
-    final isAnythingChanged =
-        currentFullname != _initialFullname ||
-            currentEmail != _initialEmail ||
-            currentPhone != _initialPhone ||
-            currentLocation != _initialLocation ||
-            currentAbout != _initialAbout;
+    final isAnythingChanged = currentFullname != _initialFullname ||
+        currentEmail != _initialEmail ||
+        currentPhone != _initialPhone ||
+        currentLocation != _initialLocation ||
+        currentAbout != _initialAbout;
 
-    // Кнопка активна если заполнены все обязательные поля И что-то изменилось
     _isFormValid.value = isRequiredFieldsFilled && isAnythingChanged;
-
-    print('=== ВАЛИДАЦИЯ ===');
-    print('Fullname: "$currentFullname" != "$_initialFullname" = ${currentFullname != _initialFullname}');
-    print('Email: "$currentEmail" != "$_initialEmail" = ${currentEmail != _initialEmail}');
-    print('Phone: "$currentPhone" != "$_initialPhone" = ${currentPhone != _initialPhone}');
-    print('Location: "$currentLocation" != "$_initialLocation" = ${currentLocation != _initialLocation}');
-    print('About: "$currentAbout" != "$_initialAbout" = ${currentAbout != _initialAbout}');
-    print('isAnythingChanged: $isAnythingChanged');
-    print('isRequiredFieldsFilled: $isRequiredFieldsFilled');
-    print('isFormValid: ${_isFormValid.value}');
-    print('================');
   }
 
   void _addEmployer() {
@@ -324,13 +295,13 @@ class _PersonalInfoTabState
 
     bloc
         .profileEdit(
-        name: name,
-        email: email,
-        phone: phone,
-        location: location,
-        about: about)
+            name: name,
+            email: email,
+            phone: phone,
+            location: location,
+            about: about)
         .then(
-          (onValue) {
+      (onValue) {
         bloc.customersMe();
         showTopSnackbar("Сохранено", "Сохранено", true, context);
       },

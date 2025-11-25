@@ -1,8 +1,12 @@
+import 'package:buking/data/network/response/offer_type_model.dart';
+import 'package:buking/data/network/response/offer_types_response.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../data/network/response/all_request_data.dart';
+import '../../../../data/network/response/cities_response.dart';
+import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/packages_response.dart';
 import '../../../../data/network/response/user.dart';
 import '../../../../domain/repositories/auth_repository.dart';
@@ -15,11 +19,10 @@ class HomeTabBloc extends BaseBloc {
   late final Stream<User> userDetails =
       ValueConnectableStream(userRepository.userDetails).autoConnect();
 
-
   @override
   void init() {
-     super.init();
-     customersMe();
+    super.init();
+    customersMe();
   }
 
   Future<void> customersMe() => userRepository.customersMe();
@@ -30,4 +33,28 @@ class HomeTabBloc extends BaseBloc {
     return userRepository.allRequest(dateFormat.format(dateTimeNow).toString());
   }
 
+  Future<OfferListResponse> myOffers() => userRepository.myOffers();
+
+  Future<OfferTypeResponse> getOfferTypes() => userRepository.getOfferTypes();
+
+
+  /// Получить список городов с кэшированием
+  Future<CitiesResponse> getCities() async {
+
+
+
+
+      final result = await userRepository.getCities();
+
+      // ✅ Логируем несколько городов для проверки
+      for (var i = 0;
+      i < (result.data.length > 5 ? 5 : result.data.length);
+      i++) {
+        final city = result.data[i];
+        print('  ✓ ${city.name} (${city.countryName})');
+      }
+
+    return result;
+
+  }
 }

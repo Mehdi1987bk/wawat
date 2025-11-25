@@ -25,17 +25,14 @@ class PackageTypesSelector extends StatefulWidget {
 
 class _PackageTypesSelectorState extends State<PackageTypesSelector> {
   String _getSelectedPackageTypesDisplay() {
-    print('_getSelectedPackageTypesDisplay called: selectedCodes=${widget.selectedPackageTypeCodes}, allTypes=${widget.packageTypes.length}');
-
     if (widget.selectedPackageTypeCodes.isEmpty) {
-      print('  -> Нет выбранных типов упаковки, возвращаю "Выбор"');
       return 'Выбор';
     }
 
     final selectedNames = <String>[];
     for (var code in widget.selectedPackageTypeCodes) {
       final pkg = widget.packageTypes.firstWhere(
-            (p) => p.code == code,
+        (p) => p.code == code,
         orElse: () => PackageType(
           code: '',
           name: '',
@@ -44,21 +41,14 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
       );
       if (pkg.code.isNotEmpty) {
         selectedNames.add(pkg.name);
-        print('  -> Добавлен тип: ${pkg.name} (code: ${pkg.code})');
       }
     }
 
     final result = selectedNames.join(', ');
-    print('  -> Результат: $result');
     return result.isNotEmpty ? result : 'Выбор';
   }
 
   void _showPackageTypesBottomSheet() {
-    print('========== _showPackageTypesBottomSheet ==========');
-    print('packageTypes.length: ${widget.packageTypes.length}');
-    print('isLoading: ${widget.isLoading}');
-    print('selectedPackageTypeCodes: ${widget.selectedPackageTypeCodes}');
-
     if (widget.packageTypes.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -85,6 +75,9 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
   }
 
   void _showPackageTypesBottomSheetContent() {
+    final localSelectedCodes =
+        Set<String>.from(widget.selectedPackageTypeCodes);
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -133,57 +126,53 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
               Expanded(
                 child: widget.packageTypes.isEmpty
                     ? const Center(
-                  child: Text('Типы упаковки не найдены'),
-                )
-                    : ListView.builder(
-                  itemCount: widget.packageTypes.length,
-                  itemBuilder: (context, index) {
-                    final packageType = widget.packageTypes[index];
-                    final isSelected = widget.selectedPackageTypeCodes.contains(packageType.code);
-
-                    print('ListTile $index: ${packageType.name} (code=${packageType.code}, selected=$isSelected)');
-
-                    return ListTile(
-                      leading: Text(
-                        packageType.icon,
-                        style: const TextStyle(fontSize: 28),
-                      ),
-                      title: Text(
-                        packageType.name,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      trailing: isSelected
-                          ? const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF5B51FF),
-                        size: 28,
+                        child: Text('Типы упаковки не найдены'),
                       )
-                          : const Icon(
-                        Icons.circle_outlined,
-                        color: Colors.grey,
-                        size: 28,
+                    : ListView.builder(
+                        itemCount: widget.packageTypes.length,
+                        itemBuilder: (context, index) {
+                          final packageType = widget.packageTypes[index];
+                          final isSelected =
+                              localSelectedCodes.contains(packageType.code);
+
+                          return ListTile(
+                            leading: Text(
+                              packageType.icon,
+                              style: const TextStyle(fontSize: 28),
+                            ),
+                            title: Text(
+                              packageType.name,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            trailing: isSelected
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Color(0xFF5B51FF),
+                                    size: 28,
+                                  )
+                                : const Icon(
+                                    Icons.circle_outlined,
+                                    color: Colors.grey,
+                                    size: 28,
+                                  ),
+                            onTap: () {
+                              setStateBottomSheet(() {
+                                if (isSelected) {
+                                  localSelectedCodes.remove(packageType.code);
+                                } else {
+                                  localSelectedCodes.add(packageType.code);
+                                }
+                              });
+                            },
+                          );
+                        },
                       ),
-                      onTap: () {
-                        final newSelection = Set<String>.from(widget.selectedPackageTypeCodes);
-                        if (isSelected) {
-                          newSelection.remove(packageType.code);
-                          print('Удален тип: ${packageType.name} (code: ${packageType.code})');
-                        } else {
-                          newSelection.add(packageType.code);
-                          print('Добавлен тип: ${packageType.name} (code: ${packageType.code})');
-                        }
-                        widget.onSelectionChanged(newSelection);
-                        setStateBottomSheet(() {});
-                      },
-                    );
-                  },
-                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: ElevatedButton(
                   onPressed: () {
-                    print('Bottom sheet закрыта, выбранные типы: ${widget.selectedPackageTypeCodes}');
+                    widget.onSelectionChanged(localSelectedCodes);
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -214,33 +203,58 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final isPlaceholder = widget.selectedPackageTypeCodes.isEmpty && !widget.isLoading;
+
     return GestureDetector(
       onTap: widget.isLoading ? null : _showPackageTypesBottomSheet,
       child: Container(
+        height: 60,
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
         ),
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(
             color: const Color(0xFFE5E5EA),
             width: 1,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                widget.isLoading ? 'Загрузка...' : _getSelectedPackageTypesDisplay(),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: widget.isLoading ? const Color(0xFFC7C7CC) : Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  // Показываем иконку только когда отображается "Выбор"
+                  if (isPlaceholder) ...[
+                    Image.asset(
+                      "asset/search.png",
+                      color: const Color(0xFF5B51FF),
+                      width: 20,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      widget.isLoading
+                          ? 'Загрузка...'
+                          : _getSelectedPackageTypesDisplay(),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: widget.isLoading
+                            ? const Color(0xFFC7C7CC)
+                            : isPlaceholder
+                            ? const Color(0xFF8E8E93) // Цвет для placeholder
+                            : Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: 8),

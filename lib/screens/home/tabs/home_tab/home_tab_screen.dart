@@ -3,6 +3,7 @@ import 'package:buking/screens/home/tabs/home_tab/widget/search_form_page.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../../data/network/response/offer_models.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
@@ -28,46 +29,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   int _selectedTab = 0;
 
-  // Тестовые данные курьеров
-  final List<CourierData> _popularCouriers = [
-    CourierData(
-      name: 'Алексей К.',
-      role: 'Курьер',
-      isVerified: true,
-      rating: 4.9,
-      description: 'Опытный курьер, более 100 успешных доставок',
-      route: 'Лондон → Москва',
-      date: '18 дек',
-      time: '09:15',
-      weight: 'до 2 кг',
-      price: 'до \$30',
-    ),
-    CourierData(
-      name: 'Максим Р.',
-      role: 'Отправитель',
-      isVerified: true,
-      rating: 4.9,
-      description: 'Нужно передать документы и небольшой подарок',
-      route: 'Лондон → Москва',
-      date: '18 дек',
-      time: '09:15',
-      weight: 'до 2 кг',
-      price: 'до \$30',
-    ),
-    CourierData(
-      name: 'Дмитрий В.',
-      role: 'Покупатель',
-      isVerified: false,
-      rating: 4.9,
-      description: 'Покупаю электронику, нужна помощь с доставкой',
-      route: 'Лондон → Москва',
-      date: '18 дек',
-      time: '09:15',
-      weight: 'до 2 кг',
-      price: 'до \$30',
-    ),
-  ];
-
   @override
   Widget body() {
     return Scaffold(
@@ -82,7 +43,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                   children: [
                     BuildHeader(context),
                     _buildHeroSection(),
-                    SearchFormWidget(),
+                    SearchFormWidget(bloc: bloc,),
                     SizedBox(height: WawatDimensions.spacingLg),
                     _buildPopularOffers(),
                   ],
@@ -151,47 +112,58 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
           ),
         ),
         SizedBox(height: WawatDimensions.spacingMd),
-        ListView.builder(
-          padding: EdgeInsets.only(bottom: 30),
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _popularCouriers.length,
-          itemBuilder: (context, index) {
-            return WawatCourierCard(
-              courier: _popularCouriers[index],
-              onDetails: () async {
-                final isLogged = await sl.get<AuthRepository>().isLogged();
-                if (!isLogged) {
-                  return AuthModalUtils.showAuthRequiredModal(context);
-                } else {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (BuildContext context) {
-                        return Container(
-                          child: Text("Details"),
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-              onMessage: () async {
-                final isLogged = await sl.get<AuthRepository>().isLogged();
-                if (!isLogged) {
-                  return AuthModalUtils.showAuthRequiredModal(context);
-                } else {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (BuildContext context) {
-                        return Container(
-                          child: Text("Messagesss"),
-                        );
-                      },
-                    ),
-                  );
-                }
+        FutureBuilder<OfferListResponse>(
+          future: bloc.myOffers(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data?.data == null) {
+              return const SizedBox();
+            }
+            return ListView.builder(
+              padding: EdgeInsets.only(bottom: 30),
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: snapshot.requireData.data.length,
+              itemBuilder: (context, index) {
+                return WawatCourierCard(
+                  courier: snapshot.requireData.data[index],
+                  onDetails: () async {
+                    final isLogged = await sl.get<AuthRepository>().isLogged();
+                    if (!isLogged) {
+                      return AuthModalUtils.showAuthRequiredModal(context);
+                    } else {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (BuildContext context) {
+                            return Container(
+                              child: Text("Details"),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                  },
+                  onMessage: () async {
+                    final isLogged = await sl.get<AuthRepository>().isLogged();
+                    if (!isLogged) {
+                      return AuthModalUtils.showAuthRequiredModal(context);
+                    } else {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (BuildContext context) {
+                            return Container(
+                              child: Text("Messagesss"),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                  },
+                );
               },
             );
           },

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/retrofit.dart';
 
 import '../../../main.dart';
+import '../request/courier_offer_model.dart';
 import '../request/courier_profile.dart';
 import '../request/delivery_offer_request.dart';
 import '../request/forgot_password_request.dart';
@@ -15,9 +16,12 @@ import '../request/privacy_settings.dart';
 import '../request/registration_request.dart';
 import '../request/user_request.dart';
 import '../response/all_request_data.dart';
+import '../response/cities_response.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
 import '../response/login_response_data.dart';
+import '../response/offer_models.dart';
+import '../response/offer_type_model.dart';
 import '../response/offer_types_response.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
@@ -87,17 +91,23 @@ abstract class AuthApi {
   Future<void> notificationsProfile(@Body() NotificationSettings request);
 
   @POST('/api/v1/offers')
-  Future<void> createOffers(@Body() DeliveryOfferRequest request);
+  Future<void> createOffers(@Body() CourierOfferModel request);
 
-  @POST('/api/v1/profile/professional')
+  @PUT('/api/v1/profile/professional')
   Future<void> createProfessional(@Body() CourierProfile request);
-
-  @GET('/api/v1/dictionaries/offer-types')
-  Stream<OfferTypesResponse> getOfferTypes();
 
   @GET('/api/packages')
   Future<PackagesResponse> packages();
 
   @GET('/api/v1/dictionaries/package-types')
   Future<PackageTypesResponse> getPackageType();
+
+  @GET('/api/v1/geo/cities')
+  Future<CitiesResponse> getCities();
+
+  @GET('/api/v1/dictionaries/offer-types')
+  Future<OfferTypeResponse> getOfferTypes();
+
+  @GET('/api/v1/offers/my')
+  Future<OfferListResponse> myOffers();
 }

@@ -1,37 +1,9 @@
 import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:flutter/material.dart';
-
-/// Модель данных курьера
-class CourierData {
-  final String name;
-  final String role;
-  final bool isVerified;
-  final double rating;
-  final String description;
-  final String route;
-  final String date;
-  final String time;
-  final String weight;
-  final String price;
-  final String? avatarUrl;
-
-  CourierData({
-    required this.name,
-    required this.role,
-    this.isVerified = false,
-    required this.rating,
-    required this.description,
-    required this.route,
-    required this.date,
-    required this.time,
-    required this.weight,
-    required this.price,
-    this.avatarUrl,
-  });
-}
+import '../../../../../data/network/response/offer_models.dart';
 
 class WawatCourierCard extends StatelessWidget {
-  final CourierData courier;
+  final OfferModel courier;
   final VoidCallback? onDetails;
   final VoidCallback? onMessage;
 
@@ -78,13 +50,29 @@ class WawatCourierCard extends StatelessWidget {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
+                child: courier.user.avatar != null
+                    ? ClipOval(
+                        child: Image.network(
+                          courier.user.avatar!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
               ),
               SizedBox(width: 16),
               Expanded(
@@ -95,14 +83,19 @@ class WawatCourierCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          courier.name,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A),
+                        Flexible(
+                          child: Text(
+                            courier.user.fullname,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A1A1A),
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ), // Rating chip
+                        ),
+                        SizedBox(width: 8),
+                        // Rating chip
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 8,
@@ -117,7 +110,7 @@ class WawatCourierCard extends StatelessWidget {
                               ),
                               SizedBox(width: 6),
                               Text(
-                                courier.rating.toString(),
+                                courier.user.ratingAvg.toStringAsFixed(1),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -129,12 +122,13 @@ class WawatCourierCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    SizedBox(height: 4),
                     // Chips
                     Wrap(
                       spacing: 5,
                       runSpacing: 8,
                       children: [
-                        // Courier chip
+                        // Offer type chip
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 6,
@@ -154,7 +148,7 @@ class WawatCourierCard extends StatelessWidget {
                               ),
                               SizedBox(width: 6),
                               Text(
-                                courier.role,
+                                courier.offerType.title,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -165,7 +159,7 @@ class WawatCourierCard extends StatelessWidget {
                           ),
                         ),
                         // Verified chip
-                        if (courier.isVerified)
+                        if (courier.user.isVerified)
                           Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 8,
@@ -219,11 +213,27 @@ class WawatCourierCard extends StatelessWidget {
           // Details Table
           Column(
             children: [
-              _buildDetailRow('Маршрут:', courier.route),
-              _buildDetailRow('Дата:', courier.date),
-              _buildDetailRow('Вес:', courier.weight),
-              _buildDetailRow('Время:', courier.time),
-              _buildDetailRow('Цена:', courier.price),
+              _buildDetailRow(
+                'Маршрут:',
+                '${courier.cityFrom.name} → ${courier.cityTo.name}',
+              ),
+              _buildDetailRow(
+                'Дата:',
+                _formatDate(courier.mainDate),
+              ),
+              _buildDetailRow(
+                'Вес:',
+                '${courier.maxWeightKg} кг',
+              ),
+              if (courier.mainTime != null)
+                _buildDetailRow(
+                  'Время:',
+                  _formatTime(courier.mainTime!),
+                ),
+              _buildDetailRow(
+                'Цена:',
+                '${courier.pricePerKg} ₼/кг',
+              ),
             ],
           ),
           SizedBox(height: 10),
@@ -319,16 +329,56 @@ class WawatCourierCard extends StatelessWidget {
               color: WawatColors.textPrimary,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1A1A1A),
+          Flexible(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1A1A1A),
+              ),
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(String date) {
+    try {
+      final DateTime parsedDate = DateTime.parse(date);
+      final months = [
+        'янв',
+        'фев',
+        'мар',
+        'апр',
+        'май',
+        'июн',
+        'июл',
+        'авг',
+        'сен',
+        'окт',
+        'ноя',
+        'дек'
+      ];
+      return '${parsedDate.day} ${months[parsedDate.month - 1]} ${parsedDate.year}';
+    } catch (e) {
+      return date;
+    }
+  }
+
+  String _formatTime(String? time) {
+    if (time == null) return '-';
+
+    try {
+      final DateTime parsedTime = DateTime.parse(time);
+      final hours = parsedTime.hour.toString().padLeft(2, '0');
+      final minutes = parsedTime.minute.toString().padLeft(2, '0');
+      return '$hours:$minutes';
+    } catch (e) {
+      return time;
+    }
   }
 }

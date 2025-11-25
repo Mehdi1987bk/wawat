@@ -9,7 +9,7 @@ part of 'package_types_response.dart';
 PackageTypesResponse _$PackageTypesResponseFromJson(
         Map<String, dynamic> json) =>
     PackageTypesResponse(
-      data: (json['package_types'] as List<dynamic>)
+      data: (json['data'] as List<dynamic>)
           .map((e) => PackageType.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17,7 +17,7 @@ PackageTypesResponse _$PackageTypesResponseFromJson(
 Map<String, dynamic> _$PackageTypesResponseToJson(
         PackageTypesResponse instance) =>
     <String, dynamic>{
-      'package_types': instance.data,
+      'data': instance.data,
     };
 
 PackageType _$PackageTypeFromJson(Map<String, dynamic> json) => PackageType(

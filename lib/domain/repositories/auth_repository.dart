@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../../data/network/request/courier_offer_model.dart';
 import '../../data/network/request/courier_profile.dart';
 import '../../data/network/request/delivery_offer_request.dart';
 import '../../data/network/request/forgot_password_request.dart';
@@ -9,8 +10,11 @@ import '../../data/network/request/otp_verify_request.dart';
 import '../../data/network/request/privacy_settings.dart';
 import '../../data/network/request/registration_request.dart';
 import '../../data/network/response/all_request_data.dart';
+import '../../data/network/response/cities_response.dart';
 import '../../data/network/response/language_response.dart';
 import '../../data/network/response/login_response.dart';
+import '../../data/network/response/offer_models.dart';
+import '../../data/network/response/offer_type_model.dart';
 import '../../data/network/response/offer_types_response.dart';
 import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
@@ -59,13 +63,17 @@ abstract class AuthRepository {
 
   Future<PackageTypesResponse> getPackageType();
 
-  Future<void> createOffers(DeliveryOfferRequest request);
+  Future<CitiesResponse> getCities();
+
+  Future<void> createOffers(CourierOfferModel request);
 
   Future<void> createProfessional(CourierProfile request);
 
-  Stream<OfferTypesResponse> getOfferTypes();
+  Future<OfferTypeResponse> getOfferTypes();
 
   Stream<AllrequestData> allRequest(String data);
+
+  Future<OfferListResponse> myOffers();
 
   Future<bool> firstOpen();
 

@@ -1,6 +1,9 @@
 import 'package:buking/presentation/bloc/base_bloc.dart';
 
+import '../../../../data/network/request/courier_offer_model.dart';
+import '../../../../data/network/response/cities_response.dart';
 import '../../../../data/network/response/language_response.dart';
+import '../../../../data/network/response/offer_type_model.dart';
 import '../../../../data/network/response/package_types_response.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
@@ -11,6 +14,47 @@ class CreatePostBloc extends BaseBloc {
   // ✅ Кэширование загруженных данных
   LanguageResponse? _cachedLanguages;
   PackageTypesResponse? _cachedPackageTypes;
+  CitiesResponse? _cachedCities;
+
+  /// Получить список городов с кэшированием
+  Future<CitiesResponse> getCities() async {
+    try {
+      print('========== CreatePostBloc: Начало загрузки городов ==========');
+
+      // ✅ Возвращаем кэшированные данные если они есть
+      if (_cachedCities != null) {
+        print(
+            'CreatePostBloc: Возвращаю кэшированные города - ${_cachedCities!.data.length} штук');
+        return _cachedCities!;
+      }
+
+      final result = await authRepository.getCities();
+
+      print('CreatePostBloc: API Response type: ${result.runtimeType}');
+      print('CreatePostBloc: Города загружены - ${result.data.length} штук');
+
+      // ✅ Логируем несколько городов для проверки
+      for (var i = 0;
+          i < (result.data.length > 5 ? 5 : result.data.length);
+          i++) {
+        final city = result.data[i];
+        print('  ✓ ${city.name} (${city.countryName})');
+      }
+
+      // ✅ Кэшируем результат
+      _cachedCities = result;
+
+      print('========== CreatePostBloc: Загрузка городов завершена ==========');
+      return result;
+    } catch (e, stackTrace) {
+      print(
+          '========== CreatePostBloc ERROR: Ошибка при загрузке городов ==========');
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+      print('==========================================================');
+      rethrow;
+    }
+  }
 
   /// Получить список языков с кэшированием
   Future<LanguageResponse> getLanguages() async {
@@ -19,7 +63,8 @@ class CreatePostBloc extends BaseBloc {
 
       // ✅ Возвращаем кэшированные данные если они есть
       if (_cachedLanguages != null) {
-        print('CreatePostBloc: Возвращаю кэшированные языки - ${_cachedLanguages!.data.length} штук');
+        print(
+            'CreatePostBloc: Возвращаю кэшированные языки - ${_cachedLanguages!.data.length} штук');
         return _cachedLanguages!;
       }
 
@@ -38,9 +83,9 @@ class CreatePostBloc extends BaseBloc {
 
       print('========== CreatePostBloc: Загрузка языков завершена ==========');
       return result;
-
     } catch (e, stackTrace) {
-      print('========== CreatePostBloc ERROR: Ошибка при загрузке языков ==========');
+      print(
+          '========== CreatePostBloc ERROR: Ошибка при загрузке языков ==========');
       print('Error: $e');
       print('StackTrace: $stackTrace');
       print('==========================================================');
@@ -51,18 +96,21 @@ class CreatePostBloc extends BaseBloc {
   /// Получить список типов упаковки с кэшированием
   Future<PackageTypesResponse> getPackageTypes() async {
     try {
-      print('========== CreatePostBloc: Начало загрузки типов упаковки ==========');
+      print(
+          '========== CreatePostBloc: Начало загрузки типов упаковки ==========');
 
       // ✅ Возвращаем кэшированные данные если они есть
       if (_cachedPackageTypes != null) {
-        print('CreatePostBloc: Возвращаю кэшированные типы - ${_cachedPackageTypes!.data.length} штук');
+        print(
+            'CreatePostBloc: Возвращаю кэшированные типы - ${_cachedPackageTypes!.data.length} штук');
         return _cachedPackageTypes!;
       }
 
       final result = await authRepository.getPackageType();
 
       print('CreatePostBloc: API Response type: ${result.runtimeType}');
-      print('CreatePostBloc: Типы упаковки загружены - ${result.data.length} штук');
+      print(
+          'CreatePostBloc: Типы упаковки загружены - ${result.data.length} штук');
 
       // ✅ Логируем каждый тип упаковки
       for (var pkg in result.data) {
@@ -74,16 +122,17 @@ class CreatePostBloc extends BaseBloc {
 
       print('========== CreatePostBloc: Загрузка типов завершена ==========');
       return result;
-
     } catch (e, stackTrace) {
-      print('========== CreatePostBloc ERROR: Ошибка при загрузке типов ==========');
+      print(
+          '========== CreatePostBloc ERROR: Ошибка при загрузке типов ==========');
       print('Error: $e');
       print('StackTrace: $stackTrace');
       print('==========================================================');
 
       // ✅ Если это 404 ошибка, возвращаем пустой response вместо rethrow
       if (e.toString().contains('404')) {
-        print('CreatePostBloc: 404 ошибка - endpoint не найден на сервере, возвращаю пустой список');
+        print(
+            'CreatePostBloc: 404 ошибка - endpoint не найден на сервере, возвращаю пустой список');
         _cachedPackageTypes = PackageTypesResponse(data: []);
         return _cachedPackageTypes!;
       }
@@ -92,10 +141,16 @@ class CreatePostBloc extends BaseBloc {
     }
   }
 
+  Future<void> createOffers(CourierOfferModel request) =>
+      authRepository.createOffers(request);
+
+  Future<OfferTypeResponse> getOfferTypes() => authRepository.getOfferTypes();
+
   /// Очистить кэш (вызвать при обновлении данных)
   void clearCache() {
     print('CreatePostBloc: Кэш очищен');
     _cachedLanguages = null;
     _cachedPackageTypes = null;
+    _cachedCities = null;
   }
 }

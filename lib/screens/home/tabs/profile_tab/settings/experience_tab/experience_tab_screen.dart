@@ -7,6 +7,7 @@ import '../../../../../../data/network/response/language.dart';
 import '../../../../../../data/network/response/language_response.dart';
 import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
+import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../auth/registration/widget/language_selector.dart';
 import '../../../../../auth/registration/widget/package_types_selector.dart';
 import 'experience_tab_bloc.dart';
@@ -23,7 +24,9 @@ class ExperienceTab extends BaseScreen {
   State<ExperienceTab> createState() => _ExperienceTabState();
 }
 
-class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
+class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> with ErrorDispatcher{
+  final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
+
   late TextEditingController _maxWeightController;
   late TextEditingController _insuranceController;
   late TextEditingController _priceFromController;
@@ -361,15 +364,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
           ),
         );
       }
-    }).catchError((error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка: $error'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    }).then((value) {
+      bloc.customersMe();
+      showTopSnackbar("Сохранено", "Сохранено", true, context);
     });
   }
 
@@ -628,59 +625,48 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
                 },
                 isLoading: _isLoadingPackageTypes,
               ),
+              Container(
+                height: 50,
+                width: double.infinity,
+                margin: const EdgeInsets.only(
+                  top: 20,
+                 ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _isFormValid,
+                  builder: (_, isValid, __) {
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        disabledBackgroundColor:
+                        Color(0xFF5B4FFF).withOpacity(0.3),
+                        backgroundColor: const Color(0xFF5B4FFF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                      ),
+                      onPressed: isValid ? _saveChanges : null,
+                      child: Text(
+                        "Сохранить изменения",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _resetForm,
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  side: const BorderSide(
-                    color: Color(0xFF5B4FFF),
-                    width: 2,
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: const Text(
-                  'Отмена',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF5B4FFF),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _saveChanges,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5B4FFF),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Сохранить изменения',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+
       ],
     );
   }

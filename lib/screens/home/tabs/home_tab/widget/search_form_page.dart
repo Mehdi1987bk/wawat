@@ -1,28 +1,171 @@
+import 'package:buking/screens/home/tabs/create_post/widget/city_selector.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../wawat/screens/search_results_screen.dart';
+import '../../../../../data/network/response/city.dart';
+import '../../../../../data/network/response/offer_models.dart';
+import '../home_tab_bloc.dart';
 
 class SearchFormWidget extends StatefulWidget {
+  final HomeTabBloc bloc;
+
+  const SearchFormWidget({Key? key, required this.bloc}) : super(key: key);
+
   @override
   State<SearchFormWidget> createState() => _SearchFormWidgetState();
 }
 
 class _SearchFormWidgetState extends State<SearchFormWidget> {
-  final TextEditingController _departureController = TextEditingController();
-  final TextEditingController _arrivalController = TextEditingController();
+  String? _selectedOfferType;
+  City? _selectedFromCity;
+  City? _selectedToCity;
+
+  List<City> _allCities = [];
+  bool _isLoadingCities = true;
+
+  List<OfferTypeModel> _allOfferTypes = [];
+  bool _isLoadingOfferTypes = true;
+
+  final TextEditingController _fromController = TextEditingController();
+  final TextEditingController _toController = TextEditingController();
   final TextEditingController _dateFromController = TextEditingController();
   final TextEditingController _dateToController = TextEditingController();
-  final TextEditingController _categoryController =
-      TextEditingController(text: 'Все категории');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAllData();
+    });
+  }
+
+  Future<void> _loadAllData() async {
+    setState(() {
+      _isLoadingCities = true;
+      _isLoadingOfferTypes = true;
+    });
+
+    await Future.wait([
+      _loadCities(),
+      _loadOfferTypes(),
+    ]);
+  }
+
+  Future<void> _loadOfferTypes() async {
+    try {
+      print('🔍 Загрузка типов предложений...');
+      final offerTypes = await widget.bloc.getOfferTypes();
+
+      print('✅ Получено типов: ${offerTypes.data.length}');
+      for (var i = 0; i < (offerTypes.data.length > 5 ? 5 : offerTypes.data.length); i++) {
+        final type = offerTypes.data[i];
+       }
+
+      setState(() {
+        _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
+        _isLoadingOfferTypes = false;
+      });
+
+      print('✅ Типы предложений загружены: ${_allOfferTypes.length}');
+    } catch (e, stackTrace) {
+      print('❌ Ошибка загрузки типов предложений: $e');
+      print('Stack trace: $stackTrace');
+
+      setState(() {
+        _isLoadingOfferTypes = false;
+        _allOfferTypes = [];
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки типов предложений: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadCities() async {
+    try {
+      final cities = await widget.bloc.getCities();
+
+      setState(() {
+        _allCities = List<City>.from(cities.data);
+        _isLoadingCities = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingCities = false;
+        _allCities = [];
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки городов: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showCitySelector({required bool isFromCity}) async {
+    final selectedCity = await showCitySelector(
+      context: context,
+      cities: _allCities,
+      selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
+      isLoading: _isLoadingCities,
+    );
+
+    if (selectedCity != null) {
+      setState(() {
+        if (isFromCity) {
+          _selectedFromCity = selectedCity;
+          _fromController.text = selectedCity.name;
+        } else {
+          _selectedToCity = selectedCity;
+          _toController.text = selectedCity.name;
+        }
+      });
+    }
+  }
+
+  void _performSearch() {
+    // TODO: Implement search logic
+    print('Search params:');
+    print('Offer Type: $_selectedOfferType');
+    print('From: ${_selectedFromCity?.name}');
+    print('To: ${_selectedToCity?.name}');
+    print('Date From: ${_dateFromController.text}');
+    print('Date To: ${_dateToController.text}');
+
+    // Navigate to results screen
+    // Navigator.push(
+    //   context,
+    //   CupertinoPageRoute(
+    //     builder: (context) => SearchResultsScreen(
+    //       offerType: _selectedOfferType,
+    //       fromCity: _selectedFromCity,
+    //       toCity: _selectedToCity,
+    //       dateFrom: _dateFromController.text,
+    //       dateTo: _dateToController.text,
+    //     ),
+    //   ),
+    // );
+  }
 
   @override
   void dispose() {
-    _departureController.dispose();
-    _arrivalController.dispose();
+    _fromController.dispose();
+    _toController.dispose();
     _dateFromController.dispose();
     _dateToController.dispose();
-    _categoryController.dispose();
     super.dispose();
   }
 
@@ -54,46 +197,44 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Тип предложения (первым)
+          _buildFieldLabel('Тип предложения'),
+          SizedBox(height: 10),
+          _buildOfferTypeDropdown(),
+          SizedBox(height: 20),
+
           // Откуда
           _buildFieldLabel('Откуда'),
           SizedBox(height: 10),
-          _buildTextField(
-            controller: _departureController,
-            placeholder: 'Город отправления',
+          _buildCityField(
+            controller: _fromController,
+            hint: 'Город отправления',
+            selectedCity: _selectedFromCity,
+            onTap: () => _showCitySelector(isFromCity: true),
           ),
           SizedBox(height: 20),
 
           // Куда
           _buildFieldLabel('Куда'),
           SizedBox(height: 10),
-          _buildTextField(
-            controller: _arrivalController,
-            placeholder: 'Город назначения',
+          _buildCityField(
+            controller: _toController,
+            hint: 'Город назначения',
+            selectedCity: _selectedToCity,
+            onTap: () => _showCitySelector(isFromCity: false),
           ),
           SizedBox(height: 20),
 
           // Дата с
           _buildFieldLabel('Дата с'),
           SizedBox(height: 10),
-          _buildTextField(
-            controller: _dateFromController,
-            placeholder: 'ДД.МММ.ГГГГ',
-          ),
+          _buildDateField(_dateFromController, 'дд.мм.гггг'),
           SizedBox(height: 20),
 
           // Дата по
           _buildFieldLabel('Дата по'),
           SizedBox(height: 10),
-          _buildTextField(
-            controller: _dateToController,
-            placeholder: 'ДД.МММ.ГГГГ',
-          ),
-          SizedBox(height: 20),
-
-          // Категория
-          _buildFieldLabel('Категория'),
-          SizedBox(height: 10),
-          _buildCategoryField(),
+          _buildDateField(_dateToController, 'дд.мм.гггг'),
           SizedBox(height: 28),
 
           // Кнопка поиск
@@ -115,102 +256,267 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String placeholder,
-  }) {
-    return TextField(
-      controller: controller,
-      readOnly: true,
-      decoration: InputDecoration(
-        hintText: placeholder,
-        hintStyle: TextStyle(
-          fontSize: 16,
-          color: Color(0xFFB0B0B0),
-          fontWeight: FontWeight.w400,
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
+  Widget _buildOfferTypeDropdown() {
+    if (_isLoadingOfferTypes) {
+      return Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Color(0xFFE8E8E8),
-            width: 1,
+          border: Border.all(color: Color(0xFFE8E8E8)),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF7C6FFF),
+            strokeWidth: 2,
           ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Color(0xFFE8E8E8),
-            width: 1,
+      );
+    }
+
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Color(0xFFE8E8E8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Color(0xFFE8E8E8),
-            width: 1,
-          ),
-        ),
-        fillColor: Color(0xFFFAFAFA),
-        filled: true,
+        ],
       ),
-      style: TextStyle(
-        fontSize: 16,
-        color: Color(0xFF1A1A1A),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          isExpanded: true,
+          customButton: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.search,
+                  color: Color(0xFF7C6FFF),
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _selectedOfferType != null
+                        ? (_allOfferTypes
+                        .firstWhere(
+                          (type) => type.code == _selectedOfferType,
+                      orElse: () => OfferTypeModel(
+                        code: '',
+                       title: 'Все категории',
+                      ),
+                    )
+                        .title)
+                        : 'Все категории',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: _selectedOfferType != null
+                          ? Color(0xFF1A1A1A)
+                          : Color(0xFFB0B0B0),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Color(0xFFB0B0B0),
+                ),
+              ],
+            ),
+          ),
+          value: _selectedOfferType,
+          items: [
+            // "Все категории" option
+            DropdownMenuItem<String>(
+              value: null,
+              child: Text(
+                'Все категории',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ),
+            // Actual offer types
+            ..._allOfferTypes.map((type) {
+              return DropdownMenuItem<String>(
+                value: type.code,
+                child: Text(
+                  type.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
+          onChanged: (value) {
+            setState(() {
+              _selectedOfferType = value;
+            });
+          },
+          dropdownStyleData: DropdownStyleData(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+            ),
+            elevation: 3,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            offset: const Offset(0, -6),
+            maxHeight: 300,
+          ),
+          menuItemStyleData: const MenuItemStyleData(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildCategoryField() {
-    return TextField(
-      controller: _categoryController,
-      readOnly: true,
-      decoration: InputDecoration(
-        prefixIcon: Padding(
-          padding: EdgeInsets.only(left: 16, right: 8),
-          child: Icon(
-            Icons.search,
-            color: Color(0xFF7C6FFF),
-            size: 20,
-          ),
-        ),
-        prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-        suffixIcon: Padding(
-          padding: EdgeInsets.only(right: 12),
-          child: Icon(
-            Icons.arrow_drop_down,
-            color: Color(0xFFB0B0B0),
-            size: 24,
-          ),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 14),
-        border: OutlineInputBorder(
+  Widget _buildCityField({
+    required TextEditingController controller,
+    required String hint,
+    required City? selectedCity,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Color(0xFFE8E8E8),
-            width: 1,
+          border: Border.all(
+            color: selectedCity != null
+                ? const Color(0xFF7C6FFF)
+                : Color(0xFFE8E8E8),
+            width: selectedCity != null ? 1.5 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Color(0xFFE8E8E8),
-            width: 1,
-          ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: selectedCity != null
+                  ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selectedCity.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${selectedCity.countryName} (${selectedCity.countryCode})',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFFB0B0B0),
+                    ),
+                  ),
+                ],
+              )
+                  : Text(
+                hint,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFFB0B0B0),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            Icon(
+              selectedCity != null
+                  ? Icons.check_circle
+                  : Icons.location_on_outlined,
+              color: selectedCity != null
+                  ? const Color(0xFF7C6FFF)
+                  : const Color(0xFFB0B0B0),
+              size: 20,
+            ),
+          ],
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Color(0xFFE8E8E8),
-            width: 1,
-          ),
-        ),
-        fillColor: Color(0xFFFAFAFA),
-        filled: true,
       ),
-      style: TextStyle(
-        fontSize: 16,
-        color: Color(0xFF1A1A1A),
+    );
+  }
+
+  Widget _buildDateField(TextEditingController controller, String hint) {
+    return InkWell(
+      onTap: () async {
+        final date = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2026),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: Color(0xFF7C6FFF),
+                  onPrimary: Colors.white,
+                  onSurface: Color(0xFF1A1A1A),
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (date != null) {
+          controller.text =
+          '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Color(0xFFE8E8E8)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                controller.text.isEmpty ? hint : controller.text,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: controller.text.isEmpty
+                      ? Color(0xFFB0B0B0)
+                      : Color(0xFF1A1A1A),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.calendar_today_outlined,
+              color: Color(0xFFB0B0B0),
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -218,7 +524,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   Widget _buildSearchButton() {
     return Container(
       width: double.infinity,
-      height: 45,
+      height: 48,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF4A5FFF), Color(0xFFB74CFF)],
@@ -234,31 +540,26 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           ),
         ],
       ),
-      child: InkWell(
-        // onTap: () => Navigator.push(
-        //   context,
-        //   CupertinoPageRoute(
-        //     builder: (BuildContext context) {
-        //       return SearchResultsScreen();
-        //     },
-        //   ),
-        // ),
-
-        borderRadius: BorderRadius.circular(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search, color: Colors.white, size: 20),
-            SizedBox(width: 8),
-            Text(
-              'Поиск',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _performSearch,
+          borderRadius: BorderRadius.circular(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.search, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Поиск',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
