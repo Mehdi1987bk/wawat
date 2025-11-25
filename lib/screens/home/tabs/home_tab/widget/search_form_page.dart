@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data/network/response/city.dart';
-import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../data/network/response/offer_type_model.dart';
 import '../home_tab_bloc.dart';
 
 class SearchFormWidget extends StatefulWidget {
@@ -309,10 +309,10 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                           (type) => type.code == _selectedOfferType,
                       orElse: () => OfferTypeModel(
                         code: '',
-                       title: 'Все категории',
+                       name: 'Все категории',
                       ),
                     )
-                        .title)
+                        .name)
                         : 'Все категории',
                     style: TextStyle(
                       fontSize: 16,
@@ -348,7 +348,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
               return DropdownMenuItem<String>(
                 value: type.code,
                 child: Text(
-                  type.title,
+                  type.name,
                   style: const TextStyle(
                     fontSize: 16,
                     color: Color(0xFF1A1A1A),
