@@ -1,3 +1,4 @@
+import 'package:buking/screens/home/tabs/create_post/create_post_screen.dart';
 import 'package:buking/screens/home/tabs/home_tab/home_tab_screen.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/auth_modal_utils.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_screen.dart';
@@ -119,7 +120,7 @@ class __TabsState extends State<_Tabs> {
     _tabs = <Widget>[
       HomeTabScreen(),
       Container(),
-      Container(),
+      CreatePostScreen(),
       Container(),
       ProfileTabScreen(),
     ];
