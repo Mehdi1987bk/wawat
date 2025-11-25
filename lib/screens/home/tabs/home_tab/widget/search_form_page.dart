@@ -478,8 +478,10 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           },
         );
         if (date != null) {
-          controller.text =
-          '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+          setState(() {
+            controller.text =
+                '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+          });
         }
       },
       child: Container(
