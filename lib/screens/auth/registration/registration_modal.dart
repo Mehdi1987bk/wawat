@@ -1,5 +1,5 @@
 import 'package:buking/screens/auth/registration/registration_bloc.dart';
-import 'package:buking/screens/auth/registration/widget/language_multi_select_dropdown.dart';
+import 'package:buking/screens/auth/registration/widget/language_selector.dart';
 import 'package:buking/screens/home/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +45,9 @@ class _RegistrationModalState extends State<RegistrationModal> {
   final _confirmPasswordController = TextEditingController();
 
   bool _agreedToTerms = false;
-  List<int> _selectedLanguageIds = [];
-  List<Language> _languages = [];
-  bool _languagesLoaded = false;
+  Set<String> _selectedLanguageCodes = {};
+  List<Language> _allLanguages = [];
+  bool _isLoadingLanguages = false;
 
   final _bloc = RegistrationBloc();
   bool _isLoading = false;
@@ -99,26 +99,36 @@ class _RegistrationModalState extends State<RegistrationModal> {
         Patterns.textField.hasMatch(password) &&
         password == confirmPassword &&
         _agreedToTerms &&
-        _selectedLanguageIds.isNotEmpty;
+        _selectedLanguageCodes.isNotEmpty;
 
     _isFormValidNotifier.value = isValid;
   }
 
   Future<void> _loadLanguages() async {
     try {
+      setState(() {
+        _isLoadingLanguages = true;
+      });
+
       final response = await _bloc.getLanguages;
       if (mounted) {
         setState(() {
-          _languages = response.data;
-          _languagesLoaded = true;
+          _allLanguages = response.data;
+          _isLoadingLanguages = false;
         });
         _validateForm(); // Валидируем после загрузки языков
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _languagesLoaded = true;
+          _isLoadingLanguages = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки языков: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -132,7 +142,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
         password: _passwordController.text.trim(),
         passwordConfirmation: _confirmPasswordController.text.trim(),
         acceptedTerms: _agreedToTerms,
-        communicationLanguageIds: _selectedLanguageIds,
+        communicationLanguageCodes: _selectedLanguageCodes.toList(),
       );
 
       if (mounted) {
@@ -269,17 +279,25 @@ class _RegistrationModalState extends State<RegistrationModal> {
                     ),
                     SizedBox(height: WawatDimensions.spacingMd),
 
-                    // LANGUAGES
-                    LanguageMultiSelectDropdown(
-                      languages: _languages,
-                      selectedLanguageIds: _selectedLanguageIds,
-                      onSelectionChanged: (selectedIds) {
+                    // ✅ LANGUAGES - используем новый компонент LanguageSelector
+                    Padding(
+                      padding:
+                          EdgeInsets.only(bottom: WawatDimensions.spacingSm),
+                      child: Text(
+                        'ЯЗЫКИ ОБЩЕНИЯ',
+                        style: WawatTextStyles.label,
+                      ),
+                    ),
+                    LanguageSelector(
+                      languages: _allLanguages,
+                      selectedLanguageCodes: _selectedLanguageCodes,
+                      onSelectionChanged: (newSelection) {
                         setState(() {
-                          _selectedLanguageIds = selectedIds;
+                          _selectedLanguageCodes = newSelection;
                           _validateForm();
                         });
                       },
-                      isModal: true,
+                      isLoading: _isLoadingLanguages,
                     ),
 
                     SizedBox(height: WawatDimensions.spacingMd),

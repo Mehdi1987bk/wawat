@@ -19,16 +19,16 @@ class RegistrationBloc extends BaseBloc {
     required String password,
     required String passwordConfirmation,
     required bool acceptedTerms,
-    required List<int> communicationLanguageIds,
+    required List<String> communicationLanguageCodes,
   }) {
     final request = RegistrationRequest(
-      name: name,
+      fullname: name,
       email: email,
       phone: phone,
       password: password,
       passwordConfirmation: passwordConfirmation,
       acceptedTerms: acceptedTerms,
-      communicationLanguageIds: communicationLanguageIds,
+      languages: communicationLanguageCodes,
     );
     return run(_authRepository.registration(request));
   }

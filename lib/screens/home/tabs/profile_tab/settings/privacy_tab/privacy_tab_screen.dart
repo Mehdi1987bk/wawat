@@ -3,6 +3,7 @@ import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/screens/home/tabs/profile_tab/settings/privacy_tab/privacy_tab_bloc.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/request/privacy_settings.dart';
 
 class PrivacyTab extends BaseScreen {
@@ -27,7 +28,8 @@ class PrivacyTab extends BaseScreen {
   State<PrivacyTab> createState() => _PrivacyTabState();
 }
 
-class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc> with ErrorDispatcher{
+class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
+    with ErrorDispatcher {
   final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
 
   late bool showPhoneTab;
@@ -283,15 +285,23 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc> with ErrorD
       showPhone: finalShowPhoneTab,
       showEmail: finalShowEmailTab,
       showLastSeen: finalShowActivityTime,
+    ))
+        .then(
+      (onValue) {
+        bloc.customersMe();
+        showTopSnackbar("Сохранено", "Сохранено", true, context);
+      },
+    );
+    bloc
+        .notificationsProfile(NotificationSettings(
       notifyNewMessages: finalShowNewMessages,
       notifyNewReviews: finalShowNewReviews,
       notifyMarketing: finalShowMarketing,
     ))
         .then(
       (onValue) {
-          bloc.customersMe();
-          showTopSnackbar("Сохранено", "Сохранено", true, context);
+        bloc.customersMe();
       },
     );
-   }
+  }
 }

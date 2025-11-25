@@ -4,10 +4,9 @@ part 'package_types_response.g.dart';
 
 @JsonSerializable()
 class PackageTypesResponse {
-  @JsonKey(name: 'package_types')
-  final List<PackageType> packageTypes;
+   final List<PackageType> data;
 
-  PackageTypesResponse({required this.packageTypes});
+  PackageTypesResponse({required this.data});
 
   factory PackageTypesResponse.fromJson(Map<String, dynamic> json) =>
       _$PackageTypesResponseFromJson(json);
@@ -17,19 +16,16 @@ class PackageTypesResponse {
 
 @JsonSerializable()
 class PackageType {
-  final int id;
-  final String key;
+  final String code;
+  final String name;
   final String icon;
-  @JsonKey(name: 'is_active')
-  final bool isActive;
-  final List<PackageTypeTranslation> translations;
+
 
   PackageType({
-    required this.id,
-    required this.key,
+    required this.code,
+    required this.name,
     required this.icon,
-    required this.isActive,
-    required this.translations,
+
   });
 
   factory PackageType.fromJson(Map<String, dynamic> json) =>

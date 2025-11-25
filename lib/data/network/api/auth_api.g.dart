@@ -24,13 +24,13 @@ class _AuthApi implements AuthApi {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<LoginResponse> login(LoginRequest request) async {
+  Future<LoginResponseData> login(LoginRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<LoginResponse>(Options(
+    final _options = _setStreamType<LoginResponseData>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -47,9 +47,9 @@ class _AuthApi implements AuthApi {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late LoginResponse _value;
+    late LoginResponseData _value;
     try {
-      _value = LoginResponse.fromJson(_result.data!);
+      _value = LoginResponseData.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -161,13 +161,13 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<LoginResponse> register(RegistrationRequest request) async {
+  Future<LoginResponseData> register(RegistrationRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<LoginResponse>(Options(
+    final _options = _setStreamType<LoginResponseData>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -184,9 +184,9 @@ class _AuthApi implements AuthApi {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late LoginResponse _value;
+    late LoginResponseData _value;
     try {
-      _value = LoginResponse.fromJson(_result.data!);
+      _value = LoginResponseData.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -326,12 +326,12 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<LoginResponse> customersMe() async {
+  Future<LoginResponseData> customersMe() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<LoginResponse>(Options(
+    final _options = _setStreamType<LoginResponseData>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -348,9 +348,9 @@ class _AuthApi implements AuthApi {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late LoginResponse _value;
+    late LoginResponseData _value;
     try {
-      _value = LoginResponse.fromJson(_result.data!);
+      _value = LoginResponseData.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -371,7 +371,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/languages',
+          '/api/v1/dictionaries/languages',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -392,56 +392,20 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<void> profileEdit(
-    String name,
-    String email,
-    String phone,
-    String location,
-    String about,
-    File? file,
-  ) async {
+  Future<void> profileEdit(UserRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
-    final _data = FormData();
-    _data.fields.add(MapEntry(
-      'name',
-      name,
-    ));
-    _data.fields.add(MapEntry(
-      'email',
-      email,
-    ));
-    _data.fields.add(MapEntry(
-      'phone',
-      phone,
-    ));
-    _data.fields.add(MapEntry(
-      'location',
-      location,
-    ));
-    _data.fields.add(MapEntry(
-      'about',
-      about,
-    ));
-    if (file != null) {
-      _data.files.add(MapEntry(
-        'avatar',
-        MultipartFile.fromFileSync(
-          file.path,
-          filename: file.path.split(Platform.pathSeparator).last,
-        ),
-      ));
-    }
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
     final _options = _setStreamType<void>(Options(
-      method: 'PATCH',
+      method: 'PUT',
       headers: _headers,
       extra: _extra,
     )
         .compose(
           _dio.options,
-          '/api/v1/profile/general',
+          '/api/v1/profile/personal',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -461,13 +425,39 @@ class _AuthApi implements AuthApi {
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _options = _setStreamType<void>(Options(
-      method: 'PATCH',
+      method: 'PUT',
       headers: _headers,
       extra: _extra,
     )
         .compose(
           _dio.options,
           '/api/v1/profile/privacy',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    await _dio.fetch<void>(_options);
+  }
+
+  @override
+  Future<void> notificationsProfile(NotificationSettings request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<void>(Options(
+      method: 'PUT',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/profile/notifications',
           queryParameters: queryParameters,
           data: _data,
         )

@@ -10,9 +10,11 @@ import '../network/request/courier_profile.dart';
 import '../network/request/delivery_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
+import '../network/request/notification_settings.dart';
 import '../network/request/otp_verify_request.dart';
 import '../network/request/privacy_settings.dart';
 import '../network/request/registration_request.dart';
+import '../network/request/user_request.dart';
 import '../network/response/all_request_data.dart';
 import '../network/response/language_response.dart';
 import '../network/response/login_response.dart';
@@ -32,9 +34,9 @@ class DataAuthRepository implements AuthRepository {
   Future<void> login(LoginRequest request) async {
     final response = await _authApi.login(request);
     if (response != null) {
-      await _cacheManager.saveUser(response.user);
+      await _cacheManager.saveUser(response.data.user);
     }
-    return _cacheManager.saveAccessToken(response.token ?? "");
+    return _cacheManager.saveAccessToken(response.data.token ?? "");
   }
 
   @override
@@ -74,7 +76,7 @@ class DataAuthRepository implements AuthRepository {
   Future<void> customersMe() async {
     final response = await _authApi.customersMe();
     if (response != null) {
-      await _cacheManager.saveUser(response.user);
+      await _cacheManager.saveUser(response.data.user);
     }
   }
 
@@ -82,9 +84,9 @@ class DataAuthRepository implements AuthRepository {
   Future<void> registration(RegistrationRequest request) async {
     final response = await _authApi.register(request);
     if (response != null) {
-      await _cacheManager.saveUser(response.user);
+      await _cacheManager.saveUser(response.data.user);
     }
-    return _cacheManager.saveAccessToken(response.token ?? "");
+    return _cacheManager.saveAccessToken(response.data.token ?? "");
   }
 
   @override
@@ -109,9 +111,8 @@ class DataAuthRepository implements AuthRepository {
     String phone,
     String location,
     String about,
-    File? file,
-  ) {
-    return _authApi.profileEdit(name, email, phone, location, about, file);
+   ) {
+    return _authApi.profileEdit(UserRequest(fullname: name, email: email, phone: phone,about: about,locationText: location) );
   }
 
   @override
@@ -122,6 +123,11 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> privacyProfile(PrivacySettings request) {
     return _authApi.privacyProfile(request);
+  }
+
+  @override
+  Future<void> notificationsProfile(  NotificationSettings request) {
+    return _authApi.notificationsProfile(request);
   }
 
   @override

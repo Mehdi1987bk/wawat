@@ -16,7 +16,7 @@ class User extends HiveObject {
   final int? id;
 
   @HiveField(1)
-  final String name;
+  final String fullname;
 
   @HiveField(2)
   final String? email;
@@ -25,7 +25,7 @@ class User extends HiveObject {
   final String? phone;
 
   @HiveField(4)
-  final String? avatarUrl;
+  final String? avatar;
 
   @HiveField(5)
   final String? location;
@@ -50,10 +50,10 @@ class User extends HiveObject {
 
   User({
     required this.id,
-    required this.name,
+    required this.fullname,
     this.email,
     this.phone,
-    this.avatarUrl,
+    this.avatar,
     this.location,
     this.about,
     this.professional,

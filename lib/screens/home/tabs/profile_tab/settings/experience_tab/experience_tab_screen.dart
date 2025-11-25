@@ -7,6 +7,8 @@ import '../../../../../../data/network/response/language.dart';
 import '../../../../../../data/network/response/language_response.dart';
 import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
+import '../../../../../auth/registration/widget/language_selector.dart';
+import '../../../../../auth/registration/widget/package_types_selector.dart';
 import 'experience_tab_bloc.dart';
 
 class ExperienceTab extends BaseScreen {
@@ -30,8 +32,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
   int _selectedExperience = 3;
   String _selectedWorkTimeFrom = '09:00';
   String _selectedWorkTimeTo = '18:00';
-  Set<int> _selectedLanguageIds = {};
-  Set<int> _selectedPackageTypeIds = {};
+  Set<String> _selectedLanguageCodes = {};
+  Set<String> _selectedPackageTypeCodes = {};
 
   List<Language> _allLanguages = [];
   List<PackageType> _allPackageTypes = [];
@@ -68,43 +70,48 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
 
     // ✅ Исправленная инициализация языков
     if (professional != null && professional.languages.isNotEmpty) {
-      _selectedLanguageIds = professional.languages.map((l) {
+      _selectedLanguageCodes = professional.languages
+          .map((l) {
         try {
-          return (l.id as int?) ?? 0;
+          return (l.code as String?) ?? '';
         } catch (e) {
-          print('ERROR parsing language id: $e');
-          return 0;
-        }
-      }).where((id) => id != 0).toSet();
-      print('DEBUG initState: Инициализировано языков из professional: $_selectedLanguageIds');
-    }
-
-    // ✅ Исправленная инициализация типов упаковки
-    if (professional != null && professional.packageTypes.isNotEmpty) {
-      _selectedPackageTypeIds = professional.packageTypes
-          .map((p) {
-        try {
-          return (p.id as int?) ?? 0;
-        } catch (e) {
-          print('ERROR parsing package type id: $e');
-          return 0;
+          print('ERROR parsing language code: $e');
+          return '';
         }
       })
-          .where((id) => id != 0)
+          .where((code) => code.isNotEmpty)
           .toSet();
-      print('DEBUG initState: Инициализировано типов упаковки: $_selectedPackageTypeIds');
+      print(
+          'DEBUG initState: Инициализировано языков из professional: $_selectedLanguageCodes');
     }
 
-    // ВАЖНО: Загружаем данные сразу после инициализации
+    // ✅ Исправленная инициализация типов упаковки - используем code
+    if (professional != null && professional.packageTypes.isNotEmpty) {
+      _selectedPackageTypeCodes = professional.packageTypes
+          .map((p) {
+        try {
+          return (p.code as String?) ?? '';
+        } catch (e) {
+          print('ERROR parsing package type code: $e');
+          return '';
+        }
+      })
+          .where((code) => code.isNotEmpty)
+          .toSet();
+      print(
+          'DEBUG initState: Инициализировано типов упаковки: $_selectedPackageTypeCodes');
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLanguagesAndPackageTypes();
     });
   }
 
   Future<void> _loadLanguagesAndPackageTypes() async {
-    // ✅ Не загружаем повторно, если уже загружены
-    if (!_isLoadingLanguages && !_isLoadingPackageTypes &&
-        _allLanguages.isNotEmpty && _allPackageTypes.isNotEmpty) {
+    if (!_isLoadingLanguages &&
+        !_isLoadingPackageTypes &&
+        _allLanguages.isNotEmpty &&
+        _allPackageTypes.isNotEmpty) {
       print('DEBUG: Данные уже загружены, пропускаем повторную загрузку');
       return;
     }
@@ -116,10 +123,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
       _isLoadingPackageTypes = true;
     });
 
-    // ✅ Загружаем языки независимо
     _loadLanguages();
-
-    // ✅ Загружаем типы независимо
     _loadPackageTypes();
   }
 
@@ -131,13 +135,13 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
       final languages = await bloc.getLanguages();
 
       print('API Response languages type: ${languages.runtimeType}');
-      print('API Response languages.data type: ${languages.data.runtimeType}');
       print('API Response languages.data length: ${languages.data.length}');
 
       if (languages.data.isNotEmpty) {
-        print('First language: ${languages.data[0].name} (id: ${languages.data[0].id})');
+        print(
+            'First language: ${languages.data[0].name} (code: ${languages.data[0].code})');
         for (var lang in languages.data) {
-          print('  ✓ ${lang.id}: ${lang.code} - ${lang.name}');
+          print('  ✓ ${lang.code}: ${lang.name}');
         }
       }
 
@@ -146,19 +150,16 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
         _isLoadingLanguages = false;
       });
 
-      print('After setState:');
-      print('  _allLanguages.length: ${_allLanguages.length}');
+      print('After setState: _allLanguages.length: ${_allLanguages.length}');
       print('========== DEBUG: Загрузка языков завершена ==========');
-
     } catch (e, stackTrace) {
       print('========== ERROR: Ошибка загрузки языков ==========');
       print('Error: $e');
       print('StackTrace: $stackTrace');
-      print('==========================================================');
 
       setState(() {
         _isLoadingLanguages = false;
-        _allLanguages = []; // ✅ Устанавливаем пустой список при ошибке
+        _allLanguages = [];
       });
 
       if (mounted) {
@@ -180,34 +181,28 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
 
       final packageTypes = await bloc.getPackageTypes();
 
-      print('API Response packageTypes length: ${packageTypes.packageTypes.length}');
-      if (packageTypes.packageTypes.isNotEmpty) {
-        for (var pkg in packageTypes.packageTypes) {
-          final translation = pkg.translations.isNotEmpty
-              ? pkg.translations.first.title
-              : pkg.key;
-          print('  ✓ ${pkg.id}: $translation (icon: ${pkg.icon})');
+      print('API Response packageTypes length: ${packageTypes.data.length}');
+      if (packageTypes.data.isNotEmpty) {
+        for (var pkg in packageTypes.data) {
+          print('  ✓ ${pkg.code}: ${pkg.name} (icon: ${pkg.icon})');
         }
       }
 
       setState(() {
-        _allPackageTypes = List<PackageType>.from(packageTypes.packageTypes);
+        _allPackageTypes = List<PackageType>.from(packageTypes.data);
         _isLoadingPackageTypes = false;
       });
 
-      print('After setState:');
-      print('  _allPackageTypes.length: ${_allPackageTypes.length}');
+      print('After setState: _allPackageTypes.length: ${_allPackageTypes.length}');
       print('========== DEBUG: Загрузка типов завершена ==========');
-
     } catch (e, stackTrace) {
       print('========== ERROR: Ошибка загрузки типов упаковки ==========');
       print('Error: $e');
       print('StackTrace: $stackTrace');
-      print('==========================================================');
 
       setState(() {
         _isLoadingPackageTypes = false;
-        _allPackageTypes = []; // ✅ Устанавливаем пустой список при ошибке
+        _allPackageTypes = [];
       });
 
       if (mounted) {
@@ -222,395 +217,10 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
     }
   }
 
-  String _getLanguageNames() {
-    print('_getLanguageNames called: selectedIds=$_selectedLanguageIds, allLanguages=${_allLanguages.length}');
-
-    if (_selectedLanguageIds.isEmpty) {
-      print('  -> Нет выбранных языков, возвращаю "Выбор"');
-      return 'Выбор';
-    }
-
-    final selectedNames = <String>[];
-    for (var id in _selectedLanguageIds) {
-      final lang = _allLanguages.firstWhere(
-            (l) => l.id == id,
-        orElse: () => Language(id: 0, code: '', name: 'Unknown'),
-      );
-      if (lang.id != 0) {
-        selectedNames.add(lang.name ?? '');
-        print('  -> Добавлен язык: ${lang.name} (id: ${lang.id})');
-      }
-    }
-
-    final result = selectedNames.join(', ');
-    print('  -> Результат: $result');
-    return result.isNotEmpty ? result : 'Выбор';
-  }
-
-  String _getPackageTypeNames() {
-    if (_selectedPackageTypeIds.isEmpty) return 'Выбор';
-
-    final selectedNames = <String>[];
-    for (var id in _selectedPackageTypeIds) {
-      final pkg = _allPackageTypes.firstWhere(
-            (p) => p.id == id,
-        orElse: () => PackageType(
-          id: 0,
-          key: '',
-          icon: '',
-          isActive: false,
-          translations: [],
-        ),
-      );
-      if (pkg.id != 0) {
-        final translation = pkg.translations.isNotEmpty
-            ? pkg.translations.first.title
-            : pkg.key;
-        selectedNames.add(translation);
-      }
-    }
-
-    return selectedNames.isNotEmpty ? selectedNames.join(', ') : 'Выбор';
-  }
-
-  void _showLanguagesBottomSheet() {
-    print('========== _showLanguagesBottomSheet ==========');
-    print('_allLanguages.length: ${_allLanguages.length}');
-    print('_isLoadingLanguages: $_isLoadingLanguages');
-    print('_selectedLanguageIds: $_selectedLanguageIds');
-
-    // ✅ Если данные загружаются, показываем сообщение
-    if (_allLanguages.isEmpty && _isLoadingLanguages) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Языки загружаются. Попробуйте позже.'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 3),
-        ),
-      );
-      return;
-    }
-
-    // ✅ Если данные не загружены и не загружаются - загружаем их
-    if (_allLanguages.isEmpty) {
-      print('DEBUG: Языки не загружены, начинаем загрузку...');
-      _loadLanguagesAndPackageTypes().then((_) {
-        print('DEBUG: Загрузка завершена, открываем BottomSheet');
-        _showLanguagesBottomSheetContent();
-      }).catchError((error) {
-        print('DEBUG: Ошибка при загрузке: $error');
-      });
-      return;
-    }
-
-    _showLanguagesBottomSheetContent();
-  }
-
-  void _showLanguagesBottomSheetContent() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateBottomSheet) => Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Выберите языки',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _allLanguages.isEmpty
-                    ? const Center(
-                  child: Text('Языки не найдены'),
-                )
-                    : ListView.builder(
-                  itemCount: _allLanguages.length,
-                  itemBuilder: (context, index) {
-                    final language = _allLanguages[index];
-                    final isSelected = _selectedLanguageIds.contains(language.id);
-
-                    print('ListTile $index: ${language.name} (id=${language.id}, selected=$isSelected)');
-
-                    return ListTile(
-                      title: Text(
-                        language.name ?? 'Неизвестный язык',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      subtitle: Text(
-                        'Код: ${language.code}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      trailing: isSelected
-                          ? const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF5B4FFF),
-                        size: 28,
-                      )
-                          : const Icon(
-                        Icons.circle_outlined,
-                        color: Colors.grey,
-                        size: 28,
-                      ),
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedLanguageIds.remove(language.id);
-                            print('Удален язык: ${language.name} (id: ${language.id})');
-                          } else {
-                            _selectedLanguageIds.add(language.id);
-                            print('Добавлен язык: ${language.name} (id: ${language.id})');
-                          }
-                        });
-                        // ✅ Обновляем и BottomSheet
-                        setStateBottomSheet(() {});
-                      },
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    print('Bottom sheet закрыта, выбранные языки: $_selectedLanguageIds');
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B4FFF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    minimumSize: const Size(double.infinity, 50),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Применить',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  void _showPackageTypesBottomSheet() {
-    print('========== _showPackageTypesBottomSheet ==========');
-    print('_allPackageTypes.length: ${_allPackageTypes.length}');
-    print('_isLoadingPackageTypes: $_isLoadingPackageTypes');
-
-    // ✅ Если данные загружаются, показываем сообщение
-    if (_allPackageTypes.isEmpty && _isLoadingPackageTypes) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Типы упаковки загружаются. Попробуйте позже.'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 3),
-        ),
-      );
-      return;
-    }
-
-    // ✅ Если данные не загружены и не загружаются - загружаем их
-    if (_allPackageTypes.isEmpty) {
-      print('DEBUG: Типы упаковки не загружены, начинаем загрузку...');
-      _loadPackageTypes().then((_) {
-        print('DEBUG: Загрузка завершена, открываем BottomSheet');
-
-        // ✅ Если всё ещё пусто, показываем сообщение об ошибке
-        if (_allPackageTypes.isEmpty && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Типы упаковки не доступны на сервере'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 3),
-            ),
-          );
-          return;
-        }
-
-        _showPackageTypesBottomSheetContent();
-      }).catchError((error) {
-        print('DEBUG: Ошибка при загрузке: $error');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Ошибка загрузки: $error'),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      });
-      return;
-    }
-
-    _showPackageTypesBottomSheetContent();
-  }
-
-  void _showPackageTypesBottomSheetContent() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateBottomSheet) => Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Выберите специализацию',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _allPackageTypes.isEmpty
-                    ? const Center(
-                  child: Text('Типы упаковки не найдены'),
-                )
-                    : ListView.builder(
-                  itemCount: _allPackageTypes.length,
-                  itemBuilder: (context, index) {
-                    final packageType = _allPackageTypes[index];
-                    final isSelected =
-                    _selectedPackageTypeIds.contains(packageType.id);
-                    final translation = packageType.translations.isNotEmpty
-                        ? packageType.translations.first.title
-                        : packageType.key;
-
-                    print('PackageType $index: $translation (id=${packageType.id}, selected=$isSelected)');
-
-                    return ListTile(
-                      leading: Text(
-                        packageType.icon,
-                        style: const TextStyle(fontSize: 28),
-                      ),
-                      title: Text(translation),
-                      trailing: isSelected
-                          ? const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF5B4FFF),
-                        size: 28,
-                      )
-                          : const Icon(
-                        Icons.circle_outlined,
-                        color: Colors.grey,
-                        size: 28,
-                      ),
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedPackageTypeIds.remove(packageType.id);
-                            print('Удален тип: $translation (id: ${packageType.id})');
-                          } else {
-                            _selectedPackageTypeIds.add(packageType.id);
-                            print('Добавлен тип: $translation (id: ${packageType.id})');
-                          }
-                        });
-                        // ✅ Обновляем и BottomSheet
-                        setStateBottomSheet(() {});
-                      },
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    print('Bottom sheet закрыта, выбранные типы: $_selectedPackageTypeIds');
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B4FFF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    minimumSize: const Size(double.infinity, 50),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Применить',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
   Future<void> _showTimePickerFrom() async {
     try {
-      final timeString = _selectedWorkTimeFrom.isNotEmpty
-          ? _selectedWorkTimeFrom
-          : '09:00';
+      final timeString =
+      _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
 
       final timeParts = timeString.split(':');
 
@@ -658,9 +268,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
 
   Future<void> _showTimePickerTo() async {
     try {
-      final timeString = _selectedWorkTimeTo.isNotEmpty
-          ? _selectedWorkTimeTo
-          : '18:00';
+      final timeString =
+      _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
 
       final timeParts = timeString.split(':');
 
@@ -707,7 +316,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
   }
 
   void _saveChanges() {
-    if (_selectedLanguageIds.isEmpty) {
+    if (_selectedLanguageCodes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Выберите хотя бы один язык'),
@@ -717,8 +326,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
       return;
     }
 
-    // ✅ Типы упаковки теперь опциональны если их нет на сервере
-    if (_selectedPackageTypeIds.isEmpty && _allPackageTypes.isNotEmpty) {
+    if (_selectedPackageTypeCodes.isEmpty && _allPackageTypes.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Выберите хотя бы одну специализацию'),
@@ -729,8 +337,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
     }
 
     print('DEBUG _saveChanges:');
-    print('  Languages: $_selectedLanguageIds');
-    print('  Package Types: $_selectedPackageTypeIds');
+    print('  Languages: $_selectedLanguageCodes');
+    print('  Package Types: $_selectedPackageTypeCodes');
 
     final courierProfile = bloc.createProfessionalRequest(
       workExperienceYears: _selectedExperience,
@@ -740,8 +348,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
       pricePerKgMax: double.tryParse(_priceToController.text) ?? 0,
       workTimeFrom: _selectedWorkTimeFrom,
       workTimeTo: _selectedWorkTimeTo,
-      communicationLanguageIds: _selectedLanguageIds.toList(),
-      packageTypeIds: _selectedPackageTypeIds.toList(),
+      communicationLanguageIds: _selectedLanguageCodes.toList(),
+      packageTypeIds: _selectedPackageTypeCodes.toList(),
     );
 
     bloc.createProfessional(courierProfile).then((_) {
@@ -785,30 +393,33 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
           ? professional!.workTimeTo!
           : '18:00';
 
-      _selectedLanguageIds.clear();
+      _selectedLanguageCodes.clear();
       if (professional != null && professional.languages.isNotEmpty) {
-        _selectedLanguageIds = professional.languages.map((l) {
+        _selectedLanguageCodes = professional.languages
+            .map((l) {
           try {
-            return (l.id as int?) ?? 0;
+            return (l.code as String?) ?? '';
           } catch (e) {
-            print('ERROR parsing language id in reset: $e');
-            return 0;
-          }
-        }).where((id) => id != 0).toSet();
-      }
-
-      _selectedPackageTypeIds.clear();
-      if (professional != null && professional.packageTypes.isNotEmpty) {
-        _selectedPackageTypeIds = professional.packageTypes
-            .map((p) {
-          try {
-            return (p.id as int?) ?? 0;
-          } catch (e) {
-            print('ERROR parsing package type id in reset: $e');
-            return 0;
+            print('ERROR parsing language code in reset: $e');
+            return '';
           }
         })
-            .where((id) => id != 0)
+            .where((code) => code.isNotEmpty)
+            .toSet();
+      }
+
+      _selectedPackageTypeCodes.clear();
+      if (professional != null && professional.packageTypes.isNotEmpty) {
+        _selectedPackageTypeCodes = professional.packageTypes
+            .map((p) {
+          try {
+            return (p.code as String?) ?? '';
+          } catch (e) {
+            print('ERROR parsing package type code in reset: $e');
+            return '';
+          }
+        })
+            .where((code) => code.isNotEmpty)
             .toSet();
       }
     });
@@ -968,10 +579,15 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
                 ),
               ),
               const SizedBox(height: 8),
-              _buildMultiSelectDropdown(
-                _getLanguageNames(),
-                _showLanguagesBottomSheet,
-                _isLoadingLanguages,
+              LanguageSelector(
+                languages: _allLanguages,
+                selectedLanguageCodes: _selectedLanguageCodes,
+                onSelectionChanged: (newSelection) {
+                  setState(() {
+                    _selectedLanguageCodes = newSelection;
+                  });
+                },
+                isLoading: _isLoadingLanguages,
               ),
               const SizedBox(height: 16),
               const Text(
@@ -1002,10 +618,15 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
                   ),
                 ),
               )
-                  : _buildMultiSelectDropdown(
-                _getPackageTypeNames(),
-                _showPackageTypesBottomSheet,
-                _isLoadingPackageTypes,
+                  : PackageTypesSelector(
+                packageTypes: _allPackageTypes,
+                selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                onSelectionChanged: (newSelection) {
+                  setState(() {
+                    _selectedPackageTypeCodes = newSelection;
+                  });
+                },
+                isLoading: _isLoadingPackageTypes,
               ),
             ],
           ),
@@ -1127,48 +748,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> {
             ),
             const Icon(
               Icons.access_time,
-              color: Color(0xFF8E8E93),
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMultiSelectDropdown(
-      String value,
-      VoidCallback onTap,
-      bool isLoading,
-      ) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: const Color(0xFFE5E5EA),
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                isLoading ? 'Загрузка...' : value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.expand_more,
               color: Color(0xFF8E8E93),
               size: 20,
             ),

@@ -50,7 +50,7 @@ class UserDetailsWidget extends StatelessWidget {
                 height: 5,
               ),
               Text(
-                userDetailsResponse.name,
+                userDetailsResponse.fullname,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500,color: AppColors.textColor),
               ),
             ],

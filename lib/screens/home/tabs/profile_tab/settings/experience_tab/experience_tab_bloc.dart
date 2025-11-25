@@ -32,7 +32,7 @@ class ExperienceTabBloc extends BaseBloc {
 
       // ✅ Логируем каждый язык
       for (var lang in result.data) {
-        print('  ✓ ${lang.id}: ${lang.code} - ${lang.name}');
+        print('  ✓   ${lang.code} - ${lang.name}');
       }
 
       // ✅ Кэшируем результат
@@ -57,21 +57,18 @@ class ExperienceTabBloc extends BaseBloc {
 
       // ✅ Возвращаем кэшированные данные если они есть
       if (_cachedPackageTypes != null) {
-        print('ExperienceTabBloc: Возвращаю кэшированные типы - ${_cachedPackageTypes!.packageTypes.length} штук');
+        print('ExperienceTabBloc: Возвращаю кэшированные типы - ${_cachedPackageTypes!.data.length} штук');
         return _cachedPackageTypes!;
       }
 
       final result = await authRepository.getPackageType();
 
       print('ExperienceTabBloc: API Response type: ${result.runtimeType}');
-      print('ExperienceTabBloc: Типы упаковки загружены - ${result.packageTypes.length} штук');
+      print('ExperienceTabBloc: Типы упаковки загружены - ${result.data.length} штук');
 
       // ✅ Логируем каждый тип упаковки
-      for (var pkg in result.packageTypes) {
-        final translation = pkg.translations.isNotEmpty
-            ? pkg.translations.first.title
-            : pkg.key;
-        print('  ✓ ${pkg.id}: $translation (icon: ${pkg.icon}, active: ${pkg.isActive})');
+      for (var pkg in result.data) {
+        print('  ✓ ${pkg.code}: ${pkg.name} (icon: ${pkg.icon})');
       }
 
       // ✅ Кэшируем результат
@@ -89,7 +86,7 @@ class ExperienceTabBloc extends BaseBloc {
       // ✅ Если это 404 ошибка, возвращаем пустой response вместо rethrow
       if (e.toString().contains('404')) {
         print('ExperienceTabBloc: 404 ошибка - endpoint не найден на сервере, возвращаю пустой список');
-        _cachedPackageTypes = PackageTypesResponse(packageTypes: []);
+        _cachedPackageTypes = PackageTypesResponse(data: []);
         return _cachedPackageTypes!;
       }
 
@@ -111,8 +108,8 @@ class ExperienceTabBloc extends BaseBloc {
     required double pricePerKgMax,
     required String workTimeFrom,
     required String workTimeTo,
-    required List<int> communicationLanguageIds,
-    required List<int> packageTypeIds,
+    required List<String> communicationLanguageIds,
+    required List<String> packageTypeIds,
   }) {
     print('========== ExperienceTabBloc: Создание профиля ==========');
     print('workExperienceYears: $workExperienceYears');

@@ -9,12 +9,15 @@ import '../request/courier_profile.dart';
 import '../request/delivery_offer_request.dart';
 import '../request/forgot_password_request.dart';
 import '../request/login_request.dart';
+import '../request/notification_settings.dart';
 import '../request/otp_verify_request.dart';
 import '../request/privacy_settings.dart';
 import '../request/registration_request.dart';
+import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
+import '../response/login_response_data.dart';
 import '../response/offer_types_response.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
@@ -29,7 +32,7 @@ abstract class AuthApi {
   factory AuthApi(Dio dio, {String? baseUrl}) = _AuthApi;
 
   @POST('/api/v1/auth/login')
-  Future<LoginResponse> login(
+  Future<LoginResponseData> login(
     @Body() LoginRequest request,
   );
 
@@ -45,7 +48,7 @@ abstract class AuthApi {
       @Query("phoneNumber") int number, @Query("otpCode") int otpCode);
 
   @POST('/api/v1/auth/register')
-  Future<LoginResponse> register(
+  Future<LoginResponseData> register(
     @Body() RegistrationRequest request,
   );
 
@@ -69,23 +72,19 @@ abstract class AuthApi {
   );
 
   @GET('/api/v1/auth/me')
-  Future<LoginResponse> customersMe();
+  Future<LoginResponseData> customersMe();
 
-  @GET('/api/v1/languages')
+  @GET('/api/v1/dictionaries/languages')
   Future<LanguageResponse> getLanguages();
 
-  @PATCH('/api/v1/profile/general')
-  Future<void> profileEdit(
-    @Part(name: 'name') String name,
-    @Part(name: 'email') String email,
-    @Part(name: 'phone') String phone,
-    @Part(name: 'location') String location,
-    @Part(name: 'about') String about,
-    @Part(name: 'avatar') File? file,
-  );
+  @PUT('/api/v1/profile/personal')
+  Future<void> profileEdit(@Body() UserRequest request);
 
-  @PATCH('/api/v1/profile/privacy')
+  @PUT('/api/v1/profile/privacy')
   Future<void> privacyProfile(@Body() PrivacySettings request);
+
+  @PUT('/api/v1/profile/notifications')
+  Future<void> notificationsProfile(@Body() NotificationSettings request);
 
   @POST('/api/v1/offers')
   Future<void> createOffers(@Body() DeliveryOfferRequest request);

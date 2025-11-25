@@ -87,7 +87,7 @@ class _WawatInputFieldState extends State<WawatInputField> {
               color: _isFocused
                   ? WawatColors.inputFocusedBorder
                   : WawatColors.inputBorder,
-              width: _isFocused ? 1.5 : 1.5,
+              width: _isFocused ? 0.8 : 0.8,
             ),
           ),
           child: TextFormField(

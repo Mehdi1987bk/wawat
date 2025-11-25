@@ -17,21 +17,18 @@ class LanguageAdapter extends TypeAdapter<Language> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Language(
-      id: fields[0] as int,
-      code: fields[1] as String?,
-      name: fields[2] as String?,
+      code: fields[0] as String,
+      name: fields[1] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Language obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.code)
       ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.code)
+      ..writeByte(1)
       ..write(obj.name);
   }
 
@@ -51,13 +48,11 @@ class LanguageAdapter extends TypeAdapter<Language> {
 // **************************************************************************
 
 Language _$LanguageFromJson(Map<String, dynamic> json) => Language(
-      id: json['id'] as int,
-      code: json['code'] as String?,
+      code: json['code'] as String,
       name: json['name'] as String?,
     );
 
 Map<String, dynamic> _$LanguageToJson(Language instance) => <String, dynamic>{
-      'id': instance.id,
       'code': instance.code,
       'name': instance.name,
     };

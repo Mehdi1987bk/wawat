@@ -9,7 +9,7 @@ part of 'package_types_response.dart';
 PackageTypesResponse _$PackageTypesResponseFromJson(
         Map<String, dynamic> json) =>
     PackageTypesResponse(
-      packageTypes: (json['package_types'] as List<dynamic>)
+      data: (json['package_types'] as List<dynamic>)
           .map((e) => PackageType.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17,27 +17,20 @@ PackageTypesResponse _$PackageTypesResponseFromJson(
 Map<String, dynamic> _$PackageTypesResponseToJson(
         PackageTypesResponse instance) =>
     <String, dynamic>{
-      'package_types': instance.packageTypes,
+      'package_types': instance.data,
     };
 
 PackageType _$PackageTypeFromJson(Map<String, dynamic> json) => PackageType(
-      id: json['id'] as int,
-      key: json['key'] as String,
+      code: json['code'] as String,
+      name: json['name'] as String,
       icon: json['icon'] as String,
-      isActive: json['is_active'] as bool,
-      translations: (json['translations'] as List<dynamic>)
-          .map(
-              (e) => PackageTypeTranslation.fromJson(e as Map<String, dynamic>))
-          .toList(),
     );
 
 Map<String, dynamic> _$PackageTypeToJson(PackageType instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'key': instance.key,
+      'code': instance.code,
+      'name': instance.name,
       'icon': instance.icon,
-      'is_active': instance.isActive,
-      'translations': instance.translations,
     };
 
 PackageTypeTranslation _$PackageTypeTranslationFromJson(

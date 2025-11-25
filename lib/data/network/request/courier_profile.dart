@@ -26,10 +26,10 @@ class CourierProfile {
   final String workTimeTo;
 
   @JsonKey(name: 'communication_language_ids')
-  final List<int> communicationLanguageIds;
+  final List<String> communicationLanguageIds;
 
   @JsonKey(name: 'package_type_ids')
-  final List<int> packageTypeIds;
+  final List<String> packageTypeIds;
 
   CourierProfile({
     required this.workExperienceYears,

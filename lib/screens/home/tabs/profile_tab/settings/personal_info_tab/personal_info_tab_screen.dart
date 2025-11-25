@@ -31,20 +31,36 @@ class _PersonalInfoTabState
   late TextEditingController _aboutController;
   File? _selectedImage;
 
+  // ✅ Сохраняем исходные значения для сравнения
+  late String _initialFullname;
+  late String _initialEmail;
+  late String _initialPhone;
+  late String _initialLocation;
+  late String _initialAbout;
+
   @override
   void initState() {
     super.initState();
-    _fullNameController = TextEditingController(text: widget.user.name);
-    _emailController = TextEditingController(text: widget.user.email);
-    _phoneController = TextEditingController(text: widget.user.phone);
-    _locationController = TextEditingController(text: widget.user.location);
-    _aboutController = TextEditingController(
-      text: widget.user.about,
-    );
 
+    // Инициализируем текущие значения
+    _initialFullname = widget.user.fullname ?? '';
+    _initialEmail = widget.user.email ?? '';
+    _initialPhone = widget.user.phone ?? '';
+    _initialLocation = widget.user.location ?? '';
+    _initialAbout = widget.user.about ?? '';
+
+    _fullNameController = TextEditingController(text: _initialFullname);
+    _emailController = TextEditingController(text: _initialEmail);
+    _phoneController = TextEditingController(text: _initialPhone);
+    _locationController = TextEditingController(text: _initialLocation);
+    _aboutController = TextEditingController(text: _initialAbout);
+
+    // Добавляем слушатели для валидации при любом изменении
     _fullNameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
+    _locationController.addListener(_validateForm);
+    _aboutController.addListener(_validateForm);
   }
 
   @override
@@ -156,7 +172,7 @@ class _PersonalInfoTabState
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         disabledBackgroundColor:
-                            Color(0xFF5B4FFF).withOpacity(0.3),
+                        Color(0xFF5B4FFF).withOpacity(0.3),
                         backgroundColor: const Color(0xFF5B4FFF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -194,7 +210,7 @@ class _PersonalInfoTabState
     final source = await showSelectImageSourceAlert(context);
     if (source != null) {
       final image =
-          await ImagePicker().pickImage(source: source, imageQuality: 80);
+      await ImagePicker().pickImage(source: source, imageQuality: 80);
       if (image != null) {
         final file = File(image.path);
 
@@ -208,7 +224,7 @@ class _PersonalInfoTabState
         });
 
         await bloc.onImageSelected(file);
-        _validateForm();
+        // Фотка не влияет на валидацию кнопки
       }
     }
   }
@@ -259,12 +275,44 @@ class _PersonalInfoTabState
     );
   }
 
+  /// ✅ УЛУЧШЕННАЯ ВАЛИДАЦИЯ
+  /// Кнопка активна если:
+  /// 1. Хотя бы одно поле изменилось от исходного значения
+  /// 2. Все обязательные поля (fullname, email, phone) не пусты
   void _validateForm() {
-    final isValid = _fullNameController.text.trim().isNotEmpty &&
-        _emailController.text.trim().isNotEmpty &&
-        _phoneController.text.trim().isNotEmpty;
+    final currentFullname = _fullNameController.text.trim();
+    final currentEmail = _emailController.text.trim();
+    final currentPhone = _phoneController.text.trim();
+    final currentLocation = _locationController.text.trim();
+    final currentAbout = _aboutController.text.trim();
 
-    _isFormValid.value = isValid;
+    // Проверка что обязательные поля заполнены
+    final isRequiredFieldsFilled =
+        currentFullname.isNotEmpty &&
+            currentEmail.isNotEmpty &&
+            currentPhone.isNotEmpty;
+
+    // Проверка что хотя бы одно поле изменилось
+    final isAnythingChanged =
+        currentFullname != _initialFullname ||
+            currentEmail != _initialEmail ||
+            currentPhone != _initialPhone ||
+            currentLocation != _initialLocation ||
+            currentAbout != _initialAbout;
+
+    // Кнопка активна если заполнены все обязательные поля И что-то изменилось
+    _isFormValid.value = isRequiredFieldsFilled && isAnythingChanged;
+
+    print('=== ВАЛИДАЦИЯ ===');
+    print('Fullname: "$currentFullname" != "$_initialFullname" = ${currentFullname != _initialFullname}');
+    print('Email: "$currentEmail" != "$_initialEmail" = ${currentEmail != _initialEmail}');
+    print('Phone: "$currentPhone" != "$_initialPhone" = ${currentPhone != _initialPhone}');
+    print('Location: "$currentLocation" != "$_initialLocation" = ${currentLocation != _initialLocation}');
+    print('About: "$currentAbout" != "$_initialAbout" = ${currentAbout != _initialAbout}');
+    print('isAnythingChanged: $isAnythingChanged');
+    print('isRequiredFieldsFilled: $isRequiredFieldsFilled');
+    print('isFormValid: ${_isFormValid.value}');
+    print('================');
   }
 
   void _addEmployer() {
@@ -273,18 +321,18 @@ class _PersonalInfoTabState
     final String phone = _phoneController.text.trim();
     final String location = _locationController.text.trim();
     final String about = _aboutController.text.trim();
+
     bloc
         .profileEdit(
-            name: name,
-            email: email,
-            phone: phone,
-            location: location,
-            about: about)
+        name: name,
+        email: email,
+        phone: phone,
+        location: location,
+        about: about)
         .then(
-      (onValue) {
+          (onValue) {
         bloc.customersMe();
-         showTopSnackbar("Сохранено", "Сохранено", true, context);
-
+        showTopSnackbar("Сохранено", "Сохранено", true, context);
       },
     );
   }

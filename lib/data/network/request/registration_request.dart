@@ -4,24 +4,24 @@ part 'registration_request.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RegistrationRequest {
-  final String name;
+  final String fullname;
   final String email;
   final String phone;
   final String password;
   @JsonKey(name: 'password_confirmation')
   final String passwordConfirmation;
-  @JsonKey(name: 'communication_language_ids')
-  final List<int> communicationLanguageIds;
+  @JsonKey(name: 'languages')
+  final List<String> languages;
   @JsonKey(name: 'accepted_terms')
   final bool acceptedTerms;
 
   RegistrationRequest({
-    required this.name,
+    required this.fullname,
     required this.email,
     required this.password,
     required this.phone,
     required this.passwordConfirmation,
-    required this.communicationLanguageIds,
+    required this.languages,
     required this.acceptedTerms,
   });
 

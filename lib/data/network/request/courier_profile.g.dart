@@ -17,10 +17,10 @@ CourierProfile _$CourierProfileFromJson(Map<String, dynamic> json) =>
       workTimeTo: json['work_time_to'] as String,
       communicationLanguageIds:
           (json['communication_language_ids'] as List<dynamic>)
-              .map((e) => e as int)
+              .map((e) => e as String)
               .toList(),
       packageTypeIds: (json['package_type_ids'] as List<dynamic>)
-          .map((e) => e as int)
+          .map((e) => e as String)
           .toList(),
     );
 

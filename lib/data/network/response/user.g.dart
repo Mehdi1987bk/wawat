@@ -18,10 +18,10 @@ class UserAdapter extends TypeAdapter<User> {
     };
     return User(
       id: fields[0] as int?,
-      name: fields[1] as String,
+      fullname: fields[1] as String,
       email: fields[2] as String?,
       phone: fields[3] as String?,
-      avatarUrl: fields[4] as String?,
+      avatar: fields[4] as String?,
       location: fields[5] as String?,
       about: fields[6] as String?,
       professional: fields[7] as Professional?,
@@ -39,13 +39,13 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.fullname)
       ..writeByte(2)
       ..write(obj.email)
       ..writeByte(3)
       ..write(obj.phone)
       ..writeByte(4)
-      ..write(obj.avatarUrl)
+      ..write(obj.avatar)
       ..writeByte(5)
       ..write(obj.location)
       ..writeByte(6)
@@ -79,10 +79,10 @@ class UserAdapter extends TypeAdapter<User> {
 
 User _$UserFromJson(Map<String, dynamic> json) => User(
       id: json['id'] as int?,
-      name: json['name'] as String,
+      fullname: json['fullname'] as String,
       email: json['email'] as String?,
       phone: json['phone'] as String?,
-      avatarUrl: json['avatar_url'] as String?,
+      avatar: json['avatar'] as String?,
       location: json['location'] as String?,
       about: json['about'] as String?,
       professional: json['professional'] == null
@@ -105,10 +105,10 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'id': instance.id,
-      'name': instance.name,
+      'fullname': instance.fullname,
       'email': instance.email,
       'phone': instance.phone,
-      'avatar_url': instance.avatarUrl,
+      'avatar': instance.avatar,
       'location': instance.location,
       'about': instance.about,
       'professional': instance.professional,

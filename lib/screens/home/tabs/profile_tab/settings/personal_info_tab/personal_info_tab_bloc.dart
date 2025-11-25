@@ -35,7 +35,7 @@ class PersonalInfoTabBloc extends BaseBloc {
           phone,
           location,
           about,
-          images,
+          // images,
         ),
       ) ;
 }

@@ -13,7 +13,7 @@ class LoginBloc extends BaseBloc {
 
   Future<void> login(String email, String password) {
     final request = LoginRequest(
-      email: email,
+      login: email,
       password: password,
     );
     return run(_authRepository.login(request));

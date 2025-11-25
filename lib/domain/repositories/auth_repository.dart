@@ -4,6 +4,7 @@ import '../../data/network/request/courier_profile.dart';
 import '../../data/network/request/delivery_offer_request.dart';
 import '../../data/network/request/forgot_password_request.dart';
 import '../../data/network/request/login_request.dart';
+import '../../data/network/request/notification_settings.dart';
 import '../../data/network/request/otp_verify_request.dart';
 import '../../data/network/request/privacy_settings.dart';
 import '../../data/network/request/registration_request.dart';
@@ -46,12 +47,13 @@ abstract class AuthRepository {
     String phone,
     String location,
     String about,
-    File? file,
   );
 
   Future<void> forgotPassword(ForgotPasswordrRequest request);
 
   Future<void> privacyProfile(PrivacySettings request);
+
+  Future<void> notificationsProfile(NotificationSettings request);
 
   Future<PackagesResponse> packages();
 
