@@ -32,7 +32,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
       );
     }
 
-    final displayOffers = offers.take(10).toList();
+    final displayOffers = offers.take(2).toList();
 
     return Container(
       decoration: BoxDecoration(
