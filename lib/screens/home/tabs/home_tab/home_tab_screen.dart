@@ -34,24 +34,30 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     return Scaffold(
       backgroundColor: WawatColors.backgroundLight,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // Main content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    BuildHeader(context),
-                    _buildHeroSection(),
-                    SearchFormWidget(bloc: bloc,),
-                    SizedBox(height: WawatDimensions.spacingLg),
-                    _buildPopularOffers(),
+            Padding(
+              padding: const EdgeInsets.only(top: 80,bottom: 80),
+              child: Column(
+                children: [
+                  // Main content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildHeroSection(),
+                          SearchFormWidget(bloc: bloc,),
+                          SizedBox(height: WawatDimensions.spacingLg),
+                          _buildPopularOffers(),
+                        ],
+                      ),
+                    ),
+                  ),
                   ],
-                ),
               ),
             ),
-            // Bottom Navigation
-            _buildBottomNavigation(),
+            BuildHeader(context),
+
           ],
         ),
       ),
@@ -172,65 +178,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     );
   }
 
-  Widget _buildBottomNavigation() {
-    return Container(
-      height: WawatDimensions.bottomNavHeight,
-      decoration: BoxDecoration(
-        color: WawatColors.backgroundWhite,
-        boxShadow: [
-          BoxShadow(
-            color: WawatColors.shadowLight,
-            blurRadius: WawatDimensions.shadowBlurLight,
-            offset: Offset(0, -WawatDimensions.shadowOffsetY),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildBottomNavItem(Icons.search, 'Поиск', 0),
-          _buildBottomNavItem(Icons.chat_bubble_outline, 'Чаты', 1),
-          _buildBottomNavItem(Icons.add_circle, 'Подать', 2),
-          _buildBottomNavItem(Icons.favorite_outline, 'Избранное', 3),
-          _buildBottomNavItem(Icons.person_outline, 'Аккаунт', 4),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildBottomNavItem(IconData icon, String label, int index) {
-    final isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTab = index;
-        });
-        if (index == 4) {
-          // Account tab - show auth modal
-          AuthModalUtils.showAuthRequiredModal(context);
-        }
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? WawatColors.primary : WawatColors.textSecondary,
-            size: WawatDimensions.bottomNavIconSize,
-          ),
-          SizedBox(height: 4),
-          Text(
-            label,
-            style: WawatTextStyles.caption.copyWith(
-              color:
-                  isSelected ? WawatColors.primary : WawatColors.textSecondary,
-              fontSize: 10,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   void dispose() {

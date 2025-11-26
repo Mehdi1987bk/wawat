@@ -271,193 +271,207 @@ class _CreatePostScreenState
             child: SingleChildScrollView(
               controller: _scrollController,
               padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    width: 81,
-                    height: 81,
-                    child: Stack(
-                      children: [
-                        Image.asset("asset/add_back.png"),
-                        const Center(
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 50,
+              child: Container(
+                margin: EdgeInsets.only(bottom: 100),
+                padding: EdgeInsets.only(left: 16,right: 16,bottom: 16),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFAFAFA),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x0D000000),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Container(
+                      width: 81,
+                      height: 81,
+                      child: Stack(
+                        children: [
+                          Image.asset("asset/add_back.png"),
+                          const Center(
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 50,
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Подать',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Создайте объявление для поиска курьера или\nклиента',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF8E8E93),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    _buildLabel('Тип предложения', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildOfferTypeDropdown(),
+                    const SizedBox(height: 20),
+
+                    _buildLabel('Тип посылки', isRequired: true),
+                    const SizedBox(height: 8),
+                    PackageTypesSelector(
+                      packageTypes: _allPackageTypes,
+                      selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedPackageTypeCodes = newSelection;
+                        });
+                      },
+                      isLoading: _isLoadingPackageTypes,
+                    ),
+                    const SizedBox(height: 20),
+
+                    _buildLabel('Откуда', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildCityField(
+                      controller: fromController,
+                      hint: 'Город отправления',
+                      selectedCity: _selectedFromCity,
+                      onTap: () => _showCitySelector(isFromCity: true),
+                    ),
+                    const SizedBox(height: 20),
+
+                    _buildLabel('Куда', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildCityField(
+                      controller: toController,
+                      hint: 'Город назначения',
+                      selectedCity: _selectedToCity,
+                      onTap: () => _showCitySelector(isFromCity: false),
+                    ),
+                    const SizedBox(height: 20),
+
+                    ..._buildDateTimeFields(),
+
+                    _buildLabel('Максимальный вес (кг)', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: maxWeightController,
+                      hint: '0',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Подать',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    const SizedBox(height: 20),
+
+                    _buildLabel('Цена за кг (\$)', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: priceController,
+                      hint: '0',
+                      keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}')),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Создайте объявление для поиска курьера или\nклиента',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF8E8E93),
-                      height: 1.4,
+                    const SizedBox(height: 20),
+
+                    _buildLabel('Описание', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: descriptionController,
+                      hint: 'Расскажите о своих услугах доставки...',
+                      maxLines: 5,
                     ),
-                  ),
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 20),
 
-                  _buildLabel('Тип предложения', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildOfferTypeDropdown(),
-                  const SizedBox(height: 20),
+                    _buildLabel('Языки общения', isRequired: true),
+                    const SizedBox(height: 8),
+                    LanguageSelector(
+                      languages: _allLanguages,
+                      selectedLanguageCodes: _selectedLanguageCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedLanguageCodes = newSelection;
+                        });
+                      },
+                      isLoading: _isLoadingLanguages,
+                    ),
 
-                  _buildLabel('Тип посылки', isRequired: true),
-                  const SizedBox(height: 8),
-                  PackageTypesSelector(
-                    packageTypes: _allPackageTypes,
-                    selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                    onSelectionChanged: (newSelection) {
-                      setState(() {
-                        _selectedPackageTypeCodes = newSelection;
-                      });
-                    },
-                    isLoading: _isLoadingPackageTypes,
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Откуда', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildCityField(
-                    controller: fromController,
-                    hint: 'Город отправления',
-                    selectedCity: _selectedFromCity,
-                    onTap: () => _showCitySelector(isFromCity: true),
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Куда', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildCityField(
-                    controller: toController,
-                    hint: 'Город назначения',
-                    selectedCity: _selectedToCity,
-                    onTap: () => _showCitySelector(isFromCity: false),
-                  ),
-                  const SizedBox(height: 20),
-
-                  ..._buildDateTimeFields(),
-
-                  _buildLabel('Максимальный вес (кг)', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: maxWeightController,
-                    hint: '0',
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Цена за кг (\$)', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: priceController,
-                    hint: '0',
-                    keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d+\.?\d{0,2}')),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Описание', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: descriptionController,
-                    hint: 'Расскажите о своих услугах доставки...',
-                    maxLines: 5,
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Языки общения', isRequired: true),
-                  const SizedBox(height: 8),
-                  LanguageSelector(
-                    languages: _allLanguages,
-                    selectedLanguageCodes: _selectedLanguageCodes,
-                    onSelectionChanged: (newSelection) {
-                      setState(() {
-                        _selectedLanguageCodes = newSelection;
-                      });
-                    },
-                    isLoading: _isLoadingLanguages,
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 40),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: (_isFormValid && !_isSubmitting)
-                            ? _submitOffer
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isFormValid
-                              ? const Color(0xFF5B51FF)
-                              : const Color(0xFFE5E5EA),
-                          foregroundColor: _isFormValid
-                              ? Colors.white
-                              : const Color(0xFF8E8E93),
-                          elevation: 0,
-                          disabledBackgroundColor: const Color(0xFFE5E5EA),
-                          disabledForegroundColor: const Color(0xFF8E8E93),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white),
-                          ),
-                        )
-                            : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              "asset/micro.png",
-                              color: _isFormValid
-                                  ? Colors.white
-                                  : Colors.grey,
-                              width: 20,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20,  ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: (_isFormValid && !_isSubmitting)
+                              ? _submitOffer
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isFormValid
+                                ? const Color(0xFF5B51FF)
+                                : const Color(0xFFE5E5EA),
+                            foregroundColor: _isFormValid
+                                ? Colors.white
+                                : const Color(0xFF8E8E93),
+                            elevation: 0,
+                            disabledBackgroundColor: const Color(0xFFE5E5EA),
+                            disabledForegroundColor: const Color(0xFF8E8E93),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Опубликовать объявление',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white),
+                            ),
+                          )
+                              : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "asset/micro.png",
+                                color: _isFormValid
+                                    ? Colors.white
+                                    : Colors.grey,
+                                width: 20,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 8),
+                              Text(
+                                'Опубликовать объявление',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 50),
-                ],
+                   ],
+                ),
               ),
             ),
           ),
