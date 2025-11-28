@@ -21,8 +21,6 @@ CourierOfferModel _$CourierOfferModelFromJson(Map<String, dynamic> json) =>
       maxWeightKg: json['max_weight_kg'] as int,
       pricePerKg: (json['price_per_kg'] as num).toDouble(),
       description: json['description'] as String,
-      languages:
-          (json['languages'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$CourierOfferModelToJson(CourierOfferModel instance) =>
@@ -40,5 +38,4 @@ Map<String, dynamic> _$CourierOfferModelToJson(CourierOfferModel instance) =>
       'max_weight_kg': instance.maxWeightKg,
       'price_per_kg': instance.pricePerKg,
       'description': instance.description,
-      'languages': instance.languages,
     };
