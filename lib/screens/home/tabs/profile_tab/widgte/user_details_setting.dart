@@ -124,13 +124,13 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     showPhoneTab: widget.user.privacy?.showPhone ?? false,
                     showEmailTab: widget.user.privacy?.showEmail ?? false,
                     showActivityTime:
-                        widget.user.privacy?.showLastSeen ?? false,
+                        widget.user.privacy?.showActivityTime ?? false,
                     showNewMessages:
-                        widget.user.notifications?.newMessages ?? false,
+                        widget.user.notifications?.notifyNewMessages ?? false,
                     showNewReviews:
-                        widget.user.notifications?.newReviews ?? false,
+                        widget.user.notifications?.notifyNewReviews ?? false,
                     showMarketing:
-                        widget.user.notifications?.marketing ?? false,
+                        widget.user.notifications?.notifyMarketing ?? false,
                   ),
                   ExperienceTab(
                     user: widget.user,

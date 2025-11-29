@@ -119,7 +119,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
         ),
         SizedBox(height: WawatDimensions.spacingMd),
         FutureBuilder<OfferListResponse>(
-          future: bloc.myOffers(),
+          future: bloc.myOffers,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

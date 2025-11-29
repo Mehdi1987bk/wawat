@@ -12,5 +12,5 @@ class ProfileTabBloc extends BaseBloc {
   late final Stream<User> userDetails =
       ValueConnectableStream(authRepository.userDetails).autoConnect();
 
-  Future<OfferListResponse> myOffers() => authRepository.myOffers();
+  late final Future<OfferListResponse> myOffers = authRepository.myOffers();
 }

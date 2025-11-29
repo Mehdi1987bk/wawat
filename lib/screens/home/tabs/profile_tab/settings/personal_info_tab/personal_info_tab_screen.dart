@@ -31,7 +31,6 @@ class _PersonalInfoTabState
   late TextEditingController _aboutController;
   File? _selectedImage;
 
-  // ✅ Сохраняем исходные значения для сравнения
   late String _initialFullname;
   late String _initialEmail;
   late String _initialPhone;
@@ -45,8 +44,8 @@ class _PersonalInfoTabState
     _initialFullname = widget.user.fullname ?? '';
     _initialEmail = widget.user.email ?? '';
     _initialPhone = widget.user.phone ?? '';
-    _initialLocation = widget.user.location ?? '';
-    _initialAbout = widget.user.about ?? '';
+    _initialLocation = widget.user.profile?.locationText ?? '';
+    _initialAbout = widget.user.profile?.about ?? '';
 
     _fullNameController = TextEditingController(text: _initialFullname);
     _emailController = TextEditingController(text: _initialEmail);

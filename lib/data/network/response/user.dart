@@ -1,5 +1,6 @@
 import 'package:buking/data/network/response/privacy.dart';
 import 'package:buking/data/network/response/professional.dart';
+import 'package:buking/data/network/response/profile_info.dart';
 import 'package:buking/data/network/response/rating.dart';
 import 'package:buking/data/network/response/type_option.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -48,6 +49,9 @@ class User extends HiveObject {
   @HiveField(11)
   final DateTime? createdAt;
 
+  @HiveField(12)
+  final ProfileInfo? profile;
+
   User({
     required this.id,
     required this.fullname,
@@ -61,6 +65,7 @@ class User extends HiveObject {
     this.notifications,
     this.rating,
     this.createdAt,
+    this.profile,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

@@ -33,7 +33,7 @@ class HomeTabBloc extends BaseBloc {
     return userRepository.allRequest(dateFormat.format(dateTimeNow).toString());
   }
 
-  Future<OfferListResponse> myOffers() => userRepository.myOffers();
+ late final Future<OfferListResponse> myOffers = userRepository.myOffers();
 
   Future<OfferTypeResponse> getOfferTypes() => userRepository.getOfferTypes();
 

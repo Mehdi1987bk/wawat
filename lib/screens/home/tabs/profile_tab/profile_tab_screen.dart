@@ -21,70 +21,72 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
-    return StreamBuilder<User>(
-      stream: bloc.userDetails,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 80),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(left: 16, right: 16, top: 20),
-                          padding: EdgeInsets.only(left: 10, right: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+    return Container(
+      child: StreamBuilder<User>(
+        stream: bloc.userDetails,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 80),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                            padding: EdgeInsets.only(left: 10, right: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                _buildProfileHeader(snapshot.requireData),
+                                const SizedBox(height: 16),
+                                _buildStatsCard(context, snapshot.requireData),
+                              ],
+                            ),
                           ),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 20),
-                              _buildProfileHeader(snapshot.requireData),
-                              const SizedBox(height: 16),
-                              _buildStatsCard(context, snapshot.requireData),
-                            ],
+                          const SizedBox(height: 24),
+                          FutureBuilder<OfferListResponse>(
+                            future: bloc.myOffers,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(child: CircularProgressIndicator());
+                              }
+                              if (!snapshot.hasData || snapshot.data?.data == null) {
+                                return const SizedBox();
+                              }
+                              return DeliveryHistoryWidget(response: snapshot.requireData);
+                            },
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        FutureBuilder<OfferListResponse>(
-                          future: bloc.myOffers(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            if (!snapshot.hasData || snapshot.data?.data == null) {
-                              return const SizedBox();
-                            }
-                            return DeliveryHistoryWidget(response: snapshot.requireData);
-                          },
-                        ),
 
-                        const SizedBox(height: 24),
-                        _buildMenuSection(snapshot.requireData),
-                        const SizedBox(height: 120),
-                      ],
+                          const SizedBox(height: 24),
+                          _buildMenuSection(snapshot.requireData),
+                          const SizedBox(height: 120),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                BuildHeader(context),
-              ],
-            ),
-          );
-        }
-        return SizedBox();
-      },
+                  BuildHeader(context),
+                ],
+              ),
+            );
+          }
+          return SizedBox();
+        },
+      ),
     );
   }
 
