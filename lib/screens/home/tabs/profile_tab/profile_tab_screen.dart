@@ -164,8 +164,8 @@ class _ProfileTabScreenState
             children: [
               Row(
                 children: [
-                  const Text(
-                    'Wawat',
+                    Text(
+                   user.fullname,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -191,16 +191,16 @@ class _ProfileTabScreenState
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
-                'example@mail.com',
+                Text(
+                user.email ?? "",
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xFF6B7280),
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                '+7 (999) 123-45-67',
+                Text(
+                user.phone ?? "",
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xFF6B7280),
