@@ -5,6 +5,9 @@ import '../../../../../data/network/response/offer_models.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../main.dart';
+import 'auth_modal_utils.dart';
 
 class WawatCourierCard extends StatefulWidget {
   final OfferModel courier;
@@ -33,11 +36,16 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
     isFavorite = widget.courier.isFavourite ?? false;
   }
 
-  void _toggleFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
-    widget.onFavoriteToggle?.call(isFavorite);
+  void _toggleFavorite() async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+      widget.onFavoriteToggle?.call(isFavorite);
+    }
   }
 
   @override
@@ -78,27 +86,27 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                     ),
                     child: widget.courier.user?.avatar != null
                         ? ClipOval(
-                      child: Image.network(
-                        widget.courier.user!.avatar!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(
+                            child: Image.network(
+                              widget.courier.user!.avatar!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : Center(
                             child: Icon(
                               Icons.person,
                               color: Colors.white,
                               size: 30,
                             ),
-                          );
-                        },
-                      ),
-                    )
-                        : Center(
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
+                          ),
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -110,8 +118,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                           children: [
                             Flexible(
                               child: Text(
-                                widget.courier.user?.fullname ??
-                                    'Пользователь',
+                                widget.courier.user?.fullname ?? 'Пользователь',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -344,16 +351,13 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
               child: Center(
                 child: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite
-                      ? Colors.red
-                      : Color(0xFF5B5FFF),
+                  color: isFavorite ? Colors.red : Color(0xFF5B5FFF),
                   size: 24,
                 ),
               ),
             ),
           ),
         ),
-
       ],
     );
   }
@@ -425,31 +429,3 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -122,6 +122,12 @@ abstract class AuthApi {
     @Query('city_to_id') int? cityToId,
     @Query('date_from') String? dateFrom,
     @Query('date_to') String? dateTo,
+    @Query('sort') String? sort,
+    @Query('page') int page,
+  );
+
+  @GET('/api/v1/offers/favorites')
+  Future<Pagination<OfferModel>>  getFavorites(
     @Query('page') int page,
   );
 

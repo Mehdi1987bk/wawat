@@ -96,7 +96,6 @@ class DataAuthRepository implements AuthRepository {
     }
   }
 
-
   @override
   Future<void> registration(RegistrationRequest request) async {
     final response = await _authApi.register(request);
@@ -206,21 +205,26 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.setFavorites(request);
   }
 
+  Future<Pagination<OfferModel>> getFavorites(int page) {
+    return _authApi.getFavorites(page);
+  }
+
   @override
   Future<void> logout() {
     return _cacheManager.clear();
   }
 
   @override
-  Future<Pagination<OfferModel>> searchOffers(
+  Future<Pagination<OfferModel>> searchOffers({
     String? offerType,
     String? packageType,
     int? cityFromId,
     int? cityToId,
     String? dateFrom,
     String? dateTo,
-    int page,
-  ) async {
+    String? sort,
+    required int page,
+  }) async {
     try {
       final response = await _authApi.searchOffers(
         offerType,
@@ -229,6 +233,7 @@ class DataAuthRepository implements AuthRepository {
         cityToId,
         dateFrom,
         dateTo,
+        sort,
         page,
       );
       return response;

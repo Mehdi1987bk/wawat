@@ -50,13 +50,13 @@ class SearchOfferBloc extends PaginableBloc<OfferModel> {
   @override
   Future<Pagination<OfferModel>> provideSource(int page) {
     return run(authRepository.searchOffers(
-      offerType,
-      packageType,
-      cityFromId,
-      cityToId,
-      dateFrom,
-      dateTo,
-      page,
+      offerType: offerType,
+      packageType: packageType,
+      cityFromId: cityFromId,
+      cityToId: cityToId,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      page: page,
     ));
   }
 

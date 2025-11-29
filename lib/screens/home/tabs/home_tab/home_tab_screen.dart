@@ -3,10 +3,12 @@ import 'package:buking/screens/home/tabs/home_tab/widget/search_form_page.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
+import '../../../../presentation/bloc/utils.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
@@ -23,11 +25,27 @@ class HomeTabScreen extends BaseScreen {
 }
 
 class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
+  final PublishSubject<void> onPacketsAdded = PublishSubject();
+  final ScrollController _scrollController = ScrollController();
+
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   final _dateFromController = TextEditingController();
   final _dateToController = TextEditingController();
   final _categoryController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    bloc.load();
+    _scrollController.addListener(() {
+      hideKeyboardOnScroll(context, _scrollController);
+      if (_scrollController.position.extentAfter <= MediaQuery.of(context).size.height) {
+        bloc.load();
+      }
+    });
+  }
 
   int _selectedTab = 0;
 
@@ -40,24 +58,18 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 80, bottom: 80),
-              child: Column(
-                children: [
-                  // Main content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildHeroSection(),
-                          SearchFormWidget(
-                            bloc: bloc,
-                          ),
-                          SizedBox(height: WawatDimensions.spacingLg),
-                          _buildPopularOffers(),
-                        ],
-                      ),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    _buildHeroSection(),
+                    SearchFormWidget(
+                      bloc: bloc,
                     ),
-                  ),
-                ],
+                    SizedBox(height: WawatDimensions.spacingLg),
+                    _buildPopularOffers(),
+                  ],
+                ),
               ),
             ),
             BuildHeader(context),
@@ -111,75 +123,89 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
-          child: Center(
-            child: Text(
-              'Популярные предложения',
-              style: WawatTextStyles.h2,
-            ),
-          ),
-        ),
+
         SizedBox(height: WawatDimensions.spacingMd),
-        FutureBuilder<OfferListResponse>(
-          future: bloc.myOffers,
+        StreamBuilder<List<OfferModel>>(
+          stream: bloc.paginableList,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (!snapshot.hasData || snapshot.data?.data == null) {
-              return const SizedBox();
-            }
-            return ListView.builder(
-              padding: EdgeInsets.only(bottom: 30),
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: snapshot.requireData.data.length,
-              itemBuilder: (context, index) {
-                return WawatCourierCard(
-                  courier: snapshot.requireData.data[index],
-                  onFavoriteToggle: (v) {
-                    bloc.setFavorites(snapshot.requireData.data[index].id);
-                  },
-                  onDetails: () async {
-                    final isLogged = await sl.get<AuthRepository>().isLogged();
-                    if (!isLogged) {
-                      return AuthModalUtils.showAuthRequiredModal(context);
-                    } else {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (BuildContext context) {
-                            return CourierDetailsScreen(
-                              courier: snapshot.requireData.data[index],
-                            );
-                          },
-                        ),
-                      );
-                    }
-                  },
-                  onMessage: () async {
-                    final isLogged = await sl.get<AuthRepository>().isLogged();
-                    if (!isLogged) {
-                      return AuthModalUtils.showAuthRequiredModal(context);
-                    } else {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (BuildContext context) {
-                            return ChatScreen(
-                              courier: snapshot.requireData.data[index],
-                            );
-                          },
-                        ),
-                      );
-                    }
-                  },
+            if (snapshot.hasData) {
+              final groups = snapshot.requireData;
+              if (groups.isEmpty) {
+                return Center(
+                  child: Text(''),
                 );
-              },
-            );
+              }
+
+              return Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
+                    child: Center(
+                      child: Text(
+                        'Популярные предложения',
+                        style: WawatTextStyles.h2,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20, bottom: 40),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: groups.length,
+                      itemBuilder: (context, index) {
+                        final offer = groups[index];
+
+                        return WawatCourierCard(
+                          courier: offer,
+                          onFavoriteToggle: (v) {
+                            bloc.setFavorites(offer.id);
+                          },
+                          onDetails: () async {
+                            final isLogged = await sl.get<AuthRepository>().isLogged();
+                            if (!isLogged) {
+                              return AuthModalUtils.showAuthRequiredModal(context);
+                            } else {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) {
+                                    return CourierDetailsScreen(
+                                      courier: offer,
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                          },
+                          onMessage: () async {
+                            final isLogged = await sl.get<AuthRepository>().isLogged();
+                            if (!isLogged) {
+                              return AuthModalUtils.showAuthRequiredModal(context);
+                            } else {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) {
+                                    return ChatScreen(
+                                      courier: offer,
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return const SizedBox();
           },
-        ),
+        )
       ],
     );
   }
@@ -191,12 +217,13 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     _dateFromController.dispose();
     _dateToController.dispose();
     _categoryController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   HomeTabBloc provideBloc() {
-    return HomeTabBloc();
+    return HomeTabBloc(onPacketsAdded);
   }
 }
 
@@ -220,8 +247,8 @@ Widget BuildHeader(BuildContext context) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return Container();
-              }));
+                    return Container();
+                  }));
             }
           },
           child: Image.asset(

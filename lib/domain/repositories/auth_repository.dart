@@ -81,17 +81,20 @@ abstract class AuthRepository {
 
   Future<void> setFavorites(OfferResponse request);
 
+  Future<Pagination<OfferModel>> getFavorites(int page);
+
   Future<void> setIsFirstOpen();
 
-   Future<Pagination<OfferModel>> searchOffers(
+  Future<Pagination<OfferModel>> searchOffers({
     String? offerType,
     String? packageType,
     int? cityFromId,
     int? cityToId,
     String? dateFrom,
     String? dateTo,
-    int page,
-  );
+    String? sort,
+    required int page,
+  });
 
   Future<void> logout();
 }
