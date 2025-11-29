@@ -6,48 +6,15 @@ part 'offer_models.g.dart';
 @JsonSerializable()
 class OfferListResponse {
   final List<OfferModel> data;
-  final OfferMeta? meta;
-  final String? message;
 
   OfferListResponse({
     required this.data,
-    this.meta,
-    this.message,
-  });
+   });
 
   factory OfferListResponse.fromJson(Map<String, dynamic> json) =>
       _$OfferListResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$OfferListResponseToJson(this);
-}
-
-// ================ Pagination Meta Model ================
-@JsonSerializable()
-class OfferMeta {
-  final int page;
-
-  @JsonKey(name: 'per_page')
-  final int perPage;
-
-  final int total;
-
-  @JsonKey(name: 'last_page')
-  final int lastPage;
-
-  final String? locale;
-
-  OfferMeta({
-    required this.page,
-    required this.perPage,
-    required this.total,
-    required this.lastPage,
-    this.locale,
-  });
-
-  factory OfferMeta.fromJson(Map<String, dynamic> json) =>
-      _$OfferMetaFromJson(json);
-
-  Map<String, dynamic> toJson() => _$OfferMetaToJson(this);
 }
 
 // ================ Offer Model ================

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:rxdart/rxdart.dart';
 
+import '../../domain/entities/pagination.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../cache/cache_manager.dart';
@@ -12,6 +13,7 @@ import '../network/request/delivery_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
 import '../network/request/notification_settings.dart';
+import '../network/request/offer_response.dart';
 import '../network/request/otp_verify_request.dart';
 import '../network/request/privacy_settings.dart';
 import '../network/request/registration_request.dart';
@@ -185,9 +187,14 @@ class DataAuthRepository implements AuthRepository {
     return _cacheManager.setIsFirstOpen();
   }
 
-  // ✅ ДОБАВЛЕНО: Реализация метода поиска офферов
+  Future<void> setFavorites(  OfferResponse request) {
+    return _authApi.setFavorites(request);
+  }
+
+
   @override
-  Future<OfferListResponse> searchOffers(
+  @override
+  Future<Pagination<OfferModel>>  searchOffers(
       String? offerType,
       String? packageType,
       int? cityFromId,
@@ -195,15 +202,20 @@ class DataAuthRepository implements AuthRepository {
       String? dateFrom,
       String? dateTo,
       int page,
-      ) {
-    return _authApi.searchOffers(
-      offerType,
-      packageType,
-      cityFromId,
-      cityToId,
-      dateFrom,
-      dateTo,
-      page,
-    );
+      )async {
+    try {
+      final response = await _authApi.searchOffers(
+        offerType,
+        packageType,
+        cityFromId,
+        cityToId,
+        dateFrom,
+        dateTo,
+        page,
+      );
+      return response;
+    } catch (e) {
+      return Pagination<OfferModel>(data: [], lastPage: 1);
+    }
   }
 }

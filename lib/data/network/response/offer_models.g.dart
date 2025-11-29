@@ -11,33 +11,11 @@ OfferListResponse _$OfferListResponseFromJson(Map<String, dynamic> json) =>
       data: (json['data'] as List<dynamic>)
           .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      meta: json['meta'] == null
-          ? null
-          : OfferMeta.fromJson(json['meta'] as Map<String, dynamic>),
-      message: json['message'] as String?,
     );
 
 Map<String, dynamic> _$OfferListResponseToJson(OfferListResponse instance) =>
     <String, dynamic>{
       'data': instance.data,
-      'meta': instance.meta,
-      'message': instance.message,
-    };
-
-OfferMeta _$OfferMetaFromJson(Map<String, dynamic> json) => OfferMeta(
-      page: json['page'] as int,
-      perPage: json['per_page'] as int,
-      total: json['total'] as int,
-      lastPage: json['last_page'] as int,
-      locale: json['locale'] as String?,
-    );
-
-Map<String, dynamic> _$OfferMetaToJson(OfferMeta instance) => <String, dynamic>{
-      'page': instance.page,
-      'per_page': instance.perPage,
-      'total': instance.total,
-      'last_page': instance.lastPage,
-      'locale': instance.locale,
     };
 
 OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(

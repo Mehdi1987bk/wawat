@@ -13,6 +13,8 @@ import '../../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../auth/auth_modal/auth_required_modal.dart';
 import '../../../auth/login/login_modal.dart';
 import '../../../auth/registration/registration_modal.dart';
+import '../chat/chat_list.dart';
+import 'courier_screen/courier_screen.dart';
 import 'home_tab_bloc.dart';
 
 class HomeTabScreen extends BaseScreen {
@@ -37,7 +39,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 80,bottom: 80),
+              padding: const EdgeInsets.only(top: 80, bottom: 80),
               child: Column(
                 children: [
                   // Main content
@@ -46,18 +48,19 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                       child: Column(
                         children: [
                           _buildHeroSection(),
-                          SearchFormWidget(bloc: bloc,),
+                          SearchFormWidget(
+                            bloc: bloc,
+                          ),
                           SizedBox(height: WawatDimensions.spacingLg),
                           _buildPopularOffers(),
                         ],
                       ),
                     ),
                   ),
-                  ],
+                ],
               ),
             ),
             BuildHeader(context),
-
           ],
         ),
       ),
@@ -135,6 +138,9 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               itemBuilder: (context, index) {
                 return WawatCourierCard(
                   courier: snapshot.requireData.data[index],
+                  onFavoriteToggle: (v) {
+                    bloc.setFavorites(snapshot.requireData.data[index].id);
+                  },
                   onDetails: () async {
                     final isLogged = await sl.get<AuthRepository>().isLogged();
                     if (!isLogged) {
@@ -144,8 +150,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                         context,
                         CupertinoPageRoute(
                           builder: (BuildContext context) {
-                            return Container(
-                              child: Text("Details"),
+                            return CourierDetailsScreen(
+                              courier: snapshot.requireData.data[index],
                             );
                           },
                         ),
@@ -161,8 +167,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                         context,
                         CupertinoPageRoute(
                           builder: (BuildContext context) {
-                            return Container(
-                              child: Text("Messagesss"),
+                            return ChatScreen(
+                              courier: snapshot.requireData.data[index],
                             );
                           },
                         ),
@@ -177,8 +183,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
       ],
     );
   }
-
-
 
   @override
   void dispose() {

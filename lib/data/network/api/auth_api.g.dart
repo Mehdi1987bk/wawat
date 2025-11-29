@@ -687,7 +687,7 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<OfferListResponse> searchOffers(
+  Future<Pagination<OfferModel>> searchOffers(
     String? offerType,
     String? packageType,
     int? cityFromId,
@@ -709,7 +709,7 @@ class _AuthApi implements AuthApi {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<OfferListResponse>(Options(
+    final _options = _setStreamType<Pagination<OfferModel>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -726,14 +726,40 @@ class _AuthApi implements AuthApi {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late OfferListResponse _value;
+    late Pagination<OfferModel> _value;
     try {
-      _value = OfferListResponse.fromJson(_result.data!);
+      _value = Pagination<OfferModel>.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
     }
     return _value;
+  }
+
+  @override
+  Future<void> setFavorites(OfferResponse request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<void>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/favorites/toggle',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    await _dio.fetch<void>(_options);
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

@@ -1,3 +1,4 @@
+import '../../../../../data/network/request/offer_response.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/paginable_bloc.dart';
@@ -6,13 +7,29 @@ import '../../../../../domain/entities/pagination.dart';
 
 class SearchOfferBloc extends PaginableBloc<OfferModel> {
   final authRepository = sl.get<AuthRepository>();
-
+  final Stream onReflash;
   String? offerType;
   String? packageType;
   int? cityFromId;
   int? cityToId;
   String? dateFrom;
   String? dateTo;
+
+  SearchOfferBloc(
+    this.onReflash,
+  );
+
+  @override
+  void init() {
+    super.init();
+    onReflash.listen((event) {
+      load(refresh: true);
+    });
+  }
+
+  Future<void> loadList() async {
+    load(refresh: true);
+  }
 
   void setSearchParams({
     String? offerType,
@@ -31,17 +48,8 @@ class SearchOfferBloc extends PaginableBloc<OfferModel> {
   }
 
   @override
-  Future<Pagination<OfferModel>> provideSource(int page) async {
-    print('🔍 SearchOfferBloc: Загрузка страницы $page');
-    print('Параметры поиска:');
-    print('  - offerType: $offerType');
-    print('  - packageType: $packageType');
-    print('  - cityFromId: $cityFromId');
-    print('  - cityToId: $cityToId');
-    print('  - dateFrom: $dateFrom');
-    print('  - dateTo: $dateTo');
-
-    final response = await authRepository.searchOffers(
+  Future<Pagination<OfferModel>> provideSource(int page) {
+    return run(authRepository.searchOffers(
       offerType,
       packageType,
       cityFromId,
@@ -49,25 +57,9 @@ class SearchOfferBloc extends PaginableBloc<OfferModel> {
       dateFrom,
       dateTo,
       page,
-    );
-
-    print('✅ Получено офферов: ${response.data.length}');
-    print('Meta: page=${response.meta?.page}, total=${response.meta?.total}, lastPage=${response.meta?.lastPage}');
-
-    // Конвертируем OfferListResponse в Pagination<OfferModel>
-    return Pagination<OfferModel>(
-      currentPage: response.meta?.page ?? page,
-      data: response.data,
-      firstPageUrl: '',
-      from: (response.meta?.page ?? 1) == 1 ? 1 : ((response.meta?.page ?? 1) - 1) * (response.meta?.perPage ?? 20) + 1,
-      lastPage: response.meta?.lastPage ?? 1,
-      lastPageUrl: '',
-      nextPageUrl: (response.meta?.page ?? 1) < (response.meta?.lastPage ?? 1) ? 'next' : null,
-      path: '',
-      perPage: response.meta?.perPage ?? 20,
-      prevPageUrl: (response.meta?.page ?? 1) > 1 ? 'prev' : null,
-      to: (response.meta?.page ?? 1) * (response.meta?.perPage ?? 20),
-      total: response.meta?.total ?? response.data.length,
-    );
+    ));
   }
+
+  Future<void> setFavorites(int offerId) =>
+      authRepository.setFavorites(OfferResponse(offerId: offerId));
 }

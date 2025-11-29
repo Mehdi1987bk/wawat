@@ -10,7 +10,6 @@ import '../../presentation/bloc/base_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
 class HomeScreen extends BaseScreen {
   final int? orderId;
