@@ -43,8 +43,7 @@ class CourierOfferModel {
   @JsonKey(name: 'description')
   final String description;
 
-  @JsonKey(name: 'languages')
-  final List<String> languages;
+
 
   CourierOfferModel({
     required this.offerType,
@@ -60,8 +59,7 @@ class CourierOfferModel {
     required this.maxWeightKg,
     required this.pricePerKg,
     required this.description,
-    required this.languages,
-  });
+   });
 
   factory CourierOfferModel.fromJson(Map<String, dynamic> json) =>
       _$CourierOfferModelFromJson(json);

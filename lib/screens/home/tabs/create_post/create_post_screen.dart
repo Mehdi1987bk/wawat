@@ -27,7 +27,6 @@ class _CreatePostScreenState
     extends BaseState<CreatePostScreen, CreatePostBloc> {
   String? selectedOfferType;
 
-  Set<String> _selectedLanguageCodes = {};
   Set<String> _selectedPackageTypeCodes = {};
 
   City? _selectedFromCity;
@@ -38,9 +37,7 @@ class _CreatePostScreenState
   List<OfferTypeModel> _allOfferTypes = [];
   bool _isLoadingOfferTypes = true;
 
-  List<Language> _allLanguages = [];
   List<PackageType> _allPackageTypes = [];
-  bool _isLoadingLanguages = true;
   bool _isLoadingPackageTypes = true;
 
   bool _isSubmitting = false;
@@ -53,9 +50,9 @@ class _CreatePostScreenState
   final TextEditingController flightDateController = TextEditingController();
   final TextEditingController flightTimeController = TextEditingController();
   final TextEditingController deliveryDateFromController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController deliveryDateToController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController purchaseDateController = TextEditingController();
   final TextEditingController purchaseTimeController = TextEditingController();
 
@@ -78,10 +75,6 @@ class _CreatePostScreenState
     maxWeightController.addListener(_updateButtonState);
     priceController.addListener(_updateButtonState);
     descriptionController.addListener(_updateButtonState);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAllData();
-    });
   }
 
   void _updateButtonState() {
@@ -100,8 +93,7 @@ class _CreatePostScreenState
         priceController.text.isNotEmpty &&
         double.tryParse(priceController.text) != null &&
         double.parse(priceController.text) > 0 &&
-        descriptionController.text.trim().isNotEmpty &&
-        _selectedLanguageCodes.isNotEmpty;
+        descriptionController.text.trim().isNotEmpty;
 
     if (!baseValid) return false;
 
@@ -117,126 +109,6 @@ class _CreatePostScreenState
             purchaseTimeController.text.isNotEmpty;
       default:
         return false;
-    }
-  }
-
-  Future<void> _loadAllData() async {
-    setState(() {
-      _isLoadingLanguages = true;
-      _isLoadingPackageTypes = true;
-      _isLoadingCities = true;
-      _isLoadingOfferTypes = true;
-    });
-
-    await Future.wait([
-      _loadLanguages(),
-      _loadPackageTypes(),
-      _loadCities(),
-      _loadOfferTypes(),
-    ]);
-  }
-
-  Future<void> _loadOfferTypes() async {
-    try {
-      final offerTypes = await bloc.getOfferTypes();
-
-      setState(() {
-        _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
-        _isLoadingOfferTypes = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingOfferTypes = false;
-        _allOfferTypes = [];
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки типов предложений: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _loadCities() async {
-    try {
-      final cities = await bloc.getCities();
-
-      setState(() {
-        _allCities = List<City>.from(cities.data);
-        _isLoadingCities = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingCities = false;
-        _allCities = [];
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки городов: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _loadLanguages() async {
-    try {
-      final languages = await bloc.getLanguages();
-
-      setState(() {
-        _allLanguages = List<Language>.from(languages.data);
-        _isLoadingLanguages = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingLanguages = false;
-        _allLanguages = [];
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки языков: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _loadPackageTypes() async {
-    try {
-      final packageTypes = await bloc.getPackageTypes();
-
-      setState(() {
-        _allPackageTypes = List<PackageType>.from(packageTypes.data);
-        _isLoadingPackageTypes = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingPackageTypes = false;
-        _allPackageTypes = [];
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки типов упаковки: $e'),
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
     }
   }
 
@@ -271,193 +143,187 @@ class _CreatePostScreenState
             child: SingleChildScrollView(
               controller: _scrollController,
               padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    width: 81,
-                    height: 81,
-                    child: Stack(
-                      children: [
-                        Image.asset("asset/add_back.png"),
-                        const Center(
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 50,
+              child: Container(
+                margin: EdgeInsets.only(bottom: 100),
+                padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFAFAFA),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x0D000000),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Container(
+                      width: 81,
+                      height: 81,
+                      child: Stack(
+                        children: [
+                          Image.asset("asset/add_back.png"),
+                          const Center(
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 50,
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Подать',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Создайте объявление для поиска курьера или\nклиента',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF8E8E93),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildLabel('Тип предложения', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildOfferTypeDropdown(),
+                    const SizedBox(height: 20),
+                    _buildLabel('Тип посылки', isRequired: true),
+                    const SizedBox(height: 8),
+                    PackageTypesSelector(
+                      packageTypes: _allPackageTypes,
+                      selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedPackageTypeCodes = newSelection;
+                        });
+                      },
+                      isLoading: _isLoadingPackageTypes,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildLabel('Откуда', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildCityField(
+                      controller: fromController,
+                      hint: 'Город отправления',
+                      selectedCity: _selectedFromCity,
+                      onTap: () => _showCitySelector(isFromCity: true),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildLabel('Куда', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildCityField(
+                      controller: toController,
+                      hint: 'Город назначения',
+                      selectedCity: _selectedToCity,
+                      onTap: () => _showCitySelector(isFromCity: false),
+                    ),
+                    const SizedBox(height: 20),
+                    ..._buildDateTimeFields(),
+                    _buildLabel('Максимальный вес (кг)', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: maxWeightController,
+                      hint: '0',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Подать',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    const SizedBox(height: 20),
+                    _buildLabel('Цена за кг (\$)', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: priceController,
+                      hint: '0',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}')),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Создайте объявление для поиска курьера или\nклиента',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF8E8E93),
-                      height: 1.4,
+                    const SizedBox(height: 20),
+                    _buildLabel('Описание', isRequired: true),
+                    const SizedBox(height: 8),
+                    _buildTextField(
+                      controller: descriptionController,
+                      hint: 'Расскажите о своих услугах доставки...',
+                      maxLines: 5,
                     ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  _buildLabel('Тип предложения', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildOfferTypeDropdown(),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Тип посылки', isRequired: true),
-                  const SizedBox(height: 8),
-                  PackageTypesSelector(
-                    packageTypes: _allPackageTypes,
-                    selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                    onSelectionChanged: (newSelection) {
-                      setState(() {
-                        _selectedPackageTypeCodes = newSelection;
-                      });
-                    },
-                    isLoading: _isLoadingPackageTypes,
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Откуда', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildCityField(
-                    controller: fromController,
-                    hint: 'Город отправления',
-                    selectedCity: _selectedFromCity,
-                    onTap: () => _showCitySelector(isFromCity: true),
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Куда', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildCityField(
-                    controller: toController,
-                    hint: 'Город назначения',
-                    selectedCity: _selectedToCity,
-                    onTap: () => _showCitySelector(isFromCity: false),
-                  ),
-                  const SizedBox(height: 20),
-
-                  ..._buildDateTimeFields(),
-
-                  _buildLabel('Максимальный вес (кг)', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: maxWeightController,
-                    hint: '0',
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Цена за кг (\$)', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: priceController,
-                    hint: '0',
-                    keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d+\.?\d{0,2}')),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Описание', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: descriptionController,
-                    hint: 'Расскажите о своих услугах доставки...',
-                    maxLines: 5,
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Языки общения', isRequired: true),
-                  const SizedBox(height: 8),
-                  LanguageSelector(
-                    languages: _allLanguages,
-                    selectedLanguageCodes: _selectedLanguageCodes,
-                    onSelectionChanged: (newSelection) {
-                      setState(() {
-                        _selectedLanguageCodes = newSelection;
-                      });
-                    },
-                    isLoading: _isLoadingLanguages,
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 40),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: (_isFormValid && !_isSubmitting)
-                            ? _submitOffer
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _isFormValid
-                              ? const Color(0xFF5B51FF)
-                              : const Color(0xFFE5E5EA),
-                          foregroundColor: _isFormValid
-                              ? Colors.white
-                              : const Color(0xFF8E8E93),
-                          elevation: 0,
-                          disabledBackgroundColor: const Color(0xFFE5E5EA),
-                          disabledForegroundColor: const Color(0xFF8E8E93),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white),
-                          ),
-                        )
-                            : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              "asset/micro.png",
-                              color: _isFormValid
-                                  ? Colors.white
-                                  : Colors.grey,
-                              width: 20,
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 20,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: (_isFormValid && !_isSubmitting)
+                              ? _submitOffer
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isFormValid
+                                ? const Color(0xFF5B51FF)
+                                : const Color(0xFFE5E5EA),
+                            foregroundColor: _isFormValid
+                                ? Colors.white
+                                : const Color(0xFF8E8E93),
+                            elevation: 0,
+                            disabledBackgroundColor: const Color(0xFFE5E5EA),
+                            disabledForegroundColor: const Color(0xFF8E8E93),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Опубликовать объявление',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      "asset/micro.png",
+                                      color: _isFormValid
+                                          ? Colors.white
+                                          : Colors.grey,
+                                      width: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Опубликовать объявление',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 50),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -572,7 +438,7 @@ class _CreatePostScreenState
         );
         if (date != null) {
           controller.text =
-          '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+              '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
         }
       },
     );
@@ -599,7 +465,7 @@ class _CreatePostScreenState
         );
         if (time != null) {
           controller.text =
-          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+              '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
         }
       },
     );
@@ -620,23 +486,22 @@ class _CreatePostScreenState
         cityFromId: _selectedFromCity!.id,
         cityToId: _selectedToCity!.id,
         flightDate:
-        selectedOfferType == 'courier' ? flightDateController.text : '',
+            selectedOfferType == 'courier' ? flightDateController.text : '',
         flightTime:
-        selectedOfferType == 'courier' ? flightTimeController.text : '',
+            selectedOfferType == 'courier' ? flightTimeController.text : '',
         deliveryDateFrom: selectedOfferType == 'sender'
             ? deliveryDateFromController.text
             : '',
         deliveryDateTo:
-        selectedOfferType == 'sender' ? deliveryDateToController.text : '',
+            selectedOfferType == 'sender' ? deliveryDateToController.text : '',
         purchaseDate:
-        selectedOfferType == 'buyer' ? purchaseDateController.text : '',
+            selectedOfferType == 'buyer' ? purchaseDateController.text : '',
         purchaseTime:
-        selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
+            selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
         packageType: packageType,
         maxWeightKg: int.parse(maxWeightController.text),
         pricePerKg: double.parse(priceController.text),
         description: descriptionController.text.trim(),
-        languages: _selectedLanguageCodes.toList(),
       );
 
       await bloc.createOffers(request);
@@ -650,8 +515,6 @@ class _CreatePostScreenState
           curve: Curves.easeInOut,
         );
         showTopSnackbar("Сохранено", "Объявление опубликовано!", true, context);
-
-
 
         _clearAllFields();
       }
@@ -703,11 +566,9 @@ class _CreatePostScreenState
       maxWeightController.clear();
       priceController.clear();
       descriptionController.clear();
-
       _selectedFromCity = null;
       _selectedToCity = null;
       _selectedPackageTypeCodes.clear();
-      _selectedLanguageCodes.clear();
       selectedOfferType = null;
     });
   }
@@ -767,33 +628,33 @@ class _CreatePostScreenState
             Expanded(
               child: selectedCity != null
                   ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    selectedCity.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${selectedCity.countryName} (${selectedCity.countryCode})',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF8E8E93),
-                    ),
-                  ),
-                ],
-              )
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          selectedCity.name,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${selectedCity.countryName} (${selectedCity.countryCode})',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF8E8E93),
+                          ),
+                        ),
+                      ],
+                    )
                   : Text(
-                hint,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFFC7C7CC),
-                ),
-              ),
+                      hint,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFFC7C7CC),
+                      ),
+                    ),
             ),
             Icon(
               selectedCity != null
@@ -851,10 +712,10 @@ class _CreatePostScreenState
           ),
           suffixIcon: suffixIcon != null
               ? Icon(
-            suffixIcon,
-            color: const Color(0xFFC7C7CC),
-            size: 20,
-          )
+                  suffixIcon,
+                  color: const Color(0xFFC7C7CC),
+                  size: 20,
+                )
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -904,7 +765,6 @@ class _CreatePostScreenState
       child: DropdownButtonHideUnderline(
         child: DropdownButton2<String>(
           isExpanded: true,
-
           customButton: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -933,9 +793,7 @@ class _CreatePostScreenState
               ],
             ),
           ),
-
           value: value,
-
           items: items.map((item) {
             return DropdownMenuItem<String>(
               value: item,
@@ -948,23 +806,17 @@ class _CreatePostScreenState
               ),
             );
           }).toList(),
-
           onChanged: onChanged,
-
           dropdownStyleData: DropdownStyleData(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.white,
             ),
             elevation: 3,
-
             padding: const EdgeInsets.symmetric(horizontal: 16),
-
             offset: const Offset(0, -6),
-
             maxHeight: 300,
           ),
-
           menuItemStyleData: const MenuItemStyleData(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           ),
