@@ -50,9 +50,9 @@ class _CreatePostScreenState
   final TextEditingController flightDateController = TextEditingController();
   final TextEditingController flightTimeController = TextEditingController();
   final TextEditingController deliveryDateFromController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController deliveryDateToController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController purchaseDateController = TextEditingController();
   final TextEditingController purchaseTimeController = TextEditingController();
 
@@ -75,6 +75,11 @@ class _CreatePostScreenState
     maxWeightController.addListener(_updateButtonState);
     priceController.addListener(_updateButtonState);
     descriptionController.addListener(_updateButtonState);
+
+    // ✅ ДОБАВЛЕНО: Загрузка данных
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAllData();
+    });
   }
 
   void _updateButtonState() {
@@ -109,6 +114,102 @@ class _CreatePostScreenState
             purchaseTimeController.text.isNotEmpty;
       default:
         return false;
+    }
+  }
+
+  // ✅ ДОБАВЛЕНО: Метод для загрузки всех данных
+  Future<void> _loadAllData() async {
+    setState(() {
+      _isLoadingPackageTypes = true;
+      _isLoadingCities = true;
+      _isLoadingOfferTypes = true;
+    });
+
+    await Future.wait([
+      _loadPackageTypes(),
+      _loadCities(),
+      _loadOfferTypes(),
+    ]);
+  }
+
+  // ✅ ДОБАВЛЕНО: Метод для загрузки типов предложений
+  Future<void> _loadOfferTypes() async {
+    try {
+      final offerTypes = await bloc.getOfferTypes();
+
+      setState(() {
+        _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
+        _isLoadingOfferTypes = false;
+      });
+    } catch (e, stackTrace) {
+      setState(() {
+        _isLoadingOfferTypes = false;
+        _allOfferTypes = [];
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки типов предложений: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  // ✅ ДОБАВЛЕНО: Метод для загрузки городов
+  Future<void> _loadCities() async {
+    try {
+      final cities = await bloc.getCities();
+
+      setState(() {
+        _allCities = List<City>.from(cities.data);
+        _isLoadingCities = false;
+      });
+    } catch (e, stackTrace) {
+      setState(() {
+        _isLoadingCities = false;
+        _allCities = [];
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки городов: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  // ✅ ДОБАВЛЕНО: Метод для загрузки типов посылок
+  Future<void> _loadPackageTypes() async {
+    try {
+      final packageTypes = await bloc.getPackageTypes();
+
+      setState(() {
+        _allPackageTypes = List<PackageType>.from(packageTypes.data);
+        _isLoadingPackageTypes = false;
+      });
+    } catch (e, stackTrace) {
+      setState(() {
+        _isLoadingPackageTypes = false;
+        _allPackageTypes = [];
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки типов упаковки: $e'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -249,7 +350,7 @@ class _CreatePostScreenState
                       controller: priceController,
                       hint: '0',
                       keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                             RegExp(r'^\d+\.?\d{0,2}')),
@@ -291,34 +392,34 @@ class _CreatePostScreenState
                           ),
                           child: _isSubmitting
                               ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                  ),
-                                )
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white),
+                            ),
+                          )
                               : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      "asset/micro.png",
-                                      color: _isFormValid
-                                          ? Colors.white
-                                          : Colors.grey,
-                                      width: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Опубликовать объявление',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "asset/micro.png",
+                                color: _isFormValid
+                                    ? Colors.white
+                                    : Colors.grey,
+                                width: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Опубликовать объявление',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -438,7 +539,7 @@ class _CreatePostScreenState
         );
         if (date != null) {
           controller.text =
-              '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+          '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
         }
       },
     );
@@ -465,7 +566,7 @@ class _CreatePostScreenState
         );
         if (time != null) {
           controller.text =
-              '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
         }
       },
     );
@@ -486,18 +587,18 @@ class _CreatePostScreenState
         cityFromId: _selectedFromCity!.id,
         cityToId: _selectedToCity!.id,
         flightDate:
-            selectedOfferType == 'courier' ? flightDateController.text : '',
+        selectedOfferType == 'courier' ? flightDateController.text : '',
         flightTime:
-            selectedOfferType == 'courier' ? flightTimeController.text : '',
+        selectedOfferType == 'courier' ? flightTimeController.text : '',
         deliveryDateFrom: selectedOfferType == 'sender'
             ? deliveryDateFromController.text
             : '',
         deliveryDateTo:
-            selectedOfferType == 'sender' ? deliveryDateToController.text : '',
+        selectedOfferType == 'sender' ? deliveryDateToController.text : '',
         purchaseDate:
-            selectedOfferType == 'buyer' ? purchaseDateController.text : '',
+        selectedOfferType == 'buyer' ? purchaseDateController.text : '',
         purchaseTime:
-            selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
+        selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
         packageType: packageType,
         maxWeightKg: int.parse(maxWeightController.text),
         pricePerKg: double.parse(priceController.text),
@@ -628,33 +729,33 @@ class _CreatePostScreenState
             Expanded(
               child: selectedCity != null
                   ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          selectedCity.name,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${selectedCity.countryName} (${selectedCity.countryCode})',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF8E8E93),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      hint,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFFC7C7CC),
-                      ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selectedCity.name,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${selectedCity.countryName} (${selectedCity.countryCode})',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF8E8E93),
+                    ),
+                  ),
+                ],
+              )
+                  : Text(
+                hint,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFC7C7CC),
+                ),
+              ),
             ),
             Icon(
               selectedCity != null
@@ -712,10 +813,10 @@ class _CreatePostScreenState
           ),
           suffixIcon: suffixIcon != null
               ? Icon(
-                  suffixIcon,
-                  color: const Color(0xFFC7C7CC),
-                  size: 20,
-                )
+            suffixIcon,
+            color: const Color(0xFFC7C7CC),
+            size: 20,
+          )
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

@@ -46,12 +46,12 @@ abstract class AuthRepository {
   Future<LanguageResponse> getLanguages();
 
   Future<void> profileEdit(
-    String name,
-    String email,
-    String phone,
-    String location,
-    String about,
-  );
+      String name,
+      String email,
+      String phone,
+      String location,
+      String about,
+      );
 
   Future<void> forgotPassword(ForgotPasswordrRequest request);
 
@@ -78,4 +78,15 @@ abstract class AuthRepository {
   Future<bool> firstOpen();
 
   Future<void> setIsFirstOpen();
+
+  // ✅ ДОБАВЛЕНО: Метод поиска офферов с пагинацией
+  Future<OfferListResponse> searchOffers(
+      String? offerType,
+      String? packageType,
+      int? cityFromId,
+      int? cityToId,
+      String? dateFrom,
+      String? dateTo,
+      int page,
+      );
 }

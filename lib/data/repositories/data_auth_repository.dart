@@ -110,12 +110,12 @@ class DataAuthRepository implements AuthRepository {
   }
 
   Future<void> profileEdit(
-    String name,
-    String email,
-    String phone,
-    String location,
-    String about,
-   ) {
+      String name,
+      String email,
+      String phone,
+      String location,
+      String about,
+      ) {
     return _authApi.profileEdit(UserRequest(fullname: name, email: email, phone: phone,about: about,locationText: location) );
   }
 
@@ -183,5 +183,27 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> setIsFirstOpen() {
     return _cacheManager.setIsFirstOpen();
+  }
+
+  // ✅ ДОБАВЛЕНО: Реализация метода поиска офферов
+  @override
+  Future<OfferListResponse> searchOffers(
+      String? offerType,
+      String? packageType,
+      int? cityFromId,
+      int? cityToId,
+      String? dateFrom,
+      String? dateTo,
+      int page,
+      ) {
+    return _authApi.searchOffers(
+      offerType,
+      packageType,
+      cityFromId,
+      cityToId,
+      dateFrom,
+      dateTo,
+      page,
+    );
   }
 }

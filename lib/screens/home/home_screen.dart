@@ -36,7 +36,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
+          (timeStamp) {
         // if (widget.purchasedProduct != null) {
         //   showDialog(
         //     context: context,
@@ -67,33 +67,34 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
 
   @override
   Widget body() {
-    return Scaffold(
-      body: Stack(
-        children: [
-          _Tabs(
-            selectedIndex: _selectedIndex,
-          ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: BottomBar(
-                onChanged: (index) async {
-                  final isLogged = await sl.get<AuthRepository>().isLogged();
-                  if ((index != 0) && !isLogged) {
-                    return AuthModalUtils.showAuthRequiredModal(context);
-                  }
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                selectedIndex: _selectedIndex,
-              ),
+    return Stack(  // ← УБРАН ВЛОЖЕННЫЙ Scaffold
+      children: [
+        _Tabs(
+          selectedIndex: _selectedIndex,
+        ),
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomBar(
+              onChanged: (index) async {
+                final isLogged = await sl.get<AuthRepository>().isLogged();
+                if ((index != 0) && !isLogged) {
+                  return AuthModalUtils.showAuthRequiredModal(context);
+                }
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              selectedIndex: _selectedIndex,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  @override
+  bool get resizeToAvoidBottomInset => false;  // ← ДОБАВЛЕНА ЭТА СТРОКА
 
   @override
   HomeBloc provideBloc() {
@@ -128,9 +129,6 @@ class __TabsState extends State<_Tabs> {
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(
-      index: widget.selectedIndex,
-      children: _tabs,
-    );
+    return _tabs[widget.selectedIndex];
   }
 }

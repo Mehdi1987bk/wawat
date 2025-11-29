@@ -37,8 +37,8 @@ abstract class AuthApi {
 
   @POST('/api/v1/auth/login')
   Future<LoginResponseData> login(
-    @Body() LoginRequest request,
-  );
+      @Body() LoginRequest request,
+      );
 
   @PUT('/api/sendOtp')
   Future<void> getRegistration(@Query("phoneNumber") int number);
@@ -53,27 +53,27 @@ abstract class AuthApi {
 
   @POST('/api/v1/auth/register')
   Future<LoginResponseData> register(
-    @Body() RegistrationRequest request,
-  );
+      @Body() RegistrationRequest request,
+      );
 
   @POST('/otp/verify')
   Future<RegistrationResponse> otpVerify(
-    @Body() OtpVerifyRequest request,
-    @Header('Authorization') String token,
-  );
+      @Body() OtpVerifyRequest request,
+      @Header('Authorization') String token,
+      );
 
   @POST('/otp/send')
   Future<RegistrationResponse> otpSend(
-    @Header('Authorization') String token,
-  );
+      @Header('Authorization') String token,
+      );
 
   @PUT('/api/updatePassword')
   Future<void> forgotPassword(@Body() ForgotPasswordrRequest request);
 
   @GET('/api/all-requests/2022-12-01/{date}')
   Stream<AllrequestData> allRequest(
-    @Path() String date,
-  );
+      @Path() String date,
+      );
 
   @GET('/api/v1/auth/me')
   Future<LoginResponseData> customersMe();
@@ -110,4 +110,16 @@ abstract class AuthApi {
 
   @GET('/api/v1/offers/my')
   Future<OfferListResponse> myOffers();
+
+  // ✅ ДОБАВЛЕНО: Метод поиска офферов с пагинацией
+  @GET('/api/v1/offers')
+  Future<OfferListResponse> searchOffers(
+      @Query('offer_type') String? offerType,
+      @Query('package_type') String? packageType,
+      @Query('city_from_id') int? cityFromId,
+      @Query('city_to_id') int? cityToId,
+      @Query('date_from') String? dateFrom,
+      @Query('date_to') String? dateTo,
+      @Query('page') int page,
+      );
 }

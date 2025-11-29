@@ -2,19 +2,52 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'offer_models.g.dart';
 
-// ================ Main Response Model ================
+// ================ Main Response Model with Pagination ================
 @JsonSerializable()
 class OfferListResponse {
-   final List<OfferModel> data;
+  final List<OfferModel> data;
+  final OfferMeta? meta;
+  final String? message;
 
   OfferListResponse({
     required this.data,
+    this.meta,
+    this.message,
   });
 
   factory OfferListResponse.fromJson(Map<String, dynamic> json) =>
       _$OfferListResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$OfferListResponseToJson(this);
+}
+
+// ================ Pagination Meta Model ================
+@JsonSerializable()
+class OfferMeta {
+  final int page;
+
+  @JsonKey(name: 'per_page')
+  final int perPage;
+
+  final int total;
+
+  @JsonKey(name: 'last_page')
+  final int lastPage;
+
+  final String? locale;
+
+  OfferMeta({
+    required this.page,
+    required this.perPage,
+    required this.total,
+    required this.lastPage,
+    this.locale,
+  });
+
+  factory OfferMeta.fromJson(Map<String, dynamic> json) =>
+      _$OfferMetaFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OfferMetaToJson(this);
 }
 
 // ================ Offer Model ================
@@ -24,13 +57,13 @@ class OfferModel {
   final int id;
 
   @JsonKey(name: 'offer_type')
-  final OfferTypeModel offerType;
+  final OfferTypeModel? offerType;
 
   @JsonKey(name: 'city_from')
-  final CityModel cityFrom;
+  final CityModel? cityFrom;
 
   @JsonKey(name: 'city_to')
-  final CityModel cityTo;
+  final CityModel? cityTo;
 
   @JsonKey(name: 'flight_date')
   final String? flightDate;
@@ -51,60 +84,61 @@ class OfferModel {
   final String? purchaseTime;
 
   @JsonKey(name: 'main_date')
-  final String mainDate;
+  final String? mainDate;
 
   @JsonKey(name: 'main_time')
   final String? mainTime;
 
   @JsonKey(name: 'package_type')
-  final PackageTypeModel packageType;
+  final PackageTypeModel? packageType;
 
   @JsonKey(name: 'max_weight_kg')
-  final String maxWeightKg;
+  final String? maxWeightKg;
 
   @JsonKey(name: 'price_per_kg')
-  final String pricePerKg;
+  final String? pricePerKg;
 
   @JsonKey(name: 'description')
-  final String description;
+  final String? description;
 
   @JsonKey(name: 'status')
-  final String status;
+  final String? status;
 
   @JsonKey(name: 'published_at')
-  final String publishedAt;
+  final String? publishedAt;
 
   @JsonKey(name: 'languages')
-  final List<LanguageModel> languages;
+  final List<LanguageModel>? languages;
 
   @JsonKey(name: 'user')
-  final UserModel user;
+  final UserModel? user;
 
-  @JsonKey(name: 'is_favorited')
-  final bool isFavorited;
+  // ✅ ИЗМЕНЕНО: is_favorited -> is_favourite (как в вашем JSON)
+  @JsonKey(name: 'is_favourite')
+  final bool? isFavourite;
 
   OfferModel({
     required this.id,
-    required this.offerType,
-    required this.cityFrom,
-    required this.cityTo,
+    this.offerType,
+    this.cityFrom,
+    this.cityTo,
     this.flightDate,
     this.flightTime,
     this.deliveryDateFrom,
     this.deliveryDateTo,
     this.purchaseDate,
     this.purchaseTime,
-    required this.mainDate,
-    required this.mainTime,
-    required this.packageType,
-    required this.maxWeightKg,
-    required this.pricePerKg,
-    required this.description,
-    required this.status,
-    required this.publishedAt,
-    required this.languages,
-    required this.user,
-    required this.isFavorited,
+    this.mainDate,
+    this.mainTime,
+    this.packageType,
+    this.maxWeightKg,
+    this.pricePerKg,
+    this.description,
+    this.status,
+    this.publishedAt,
+    this.languages,
+    this.user,
+    this.isFavourite,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) =>

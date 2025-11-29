@@ -50,29 +50,29 @@ class WawatCourierCard extends StatelessWidget {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: courier.user.avatar != null
+                child: courier.user?.avatar != null
                     ? ClipOval(
-                        child: Image.network(
-                          courier.user.avatar!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    : Center(
+                  child: Image.network(
+                    courier.user!.avatar!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(
                         child: Icon(
                           Icons.person,
                           color: Colors.white,
                           size: 30,
                         ),
-                      ),
+                      );
+                    },
+                  ),
+                )
+                    : Center(
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
               ),
               SizedBox(width: 16),
               Expanded(
@@ -85,7 +85,7 @@ class WawatCourierCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            courier.user.fullname,
+                            courier.user?.fullname ?? 'Пользователь',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -96,30 +96,31 @@ class WawatCourierCard extends StatelessWidget {
                         ),
                         SizedBox(width: 8),
                         // Rating chip
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 6,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '⭐',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                courier.user.ratingAvg.toStringAsFixed(1),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1A1A1A),
+                        if ((courier.user?.ratingAvg ?? 0) > 0)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '⭐',
+                                  style: TextStyle(fontSize: 16),
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 6),
+                                Text(
+                                  (courier.user?.ratingAvg ?? 0).toStringAsFixed(1),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1A1A1A),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     ),
                     SizedBox(height: 4),
@@ -129,37 +130,38 @@ class WawatCourierCard extends StatelessWidget {
                       runSpacing: 8,
                       children: [
                         // Offer type chip
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(0xFFD4E8FF),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.flight,
-                                size: 16,
-                                color: Color(0xFF2196F3),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                courier.offerType.title,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                        if (courier.offerType != null)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFD4E8FF),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.flight,
+                                  size: 16,
                                   color: Color(0xFF2196F3),
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 6),
+                                Text(
+                                  courier.offerType!.title,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF2196F3),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                         // Verified chip
-                        if (courier.user.isVerified)
+                        if (courier.user?.isVerified ?? false)
                           Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 8,
@@ -198,16 +200,17 @@ class WawatCourierCard extends StatelessWidget {
           SizedBox(height: 16),
 
           // Description
-          Text(
-            courier.description,
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF9E9E9E),
-              fontWeight: FontWeight.w400,
+          if (courier.description?.isNotEmpty ?? false)
+            Text(
+              courier.description!,
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF9E9E9E),
+                fontWeight: FontWeight.w400,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
           SizedBox(height: 24),
 
           // Details Table
@@ -215,25 +218,28 @@ class WawatCourierCard extends StatelessWidget {
             children: [
               _buildDetailRow(
                 'Маршрут:',
-                '${courier.cityFrom.name} → ${courier.cityTo.name}',
+                '${courier.cityFrom?.name ?? '-'} → ${courier.cityTo?.name ?? '-'}',
               ),
-              _buildDetailRow(
-                'Дата:',
-                _formatDate(courier.mainDate),
-              ),
-              _buildDetailRow(
-                'Вес:',
-                '${courier.maxWeightKg} кг',
-              ),
+              if (courier.mainDate != null)
+                _buildDetailRow(
+                  'Дата:',
+                  _formatDate(courier.mainDate!),
+                ),
+              if (courier.maxWeightKg != null)
+                _buildDetailRow(
+                  'Вес:',
+                  '${courier.maxWeightKg} кг',
+                ),
               if (courier.mainTime != null)
                 _buildDetailRow(
                   'Время:',
                   _formatTime(courier.mainTime!),
                 ),
-              _buildDetailRow(
-                'Цена:',
-                '${courier.pricePerKg} ₼/кг',
-              ),
+              if (courier.pricePerKg != null)
+                _buildDetailRow(
+                  'Цена:',
+                  '${courier.pricePerKg} ₼/кг',
+                ),
             ],
           ),
           SizedBox(height: 10),

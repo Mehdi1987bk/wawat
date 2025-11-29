@@ -32,16 +32,22 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
       bloc: bloc,
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
-        child: Scaffold(
-          key: scaffoldKey,
-          appBar: appBar(),
-          drawer: drawer(),
-          backgroundColor: AppColors.bgColor,
-          primary: primary,
-          drawerEdgeDragWidth: drawerEdgeDragWidth,
-          bottomNavigationBar: bottomNavigationBar(),
-          floatingActionButton: floatingActionButton(),
-          body: _buildBody(),
+        child:  GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Scaffold(
+            key: scaffoldKey,
+            appBar: appBar(),
+            drawer: drawer(),
+            backgroundColor: AppColors.bgColor,
+            primary: primary,
+            drawerEdgeDragWidth: drawerEdgeDragWidth,
+            bottomNavigationBar: bottomNavigationBar(),
+            floatingActionButton: floatingActionButton(),
+            resizeToAvoidBottomInset: resizeToAvoidBottomInset,  // ← ДОБАВЛЕНА ЭТА СТРОКА
+            body: _buildBody(),
+          ),
         ),
       ),
     );
@@ -123,10 +129,12 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   bool get wantKeepAlive => false;
 
   Color? backgroundColor() => null;
+
+  bool get resizeToAvoidBottomInset => true;  // ← ДОБАВЛЕНА ЭТА СТРОКА
 }
 
 abstract class BaseStateWithFlushBar<T extends BaseScreen,
-    Bloc extends BaseBloc> extends BaseState<T, Bloc> {
+Bloc extends BaseBloc> extends BaseState<T, Bloc> {
   final Duration _animDuration = Duration(milliseconds: 500);
   PublishSubject<bool> _flush = PublishSubject<bool>();
   String? _message;
@@ -144,11 +152,11 @@ abstract class BaseStateWithFlushBar<T extends BaseScreen,
                 duration: _animDuration,
                 child: (snapshot.hasData && snapshot.data!)
                     ? FlushWidget(
-                        message: _message ?? '',
-                        onTap: () {
-                          _flush.add(false);
-                        },
-                      )
+                  message: _message ?? '',
+                  onTap: () {
+                    _flush.add(false);
+                  },
+                )
                     : const SizedBox.shrink(),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return SizeTransition(

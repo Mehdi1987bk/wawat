@@ -686,6 +686,56 @@ class _AuthApi implements AuthApi {
     return _value;
   }
 
+  @override
+  Future<OfferListResponse> searchOffers(
+    String? offerType,
+    String? packageType,
+    int? cityFromId,
+    int? cityToId,
+    String? dateFrom,
+    String? dateTo,
+    int page,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'offer_type': offerType,
+      r'package_type': packageType,
+      r'city_from_id': cityFromId,
+      r'city_to_id': cityToId,
+      r'date_from': dateFrom,
+      r'date_to': dateTo,
+      r'page': page,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<OfferListResponse>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/offers',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late OfferListResponse _value;
+    try {
+      _value = OfferListResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
