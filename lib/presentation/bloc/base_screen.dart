@@ -41,6 +41,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
           drawerEdgeDragWidth: drawerEdgeDragWidth,
           bottomNavigationBar: bottomNavigationBar(),
           floatingActionButton: floatingActionButton(),
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
           body: _buildBody(),
         ),
       ),
@@ -123,6 +124,8 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   bool get wantKeepAlive => false;
 
   Color? backgroundColor() => null;
+
+  bool get resizeToAvoidBottomInset => true;
 }
 
 abstract class BaseStateWithFlushBar<T extends BaseScreen,
