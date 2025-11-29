@@ -92,4 +92,6 @@ abstract class AuthRepository {
     String? dateTo,
     int page,
   );
+
+  Future<void> logout();
 }

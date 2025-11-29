@@ -1,15 +1,20 @@
 import 'dart:io';
 
 import 'package:buking/screens/home/home_screen.dart';
+import 'package:buking/screens/splesh/splesh_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'data/cache/cache_manager.dart';
+import 'domain/repositories/auth_repository.dart';
 import 'kango_app.dart';
  import 'main.dart';
 
 class CallInterceptor extends Interceptor {
   late final CacheManager _storage = sl.get<CacheManager>();
+  final authRepository = sl.get<AuthRepository>();
+
+  late final Future<void> logout = authRepository.logout();
 
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
@@ -27,22 +32,29 @@ class CallInterceptor extends Interceptor {
     return handler.next(options);
   }
   @override
-  Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
-    switch (err.response?.statusCode) {
-      case 401:
-        {
-          await _navigateToSignInPage(err, handler);
-          break;
-        }
-      default:
-        handler.next(err);
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
+
+    // Если получили 401 (Unauthorized) - токен невалидный
+    if (err.response?.statusCode == 401) {
+      print('🔒 Token invalid (401), clearing auth data');
+
+      // Удаляем токен и данные пользователя
+      await _storage.clear();
+
+      // НЕ показываем ошибку пользователю каждый раз
+      // Просто тихо очищаем токен
+      return handler.reject(err);
     }
+
+    return handler.next(err);
   }
+
 
   Future<void> _navigateToSignInPage(DioError err, ErrorInterceptorHandler handler) async {
     handler.next(err);
     await _storage.clear();
     await navigatorKey.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => HomeScreen()), (route) => false);
+        MaterialPageRoute(builder: (_) => SpleshScreen()), (route) => false);
   }
 }

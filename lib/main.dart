@@ -55,11 +55,16 @@ void main() async {
 }
 
 void _registerDependency() {
+  // ✅ СНАЧАЛА регистрируем CacheManager
+  sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
+
+  // ✅ ПОТОМ создаём Dio (CallInterceptor уже сможет получить CacheManager)
   final dio = _initDio();
+
   sl.registerLazySingleton<AuthApi>(() => AuthApi(dio));
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
-  sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
 }
+
 
 Dio _initDio() {
   final dio = Dio();

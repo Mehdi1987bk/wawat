@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../domain/entities/pagination.dart';
@@ -80,11 +81,21 @@ class DataAuthRepository implements AuthRepository {
 
   @override
   Future<void> customersMe() async {
-    final response = await _authApi.customersMe();
-    if (response != null) {
-      await _cacheManager.saveUser(response.data.user);
+    try {
+      final response = await _authApi.customersMe();
+      if (response != null) {
+        await _cacheManager.saveUser(response.data.user);
+      }
+    } catch (e) {
+      // Если 401 - очищаем токен
+      if (e is DioException && e.response?.statusCode == 401) {
+        await _cacheManager.clear();
+        print('🔒 Token expired, cleared cache');
+      }
+      rethrow;
     }
   }
+
 
   @override
   Future<void> registration(RegistrationRequest request) async {
@@ -112,13 +123,18 @@ class DataAuthRepository implements AuthRepository {
   }
 
   Future<void> profileEdit(
-      String name,
-      String email,
-      String phone,
-      String location,
-      String about,
-      ) {
-    return _authApi.profileEdit(UserRequest(fullname: name, email: email, phone: phone,about: about,locationText: location) );
+    String name,
+    String email,
+    String phone,
+    String location,
+    String about,
+  ) {
+    return _authApi.profileEdit(UserRequest(
+        fullname: name,
+        email: email,
+        phone: phone,
+        about: about,
+        locationText: location));
   }
 
   @override
@@ -132,7 +148,7 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> notificationsProfile(  NotificationSettings request) {
+  Future<void> notificationsProfile(NotificationSettings request) {
     return _authApi.notificationsProfile(request);
   }
 
@@ -142,13 +158,12 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<PackageTypesResponse> getPackageType(){
+  Future<PackageTypesResponse> getPackageType() {
     return _authApi.getPackageType();
   }
 
-
   @override
-  Future<CitiesResponse> getCities(){
+  Future<CitiesResponse> getCities() {
     return _authApi.getCities();
   }
 
@@ -174,7 +189,7 @@ class DataAuthRepository implements AuthRepository {
 
   @override
   Future<OfferListResponse> myOffers() {
-    return _authApi.myOffers( );
+    return _authApi.myOffers();
   }
 
   @override
@@ -187,22 +202,25 @@ class DataAuthRepository implements AuthRepository {
     return _cacheManager.setIsFirstOpen();
   }
 
-  Future<void> setFavorites(  OfferResponse request) {
+  Future<void> setFavorites(OfferResponse request) {
     return _authApi.setFavorites(request);
   }
 
+  @override
+  Future<void> logout() {
+    return _cacheManager.clear();
+  }
 
   @override
-  @override
-  Future<Pagination<OfferModel>>  searchOffers(
-      String? offerType,
-      String? packageType,
-      int? cityFromId,
-      int? cityToId,
-      String? dateFrom,
-      String? dateTo,
-      int page,
-      )async {
+  Future<Pagination<OfferModel>> searchOffers(
+    String? offerType,
+    String? packageType,
+    int? cityFromId,
+    int? cityToId,
+    String? dateFrom,
+    String? dateTo,
+    int page,
+  ) async {
     try {
       final response = await _authApi.searchOffers(
         offerType,
