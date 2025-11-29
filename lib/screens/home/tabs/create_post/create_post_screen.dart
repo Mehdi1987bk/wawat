@@ -434,28 +434,7 @@ class _CreatePostScreenState
   }
 
   Widget _buildOfferTypeDropdown() {
-    if (_isLoadingOfferTypes) {
-      return Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF5B51FF),
-            strokeWidth: 2,
-          ),
-        ),
-      );
-    }
+
 
     return _buildDropdownField(
       hint: 'Выберите тип',

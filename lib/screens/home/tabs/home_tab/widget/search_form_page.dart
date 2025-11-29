@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../../data/network/response/city.dart';
 import '../../../../../data/network/response/offer_type_model.dart';
+import '../../../../../data/network/response/package_types_response.dart';
 import '../home_tab_bloc.dart';
+import '../search/search_offer_list_screen.dart';
 
 class SearchFormWidget extends StatefulWidget {
   final HomeTabBloc bloc;
@@ -18,6 +20,7 @@ class SearchFormWidget extends StatefulWidget {
 
 class _SearchFormWidgetState extends State<SearchFormWidget> {
   String? _selectedOfferType;
+  String? _selectedPackageType;
   City? _selectedFromCity;
   City? _selectedToCity;
 
@@ -27,16 +30,13 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   List<OfferTypeModel> _allOfferTypes = [];
   bool _isLoadingOfferTypes = true;
 
+  List<PackageType> _allPackageTypes = [];
+  bool _isLoadingPackageTypes = true;
+
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
-
-  // Контроллеры для разных типов предложений
-  final TextEditingController _flightDateController = TextEditingController();
-  final TextEditingController _flightTimeController = TextEditingController();
-  final TextEditingController _deliveryDateFromController = TextEditingController();
-  final TextEditingController _deliveryDateToController = TextEditingController();
-  final TextEditingController _purchaseDateController = TextEditingController();
-  final TextEditingController _purchaseTimeController = TextEditingController();
+  final TextEditingController _dateFromController = TextEditingController();
+  final TextEditingController _dateToController = TextEditingController();
 
   @override
   void initState() {
@@ -50,34 +50,24 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     setState(() {
       _isLoadingCities = true;
       _isLoadingOfferTypes = true;
+      _isLoadingPackageTypes = true;
     });
 
     await Future.wait([
       _loadCities(),
       _loadOfferTypes(),
-    ]);
+     ]);
   }
 
   Future<void> _loadOfferTypes() async {
     try {
-      print('🔍 Загрузка типов предложений...');
       final offerTypes = await widget.bloc.getOfferTypes();
-
-      print('✅ Получено типов: ${offerTypes.data.length}');
-      for (var i = 0; i < (offerTypes.data.length > 5 ? 5 : offerTypes.data.length); i++) {
-        final type = offerTypes.data[i];
-       }
 
       setState(() {
         _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
         _isLoadingOfferTypes = false;
       });
-
-      print('✅ Типы предложений загружены: ${_allOfferTypes.length}');
     } catch (e, stackTrace) {
-      print('❌ Ошибка загрузки типов предложений: $e');
-      print('Stack trace: $stackTrace');
-
       setState(() {
         _isLoadingOfferTypes = false;
         _allOfferTypes = [];
@@ -94,6 +84,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       }
     }
   }
+
+
 
   Future<void> _loadCities() async {
     try {
@@ -143,51 +135,54 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   void _performSearch() {
-    // TODO: Implement search logic
-    print('Search params:');
-    print('Offer Type: $_selectedOfferType');
-    print('From: ${_selectedFromCity?.name}');
-    print('To: ${_selectedToCity?.name}');
+    // Конвертируем даты в формат YYYY-MM-DD для API
+    String? dateFrom;
+    String? dateTo;
 
-    switch (_selectedOfferType) {
-      case 'courier':
-        print('Flight Date: ${_flightDateController.text}');
-        print('Flight Time: ${_flightTimeController.text}');
-        break;
-      case 'sender':
-        print('Delivery Date From: ${_deliveryDateFromController.text}');
-        print('Delivery Date To: ${_deliveryDateToController.text}');
-        break;
-      case 'buyer':
-        print('Purchase Date: ${_purchaseDateController.text}');
-        print('Purchase Time: ${_purchaseTimeController.text}');
-        break;
+    if (_dateFromController.text.isNotEmpty) {
+      dateFrom = _convertDateToApiFormat(_dateFromController.text);
     }
 
-    // Navigate to results screen
-    // Navigator.push(
-    //   context,
-    //   CupertinoPageRoute(
-    //     builder: (context) => SearchResultsScreen(
-    //       offerType: _selectedOfferType,
-    //       fromCity: _selectedFromCity,
-    //       toCity: _selectedToCity,
-    //       ...
-    //     ),
-    //   ),
-    // );
+    if (_dateToController.text.isNotEmpty) {
+      dateTo = _convertDateToApiFormat(_dateToController.text);
+    }
+
+    // Открываем экран с результатами поиска
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => SearchOfferListScreen(
+          offerType: _selectedOfferType,
+          packageType: _selectedPackageType,
+          cityFromId: _selectedFromCity?.id != null ? _selectedFromCity!.id : null,
+          cityToId: _selectedToCity?.id != null ? _selectedToCity!.id : null,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+        ),
+      ),
+    );
+  }
+
+  String? _convertDateToApiFormat(String dateString) {
+    try {
+      // Входной формат: дд.мм.гггг
+      // Выходной формат: гггг-мм-дд
+      final parts = dateString.split('.');
+      if (parts.length == 3) {
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    } catch (e) {
+      print('Ошибка конвертации даты: $e');
+    }
+    return null;
   }
 
   @override
   void dispose() {
     _fromController.dispose();
     _toController.dispose();
-    _flightDateController.dispose();
-    _flightTimeController.dispose();
-    _deliveryDateFromController.dispose();
-    _deliveryDateToController.dispose();
-    _purchaseDateController.dispose();
-    _purchaseTimeController.dispose();
+    _dateFromController.dispose();
+    _dateToController.dispose();
     super.dispose();
   }
 
@@ -219,11 +214,12 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Тип предложения (первым)
+          // Тип предложения
           _buildFieldLabel('Тип предложения'),
           SizedBox(height: 10),
           _buildOfferTypeDropdown(),
           SizedBox(height: 20),
+
 
           // Откуда
           _buildFieldLabel('Откуда'),
@@ -247,8 +243,17 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           ),
           SizedBox(height: 20),
 
-          // Динамические поля в зависимости от типа
-          ..._buildDateTimeFields(),
+          // Дата С
+          _buildFieldLabel('Дата с'),
+          SizedBox(height: 10),
+          _buildDateField(_dateFromController, 'дд.мм.гггг'),
+          SizedBox(height: 20),
+
+          // Дата До
+          _buildFieldLabel('Дата до'),
+          SizedBox(height: 10),
+          _buildDateField(_dateToController, 'дд.мм.гггг'),
+          SizedBox(height: 28),
 
           // Кнопка поиск
           _buildSearchButton(),
@@ -270,22 +275,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   Widget _buildOfferTypeDropdown() {
-    if (_isLoadingOfferTypes) {
-      return Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Color(0xFFE8E8E8)),
-        ),
-        child: const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF7C6FFF),
-            strokeWidth: 2,
-          ),
-        ),
-      );
-    }
+     
 
     return Container(
       height: 56,
@@ -322,7 +312,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                           (type) => type.code == _selectedOfferType,
                       orElse: () => OfferTypeModel(
                         code: '',
-                       name: 'Все категории',
+                        name: 'Все категории',
                       ),
                     )
                         .name)
@@ -373,13 +363,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           onChanged: (value) {
             setState(() {
               _selectedOfferType = value;
-              // Очищаем все поля дат при смене типа
-              _flightDateController.clear();
-              _flightTimeController.clear();
-              _deliveryDateFromController.clear();
-              _deliveryDateToController.clear();
-              _purchaseDateController.clear();
-              _purchaseTimeController.clear();
             });
           },
           dropdownStyleData: DropdownStyleData(
@@ -400,50 +383,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     );
   }
 
-  List<Widget> _buildDateTimeFields() {
-    if (_selectedOfferType == null) return [];
-
-    switch (_selectedOfferType) {
-      case 'courier':
-        return [
-          _buildFieldLabel('Дата вылета'),
-          SizedBox(height: 10),
-          _buildDateField(_flightDateController, 'дд.мм.гггг'),
-          SizedBox(height: 20),
-          _buildFieldLabel('Время вылета'),
-          SizedBox(height: 10),
-          _buildTimeField(_flightTimeController),
-          SizedBox(height: 28),
-        ];
-
-      case 'sender':
-        return [
-          _buildFieldLabel('Дата доставки с'),
-          SizedBox(height: 10),
-          _buildDateField(_deliveryDateFromController, 'дд.мм.гггг'),
-          SizedBox(height: 20),
-          _buildFieldLabel('Дата доставки до'),
-          SizedBox(height: 10),
-          _buildDateField(_deliveryDateToController, 'дд.мм.гггг'),
-          SizedBox(height: 28),
-        ];
-
-      case 'buyer':
-        return [
-          _buildFieldLabel('Дата покупки'),
-          SizedBox(height: 10),
-          _buildDateField(_purchaseDateController, 'дд.мм.гггг'),
-          SizedBox(height: 20),
-          _buildFieldLabel('Время покупки'),
-          SizedBox(height: 10),
-          _buildTimeField(_purchaseTimeController),
-          SizedBox(height: 28),
-        ];
-
-      default:
-        return [];
-    }
-  }
 
   Widget _buildCityField({
     required TextEditingController controller,
@@ -545,7 +484,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         if (date != null) {
           setState(() {
             controller.text =
-                '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+            '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
           });
         }
       },
@@ -579,76 +518,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             ),
             Icon(
               Icons.calendar_today_outlined,
-              color: Color(0xFFB0B0B0),
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTimeField(TextEditingController controller) {
-    return InkWell(
-      onTap: () async {
-        final time = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.now(),
-          builder: (context, child) {
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                alwaysUse24HourFormat: true,
-              ),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  colorScheme: ColorScheme.light(
-                    primary: Color(0xFF7C6FFF),
-                    onPrimary: Colors.white,
-                    onSurface: Color(0xFF1A1A1A),
-                  ),
-                ),
-                child: child!,
-              ),
-            );
-          },
-        );
-        if (time != null) {
-          setState(() {
-            controller.text =
-                '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-          });
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Color(0xFFE8E8E8)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                controller.text.isEmpty ? 'чч:мм (24-часовой формат)' : controller.text,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: controller.text.isEmpty
-                      ? Color(0xFFB0B0B0)
-                      : Color(0xFF1A1A1A),
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.access_time,
               color: Color(0xFFB0B0B0),
               size: 20,
             ),

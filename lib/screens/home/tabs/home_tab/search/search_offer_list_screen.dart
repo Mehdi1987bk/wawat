@@ -1,7 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../profile_tab/widgte/delivery_card.dart';
+import '../widget/auth_modal_utils.dart';
+import '../widget/wawat_courier_card.dart';
 import 'search_offer_bloc.dart';
 
 class SearchOfferListScreen extends BaseScreen {
@@ -110,7 +115,7 @@ class _SearchOfferListScreenState
 
           return ListView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.only(top: 20,bottom: 20),
             itemCount: offers.length + 1, // +1 для индикатора загрузки
             itemBuilder: (context, index) {
               if (index == offers.length) {
@@ -135,9 +140,42 @@ class _SearchOfferListScreenState
               }
 
               final offer = offers[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildOfferCard(offer),
+              return WawatCourierCard(
+                courier: offer,
+                onDetails: () async {
+                  final isLogged = await sl.get<AuthRepository>().isLogged();
+                  if (!isLogged) {
+                    return AuthModalUtils.showAuthRequiredModal(context);
+                  } else {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (BuildContext context) {
+                          return Container(
+                            child: Text("Details"),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+                onMessage: () async {
+                  final isLogged = await sl.get<AuthRepository>().isLogged();
+                  if (!isLogged) {
+                    return AuthModalUtils.showAuthRequiredModal(context);
+                  } else {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (BuildContext context) {
+                          return Container(
+                            child: Text("Messagesss"),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
               );
             },
           );
@@ -178,268 +216,8 @@ class _SearchOfferListScreenState
     );
   }
 
-  Widget _buildOfferCard(OfferModel offer) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Заголовок с типом и иконкой
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF4A5FFF), Color(0xFFB74CFF)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  offer.packageType?.icon ?? '📦',
-                  style: const TextStyle(fontSize: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        offer.offerType?.title ?? '',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        offer.packageType?.title ?? '',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '\$${offer.pricePerKg}/кг',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
 
-          // Основная информация
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Маршрут
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, color: Color(0xFF7C6FFF), size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${offer.cityFrom?.name ?? ''} → ${offer.cityTo?.name ?? ''}',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
 
-                // Дата
-                if (offer.mainDate != null) ...[
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, color: Color(0xFFB0B0B0), size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        _formatDate(offer.mainDate!),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      if (offer.mainTime != null) ...[
-                        const SizedBox(width: 12),
-                        const Icon(Icons.access_time, color: Color(0xFFB0B0B0), size: 16),
-                        const SizedBox(width: 8),
-                        Text(
-                          _formatTime(offer.mainTime!),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                ],
-
-                // Вес
-                Row(
-                  children: [
-                    const Icon(Icons.scale, color: Color(0xFFB0B0B0), size: 16),
-                    const SizedBox(width: 8),
-                    Text(
-                      'До ${offer.maxWeightKg} кг',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Описание
-                if (offer.description?.isNotEmpty ?? false) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    offer.description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF6B7280),
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 16),
-                const Divider(height: 1),
-                const SizedBox(height: 12),
-
-                // Информация о пользователе
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Color(0xFF7C6FFF).withOpacity(0.1),
-                      child: Text(
-                        offer.user?.fullname?.substring(0, 1).toUpperCase() ?? '?',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF7C6FFF),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                offer.user?.fullname ?? 'Пользователь',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1A1A1A),
-                                ),
-                              ),
-                              if (offer.user?.isVerified ?? false) ...[
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.verified,
-                                  color: Color(0xFF7C6FFF),
-                                  size: 16,
-                                ),
-                              ],
-                            ],
-                          ),
-                          if ((offer.user?.ratingAvg ?? 0) > 0) ...[
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: Color(0xFFFFA726), size: 14),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${offer.user?.ratingAvg?.toStringAsFixed(1)} (${offer.user?.ratingCount ?? 0})',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFFB0B0B0),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      offer.isFavourite ?? false
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: offer.isFavourite ?? false
-                          ? Colors.red
-                          : Color(0xFFB0B0B0),
-                      size: 24,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(String dateString) {
-    try {
-      final date = DateTime.parse(dateString);
-      return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
-    } catch (e) {
-      return dateString;
-    }
-  }
-
-  String _formatTime(String timeString) {
-    try {
-      final time = DateTime.parse(timeString);
-      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-    } catch (e) {
-      return timeString;
-    }
-  }
 
   @override
   SearchOfferBloc provideBloc() {
