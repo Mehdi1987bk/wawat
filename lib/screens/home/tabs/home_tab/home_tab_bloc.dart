@@ -16,33 +16,18 @@ import '../../../../presentation/bloc/base_bloc.dart';
 
 class HomeTabBloc extends BaseBloc {
   final userRepository = sl.get<AuthRepository>();
+  final isLogged = sl.get<AuthRepository>().isLogged();
 
   late final Stream<User> userDetails =
-  ValueConnectableStream(userRepository.userDetails).autoConnect();
-
-  // ✅ Вариант 1: Stream<bool>
-  late final Stream<bool> isLogged =
-  userRepository.isLogged().asStream();
+      ValueConnectableStream(userRepository.userDetails).autoConnect();
 
   @override
-  void init() {
+  void init() async {
     super.init();
-    _initializeUser();
-  }
-
-  // ✅ Проверка авторизации при инициализации
-  Future<void> _initializeUser() async {
-    try {
-      final logged = await userRepository.isLogged();
-      if (!logged) {
-        await customersMe();
-      }
-    } catch (e) {
-      print('Error checking login status: $e');
+    if (await isLogged) {
+      userRepository.customersMe();
     }
   }
-
-  Future<void> customersMe() => userRepository.customersMe();
 
   Future<void> setFavorites(int offerId) =>
       userRepository.setFavorites(OfferResponse(offerId: offerId));
@@ -60,9 +45,10 @@ class HomeTabBloc extends BaseBloc {
   Future<CitiesResponse> getCities() async {
     final result = await userRepository.getCities();
     for (var i = 0;
-    i < (result.data.length > 5 ? 5 : result.data.length);
-    i++) {
+        i < (result.data.length > 5 ? 5 : result.data.length);
+        i++) {
       final city = result.data[i];
+      print('  ✓ ${city.name} (${city.countryName})');
     }
 
     return result;
