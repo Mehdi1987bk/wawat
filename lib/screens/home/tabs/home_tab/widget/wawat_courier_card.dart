@@ -7,20 +7,21 @@ import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
+import '../../chat/chat_list.dart';
+import '../courier_screen/courier_screen.dart';
 import 'auth_modal_utils.dart';
 
 class WawatCourierCard extends StatefulWidget {
   final OfferModel courier;
-  final VoidCallback? onDetails;
-  final VoidCallback? onMessage;
+  final bool detailsActiv;
+
   final Function(bool)? onFavoriteToggle;
 
   const WawatCourierCard({
     Key? key,
     required this.courier,
-    this.onDetails,
-    this.onMessage,
     this.onFavoriteToggle,
+    this.detailsActiv = true,
   }) : super(key: key);
 
   @override
@@ -260,13 +261,14 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                   if (widget.courier.pricePerKg != null)
                     _buildDetailRow(
                       'Цена:',
-                      '${widget.courier.pricePerKg} ₼/кг',
+                      '${widget.courier.pricePerKg} \$/кг',
                     ),
                 ],
               ),
               SizedBox(height: 10),
               Row(
                 children: [
+                  if(widget.detailsActiv == true)
                   Expanded(
                     child: Container(
                       height: 48,
@@ -288,7 +290,25 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: widget.onDetails,
+                          onTap: () async {
+                            final isLogged =
+                                await sl.get<AuthRepository>().isLogged();
+                            if (!isLogged) {
+                              return AuthModalUtils.showAuthRequiredModal(
+                                  context);
+                            } else {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) {
+                                    return CourierDetailsScreen(
+                                      courier: widget.courier,
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                          },
                           borderRadius: BorderRadius.circular(16),
                           child: Center(
                             child: Text(
@@ -304,7 +324,9 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  if(widget.detailsActiv == true)
+
+                    SizedBox(width: 12),
                   Expanded(
                     child: Container(
                       height: 48,
@@ -318,7 +340,25 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: widget.onMessage,
+                          onTap: () async {
+                            final isLogged =
+                                await sl.get<AuthRepository>().isLogged();
+                            if (!isLogged) {
+                              return AuthModalUtils.showAuthRequiredModal(
+                                  context);
+                            } else {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) {
+                                    return ChatScreen(
+                                      courier: widget.courier,
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                          },
                           borderRadius: BorderRadius.circular(16),
                           child: Center(
                             child: Text(

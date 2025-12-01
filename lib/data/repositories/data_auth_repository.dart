@@ -28,6 +28,7 @@ import '../network/response/offer_type_model.dart';
 import '../network/response/offer_types_response.dart';
 import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
+import '../network/response/partner_user_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/user.dart';
 
@@ -207,6 +208,10 @@ class DataAuthRepository implements AuthRepository {
 
   Future<Pagination<OfferModel>> getFavorites(int page) {
     return _authApi.getFavorites(page);
+  }
+
+  Future<PartnerUserResponse> getUserById(int date) {
+    return _authApi.getUserById(date);
   }
 
   @override

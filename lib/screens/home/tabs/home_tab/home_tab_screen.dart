@@ -34,6 +34,10 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   final _dateToController = TextEditingController();
   final _categoryController = TextEditingController();
 
+
+  @override
+  bool get showProgressIndicator => false;
+
   @override
   void initState() {
     super.initState();
@@ -161,40 +165,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                           onFavoriteToggle: (v) {
                             bloc.setFavorites(offer.id);
                           },
-                          onDetails: () async {
-                            final isLogged = await sl.get<AuthRepository>().isLogged();
-                            if (!isLogged) {
-                              return AuthModalUtils.showAuthRequiredModal(context);
-                            } else {
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (BuildContext context) {
-                                    return CourierDetailsScreen(
-                                      courier: offer,
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
-                          onMessage: () async {
-                            final isLogged = await sl.get<AuthRepository>().isLogged();
-                            if (!isLogged) {
-                              return AuthModalUtils.showAuthRequiredModal(context);
-                            } else {
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (BuildContext context) {
-                                    return ChatScreen(
-                                      courier: offer,
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
+
                         );
                       },
                     ),

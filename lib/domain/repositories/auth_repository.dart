@@ -19,6 +19,7 @@ import '../../data/network/response/offer_type_model.dart';
 import '../../data/network/response/offer_types_response.dart';
 import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
+import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/user.dart';
 import '../entities/pagination.dart';
@@ -84,6 +85,8 @@ abstract class AuthRepository {
   Future<Pagination<OfferModel>> getFavorites(int page);
 
   Future<void> setIsFirstOpen();
+
+  Future<PartnerUserResponse> getUserById(int date);
 
   Future<Pagination<OfferModel>> searchOffers({
     String? offerType,

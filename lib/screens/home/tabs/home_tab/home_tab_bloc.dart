@@ -44,10 +44,10 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
 
   @override
   Future<Pagination<OfferModel>> provideSource(int page) {
-    return run(userRepository.searchOffers(
+    return userRepository.searchOffers(
       sort: "rating_desc",
       page: page,
-    ));
+    );
   }
 
   late final Stream<User> userDetails =

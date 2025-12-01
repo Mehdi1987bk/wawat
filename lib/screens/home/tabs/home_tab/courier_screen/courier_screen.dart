@@ -1,290 +1,170 @@
-
-import 'package:flutter/cupertino.dart';
+import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_documents_tab.dart';
+import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_offers_tab.dart';
+import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_profile_card.dart';
+import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_ratings_tab.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../data/network/response/partner_user_response.dart';
+import 'courier_details_bloc.dart';
 
-class CourierDetailsScreen extends StatelessWidget {
+class CourierDetailsScreen extends BaseScreen {
   final OfferModel courier;
 
-  const CourierDetailsScreen({
+  CourierDetailsScreen({
     Key? key,
     required this.courier,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(courier.user?.fullname ?? 'Курьер'),
-        backgroundColor: Colors.white,
-        foregroundColor: Color(0xFF1A1A1A),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: courier.user?.avatar != null
-                    ? ClipOval(
-                  child: Image.network(
-                    courier.user!.avatar!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.white,
-                      );
-                    },
-                  ),
-                )
-                    : Icon(
-                  Icons.person,
-                  size: 60,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(height: 24),
+  State<CourierDetailsScreen> createState() => _CourierDetailsScreenState();
+}
 
-            Center(
+class _CourierDetailsScreenState
+    extends BaseState<CourierDetailsScreen, CourierDetailsBloc> {
+  int _selectedTab = 0;
+
+  @override
+  Widget body() {
+    return SafeArea(
+      child: FutureBuilder<PartnerUserResponse>(
+        future: bloc.getUserById(widget.courier.user?.id ?? 0),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final data = snapshot.data!.data;
+            return SingleChildScrollView(
               child: Column(
                 children: [
-                  Text(
-                    courier.user?.fullname ?? 'Пользователь',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  if ((courier.user?.ratingAvg ?? 0) > 0)
-                    Container(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFFEBEE),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '⭐',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            '${(courier.user?.ratingAvg ?? 0).toStringAsFixed(1)} из 5.0',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1A1A1A),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildAppBar(context),
+                  const SizedBox(height: 16),
+                  CourierProfileCard(data: data),
+                  const SizedBox(height: 16),
+                  _buildTabButtons(),
+                  const SizedBox(height: 16),
+                  _buildTabContent(data),
+                  const SizedBox(height: 24),
                 ],
               ),
-            ),
-            SizedBox(height: 32),
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
 
-            if (courier.description?.isNotEmpty ?? false)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'О себе',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      courier.description!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF9E9E9E),
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                ],
+  Widget _buildAppBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
               ),
-
-            Text(
-              'Детали маршрута',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
-              ),
+              child: const Icon(Icons.arrow_back, color: Colors.black),
             ),
-            SizedBox(height: 12),
-            _buildDetailItem(
-              'Маршрут',
-              '${courier.cityFrom?.name ?? '-'} → ${courier.cityTo?.name ?? '-'}',
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF5B5BFF),
+              borderRadius: BorderRadius.circular(12),
             ),
-            _buildDetailItem(
-              'Дата',
-              _formatDate(courier.mainDate ?? ''),
-            ),
-            _buildDetailItem(
-              'Время',
-              _formatTime(courier.mainTime),
-            ),
-            _buildDetailItem(
-              'Максимальный вес',
-              '${courier.maxWeightKg ?? '-'} кг',
-            ),
-            _buildDetailItem(
-              'Цена за кг',
-              '${courier.pricePerKg ?? '-'} ₼',
-            ),
-            SizedBox(height: 32),
-
-            Row(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x335B5FFF),
-                          blurRadius: 16,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Center(
-                          child: Text(
-                            'Назад',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                const Icon(Icons.edit, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                const Text(
+                  'Написать',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
               ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabButtons() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildTabButton(index: 0, icon: Icons.description),
+          _buildTabButton(index: 1, icon: Icons.star_outline),
+          _buildTabButton(index: 2, icon: Icons.location_on_outlined),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabButton({required int index, required IconData icon}) {
+    final isSelected = _selectedTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color:
+            isSelected ? const Color(0xFF5B5BFF) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: isSelected ? Colors.white : Colors.grey[400],
+            size: 24,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF9E9E9E),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF1A1A1A),
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.right,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(String date) {
-    if (date.isEmpty) return '-';
-    try {
-      final DateTime parsedDate = DateTime.parse(date);
-      final months = [
-        'янв',
-        'фев',
-        'мар',
-        'апр',
-        'май',
-        'июн',
-        'июл',
-        'авг',
-        'сен',
-        'окт',
-        'ноя',
-        'дек'
-      ];
-      return '${parsedDate.day} ${months[parsedDate.month - 1]} ${parsedDate.year}';
-    } catch (e) {
-      return date;
+  Widget _buildTabContent(Data data) {
+    switch (_selectedTab) {
+      case 0:
+        return CourierDocumentsTab(data: data);
+      case 1:
+        return CourierRatingsTab(data: data);
+      case 2:
+        return CourierOffersTab(data: data);
+      default:
+        return const SizedBox();
     }
   }
 
-  String _formatTime(String? time) {
-    if (time == null || time.isEmpty) return '-';
-    try {
-      final DateTime parsedTime = DateTime.parse(time);
-      final hours = parsedTime.hour.toString().padLeft(2, '0');
-      final minutes = parsedTime.minute.toString().padLeft(2, '0');
-      return '$hours:$minutes';
-    } catch (e) {
-      return time;
-    }
+  @override
+  CourierDetailsBloc provideBloc() {
+    return CourierDetailsBloc();
   }
 }

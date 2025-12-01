@@ -113,44 +113,8 @@ class _FovoriteOfferListScreenState
                             onFavoriteToggle: (v) {
                               bloc.setFavorites(offer.id);
                             },
-                            onDetails: () async {
-                              final isLogged =
-                                  await sl.get<AuthRepository>().isLogged();
-                              if (!isLogged) {
-                                return AuthModalUtils.showAuthRequiredModal(
-                                    context);
-                              } else {
-                                Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                    builder: (BuildContext context) {
-                                      return CourierDetailsScreen(
-                                        courier: offer,
-                                      );
-                                    },
-                                  ),
-                                );
-                              }
-                            },
-                            onMessage: () async {
-                              final isLogged =
-                                  await sl.get<AuthRepository>().isLogged();
-                              if (!isLogged) {
-                                return AuthModalUtils.showAuthRequiredModal(
-                                    context);
-                              } else {
-                                Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                    builder: (BuildContext context) {
-                                      return ChatScreen(
-                                        courier: offer,
-                                      );
-                                    },
-                                  ),
-                                );
-                              }
-                            },
+
+
                           );
                         },
                         childCount: groups.length,

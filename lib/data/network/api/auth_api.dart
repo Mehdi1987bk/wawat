@@ -27,6 +27,7 @@ import '../response/offer_type_model.dart';
 import '../response/offer_types_response.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
+import '../response/partner_user_response.dart';
 import '../response/registration_response.dart';
 import '../response/send_otp_response.dart';
 import '../response/user.dart';
@@ -113,9 +114,8 @@ abstract class AuthApi {
   @GET('/api/v1/offers/my')
   Future<OfferListResponse> myOffers();
 
-  // ✅ ДОБАВЛЕНО: Метод поиска офферов с пагинацией
   @GET('/api/v1/offers')
-  Future<Pagination<OfferModel>>  searchOffers(
+  Future<Pagination<OfferModel>> searchOffers(
     @Query('offer_type') String? offerType,
     @Query('package_type') String? packageType,
     @Query('city_from_id') int? cityFromId,
@@ -127,8 +127,13 @@ abstract class AuthApi {
   );
 
   @GET('/api/v1/offers/favorites')
-  Future<Pagination<OfferModel>>  getFavorites(
+  Future<Pagination<OfferModel>> getFavorites(
     @Query('page') int page,
+  );
+
+  @GET('/api/v1/users/{date}')
+  Future<PartnerUserResponse> getUserById(
+    @Path() int date,
   );
 
   @POST('/api/v1/favorites/toggle')
