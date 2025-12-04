@@ -10,7 +10,7 @@ import '../widgets/conversation_item.dart';
 import 'chat_conversation_screen.dart';
 
 class ChatListScreen extends BaseScreen {
-  ChatListScreen({Key? key}) : super(key: key);
+    ChatListScreen({Key? key}) : super(key: key);
 
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
@@ -76,13 +76,11 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               decoration: InputDecoration(
                 hintText: 'Поиск сообщений...',
                 hintStyle: WawatTextStyles.placeholder,
-                prefixIcon:
-                    Icon(Icons.search, color: WawatColors.textSecondary),
+                prefixIcon: Icon(Icons.search, color: WawatColors.textSecondary),
                 filled: true,
                 fillColor: WawatColors.inputBackground,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(WawatDimensions.radiusMedium),
+                  borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: EdgeInsets.symmetric(
@@ -171,47 +169,23 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
                 final conversation = sortedConversations[index];
 
-                return Slidable(
-                  key: Key(conversation.id.toString()),
-                  endActionPane: ActionPane(
-                    motion: ScrollMotion(),
-                    children: [
-                      SlidableAction(
-                        onPressed: (_) {
-                          bloc.togglePin(conversation.id);
-                        },
-                        backgroundColor: WawatColors.info,
-                        foregroundColor: Colors.white,
-                        icon: conversation.isPinned
-                            ? Icons.push_pin
-                            : Icons.push_pin_outlined,
-                        label:
-                            conversation.isPinned ? 'Открепить' : 'Закрепить',
+                // Долгое нажатие для меню
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatConversationScreen(
+                          conversation: conversation,
+                        ),
                       ),
-                      SlidableAction(
-                        onPressed: (_) {
-                          bloc.toggleArchive(conversation.id);
-                        },
-                        backgroundColor: WawatColors.warning,
-                        foregroundColor: Colors.white,
-                        icon: conversation.isArchived
-                            ? Icons.unarchive
-                            : Icons.archive,
-                        label: conversation.isArchived
-                            ? 'Разархивировать'
-                            : 'Архивировать',
-                      ),
-                      SlidableAction(
-                        onPressed: (_) {
-                          _showDeleteDialog(conversation);
-                        },
-                        backgroundColor: WawatColors.error,
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete,
-                        label: 'Удалить',
-                      ),
-                    ],
-                  ),
+                    ).then((_) {
+                      bloc.loadConversations();
+                    });
+                  },
+                  onLongPress: () {
+                    _showConversationMenu(conversation);
+                  },
                   child: ConversationItem(
                     conversation: conversation,
                     onTap: () {
@@ -232,6 +206,66 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showConversationMenu(Conversation conversation) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(WawatDimensions.radiusLarge),
+        ),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(WawatDimensions.spacingLg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                conversation.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                color: WawatColors.info,
+              ),
+              title: Text(
+                conversation.isPinned ? 'Открепить' : 'Закрепить',
+                style: WawatTextStyles.bodyBold,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                bloc.togglePin(conversation.id);
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                conversation.isArchived ? Icons.unarchive : Icons.archive,
+                color: WawatColors.warning,
+              ),
+              title: Text(
+                conversation.isArchived ? 'Разархивировать' : 'Архивировать',
+                style: WawatTextStyles.bodyBold,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                bloc.toggleArchive(conversation.id);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete, color: WawatColors.error),
+              title: Text(
+                'Удалить',
+                style: WawatTextStyles.bodyBold.copyWith(
+                  color: WawatColors.error,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteDialog(conversation);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -260,8 +294,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             },
             child: Text(
               'Удалить',
-              style:
-                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+              style: WawatTextStyles.bodyBold
+                  .copyWith(color: WawatColors.error),
             ),
           ),
         ],
