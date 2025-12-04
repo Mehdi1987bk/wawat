@@ -36,28 +36,15 @@ class _ChatConversationScreenState
     bloc.initChat(widget.conversation.id);
     bloc.loadMessages();
 
-    // Автоскролл к последнему сообщению
-    bloc.messagesStream.listen((messages) {
-      if (messages.isNotEmpty && _scrollController.hasClients) {
-        Future.delayed(Duration(milliseconds: 100), () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          }
-        });
-      }
-    });
 
-    // Загрузка старых сообщений при скролле вверх
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels <= 200) {
+     _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
         bloc.loadMore();
       }
     });
   }
+
 
   @override
   void dispose() {
@@ -111,6 +98,7 @@ class _ChatConversationScreenState
 
                 return ListView.builder(
                   controller: _scrollController,
+                  reverse: true, // ИЗМЕНЕНО: Включили reverse
                   padding: EdgeInsets.all(WawatDimensions.spacingMd),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
@@ -123,6 +111,7 @@ class _ChatConversationScreenState
                     );
                   },
                 );
+
               },
             ),
           ),

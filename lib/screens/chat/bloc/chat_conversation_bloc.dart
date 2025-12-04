@@ -42,15 +42,7 @@ class ChatConversationBloc extends BaseBloc {
     }
   }
 
-  void _onNewMessage(dynamic data) {
-    try {
-      final message = ChatMessage.fromJson(data['message']);
-      final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([...currentMessages, message]);
-    } catch (e) {
-      print('Error handling new message: $e');
-    }
-  }
+
 
   Future<void> loadMessages() async {
     if (_conversationId == null) return;
@@ -60,8 +52,8 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      // Старые сообщения вверху, новые внизу
-      _messagesSubject.add(response.data);
+      // ИЗМЕНЕНО: Переворачиваем список (новые сообщения первые)
+      _messagesSubject.add(response.data.reversed.toList());
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading messages: $e');
@@ -85,10 +77,10 @@ class ChatConversationBloc extends BaseBloc {
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
       final currentMessages = _messagesSubject.value;
-      // Добавляем старые сообщения в начало
+      // ИЗМЕНЕНО: Добавляем старые сообщения в конец
       _messagesSubject.add([
-        ...response.data,
         ...currentMessages,
+        ...response.data.reversed.toList(),
       ]);
       _lastPage = response.meta.lastPage;
     } catch (e) {
@@ -120,13 +112,25 @@ class ChatConversationBloc extends BaseBloc {
         );
       }
 
-      // Добавляем новое сообщение в конец
+      // ИЗМЕНЕНО: Добавляем новое сообщение в начало
       final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([...currentMessages, response.data]);
+      _messagesSubject.add([response.data, ...currentMessages]);
     } catch (e) {
       print('Error sending message: $e');
     }
   }
+
+  void _onNewMessage(dynamic data) {
+    try {
+      final message = ChatMessage.fromJson(data['message']);
+      final currentMessages = _messagesSubject.value;
+      // ИЗМЕНЕНО: Добавляем новое сообщение в начало
+      _messagesSubject.add([message, ...currentMessages]);
+    } catch (e) {
+      print('Error handling new message: $e');
+    }
+  }
+
 
   Future<void> blockUser(int userId) async {
     try {
