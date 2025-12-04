@@ -42,7 +42,16 @@ class ChatConversationBloc extends BaseBloc {
     }
   }
 
-
+  void _onNewMessage(dynamic data) {
+    try {
+      final message = ChatMessage.fromJson(data['message']);
+      final currentMessages = _messagesSubject.value;
+      // Добавляем новое сообщение в НАЧАЛО (так как список перевернут)
+      _messagesSubject.add([message, ...currentMessages]);
+    } catch (e) {
+      print('Error handling new message: $e');
+    }
+  }
 
   Future<void> loadMessages() async {
     if (_conversationId == null) return;
@@ -52,7 +61,7 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      // ИЗМЕНЕНО: Переворачиваем список (новые сообщения первые)
+      // ВАЖНО: Переворачиваем список - новые сообщения первыми
       _messagesSubject.add(response.data.reversed.toList());
       _lastPage = response.meta.lastPage;
     } catch (e) {
@@ -77,7 +86,7 @@ class ChatConversationBloc extends BaseBloc {
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
       final currentMessages = _messagesSubject.value;
-      // ИЗМЕНЕНО: Добавляем старые сообщения в конец
+      // Добавляем старые сообщения в КОНЕЦ списка
       _messagesSubject.add([
         ...currentMessages,
         ...response.data.reversed.toList(),
@@ -112,25 +121,13 @@ class ChatConversationBloc extends BaseBloc {
         );
       }
 
-      // ИЗМЕНЕНО: Добавляем новое сообщение в начало
+      // Добавляем новое сообщение в НАЧАЛО списка
       final currentMessages = _messagesSubject.value;
       _messagesSubject.add([response.data, ...currentMessages]);
     } catch (e) {
       print('Error sending message: $e');
     }
   }
-
-  void _onNewMessage(dynamic data) {
-    try {
-      final message = ChatMessage.fromJson(data['message']);
-      final currentMessages = _messagesSubject.value;
-      // ИЗМЕНЕНО: Добавляем новое сообщение в начало
-      _messagesSubject.add([message, ...currentMessages]);
-    } catch (e) {
-      print('Error handling new message: $e');
-    }
-  }
-
 
   Future<void> blockUser(int userId) async {
     try {

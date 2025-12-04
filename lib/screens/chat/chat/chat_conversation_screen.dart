@@ -1,13 +1,13 @@
 import 'dart:io';
+import 'package:buking/data/network/response/chat_response.dart';
+import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:buking/presentation/resourses/wawat_dimensions.dart';
+import 'package:buking/presentation/resourses/wawat_text_styles.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../data/network/response/chat_response.dart';
-import '../../../presentation/bloc/base_screen.dart';
-import '../../../presentation/resourses/wawat_colors.dart';
-import '../../../presentation/resourses/wawat_dimensions.dart';
-import '../../../presentation/resourses/wawat_text_styles.dart';
 import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_bubble.dart';
@@ -36,15 +36,14 @@ class _ChatConversationScreenState
     bloc.initChat(widget.conversation.id);
     bloc.loadMessages();
 
-
-     _scrollController.addListener(() {
+    // Загрузка старых сообщений при скролле вниз (так как список перевернут)
+    _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
         bloc.loadMore();
       }
     });
   }
-
 
   @override
   void dispose() {
@@ -98,7 +97,7 @@ class _ChatConversationScreenState
 
                 return ListView.builder(
                   controller: _scrollController,
-                  reverse: true, // ИЗМЕНЕНО: Включили reverse
+                  reverse: true, // ВАЖНО: Список перевернут
                   padding: EdgeInsets.all(WawatDimensions.spacingMd),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
@@ -111,7 +110,6 @@ class _ChatConversationScreenState
                     );
                   },
                 );
-
               },
             ),
           ),
@@ -152,7 +150,6 @@ class _ChatConversationScreenState
       ),
     );
   }
-
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
