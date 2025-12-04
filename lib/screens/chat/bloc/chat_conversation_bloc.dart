@@ -28,7 +28,6 @@ class ChatConversationBloc extends BaseBloc {
   bool _isLoadingMore = false;
   int? _myUserId;
 
-  // Переименовали init на initChat
   Future<void> initChat(int conversationId) async {
     _conversationId = conversationId;
     _myUserId = await _cacheManager.getUserId();
@@ -47,13 +46,11 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final message = ChatMessage.fromJson(data['message']);
       final currentMessages = _messagesSubject.value;
-      // ИЗМЕНЕНО: Добавляем новое сообщение в конец
       _messagesSubject.add([...currentMessages, message]);
     } catch (e) {
       print('Error handling new message: $e');
     }
   }
-
 
   Future<void> loadMessages() async {
     if (_conversationId == null) return;
@@ -63,7 +60,7 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      // ИЗМЕНЕНО: Убрали .reversed, чтобы старые сообщения были вверху
+      // Старые сообщения вверху, новые внизу
       _messagesSubject.add(response.data);
       _lastPage = response.meta.lastPage;
     } catch (e) {
@@ -88,7 +85,7 @@ class ChatConversationBloc extends BaseBloc {
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
       final currentMessages = _messagesSubject.value;
-      // ИЗМЕНЕНО: Добавляем старые сообщения в начало списка
+      // Добавляем старые сообщения в начало
       _messagesSubject.add([
         ...response.data,
         ...currentMessages,
@@ -123,7 +120,7 @@ class ChatConversationBloc extends BaseBloc {
         );
       }
 
-      // ИЗМЕНЕНО: Добавляем новое сообщение в конец списка
+      // Добавляем новое сообщение в конец
       final currentMessages = _messagesSubject.value;
       _messagesSubject.add([...currentMessages, response.data]);
     } catch (e) {

@@ -29,7 +29,6 @@ class MessageBubble extends StatelessWidget {
         isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // ИЗМЕНЕНО: Добавили проверку на null для user
           if (!isMyMessage && message.user != null) ...[
             CircleAvatar(
               radius: 16,

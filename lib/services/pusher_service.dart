@@ -1,6 +1,5 @@
- import 'dart:convert';
-
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'dart:convert';
 
 class PusherService {
   static final PusherService _instance = PusherService._internal();
@@ -72,33 +71,6 @@ class PusherService {
         },
       );
       print('Subscribed to $channelName');
-    } catch (e) {
-      print('Subscribe error: $e');
-    }
-  }
-
-  Future<void> subscribeToUser(
-      int userId,
-      Function(dynamic) onBlockStatus,
-      ) async {
-    if (!_isInitialized) return;
-
-    final channelName = 'private-user.$userId';
-
-    try {
-      await pusher!.subscribe(
-        channelName: channelName,
-        onEvent: (event) {
-          if (event.eventName == 'conversation.participant_blocked') {
-            try {
-              final data = jsonDecode(event.data);
-              onBlockStatus(data);
-            } catch (e) {
-              print('Error parsing block status: $e');
-            }
-          }
-        },
-      );
     } catch (e) {
       print('Subscribe error: $e');
     }

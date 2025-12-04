@@ -97,16 +97,26 @@ class _ChatInputState extends State<ChatInput> {
   void _showAttachOptions() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(WawatDimensions.radiusLarge),
         ),
       ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(WawatDimensions.spacingLg),
+      builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Container(
+              margin: EdgeInsets.only(top: WawatDimensions.spacingSm),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            SizedBox(height: WawatDimensions.spacingMd),
             ListTile(
               leading: Container(
                 padding: EdgeInsets.all(WawatDimensions.spacingSm),
@@ -143,6 +153,7 @@ class _ChatInputState extends State<ChatInput> {
                 });
               },
             ),
+            SizedBox(height: WawatDimensions.spacingMd),
           ],
         ),
       ),

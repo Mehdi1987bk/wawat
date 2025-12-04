@@ -15,7 +15,7 @@ import '../widgets/message_bubble.dart';
 class ChatConversationScreen extends BaseScreen {
   final Conversation conversation;
 
-  ChatConversationScreen({
+    ChatConversationScreen({
     Key? key,
     required this.conversation,
   }) : super(key: key);
@@ -23,6 +23,7 @@ class ChatConversationScreen extends BaseScreen {
   @override
   _ChatConversationScreenState createState() => _ChatConversationScreenState();
 }
+
 class _ChatConversationScreenState
     extends BaseState<ChatConversationScreen, ChatConversationBloc> {
   final ScrollController _scrollController = ScrollController();
@@ -57,7 +58,6 @@ class _ChatConversationScreenState
       }
     });
   }
-
 
   @override
   void dispose() {
@@ -111,7 +111,6 @@ class _ChatConversationScreenState
 
                 return ListView.builder(
                   controller: _scrollController,
-                  reverse: false, // ИЗМЕНЕНО: Убрали reverse
                   padding: EdgeInsets.all(WawatDimensions.spacingMd),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
@@ -182,15 +181,15 @@ class _ChatConversationScreenState
                 backgroundColor: WawatColors.primary.withOpacity(0.1),
                 backgroundImage: widget.conversation.user.avatarUrl.isNotEmpty
                     ? CachedNetworkImageProvider(
-                        widget.conversation.user.avatarUrl)
+                    widget.conversation.user.avatarUrl)
                     : null,
                 child: widget.conversation.user.avatarUrl.isEmpty
                     ? Text(
-                        widget.conversation.user.fullname[0].toUpperCase(),
-                        style: WawatTextStyles.bodyBold.copyWith(
-                          color: WawatColors.primary,
-                        ),
-                      )
+                  widget.conversation.user.fullname[0].toUpperCase(),
+                  style: WawatTextStyles.bodyBold.copyWith(
+                    color: WawatColors.primary,
+                  ),
+                )
                     : null,
               ),
               if (widget.conversation.user.isOnline)
@@ -307,16 +306,16 @@ class _ChatConversationScreenState
               borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
             ),
             child: _selectedFile!.path.toLowerCase().endsWith('.jpg') ||
-                    _selectedFile!.path.toLowerCase().endsWith('.png') ||
-                    _selectedFile!.path.toLowerCase().endsWith('.jpeg')
+                _selectedFile!.path.toLowerCase().endsWith('.png') ||
+                _selectedFile!.path.toLowerCase().endsWith('.jpeg')
                 ? ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(WawatDimensions.radiusSmall),
-                    child: Image.file(
-                      _selectedFile!,
-                      fit: BoxFit.cover,
-                    ),
-                  )
+              borderRadius:
+              BorderRadius.circular(WawatDimensions.radiusSmall),
+              child: Image.file(
+                _selectedFile!,
+                fit: BoxFit.cover,
+              ),
+            )
                 : Icon(Icons.insert_drive_file, color: WawatColors.primary),
           ),
           SizedBox(width: WawatDimensions.spacingSm),
@@ -366,7 +365,7 @@ class _ChatConversationScreenState
             child: Text(
               'Заблокировать',
               style:
-                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+              WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
             ),
           ),
         ],
@@ -400,7 +399,7 @@ class _ChatConversationScreenState
             child: Text(
               'Удалить',
               style:
-                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+              WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
             ),
           ),
         ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
- import '../../../data/network/response/chat_response.dart';
+import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
@@ -211,7 +211,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
             Container(
               margin: EdgeInsets.only(top: WawatDimensions.spacingSm),
               width: 40,
@@ -222,8 +221,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               ),
             ),
             SizedBox(height: WawatDimensions.spacingMd),
-
-            // User info
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: WawatDimensions.spacingMd,
@@ -259,10 +256,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 ],
               ),
             ),
-
             Divider(height: WawatDimensions.spacingLg),
-
-            // Actions
             ListTile(
               leading: Container(
                 padding: EdgeInsets.all(8),
@@ -287,7 +281,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 bloc.togglePin(conversation.id);
               },
             ),
-
             ListTile(
               leading: Container(
                 padding: EdgeInsets.all(8),
@@ -310,7 +303,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 bloc.toggleArchive(conversation.id);
               },
             ),
-
             ListTile(
               leading: Container(
                 padding: EdgeInsets.all(8),
@@ -335,7 +327,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 _showDeleteDialog(conversation);
               },
             ),
-
             SizedBox(height: WawatDimensions.spacingMd),
           ],
         ),
