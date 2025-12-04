@@ -1,5 +1,6 @@
+ import 'dart:convert';
+
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import 'dart:convert';
 
 class PusherService {
   static final PusherService _instance = PusherService._internal();

@@ -29,16 +29,17 @@ class MessageBubble extends StatelessWidget {
         isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isMyMessage) ...[
+          // ИЗМЕНЕНО: Добавили проверку на null для user
+          if (!isMyMessage && message.user != null) ...[
             CircleAvatar(
               radius: 16,
               backgroundColor: WawatColors.primary.withOpacity(0.1),
-              backgroundImage: message.user.avatarUrl.isNotEmpty
-                  ? CachedNetworkImageProvider(message.user.avatarUrl)
+              backgroundImage: message.user!.avatarUrl.isNotEmpty
+                  ? CachedNetworkImageProvider(message.user!.avatarUrl)
                   : null,
-              child: message.user.avatarUrl.isEmpty
+              child: message.user!.avatarUrl.isEmpty
                   ? Text(
-                message.user.fullname[0].toUpperCase(),
+                message.user!.fullname[0].toUpperCase(),
                 style: WawatTextStyles.caption.copyWith(
                   color: WawatColors.primary,
                   fontWeight: FontWeight.bold,

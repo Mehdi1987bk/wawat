@@ -10,7 +10,7 @@ class ChatUser {
   final int id;
   final String fullname;
   final String? avatar;
-  @JsonKey(name: 'is_verified')
+  @JsonKey(name: 'is_verified', defaultValue: false) // ИЗМЕНЕНО: Добавили defaultValue
   final bool isVerified;
   @JsonKey(name: 'last_seen_at')
   final String? lastSeenAt;
@@ -19,7 +19,7 @@ class ChatUser {
     required this.id,
     required this.fullname,
     this.avatar,
-    required this.isVerified,
+    this.isVerified = false, // ИЗМЕНЕНО: Добавили дефолтное значение
     this.lastSeenAt,
   });
 
@@ -105,7 +105,7 @@ class ChatMessage {
   final String type; // text, image, file
   final String? body;
   final ChatFile? file;
-  final ChatUser user;
+  final ChatUser? user; // ИЗМЕНЕНО: Сделали опциональным
   @JsonKey(name: 'created_at')
   final String createdAt;
 
@@ -114,7 +114,7 @@ class ChatMessage {
     required this.type,
     this.body,
     this.file,
-    required this.user,
+    this.user, // ИЗМЕНЕНО: Убрали required
     required this.createdAt,
   });
 
@@ -250,19 +250,20 @@ class MetaData {
   final int total;
   @JsonKey(name: 'last_page')
   final int lastPage;
+  final String? locale; // ДОБАВЛЕНО: Новое поле
 
   MetaData({
     required this.page,
     required this.perPage,
     required this.total,
     required this.lastPage,
+    this.locale, // ДОБАВЛЕНО
   });
 
   factory MetaData.fromJson(Map<String, dynamic> json) =>
       _$MetaDataFromJson(json);
   Map<String, dynamic> toJson() => _$MetaDataToJson(this);
 }
-
 
 // ============================================================================
 // Simple Action Responses

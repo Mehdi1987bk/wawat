@@ -47,11 +47,13 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final message = ChatMessage.fromJson(data['message']);
       final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([message, ...currentMessages]);
+      // ИЗМЕНЕНО: Добавляем новое сообщение в конец
+      _messagesSubject.add([...currentMessages, message]);
     } catch (e) {
       print('Error handling new message: $e');
     }
   }
+
 
   Future<void> loadMessages() async {
     if (_conversationId == null) return;
@@ -61,7 +63,8 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      _messagesSubject.add(response.data.reversed.toList());
+      // ИЗМЕНЕНО: Убрали .reversed, чтобы старые сообщения были вверху
+      _messagesSubject.add(response.data);
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading messages: $e');
@@ -85,9 +88,10 @@ class ChatConversationBloc extends BaseBloc {
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
       final currentMessages = _messagesSubject.value;
+      // ИЗМЕНЕНО: Добавляем старые сообщения в начало списка
       _messagesSubject.add([
+        ...response.data,
         ...currentMessages,
-        ...response.data.reversed.toList(),
       ]);
       _lastPage = response.meta.lastPage;
     } catch (e) {
@@ -119,8 +123,9 @@ class ChatConversationBloc extends BaseBloc {
         );
       }
 
+      // ИЗМЕНЕНО: Добавляем новое сообщение в конец списка
       final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([response.data, ...currentMessages]);
+      _messagesSubject.add([...currentMessages, response.data]);
     } catch (e) {
       print('Error sending message: $e');
     }
@@ -145,7 +150,7 @@ class ChatConversationBloc extends BaseBloc {
   }
 
   bool isMyMessage(ChatMessage message) {
-    return message.user.id == _myUserId;
+    return message.user?.id == _myUserId;
   }
 
   @override

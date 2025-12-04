@@ -10,7 +10,7 @@ ChatUser _$ChatUserFromJson(Map<String, dynamic> json) => ChatUser(
       id: json['id'] as int,
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
-      isVerified: json['is_verified'] as bool,
+      isVerified: json['is_verified'] as bool? ?? false,
       lastSeenAt: json['last_seen_at'] as String?,
     );
 
@@ -43,7 +43,9 @@ ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
       file: json['file'] == null
           ? null
           : ChatFile.fromJson(json['file'] as Map<String, dynamic>),
-      user: ChatUser.fromJson(json['user'] as Map<String, dynamic>),
+      user: json['user'] == null
+          ? null
+          : ChatUser.fromJson(json['user'] as Map<String, dynamic>),
       createdAt: json['created_at'] as String,
     );
 
@@ -135,6 +137,7 @@ MetaData _$MetaDataFromJson(Map<String, dynamic> json) => MetaData(
       perPage: json['per_page'] as int,
       total: json['total'] as int,
       lastPage: json['last_page'] as int,
+      locale: json['locale'] as String?,
     );
 
 Map<String, dynamic> _$MetaDataToJson(MetaData instance) => <String, dynamic>{
@@ -142,6 +145,7 @@ Map<String, dynamic> _$MetaDataToJson(MetaData instance) => <String, dynamic>{
       'per_page': instance.perPage,
       'total': instance.total,
       'last_page': instance.lastPage,
+      'locale': instance.locale,
     };
 
 PinResponse _$PinResponseFromJson(Map<String, dynamic> json) => PinResponse(
