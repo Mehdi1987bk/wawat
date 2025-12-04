@@ -100,8 +100,8 @@ class DataCacheManager implements CacheManager {
   @override
   Future<int?> getUserId() async {
     try {
-      final box = await Hive.openBox('user_box');
-      final user = box.get('user');
+      final box = await _userBox;
+      final user = box.get(_userKey);
       if (user != null && user is User) {
         return user.id;
       }
@@ -115,13 +115,13 @@ class DataCacheManager implements CacheManager {
   @override
   Future<String?> getToken() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('auth_token') ?? prefs.getString('token');
+      return await getAccessToken();
     } catch (e) {
       print('Error getting token: $e');
       return null;
     }
   }
+
 
 
 
