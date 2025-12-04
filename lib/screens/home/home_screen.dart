@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/bloc/base_screen.dart';
+import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
 
@@ -120,7 +121,7 @@ class __TabsState extends State<_Tabs> {
 
     _tabs = <Widget>[
       HomeTabScreen(),
-      Container(),
+      ChatListScreen(),
       CreatePostScreen(),
       FovoriteOfferListScreen(),
       ProfileTabScreen(),

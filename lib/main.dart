@@ -1,3 +1,4 @@
+import 'package:buking/data/network/api/chat_api.dart';
 import 'package:buking/data/network/response/type_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +63,7 @@ void _registerDependency() {
   final dio = _initDio();
 
   sl.registerLazySingleton<AuthApi>(() => AuthApi(dio));
+  sl.registerLazySingleton<ChatApi>(() => ChatApi(dio));
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
 }
 

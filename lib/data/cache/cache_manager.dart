@@ -26,4 +26,7 @@ abstract class CacheManager {
 
   Future<void> setIsFirstOpen();
 
+  Future<int?> getUserId();
+  Future<String?> getToken();
+
 }

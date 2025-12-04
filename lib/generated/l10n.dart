@@ -18,17 +18,20 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(_current != null,
-        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
+    assert(
+      _current != null,
+      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
+    );
     return _current!;
   }
 
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<S> load(Locale locale) {
-    final name = (locale.countryCode?.isEmpty ?? false)
-        ? locale.languageCode
-        : locale.toString();
+    final name =
+        (locale.countryCode?.isEmpty ?? false)
+            ? locale.languageCode
+            : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
@@ -41,8 +44,10 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(instance != null,
-        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
@@ -122,32 +127,17 @@ class S {
 
   /// `İrəli`
   String get rli {
-    return Intl.message(
-      'İrəli',
-      name: 'rli',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('İrəli', name: 'rli', desc: '', args: []);
   }
 
   /// `E-mail adres`
   String get emailAdres {
-    return Intl.message(
-      'E-mail adres',
-      name: 'emailAdres',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('E-mail adres', name: 'emailAdres', desc: '', args: []);
   }
 
   /// `Sign up`
   String get signUp {
-    return Intl.message(
-      'Sign up',
-      name: 'signUp',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sign up', name: 'signUp', desc: '', args: []);
   }
 
   /// `Qeydiyyatdan keçin`
@@ -162,12 +152,7 @@ class S {
 
   /// `Şifrə`
   String get ifr {
-    return Intl.message(
-      'Şifrə',
-      name: 'ifr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Şifrə', name: 'ifr', desc: '', args: []);
   }
 
   /// `Şifrəmi unutmusam`
@@ -182,12 +167,7 @@ class S {
 
   /// `Salam`
   String get salam {
-    return Intl.message(
-      'Salam',
-      name: 'salam',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Salam', name: 'salam', desc: '', args: []);
   }
 
   /// `Bu gün sizə xoş alış-verişlər arzu edirik`
@@ -212,32 +192,17 @@ class S {
 
   /// `Status:`
   String get status {
-    return Intl.message(
-      'Status:',
-      name: 'status',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Status:', name: 'status', desc: '', args: []);
   }
 
   /// `SC status: `
   String get scStatus {
-    return Intl.message(
-      'SC status: ',
-      name: 'scStatus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('SC status: ', name: 'scStatus', desc: '', args: []);
   }
 
   /// `Qiymət: `
   String get qiymt {
-    return Intl.message(
-      'Qiymət: ',
-      name: 'qiymt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Qiymət: ', name: 'qiymt', desc: '', args: []);
   }
 
   /// `Kargo çəkisi: `
@@ -262,22 +227,12 @@ class S {
 
   /// `Sifariş ver`
   String get sifariVer {
-    return Intl.message(
-      'Sifariş ver',
-      name: 'sifariVer',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sifariş ver', name: 'sifariVer', desc: '', args: []);
   }
 
   /// `Faktura`
   String get fakturaLavEt {
-    return Intl.message(
-      'Faktura',
-      name: 'fakturaLavEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Faktura', name: 'fakturaLavEt', desc: '', args: []);
   }
 
   /// `Choose Image`
@@ -292,52 +247,27 @@ class S {
 
   /// `Gallery`
   String get gallery {
-    return Intl.message(
-      'Gallery',
-      name: 'gallery',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Gallery', name: 'gallery', desc: '', args: []);
   }
 
   /// `Camera`
   String get camera {
-    return Intl.message(
-      'Camera',
-      name: 'camera',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Camera', name: 'camera', desc: '', args: []);
   }
 
   /// `Cancel`
   String get cancel {
-    return Intl.message(
-      'Cancel',
-      name: 'cancel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Cancel', name: 'cancel', desc: '', args: []);
   }
 
   /// `Endirin`
   String get endirin {
-    return Intl.message(
-      'Endirin',
-      name: 'endirin',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Endirin', name: 'endirin', desc: '', args: []);
   }
 
   /// `Bağlamalarım`
   String get balamalarm {
-    return Intl.message(
-      'Bağlamalarım',
-      name: 'balamalarm',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Bağlamalarım', name: 'balamalarm', desc: '', args: []);
   }
 
   /// `Bütün bağlamalarım`
@@ -352,12 +282,7 @@ class S {
 
   /// `Mağaza: `
   String get maaza {
-    return Intl.message(
-      'Mağaza: ',
-      name: 'maaza',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Mağaza: ', name: 'maaza', desc: '', args: []);
   }
 
   /// `Məhsulun tipi: `
@@ -382,22 +307,12 @@ class S {
 
   /// `Qeyd`
   String get qeyd {
-    return Intl.message(
-      'Qeyd',
-      name: 'qeyd',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Qeyd', name: 'qeyd', desc: '', args: []);
   }
 
   /// `Ödəniş edin`
   String get dniEdin {
-    return Intl.message(
-      'Ödəniş edin',
-      name: 'dniEdin',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ödəniş edin', name: 'dniEdin', desc: '', args: []);
   }
 
   /// `Please grant accessing storage permission to continue`
@@ -412,32 +327,17 @@ class S {
 
   /// `Retry`
   String get retry {
-    return Intl.message(
-      'Retry',
-      name: 'retry',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Retry', name: 'retry', desc: '', args: []);
   }
 
   /// `əlavə et`
   String get lavEt {
-    return Intl.message(
-      'əlavə et',
-      name: 'lavEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('əlavə et', name: 'lavEt', desc: '', args: []);
   }
 
   /// `Kod`
   String get kod {
-    return Intl.message(
-      'Kod',
-      name: 'kod',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kod', name: 'kod', desc: '', args: []);
   }
 
   /// `Faktura kodunu əlavə edin`
@@ -452,12 +352,7 @@ class S {
 
   /// `Düzəliş`
   String get dzli {
-    return Intl.message(
-      'Düzəliş',
-      name: 'dzli',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Düzəliş', name: 'dzli', desc: '', args: []);
   }
 
   /// `KGO9920xxxxxx`
@@ -482,32 +377,17 @@ class S {
 
   /// `Qiyməti`
   String get qiymti {
-    return Intl.message(
-      'Qiyməti',
-      name: 'qiymti',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Qiyməti', name: 'qiymti', desc: '', args: []);
   }
 
   /// `Faktura`
   String get faktura {
-    return Intl.message(
-      'Faktura',
-      name: 'faktura',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Faktura', name: 'faktura', desc: '', args: []);
   }
 
   /// `Ətraflı`
   String get trafl {
-    return Intl.message(
-      'Ətraflı',
-      name: 'trafl',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ətraflı', name: 'trafl', desc: '', args: []);
   }
 
   /// `Faktura qiyməti`
@@ -532,22 +412,12 @@ class S {
 
   /// `Çəki`
   String get ki {
-    return Intl.message(
-      'Çəki',
-      name: 'ki',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Çəki', name: 'ki', desc: '', args: []);
   }
 
   /// `Çatdırılma`
   String get atdrlma {
-    return Intl.message(
-      'Çatdırılma',
-      name: 'atdrlma',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Çatdırılma', name: 'atdrlma', desc: '', args: []);
   }
 
   /// `Məhsulun sayı`
@@ -572,52 +442,27 @@ class S {
 
   /// `Kateqoriya`
   String get kateqoriya {
-    return Intl.message(
-      'Kateqoriya',
-      name: 'kateqoriya',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kateqoriya', name: 'kateqoriya', desc: '', args: []);
   }
 
   /// `Ödəmə`
   String get dm {
-    return Intl.message(
-      'Ödəmə',
-      name: 'dm',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ödəmə', name: 'dm', desc: '', args: []);
   }
 
   /// `SC status`
   String get scStatuss {
-    return Intl.message(
-      'SC status',
-      name: 'scStatuss',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('SC status', name: 'scStatuss', desc: '', args: []);
   }
 
   /// `Status`
   String get statuss {
-    return Intl.message(
-      'Status',
-      name: 'statuss',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Status', name: 'statuss', desc: '', args: []);
   }
 
   /// `Əməliyyatlar`
   String get mliyyatlar {
-    return Intl.message(
-      'Əməliyyatlar',
-      name: 'mliyyatlar',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Əməliyyatlar', name: 'mliyyatlar', desc: '', args: []);
   }
 
   /// `Faktura əlavə edin`
@@ -632,32 +477,17 @@ class S {
 
   /// `Yadda saxla`
   String get yaddaSaxla {
-    return Intl.message(
-      'Yadda saxla',
-      name: 'yaddaSaxla',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Yadda saxla', name: 'yaddaSaxla', desc: '', args: []);
   }
 
   /// `Bağlamalar`
   String get balamalar {
-    return Intl.message(
-      'Bağlamalar',
-      name: 'balamalar',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Bağlamalar', name: 'balamalar', desc: '', args: []);
   }
 
   /// `Sifarişlər`
   String get sifarilr {
-    return Intl.message(
-      'Sifarişlər',
-      name: 'sifarilr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sifarişlər', name: 'sifarilr', desc: '', args: []);
   }
 
   /// `Kuryer sifariş et`
@@ -672,22 +502,12 @@ class S {
 
   /// `Xidmətlərimi`
   String get xidmtlrimi {
-    return Intl.message(
-      'Xidmətlərimi',
-      name: 'xidmtlrimi',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Xidmətlərimi', name: 'xidmtlrimi', desc: '', args: []);
   }
 
   /// `Giriş et`
   String get giriEt {
-    return Intl.message(
-      'Giriş et',
-      name: 'giriEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Giriş et', name: 'giriEt', desc: '', args: []);
   }
 
   /// `DIgər bölmələr`
@@ -702,42 +522,22 @@ class S {
 
   /// `Balansınız`
   String get balansnz {
-    return Intl.message(
-      'Balansınız',
-      name: 'balansnz',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Balansınız', name: 'balansnz', desc: '', args: []);
   }
 
   /// `AZN balansı`
   String get aznBalans {
-    return Intl.message(
-      'AZN balansı',
-      name: 'aznBalans',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('AZN balansı', name: 'aznBalans', desc: '', args: []);
   }
 
   /// `250.0`
   String get aznnnn {
-    return Intl.message(
-      '250.0',
-      name: 'aznnnn',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('250.0', name: 'aznnnn', desc: '', args: []);
   }
 
   /// `TL balansı`
   String get tlBalans {
-    return Intl.message(
-      'TL balansı',
-      name: 'tlBalans',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('TL balansı', name: 'tlBalans', desc: '', args: []);
   }
 
   /// `Şəxsi kabinet`
@@ -782,22 +582,12 @@ class S {
 
   /// `Şifrəni dəyiş`
   String get ifrniDyi {
-    return Intl.message(
-      'Şifrəni dəyiş',
-      name: 'ifrniDyi',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Şifrəni dəyiş', name: 'ifrniDyi', desc: '', args: []);
   }
 
   /// `Çıxış et`
   String get xEt {
-    return Intl.message(
-      'Çıxış et',
-      name: 'xEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Çıxış et', name: 'xEt', desc: '', args: []);
   }
 
   /// `Kuryer sifarişi`
@@ -822,22 +612,12 @@ class S {
 
   /// `Tariflər`
   String get tariflr {
-    return Intl.message(
-      'Tariflər',
-      name: 'tariflr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Tariflər', name: 'tariflr', desc: '', args: []);
   }
 
   /// `Xəbərlər`
   String get xbrlr {
-    return Intl.message(
-      'Xəbərlər',
-      name: 'xbrlr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Xəbərlər', name: 'xbrlr', desc: '', args: []);
   }
 
   /// `Kango filialları`
@@ -852,22 +632,12 @@ class S {
 
   /// `Əlaqə`
   String get laq {
-    return Intl.message(
-      'Əlaqə',
-      name: 'laq',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Əlaqə', name: 'laq', desc: '', args: []);
   }
 
   /// `tarixçəsi`
   String get tarixsi {
-    return Intl.message(
-      'tarixçəsi',
-      name: 'tarixsi',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('tarixçəsi', name: 'tarixsi', desc: '', args: []);
   }
 
   /// `Kuryer tarifləri`
@@ -902,12 +672,7 @@ class S {
 
   /// `Bakı kəndləri`
   String get bakKndlri {
-    return Intl.message(
-      'Bakı kəndləri',
-      name: 'bakKndlri',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Bakı kəndləri', name: 'bakKndlri', desc: '', args: []);
   }
 
   /// `Kango Tel: 012 525 43 43`
@@ -952,12 +717,7 @@ class S {
 
   /// `Adınız`
   String get adnz {
-    return Intl.message(
-      'Adınız',
-      name: 'adnz',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Adınız', name: 'adnz', desc: '', args: []);
   }
 
   /// `Adınızı daxil edin`
@@ -972,12 +732,7 @@ class S {
 
   /// `Soyadınız`
   String get soyadnz {
-    return Intl.message(
-      'Soyadınız',
-      name: 'soyadnz',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Soyadınız', name: 'soyadnz', desc: '', args: []);
   }
 
   /// `Soyadınızı daxil edin`
@@ -1002,12 +757,7 @@ class S {
 
   /// `Cinsiniz`
   String get cinsiniz {
-    return Intl.message(
-      'Cinsiniz',
-      name: 'cinsiniz',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Cinsiniz', name: 'cinsiniz', desc: '', args: []);
   }
 
   /// `Email adresiniz`
@@ -1042,22 +792,12 @@ class S {
 
   /// `Kişi`
   String get kii {
-    return Intl.message(
-      'Kişi',
-      name: 'kii',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kişi', name: 'kii', desc: '', args: []);
   }
 
   /// `Qadın`
   String get qadn {
-    return Intl.message(
-      'Qadın',
-      name: 'qadn',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Qadın', name: 'qadn', desc: '', args: []);
   }
 
   /// `Faktura əlavə et`
@@ -1082,12 +822,7 @@ class S {
 
   /// `Təsdiq et`
   String get tsdiqEt {
-    return Intl.message(
-      'Təsdiq et',
-      name: 'tsdiqEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Təsdiq et', name: 'tsdiqEt', desc: '', args: []);
   }
 
   /// `Təsdiqlə və sifariş et`
@@ -1102,12 +837,7 @@ class S {
 
   /// `Ana səhifə`
   String get anaShif {
-    return Intl.message(
-      'Ana səhifə',
-      name: 'anaShif',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ana səhifə', name: 'anaShif', desc: '', args: []);
   }
 
   /// `Tariflərimiz -`
@@ -1182,52 +912,27 @@ class S {
 
   /// `0 qr - 100 qr`
   String get Qr100Qrc {
-    return Intl.message(
-      '0 qr - 100 qr',
-      name: 'Qr100Qrc',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('0 qr - 100 qr', name: 'Qr100Qrc', desc: '', args: []);
   }
 
   /// `101 qr - 250 qr`
   String get Qr250Qr {
-    return Intl.message(
-      '101 qr - 250 qr',
-      name: 'Qr250Qr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('101 qr - 250 qr', name: 'Qr250Qr', desc: '', args: []);
   }
 
   /// `251 qr - 500 qr`
   String get Qr500Qr {
-    return Intl.message(
-      '251 qr - 500 qr',
-      name: 'Qr500Qr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('251 qr - 500 qr', name: 'Qr500Qr', desc: '', args: []);
   }
 
   /// `501 qr - 1 kq`
   String get Qr1Kq {
-    return Intl.message(
-      '501 qr - 1 kq',
-      name: 'Qr1Kq',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('501 qr - 1 kq', name: 'Qr1Kq', desc: '', args: []);
   }
 
   /// `1 kq üzərində`
   String get KqZrind {
-    return Intl.message(
-      '1 kq üzərində',
-      name: 'KqZrind',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('1 kq üzərində', name: 'KqZrind', desc: '', args: []);
   }
 
   /// `Təkrar şifrəniz`
@@ -1252,12 +957,7 @@ class S {
 
   /// `Şifrəniz`
   String get ifrniz {
-    return Intl.message(
-      'Şifrəniz',
-      name: 'ifrniz',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Şifrəniz', name: 'ifrniz', desc: '', args: []);
   }
 
   /// `Giriş şifrənizi təyin edin`
@@ -1282,92 +982,47 @@ class S {
 
   /// `Cins`
   String get cins {
-    return Intl.message(
-      'Cins',
-      name: 'cins',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Cins', name: 'cins', desc: '', args: []);
   }
 
   /// `Mağaza`
   String get maazae {
-    return Intl.message(
-      'Mağaza',
-      name: 'maazae',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Mağaza', name: 'maazae', desc: '', args: []);
   }
 
   /// `kq`
   String get kq {
-    return Intl.message(
-      'kq',
-      name: 'kq',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('kq', name: 'kq', desc: '', args: []);
   }
 
   /// `Mağaza`
   String get maazavd {
-    return Intl.message(
-      'Mağaza',
-      name: 'maazavd',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Mağaza', name: 'maazavd', desc: '', args: []);
   }
 
   /// `tl`
   String get tl {
-    return Intl.message(
-      'tl',
-      name: 'tl',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('tl', name: 'tl', desc: '', args: []);
   }
 
   /// `Bağlama:`
   String get balama {
-    return Intl.message(
-      'Bağlama:',
-      name: 'balama',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Bağlama:', name: 'balama', desc: '', args: []);
   }
 
   /// `Ad, Soyad:`
   String get adSoyad {
-    return Intl.message(
-      'Ad, Soyad:',
-      name: 'adSoyad',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ad, Soyad:', name: 'adSoyad', desc: '', args: []);
   }
 
   /// `Ünvan:`
   String get nvan {
-    return Intl.message(
-      'Ünvan:',
-      name: 'nvan',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ünvan:', name: 'nvan', desc: '', args: []);
   }
 
   /// `Geri`
   String get geri {
-    return Intl.message(
-      'Geri',
-      name: 'geri',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Geri', name: 'geri', desc: '', args: []);
   }
 
   /// `Şəxsiyyət vəsiqəsinin seriya nömrəsi`
@@ -1392,12 +1047,7 @@ class S {
 
   /// `Filial seçin`
   String get filialSein {
-    return Intl.message(
-      'Filial seçin',
-      name: 'filialSein',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Filial seçin', name: 'filialSein', desc: '', args: []);
   }
 
   /// `Ş.V. -nin seriya nömrəsi`
@@ -1462,12 +1112,7 @@ class S {
 
   /// `Ünvan`
   String get nvand {
-    return Intl.message(
-      'Ünvan',
-      name: 'nvand',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ünvan', name: 'nvand', desc: '', args: []);
   }
 
   /// `Bakı şəhəri, Nərimanov rayonu, Ağa Neymatulla b 44/2 (Metropark t.m yanı)`
@@ -1532,12 +1177,7 @@ class S {
 
   /// `Bağla`
   String get bala {
-    return Intl.message(
-      'Bağla',
-      name: 'bala',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Bağla', name: 'bala', desc: '', args: []);
   }
 
   /// `Balans artırın`
@@ -1612,12 +1252,7 @@ class S {
 
   /// `Toplam məbləğ`
   String get toplamMbl {
-    return Intl.message(
-      'Toplam məbləğ',
-      name: 'toplamMbl',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Toplam məbləğ', name: 'toplamMbl', desc: '', args: []);
   }
 
   /// `Paket birlesmesi`
@@ -1632,12 +1267,7 @@ class S {
 
   /// `Kargo dəyəri`
   String get kargoDyri {
-    return Intl.message(
-      'Kargo dəyəri',
-      name: 'kargoDyri',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kargo dəyəri', name: 'kargoDyri', desc: '', args: []);
   }
 
   /// `Sifarişiniz yeniləndi və yaddaşa verildi`
@@ -1662,12 +1292,7 @@ class S {
 
   /// `Məhsul`
   String get mhsul {
-    return Intl.message(
-      'Məhsul',
-      name: 'mhsul',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Məhsul', name: 'mhsul', desc: '', args: []);
   }
 
   /// `Məhsulun ölçüsü`
@@ -1702,12 +1327,7 @@ class S {
 
   /// `Yeni məhsul`
   String get yeniMhsul {
-    return Intl.message(
-      'Yeni məhsul',
-      name: 'yeniMhsul',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Yeni məhsul', name: 'yeniMhsul', desc: '', args: []);
   }
 
   /// `Məhsulun sayını qeyd edin`
@@ -1752,12 +1372,7 @@ class S {
 
   /// `Sifariş et`
   String get sifariEt {
-    return Intl.message(
-      'Sifariş et',
-      name: 'sifariEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sifariş et', name: 'sifariEt', desc: '', args: []);
   }
 
   /// `Məhsulun qiymətini qeyd edərkən Türkiyə daxili kargonu da üzərinə gəlib qiymət xanasına yazmalısınız. Əks halda sifrişiniz alınarkən balansınızdan çıxılacaqdır.`
@@ -1772,12 +1387,7 @@ class S {
 
   /// `Geriyə`
   String get geriy {
-    return Intl.message(
-      'Geriyə',
-      name: 'geriy',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Geriyə', name: 'geriy', desc: '', args: []);
   }
 
   /// `Toplam qiymət`
@@ -1852,12 +1462,7 @@ class S {
 
   /// `+1`
   String get one {
-    return Intl.message(
-      '+1',
-      name: 'one',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('+1', name: 'one', desc: '', args: []);
   }
 
   /// `* Sifarişin məbləği kargonuz Türkiyə ofisinə çatdıqda bəlli olacaqdır.`
@@ -1902,42 +1507,22 @@ class S {
 
   /// `Ödəniş et`
   String get dniEt {
-    return Intl.message(
-      'Ödəniş et',
-      name: 'dniEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ödəniş et', name: 'dniEt', desc: '', args: []);
   }
 
   /// `Səbətim`
   String get sbtim {
-    return Intl.message(
-      'Səbətim',
-      name: 'sbtim',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Səbətim', name: 'sbtim', desc: '', args: []);
   }
 
   /// `Say`
   String get say {
-    return Intl.message(
-      'Say',
-      name: 'say',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Say', name: 'say', desc: '', args: []);
   }
 
   /// `Ölçü:`
   String get l {
-    return Intl.message(
-      'Ölçü:',
-      name: 'l',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ölçü:', name: 'l', desc: '', args: []);
   }
 
   /// `Şəxsi məlumatlar`
@@ -1952,32 +1537,17 @@ class S {
 
   /// `Ad`
   String get ad {
-    return Intl.message(
-      'Ad',
-      name: 'ad',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ad', name: 'ad', desc: '', args: []);
   }
 
   /// `Soyad`
   String get soyad {
-    return Intl.message(
-      'Soyad',
-      name: 'soyad',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Soyad', name: 'soyad', desc: '', args: []);
   }
 
   /// `Filial`
   String get filial {
-    return Intl.message(
-      'Filial',
-      name: 'filial',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Filial', name: 'filial', desc: '', args: []);
   }
 
   /// `Filiallarımız`
@@ -1992,12 +1562,7 @@ class S {
 
   /// `Kango Tel:`
   String get kangoTel {
-    return Intl.message(
-      'Kango Tel:',
-      name: 'kangoTel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kango Tel:', name: 'kangoTel', desc: '', args: []);
   }
 
   /// `Sizin paketiniz yoxdur`
@@ -2032,12 +1597,7 @@ class S {
 
   /// `Ümumi qiymət:`
   String get mumiQiymt {
-    return Intl.message(
-      'Ümumi qiymət:',
-      name: 'mumiQiymt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ümumi qiymət:', name: 'mumiQiymt', desc: '', args: []);
   }
 
   /// `Bakı ofisində bağlamalarınız yoxdur`
@@ -2062,12 +1622,7 @@ class S {
 
   /// `Əlavə xidmət:`
   String get lavXidmt {
-    return Intl.message(
-      'Əlavə xidmət:',
-      name: 'lavXidmt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Əlavə xidmət:', name: 'lavXidmt', desc: '', args: []);
   }
 
   /// `Bu məhsulu simək istədiyinizə əminsiniz?`
@@ -2082,22 +1637,12 @@ class S {
 
   /// `Beli`
   String get beli {
-    return Intl.message(
-      'Beli',
-      name: 'beli',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Beli', name: 'beli', desc: '', args: []);
   }
 
   /// `Heir`
   String get heir {
-    return Intl.message(
-      'Heir',
-      name: 'heir',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Heir', name: 'heir', desc: '', args: []);
   }
 
   /// `Onlayn daşıma`
@@ -2132,12 +1677,7 @@ class S {
 
   /// `Sifarişlərim`
   String get sifarilrim {
-    return Intl.message(
-      'Sifarişlərim',
-      name: 'sifarilrim',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Sifarişlərim', name: 'sifarilrim', desc: '', args: []);
   }
 
   /// `Vergi numarası`
@@ -2162,42 +1702,22 @@ class S {
 
   /// `Ülke`
   String get lke {
-    return Intl.message(
-      'Ülke',
-      name: 'lke',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Ülke', name: 'lke', desc: '', args: []);
   }
 
   /// `Semt`
   String get semt {
-    return Intl.message(
-      'Semt',
-      name: 'semt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Semt', name: 'semt', desc: '', args: []);
   }
 
   /// `Adres başlığı`
   String get adresBal {
-    return Intl.message(
-      'Adres başlığı',
-      name: 'adresBal',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Adres başlığı', name: 'adresBal', desc: '', args: []);
   }
 
   /// `İlçe`
   String get le {
-    return Intl.message(
-      'İlçe',
-      name: 'le',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('İlçe', name: 'le', desc: '', args: []);
   }
 
   /// `ZIP/Post kodu`
@@ -2222,12 +1742,7 @@ class S {
 
   /// `İl - şehir`
   String get lEhir {
-    return Intl.message(
-      'İl - şehir',
-      name: 'lEhir',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('İl - şehir', name: 'lEhir', desc: '', args: []);
   }
 
   /// `Imtina edilib`
@@ -2242,12 +1757,7 @@ class S {
 
   /// `Yaradilib`
   String get yaradilib {
-    return Intl.message(
-      'Yaradilib',
-      name: 'yaradilib',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Yaradilib', name: 'yaradilib', desc: '', args: []);
   }
 
   /// `Odenis edilib`
@@ -2272,22 +1782,12 @@ class S {
 
   /// `Alinib`
   String get alinib {
-    return Intl.message(
-      'Alinib',
-      name: 'alinib',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Alinib', name: 'alinib', desc: '', args: []);
   }
 
   /// `Kargodadir`
   String get kargodadir {
-    return Intl.message(
-      'Kargodadir',
-      name: 'kargodadir',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kargodadir', name: 'kargodadir', desc: '', args: []);
   }
 
   /// `Baki ofisindedir`
@@ -2342,12 +1842,7 @@ class S {
 
   /// `Rədd etmək`
   String get rddEtmk {
-    return Intl.message(
-      'Rədd etmək',
-      name: 'rddEtmk',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Rədd etmək', name: 'rddEtmk', desc: '', args: []);
   }
 
   /// `Tesdiq edirem`
@@ -2362,22 +1857,12 @@ class S {
 
   /// `Kopyalandı`
   String get kopyaland {
-    return Intl.message(
-      'Kopyalandı',
-      name: 'kopyaland',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Kopyalandı', name: 'kopyaland', desc: '', args: []);
   }
 
   /// `Filiallar`
   String get filiallar {
-    return Intl.message(
-      'Filiallar',
-      name: 'filiallar',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Filiallar', name: 'filiallar', desc: '', args: []);
   }
 
   /// `Ümumi məhsul dəyəri`
@@ -2472,12 +1957,7 @@ class S {
 
   /// `Seçilməyib`
   String get seilmyib {
-    return Intl.message(
-      'Seçilməyib',
-      name: 'seilmyib',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Seçilməyib', name: 'seilmyib', desc: '', args: []);
   }
 
   /// `Nömrəni göstər`
@@ -2522,12 +2002,7 @@ class S {
 
   /// `Davam etmək`
   String get davamEtmk {
-    return Intl.message(
-      'Davam etmək',
-      name: 'davamEtmk',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Davam etmək', name: 'davamEtmk', desc: '', args: []);
   }
 
   /// `Tətbiqi yeniləyinmək`
@@ -2542,12 +2017,7 @@ class S {
 
   /// `Mahalle`
   String get mahalle {
-    return Intl.message(
-      'Mahalle',
-      name: 'mahalle',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Mahalle', name: 'mahalle', desc: '', args: []);
   }
 
   /// `Profili silmək`
@@ -2575,9 +2045,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
-    return const <Locale>[
-      Locale.fromSubtags(languageCode: 'en'),
-    ];
+    return const <Locale>[Locale.fromSubtags(languageCode: 'en')];
   }
 
   @override

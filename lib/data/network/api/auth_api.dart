@@ -138,4 +138,7 @@ abstract class AuthApi {
 
   @POST('/api/v1/favorites/toggle')
   Future<void> setFavorites(@Body() OfferResponse request);
+
+
+
 }
