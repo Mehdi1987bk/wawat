@@ -22,7 +22,7 @@ class ConversationItem extends StatelessWidget {
       margin: EdgeInsets.only(left: 20, right: 16, top: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(width: 1,color: AppColors.appColor.withOpacity(0.3))
       ),
       child: Material(
@@ -30,7 +30,7 @@ class ConversationItem extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.all(WawatDimensions.spacingMd),
+            padding: EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 10),
             child: Row(
               children: [
                 Stack(
@@ -88,14 +88,7 @@ class ConversationItem extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                if (conversation.user.isVerified) ...[
-                                  SizedBox(width: 4),
-                                  Icon(
-                                    Icons.verified,
-                                    size: 16,
-                                    color: WawatColors.info,
-                                  ),
-                                ],
+
                                 if (conversation.isPinned) ...[
                                   SizedBox(width: 4),
                                   Icon(
