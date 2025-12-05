@@ -19,14 +19,16 @@ class PusherService {
           print('📨 Pusher Event: ${event.eventName}');
           print('📦 Event Data: ${event.data}');
 
-          // Проверьте какое имя события приходит от Laravel
-          // Может быть: 'new-message', 'NewMessage', 'App\\Events\\NewMessage', '.NewMessage'
-          if ((event.eventName == 'new-message' ||
-              event.eventName == 'NewMessage' ||
-              event.eventName?.contains('NewMessage') == true) &&
-              _onMessageCallback != null) {
+          // ИСПРАВЛЕНО: Добавлена проверка на 'message.sent'
+          if (_onMessageCallback != null &&
+              (event.eventName == 'message.sent' ||
+                  event.eventName == 'new-message' ||
+                  event.eventName == 'NewMessage' ||
+                  event.eventName?.contains('NewMessage') == true ||
+                  event.eventName?.contains('MessageSent') == true)) {
             try {
               final data = jsonDecode(event.data ?? '{}');
+              print('✅ Processing message event: ${event.eventName}');
               _onMessageCallback!(data);
             } catch (e) {
               print('Error parsing message: $e');
@@ -91,7 +93,6 @@ class PusherService {
           print('========================================');
           print('');
 
-          // ⚠️ ВАЖНО: Возвращаем Map, а не String!
           return jsonResponse;
         },
       );
@@ -132,7 +133,6 @@ class PusherService {
     await pusher.unsubscribe(channelName: channelName);
     _onMessageCallback = null;
   }
-
 
   Future<void> disconnect() async {
     await pusher.disconnect();
