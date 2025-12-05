@@ -55,7 +55,7 @@ class PusherService {
           print('💥 Error: $error');
         },
         // ВАЖНО! Кастомный authorizer для логирования
-        onAuthorizer: (channelName, socketId, options) async {
+        onAuthorizer: (String channelName, String socketId, dynamic options) async {
           print('');
           print('🔐 ========== PUSHER AUTH REQUEST ==========');
           print('🔐 Channel: $channelName');
