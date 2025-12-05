@@ -55,12 +55,11 @@ class PusherService {
           print('💥 Error: $error');
         },
         // ВАЖНО! Кастомный authorizer для логирования
-        onAuthorizer: (String channelName, String socketId, dynamic options) async {
+        onAuthorizer: (String channelName, String socketId) async {
           print('');
           print('🔐 ========== PUSHER AUTH REQUEST ==========');
           print('🔐 Channel: $channelName');
           print('🔐 Socket ID: $socketId');
-          print('🔐 Options: $options');
 
           final authUrl = 'https://wawat.tahirguliyev.com/broadcasting/auth';
 
