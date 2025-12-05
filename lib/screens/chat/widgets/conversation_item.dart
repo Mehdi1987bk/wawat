@@ -1,3 +1,4 @@
+import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../data/network/response/chat_response.dart';
@@ -18,8 +19,12 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      margin: EdgeInsets.only(bottom: 1),
+      margin: EdgeInsets.only(left: 20, right: 16, top: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(width: 1,color: AppColors.appColor.withOpacity(0.3))
+      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -35,15 +40,15 @@ class ConversationItem extends StatelessWidget {
                       backgroundColor: WawatColors.primary.withOpacity(0.1),
                       backgroundImage: conversation.user.avatarUrl.isNotEmpty
                           ? CachedNetworkImageProvider(
-                          conversation.user.avatarUrl)
+                              conversation.user.avatarUrl)
                           : null,
                       child: conversation.user.avatarUrl.isEmpty
                           ? Text(
-                        conversation.user.fullname[0].toUpperCase(),
-                        style: WawatTextStyles.h2.copyWith(
-                          color: WawatColors.primary,
-                        ),
-                      )
+                              conversation.user.fullname[0].toUpperCase(),
+                              style: WawatTextStyles.h2.copyWith(
+                                color: WawatColors.primary,
+                              ),
+                            )
                           : null,
                     ),
                     if (conversation.user.isOnline)

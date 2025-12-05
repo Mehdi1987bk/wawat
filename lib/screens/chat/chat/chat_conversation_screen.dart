@@ -212,14 +212,14 @@ class _ChatConversationScreenState
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (widget.conversation.user.isVerified) ...[
-                      SizedBox(width: 4),
-                      Icon(
-                        Icons.verified,
-                        size: 16,
-                        color: WawatColors.info,
-                      ),
-                    ],
+                    // if (widget.conversation.user.isVerified) ...[
+                    //   SizedBox(width: 4),
+                    //   Icon(
+                    //     Icons.verified,
+                    //     size: 16,
+                    //     color: WawatColors.info,
+                    //   ),
+                    // ],
                   ],
                 ),
                 Text(

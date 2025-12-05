@@ -100,19 +100,17 @@ class ChatListBloc extends BaseBloc {
       // Удаляем старый
       conversations.removeAt(index);
 
-      // Добавляем в правильную позицию (после закрепленных)
+      // Добавляем в начало соответствующей группы
       if (updatedConversation.isPinned) {
+        // Закрепленные всегда в начале
         conversations.insert(0, updatedConversation);
       } else {
-        // Находим первый незакрепленный чат
+        // Находим позицию после всех закрепленных
         int insertAt = 0;
-        for (int i = 0; i < conversations.length; i++) {
-          if (!conversations[i].isPinned) {
-            insertAt = i;
-            break;
-          }
-          insertAt = i + 1;
+        while (insertAt < conversations.length && conversations[insertAt].isPinned) {
+          insertAt++;
         }
+        // Вставляем в начало незакрепленных (сортировка по времени будет в UI)
         conversations.insert(insertAt, updatedConversation);
       }
 
