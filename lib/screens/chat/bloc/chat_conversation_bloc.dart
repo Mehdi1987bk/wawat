@@ -35,18 +35,33 @@ class ChatConversationBloc extends BaseBloc {
     final token = await _cacheManager.getToken();
     if (token != null) {
       await _pusherService.initialize(token);
-      _pusherService.subscribeToConversation(
-        conversationId,
-        _onNewMessage,
-      );
+      await _pusherService.subscribeToConversation(conversationId, _onNewMessage);
     }
   }
 
   void _onNewMessage(dynamic data) {
     try {
-      final message = ChatMessage.fromJson(data['message']);
+      final messageData = data['message'] as Map<String, dynamic>?;
+      if (messageData == null) return;
+
+      final message = ChatMessage.fromJson(messageData);
       final currentMessages = _messagesSubject.value;
-      // Добавляем новое сообщение в НАЧАЛО (так как список перевернут)
+
+      // Проверяем, не наше ли это сообщение (избегаем дубликатов)
+      if (message.user?.id == _myUserId) {
+        print('⚠️ Skipping own message from Pusher (id: ${message.id})');
+        return;
+      }
+
+      // Проверяем на дубликат по ID
+      final alreadyExists = currentMessages.any((m) => m.id == message.id);
+      if (alreadyExists) {
+        print('⚠️ Message ${message.id} already exists, skipping');
+        return;
+      }
+
+      // Добавляем в начало списка
+      print('✅ Adding new message from Pusher: ${message.id}');
       _messagesSubject.add([message, ...currentMessages]);
     } catch (e) {
       print('Error handling new message: $e');
@@ -61,7 +76,6 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      // ВАЖНО: Переворачиваем список - новые сообщения первыми
       _messagesSubject.add(response.data.reversed.toList());
       _lastPage = response.meta.lastPage;
     } catch (e) {
@@ -86,7 +100,6 @@ class ChatConversationBloc extends BaseBloc {
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
       final currentMessages = _messagesSubject.value;
-      // Добавляем старые сообщения в КОНЕЦ списка
       _messagesSubject.add([
         ...currentMessages,
         ...response.data.reversed.toList(),
@@ -121,7 +134,7 @@ class ChatConversationBloc extends BaseBloc {
         );
       }
 
-      // Добавляем новое сообщение в НАЧАЛО списка
+      // Добавляем сообщение в список
       final currentMessages = _messagesSubject.value;
       _messagesSubject.add([response.data, ...currentMessages]);
     } catch (e) {
@@ -154,7 +167,7 @@ class ChatConversationBloc extends BaseBloc {
   @override
   void dispose() {
     if (_conversationId != null) {
-      _pusherService.unsubscribe('private-conversation.$_conversationId');
+      _pusherService.unsubscribeFromConversation(_conversationId!);
     }
     _messagesSubject.close();
     _isLoadingMoreSubject.close();

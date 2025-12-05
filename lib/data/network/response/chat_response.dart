@@ -10,7 +10,7 @@ class ChatUser {
   final int id;
   final String fullname;
   final String? avatar;
-  @JsonKey(name: 'is_verified', defaultValue: false) // ИЗМЕНЕНО: Добавили defaultValue
+  @JsonKey(name: 'is_verified', defaultValue: false)
   final bool isVerified;
   @JsonKey(name: 'last_seen_at')
   final String? lastSeenAt;
@@ -19,7 +19,7 @@ class ChatUser {
     required this.id,
     required this.fullname,
     this.avatar,
-    this.isVerified = false, // ИЗМЕНЕНО: Добавили дефолтное значение
+    this.isVerified = false,
     this.lastSeenAt,
   });
 
@@ -73,7 +73,7 @@ class ChatUser {
 class ChatFile {
   final String url;
   final String name;
-  final int size;
+  final String size;
   final String mime;
 
   ChatFile({
@@ -88,24 +88,30 @@ class ChatFile {
   Map<String, dynamic> toJson() => _$ChatFileToJson(this);
 
   String get sizeString {
-    if (size < 1024) return '$size B';
-    if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(1)} KB';
-    return '${(size / (1024 * 1024)).toStringAsFixed(1)} MB';
+    try {
+      final sizeInBytes = int.parse(size);
+      if (sizeInBytes < 1024) return '$sizeInBytes B';
+      if (sizeInBytes < 1024 * 1024) {
+        return '${(sizeInBytes / 1024).toStringAsFixed(1)} KB';
+      }
+      return '${(sizeInBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    } catch (e) {
+      return size;
+    }
   }
 
   bool get isImage => mime.startsWith('image/');
 }
-
 // ============================================================================
 // Chat Message Model
 // ============================================================================
 @JsonSerializable()
 class ChatMessage {
   final int id;
-  final String type; // text, image, file
+  final String type;
   final String? body;
   final ChatFile? file;
-  final ChatUser? user; // ИЗМЕНЕНО: Сделали опциональным
+  final ChatUser? user;
   @JsonKey(name: 'created_at')
   final String createdAt;
 
@@ -114,7 +120,7 @@ class ChatMessage {
     required this.type,
     this.body,
     this.file,
-    this.user, // ИЗМЕНЕНО: Убрали required
+    this.user,
     required this.createdAt,
   });
 
@@ -250,14 +256,14 @@ class MetaData {
   final int total;
   @JsonKey(name: 'last_page')
   final int lastPage;
-  final String? locale; // ДОБАВЛЕНО: Новое поле
+  final String? locale;
 
   MetaData({
     required this.page,
     required this.perPage,
     required this.total,
     required this.lastPage,
-    this.locale, // ДОБАВЛЕНО
+    this.locale,
   });
 
   factory MetaData.fromJson(Map<String, dynamic> json) =>
@@ -270,26 +276,52 @@ class MetaData {
 // ============================================================================
 @JsonSerializable()
 class PinResponse {
-  @JsonKey(name: 'is_pinned')
-  final bool isPinned;
+  final PinData data;
 
-  PinResponse({required this.isPinned});
+  PinResponse({required this.data});
 
   factory PinResponse.fromJson(Map<String, dynamic> json) =>
       _$PinResponseFromJson(json);
   Map<String, dynamic> toJson() => _$PinResponseToJson(this);
+
+  bool get isPinned => data.isPinned;
+}
+
+@JsonSerializable()
+class PinData {
+  @JsonKey(name: 'is_pinned')
+  final bool isPinned;
+
+  PinData({required this.isPinned});
+
+  factory PinData.fromJson(Map<String, dynamic> json) =>
+      _$PinDataFromJson(json);
+  Map<String, dynamic> toJson() => _$PinDataToJson(this);
 }
 
 @JsonSerializable()
 class ArchiveResponse {
-  @JsonKey(name: 'is_archived')
-  final bool isArchived;
+  final ArchiveData data;
 
-  ArchiveResponse({required this.isArchived});
+  ArchiveResponse({required this.data});
 
   factory ArchiveResponse.fromJson(Map<String, dynamic> json) =>
       _$ArchiveResponseFromJson(json);
   Map<String, dynamic> toJson() => _$ArchiveResponseToJson(this);
+
+  bool get isArchived => data.isArchived;
+}
+
+@JsonSerializable()
+class ArchiveData {
+  @JsonKey(name: 'is_archived')
+  final bool isArchived;
+
+  ArchiveData({required this.isArchived});
+
+  factory ArchiveData.fromJson(Map<String, dynamic> json) =>
+      _$ArchiveDataFromJson(json);
+  Map<String, dynamic> toJson() => _$ArchiveDataToJson(this);
 }
 
 @JsonSerializable()
@@ -305,14 +337,28 @@ class DeleteResponse {
 
 @JsonSerializable()
 class BlockResponse {
+  final BlockData data;
+
+  BlockResponse({required this.data});
+
+  factory BlockResponse.fromJson(Map<String, dynamic> json) =>
+      _$BlockResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$BlockResponseToJson(this);
+
+  int? get blockedUserId => data.blockedUserId;
+  int? get unblockedUserId => data.unblockedUserId;
+}
+
+@JsonSerializable()
+class BlockData {
   @JsonKey(name: 'blocked_user_id')
   final int? blockedUserId;
   @JsonKey(name: 'unblocked_user_id')
   final int? unblockedUserId;
 
-  BlockResponse({this.blockedUserId, this.unblockedUserId});
+  BlockData({this.blockedUserId, this.unblockedUserId});
 
-  factory BlockResponse.fromJson(Map<String, dynamic> json) =>
-      _$BlockResponseFromJson(json);
-  Map<String, dynamic> toJson() => _$BlockResponseToJson(this);
+  factory BlockData.fromJson(Map<String, dynamic> json) =>
+      _$BlockDataFromJson(json);
+  Map<String, dynamic> toJson() => _$BlockDataToJson(this);
 }

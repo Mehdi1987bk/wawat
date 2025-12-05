@@ -22,6 +22,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   @override
   void initState() {
     super.initState();
+    bloc.init();  // <-- Добавьте эту строку!
     bloc.loadConversations();
 
     _scrollController.addListener(() {
@@ -31,6 +32,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
       }
     });
   }
+
+
 
   @override
   void dispose() {

@@ -25,7 +25,7 @@ Map<String, dynamic> _$ChatUserToJson(ChatUser instance) => <String, dynamic>{
 ChatFile _$ChatFileFromJson(Map<String, dynamic> json) => ChatFile(
       url: json['url'] as String,
       name: json['name'] as String,
-      size: json['size'] as int,
+      size: json['size'] as String,
       mime: json['mime'] as String,
     );
 
@@ -149,20 +149,37 @@ Map<String, dynamic> _$MetaDataToJson(MetaData instance) => <String, dynamic>{
     };
 
 PinResponse _$PinResponseFromJson(Map<String, dynamic> json) => PinResponse(
-      isPinned: json['is_pinned'] as bool,
+      data: PinData.fromJson(json['data'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$PinResponseToJson(PinResponse instance) =>
     <String, dynamic>{
+      'data': instance.data,
+    };
+
+PinData _$PinDataFromJson(Map<String, dynamic> json) => PinData(
+      isPinned: json['is_pinned'] as bool,
+    );
+
+Map<String, dynamic> _$PinDataToJson(PinData instance) => <String, dynamic>{
       'is_pinned': instance.isPinned,
     };
 
 ArchiveResponse _$ArchiveResponseFromJson(Map<String, dynamic> json) =>
     ArchiveResponse(
-      isArchived: json['is_archived'] as bool,
+      data: ArchiveData.fromJson(json['data'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ArchiveResponseToJson(ArchiveResponse instance) =>
+    <String, dynamic>{
+      'data': instance.data,
+    };
+
+ArchiveData _$ArchiveDataFromJson(Map<String, dynamic> json) => ArchiveData(
+      isArchived: json['is_archived'] as bool,
+    );
+
+Map<String, dynamic> _$ArchiveDataToJson(ArchiveData instance) =>
     <String, dynamic>{
       'is_archived': instance.isArchived,
     };
@@ -179,12 +196,20 @@ Map<String, dynamic> _$DeleteResponseToJson(DeleteResponse instance) =>
 
 BlockResponse _$BlockResponseFromJson(Map<String, dynamic> json) =>
     BlockResponse(
-      blockedUserId: json['blocked_user_id'] as int?,
-      unblockedUserId: json['unblocked_user_id'] as int?,
+      data: BlockData.fromJson(json['data'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$BlockResponseToJson(BlockResponse instance) =>
     <String, dynamic>{
+      'data': instance.data,
+    };
+
+BlockData _$BlockDataFromJson(Map<String, dynamic> json) => BlockData(
+      blockedUserId: json['blocked_user_id'] as int?,
+      unblockedUserId: json['unblocked_user_id'] as int?,
+    );
+
+Map<String, dynamic> _$BlockDataToJson(BlockData instance) => <String, dynamic>{
       'blocked_user_id': instance.blockedUserId,
       'unblocked_user_id': instance.unblockedUserId,
     };
