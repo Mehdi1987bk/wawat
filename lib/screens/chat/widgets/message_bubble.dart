@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../../data/network/response/chat_response.dart';
+ import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
@@ -162,10 +161,4 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  void _openFile() async {
-    final uri = Uri.parse(message.file!.url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
 }

@@ -25,6 +25,7 @@ class ChatUser {
 
   factory ChatUser.fromJson(Map<String, dynamic> json) =>
       _$ChatUserFromJson(json);
+
   Map<String, dynamic> toJson() => _$ChatUserToJson(this);
 
   String get avatarUrl {
@@ -73,35 +74,22 @@ class ChatUser {
 class ChatFile {
   final String url;
   final String name;
-  final String size;
   final String mime;
 
   ChatFile({
     required this.url,
     required this.name,
-    required this.size,
     required this.mime,
   });
 
   factory ChatFile.fromJson(Map<String, dynamic> json) =>
       _$ChatFileFromJson(json);
-  Map<String, dynamic> toJson() => _$ChatFileToJson(this);
 
-  String get sizeString {
-    try {
-      final sizeInBytes = int.parse(size);
-      if (sizeInBytes < 1024) return '$sizeInBytes B';
-      if (sizeInBytes < 1024 * 1024) {
-        return '${(sizeInBytes / 1024).toStringAsFixed(1)} KB';
-      }
-      return '${(sizeInBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    } catch (e) {
-      return size;
-    }
-  }
+  Map<String, dynamic> toJson() => _$ChatFileToJson(this);
 
   bool get isImage => mime.startsWith('image/');
 }
+
 // ============================================================================
 // Chat Message Model
 // ============================================================================
@@ -126,6 +114,7 @@ class ChatMessage {
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>
       _$ChatMessageFromJson(json);
+
   Map<String, dynamic> toJson() => _$ChatMessageToJson(this);
 
   DateTime get createdAtDateTime {
@@ -183,6 +172,7 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) =>
       _$ConversationFromJson(json);
+
   Map<String, dynamic> toJson() => _$ConversationToJson(this);
 
   String get lastMessagePreview {
@@ -208,6 +198,7 @@ class ConversationsResponse {
 
   factory ConversationsResponse.fromJson(Map<String, dynamic> json) =>
       _$ConversationsResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$ConversationsResponseToJson(this);
 }
 
@@ -223,6 +214,7 @@ class MessagesResponse {
 
   factory MessagesResponse.fromJson(Map<String, dynamic> json) =>
       _$MessagesResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$MessagesResponseToJson(this);
 }
 
@@ -234,6 +226,7 @@ class MessageResponse {
 
   factory MessageResponse.fromJson(Map<String, dynamic> json) =>
       _$MessageResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$MessageResponseToJson(this);
 }
 
@@ -245,6 +238,7 @@ class ConversationResponse {
 
   factory ConversationResponse.fromJson(Map<String, dynamic> json) =>
       _$ConversationResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$ConversationResponseToJson(this);
 }
 
@@ -268,6 +262,7 @@ class MetaData {
 
   factory MetaData.fromJson(Map<String, dynamic> json) =>
       _$MetaDataFromJson(json);
+
   Map<String, dynamic> toJson() => _$MetaDataToJson(this);
 }
 
@@ -282,6 +277,7 @@ class PinResponse {
 
   factory PinResponse.fromJson(Map<String, dynamic> json) =>
       _$PinResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$PinResponseToJson(this);
 
   bool get isPinned => data.isPinned;
@@ -296,6 +292,7 @@ class PinData {
 
   factory PinData.fromJson(Map<String, dynamic> json) =>
       _$PinDataFromJson(json);
+
   Map<String, dynamic> toJson() => _$PinDataToJson(this);
 }
 
@@ -307,6 +304,7 @@ class ArchiveResponse {
 
   factory ArchiveResponse.fromJson(Map<String, dynamic> json) =>
       _$ArchiveResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$ArchiveResponseToJson(this);
 
   bool get isArchived => data.isArchived;
@@ -321,6 +319,7 @@ class ArchiveData {
 
   factory ArchiveData.fromJson(Map<String, dynamic> json) =>
       _$ArchiveDataFromJson(json);
+
   Map<String, dynamic> toJson() => _$ArchiveDataToJson(this);
 }
 
@@ -332,6 +331,7 @@ class DeleteResponse {
 
   factory DeleteResponse.fromJson(Map<String, dynamic> json) =>
       _$DeleteResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$DeleteResponseToJson(this);
 }
 
@@ -343,9 +343,11 @@ class BlockResponse {
 
   factory BlockResponse.fromJson(Map<String, dynamic> json) =>
       _$BlockResponseFromJson(json);
+
   Map<String, dynamic> toJson() => _$BlockResponseToJson(this);
 
   int? get blockedUserId => data.blockedUserId;
+
   int? get unblockedUserId => data.unblockedUserId;
 }
 
@@ -360,5 +362,6 @@ class BlockData {
 
   factory BlockData.fromJson(Map<String, dynamic> json) =>
       _$BlockDataFromJson(json);
+
   Map<String, dynamic> toJson() => _$BlockDataToJson(this);
 }

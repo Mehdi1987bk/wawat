@@ -25,14 +25,12 @@ Map<String, dynamic> _$ChatUserToJson(ChatUser instance) => <String, dynamic>{
 ChatFile _$ChatFileFromJson(Map<String, dynamic> json) => ChatFile(
       url: json['url'] as String,
       name: json['name'] as String,
-      size: json['size'] as String,
       mime: json['mime'] as String,
     );
 
 Map<String, dynamic> _$ChatFileToJson(ChatFile instance) => <String, dynamic>{
       'url': instance.url,
       'name': instance.name,
-      'size': instance.size,
       'mime': instance.mime,
     };
 
