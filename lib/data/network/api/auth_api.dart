@@ -28,6 +28,7 @@ import '../response/packages_response.dart';
 import '../response/registration_response.dart';
 import '../response/send_otp_response.dart';
 import '../response/user.dart';
+import '../response/conversation_response.dart';
 
 part 'auth_api.g.dart';
 
@@ -110,4 +111,7 @@ abstract class AuthApi {
 
   @GET('/api/v1/offers/my')
   Future<OfferListResponse> myOffers();
+
+  @POST('/api/v1/conversations/start')
+  Future<ConversationResponse> startChat(@Body() Map<String, dynamic> body);
 }
