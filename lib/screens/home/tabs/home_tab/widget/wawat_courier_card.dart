@@ -6,6 +6,7 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../courier_screen/courier_screen.dart';
 import 'auth_modal_utils.dart';
+import 'start_chat_modal.dart';
 
 class WawatCourierCard extends StatefulWidget {
   final OfferModel courier;
@@ -42,6 +43,22 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
         isFavorite = !isFavorite;
       });
       widget.onFavoriteToggle?.call(isFavorite);
+    }
+  }
+
+  void _handleStartChat() async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      StartChatModal.show(
+        context,
+        userId: widget.courier.user?.id ?? 0,
+        userName: widget.courier.user?.fullname ?? 'Пользователь',
+        onSuccess: () {
+          // Handle success if needed
+        },
+      );
     }
   }
 
@@ -83,27 +100,27 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                     ),
                     child: widget.courier.user?.avatar != null
                         ? ClipOval(
-                            child: Image.network(
-                              widget.courier.user!.avatar!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                );
-                              },
-                            ),
-                          )
-                        : Center(
+                      child: Image.network(
+                        widget.courier.user!.avatar!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
                             child: Icon(
                               Icons.person,
                               color: Colors.white,
                               size: 30,
                             ),
-                          ),
+                          );
+                        },
+                      ),
+                    )
+                        : Center(
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -265,61 +282,61 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
               Row(
                 children: [
                   if(widget.detailsActiv == true)
-                  Expanded(
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0x335B5FFF),
-                            blurRadius: 16,
-                            offset: Offset(0, 4),
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
                           ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () async {
-                            final isLogged =
-                                await sl.get<AuthRepository>().isLogged();
-                            if (!isLogged) {
-                              return AuthModalUtils.showAuthRequiredModal(
-                                  context);
-                            } else {
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (BuildContext context) {
-                                    return CourierDetailsScreen(
-                                      courier: widget.courier,
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
                           borderRadius: BorderRadius.circular(16),
-                          child: Center(
-                            child: Text(
-                              'Подробнее',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0x335B5FFF),
+                              blurRadius: 16,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () async {
+                              final isLogged =
+                              await sl.get<AuthRepository>().isLogged();
+                              if (!isLogged) {
+                                return AuthModalUtils.showAuthRequiredModal(
+                                    context);
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                    builder: (BuildContext context) {
+                                      return CourierDetailsScreen(
+                                        courier: widget.courier,
+                                      );
+                                    },
+                                  ),
+                                );
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Center(
+                              child: Text(
+                                'Подробнее',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                   if(widget.detailsActiv == true)
 
                     SizedBox(width: 12),
@@ -336,16 +353,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () async {
-                            final isLogged =
-                                await sl.get<AuthRepository>().isLogged();
-                            if (!isLogged) {
-                              return AuthModalUtils.showAuthRequiredModal(
-                                  context);
-                            } else {
-                              тут нвдо обратиться в апи   Future<ConversationResponse> startChat(@Body() Map<String, dynamic> body); сначало вытащить алерт что типа наверху предупреждение о том что вы напигите человеку и внизу место для дескриптион и кнопка отправть
-                            }
-                          },
+                          onTap: _handleStartChat,
                           borderRadius: BorderRadius.circular(16),
                           child: Center(
                             child: Text(
