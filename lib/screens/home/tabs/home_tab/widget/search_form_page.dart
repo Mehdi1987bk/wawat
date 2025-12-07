@@ -319,9 +319,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                         : 'Все категории',
                     style: TextStyle(
                       fontSize: 16,
-                      color: _selectedOfferType != null
-                          ? Color(0xFF1A1A1A)
-                          : Color(0xFFB0B0B0),
+                      color: Color(0xFF1A1A1A)
+                         ,
                       fontWeight: FontWeight.w400,
                     ),
                   ),

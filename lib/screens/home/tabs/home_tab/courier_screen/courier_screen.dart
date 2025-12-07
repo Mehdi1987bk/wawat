@@ -31,7 +31,7 @@ class _CourierDetailsScreenState
         future: bloc.getUserById(widget.courier.user?.id ?? 0),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            final data = snapshot.data!.data;
+            final data = snapshot.requireData.data;
             return SingleChildScrollView(
               child: Column(
                 children: [

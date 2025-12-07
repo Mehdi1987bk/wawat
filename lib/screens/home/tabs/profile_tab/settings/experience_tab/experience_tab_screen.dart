@@ -24,7 +24,7 @@ class ExperienceTab extends BaseScreen {
   State<ExperienceTab> createState() => _ExperienceTabState();
 }
 
-class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> with ErrorDispatcher{
+class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> with ErrorDispatcher {
   final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
 
   late TextEditingController _maxWeightController;
@@ -33,8 +33,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
   late TextEditingController _priceToController;
 
   int _selectedExperience = 3;
-  String _selectedWorkTimeFrom = '09:00';
-  String _selectedWorkTimeTo = '18:00';
+  String _selectedWorkTimeFrom = '00:00';
+  String _selectedWorkTimeTo = '00:00';
   Set<String> _selectedLanguageCodes = {};
   Set<String> _selectedPackageTypeCodes = {};
 
@@ -50,64 +50,69 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     final professional = widget.user.professional;
 
     _maxWeightController = TextEditingController(
-      text: professional?.maxWeightKg?.toStringAsFixed(0) ?? '',
+      text: professional?.maxWeightKg ?? '',
     );
     _insuranceController = TextEditingController(
-      text: professional?.insuranceAmount?.toStringAsFixed(0) ?? '',
+      text: professional?.insuranceAmount ?? '',
     );
     _priceFromController = TextEditingController(
-      text: professional?.pricePerKgMin?.toStringAsFixed(2) ?? '',
+      text: professional?.pricePerKgMin ?? '',
     );
     _priceToController = TextEditingController(
-      text: professional?.pricePerKgMax?.toStringAsFixed(2) ?? '',
+      text: professional?.pricePerKgMax ?? '',
     );
 
-    _selectedExperience = professional?.workExperienceYears ?? 3;
+    _maxWeightController.addListener(_validateForm);
+    _insuranceController.addListener(_validateForm);
+    _priceFromController.addListener(_validateForm);
+    _priceToController.addListener(_validateForm);
 
-    _selectedWorkTimeFrom = (professional?.workTimeFrom?.isNotEmpty ?? false)
-        ? professional!.workTimeFrom!
-        : '09:00';
-    _selectedWorkTimeTo = (professional?.workTimeTo?.isNotEmpty ?? false)
-        ? professional!.workTimeTo!
-        : '18:00';
+    _selectedExperience = int.tryParse(professional?.workExperienceYears ?? '') ?? 3;
 
-    // ✅ Исправленная инициализация языков
-    if (professional != null && professional.languages.isNotEmpty) {
-      _selectedLanguageCodes = professional.languages
-          .map((l) {
-        try {
-          return (l.code as String?) ?? '';
-        } catch (e) {
-          print('ERROR parsing language code: $e');
-          return '';
-        }
-      })
-          .where((code) => code.isNotEmpty)
-          .toSet();
-      print(
-          'DEBUG initState: Инициализировано языков из professional: $_selectedLanguageCodes');
+    if (professional?.workTimeFrom != null && professional!.workTimeFrom!.isNotEmpty) {
+      final parts = professional.workTimeFrom!.split(':');
+      _selectedWorkTimeFrom = parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
-    // ✅ Исправленная инициализация типов упаковки - используем code
-    if (professional != null && professional.packageTypes.isNotEmpty) {
-      _selectedPackageTypeCodes = professional.packageTypes
-          .map((p) {
-        try {
-          return (p.code as String?) ?? '';
-        } catch (e) {
-          print('ERROR parsing package type code: $e');
-          return '';
-        }
-      })
+    if (professional?.workTimeTo != null && professional!.workTimeTo!.isNotEmpty) {
+      final parts = professional.workTimeTo!.split(':');
+      _selectedWorkTimeTo = parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+    }
+
+    if (professional != null && professional.languages.isNotEmpty) {
+      _selectedLanguageCodes = professional.languages
+          .map((l) => l.code ?? '')
           .where((code) => code.isNotEmpty)
           .toSet();
-      print(
-          'DEBUG initState: Инициализировано типов упаковки: $_selectedPackageTypeCodes');
+    }
+
+    if (professional != null && professional.packageTypes.isNotEmpty) {
+      _selectedPackageTypeCodes = professional.packageTypes
+          .map((p) => p.code ?? '')
+          .where((code) => code.isNotEmpty)
+          .toSet();
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLanguagesAndPackageTypes();
+      _validateForm();
     });
+  }
+
+  void _validateForm() {
+    final isMaxWeightFilled = _maxWeightController.text.trim().isNotEmpty;
+    final isInsuranceFilled = _insuranceController.text.trim().isNotEmpty;
+    final isPriceFromFilled = _priceFromController.text.trim().isNotEmpty;
+    final isPriceToFilled = _priceToController.text.trim().isNotEmpty;
+    final hasLanguages = _selectedLanguageCodes.isNotEmpty;
+    final hasPackageTypes = _selectedPackageTypeCodes.isNotEmpty || _allPackageTypes.isEmpty;
+
+    _isFormValid.value = isMaxWeightFilled &&
+        isInsuranceFilled &&
+        isPriceFromFilled &&
+        isPriceToFilled &&
+        hasLanguages &&
+        hasPackageTypes;
   }
 
   Future<void> _loadLanguagesAndPackageTypes() async {
@@ -115,11 +120,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         !_isLoadingPackageTypes &&
         _allLanguages.isNotEmpty &&
         _allPackageTypes.isNotEmpty) {
-      print('DEBUG: Данные уже загружены, пропускаем повторную загрузку');
       return;
     }
-
-    print('========== DEBUG: Начало загрузки языков и типов ==========');
 
     setState(() {
       _isLoadingLanguages = true;
@@ -130,36 +132,17 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     _loadPackageTypes();
   }
 
-  /// Загрузить языки
   Future<void> _loadLanguages() async {
     try {
-      print('========== DEBUG: Начало загрузки языков ==========');
-
       final languages = await bloc.getLanguages();
-
-      print('API Response languages type: ${languages.runtimeType}');
-      print('API Response languages.data length: ${languages.data.length}');
-
-      if (languages.data.isNotEmpty) {
-        print(
-            'First language: ${languages.data[0].name} (code: ${languages.data[0].code})');
-        for (var lang in languages.data) {
-          print('  ✓ ${lang.code}: ${lang.name}');
-        }
-      }
 
       setState(() {
         _allLanguages = List<Language>.from(languages.data);
         _isLoadingLanguages = false;
       });
 
-      print('After setState: _allLanguages.length: ${_allLanguages.length}');
-      print('========== DEBUG: Загрузка языков завершена ==========');
+      _validateForm();
     } catch (e, stackTrace) {
-      print('========== ERROR: Ошибка загрузки языков ==========');
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-
       setState(() {
         _isLoadingLanguages = false;
         _allLanguages = [];
@@ -177,32 +160,17 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     }
   }
 
-  /// Загрузить типы упаковки
   Future<void> _loadPackageTypes() async {
     try {
-      print('========== DEBUG: Начало загрузки типов упаковки ==========');
-
       final packageTypes = await bloc.getPackageTypes();
-
-      print('API Response packageTypes length: ${packageTypes.data.length}');
-      if (packageTypes.data.isNotEmpty) {
-        for (var pkg in packageTypes.data) {
-          print('  ✓ ${pkg.code}: ${pkg.name} (icon: ${pkg.icon})');
-        }
-      }
 
       setState(() {
         _allPackageTypes = List<PackageType>.from(packageTypes.data);
         _isLoadingPackageTypes = false;
       });
 
-      print('After setState: _allPackageTypes.length: ${_allPackageTypes.length}');
-      print('========== DEBUG: Загрузка типов завершена ==========');
+      _validateForm();
     } catch (e, stackTrace) {
-      print('========== ERROR: Ошибка загрузки типов упаковки ==========');
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-
       setState(() {
         _isLoadingPackageTypes = false;
         _allPackageTypes = [];
@@ -222,9 +190,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
   Future<void> _showTimePickerFrom() async {
     try {
-      final timeString =
-      _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
-
+      final timeString = _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -260,7 +226,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         ),
       );
     } catch (e) {
-      print('ERROR in _showTimePickerFrom: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
@@ -271,9 +236,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
   Future<void> _showTimePickerTo() async {
     try {
-      final timeString =
-      _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
-
+      final timeString = _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -309,7 +272,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         ),
       );
     } catch (e) {
-      print('ERROR in _showTimePickerTo: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
@@ -339,10 +301,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
       return;
     }
 
-    print('DEBUG _saveChanges:');
-    print('  Languages: $_selectedLanguageCodes');
-    print('  Package Types: $_selectedPackageTypeCodes');
-
     final courierProfile = bloc.createProfessionalRequest(
       workExperienceYears: _selectedExperience,
       maxWeightKg: int.tryParse(_maxWeightController.text) ?? 0,
@@ -363,61 +321,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
             backgroundColor: Color(0xFF5B4FFF),
           ),
         );
-      }
-    }).then((value) {
-      bloc.customersMe();
-      showTopSnackbar("Сохранено", "Сохранено", true, context);
-    });
-  }
-
-  void _resetForm() {
-    final professional = widget.user.professional;
-
-    setState(() {
-      _selectedExperience = professional?.workExperienceYears ?? 3;
-      _maxWeightController.text =
-          professional?.maxWeightKg?.toStringAsFixed(0) ?? '15';
-      _insuranceController.text =
-          professional?.insuranceAmount?.toStringAsFixed(0) ?? '5000';
-      _priceFromController.text =
-          professional?.pricePerKgMin?.toStringAsFixed(2) ?? '1.50';
-      _priceToController.text =
-          professional?.pricePerKgMax?.toStringAsFixed(2) ?? '3.00';
-      _selectedWorkTimeFrom = (professional?.workTimeFrom?.isNotEmpty ?? false)
-          ? professional!.workTimeFrom!
-          : '09:00';
-      _selectedWorkTimeTo = (professional?.workTimeTo?.isNotEmpty ?? false)
-          ? professional!.workTimeTo!
-          : '18:00';
-
-      _selectedLanguageCodes.clear();
-      if (professional != null && professional.languages.isNotEmpty) {
-        _selectedLanguageCodes = professional.languages
-            .map((l) {
-          try {
-            return (l.code as String?) ?? '';
-          } catch (e) {
-            print('ERROR parsing language code in reset: $e');
-            return '';
-          }
-        })
-            .where((code) => code.isNotEmpty)
-            .toSet();
-      }
-
-      _selectedPackageTypeCodes.clear();
-      if (professional != null && professional.packageTypes.isNotEmpty) {
-        _selectedPackageTypeCodes = professional.packageTypes
-            .map((p) {
-          try {
-            return (p.code as String?) ?? '';
-          } catch (e) {
-            print('ERROR parsing package type code in reset: $e');
-            return '';
-          }
-        })
-            .where((code) => code.isNotEmpty)
-            .toSet();
       }
     });
   }
@@ -533,9 +436,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                         ),
                         const SizedBox(height: 4),
                         _buildTimePickerField(
-                          _selectedWorkTimeFrom.isNotEmpty
-                              ? _selectedWorkTimeFrom
-                              : '09:00',
+                          _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00',
                           _showTimePickerFrom,
                         ),
                       ],
@@ -556,9 +457,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                         ),
                         const SizedBox(height: 4),
                         _buildTimePickerField(
-                          _selectedWorkTimeTo.isNotEmpty
-                              ? _selectedWorkTimeTo
-                              : '18:00',
+                          _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00',
                           _showTimePickerTo,
                         ),
                       ],
@@ -583,6 +482,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                   setState(() {
                     _selectedLanguageCodes = newSelection;
                   });
+                  _validateForm();
                 },
                 isLoading: _isLoadingLanguages,
               ),
@@ -622,6 +522,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                   setState(() {
                     _selectedPackageTypeCodes = newSelection;
                   });
+                  _validateForm();
                 },
                 isLoading: _isLoadingPackageTypes,
               ),
@@ -630,7 +531,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                 width: double.infinity,
                 margin: const EdgeInsets.only(
                   top: 20,
-                 ),
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.white),
                   borderRadius: BorderRadius.circular(10),
@@ -640,8 +541,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                   builder: (_, isValid, __) {
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        disabledBackgroundColor:
-                        Color(0xFF5B4FFF).withOpacity(0.3),
+                        disabledBackgroundColor: Color(0xFF5B4FFF).withOpacity(0.3),
                         backgroundColor: const Color(0xFF5B4FFF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -666,7 +566,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
           ),
         ),
         const SizedBox(height: 20),
-
       ],
     );
   }
@@ -783,10 +682,17 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
   @override
   void dispose() {
+    _maxWeightController.removeListener(_validateForm);
+    _insuranceController.removeListener(_validateForm);
+    _priceFromController.removeListener(_validateForm);
+    _priceToController.removeListener(_validateForm);
+
     _maxWeightController.dispose();
     _insuranceController.dispose();
     _priceFromController.dispose();
     _priceToController.dispose();
+    _isFormValid.dispose();
+
     super.dispose();
   }
 }

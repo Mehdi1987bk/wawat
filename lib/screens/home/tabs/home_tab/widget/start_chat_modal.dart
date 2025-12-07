@@ -149,7 +149,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Вы собираетесь написать пользователю ${widget.userName}',
+                          'Вы на связи с ${widget.userName}. Напоминаем, что общение происходит напрямую между пользователями, и сайт не отвечает за содержание переписки. ',
                           style: TextStyle(
                             fontSize: 14,
                             color: Color(0xFFE65100),

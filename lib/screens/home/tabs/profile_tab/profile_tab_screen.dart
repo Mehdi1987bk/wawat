@@ -37,7 +37,8 @@ class _ProfileTabScreenState
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
-                            margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                            margin:
+                                EdgeInsets.only(left: 16, right: 16, top: 20),
                             padding: EdgeInsets.only(left: 10, right: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -63,16 +64,19 @@ class _ProfileTabScreenState
                           FutureBuilder<OfferListResponse>(
                             future: bloc.myOffers,
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(child: CircularProgressIndicator());
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
                               }
-                              if (!snapshot.hasData || snapshot.data?.data == null) {
+                              if (!snapshot.hasData ||
+                                  snapshot.data?.data == null) {
                                 return const SizedBox();
                               }
-                              return DeliveryHistoryWidget(response: snapshot.requireData);
+                              return DeliveryHistoryWidget(
+                                  response: snapshot.requireData);
                             },
                           ),
-
                           const SizedBox(height: 24),
                           _buildMenuSection(snapshot.requireData),
                           const SizedBox(height: 120),
@@ -100,64 +104,36 @@ class _ProfileTabScreenState
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Stack(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF5B5BFF), Color(0xFFB847FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 40,
+        if (user.avatar != null)
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: NetworkImage(user.avatar ?? ""),
+                fit: BoxFit.cover,
               ),
             ),
-            // Container(
-            //               width: 80,
-            //               height: 80,
-            //               decoration: BoxDecoration(
-            //                 shape: BoxShape.circle,
-            //                 gradient: const LinearGradient(
-            //                   colors: [Color(0xFF5B5BFF), Color(0xFFB847FF)],
-            //                   begin: Alignment.topLeft,
-            //                   end: Alignment.bottomRight,
-            //                 ),
-            //               ),
-            //               child: ClipRRect(
-            //                 borderRadius: BorderRadius.circular(40),
-            //                 child: Image.network(
-            //                   user.name,
-            //                   fit: BoxFit.cover,
-            //
-            //                 ),
-            //               ),
-            //             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 32,
-                height: 32,
-                padding: EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF2857DA),
-                ),
-                child: Image.asset(
-                  "asset/prof_1.png",
-                  color: Colors.white,
-                ),
+          ),
+        if (user.avatar == null)
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF5B5BFF), Color(0xFFB847FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-          ],
-        ),
+            child: const Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 40,
+            ),
+          ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -165,39 +141,38 @@ class _ProfileTabScreenState
             children: [
               Row(
                 children: [
-                    Text(
-                   user.fullname,
+                  Text(
+                    user.fullname,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF000000),
                     ),
                   ),
-
                 ],
               ),
-              if(user.isVerified == true)
-              Row(
-                children: [
-                  Image.asset(
-                    "asset/prof_3.png",
-                    width: 16,
-                  ),
-                  const SizedBox(width: 4),
-                  Container(
-                    child: const Text(
-                      'Проверен',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF22C55E),
+              if (user.isVerified == true)
+                Row(
+                  children: [
+                    Image.asset(
+                      "asset/prof_3.png",
+                      width: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Container(
+                      child: const Text(
+                        'Проверен',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF22C55E),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               const SizedBox(height: 8),
-                Text(
+              Text(
                 user.email ?? "",
                 style: TextStyle(
                   fontSize: 14,
@@ -205,7 +180,7 @@ class _ProfileTabScreenState
                 ),
               ),
               const SizedBox(height: 4),
-                Text(
+              Text(
                 user.phone ?? "",
                 style: TextStyle(
                   fontSize: 14,
@@ -312,7 +287,6 @@ class _ProfileTabScreenState
     );
   }
 
-
   Widget _buildMenuSection(User user) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20),
@@ -337,10 +311,10 @@ class _ProfileTabScreenState
           GestureDetector(
             onTap: () => Navigator.push(context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-                  return VerificationScreen(
-                    user: user,
-                  );
-                })),
+              return VerificationScreen(
+                user: user,
+              );
+            })),
             child: _buildMenuItem(
               icon: Icons.shield_outlined,
               title: 'Верификация',
@@ -439,6 +413,52 @@ class _ProfileTabScreenState
             color: Color(0xFFD1D5DB),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CircularAvatar extends StatelessWidget {
+  final String? imageUrl;
+  final double size;
+
+  const CircularAvatar({
+    Key? key,
+    this.imageUrl,
+    this.size = 80,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            image: NetworkImage(imageUrl!),
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF5B5BFF), Color(0xFFB847FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Icon(
+        Icons.person,
+        color: Colors.white,
+        size: size / 2,
       ),
     );
   }

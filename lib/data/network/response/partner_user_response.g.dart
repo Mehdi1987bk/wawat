@@ -160,8 +160,8 @@ Review _$ReviewFromJson(Map<String, dynamic> json) => Review(
       author: ReviewAuthor.fromJson(json['author'] as Map<String, dynamic>),
       upvotes: json['upvotes'] as int,
       downvotes: json['downvotes'] as int,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      createdAt: json['created_at'] as String?,
+      updatedAt: json['updated_at'] as String?,
     );
 
 Map<String, dynamic> _$ReviewToJson(Review instance) => <String, dynamic>{

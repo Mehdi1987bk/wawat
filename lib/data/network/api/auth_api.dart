@@ -147,6 +147,11 @@ abstract class AuthApi {
   @GET('/api/v1/verification/status')
   Future<VerificationResponse> verificationStatus();
 
+  @POST('/api/v1/profile/avatar')
+  Future<void> addAvatar(
+    @Part(name: 'avatar') File avatar,
+  );
+
   @POST('/api/v1/verification/submit')
   Future<void> submitVerification({
     @Part(name: 'documents[passport]') required File passport,

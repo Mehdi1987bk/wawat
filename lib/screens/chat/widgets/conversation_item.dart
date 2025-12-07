@@ -9,11 +9,13 @@ import '../../../presentation/resourses/wawat_text_styles.dart';
 class ConversationItem extends StatelessWidget {
   final Conversation conversation;
   final VoidCallback onTap;
+  final VoidCallback onTapMenu;
 
   const ConversationItem({
     Key? key,
     required this.conversation,
     required this.onTap,
+    required this.onTapMenu,
   }) : super(key: key);
 
   @override
@@ -21,16 +23,16 @@ class ConversationItem extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 16, top: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(width: 1,color: AppColors.appColor.withOpacity(0.3))
-      ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border:
+              Border.all(width: 1, color: AppColors.appColor.withOpacity(0.3))),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.only(left: 5,top: 5,bottom: 5,right: 10),
+            padding: EdgeInsets.only(left: 5, top: 5, bottom: 5, right: 10),
             child: Row(
               children: [
                 Stack(
@@ -113,7 +115,6 @@ class ConversationItem extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-
                                 if (conversation.isPinned) ...[
                                   SizedBox(width: 4),
                                   Icon(
@@ -172,6 +173,10 @@ class ConversationItem extends StatelessWidget {
                               ),
                             ),
                           ],
+                          GestureDetector(
+                              onTap: onTapMenu,
+                              behavior: HitTestBehavior.translucent,
+                              child: Icon(Icons.more_horiz))
                         ],
                       ),
                     ],

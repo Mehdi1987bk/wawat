@@ -3,6 +3,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../home_tab/home_tab_screen.dart';
 import '../home_tab/widget/wawat_courier_card.dart';
 import 'fovorite_offer_bloc.dart';
 
@@ -49,78 +50,64 @@ class _FovoriteOfferListScreenState
   }
 
   @override
-  PreferredSizeWidget? appBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      title: const Text(
-        'Избранных',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF1A1A1A),
-        ),
-      ),
-      centerTitle: true,
-    );
-  }
-
-  @override
   Widget body() {
     return SafeArea(
       child: RefreshIndicator(
         onRefresh: () {
           return bloc.loadList();
         },
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            // SliverToBoxAdapter(
-            //   child: NavigatorPop(title: S.of(context).notifications,),
-            // ),
-            StreamBuilder<List<OfferModel>>(
-              stream: bloc.paginableList,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final groups = snapshot.requireData;
-                  if (groups.isEmpty) {
-                    return SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height / 3),
-                        child: Center(
-                          child: Text("Нет избранных"),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return SliverPadding(
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, groupIndex) {
-                          final offer =
-                              groups[groupIndex]; // одна группа (date + items)
-
-                          return WawatCourierCard(
-                            courier: offer,
-                            onFavoriteToggle: (v) {
-                              bloc.setFavorites(offer.id);
-                            },
-
-
+        child: Stack(
+          children: [
+            BuildHeader(context),
+            Padding(
+              padding: const EdgeInsets.only(top: 70),
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
+                  StreamBuilder<List<OfferModel>>(
+                    stream: bloc.paginableList,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final groups = snapshot.requireData;
+                        if (groups.isEmpty) {
+                          return SliverToBoxAdapter(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.height / 3),
+                              child: Center(
+                                child: Text("Нет избранных"),
+                              ),
+                            ),
                           );
-                        },
-                        childCount: groups.length,
-                      ),
-                    ),
-                    padding: EdgeInsets.only(top: 20, bottom: 120),
-                  );
-                }
+                        }
 
-                return const SliverToBoxAdapter(child: SizedBox());
-              },
-            )
+                        return SliverPadding(
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, groupIndex) {
+                                final offer = groups[
+                                    groupIndex]; // одна группа (date + items)
+
+                                return WawatCourierCard(
+                                  courier: offer,
+                                  onFavoriteToggle: (v) {
+                                    bloc.setFavorites(offer.id);
+                                  },
+                                );
+                              },
+                              childCount: groups.length,
+                            ),
+                          ),
+                          padding: EdgeInsets.only(top: 20, bottom: 120),
+                        );
+                      }
+
+                      return const SliverToBoxAdapter(child: SizedBox());
+                    },
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),

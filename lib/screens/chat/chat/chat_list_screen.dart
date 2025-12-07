@@ -23,7 +23,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   @override
   void initState() {
     super.initState();
-    bloc.init();  // <-- Добавьте эту строку!
+    bloc.init(); // <-- Добавьте эту строку!
     bloc.loadConversations();
 
     _scrollController.addListener(() {
@@ -33,8 +33,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
       }
     });
   }
-
-
 
   @override
   void dispose() {
@@ -54,7 +52,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               child: Column(
                 children: [
                   Container(
-                    color:Colors.white,
+                    color: Colors.white,
                     padding: EdgeInsets.symmetric(
                       horizontal: WawatDimensions.spacingMd,
                       vertical: 8,
@@ -74,7 +72,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                         },
                         child: Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [Color(0xFF5B7FFF), Color(0xFFAB5FE8)],
@@ -95,7 +94,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    _showArchived ?  Icons.archive : Icons.inbox ,
+                                    _showArchived ? Icons.archive : Icons.inbox,
                                     color: Color(0xFF5B7FFF),
                                     size: 18,
                                   ),
@@ -103,7 +102,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                _showArchived ?  'Архив':'Входящие' ,
+                                _showArchived ? 'Архив' : 'Входящие',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -147,7 +146,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                   ),
                                   SizedBox(height: WawatDimensions.spacingMd),
                                   Text(
-                                  'Нет чатов'  ,
+                                    'Нет чатов',
                                     style: WawatTextStyles.body.copyWith(
                                       color: WawatColors.textSecondary,
                                     ),
@@ -163,12 +162,15 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                           if (a.isPinned && !b.isPinned) return -1;
                           if (!a.isPinned && b.isPinned) return 1;
 
-                          if (a.lastMessage == null && b.lastMessage == null) return 0;
+                          if (a.lastMessage == null && b.lastMessage == null)
+                            return 0;
                           if (a.lastMessage == null) return 1;
                           if (b.lastMessage == null) return -1;
 
-                          final aTime = DateTime.parse(a.lastMessage!.createdAt);
-                          final bTime = DateTime.parse(b.lastMessage!.createdAt);
+                          final aTime =
+                              DateTime.parse(a.lastMessage!.createdAt);
+                          final bTime =
+                              DateTime.parse(b.lastMessage!.createdAt);
                           return bTime.compareTo(aTime);
                         });
 
@@ -194,7 +196,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                     builder: (context, snapshot) {
                                       if (snapshot.data == true) {
                                         return Padding(
-                                          padding: EdgeInsets.all(WawatDimensions.spacingMd),
+                                          padding: EdgeInsets.all(
+                                              WawatDimensions.spacingMd),
                                           child: Center(
                                             child: CircularProgressIndicator(
                                               color: WawatColors.primary,
@@ -209,17 +212,14 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
                                 final conversation = sortedConversations[index];
 
-                                return GestureDetector(
-                                  onLongPress: () {
-                                    _showConversationMenu(conversation);
-                                  },
-                                  child: ConversationItem(
+                                return ConversationItem(
                                     conversation: conversation,
                                     onTap: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ChatConversationScreen(
+                                          builder: (context) =>
+                                              ChatConversationScreen(
                                             conversation: conversation,
                                           ),
                                         ),
@@ -227,8 +227,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                         bloc.loadConversations();
                                       });
                                     },
-                                  ),
-                                );
+                                    onTapMenu: () =>
+                                        _showConversationMenu(conversation));
                               },
                             ),
                           ),
@@ -406,8 +406,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             },
             child: Text(
               'Удалить',
-              style: WawatTextStyles.bodyBold
-                  .copyWith(color: WawatColors.error),
+              style:
+                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
             ),
           ),
         ],

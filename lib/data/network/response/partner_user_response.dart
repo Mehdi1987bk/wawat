@@ -216,9 +216,9 @@ class Review {
   final int upvotes;
   final int downvotes;
   @JsonKey(name: 'created_at')
-  final String createdAt;
+  final String? createdAt;
   @JsonKey(name: 'updated_at')
-  final String updatedAt;
+  final String? updatedAt;
 
   Review({
     required this.id,

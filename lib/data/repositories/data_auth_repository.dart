@@ -212,6 +212,10 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.verificationStatus();
   }
 
+  Future<void> addAvatar(File avatar) {
+    return _authApi.addAvatar(avatar);
+  }
+
   Future<void> submitVerification(
       {required File passport, required File selfie}) {
     return _authApi.submitVerification(

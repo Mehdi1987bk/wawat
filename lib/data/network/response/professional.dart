@@ -1,7 +1,9 @@
+import 'package:buking/data/network/response/packet_type_resp.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'language.dart';
+import 'type_option.dart';
 
 part 'professional.g.dart';
 
@@ -9,19 +11,23 @@ part 'professional.g.dart';
 @HiveType(typeId: 1)
 class Professional extends HiveObject {
   @HiveField(0)
-  final int? workExperienceYears;
+  @JsonKey(name: 'experience_years')
+  final String? workExperienceYears;
 
   @HiveField(1)
-  final double? maxWeightKg;
+  final String? maxWeightKg;
 
   @HiveField(2)
-  final double? insuranceAmount;
+  @JsonKey(name: 'insurance_usd')
+  final String? insuranceAmount;
 
   @HiveField(3)
-  final double? pricePerKgMin;
+  @JsonKey(name: 'price_from')
+  final String? pricePerKgMin;
 
   @HiveField(4)
-  final double? pricePerKgMax;
+  @JsonKey(name: 'price_to')
+  final String? pricePerKgMax;
 
   @HiveField(5)
   final String? workTimeFrom;
@@ -33,7 +39,7 @@ class Professional extends HiveObject {
   final List<Language> languages;
 
   @HiveField(8)
-  final List<dynamic> packageTypes; // Могу заменить на List<TypeOption>
+  final List<PacketTypeResp> packageTypes;
 
   Professional({
     this.workExperienceYears,

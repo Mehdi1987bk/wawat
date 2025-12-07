@@ -1,25 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-/// Виджет профильного изображения с градиентом и кнопкой камеры
-///
-/// Параметры:
-/// - [imageUrl] - ссылка на изображение из сети
-/// - [localFile] - локальный файл с изображением
-/// - [onCameraPressed] - callback при нажатии на кнопку камеры
-/// - [size] - размер виджета (по умолчанию 120)
-/// - [borderRadius] - радиус скругления (по умолчанию 24)
-/// - [cameraIconSize] - размер иконки камеры (по умолчанию 20)
-///
-/// Пример использования:
-/// ```dart
-/// ProfileImageWidget(
-///   imageUrl: 'https://example.com/image.jpg',
-///   onCameraPressed: () {
-///     // Обработка нажатия на камеру
-///   },
-/// )
-/// ```
 class ProfileImageWidget extends StatelessWidget {
   final String? imageUrl;
   final File? localFile;
@@ -46,7 +27,6 @@ class ProfileImageWidget extends StatelessWidget {
       onTap: onCameraPressed,
       child: Stack(
         children: [
-          // Основной контейнер с градиентом
           Container(
             width: size,
             height: size,
@@ -72,7 +52,6 @@ class ProfileImageWidget extends StatelessWidget {
               child: _buildImageContent(),
             ),
           ),
-          // Кнопка камеры
           Positioned(
             right: 0,
             bottom: 0,
@@ -107,9 +86,7 @@ class ProfileImageWidget extends StatelessWidget {
     );
   }
 
-  /// Вспомогательный метод для отображения контента
   Widget _buildImageContent() {
-    // Приоритет: локальный файл > сетевое изображение > placeholder
     if (localFile != null && localFile!.existsSync()) {
       return Image.file(
         localFile!,
@@ -165,7 +142,6 @@ class ProfileImageWidget extends StatelessWidget {
         },
       );
     } else {
-      // Placeholder
       return Container(
         alignment: Alignment.center,
         child: Icon(

@@ -15,6 +15,7 @@ import 'data/cache/data_cache_manager.dart';
 import 'data/network/api/auth_api.dart';
 import 'data/network/response/language.dart';
 import 'data/network/response/notifications.dart';
+import 'data/network/response/packet_type_resp.dart';
 import 'data/network/response/privacy.dart';
 import 'data/network/response/professional.dart';
 import 'data/network/response/profile_info.dart';
@@ -47,6 +48,7 @@ void main() async {
     ..registerAdapter(LanguageAdapter())
     ..registerAdapter(ProfessionalAdapter())
     ..registerAdapter(ProfileInfoAdapter())
+    ..registerAdapter(PacketTypeRespAdapter())
     ..registerAdapter(TypeOptionAdapter());
   _registerDependency();
 

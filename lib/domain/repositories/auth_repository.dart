@@ -86,6 +86,8 @@ abstract class AuthRepository {
 
   Future<VerificationResponse> verificationStatus();
 
+  Future<void> addAvatar(File avatar);
+
   Future<void> submitVerification(
       {required File passport, required File selfie});
 
