@@ -1,10 +1,13 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/resourses/app_colors.dart';
+import 'package:buking/presentation/resourses/theme_provider.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
@@ -21,6 +24,9 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     return StreamBuilder<User>(
       stream: bloc.userDetails,
       builder: (context, snapshot) {
@@ -38,7 +44,7 @@ class _ProfileTabScreenState
                           margin: EdgeInsets.only(left: 16, right: 16, top: 20),
                           padding: EdgeInsets.only(left: 10, right: 10),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.getCardBg(isDark),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
@@ -51,12 +57,14 @@ class _ProfileTabScreenState
                           child: Column(
                             children: [
                               const SizedBox(height: 20),
-                              _buildProfileHeader(snapshot.requireData),
+                              _buildProfileHeader(snapshot.requireData, isDark),
                               const SizedBox(height: 16),
-                              _buildStatsCard(context, snapshot.requireData),
+                              _buildStatsCard(context, snapshot.requireData, isDark),
                             ],
                           ),
                         ),
+                        const SizedBox(height: 24),
+                        _buildThemeToggle(themeProvider, isDark),
                         const SizedBox(height: 24),
                         FutureBuilder<OfferListResponse>(
                           future: bloc.myOffers(),
@@ -72,7 +80,7 @@ class _ProfileTabScreenState
                         ),
 
                         const SizedBox(height: 24),
-                        _buildMenuSection(snapshot.requireData),
+                        _buildMenuSection(snapshot.requireData, isDark),
                         const SizedBox(height: 120),
                       ],
                     ),
@@ -93,7 +101,87 @@ class _ProfileTabScreenState
     return ProfileTabBloc();
   }
 
-  Widget _buildProfileHeader(User user) {
+  Widget _buildThemeToggle(ThemeProvider themeProvider, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.getCardBg(isDark),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [Color(0xFF1E1E2E), Color(0xFF2D2D44)]
+                      : [Color(0xFFFEF3C7), Color(0xFFFCD34D)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                isDark ? Icons.dark_mode : Icons.light_mode,
+                color: isDark ? Color(0xFFFCD34D) : Color(0xFFD97706),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isDark ? 'Темная тема' : 'Светлая тема',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.getTextColor(isDark),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isDark ? 'Переключиться на светлую' : 'Переключиться на темную',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Color(0xFF9CA3AF) : Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Transform.scale(
+              scale: 1.1,
+              child: Switch(
+                value: isDark,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                },
+                activeColor: Color(0xFF5B5BFF),
+                activeTrackColor: Color(0xFFB847FF).withOpacity(0.5),
+                inactiveThumbColor: Color(0xFFD1D5DB),
+                inactiveTrackColor: Color(0xFFE5E7EB),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(User user, bool isDark) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -162,12 +250,12 @@ class _ProfileTabScreenState
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     'Wawat',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF000000),
+                      color: AppColors.getTextColor(isDark),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -211,7 +299,7 @@ class _ProfileTabScreenState
     );
   }
 
-  Widget _buildStatsCard(BuildContext context, User user) {
+  Widget _buildStatsCard(BuildContext context, User user, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
@@ -224,12 +312,14 @@ class _ProfileTabScreenState
                 value: '24',
                 label: 'Доставки',
                 context: context,
+                isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_2.png",
                 value: user.rating?.average.toString() ?? "0",
                 label: 'Рейтинг',
                 context: context,
+                isDark: isDark,
               ),
             ],
           ),
@@ -242,12 +332,14 @@ class _ProfileTabScreenState
                 value: '18',
                 label: 'Отзывы',
                 context: context,
+                isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_4.png",
                 value: '2 года',
                 label: 'На сайте',
                 context: context,
+                isDark: isDark,
               ),
             ],
           ),
@@ -260,12 +352,13 @@ class _ProfileTabScreenState
       {required String icon,
       required String value,
       required String label,
-      required BuildContext context}) {
+      required BuildContext context,
+      required bool isDark}) {
     return Container(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
       width: MediaQuery.of(context).size.width * 0.4,
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFBFD),
+        color: isDark ? Color(0xFF1A1B28) : Color(0xFFFAFBFD),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -285,10 +378,10 @@ class _ProfileTabScreenState
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF000000),
+              color: AppColors.getTextColor(isDark),
             ),
           ),
           const SizedBox(height: 4),
@@ -305,7 +398,7 @@ class _ProfileTabScreenState
   }
 
 
-  Widget _buildMenuSection(User user) {
+  Widget _buildMenuSection(User user, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
@@ -323,6 +416,7 @@ class _ProfileTabScreenState
               subtitle: 'Управление аккаунтом',
               bgColor: const Color(0xFFEFF6FF),
               iconColor: const Color(0xFF3B82F6),
+              isDark: isDark,
             ),
           ),
           const SizedBox(height: 12),
@@ -332,6 +426,7 @@ class _ProfileTabScreenState
             subtitle: 'Подтвердить документы',
             bgColor: const Color(0xFFECFDF5),
             iconColor: const Color(0xFF10B981),
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildMenuItem(
@@ -340,6 +435,7 @@ class _ProfileTabScreenState
             subtitle: 'Посмотреть отзывы',
             bgColor: const Color(0xFFFEF3C7),
             iconColor: const Color(0xFFFCD34D),
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildMenuItem(
@@ -349,6 +445,7 @@ class _ProfileTabScreenState
             bgColor: const Color(0xFFFEE2E2),
             iconColor: const Color(0xFFFCA5A5),
             isLogout: true,
+            isDark: isDark,
           ),
         ],
       ),
@@ -361,11 +458,12 @@ class _ProfileTabScreenState
     required String subtitle,
     required Color bgColor,
     required Color iconColor,
+    required bool isDark,
     bool isLogout = false,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.getCardBg(isDark),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -382,7 +480,7 @@ class _ProfileTabScreenState
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: bgColor,
+              color: isDark ? bgColor.withOpacity(0.2) : bgColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -403,7 +501,7 @@ class _ProfileTabScreenState
                     fontWeight: FontWeight.w600,
                     color: isLogout
                         ? const Color(0xFFDC2626)
-                        : const Color(0xFF000000),
+                        : AppColors.getTextColor(isDark),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -417,10 +515,10 @@ class _ProfileTabScreenState
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right,
             size: 24,
-            color: Color(0xFFD1D5DB),
+            color: isDark ? Color(0xFF6B7280) : Color(0xFFD1D5DB),
           ),
         ],
       ),
