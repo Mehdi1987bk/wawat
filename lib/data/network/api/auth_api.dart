@@ -112,6 +112,6 @@ abstract class AuthApi {
   @GET('/api/v1/offers/my')
   Future<OfferListResponse> myOffers();
 
-  @POST('/api/v1/conversations/start')
+  @POST('/api/v1/chats/start')
   Future<ConversationResponse> startChat(@Body() Map<String, dynamic> body);
 }

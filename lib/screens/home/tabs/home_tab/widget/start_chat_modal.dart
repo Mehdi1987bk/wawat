@@ -69,8 +69,8 @@ class _StartChatContentState extends State<_StartChatContent> {
     try {
       final authApi = sl.get<AuthApi>();
       final response = await authApi.startChat({
-        'userId': widget.userId,
-        'message': _messageController.text.trim(),
+        'user_id': widget.userId,
+        'body': _messageController.text.trim(),
       });
 
       if (mounted) {
