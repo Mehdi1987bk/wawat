@@ -1,6 +1,10 @@
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../../main.dart';
+import '../../widget/auth_modal_utils.dart';
+import '../../widget/start_chat_modal.dart';
 
 class CourierProfileCard extends StatelessWidget {
   final Data data;
@@ -197,33 +201,43 @@ class CourierProfileCard extends StatelessWidget {
                 ],
               ),
               Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-                margin: const EdgeInsets.symmetric(vertical: 16),
+                margin: EdgeInsets.only(top: 20,bottom: 20),
+                height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B5BFF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.edit, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Написать',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x335B5FFF),
+                      blurRadius: 16,
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () =>  _handleStartChat(context),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Center(
+                      child:  Text(
+                        'Написать',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ],
+
+             ],
           ),
         ),
         GestureDetector(
@@ -241,6 +255,22 @@ class CourierProfileCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _handleStartChat(BuildContext context) async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      StartChatModal.show(
+        context,
+        userId: data.user.id ?? 0,
+        userName: data.user.fullname ?? 'Пользователь',
+        onSuccess: () {
+          // Handle success if needed
+        },
+      );
+    }
   }
 
   Widget _buildStatItem({

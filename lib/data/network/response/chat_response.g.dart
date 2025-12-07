@@ -118,18 +118,6 @@ Map<String, dynamic> _$MessageResponseToJson(MessageResponse instance) =>
       'data': instance.data,
     };
 
-ConversationResponse _$ConversationResponseFromJson(
-        Map<String, dynamic> json) =>
-    ConversationResponse(
-      data: Conversation.fromJson(json['data'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$ConversationResponseToJson(
-        ConversationResponse instance) =>
-    <String, dynamic>{
-      'data': instance.data,
-    };
-
 MetaData _$MetaDataFromJson(Map<String, dynamic> json) => MetaData(
       page: json['page'] as int,
       perPage: json['per_page'] as int,
@@ -210,4 +198,50 @@ BlockData _$BlockDataFromJson(Map<String, dynamic> json) => BlockData(
 Map<String, dynamic> _$BlockDataToJson(BlockData instance) => <String, dynamic>{
       'blocked_user_id': instance.blockedUserId,
       'unblocked_user_id': instance.unblockedUserId,
+    };
+
+ConversationResponse _$ConversationResponseFromJson(
+        Map<String, dynamic> json) =>
+    ConversationResponse(
+      data: json['data'] == null
+          ? null
+          : ConversationData.fromJson(json['data'] as Map<String, dynamic>),
+      meta: json['meta'] == null
+          ? null
+          : Meta.fromJson(json['meta'] as Map<String, dynamic>),
+      message: json['message'] as String?,
+    );
+
+Map<String, dynamic> _$ConversationResponseToJson(
+        ConversationResponse instance) =>
+    <String, dynamic>{
+      'data': instance.data,
+      'meta': instance.meta,
+      'message': instance.message,
+    };
+
+ConversationData _$ConversationDataFromJson(Map<String, dynamic> json) =>
+    ConversationData(
+      id: json['id'] as int?,
+      user: json['user'] == null
+          ? null
+          : User.fromJson(json['user'] as Map<String, dynamic>),
+      isPinned: json['is_pinned'] as bool?,
+      isArchived: json['is_archived'] as bool?,
+    );
+
+Map<String, dynamic> _$ConversationDataToJson(ConversationData instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'user': instance.user,
+      'is_pinned': instance.isPinned,
+      'is_archived': instance.isArchived,
+    };
+
+Meta _$MetaFromJson(Map<String, dynamic> json) => Meta(
+      locale: json['locale'] as String?,
+    );
+
+Map<String, dynamic> _$MetaToJson(Meta instance) => <String, dynamic>{
+      'locale': instance.locale,
     };

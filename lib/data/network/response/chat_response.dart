@@ -1,3 +1,4 @@
+import 'package:buking/data/network/response/user.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'chat_response.g.dart';
@@ -231,18 +232,6 @@ class MessageResponse {
 }
 
 @JsonSerializable()
-class ConversationResponse {
-  final Conversation data;
-
-  ConversationResponse({required this.data});
-
-  factory ConversationResponse.fromJson(Map<String, dynamic> json) =>
-      _$ConversationResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ConversationResponseToJson(this);
-}
-
-@JsonSerializable()
 class MetaData {
   final int page;
   @JsonKey(name: 'per_page')
@@ -364,4 +353,57 @@ class BlockData {
       _$BlockDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$BlockDataToJson(this);
+}
+
+@JsonSerializable()
+class ConversationResponse {
+  final ConversationData? data;
+  final Meta? meta;
+  final String? message;
+
+  ConversationResponse({
+    this.data,
+    this.meta,
+    this.message,
+  });
+
+  factory ConversationResponse.fromJson(Map<String, dynamic> json) =>
+      _$ConversationResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ConversationResponseToJson(this);
+}
+
+@JsonSerializable()
+class ConversationData {
+  final int? id;
+  final User? user;
+  @JsonKey(name: 'is_pinned')
+  final bool? isPinned;
+  @JsonKey(name: 'is_archived')
+  final bool? isArchived;
+
+  ConversationData({
+    this.id,
+    this.user,
+    this.isPinned,
+    this.isArchived,
+  });
+
+  factory ConversationData.fromJson(Map<String, dynamic> json) =>
+      _$ConversationDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ConversationDataToJson(this);
+}
+
+@JsonSerializable()
+class Meta {
+  final String? locale;
+
+  Meta({
+    this.locale,
+  });
+
+  factory Meta.fromJson(Map<String, dynamic> json) => _$MetaFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MetaToJson(this);
 }

@@ -14,6 +14,7 @@ import '../../data/network/response/all_request_data.dart';
 import '../../data/network/response/cities_response.dart';
 import '../../data/network/response/language_response.dart';
 import '../../data/network/response/login_response.dart';
+import '../../data/network/response/notification_response.dart';
 import '../../data/network/response/offer_models.dart';
 import '../../data/network/response/offer_type_model.dart';
 import '../../data/network/response/offer_types_response.dart';
@@ -83,7 +84,7 @@ abstract class AuthRepository {
 
   Future<void> setFavorites(OfferResponse request);
 
-  Future<VerificationResponse> verificationStatus( );
+  Future<VerificationResponse> verificationStatus();
 
   Future<void> submitVerification(
       {required File passport, required File selfie});
@@ -93,6 +94,8 @@ abstract class AuthRepository {
   Future<void> setIsFirstOpen();
 
   Future<PartnerUserResponse> getUserById(int date);
+
+  Future<NotificationResponse> notifications();
 
   Future<Pagination<OfferModel>> searchOffers({
     String? offerType,

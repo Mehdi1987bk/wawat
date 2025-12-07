@@ -22,6 +22,7 @@ import '../response/cities_response.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
 import '../response/login_response_data.dart';
+import '../response/notification_response.dart';
 import '../response/offer_models.dart';
 import '../response/offer_type_model.dart';
 import '../response/offer_types_response.dart';
@@ -136,6 +137,9 @@ abstract class AuthApi {
   Future<PartnerUserResponse> getUserById(
     @Path() int date,
   );
+
+  @GET('/api/v1/notifications')
+  Future<NotificationResponse> notifications();
 
   @POST('/api/v1/favorites/toggle')
   Future<void> setFavorites(@Body() OfferResponse request);

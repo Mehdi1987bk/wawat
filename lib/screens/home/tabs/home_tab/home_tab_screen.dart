@@ -13,6 +13,7 @@ import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
 import 'home_tab_bloc.dart';
+import 'notification/notification_screen.dart';
 
 class HomeTabScreen extends BaseScreen {
   @override
@@ -212,7 +213,7 @@ Widget BuildHeader(BuildContext context) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return Container();
+                return NotificationScreen();
               }));
             }
           },

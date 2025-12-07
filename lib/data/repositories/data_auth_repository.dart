@@ -23,6 +23,7 @@ import '../network/response/all_request_data.dart';
 import '../network/response/cities_response.dart';
 import '../network/response/language_response.dart';
 import '../network/response/login_response.dart';
+import '../network/response/notification_response.dart';
 import '../network/response/offer_models.dart';
 import '../network/response/offer_type_model.dart';
 import '../network/response/offer_types_response.dart';
@@ -207,8 +208,8 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.setFavorites(request);
   }
 
-  Future<VerificationResponse> verificationStatus( ) async {
-    return _authApi.verificationStatus( );
+  Future<VerificationResponse> verificationStatus() async {
+    return _authApi.verificationStatus();
   }
 
   Future<void> submitVerification(
@@ -225,6 +226,10 @@ class DataAuthRepository implements AuthRepository {
 
   Future<PartnerUserResponse> getUserById(int date) {
     return _authApi.getUserById(date);
+  }
+
+  Future<NotificationResponse> notifications() {
+    return _authApi.notifications();
   }
 
   @override
