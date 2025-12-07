@@ -15,12 +15,11 @@ class CourierDocumentsTab extends StatelessWidget {
     return Column(
       children: [
         _buildContactInfo(),
-        // const SizedBox(height: 16),
-        // _buildSpecialization(),
+        const SizedBox(height: 16),
+        _buildProfessionalInfo(),
         const SizedBox(height: 16),
         _buildLanguages(),
         const SizedBox(height: 20),
-
       ],
     );
   }
@@ -92,6 +91,106 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
+  Widget _buildProfessionalInfo() {
+    final professional = data.professional;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.work, color: const Color(0xFF5B5BFF), size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Профессиональная информация',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildContactItem(
+            icon: Icons.stars,
+            title: 'Опыт работы',
+            value: professional.experienceYears != null
+                ? '${professional.experienceYears} лет'
+                : '--',
+            iconColor: Colors.orange,
+          ),
+          const SizedBox(height: 12),
+          _buildContactItem(
+            icon: Icons.fitness_center,
+            title: 'Максимальный вес',
+            value: professional.maxWeightKg != null
+                ? '${professional.maxWeightKg} кг'
+                : '--',
+            iconColor: Colors.blue,
+          ),
+          const SizedBox(height: 12),
+          _buildContactItem(
+            icon: Icons.security,
+            title: 'Страхование',
+            value: professional.insuranceUsd != null
+                ? '\$${professional.insuranceUsd}'
+                : '--',
+            iconColor: Colors.green,
+          ),
+          const SizedBox(height: 12),
+          _buildContactItem(
+            icon: Icons.attach_money,
+            title: 'Диапазон цен (\$/кг)',
+            value: professional.priceFrom != null && professional.priceTo != null
+                ? '\$${professional.priceFrom} - \$${professional.priceTo}'
+                : '--',
+            iconColor: Colors.teal,
+          ),
+          const SizedBox(height: 12),
+          _buildContactItem(
+            icon: Icons.schedule,
+            title: 'Рабочие часы',
+            value: professional.workTimeFrom != null && professional.workTimeTo != null
+                ? '${professional.workTimeFrom} - ${professional.workTimeTo}'
+                : '--',
+            iconColor: Colors.indigo,
+          ),
+          const SizedBox(height: 12),
+          _buildContactItem(
+            icon: Icons.timer,
+            title: 'Время ответа',
+            value: professional.responseTimeMinutes != null
+                ? '${professional.responseTimeMinutes} мин'
+                : '--',
+            iconColor: Colors.deepOrange,
+          ),
+          const SizedBox(height: 12),
+          _buildContactItem(
+            icon: Icons.check_circle,
+            title: 'Вовремя доставок',
+            value: professional.onTimePercent != null
+                ? '${professional.onTimePercent}%'
+                : '--',
+            iconColor: Colors.lightGreen,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildContactItem({
     required IconData icon,
     required String title,
@@ -128,70 +227,6 @@ class CourierDocumentsTab extends StatelessWidget {
       ],
     );
   }
-
-  // Widget _buildSpecialization() {
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 16),
-  //     padding: const EdgeInsets.all(16),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(12),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.grey.withOpacity(0.1),
-  //           blurRadius: 8,
-  //         ),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           children: [
-  //             Icon(Icons.work, color: const Color(0xFF5B5BFF), size: 20),
-  //             const SizedBox(width: 8),
-  //             const Text(
-  //               'Специализация',
-  //               style: TextStyle(
-  //                 fontSize: 16,
-  //                 fontWeight: FontWeight.bold,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 16),
-  //         GridView(
-  //           shrinkWrap: true,
-  //           physics: const NeverScrollableScrollPhysics(),
-  //           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //             crossAxisCount: 2,
-  //             crossAxisSpacing: 12,
-  //             mainAxisSpacing: 12,
-  //             childAspectRatio: 1.2,
-  //           ),
-  //           children: [
-  //             _buildSpecializationItem(
-  //               icon: Icons.description,
-  //               label: 'Документы',
-  //             ),
-  //             _buildSpecializationItem(
-  //               icon: Icons.devices,
-  //               label: 'Электроника',
-  //             ),
-  //             _buildSpecializationItem(
-  //               icon: Icons.local_florist,
-  //               label: 'Косметика',
-  //             ),
-  //             _buildSpecializationItem(
-  //               icon: Icons.checkroom,
-  //               label: 'Одежда',
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildSpecializationItem({
     required IconData icon,
@@ -257,27 +292,26 @@ class CourierDocumentsTab extends StatelessWidget {
             runSpacing: 8,
             children: data.user.languages
                 .map((lang) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        lang.name,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ))
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                lang.name,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.black,
+                ),
+              ),
+            ))
                 .toList(),
           ),
         ],
       ),
     );
   }
-
 }

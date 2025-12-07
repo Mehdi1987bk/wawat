@@ -9,6 +9,7 @@ import '../../../main.dart';
 import '../request/courier_offer_model.dart';
 import '../request/courier_profile.dart';
 import '../request/delivery_offer_request.dart';
+import '../request/edit_status_offer_request.dart';
 import '../request/forgot_password_request.dart';
 import '../request/login_request.dart';
 import '../request/notification_settings.dart';
@@ -114,7 +115,15 @@ abstract class AuthApi {
   Future<OfferTypeResponse> getOfferTypes();
 
   @GET('/api/v1/offers/my')
-  Future<OfferListResponse> myOffers();
+  Future<Pagination<OfferModel>> myOffers(
+    @Query('page') int page,
+  );
+
+  @PATCH('/api/v1/offers/{id}/status')
+  Future<void> editStatusOffer(
+      @Path() String id,
+      @Body() EditStatusOfferRequest request,
+  );
 
   @GET('/api/v1/offers')
   Future<Pagination<OfferModel>> searchOffers(

@@ -57,7 +57,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 80, bottom: 80),
+              padding: const EdgeInsets.only(top: 60, bottom: 80),
               child: SingleChildScrollView(
                 controller: _scrollController,
                 child: Column(
@@ -66,7 +66,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                     SearchFormWidget(
                       bloc: bloc,
                     ),
-                    SizedBox(height: WawatDimensions.spacingLg),
                     _buildPopularOffers(),
                   ],
                 ),
@@ -83,10 +82,9 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 20),
+          padding: const EdgeInsets.only(bottom: 10),
           child: Image.asset(
-            "asset/home_ban.png",
-            width: 127,
+            "asset/home_back.png",
           ),
         ),
         Padding(

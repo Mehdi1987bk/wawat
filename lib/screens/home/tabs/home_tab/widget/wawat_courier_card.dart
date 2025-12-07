@@ -11,14 +11,18 @@ import 'start_chat_modal.dart';
 class WawatCourierCard extends StatefulWidget {
   final OfferModel courier;
   final bool detailsActiv;
+  final bool sendMessageActiv;
 
   final Function(bool)? onFavoriteToggle;
+  final Function(bool)? onVisibilityToggle;
 
   const WawatCourierCard({
     Key? key,
     required this.courier,
     this.onFavoriteToggle,
+    this.onVisibilityToggle,
     this.detailsActiv = true,
+    this.sendMessageActiv = true,
   }) : super(key: key);
 
   @override
@@ -27,11 +31,13 @@ class WawatCourierCard extends StatefulWidget {
 
 class _WawatCourierCardState extends State<WawatCourierCard> {
   late bool isFavorite;
+  late bool isVisible;
 
   @override
   void initState() {
     super.initState();
     isFavorite = widget.courier.isFavourite ?? false;
+    isVisible = widget.courier.status == "active" ? true : false;
   }
 
   void _toggleFavorite() async {
@@ -43,6 +49,18 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
         isFavorite = !isFavorite;
       });
       widget.onFavoriteToggle?.call(isFavorite);
+    }
+  }
+
+  void _toggleVisibility() async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      setState(() {
+        isVisible = !isVisible;
+      });
+      widget.onVisibilityToggle?.call(isVisible);
     }
   }
 
@@ -100,27 +118,27 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                     ),
                     child: widget.courier.user?.avatar != null
                         ? ClipOval(
-                      child: Image.network(
-                        widget.courier.user!.avatar!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(
+                            child: Image.network(
+                              widget.courier.user!.avatar!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : Center(
                             child: Icon(
                               Icons.person,
                               color: Colors.white,
                               size: 30,
                             ),
-                          );
-                        },
-                      ),
-                    )
-                        : Center(
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
+                          ),
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -243,10 +261,9 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                   widget.courier.description!,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF9E9E9E),
                     fontWeight: FontWeight.w400,
                   ),
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
               SizedBox(height: 24),
@@ -281,7 +298,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
               SizedBox(height: 10),
               Row(
                 children: [
-                  if(widget.detailsActiv == true)
+                  if (widget.detailsActiv == true)
                     Expanded(
                       child: Container(
                         height: 48,
@@ -305,7 +322,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                           child: InkWell(
                             onTap: () async {
                               final isLogged =
-                              await sl.get<AuthRepository>().isLogged();
+                                  await sl.get<AuthRepository>().isLogged();
                               if (!isLogged) {
                                 return AuthModalUtils.showAuthRequiredModal(
                                     context);
@@ -315,7 +332,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                   CupertinoPageRoute(
                                     builder: (BuildContext context) {
                                       return CourierDetailsScreen(
-                                        courier: widget.courier,
+                                        courierId: widget.courier.id,
                                       );
                                     },
                                   ),
@@ -337,62 +354,87 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         ),
                       ),
                     ),
-                  if(widget.detailsActiv == true)
-
-                    SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(0xFF5B5FFF),
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: _handleStartChat,
+                  if (widget.detailsActiv == true) SizedBox(width: 12),
+                  if (widget.sendMessageActiv == true)
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Color(0xFF5B5FFF),
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(16),
-                          child: Center(
-                            child: Text(
-                              'Написать',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF5B5FFF),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _handleStartChat,
+                            borderRadius: BorderRadius.circular(16),
+                            child: Center(
+                              child: Text(
+                                'Написать',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF5B5FFF),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ],
           ),
         ),
-        Positioned(
-          top: 15,
-          right: 35,
-          child: Material(
-            color: Colors.white,
-            shape: CircleBorder(),
-            child: InkWell(
-              onTap: _toggleFavorite,
-              borderRadius: BorderRadius.circular(28),
-              child: Center(
-                child: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : Color(0xFF5B5FFF),
-                  size: 24,
+        if (widget.sendMessageActiv == true)
+          Positioned(
+            top: 15,
+            right: 35,
+            child: Material(
+              color: Colors.white,
+              shape: CircleBorder(),
+              child: InkWell(
+                onTap: _toggleFavorite,
+                borderRadius: BorderRadius.circular(28),
+                child: Center(
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Color(0xFF5B5FFF),
+                    size: 24,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        if (widget.sendMessageActiv == false)
+          Positioned(
+            top: 15,
+            right: 35,
+            child: Material(
+              color: Colors.white,
+              shape: CircleBorder(),
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: _toggleVisibility,
+                    borderRadius: BorderRadius.circular(28),
+                    child: Center(
+                      child: Icon(
+                        isVisible ? Icons.visibility : Icons.visibility_off,
+                        color: WawatColors.primary,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                  Text(isVisible== true ?"Скрыть" :"Показать",style: TextStyle(fontSize: 10),)
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -24,7 +24,8 @@ class ExperienceTab extends BaseScreen {
   State<ExperienceTab> createState() => _ExperienceTabState();
 }
 
-class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> with ErrorDispatcher {
+class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
+    with ErrorDispatcher {
   final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
 
   late TextEditingController _maxWeightController;
@@ -67,16 +68,21 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     _priceFromController.addListener(_validateForm);
     _priceToController.addListener(_validateForm);
 
-    _selectedExperience = int.tryParse(professional?.workExperienceYears ?? '') ?? 3;
+    _selectedExperience =
+        int.tryParse(professional?.workExperienceYears ?? '') ?? 3;
 
-    if (professional?.workTimeFrom != null && professional!.workTimeFrom!.isNotEmpty) {
+    if (professional?.workTimeFrom != null &&
+        professional!.workTimeFrom!.isNotEmpty) {
       final parts = professional.workTimeFrom!.split(':');
-      _selectedWorkTimeFrom = parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+      _selectedWorkTimeFrom =
+          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
-    if (professional?.workTimeTo != null && professional!.workTimeTo!.isNotEmpty) {
+    if (professional?.workTimeTo != null &&
+        professional!.workTimeTo!.isNotEmpty) {
       final parts = professional.workTimeTo!.split(':');
-      _selectedWorkTimeTo = parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+      _selectedWorkTimeTo =
+          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional != null && professional.languages.isNotEmpty) {
@@ -105,7 +111,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     final isPriceFromFilled = _priceFromController.text.trim().isNotEmpty;
     final isPriceToFilled = _priceToController.text.trim().isNotEmpty;
     final hasLanguages = _selectedLanguageCodes.isNotEmpty;
-    final hasPackageTypes = _selectedPackageTypeCodes.isNotEmpty || _allPackageTypes.isEmpty;
+    final hasPackageTypes =
+        _selectedPackageTypeCodes.isNotEmpty || _allPackageTypes.isEmpty;
 
     _isFormValid.value = isMaxWeightFilled &&
         isInsuranceFilled &&
@@ -190,7 +197,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
   Future<void> _showTimePickerFrom() async {
     try {
-      final timeString = _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
+      final timeString =
+          _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -218,7 +226,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeFrom =
-                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -236,7 +244,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
   Future<void> _showTimePickerTo() async {
     try {
-      final timeString = _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
+      final timeString =
+          _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -264,7 +273,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeTo =
-                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -315,12 +324,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
     bloc.createProfessional(courierProfile).then((_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Данные об опыте сохранены'),
-            backgroundColor: Color(0xFF5B4FFF),
-          ),
-        );
+        showIOSStyleMessage(context, 'Данные об опыте сохранены');
       }
     });
   }
@@ -436,7 +440,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                         ),
                         const SizedBox(height: 4),
                         _buildTimePickerField(
-                          _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00',
+                          _selectedWorkTimeFrom.isNotEmpty
+                              ? _selectedWorkTimeFrom
+                              : '09:00',
                           _showTimePickerFrom,
                         ),
                       ],
@@ -457,7 +463,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                         ),
                         const SizedBox(height: 4),
                         _buildTimePickerField(
-                          _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00',
+                          _selectedWorkTimeTo.isNotEmpty
+                              ? _selectedWorkTimeTo
+                              : '18:00',
                           _showTimePickerTo,
                         ),
                       ],
@@ -498,34 +506,34 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
               const SizedBox(height: 8),
               _allPackageTypes.isEmpty && !_isLoadingPackageTypes
                   ? Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xFFE5E5EA),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  color: const Color(0xFFF5F5F5),
-                ),
-                child: const Text(
-                  'Типы упаковки недоступны на сервере',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              )
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xFFE5E5EA),
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFFF5F5F5),
+                      ),
+                      child: const Text(
+                        'Типы упаковки недоступны на сервере',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    )
                   : PackageTypesSelector(
-                packageTypes: _allPackageTypes,
-                selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    _selectedPackageTypeCodes = newSelection;
-                  });
-                  _validateForm();
-                },
-                isLoading: _isLoadingPackageTypes,
-              ),
+                      packageTypes: _allPackageTypes,
+                      selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedPackageTypeCodes = newSelection;
+                        });
+                        _validateForm();
+                      },
+                      isLoading: _isLoadingPackageTypes,
+                    ),
               Container(
                 height: 50,
                 width: double.infinity,
@@ -541,7 +549,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
                   builder: (_, isValid, __) {
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        disabledBackgroundColor: Color(0xFF5B4FFF).withOpacity(0.3),
+                        disabledBackgroundColor:
+                            Color(0xFF5B4FFF).withOpacity(0.3),
                         backgroundColor: const Color(0xFF5B4FFF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -607,9 +616,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
   }
 
   Widget _buildTimePickerField(
-      String value,
-      VoidCallback onTap,
-      ) {
+    String value,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -695,4 +704,112 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
     super.dispose();
   }
+}
+
+void showIOSStyleAlert(BuildContext context, String message,
+    {bool isError = true}) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isError ? Icons.error_outline : Icons.check_circle_outline,
+                color: isError ? Colors.red : Colors.green,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: isError ? Colors.red : Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void showIOSStyleMessage(
+  BuildContext context,
+  String message, {
+  bool isSuccess = true,
+  Duration duration = const Duration(seconds: 2),
+}) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.1),
+    builder: (BuildContext context) {
+      Future.delayed(duration, () {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+      return Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            decoration: BoxDecoration(
+              color: Colors.white ,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

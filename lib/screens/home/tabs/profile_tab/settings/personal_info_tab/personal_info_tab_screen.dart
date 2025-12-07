@@ -11,6 +11,7 @@ import '../../../../../../data/network/response/user.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/common/image_selector.dart';
 import '../../../../../../presentation/resourses/app_colors.dart';
+import '../experience_tab/experience_tab_screen.dart';
 
 class PersonalInfoTab extends BaseScreen {
   final User user;
@@ -215,6 +216,8 @@ class _PersonalInfoTabState
         });
 
         await bloc.onImageSelected(file);
+        showIOSStyleMessage(context, 'Сохранено');
+
       }
     }
   }
@@ -302,7 +305,8 @@ class _PersonalInfoTabState
         .then(
       (onValue) {
         bloc.customersMe();
-        showTopSnackbar("Сохранено", "Сохранено", true, context);
+        showIOSStyleMessage(context, 'Сохранено');
+
       },
     );
   }

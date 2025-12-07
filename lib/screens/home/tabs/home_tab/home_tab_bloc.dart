@@ -64,7 +64,6 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
     return userRepository.allRequest(dateFormat.format(dateTimeNow).toString());
   }
 
-  late final Future<OfferListResponse> myOffers = userRepository.myOffers();
 
   Future<OfferTypeResponse> getOfferTypes() => userRepository.getOfferTypes();
 

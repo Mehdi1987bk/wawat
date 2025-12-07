@@ -6,8 +6,10 @@ import 'package:buking/presentation/resourses/wawat_dimensions.dart';
 import 'package:buking/presentation/resourses/wawat_text_styles.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../home/tabs/home_tab/courier_screen/courier_screen.dart';
 import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_bubble.dart';
@@ -158,99 +160,111 @@ class _ChatConversationScreenState
         icon: Icon(Icons.arrow_back, color: WawatColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: WawatColors.primary.withOpacity(0.1),
-                backgroundImage: widget.conversation.user.avatarUrl.isNotEmpty
-                    ? CachedNetworkImageProvider(
-                    widget.conversation.user.avatarUrl)
-                    : null,
-                child: widget.conversation.user.avatarUrl.isEmpty
-                    ? Text(
-                  widget.conversation.user.fullname[0].toUpperCase(),
-                  style: WawatTextStyles.bodyBold.copyWith(
-                    color: WawatColors.primary,
-                  ),
-                )
-                    : null,
-              ),
-              if (widget.conversation.user.isOnline)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: WawatColors.success,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+      title: GestureDetector(
+        onTap: ()=> Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) {
+              return CourierDetailsScreen(
+                courierId:  widget.conversation.user.id,
+              );
+            },
           ),
-          SizedBox(width: WawatDimensions.spacingSm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: Row(
+          children: [
+            Stack(
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.conversation.user.fullname,
-                        style: WawatTextStyles.bodyBold,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: WawatColors.primary.withOpacity(0.1),
+                  backgroundImage: widget.conversation.user.avatarUrl.isNotEmpty
+                      ? CachedNetworkImageProvider(
+                      widget.conversation.user.avatarUrl)
+                      : null,
+                  child: widget.conversation.user.avatarUrl.isEmpty
+                      ? Text(
+                    widget.conversation.user.fullname[0].toUpperCase(),
+                    style: WawatTextStyles.bodyBold.copyWith(
+                      color: WawatColors.primary,
+                    ),
+                  )
+                      : null,
+                ),
+                if (widget.conversation.user.isOnline)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: WawatColors.success,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
                       ),
                     ),
-                    if ( widget.conversation.user.isVerified == true)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              "asset/prof_3.png",
-                              width: 16,
-                            ),
-                            SizedBox(width: 3),
-                            Text(
-                              'Проверен',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF4CAF50),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-                Text(
-                  widget.conversation.user.getLastSeenText(),
-                  style: WawatTextStyles.caption.copyWith(
-                    color: widget.conversation.user.isOnline
-                        ? WawatColors.success
-                        : WawatColors.textSecondary,
                   ),
-                ),
               ],
             ),
-          ),
-        ],
+            SizedBox(width: WawatDimensions.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          widget.conversation.user.fullname,
+                          style: WawatTextStyles.bodyBold,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if ( widget.conversation.user.isVerified == true)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                "asset/prof_3.png",
+                                width: 16,
+                              ),
+                              SizedBox(width: 3),
+                              Text(
+                                'Проверен',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF4CAF50),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                  Text(
+                    widget.conversation.user.getLastSeenText(),
+                    style: WawatTextStyles.caption.copyWith(
+                      color: widget.conversation.user.isOnline
+                          ? WawatColors.success
+                          : WawatColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
         PopupMenuButton<String>(

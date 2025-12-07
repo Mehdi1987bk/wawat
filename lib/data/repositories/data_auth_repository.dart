@@ -11,6 +11,7 @@ import '../network/api/auth_api.dart';
 import '../network/request/courier_offer_model.dart';
 import '../network/request/courier_profile.dart';
 import '../network/request/delivery_offer_request.dart';
+import '../network/request/edit_status_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
 import '../network/request/notification_settings.dart';
@@ -190,8 +191,14 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<OfferListResponse> myOffers() {
-    return _authApi.myOffers();
+  Future<Pagination<OfferModel>> myOffers(int page) {
+    return _authApi.myOffers(page);
+  }
+
+  @override
+  Future<void> editStatusOffer(
+      String id, EditStatusOfferRequest request) {
+    return _authApi.editStatusOffer(id,request);
   }
 
   @override

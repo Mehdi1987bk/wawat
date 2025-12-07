@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../data/network/request/courier_offer_model.dart';
 import '../../data/network/request/courier_profile.dart';
 import '../../data/network/request/delivery_offer_request.dart';
+import '../../data/network/request/edit_status_offer_request.dart';
 import '../../data/network/request/forgot_password_request.dart';
 import '../../data/network/request/login_request.dart';
 import '../../data/network/request/notification_settings.dart';
@@ -78,7 +79,10 @@ abstract class AuthRepository {
 
   Stream<AllrequestData> allRequest(String data);
 
-  Future<OfferListResponse> myOffers();
+  Future<Pagination<OfferModel>> myOffers(int page);
+
+  Future<void> editStatusOffer(
+      String id, EditStatusOfferRequest request);
 
   Future<bool> firstOpen();
 

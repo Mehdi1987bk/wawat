@@ -15,51 +15,57 @@ class BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          BottomNavigationItem(
-            index: 0,
-            selectedIndex: selectedIndex,
-            label: 'Поиск',
-            svgIcon: 'asset/tab1.svg',
-            onChanged: onChanged,
-            isCentral: false,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              BottomNavigationItem(
+                index: 0,
+                selectedIndex: selectedIndex,
+                label: 'Поиск',
+                svgIcon: 'asset/tab1.svg',
+                onChanged: onChanged,
+                isCentral: false,
+              ),
+              BottomNavigationItem(
+                index: 1,
+                selectedIndex: selectedIndex,
+                label: 'Чаты',
+                svgIcon: 'asset/tab2.svg',
+                onChanged: onChanged,
+                isCentral: false,
+              ),
+              BottomNavigationItem(
+                index: 2,
+                selectedIndex: selectedIndex,
+                label: 'Подать',
+                svgIcon: 'asset/tab3.svg',
+                onChanged: onChanged,
+                isCentral: true, // Центральная кнопка с градиентом
+              ),
+              BottomNavigationItem(
+                index: 3,
+                selectedIndex: selectedIndex,
+                label: 'Избранное',
+                svgIcon: 'asset/tab4.svg',
+                onChanged: onChanged,
+                isCentral: false,
+              ),
+              BottomNavigationItem(
+                index: 4,
+                selectedIndex: selectedIndex,
+                label: 'Аккаунт',
+                svgIcon: 'asset/tab5.svg',
+                onChanged: onChanged,
+                isCentral: false,
+              ),
+            ],
           ),
-          BottomNavigationItem(
-            index: 1,
-            selectedIndex: selectedIndex,
-            label: 'Чаты',
-            svgIcon: 'asset/tab2.svg',
-            onChanged: onChanged,
-            isCentral: false,
-          ),
-          BottomNavigationItem(
-            index: 2,
-            selectedIndex: selectedIndex,
-            label: 'Подать',
-            svgIcon: 'asset/tab3.svg',
-            onChanged: onChanged,
-            isCentral: true, // Центральная кнопка с градиентом
-          ),
-          BottomNavigationItem(
-            index: 3,
-            selectedIndex: selectedIndex,
-            label: 'Избранное',
-            svgIcon: 'asset/tab4.svg',
-            onChanged: onChanged,
-            isCentral: false,
-          ),
-          BottomNavigationItem(
-            index: 4,
-            selectedIndex: selectedIndex,
-            label: 'Аккаунт',
-            svgIcon: 'asset/tab5.svg',
-            onChanged: onChanged,
-            isCentral: false,
-          ),
-        ],
+        ),
       ),
     );
   }

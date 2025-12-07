@@ -9,11 +9,11 @@ import '../../../../../data/network/response/partner_user_response.dart';
 import 'courier_details_bloc.dart';
 
 class CourierDetailsScreen extends BaseScreen {
-  final OfferModel courier;
+  final int courierId;
 
   CourierDetailsScreen({
     Key? key,
-    required this.courier,
+    required this.courierId,
   }) : super(key: key);
 
   @override
@@ -28,7 +28,7 @@ class _CourierDetailsScreenState
   Widget body() {
     return SafeArea(
       child: FutureBuilder<PartnerUserResponse>(
-        future: bloc.getUserById(widget.courier.user?.id ?? 0),
+        future: bloc.getUserById(widget.courierId ?? 0),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final data = snapshot.requireData.data;

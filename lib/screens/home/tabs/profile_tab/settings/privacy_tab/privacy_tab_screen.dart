@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/request/privacy_settings.dart';
+import '../experience_tab/experience_tab_screen.dart';
 
 class PrivacyTab extends BaseScreen {
   final bool showPhoneTab;
@@ -289,7 +290,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
         .then(
       (onValue) {
         bloc.customersMe();
-        showTopSnackbar("Сохранено", "Сохранено", true, context);
+        showIOSStyleMessage(context, 'Сохранено');
       },
     );
     bloc

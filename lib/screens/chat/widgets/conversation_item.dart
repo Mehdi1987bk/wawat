@@ -138,10 +138,14 @@ class ConversationItem extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              conversation.lastMessagePreview,
+                              conversation.unreadCount > 0
+                                  ? (conversation.unreadCount > 99
+                                      ? '99+'
+                                      : conversation.unreadCount.toString() + " новых сообщения")
+                                  : conversation.lastMessagePreview,
                               style: WawatTextStyles.body.copyWith(
                                 color: conversation.unreadCount > 0
-                                    ? WawatColors.textPrimary
+                                    ? WawatColors.primary
                                     : WawatColors.textSecondary,
                                 fontWeight: conversation.unreadCount > 0
                                     ? FontWeight.w600
@@ -151,28 +155,28 @@ class ConversationItem extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (conversation.unreadCount > 0) ...[
-                            SizedBox(width: WawatDimensions.spacingSm),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: WawatColors.primaryGradient,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                conversation.unreadCount > 99
-                                    ? '99+'
-                                    : conversation.unreadCount.toString(),
-                                style: WawatTextStyles.caption.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                          // if (conversation.unreadCount > 0) ...[
+                          //   SizedBox(width: WawatDimensions.spacingSm),
+                          //   Container(
+                          //     padding: EdgeInsets.symmetric(
+                          //       horizontal: 8,
+                          //       vertical: 2,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       gradient: WawatColors.primaryGradient,
+                          //       borderRadius: BorderRadius.circular(10),
+                          //     ),
+                          //     child: Text(
+                          //       conversation.unreadCount > 99
+                          //           ? '99+'
+                          //           : conversation.unreadCount.toString(),
+                          //       style: WawatTextStyles.caption.copyWith(
+                          //         color: Colors.white,
+                          //         fontWeight: FontWeight.bold,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ],
                           GestureDetector(
                               onTap: onTapMenu,
                               behavior: HitTestBehavior.translucent,

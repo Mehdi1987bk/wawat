@@ -1,14 +1,18 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/resourses/app_colors.dart';
+import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
+import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
+import 'package:buking/screens/home/tabs/profile_tab/widgte/logout_dialog_content.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
-import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
+import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
 
 class ProfileTabScreen extends BaseScreen {
@@ -59,23 +63,6 @@ class _ProfileTabScreenState
                                 _buildStatsCard(context, snapshot.requireData),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          FutureBuilder<OfferListResponse>(
-                            future: bloc.myOffers,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              if (!snapshot.hasData ||
-                                  snapshot.data?.data == null) {
-                                return const SizedBox();
-                              }
-                              return DeliveryHistoryWidget(
-                                  response: snapshot.requireData);
-                            },
                           ),
                           const SizedBox(height: 24),
                           _buildMenuSection(snapshot.requireData),
@@ -295,22 +282,6 @@ class _ProfileTabScreenState
           GestureDetector(
             onTap: () => Navigator.push(context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-              return EditProfileScreen(
-                user: user,
-              );
-            })),
-            child: _buildMenuItem(
-              icon: Icons.settings_outlined,
-              title: 'Настройки',
-              subtitle: 'Управление аккаунтом',
-              bgColor: const Color(0xFFEFF6FF),
-              iconColor: const Color(0xFF3B82F6),
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(context,
-                CupertinoPageRoute(builder: (BuildContext context) {
               return VerificationScreen(
                 user: user,
               );
@@ -324,6 +295,25 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return DeliveryFullListScreen(
+                   );
+                 },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.access_time_filled,
+              title: 'Обьявления',
+              subtitle: 'Истории обьявления',
+              bgColor: WawatColors.primary.withOpacity(0.1),
+              iconColor: WawatColors.primary,
+            ),
+          ),
+          const SizedBox(height: 12),
           _buildMenuItem(
             icon: Icons.star_outline,
             title: 'Отзывы',
@@ -332,15 +322,80 @@ class _ProfileTabScreenState
             iconColor: const Color(0xFFFCD34D),
           ),
           const SizedBox(height: 12),
-          _buildMenuItem(
-            icon: Icons.logout_outlined,
-            title: 'Выйти',
-            subtitle: 'Выход из аккаунта',
-            bgColor: const Color(0xFFFEE2E2),
-            iconColor: const Color(0xFFFCA5A5),
-            isLogout: true,
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return EditProfileScreen(
+                    user: user,
+                  );
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.settings_outlined,
+              title: 'Настройки',
+              subtitle: 'Управление аккаунтом',
+              bgColor: const Color(0xFFEFF6FF),
+              iconColor: const Color(0xFF3B82F6),
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => showLogoutBottomSheet(
+                title: "Выйти",
+                description:"Вы уверены, что хотите выйти?",
+                yes: "Да, выйти",
+                no: "Нет, отменить",
+                context: context,
+                onConfirmLogout: () {
+                  bloc.logout.then(
+                        (value) {
+                      return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return HomeScreen();
+                        },
+                      ), (route) => false);
+                    },
+                  );
+                }),
+            child: _buildMenuItem(
+              icon: Icons.logout_outlined,
+              title: 'Выйти',
+              subtitle: 'Выход из аккаунта',
+              bgColor: const Color(0xFFFEE2E2),
+              iconColor: const Color(0xFFFCA5A5),
+              isLogout: true,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+
+  void showLogoutBottomSheet({
+    required BuildContext context,
+    required VoidCallback onConfirmLogout,
+    String? title,
+    String? description,
+    String? yes,
+    String? no,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (_) => LogoutDialogContent(
+        onConfirmLogout: onConfirmLogout,
+        no: no,
+        yes: yes,
+        title: title,
+        description: description,
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:buking/presentation/resourses/wawat_colors.dart';
 import '../../../../../data/network/api/auth_api.dart';
 import '../../../../../data/network/api/chat_api.dart';
  import '../../../../../main.dart';
+import '../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 
 class StartChatModal {
   static void show(
@@ -77,12 +78,8 @@ class _StartChatContentState extends State<_StartChatContent> {
         Navigator.pop(context);
         widget.onSuccess?.call();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Сообщение отправлено!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showIOSStyleMessage(context, 'Сообщение отправлено!');
+
       }
     } catch (e) {
       if (mounted) {

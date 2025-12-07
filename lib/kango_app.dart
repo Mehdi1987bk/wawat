@@ -26,26 +26,21 @@ class _WawatAppState extends State<WawatApp> {
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      left: false,
-      right: false,
-      child: MaterialApp(
-        color: AppColors.appBarbgColor,
-        debugShowCheckedModeBanner: false,
-        navigatorKey: navigatorKey,
-        navigatorObservers: [routeObserver],
-        theme: appTheme,
-        localizationsDelegates: [
-          S.delegate,
-          // GlobalMaterialLocalizations.delegate,
-          // GlobalCupertinoLocalizations.delegate,
-          // GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        home: SpleshScreen(),
-        // home: isviewed != 0 ? OnBoarding() : SpleshScreen(),
-      ),
+    return MaterialApp(
+      color: AppColors.appBarbgColor,
+      debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
+      navigatorObservers: [routeObserver],
+      theme: appTheme,
+      localizationsDelegates: [
+        S.delegate,
+        // GlobalMaterialLocalizations.delegate,
+        // GlobalCupertinoLocalizations.delegate,
+        // GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      home: SpleshScreen(),
+      // home: isviewed != 0 ? OnBoarding() : SpleshScreen(),
     );
   }
 }

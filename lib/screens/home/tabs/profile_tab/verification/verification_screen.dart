@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_response.dart';
+import '../settings/experience_tab/experience_tab_screen.dart';
 
 class VerificationScreen extends BaseScreen {
   final User user;
@@ -519,9 +520,8 @@ class _VerificationScreenState
                 title: 'Паспорт',
                 subtitle: 'Основной документ',
                 status: _passportImage != null ? 'Загружено' : 'Не загружено',
-                statusColor: _passportImage != null
-                    ? Colors.green
-                    : Colors.grey,
+                statusColor:
+                    _passportImage != null ? Colors.green : Colors.grey,
                 uploadText: 'Загрузить паспорт',
                 image: _passportImage,
                 onTap: _pickPassportImage,
@@ -558,7 +558,7 @@ class _VerificationScreenState
                     ),
                     TextSpan(
                       text:
-                      'Проверка документов занимает 1-3 рабочих дня. После одобрения вы получите статус "Проверенный пользователь".',
+                          'Проверка документов занимает 1-3 рабочих дня. После одобрения вы получите статус "Проверенный пользователь".',
                     ),
                   ],
                 ),
@@ -577,24 +577,24 @@ class _VerificationScreenState
                       borderRadius: BorderRadius.circular(14),
                     ),
                     disabledBackgroundColor:
-                    AppColors.appColor.withOpacity(0.6),
+                        AppColors.appColor.withOpacity(0.6),
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                    ),
-                  )
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
                       : const Text(
-                    'Отправить на проверку',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                          'Отправить на проверку',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 30),
@@ -636,6 +636,7 @@ class _VerificationScreenState
           backgroundColor: Colors.orange,
         ),
       );
+
       return;
     }
 
@@ -650,12 +651,8 @@ class _VerificationScreenState
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Документы успешно отправлены на проверку'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        showIOSStyleMessage(
+            context, 'Документы успешно отправлены на проверку');
 
         // Перезагрузить статус
         await _loadVerificationStatus();
@@ -784,33 +781,33 @@ class _VerificationScreenState
                 ),
                 child: image != null
                     ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(
-                    image,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
-                )
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(
+                          image,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                      )
                     : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.upload_outlined,
-                      size: 32,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      uploadText,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                        fontWeight: FontWeight.w500,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.upload_outlined,
+                            size: 32,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            uploadText,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),

@@ -125,6 +125,8 @@ flutter:
     - asset/search.png
     - asset/globus.png
     - asset/micro.png
+    - asset/home_back.png
+    - asset/add_offer.png
 
 
 

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
-import '../see_more_offers/see_more_offers_screen.dart';
-import 'delivery_card.dart';
+import '../../home_tab/widget/wawat_courier_card.dart';
+import '../see_more_offers/delivery_full_list_screen.dart';
 
 class DeliveryHistoryWidget extends StatelessWidget {
   final OfferListResponse response;
@@ -40,76 +40,63 @@ class DeliveryHistoryWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(15),
-      child: Column(
+       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'История',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF000000),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (BuildContext context) {
-                        return DeliveryFullListScreen(
-                          offers: response.data,
-                        );
-                      },
-                    ),
-                  );
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5B5BFF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Показать все',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20,right: 20,top: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'История',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF000000),
                   ),
                 ),
-              ),
-            ],
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (BuildContext context) {
+                          return DeliveryFullListScreen(
+                           );
+                        },
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B5BFF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'Показать все',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           ...displayOffers.map((offer) {
             return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: DeliveryCard(
-                  icon:
-                      DeliveryUtils.getIconByType(offer.offerType?.code ?? ''),
-                  role: offer.offerType?.code ?? '',
-                  status: DeliveryUtils.getStatusText(offer.status ?? 'active'),
-                  statusColor:
-                      DeliveryUtils.getStatusColor(offer.offerType?.code ?? ''),
-                  statusBgColor: DeliveryUtils.getStatusBgColor(
-                      offer.offerType?.code ?? ''),
-                  route:
-                      '${offer.cityFrom?.name ?? "-"} → ${offer.cityTo?.name ?? "-"}',
-                  date: DeliveryUtils.formatDate(offer.mainDate ?? ''),
-                  weight: '${offer.maxWeightKg ?? 0} кг',
-                  price: '${offer.pricePerKg ?? 0}/kg',
-                  views: 0,
-                  comments: 0,
-                  onView: () {},
-                  onEdit: () {},
-                  onDelete: () {},
+                child: WawatCourierCard(
+                  sendMessageActiv: false,
+                  detailsActiv: false,
+                  courier: offer,
+                  onFavoriteToggle: (v) {},
                 ));
           }).toList(),
         ],

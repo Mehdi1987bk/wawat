@@ -94,7 +94,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    _showArchived ? Icons.archive : Icons.inbox,
+                                    _showArchived ?  Icons.inbox : Icons.archive ,
                                     color: Color(0xFF5B7FFF),
                                     size: 18,
                                   ),
@@ -102,7 +102,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                _showArchived ? 'Архив' : 'Входящие',
+                                _showArchived ? 'Входящие' : 'Архив' ,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
