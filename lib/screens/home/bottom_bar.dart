@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import '../../presentation/resourses/app_colors.dart';
+import '../../presentation/resourses/theme_provider.dart';
 
 class BottomBar extends StatelessWidget {
   final ValueChanged<int> onChanged;
@@ -13,8 +16,11 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     return Container(
-      color: Colors.white,
+      color: AppColors.getCardBg(isDark),
       padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -26,6 +32,7 @@ class BottomBar extends StatelessWidget {
             svgIcon: 'asset/tab1.svg',
             onChanged: onChanged,
             isCentral: false,
+            isDark: isDark,
           ),
           BottomNavigationItem(
             index: 1,
@@ -34,6 +41,7 @@ class BottomBar extends StatelessWidget {
             svgIcon: 'asset/tab2.svg',
             onChanged: onChanged,
             isCentral: false,
+            isDark: isDark,
           ),
           BottomNavigationItem(
             index: 2,
@@ -42,6 +50,7 @@ class BottomBar extends StatelessWidget {
             svgIcon: 'asset/tab3.svg',
             onChanged: onChanged,
             isCentral: true, // Центральная кнопка с градиентом
+            isDark: isDark,
           ),
           BottomNavigationItem(
             index: 3,
@@ -50,6 +59,7 @@ class BottomBar extends StatelessWidget {
             svgIcon: 'asset/tab4.svg',
             onChanged: onChanged,
             isCentral: false,
+            isDark: isDark,
           ),
           BottomNavigationItem(
             index: 4,
@@ -58,6 +68,7 @@ class BottomBar extends StatelessWidget {
             svgIcon: 'asset/tab5.svg',
             onChanged: onChanged,
             isCentral: false,
+            isDark: isDark,
           ),
         ],
       ),
@@ -72,6 +83,7 @@ class BottomNavigationItem extends StatelessWidget {
   final String svgIcon;
   final ValueChanged<int> onChanged;
   final bool isCentral;
+  final bool isDark;
 
   const BottomNavigationItem({
     Key? key,
@@ -81,13 +93,14 @@ class BottomNavigationItem extends StatelessWidget {
     required this.svgIcon,
     required this.onChanged,
     this.isCentral = false,
+    required this.isDark,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedIndex == index;
     final Color activeColor = Color(0xFF2857DA);
-    final Color inactiveColor = Color(0xFF9E9E9E);
+    final Color inactiveColor = isDark ? Color(0xFF6B7280) : Color(0xFF9E9E9E);
 
     // Градиент для центральной кнопки
     final gradient = LinearGradient(
@@ -105,7 +118,9 @@ class BottomNavigationItem extends StatelessWidget {
           gradient: isCentral && isSelected ? gradient : null,
           color: isCentral && isSelected
               ? Colors.white
-              : (isSelected ? Color(0xFFEFF6FF) : Colors.transparent),
+              : (isSelected
+                  ? (isDark ? Color(0xFF1E1F28) : Color(0xFFEFF6FF))
+                  : Colors.transparent),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -118,7 +133,11 @@ class BottomNavigationItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isCentral && isSelected
                     ? Colors.white.withOpacity(0.3)
-                    : (isSelected ? Color(0xFFDBEAFE) : Colors.transparent),
+                    : (isSelected
+                        ? (isDark
+                            ? Color(0xFF2A2B38)
+                            : Color(0xFFDBEAFE))
+                        : Colors.transparent),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: SvgPicture.asset(
