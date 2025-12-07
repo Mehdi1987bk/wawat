@@ -4,7 +4,6 @@ import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_
 import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_profile_card.dart';
 import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_ratings_tab.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../data/network/response/partner_user_response.dart';
 import 'courier_details_bloc.dart';
@@ -36,8 +35,7 @@ class _CourierDetailsScreenState
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildAppBar(context),
-                  const SizedBox(height: 16),
+                   const SizedBox(height: 16),
                   CourierProfileCard(data: data),
                   const SizedBox(height: 16),
                   _buildTabButtons(),
@@ -54,50 +52,7 @@ class _CourierDetailsScreenState
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.black),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF5B5BFF),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.edit, color: Colors.white, size: 18),
-                const SizedBox(width: 8),
-                const Text(
-                  'Написать',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildTabButtons() {
     return Container(

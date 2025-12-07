@@ -1,14 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../../data/network/response/offer_models.dart';
-import '../../../../../domain/repositories/auth_repository.dart';
-import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
-import '../chat/chat_list.dart';
-import '../home_tab/courier_screen/courier_screen.dart';
-import '../home_tab/widget/auth_modal_utils.dart';
 import '../home_tab/widget/wawat_courier_card.dart';
 import 'fovorite_offer_bloc.dart';
 

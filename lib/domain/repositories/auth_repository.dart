@@ -22,6 +22,7 @@ import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/user.dart';
+import '../../data/network/response/verification_response.dart';
 import '../entities/pagination.dart';
 
 abstract class AuthRepository {
@@ -81,6 +82,11 @@ abstract class AuthRepository {
   Future<bool> firstOpen();
 
   Future<void> setFavorites(OfferResponse request);
+
+  Future<VerificationResponse> verificationStatus( );
+
+  Future<void> submitVerification(
+      {required File passport, required File selfie});
 
   Future<Pagination<OfferModel>> getFavorites(int page);
 

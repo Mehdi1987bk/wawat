@@ -88,6 +88,31 @@ class ConversationItem extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
+                                if (conversation.user.isVerified == true)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Image.asset(
+                                          "asset/prof_3.png",
+                                          width: 16,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Text(
+                                          'Проверен',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF4CAF50),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
 
                                 if (conversation.isPinned) ...[
                                   SizedBox(width: 4),

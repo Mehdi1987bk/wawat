@@ -1,5 +1,6 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
+import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_card.dart';
@@ -167,12 +168,17 @@ class _ProfileTabScreenState
                     Text(
                    user.fullname,
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF000000),
                     ),
                   ),
-                  const SizedBox(width: 8),
+
+                ],
+              ),
+              if(user.isVerified == true)
+              Row(
+                children: [
                   Image.asset(
                     "asset/prof_3.png",
                     width: 16,
@@ -328,12 +334,20 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-          _buildMenuItem(
-            icon: Icons.shield_outlined,
-            title: 'Верификация',
-            subtitle: 'Подтвердить документы',
-            bgColor: const Color(0xFFECFDF5),
-            iconColor: const Color(0xFF10B981),
+          GestureDetector(
+            onTap: () => Navigator.push(context,
+                CupertinoPageRoute(builder: (BuildContext context) {
+                  return VerificationScreen(
+                    user: user,
+                  );
+                })),
+            child: _buildMenuItem(
+              icon: Icons.shield_outlined,
+              title: 'Верификация',
+              subtitle: 'Подтвердить документы',
+              bgColor: const Color(0xFFECFDF5),
+              iconColor: const Color(0xFF10B981),
+            ),
           ),
           const SizedBox(height: 12),
           _buildMenuItem(

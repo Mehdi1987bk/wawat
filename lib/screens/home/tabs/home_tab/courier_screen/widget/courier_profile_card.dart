@@ -16,175 +16,230 @@ class CourierProfileCard extends StatelessWidget {
     final stats = data.stats;
     final professional = data.professional;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return Stack(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Stack(
-            alignment: Alignment.center,
+          child: Column(
             children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5B5BFF),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Colors.yellow[600],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (user.isVerified == true)
+                Container(
+                  margin: EdgeInsets.only(top: 8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        "asset/prof_3.png",
+                        width: 16,
+                      ),
+                      SizedBox(width: 3),
+                      Text(
+                        'Проверен',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4CAF50),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Text(
+                user.fullname,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: List.generate(
+                      5,
+                      (index) => Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${stats.ratingAvg} (${stats.ratingCount} отзывов)',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStatItem(
+                    value: '${data.reviewsReceived.length}',
+                    label: 'Доставок',
+                    color: Colors.blue,
+                  ),
+                  _buildStatItem(
+                    value: '${data.professional.onTimePercent}%',
+                    label: 'Успешно',
+                    color: Colors.green,
+                  ),
+                ],
+              ),
+              if (data.profile.about != null) const SizedBox(height: 16),
+              Text(
+                data.profile.about ?? '',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: _buildMetricItem(
+                      icon: Icons.schedule,
+                      value: '${professional.responseTimeMinutes ?? 0}',
+                      label: 'минут',
+                      sublabel: 'Ответ',
+                      color: Color(0xFFF5F8FD),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: _buildMetricItem(
+                      icon: Icons.category,
+                      value: '${professional.maxWeightKg ?? 0}',
+                      label: 'кг',
+                      sublabel: 'Макс. вес',
+                      color: Color(0xFFF4FDF8),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: _buildMetricItem(
+                      icon: Icons.shield,
+                      value: '\$${professional.insuranceUsd ?? 0}',
+                      label: '',
+                      sublabel: 'Страховка',
+                      color: Color(0xFFFBF9FE),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: _buildMetricItem(
+                      icon: Icons.trending_up,
+                      value: '${(professional.onTimePercent ?? 0)}%',
+                      label: '',
+                      sublabel: 'Воремя',
+                      color: Color(0xFFFBFBF1),
+                    ),
+                  ),
+                ],
+              ),
               Container(
-                width: 80,
-                height: 80,
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                margin: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
                   color: const Color(0xFF5B5BFF),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Colors.yellow[600],
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 16,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.edit, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Написать',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            user.fullname,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+        ),
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            margin: EdgeInsets.only(left: 25, top: 10),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
             ),
+            child: const Icon(Icons.arrow_back, color: Colors.black),
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: List.generate(
-                  5,
-                  (index) => Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                    size: 16,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${stats.ratingAvg} (${stats.ratingCount} отзывов)',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildStatItem(
-                value: '${data.reviewsReceived.length}',
-                label: 'Доставок',
-                color: Colors.blue,
-              ),
-              _buildStatItem(
-                value: '${data.professional.onTimePercent}%',
-                label: 'Успешно',
-                color: Colors.green,
-              ),
-            ],
-          ),
-          if (data.profile.about != null) const SizedBox(height: 16),
-          Text(
-            data.profile.about ?? '',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[700],
-              height: 1.5,
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: _buildMetricItem(
-                  icon: Icons.schedule,
-                  value: '${professional.responseTimeMinutes ?? 0}',
-                  label: 'минут',
-                  sublabel: 'Ответ', color: Color(0xFFF5F8FD),
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: _buildMetricItem(
-                  icon: Icons.category,
-                  value: '${professional.maxWeightKg ?? 0}',
-                  label: 'кг',
-                  sublabel: 'Макс. вес',color: Color(0xFFF4FDF8),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: _buildMetricItem(
-                  icon: Icons.shield,
-                  value: '\$${professional.insuranceUsd ?? 0}',
-                  label: '',
-                  sublabel: 'Страховка',color: Color(0xFFFBF9FE),
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: _buildMetricItem(
-                  icon: Icons.trending_up,
-                  value: '${(professional.onTimePercent ?? 0)}%',
-                  label: '',
-                  sublabel: 'Воремя',color: Color(0xFFFBFBF1),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

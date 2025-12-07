@@ -212,14 +212,31 @@ class _ChatConversationScreenState
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // if (widget.conversation.user.isVerified) ...[
-                    //   SizedBox(width: 4),
-                    //   Icon(
-                    //     Icons.verified,
-                    //     size: 16,
-                    //     color: WawatColors.info,
-                    //   ),
-                    // ],
+                    if ( widget.conversation.user.isVerified == true)
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              "asset/prof_3.png",
+                              width: 16,
+                            ),
+                            SizedBox(width: 3),
+                            Text(
+                              'Проверен',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4CAF50),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
                 Text(

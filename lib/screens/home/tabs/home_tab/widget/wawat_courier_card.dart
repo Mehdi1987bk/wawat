@@ -2,12 +2,8 @@ import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
-import 'package:buking/presentation/resourses/wawat_colors.dart';
-import 'package:flutter/material.dart';
-import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
-import '../../chat/chat_list.dart';
 import '../courier_screen/courier_screen.dart';
 import 'auth_modal_utils.dart';
 
@@ -192,7 +188,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                   ],
                                 ),
                               ),
-                            if (widget.courier.user?.isVerified ?? false)
+                            if (widget.courier.user?.isVerified == true)
                               Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -347,16 +343,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                               return AuthModalUtils.showAuthRequiredModal(
                                   context);
                             } else {
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (BuildContext context) {
-                                    return ChatScreen(
-                                      courier: widget.courier,
-                                    );
-                                  },
-                                ),
-                              );
+                              тут нвдо обратиться в апи   Future<ConversationResponse> startChat(@Body() Map<String, dynamic> body); сначало вытащить алерт что типа наверху предупреждение о том что вы напигите человеку и внизу место для дескриптион и кнопка отправть
                             }
                           },
                           borderRadius: BorderRadius.circular(16),

@@ -12,11 +12,6 @@ import '../../../../presentation/bloc/utils.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
-import '../../../auth/auth_modal/auth_required_modal.dart';
-import '../../../auth/login/login_modal.dart';
-import '../../../auth/registration/registration_modal.dart';
-import '../chat/chat_list.dart';
-import 'courier_screen/courier_screen.dart';
 import 'home_tab_bloc.dart';
 
 class HomeTabScreen extends BaseScreen {
@@ -34,7 +29,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   final _dateToController = TextEditingController();
   final _categoryController = TextEditingController();
 
-
   @override
   bool get showProgressIndicator => false;
 
@@ -45,7 +39,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     bloc.load();
     _scrollController.addListener(() {
       hideKeyboardOnScroll(context, _scrollController);
-      if (_scrollController.position.extentAfter <= MediaQuery.of(context).size.height) {
+      if (_scrollController.position.extentAfter <=
+          MediaQuery.of(context).size.height) {
         bloc.load();
       }
     });
@@ -127,7 +122,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         SizedBox(height: WawatDimensions.spacingMd),
         StreamBuilder<List<OfferModel>>(
           stream: bloc.paginableList,
@@ -143,7 +137,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               return Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: WawatDimensions.spacingMd),
                     child: Center(
                       child: Text(
                         'Популярные предложения',
@@ -165,7 +160,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                           onFavoriteToggle: (v) {
                             bloc.setFavorites(offer.id);
                           },
-
                         );
                       },
                     ),
@@ -218,8 +212,8 @@ Widget BuildHeader(BuildContext context) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                    return Container();
-                  }));
+                return Container();
+              }));
             }
           },
           child: Image.asset(

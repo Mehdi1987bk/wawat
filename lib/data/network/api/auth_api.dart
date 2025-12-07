@@ -31,6 +31,7 @@ import '../response/partner_user_response.dart';
 import '../response/registration_response.dart';
 import '../response/send_otp_response.dart';
 import '../response/user.dart';
+import '../response/verification_response.dart';
 
 part 'auth_api.g.dart';
 
@@ -139,6 +140,12 @@ abstract class AuthApi {
   @POST('/api/v1/favorites/toggle')
   Future<void> setFavorites(@Body() OfferResponse request);
 
+  @GET('/api/v1/verification/status')
+  Future<VerificationResponse> verificationStatus();
 
-
+  @POST('/api/v1/verification/submit')
+  Future<void> submitVerification({
+    @Part(name: 'documents[passport]') required File passport,
+    @Part(name: 'documents[selfie]') required File selfie,
+  });
 }

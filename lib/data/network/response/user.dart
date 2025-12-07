@@ -52,6 +52,9 @@ class User extends HiveObject {
   @HiveField(12)
   final ProfileInfo? profile;
 
+  @HiveField(13)
+  final bool? isVerified;
+
   User({
     required this.id,
     required this.fullname,
@@ -65,6 +68,7 @@ class User extends HiveObject {
     this.notifications,
     this.rating,
     this.createdAt,
+    this.isVerified,
     this.profile,
   });
 

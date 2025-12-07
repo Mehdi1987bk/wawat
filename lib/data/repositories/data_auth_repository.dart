@@ -31,6 +31,7 @@ import '../network/response/packages_response.dart';
 import '../network/response/partner_user_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/user.dart';
+import '../network/response/verification_response.dart';
 
 const tokenRefreshTimeOut = 60 * 60 * 1000;
 
@@ -204,6 +205,18 @@ class DataAuthRepository implements AuthRepository {
 
   Future<void> setFavorites(OfferResponse request) {
     return _authApi.setFavorites(request);
+  }
+
+  Future<VerificationResponse> verificationStatus( ) async {
+    return _authApi.verificationStatus( );
+  }
+
+  Future<void> submitVerification(
+      {required File passport, required File selfie}) {
+    return _authApi.submitVerification(
+      passport: passport,
+      selfie: selfie,
+    );
   }
 
   Future<Pagination<OfferModel>> getFavorites(int page) {
