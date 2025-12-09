@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../../data/network/response/city.dart';
+import '../../../../../services/theme_manager.dart';
 
 class CitySelector extends StatefulWidget {
   final List<City> cities;
@@ -52,184 +54,201 @@ class _CitySelectorState extends State<CitySelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE5E5EA),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
 
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Выберите город',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Color(0xFF8E8E93)),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: MediaQuery.of(context).size.height * 0.75,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
-
-          // Search field
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F7),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                ),
-                decoration: const InputDecoration(
-                  hintText: 'Поиск города...',
-                  hintStyle: TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF8E8E93),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Color(0xFF8E8E93),
-                    size: 20,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+          child: Column(
+            children: [
+              // Handle bar
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-          ),
 
-          const SizedBox(height: 12),
-
-          // Cities list
-          Expanded(
-            child: widget.isLoading
-                ? const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF5B51FF),
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Выберите город'),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.close,
+                        color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF8E8E93),
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
               ),
-            )
-                : _filteredCities.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.search_off,
-                    size: 64,
-                    color: Colors.grey.shade300,
+
+              // Search field
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF2F2F7),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Города не найдены',
+                  child: TextField(
+                    controller: _searchController,
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
+                      fontSize: 15,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Поиск города...',
+                      hintStyle: TextStyle(
+                        fontSize: 15,
+                        color: isDark ? const Color(0xFF6B7280) : const Color(0xFF8E8E93),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: isDark ? const Color(0xFF6B7280) : const Color(0xFF8E8E93),
+                        size: 20,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
-            )
-                : ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _filteredCities.length,
-              separatorBuilder: (context, index) => const Divider(
-                height: 1,
-                indent: 20,
-                endIndent: 20,
-              ),
-              itemBuilder: (context, index) {
-                final city = _filteredCities[index];
-                final isSelected = widget.selectedCity?.id == city.id;
 
-                return InkWell(
-                  onTap: () {
-                    widget.onCitySelected(city);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    color: isSelected
-                        ? const Color(0xFF5B51FF).withOpacity(0.05)
-                        : Colors.transparent,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                city.name,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                  color: isSelected
-                                      ? const Color(0xFF5B51FF)
-                                      : Colors.black,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${city.countryName} (${city.countryCode})',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF8E8E93),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (isSelected)
-                          const Icon(
-                            Icons.check_circle,
-                            color: Color(0xFF5B51FF),
-                            size: 24,
-                          ),
-                      ],
-                    ),
+              const SizedBox(height: 12),
+
+              // Cities list
+              Expanded(
+                child: widget.isLoading
+                    ? const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF5B51FF),
                   ),
-                );
-              },
-            ),
+                )
+                    : _filteredCities.isEmpty
+                    ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.search_off,
+                        size: 64,
+                        color: isDark ? const Color(0xFF4A4A4A) : Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 16),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: isDark ? const Color(0xFF9CA3AF) : Colors.grey.shade600,
+                        ),
+                        child: const Text('Города не найдены'),
+                      ),
+                    ],
+                  ),
+                )
+                    : ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: _filteredCities.length,
+                  separatorBuilder: (context, index) => Divider(
+                    height: 1,
+                    indent: 20,
+                    endIndent: 20,
+                    color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5EA),
+                  ),
+                  itemBuilder: (context, index) {
+                    final city = _filteredCities[index];
+                    final isSelected = widget.selectedCity?.id == city.id;
+
+                    return InkWell(
+                      onTap: () {
+                        widget.onCitySelected(city);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        color: isSelected
+                            ? const Color(0xFF5B51FF).withOpacity(0.05)
+                            : Colors.transparent,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 300),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: isSelected
+                                          ? const Color(0xFF5B51FF)
+                                          : (isDark ? Colors.white : Colors.black),
+                                    ),
+                                    child: Text(city.name),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 300),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF8E8E93),
+                                    ),
+                                    child: Text('${city.countryName} (${city.countryCode})'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isSelected)
+                              const Icon(
+                                Icons.check_circle,
+                                color: Color(0xFF5B51FF),
+                                size: 24,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
