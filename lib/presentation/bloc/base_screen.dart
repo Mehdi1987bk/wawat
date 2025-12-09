@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../services/theme_manager.dart';
 import '../resourses/app_colors.dart';
 import 'base_bloc.dart';
 import 'bloc_provider.dart';
@@ -17,6 +19,11 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   late Bloc bloc;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+  @override
+  Color? backgroundColor() {
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    return isDark ? const Color(0xFF121212) : Colors.white;
+  }
 
   @override
   void initState() {
@@ -25,30 +32,36 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
     bloc.init();
   }
 
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return BlocProvider<Bloc>(
       bloc: bloc,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
-        child:  GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
-          child: Scaffold(
-            key: scaffoldKey,
-            appBar: appBar(),
-            drawer: drawer(),
-            backgroundColor: AppColors.bgColor,
-            primary: primary,
-            drawerEdgeDragWidth: drawerEdgeDragWidth,
-            bottomNavigationBar: bottomNavigationBar(),
-            floatingActionButton: floatingActionButton(),
-            resizeToAvoidBottomInset: resizeToAvoidBottomInset,  // ← ДОБАВЛЕНА ЭТА СТРОКА
-            body: _buildBody(),
-          ),
-        ),
+      child: Consumer<ThemeManager>(
+        builder: (context, themeManager, child) {
+          final isDark = themeManager.isDarkMode;
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: Scaffold(
+                key: scaffoldKey,
+                appBar: appBar(),
+                drawer: drawer(),
+                backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+                primary: primary,
+                drawerEdgeDragWidth: drawerEdgeDragWidth,
+                bottomNavigationBar: bottomNavigationBar(),
+                floatingActionButton: floatingActionButton(),
+                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+                body: _buildBody(),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -128,7 +141,6 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   bool get wantKeepAlive => false;
 
-  Color? backgroundColor() => null;
 
   bool get resizeToAvoidBottomInset => true;  // ← ДОБАВЛЕНА ЭТА СТРОКА
 }
