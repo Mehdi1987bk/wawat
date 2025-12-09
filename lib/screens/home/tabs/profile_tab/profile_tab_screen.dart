@@ -9,10 +9,12 @@ import 'package:buking/screens/home/tabs/profile_tab/widgte/logout_dialog_conten
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
-import '../../home_screen.dart';
+import '../../../../services/theme_manager.dart';
+ import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
 
 class ProfileTabScreen extends BaseScreen {
@@ -42,7 +44,7 @@ class _ProfileTabScreenState
                         children: [
                           Container(
                             margin:
-                                EdgeInsets.only(left: 16, right: 16, top: 20),
+                            EdgeInsets.only(left: 16, right: 16, top: 20),
                             padding: EdgeInsets.only(left: 10, right: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -228,9 +230,9 @@ class _ProfileTabScreenState
 
   Widget _buildStatItem(
       {required String icon,
-      required String value,
-      required String label,
-      required BuildContext context}) {
+        required String value,
+        required String label,
+        required BuildContext context}) {
     return Container(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
       width: MediaQuery.of(context).size.width * 0.4,
@@ -279,13 +281,40 @@ class _ProfileTabScreenState
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
         children: [
+          // ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМНОЙ ТЕМЫ =====
+          Consumer<ThemeManager>(
+            builder: (context, themeManager, child) {
+              return GestureDetector(
+                onTap: () {
+                  themeManager.toggleTheme();
+                },
+                child: _buildThemeToggleItem(
+                  icon: themeManager.isDarkMode
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                  title: 'Тема оформления',
+                  subtitle: themeManager.isDarkMode ? 'Тёмная тема включена' : 'Светлая тема включена',
+                  bgColor: themeManager.isDarkMode
+                      ? const Color(0xFF1E1E3F)
+                      : const Color(0xFFFEF3C7),
+                  iconColor: themeManager.isDarkMode
+                      ? const Color(0xFF6366F1)
+                      : const Color(0xFFFCD34D),
+                  isDarkMode: themeManager.isDarkMode,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          // ===== КОНЕЦ ПЕРЕКЛЮЧАТЕЛЯ =====
+
           GestureDetector(
             onTap: () => Navigator.push(context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-              return VerificationScreen(
-                user: user,
-              );
-            })),
+                  return VerificationScreen(
+                    user: user,
+                  );
+                })),
             child: _buildMenuItem(
               icon: Icons.shield_outlined,
               title: 'Верификация',
@@ -301,8 +330,8 @@ class _ProfileTabScreenState
               CupertinoPageRoute(
                 builder: (BuildContext context) {
                   return DeliveryFullListScreen(
-                   );
-                 },
+                  );
+                },
               ),
             ),
             child: _buildMenuItem(
@@ -468,6 +497,129 @@ class _ProfileTabScreenState
             color: Color(0xFFD1D5DB),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildThemeToggleItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color bgColor,
+    required Color iconColor,
+    required bool isDarkMode,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              size: 24,
+              color: iconColor,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // ===== КАСТОМНЫЙ КРАСИВЫЙ ПЕРЕКЛЮЧАТЕЛЬ =====
+          _buildCustomSwitch(isDarkMode),
+        ],
+      ),
+    );
+  }
+
+  // Кастомный красивый переключатель с анимацией
+  Widget _buildCustomSwitch(bool isOn) {
+    return Container(
+      width: 56,
+      height: 32,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: isOn
+            ? const LinearGradient(
+          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        )
+            : null,
+        color: isOn ? null : const Color(0xFFE5E7EB),
+        boxShadow: [
+          BoxShadow(
+            color: isOn
+                ? const Color(0xFF6366F1).withOpacity(0.3)
+                : Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          width: 28,
+          height: 28,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            isOn ? Icons.dark_mode : Icons.light_mode,
+            size: 16,
+            color: isOn ? const Color(0xFF6366F1) : const Color(0xFF9CA3AF),
+          ),
+        ),
       ),
     );
   }

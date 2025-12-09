@@ -60,6 +60,8 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   dropdown_button2: ^2.3.9
   pusher_channels_flutter: ^2.2.1
+  provider: ^6.1.1
+
 
 
 dev_dependencies:
