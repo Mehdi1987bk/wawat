@@ -1,11 +1,14 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/notification_response.dart';
 import '../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../../../services/theme_manager.dart';
 import 'notification_bloc.dart';
 
 class NotificationScreen extends BaseScreen {
@@ -25,79 +28,103 @@ class _NotificationScreenState
 
   @override
   Widget body() {
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: StreamBuilder<NotificationResponse?>(
-                stream: bloc.notificationsStream,
-                builder: (context, snapshot) {
-                  return StreamBuilder<bool>(
-                    stream: bloc.loadingStream,
-                    builder: (context, loadingSnapshot) {
-                      if (loadingSnapshot.data == true) {
-                        return Center(
-                          child: SizedBox(),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+            isDark ? Brightness.light : Brightness.dark,
+            statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+          ),
+          child: Scaffold(
+            backgroundColor:
+            isDark ? const Color(0xFF121212) : AppColors.bgColor,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(isDark),
+                  Expanded(
+                    child: StreamBuilder<NotificationResponse?>(
+                      stream: bloc.notificationsStream,
+                      builder: (context, snapshot) {
+                        return StreamBuilder<bool>(
+                          stream: bloc.loadingStream,
+                          builder: (context, loadingSnapshot) {
+                            if (loadingSnapshot.data == true) {
+                              return const Center(
+                                child: SizedBox(),
+                              );
+                            }
+
+                            return StreamBuilder<String?>(
+                              stream: bloc.errorStream,
+                              builder: (context, errorSnapshot) {
+                                if (errorSnapshot.hasData &&
+                                    errorSnapshot.data != null) {
+                                  return _buildErrorState(
+                                      errorSnapshot.data!, isDark);
+                                }
+
+                                if (!snapshot.hasData ||
+                                    snapshot.data?.data.isEmpty == true) {
+                                  return _buildEmptyState(isDark);
+                                }
+
+                                return _buildNotificationsList(
+                                    snapshot.data!, isDark);
+                              },
+                            );
+                          },
                         );
-                      }
-
-                      return StreamBuilder<String?>(
-                        stream: bloc.errorStream,
-                        builder: (context, errorSnapshot) {
-                          if (errorSnapshot.hasData &&
-                              errorSnapshot.data != null) {
-                            return _buildErrorState(errorSnapshot.data!);
-                          }
-
-                          if (!snapshot.hasData ||
-                              snapshot.data?.data.isEmpty == true) {
-                            return _buildEmptyState();
-                          }
-
-                          return _buildNotificationsList(snapshot.data!);
-                        },
-                      );
-                    },
-                  );
-                },
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
+  Widget _buildHeader(bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: WawatColors.backgroundLight,
+                color: isDark
+                    ? const Color(0xFF2A2A2A)
+                    : WawatColors.backgroundLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.arrow_back_ios_new,
                 size: 18,
-                color: WawatColors.textPrimary,
+                color: isDark ? Colors.white : WawatColors.textPrimary,
               ),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(
-              'Уведомления',
-              style: WawatTextStyles.h2,
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: WawatTextStyles.h2.copyWith(
+                color: isDark ? Colors.white : Colors.black,
+              ),
+              child: const Text('Уведомления'),
             ),
           ),
         ],
@@ -105,40 +132,50 @@ class _NotificationScreenState
     );
   }
 
-  Widget _buildNotificationsList(NotificationResponse response) {
+  Widget _buildNotificationsList(NotificationResponse response, bool isDark) {
     return RefreshIndicator(
       onRefresh: () async {
         await bloc.loadNotifications();
       },
       color: WawatColors.primary,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: response.data.length,
-        itemBuilder: (context, index) {
-          final notification = response.data[index];
-          return _buildNotificationItem(notification);
-        },
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        color: isDark ? const Color(0xFF121212) : AppColors.bgColor,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: response.data.length,
+          itemBuilder: (context, index) {
+            final notification = response.data[index];
+            return _buildNotificationItem(notification, isDark);
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildNotificationItem(NotificationItem notification) {
+  Widget _buildNotificationItem(NotificationItem notification, bool isDark) {
     return GestureDetector(
-      onTap: () => _handleNotificationTap(notification),
-      child: Container(
+      onTap: () => _handleNotificationTap(notification, isDark),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: notification.isRead
-              ? Colors.white
-              : WawatColors.primary.withOpacity(0.05),
+              ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
+              : (isDark
+              ? WawatColors.primary.withOpacity(0.15)
+              : WawatColors.primary.withOpacity(0.05)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: notification.isRead
-                ? Colors.transparent
-                : WawatColors.primary.withOpacity(0.1),
+                ? (isDark ? const Color(0xFF2A2A2A) : Colors.transparent)
+                : WawatColors.primary.withOpacity(isDark ? 0.2 : 0.1),
             width: 1,
           ),
-          boxShadow: [
+          boxShadow: isDark
+              ? []
+              : [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
@@ -160,11 +197,14 @@ class _NotificationScreenState
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            notification.title ?? "",
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 300),
                             style: WawatTextStyles.bodyBold.copyWith(
-                              color: WawatColors.textPrimary,
+                              color: isDark
+                                  ? Colors.white
+                                  : WawatColors.textPrimary,
                             ),
+                            child: Text(notification.title ?? ""),
                           ),
                         ),
                         if (!notification.isRead)
@@ -179,13 +219,18 @@ class _NotificationScreenState
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      notification.body ?? "",
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
                       style: WawatTextStyles.body.copyWith(
-                        color: WawatColors.textSecondary,
+                        color: isDark
+                            ? const Color(0xFF9CA3AF)
+                            : WawatColors.textSecondary,
                       ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+                      child: Text(
+                        notification.body ?? "",
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -193,12 +238,19 @@ class _NotificationScreenState
                         Icon(
                           Icons.access_time,
                           size: 14,
-                          color: WawatColors.textSecondary,
+                          color: isDark
+                              ? const Color(0xFF6B7280)
+                              : WawatColors.textSecondary,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          _formatDate(notification.createdAt),
-                          style: WawatTextStyles.caption,
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: WawatTextStyles.caption.copyWith(
+                            color: isDark
+                                ? const Color(0xFF9CA3AF)
+                                : WawatColors.textSecondary,
+                          ),
+                          child: Text(_formatDate(notification.createdAt)),
                         ),
                         const Spacer(),
                         if (notification.type == "ReviewRequest")
@@ -275,7 +327,7 @@ class _NotificationScreenState
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDark) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -294,19 +346,27 @@ class _NotificationScreenState
             ),
           ),
           const SizedBox(height: 24),
-          Text(
-            'Нет уведомлений',
-            style: WawatTextStyles.h2,
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: WawatTextStyles.h2.copyWith(
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            child: const Text('Нет уведомлений'),
           ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'У вас пока нет новых уведомлений',
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
               style: WawatTextStyles.body.copyWith(
-                color: WawatColors.textSecondary,
+                color: isDark
+                    ? const Color(0xFF9CA3AF)
+                    : WawatColors.textSecondary,
               ),
-              textAlign: TextAlign.center,
+              child: const Text(
+                'У вас пока нет новых уведомлений',
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ],
@@ -314,7 +374,7 @@ class _NotificationScreenState
     );
   }
 
-  Widget _buildErrorState(String error) {
+  Widget _buildErrorState(String error, bool isDark) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -325,19 +385,27 @@ class _NotificationScreenState
             color: WawatColors.error,
           ),
           const SizedBox(height: 16),
-          Text(
-            'Ошибка загрузки',
-            style: WawatTextStyles.h2,
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: WawatTextStyles.h2.copyWith(
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            child: const Text('Ошибка загрузки'),
           ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              error,
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
               style: WawatTextStyles.body.copyWith(
-                color: WawatColors.textSecondary,
+                color: isDark
+                    ? const Color(0xFF9CA3AF)
+                    : WawatColors.textSecondary,
               ),
-              textAlign: TextAlign.center,
+              child: Text(
+                error,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -363,18 +431,21 @@ class _NotificationScreenState
     );
   }
 
-  void _handleNotificationTap(NotificationItem notification) {
+  void _handleNotificationTap(NotificationItem notification, bool isDark) {
     if (notification.type != "ReviewRequest" && notification.type != "message") {
-      _showReviewBottomSheet(notification);
+      _showReviewBottomSheet(notification, isDark);
     }
   }
 
-  void _showReviewBottomSheet(NotificationItem notification) {
+  void _showReviewBottomSheet(NotificationItem notification, bool isDark) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _ReviewBottomSheet(notification: notification),
+      builder: (context) => _ReviewBottomSheet(
+        notification: notification,
+        isDark: isDark,
+      ),
     );
   }
 
@@ -412,8 +483,12 @@ class _NotificationScreenState
 
 class _ReviewBottomSheet extends StatefulWidget {
   final NotificationItem notification;
+  final bool isDark;
 
-  const _ReviewBottomSheet({required this.notification});
+  const _ReviewBottomSheet({
+    required this.notification,
+    required this.isDark,
+  });
 
   @override
   State<_ReviewBottomSheet> createState() => _ReviewBottomSheetState();
@@ -436,10 +511,11 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
+          color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(28),
             topRight: Radius.circular(28),
           ),
@@ -454,7 +530,9 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: WawatColors.backgroundLight,
+                    color: widget.isDark
+                        ? const Color(0xFF4A4A4A)
+                        : WawatColors.backgroundLight,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -473,21 +551,30 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'Оставьте отзыв',
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
                   style: WawatTextStyles.h2.copyWith(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    color: widget.isDark ? Colors.white : Colors.black,
                   ),
-                  textAlign: TextAlign.center,
+                  child: const Text(
+                    'Оставьте отзыв',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Ваше мнение очень важно для нас',
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
                   style: WawatTextStyles.body.copyWith(
-                    color: WawatColors.textSecondary,
+                    color: widget.isDark
+                        ? const Color(0xFF9CA3AF)
+                        : WawatColors.textSecondary,
                   ),
-                  textAlign: TextAlign.center,
+                  child: const Text(
+                    'Ваше мнение очень важно для нас',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -509,34 +596,47 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                           size: 40,
                           color: _rating >= starNumber
                               ? WawatColors.warning
-                              : WawatColors.textSecondary.withOpacity(0.3),
+                              : (widget.isDark
+                              ? const Color(0xFF4A4A4A)
+                              : WawatColors.textSecondary)
+                              .withOpacity(0.3),
                         ),
                       ),
                     );
                   }),
                 ),
                 const SizedBox(height: 24),
-                Container(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
                   decoration: BoxDecoration(
-                    color: WawatColors.backgroundLight,
+                    color: widget.isDark
+                        ? const Color(0xFF2A2A2A)
+                        : WawatColors.backgroundLight,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: TextField(
                     controller: _commentController,
                     maxLines: 4,
                     maxLength: 500,
+                    style: WawatTextStyles.body.copyWith(
+                      color: widget.isDark ? Colors.white : Colors.black,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Напишите ваш комментарий...',
                       hintStyle: WawatTextStyles.body.copyWith(
-                        color: WawatColors.textSecondary.withOpacity(0.5),
+                        color: (widget.isDark
+                            ? const Color(0xFF6B7280)
+                            : WawatColors.textSecondary)
+                            .withOpacity(0.5),
                       ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
                       counterStyle: WawatTextStyles.caption.copyWith(
-                        color: WawatColors.textSecondary,
+                        color: widget.isDark
+                            ? const Color(0xFF9CA3AF)
+                            : WawatColors.textSecondary,
                       ),
                     ),
-                    style: WawatTextStyles.body,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -556,7 +656,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                       padding: const EdgeInsets.symmetric(vertical: 18),
                     ),
                     child: _isSubmitting
-                        ? SizedBox(
+                        ? const SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
@@ -573,7 +673,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -586,7 +686,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Пожалуйста, выберите оценку'),
+          content: const Text('Пожалуйста, выберите оценку'),
           backgroundColor: WawatColors.error,
         ),
       );
@@ -610,7 +710,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Спасибо за ваш отзыв!'),
+          content: const Text('Спасибо за ваш отзыв!'),
           backgroundColor: WawatColors.success,
         ),
       );

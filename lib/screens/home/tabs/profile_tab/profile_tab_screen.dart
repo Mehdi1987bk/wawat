@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
+import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
  import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
@@ -28,59 +29,66 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
-    return Container(
-      child: StreamBuilder<User>(
-        stream: bloc.userDetails,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return SafeArea(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 80),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                            margin:
-                            EdgeInsets.only(left: 16, right: 16, top: 20),
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: StreamBuilder<User>(
+            stream: bloc.userDetails,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return SafeArea(
+                  child: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 80),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 20),
-                                _buildProfileHeader(snapshot.requireData),
-                                const SizedBox(height: 16),
-                                _buildStatsCard(context, snapshot.requireData),
-                              ],
-                            ),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 20),
+                                    _buildProfileHeader(snapshot.requireData, isDark),
+                                    const SizedBox(height: 16),
+                                    _buildStatsCard(context, snapshot.requireData, isDark),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              _buildMenuSection(snapshot.requireData, isDark),
+                              const SizedBox(height: 120),
+                            ],
                           ),
-                          const SizedBox(height: 24),
-                          _buildMenuSection(snapshot.requireData),
-                          const SizedBox(height: 120),
-                        ],
+                        ),
                       ),
-                    ),
+                      BuildHeader(context,isDark),
+                    ],
                   ),
-                  BuildHeader(context),
-                ],
-              ),
-            );
-          }
-          return SizedBox();
-        },
-      ),
+                );
+              }
+              return SizedBox();
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -89,7 +97,7 @@ class _ProfileTabScreenState
     return ProfileTabBloc();
   }
 
-  Widget _buildProfileHeader(User user) {
+  Widget _buildProfileHeader(User user, bool isDark) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -130,13 +138,14 @@ class _ProfileTabScreenState
             children: [
               Row(
                 children: [
-                  Text(
-                    user.fullname,
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF000000),
+                      color: isDark ? Colors.white : const Color(0xFF000000),
                     ),
+                    child: Text(user.fullname),
                   ),
                 ],
               ),
@@ -161,20 +170,22 @@ class _ProfileTabScreenState
                   ],
                 ),
               const SizedBox(height: 8),
-              Text(
-                user.email ?? "",
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF6B7280),
+                  color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
                 ),
+                child: Text(user.email ?? ""),
               ),
               const SizedBox(height: 4),
-              Text(
-                user.phone ?? "",
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF6B7280),
+                  color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
                 ),
+                child: Text(user.phone ?? ""),
               ),
             ],
           ),
@@ -183,7 +194,7 @@ class _ProfileTabScreenState
     );
   }
 
-  Widget _buildStatsCard(BuildContext context, User user) {
+  Widget _buildStatsCard(BuildContext context, User user, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
@@ -196,12 +207,14 @@ class _ProfileTabScreenState
                 value: '24',
                 label: 'Доставки',
                 context: context,
+                isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_2.png",
                 value: user.rating?.average.toString() ?? "0",
                 label: 'Рейтинг',
                 context: context,
+                isDark: isDark,
               ),
             ],
           ),
@@ -214,12 +227,14 @@ class _ProfileTabScreenState
                 value: '18',
                 label: 'Отзывы',
                 context: context,
+                isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_4.png",
                 value: '2 года',
                 label: 'На сайте',
                 context: context,
+                isDark: isDark,
               ),
             ],
           ),
@@ -228,20 +243,23 @@ class _ProfileTabScreenState
     );
   }
 
-  Widget _buildStatItem(
-      {required String icon,
-        required String value,
-        required String label,
-        required BuildContext context}) {
-    return Container(
+  Widget _buildStatItem({
+    required String icon,
+    required String value,
+    required String label,
+    required BuildContext context,
+    required bool isDark,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       padding: EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
       width: MediaQuery.of(context).size.width * 0.4,
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFBFD),
+        color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFAFBFD),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -255,13 +273,14 @@ class _ProfileTabScreenState
             color: const Color(0xFF3B82F6),
           ),
           const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF000000),
+              color: isDark ? Colors.white : const Color(0xFF000000),
             ),
+            child: Text(value),
           ),
           const SizedBox(height: 4),
           Text(
@@ -276,7 +295,7 @@ class _ProfileTabScreenState
     );
   }
 
-  Widget _buildMenuSection(User user) {
+  Widget _buildMenuSection(User user, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
@@ -306,14 +325,11 @@ class _ProfileTabScreenState
             },
           ),
           const SizedBox(height: 12),
-          // ===== КОНЕЦ ПЕРЕКЛЮЧАТЕЛЯ =====
 
           GestureDetector(
             onTap: () => Navigator.push(context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-                  return VerificationScreen(
-                    user: user,
-                  );
+                  return VerificationScreen(user: user);
                 })),
             child: _buildMenuItem(
               icon: Icons.shield_outlined,
@@ -321,16 +337,17 @@ class _ProfileTabScreenState
               subtitle: 'Подтвердить документы',
               bgColor: const Color(0xFFECFDF5),
               iconColor: const Color(0xFF10B981),
+              isDark: isDark,
             ),
           ),
           const SizedBox(height: 12),
+
           GestureDetector(
             onTap: () => Navigator.push(
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return DeliveryFullListScreen(
-                  );
+                  return DeliveryFullListScreen();
                 },
               ),
             ),
@@ -340,25 +357,27 @@ class _ProfileTabScreenState
               subtitle: 'Истории обьявления',
               bgColor: WawatColors.primary.withOpacity(0.1),
               iconColor: WawatColors.primary,
+              isDark: isDark,
             ),
           ),
           const SizedBox(height: 12),
+
           _buildMenuItem(
             icon: Icons.star_outline,
             title: 'Отзывы',
             subtitle: 'Посмотреть отзывы',
             bgColor: const Color(0xFFFEF3C7),
             iconColor: const Color(0xFFFCD34D),
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
+
           GestureDetector(
             onTap: () => Navigator.push(
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return EditProfileScreen(
-                    user: user,
-                  );
+                  return EditProfileScreen(user: user);
                 },
               ),
             ),
@@ -368,9 +387,11 @@ class _ProfileTabScreenState
               subtitle: 'Управление аккаунтом',
               bgColor: const Color(0xFFEFF6FF),
               iconColor: const Color(0xFF3B82F6),
+              isDark: isDark,
             ),
           ),
           const SizedBox(height: 12),
+
           GestureDetector(
             onTap: () => showLogoutBottomSheet(
                 title: "Выйти",
@@ -396,13 +417,13 @@ class _ProfileTabScreenState
               bgColor: const Color(0xFFFEE2E2),
               iconColor: const Color(0xFFFCA5A5),
               isLogout: true,
+              isDark: isDark,
             ),
           ),
         ],
       ),
     );
   }
-
 
   void showLogoutBottomSheet({
     required BuildContext context,
@@ -412,12 +433,15 @@ class _ProfileTabScreenState
     String? yes,
     String? no,
   }) {
+    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isDark = themeManager.isDarkMode;
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       isScrollControlled: true,
       builder: (_) => LogoutDialogContent(
         onConfirmLogout: onConfirmLogout,
@@ -435,15 +459,17 @@ class _ProfileTabScreenState
     required String subtitle,
     required Color bgColor,
     required Color iconColor,
+    required bool isDark,
     bool isLogout = false,
   }) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -470,15 +496,16 @@ class _ProfileTabScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: isLogout
                         ? const Color(0xFFDC2626)
-                        : const Color(0xFF000000),
+                        : (isDark ? Colors.white : const Color(0xFF000000)),
                   ),
+                  child: Text(title),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -491,10 +518,10 @@ class _ProfileTabScreenState
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right,
             size: 24,
-            color: Color(0xFFD1D5DB),
+            color: isDark ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB),
           ),
         ],
       ),
@@ -509,13 +536,14 @@ class _ProfileTabScreenState
     required Color iconColor,
     required bool isDarkMode,
   }) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -524,7 +552,8 @@ class _ProfileTabScreenState
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
             width: 48,
             height: 48,
             decoration: BoxDecoration(
@@ -542,15 +571,14 @@ class _ProfileTabScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: isDarkMode
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
+                    color: isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
                   ),
+                  child: Text(title),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -563,16 +591,15 @@ class _ProfileTabScreenState
               ],
             ),
           ),
-          // ===== КАСТОМНЫЙ КРАСИВЫЙ ПЕРЕКЛЮЧАТЕЛЬ =====
           _buildCustomSwitch(isDarkMode),
         ],
       ),
     );
   }
 
-  // Кастомный красивый переключатель с анимацией
   Widget _buildCustomSwitch(bool isOn) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: 56,
       height: 32,
       decoration: BoxDecoration(
@@ -596,7 +623,7 @@ class _ProfileTabScreenState
         ],
       ),
       child: AnimatedAlign(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(

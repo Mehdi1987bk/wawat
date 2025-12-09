@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../../services/theme_manager.dart';
 import '../../widget/wawat_courier_card.dart';
 
 class CourierDocumentsTab extends StatelessWidget {
@@ -12,28 +14,37 @@ class CourierDocumentsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildContactInfo(),
-        const SizedBox(height: 16),
-        _buildProfessionalInfo(),
-        const SizedBox(height: 16),
-        _buildLanguages(),
-        const SizedBox(height: 20),
-      ],
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return Column(
+          children: [
+            _buildContactInfo(isDark),
+            const SizedBox(height: 16),
+            _buildProfessionalInfo(isDark),
+            const SizedBox(height: 16),
+            _buildLanguages(isDark),
+            const SizedBox(height: 20),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildContactInfo() {
-    return Container(
+  Widget _buildContactInfo(bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
             blurRadius: 8,
           ),
         ],
@@ -43,14 +54,16 @@ class CourierDocumentsTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.person, color: const Color(0xFF5B5BFF), size: 20),
+              const Icon(Icons.person, color: Color(0xFF5B5BFF), size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Контактная информация',
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
+                child: const Text('Контактная информация'),
               ),
             ],
           ),
@@ -60,6 +73,7 @@ class CourierDocumentsTab extends StatelessWidget {
             title: 'Телефон',
             value: data.user.phone ?? '--',
             iconColor: Colors.green,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -67,6 +81,7 @@ class CourierDocumentsTab extends StatelessWidget {
             title: 'Email',
             value: data.user.email ?? '--',
             iconColor: Colors.grey,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -76,6 +91,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '--'
                 : data.user.createdAt.toString(),
             iconColor: Colors.purple,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -85,24 +101,28 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '--'
                 : data.user.lastSeenAt.toString(),
             iconColor: Colors.red,
+            isDark: isDark,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProfessionalInfo() {
+  Widget _buildProfessionalInfo(bool isDark) {
     final professional = data.professional;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
             blurRadius: 8,
           ),
         ],
@@ -112,14 +132,16 @@ class CourierDocumentsTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.work, color: const Color(0xFF5B5BFF), size: 20),
+              const Icon(Icons.work, color: Color(0xFF5B5BFF), size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Профессиональная информация',
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
+                child: const Text('Профессиональная информация'),
               ),
             ],
           ),
@@ -131,6 +153,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '${professional.experienceYears} лет'
                 : '--',
             iconColor: Colors.orange,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -140,6 +163,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '${professional.maxWeightKg} кг'
                 : '--',
             iconColor: Colors.blue,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -149,6 +173,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '\$${professional.insuranceUsd}'
                 : '--',
             iconColor: Colors.green,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -158,6 +183,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '\$${professional.priceFrom} - \$${professional.priceTo}'
                 : '--',
             iconColor: Colors.teal,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -167,6 +193,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '${professional.workTimeFrom} - ${professional.workTimeTo}'
                 : '--',
             iconColor: Colors.indigo,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -176,6 +203,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '${professional.responseTimeMinutes} мин'
                 : '--',
             iconColor: Colors.deepOrange,
+            isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
@@ -185,6 +213,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 ? '${professional.onTimePercent}%'
                 : '--',
             iconColor: Colors.lightGreen,
+            isDark: isDark,
           ),
         ],
       ),
@@ -196,6 +225,7 @@ class CourierDocumentsTab extends StatelessWidget {
     required String title,
     required String value,
     required Color iconColor,
+    required bool isDark,
   }) {
     return Row(
       children: [
@@ -205,21 +235,23 @@ class CourierDocumentsTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                 ),
+                child: Text(title),
               ),
               const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
+                child: Text(value),
               ),
             ],
           ),
@@ -231,24 +263,33 @@ class CourierDocumentsTab extends StatelessWidget {
   Widget _buildSpecializationItem({
     required IconData icon,
     required String label,
+    required bool isDark,
   }) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.grey[400], size: 28),
+          Icon(
+            icon,
+            color: isDark ? const Color(0xFF6B7280) : Colors.grey[400],
+            size: 28,
+          ),
           const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Colors.black,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
             ),
           ),
         ],
@@ -256,16 +297,19 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguages() {
-    return Container(
+  Widget _buildLanguages(bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
             blurRadius: 8,
           ),
         ],
@@ -275,14 +319,16 @@ class CourierDocumentsTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.language, color: const Color(0xFF5B5BFF), size: 20),
+              const Icon(Icons.language, color: Color(0xFF5B5BFF), size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Языки общения',
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
+                child: const Text('Языки общения'),
               ),
             ],
           ),
@@ -291,20 +337,21 @@ class CourierDocumentsTab extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: data.user.languages
-                .map((lang) => Container(
+                .map((lang) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 6,
               ),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 lang.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Colors.black,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
             ))

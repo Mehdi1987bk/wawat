@@ -2,12 +2,15 @@ import 'package:buking/data/network/response/type_option.dart';
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/response/language.dart';
 import '../../../../../../data/network/response/language_response.dart';
 import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
+import '../../../../../../services/theme_aware_screen.dart';
+import '../../../../../../services/theme_manager.dart';
 import '../../../../../auth/registration/widget/language_selector.dart';
 import '../../../../../auth/registration/widget/package_types_selector.dart';
 import 'experience_tab_bloc.dart';
@@ -75,14 +78,14 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         professional!.workTimeFrom!.isNotEmpty) {
       final parts = professional.workTimeFrom!.split(':');
       _selectedWorkTimeFrom =
-          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional?.workTimeTo != null &&
         professional!.workTimeTo!.isNotEmpty) {
       final parts = professional.workTimeTo!.split(':');
       _selectedWorkTimeTo =
-          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional != null && professional.languages.isNotEmpty) {
@@ -198,7 +201,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   Future<void> _showTimePickerFrom() async {
     try {
       final timeString =
-          _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
+      _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -226,7 +229,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeFrom =
-                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -245,7 +248,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   Future<void> _showTimePickerTo() async {
     try {
       final timeString =
-          _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
+      _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -273,7 +276,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeTo =
-                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -331,199 +334,229 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
   @override
   Widget body() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             children: [
-              const Text(
-                'Опыт работы',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              _buildExperienceSlider(),
-              const SizedBox(height: 16),
-              const Text(
-                'Максимальный вес (кг)',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildInputField(_maxWeightController),
-              const SizedBox(height: 16),
-              const Text(
-                'Страхование (\$)',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildInputField(_insuranceController),
-              const SizedBox(height: 16),
-              const Text(
-                'Диапазон цен (\$/кг)',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'От',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              _buildInputField(_priceFromController),
-              const SizedBox(height: 12),
-              const Text(
-                'До',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 4),
-              _buildInputField(_priceToController),
-              const SizedBox(height: 16),
-              const Text(
-                'Рабочие часы',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Опыт работы'),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildExperienceSlider(isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Максимальный вес (кг)'),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInputField(_maxWeightController, isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Страхование (\$)'),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInputField(_insuranceController, isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Диапазон цен (\$/кг)'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        child: const Text('От'),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    _buildInputField(_priceFromController, isDark),
+                    const SizedBox(height: 12),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('До'),
+                    ),
+                    const SizedBox(height: 4),
+                    _buildInputField(_priceToController, isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Рабочие часы'),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
                       children: [
-                        const Text(
-                          'С',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                                child: const Text('С'),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildTimePickerField(
+                                _selectedWorkTimeFrom.isNotEmpty
+                                    ? _selectedWorkTimeFrom
+                                    : '09:00',
+                                _showTimePickerFrom,
+                                isDark,
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        _buildTimePickerField(
-                          _selectedWorkTimeFrom.isNotEmpty
-                              ? _selectedWorkTimeFrom
-                              : '09:00',
-                          _showTimePickerFrom,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                                child: const Text('До'),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildTimePickerField(
+                                _selectedWorkTimeTo.isNotEmpty
+                                    ? _selectedWorkTimeTo
+                                    : '18:00',
+                                _showTimePickerTo,
+                                isDark,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'До',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildTimePickerField(
-                          _selectedWorkTimeTo.isNotEmpty
-                              ? _selectedWorkTimeTo
-                              : '18:00',
-                          _showTimePickerTo,
-                        ),
-                      ],
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Языки общения'),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Языки общения',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              LanguageSelector(
-                languages: _allLanguages,
-                selectedLanguageCodes: _selectedLanguageCodes,
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    _selectedLanguageCodes = newSelection;
-                  });
-                  _validateForm();
-                },
-                isLoading: _isLoadingLanguages,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Специализация',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _allPackageTypes.isEmpty && !_isLoadingPackageTypes
-                  ? Container(
+                    const SizedBox(height: 8),
+                    LanguageSelector(
+                      languages: _allLanguages,
+                      selectedLanguageCodes: _selectedLanguageCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedLanguageCodes = newSelection;
+                        });
+                        _validateForm();
+                      },
+                      isLoading: _isLoadingLanguages,
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Специализация'),
+                    ),
+                    const SizedBox(height: 8),
+                    _allPackageTypes.isEmpty && !_isLoadingPackageTypes
+                        ? AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: const Color(0xFFE5E5EA),
+                          color: isDark
+                              ? const Color(0xFF4A4A4A)
+                              : const Color(0xFFE5E5EA),
                         ),
                         borderRadius: BorderRadius.circular(12),
-                        color: const Color(0xFFF5F5F5),
+                        color: isDark
+                            ? const Color(0xFF2A2A2A)
+                            : const Color(0xFFF5F5F5),
                       ),
-                      child: const Text(
-                        'Типы упаковки недоступны на сервере',
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : Colors.grey,
                           fontWeight: FontWeight.w500,
                         ),
+                        child: const Text('Типы упаковки недоступны на сервере'),
                       ),
                     )
-                  : PackageTypesSelector(
+                        : PackageTypesSelector(
                       packageTypes: _allPackageTypes,
                       selectedPackageTypeCodes: _selectedPackageTypeCodes,
                       onSelectionChanged: (newSelection) {
@@ -534,66 +567,73 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       },
                       isLoading: _isLoadingPackageTypes,
                     ),
-              Container(
-                height: 50,
-                width: double.infinity,
-                margin: const EdgeInsets.only(
-                  top: 20,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: _isFormValid,
-                  builder: (_, isValid, __) {
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        disabledBackgroundColor:
-                            Color(0xFF5B4FFF).withOpacity(0.3),
-                        backgroundColor: const Color(0xFF5B4FFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
+                    Container(
+                      height: 50,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: isValid ? _saveChanges : null,
-                      child: Text(
-                        "Сохранить изменения",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _isFormValid,
+                        builder: (_, isValid, __) {
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              disabledBackgroundColor:
+                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF5B4FFF),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                            ),
+                            onPressed: isValid ? _saveChanges : null,
+                            child: const Text(
+                              "Сохранить изменения",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
-        ),
-        const SizedBox(height: 20),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildInputField(TextEditingController controller) {
+  Widget _buildInputField(TextEditingController controller, bool isDark) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      style: TextStyle(
+        fontSize: 14,
+        color: isDark ? Colors.white : Colors.black,
+      ),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFFE5E5EA),
+          borderSide: BorderSide(
+            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFFE5E5EA),
+          borderSide: BorderSide(
+            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -608,23 +648,22 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
           vertical: 12,
         ),
       ),
-      style: const TextStyle(
-        fontSize: 14,
-        color: Colors.black,
-      ),
     );
   }
 
   Widget _buildTimePickerField(
-    String value,
-    VoidCallback onTap,
-  ) {
+      String value,
+      VoidCallback onTap,
+      bool isDark,
+      ) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
           border: Border.all(
-            color: const Color(0xFFE5E5EA),
+            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
           ),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -632,17 +671,18 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              value,
-              style: const TextStyle(
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.black,
+                color: isDark ? Colors.white : Colors.black,
                 fontWeight: FontWeight.w500,
               ),
+              child: Text(value),
             ),
-            const Icon(
+            Icon(
               Icons.access_time,
-              color: Color(0xFF8E8E93),
+              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF8E8E93),
               size: 20,
             ),
           ],
@@ -651,7 +691,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     );
   }
 
-  Widget _buildExperienceSlider() {
+  Widget _buildExperienceSlider(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -662,7 +702,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
           divisions: 9,
           label: '$_selectedExperience лет',
           activeColor: const Color(0xFF5B4FFF),
-          inactiveColor: const Color(0xFFE5E5EA),
+          inactiveColor: isDark
+              ? const Color(0xFF4A4A4A)
+              : const Color(0xFFE5E5EA),
           onChanged: (value) {
             setState(() {
               _selectedExperience = value.toInt();
@@ -671,14 +713,23 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
+          child: const Text(
+            'Выбранный опыт:',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF5B4FFF),
+            ),
+          ).toString().contains('_selectedExperience')
+              ? Text(
             'Выбранный опыт: $_selectedExperience лет',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF5B4FFF),
             ),
-          ),
+          )
+              : const SizedBox(),
         ),
       ],
     );
@@ -708,6 +759,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
 void showIOSStyleAlert(BuildContext context, String message,
     {bool isError = true}) {
+  final themeManager = Provider.of<ThemeManager>(context, listen: false);
+  final isDark = themeManager.isDarkMode;
+
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -719,7 +773,7 @@ void showIOSStyleAlert(BuildContext context, String message,
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -734,9 +788,10 @@ void showIOSStyleAlert(BuildContext context, String message,
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
               const SizedBox(height: 20),
@@ -760,11 +815,14 @@ void showIOSStyleAlert(BuildContext context, String message,
 }
 
 void showIOSStyleMessage(
-  BuildContext context,
-  String message, {
-  bool isSuccess = true,
-  Duration duration = const Duration(seconds: 2),
-}) {
+    BuildContext context,
+    String message, {
+      bool isSuccess = true,
+      Duration duration = const Duration(seconds: 2),
+    }) {
+  final themeManager = Provider.of<ThemeManager>(context, listen: false);
+  final isDark = themeManager.isDarkMode;
+
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -782,7 +840,7 @@ void showIOSStyleMessage(
             margin: const EdgeInsets.symmetric(horizontal: 40),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             decoration: BoxDecoration(
-              color: Colors.white ,
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
@@ -795,14 +853,13 @@ void showIOSStyleMessage(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
               ],

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../services/theme_aware_screen.dart';
+import '../../../services/theme_manager.dart';
 import '../../home/tabs/home_tab/home_tab_screen.dart';
 import '../bloc/chat_list_bloc.dart';
 import '../widgets/conversation_item.dart';
@@ -23,7 +27,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   @override
   void initState() {
     super.initState();
-    bloc.init(); // <-- Добавьте эту строку!
+    bloc.init();
     bloc.loadConversations();
 
     _scrollController.addListener(() {
@@ -42,214 +46,265 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
   @override
   Widget body() {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: WawatColors.backgroundLight,
-        body: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 80),
-              child: Column(
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: SafeArea(
+            child: Scaffold(
+              backgroundColor:
+                  isDark ? const Color(0xFF121212) : Colors.white,
+              body: Stack(
                 children: [
-                  Container(
-                    color: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: WawatDimensions.spacingMd,
-                      vertical: 8,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _showArchived = !_showArchived;
-                          });
-                          if (_showArchived) {
-                            bloc.loadArchivedConversations();
-                          } else {
-                            bloc.loadConversations();
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 80),
+                    child: Column(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          color:
+                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 14),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF5B7FFF), Color(0xFFAB5FE8)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
+                            horizontal: WawatDimensions.spacingMd,
+                            vertical: 8,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showArchived = !_showArchived;
+                                });
+                                if (_showArchived) {
+                                  bloc.loadArchivedConversations();
+                                } else {
+                                  bloc.loadConversations();
+                                }
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 14),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    _showArchived ?  Icons.inbox : Icons.archive ,
-                                    color: Color(0xFF5B7FFF),
-                                    size: 18,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF5B7FFF),
+                                      Color(0xFFAB5FE8)
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
                                   ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(0xFF5B7FFF)
+                                          .withOpacity(isDark ? 0.3 : 0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          _showArchived
+                                              ? Icons.inbox
+                                              : Icons.archive,
+                                          color: Color(0xFF5B7FFF),
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      _showArchived ? 'Входящие' : 'Архив',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(width: 4),
+                                  ],
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Text(
-                                _showArchived ? 'Входящие' : 'Архив' ,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(width: 4),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
 
-                  // Список чатов
-                  Expanded(
-                    child: StreamBuilder<List<Conversation>>(
-                      stream: bloc.conversationsStream,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return Center(
-                            child: CircularProgressIndicator(
-                              color: WawatColors.primary,
-                            ),
-                          );
-                        }
-
-                        final conversations = snapshot.data!;
-
-                        if (conversations.isEmpty) {
-                          return Container(
-                            color: Colors.white,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.chat_bubble_outline,
-                                    size: 64,
-                                    color: WawatColors.textSecondary,
+                        // Список чатов
+                        Expanded(
+                          child: StreamBuilder<List<Conversation>>(
+                            stream: bloc.conversationsStream,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    color: WawatColors.primary,
                                   ),
-                                  SizedBox(height: WawatDimensions.spacingMd),
-                                  Text(
-                                    'Нет чатов',
-                                    style: WawatTextStyles.body.copyWith(
-                                      color: WawatColors.textSecondary,
+                                );
+                              }
+
+                              final conversations = snapshot.data!;
+
+                              if (conversations.isEmpty) {
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  color: isDark
+                                      ? const Color(0xFF1E1E1E)
+                                      : Colors.white,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.chat_bubble_outline,
+                                          size: 64,
+                                          color: isDark
+                                              ? const Color(0xFF6B7280)
+                                              : WawatColors.textSecondary,
+                                        ),
+                                        SizedBox(
+                                            height:
+                                                WawatDimensions.spacingMd),
+                                        AnimatedDefaultTextStyle(
+                                          duration: const Duration(
+                                              milliseconds: 300),
+                                          style:
+                                              WawatTextStyles.body.copyWith(
+                                            color: isDark
+                                                ? const Color(0xFFB0B0B0)
+                                                : WawatColors.textSecondary,
+                                          ),
+                                          child: Text('Нет чатов'),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
+                                );
+                              }
 
-                        final sortedConversations = [...conversations];
-                        sortedConversations.sort((a, b) {
-                          if (a.isPinned && !b.isPinned) return -1;
-                          if (!a.isPinned && b.isPinned) return 1;
+                              final sortedConversations = [...conversations];
+                              sortedConversations.sort((a, b) {
+                                if (a.isPinned && !b.isPinned) return -1;
+                                if (!a.isPinned && b.isPinned) return 1;
 
-                          if (a.lastMessage == null && b.lastMessage == null)
-                            return 0;
-                          if (a.lastMessage == null) return 1;
-                          if (b.lastMessage == null) return -1;
+                                if (a.lastMessage == null &&
+                                    b.lastMessage == null) return 0;
+                                if (a.lastMessage == null) return 1;
+                                if (b.lastMessage == null) return -1;
 
-                          final aTime =
-                              DateTime.parse(a.lastMessage!.createdAt);
-                          final bTime =
-                              DateTime.parse(b.lastMessage!.createdAt);
-                          return bTime.compareTo(aTime);
-                        });
+                                final aTime =
+                                    DateTime.parse(a.lastMessage!.createdAt);
+                                final bTime =
+                                    DateTime.parse(b.lastMessage!.createdAt);
+                                return bTime.compareTo(aTime);
+                              });
 
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            if (_showArchived) {
-                              await bloc.loadArchivedConversations();
-                            } else {
-                              await bloc.loadConversations();
-                            }
-                          },
-                          color: WawatColors.primary,
-                          child: Container(
-                            color: Colors.white,
-                            child: ListView.builder(
-                              controller: _scrollController,
-                              physics: AlwaysScrollableScrollPhysics(),
-                              itemCount: sortedConversations.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index == sortedConversations.length) {
-                                  return StreamBuilder<bool>(
-                                    stream: bloc.isLoadingMoreStream,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.data == true) {
-                                        return Padding(
-                                          padding: EdgeInsets.all(
-                                              WawatDimensions.spacingMd),
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              color: WawatColors.primary,
-                                            ),
-                                          ),
+                              return RefreshIndicator(
+                                onRefresh: () async {
+                                  if (_showArchived) {
+                                    await bloc.loadArchivedConversations();
+                                  } else {
+                                    await bloc.loadConversations();
+                                  }
+                                },
+                                color: WawatColors.primary,
+                                backgroundColor: isDark
+                                    ? const Color(0xFF1E1E1E)
+                                    : Colors.white,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  color: isDark
+                                      ? const Color(0xFF1E1E1E)
+                                      : Colors.white,
+                                  child: ListView.builder(
+                                    controller: _scrollController,
+                                    physics: AlwaysScrollableScrollPhysics(),
+                                    itemCount: sortedConversations.length + 1,
+                                    itemBuilder: (context, index) {
+                                      if (index ==
+                                          sortedConversations.length) {
+                                        return StreamBuilder<bool>(
+                                          stream: bloc.isLoadingMoreStream,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.data == true) {
+                                              return Padding(
+                                                padding: EdgeInsets.all(
+                                                    WawatDimensions
+                                                        .spacingMd),
+                                                child: Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color:
+                                                        WawatColors.primary,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            return SizedBox.shrink();
+                                          },
                                         );
                                       }
-                                      return SizedBox.shrink();
-                                    },
-                                  );
-                                }
 
-                                final conversation = sortedConversations[index];
+                                      final conversation =
+                                          sortedConversations[index];
 
-                                return ConversationItem(
-                                    conversation: conversation,
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ChatConversationScreen(
-                                            conversation: conversation,
-                                          ),
-                                        ),
-                                      ).then((_) {
-                                        bloc.loadConversations();
-                                      });
+                                      return ConversationItem(
+                                          conversation: conversation,
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ChatConversationScreen(
+                                                  conversation: conversation,
+                                                ),
+                                              ),
+                                            ).then((_) {
+                                              bloc.loadConversations();
+                                            });
+                                          },
+                                          onTapMenu: () =>
+                                              _showConversationMenu(
+                                                  conversation, isDark));
                                     },
-                                    onTapMenu: () =>
-                                        _showConversationMenu(conversation));
-                              },
-                            ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
+                  BuildHeader(context, isDark),
                 ],
               ),
             ),
-            BuildHeader(context),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  void _showConversationMenu(Conversation conversation) {
+  void _showConversationMenu(Conversation conversation, bool isDark) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(WawatDimensions.radiusLarge),
@@ -264,7 +319,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: isDark ? const Color(0xFF6B7280) : Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -292,11 +347,15 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                       children: [
                         Text(
                           conversation.user.fullname,
-                          style: WawatTextStyles.bodyBold,
+                          style: WawatTextStyles.bodyBold.copyWith(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
                         ),
                         Text(
                           'Действия с чатом',
-                          style: WawatTextStyles.caption,
+                          style: WawatTextStyles.caption.copyWith(
+                            color: isDark ? const Color(0xFFB0B0B0) : null,
+                          ),
                         ),
                       ],
                     ),
@@ -304,7 +363,10 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 ],
               ),
             ),
-            Divider(height: WawatDimensions.spacingLg),
+            Divider(
+              height: WawatDimensions.spacingLg,
+              color: isDark ? const Color(0xFF2A2A2A) : null,
+            ),
             ListTile(
               leading: Container(
                 padding: EdgeInsets.all(8),
@@ -322,7 +384,9 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               ),
               title: Text(
                 conversation.isPinned ? 'Открепить' : 'Закрепить',
-                style: WawatTextStyles.body,
+                style: WawatTextStyles.body.copyWith(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -344,7 +408,9 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               ),
               title: Text(
                 conversation.isArchived ? 'Разархивировать' : 'Архивировать',
-                style: WawatTextStyles.body,
+                style: WawatTextStyles.body.copyWith(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -372,7 +438,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                _showDeleteDialog(conversation);
+                _showDeleteDialog(conversation, isDark);
               },
             ),
             SizedBox(height: WawatDimensions.spacingMd),
@@ -382,14 +448,22 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
     );
   }
 
-  void _showDeleteDialog(Conversation conversation) {
+  void _showDeleteDialog(Conversation conversation, bool isDark) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Удалить чат?', style: WawatTextStyles.h3),
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Удалить чат?',
+          style: WawatTextStyles.h3.copyWith(
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
         content: Text(
           'Вы уверены, что хотите удалить переписку с ${conversation.user.fullname}?',
-          style: WawatTextStyles.body,
+          style: WawatTextStyles.body.copyWith(
+            color: isDark ? const Color(0xFFB0B0B0) : Colors.black,
+          ),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
@@ -397,7 +471,12 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Отмена', style: WawatTextStyles.bodyBold),
+            child: Text(
+              'Отмена',
+              style: WawatTextStyles.bodyBold.copyWith(
+                color: isDark ? const Color(0xFF6366F1) : null,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {

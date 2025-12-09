@@ -3,6 +3,7 @@ import 'package:buking/screens/home/tabs/home_tab/widget/search_form_page.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../domain/repositories/auth_repository.dart';
@@ -12,6 +13,8 @@ import '../../../../presentation/bloc/utils.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
+ import '../../../../services/theme_aware_screen.dart';
+import '../../../../services/theme_manager.dart';
 import 'home_tab_bloc.dart';
 import 'notification/notification_screen.dart';
 
@@ -51,73 +54,90 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   @override
   Widget body() {
-    return Scaffold(
-      backgroundColor: WawatColors.backgroundLight,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 60, bottom: 80),
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    _buildHeroSection(),
-                    SearchFormWidget(
-                      bloc: bloc,
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 60, bottom: 80),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          _buildHeroSection(isDark),
+                          SearchFormWidget(
+                            bloc: bloc,
+                          ),
+                          _buildPopularOffers(isDark),
+                        ],
+                      ),
                     ),
-                    _buildPopularOffers(),
-                  ],
-                ),
+                  ),
+                  BuildHeader(context, isDark),
+                ],
               ),
             ),
-            BuildHeader(context),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(bool isDark) {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Image.asset(
             "asset/home_back.png",
+            color: isDark ? Colors.white.withOpacity(0.9) : null,
+            colorBlendMode: isDark ? BlendMode.modulate : null,
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
-          child: Text(
-            'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: WawatColors.textPrimary,
+              color: isDark ? Colors.white : WawatColors.textPrimary,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
+            child: Text(
+              'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
+            ),
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30),
-          child: Text(
-            'Быстрая и безопасная доставка посылок по всему миру',
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: WawatColors.textSecondary,
+              color: isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
+            child: Text(
+              'Быстрая и безопасная доставка посылок по всему миру',
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPopularOffers() {
+  Widget _buildPopularOffers(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -139,9 +159,14 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                     padding: EdgeInsets.symmetric(
                         horizontal: WawatDimensions.spacingMd),
                     child: Center(
-                      child: Text(
-                        'Популярные предложения',
-                        style: WawatTextStyles.h2,
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: WawatTextStyles.h2.copyWith(
+                          color: isDark ? Colors.white : WawatTextStyles.h2.color,
+                        ),
+                        child: Text(
+                          'Популярные предложения',
+                        ),
                       ),
                     ),
                   ),
@@ -191,9 +216,19 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   }
 }
 
-Widget BuildHeader(BuildContext context) {
-  return Container(
-    color: Colors.white,
+Widget BuildHeader(BuildContext context, bool isDark) {
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    decoration: BoxDecoration(
+      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
     padding: EdgeInsets.all(WawatDimensions.spacingMd),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -202,6 +237,8 @@ Widget BuildHeader(BuildContext context) {
           'asset/logo.png',
           fit: BoxFit.fitWidth,
           height: 40,
+          color: isDark ? Colors.white : null,
+          colorBlendMode: isDark ? BlendMode.modulate : null,
         ),
         GestureDetector(
           onTap: () async {
@@ -211,14 +248,23 @@ Widget BuildHeader(BuildContext context) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return NotificationScreen();
-              }));
+                    return NotificationScreen();
+                  }));
             }
           },
-          child: Image.asset(
-            'asset/notif_aa.png',
-            fit: BoxFit.fitWidth,
-            height: 40,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+             child: Image.asset(
+              'asset/notif_aa.png',
+              fit: BoxFit.fitWidth,
+              height: 35,
+              color: isDark ? Colors.white : null,
+              colorBlendMode: isDark ? BlendMode.modulate : null,
+            ),
           ),
         ),
       ],

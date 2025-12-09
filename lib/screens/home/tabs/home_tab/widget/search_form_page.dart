@@ -2,10 +2,12 @@ import 'package:buking/screens/home/tabs/create_post/widget/city_selector.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/city.dart';
 import '../../../../../data/network/response/offer_type_model.dart';
 import '../../../../../data/network/response/package_types_response.dart';
+import '../../../../../services/theme_manager.dart';
 import '../home_tab_bloc.dart';
 import '../search/search_offer_list_screen.dart';
 
@@ -56,7 +58,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     await Future.wait([
       _loadCities(),
       _loadOfferTypes(),
-     ]);
+    ]);
   }
 
   Future<void> _loadOfferTypes() async {
@@ -84,8 +86,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       }
     }
   }
-
-
 
   Future<void> _loadCities() async {
     try {
@@ -135,7 +135,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   void _performSearch() {
-    // Конвертируем даты в формат YYYY-MM-DD для API
     String? dateFrom;
     String? dateTo;
 
@@ -147,14 +146,14 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       dateTo = _convertDateToApiFormat(_dateToController.text);
     }
 
-    // Открываем экран с результатами поиска
     Navigator.push(
       context,
       CupertinoPageRoute(
         builder: (context) => SearchOfferListScreen(
           offerType: _selectedOfferType,
           packageType: _selectedPackageType,
-          cityFromId: _selectedFromCity?.id != null ? _selectedFromCity!.id : null,
+          cityFromId:
+          _selectedFromCity?.id != null ? _selectedFromCity!.id : null,
           cityToId: _selectedToCity?.id != null ? _selectedToCity!.id : null,
           dateFrom: dateFrom,
           dateTo: dateTo,
@@ -165,8 +164,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
 
   String? _convertDateToApiFormat(String dateString) {
     try {
-      // Входной формат: дд.мм.гггг
-      // Выходной формат: гггг-мм-дд
       final parts = dateString.split('.');
       if (parts.length == 3) {
         return '${parts[2]}-${parts[1]}-${parts[0]}';
@@ -188,22 +185,29 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: _buildSearchForm(),
-      ),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: _buildSearchForm(isDark),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildSearchForm() {
-    return Container(
+  Widget _buildSearchForm(bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: Color(0xFFFAFAFA),
+        color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Color(0x0D000000),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 20,
             offset: Offset(0, 8),
           ),
@@ -214,78 +218,75 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Тип предложения
-          _buildFieldLabel('Тип предложения'),
+          _buildFieldLabel('Тип предложения', isDark),
           SizedBox(height: 10),
-          _buildOfferTypeDropdown(),
+          _buildOfferTypeDropdown(isDark),
           SizedBox(height: 20),
 
-
-          // Откуда
-          _buildFieldLabel('Откуда'),
+          _buildFieldLabel('Откуда', isDark),
           SizedBox(height: 10),
           _buildCityField(
             controller: _fromController,
             hint: 'Город отправления',
             selectedCity: _selectedFromCity,
             onTap: () => _showCitySelector(isFromCity: true),
+            isDark: isDark,
           ),
           SizedBox(height: 20),
 
-          // Куда
-          _buildFieldLabel('Куда'),
+          _buildFieldLabel('Куда', isDark),
           SizedBox(height: 10),
           _buildCityField(
             controller: _toController,
             hint: 'Город назначения',
             selectedCity: _selectedToCity,
             onTap: () => _showCitySelector(isFromCity: false),
+            isDark: isDark,
           ),
           SizedBox(height: 20),
 
-          // Дата С
-          _buildFieldLabel('Дата с'),
+          _buildFieldLabel('Дата с', isDark),
           SizedBox(height: 10),
-          _buildDateField(_dateFromController, 'дд.мм.гггг'),
+          _buildDateField(_dateFromController, 'дд.мм.гггг', isDark),
           SizedBox(height: 20),
 
-          // Дата До
-          _buildFieldLabel('Дата до'),
+          _buildFieldLabel('Дата до', isDark),
           SizedBox(height: 10),
-          _buildDateField(_dateToController, 'дд.мм.гггг'),
+          _buildDateField(_dateToController, 'дд.мм.гггг', isDark),
           SizedBox(height: 28),
 
-          // Кнопка поиск
           _buildSearchButton(),
         ],
       ),
     );
   }
 
-  Widget _buildFieldLabel(String text) {
-    return Text(
-      text,
+  Widget _buildFieldLabel(String text, bool isDark) {
+    return AnimatedDefaultTextStyle(
+      duration: const Duration(milliseconds: 300),
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF1A1A1A),
+        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
         height: 1.2,
       ),
+      child: Text(text),
     );
   }
 
-  Widget _buildOfferTypeDropdown() {
-     
-
-    return Container(
+  Widget _buildOfferTypeDropdown(bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       height: 56,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color(0xFFE8E8E8)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -305,55 +306,57 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    _selectedOfferType != null
-                        ? (_allOfferTypes
-                        .firstWhere(
-                          (type) => type.code == _selectedOfferType,
-                      orElse: () => OfferTypeModel(
-                        code: '',
-                        name: 'Все категории',
-                      ),
-                    )
-                        .name)
-                        : 'Все категории',
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xFF1A1A1A)
-                         ,
+                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                       fontWeight: FontWeight.w400,
+                    ),
+                    child: Text(
+                      _selectedOfferType != null
+                          ? (_allOfferTypes
+                          .firstWhere(
+                            (type) => type.code == _selectedOfferType,
+                        orElse: () => OfferTypeModel(
+                          code: '',
+                          name: 'Все категории',
+                        ),
+                      )
+                          .name)
+                          : 'Все категории',
                     ),
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.keyboard_arrow_down,
-                  color: Color(0xFFB0B0B0),
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFB0B0B0),
                 ),
               ],
             ),
           ),
           value: _selectedOfferType,
           items: [
-            // "Все категории" option
             DropdownMenuItem<String>(
               value: null,
               child: Text(
                 'Все категории',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF1A1A1A),
+                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                 ),
               ),
             ),
-            // Actual offer types
             ..._allOfferTypes.map((type) {
               return DropdownMenuItem<String>(
                 value: type.code,
                 child: Text(
                   type.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Color(0xFF1A1A1A),
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                   ),
                 ),
               );
@@ -367,7 +370,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           dropdownStyleData: DropdownStyleData(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
+              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
             ),
             elevation: 3,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -382,28 +385,31 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     );
   }
 
-
   Widget _buildCityField({
     required TextEditingController controller,
     required String hint,
     required City? selectedCity,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
     return InkWell(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selectedCity != null
                 ? const Color(0xFF7C6FFF)
-                : Color(0xFFE8E8E8),
+                : (isDark
+                ? const Color(0xFF3A3A3A)
+                : const Color(0xFFE8E8E8)),
             width: selectedCity != null ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -417,31 +423,41 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    selectedCity.name,
-                    style: const TextStyle(
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
+                      color: isDark
+                          ? Colors.white
+                          : const Color(0xFF1A1A1A),
                     ),
+                    child: Text(selectedCity.name),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '${selectedCity.countryName} (${selectedCity.countryCode})',
-                    style: const TextStyle(
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFFB0B0B0),
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFFB0B0B0),
                     ),
+                    child: Text(
+                        '${selectedCity.countryName} (${selectedCity.countryCode})'),
                   ),
                 ],
               )
-                  : Text(
-                hint,
-                style: const TextStyle(
+                  : AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFFB0B0B0),
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFB0B0B0),
                   fontWeight: FontWeight.w400,
                 ),
+                child: Text(hint),
               ),
             ),
             Icon(
@@ -450,7 +466,9 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   : Icons.location_on_outlined,
               color: selectedCity != null
                   ? const Color(0xFF7C6FFF)
-                  : const Color(0xFFB0B0B0),
+                  : (isDark
+                  ? const Color(0xFF6B7280)
+                  : const Color(0xFFB0B0B0)),
               size: 20,
             ),
           ],
@@ -459,7 +477,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     );
   }
 
-  Widget _buildDateField(TextEditingController controller, String hint) {
+  Widget _buildDateField(
+      TextEditingController controller, String hint, bool isDark) {
     return InkWell(
       onTap: () async {
         final date = await showDatePicker(
@@ -473,8 +492,11 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                 colorScheme: ColorScheme.light(
                   primary: Color(0xFF7C6FFF),
                   onPrimary: Colors.white,
-                  onSurface: Color(0xFF1A1A1A),
+                  surface: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  onSurface: isDark ? Colors.white : const Color(0xFF1A1A1A),
                 ),
+                dialogBackgroundColor:
+                isDark ? const Color(0xFF1E1E1E) : Colors.white,
               ),
               child: child!,
             );
@@ -487,14 +509,17 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           });
         }
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Color(0xFFE8E8E8)),
+          border: Border.all(
+            color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -504,20 +529,23 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                controller.text.isEmpty ? hint : controller.text,
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   color: controller.text.isEmpty
-                      ? Color(0xFFB0B0B0)
-                      : Color(0xFF1A1A1A),
+                      ? (isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFB0B0B0))
+                      : (isDark ? Colors.white : const Color(0xFF1A1A1A)),
                   fontWeight: FontWeight.w400,
                 ),
+                child: Text(controller.text.isEmpty ? hint : controller.text),
               ),
             ),
             Icon(
               Icons.calendar_today_outlined,
-              color: Color(0xFFB0B0B0),
+              color: isDark ? const Color(0xFF6B7280) : const Color(0xFFB0B0B0),
               size: 20,
             ),
           ],

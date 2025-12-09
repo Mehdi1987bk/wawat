@@ -2,9 +2,12 @@ import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/screens/home/tabs/profile_tab/settings/privacy_tab/privacy_tab_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/request/privacy_settings.dart';
+import '../../../../../../services/theme_aware_screen.dart';
+import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
 
 class PrivacyTab extends BaseScreen {
@@ -81,180 +84,203 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
 
   @override
   Widget body() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(
-                      Icons.shield,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Приватность и уведомления',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Управляйте видимостью информации',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF8E8E93),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Приватность',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildToggleRow('Показывать телефон', showPhoneTab, (value) {
-                setState(() => showPhoneTab = value);
-                _checkFormValidity();
-              }),
-              const SizedBox(height: 8),
-              _buildToggleRow('Показывать email', showEmailTab, (value) {
-                setState(() => showEmailTab = value);
-                _checkFormValidity();
-              }),
-              const SizedBox(height: 8),
-              _buildToggleRow('Показывать время активности', showActivityTime,
-                  (value) {
-                setState(() => showActivityTime = value);
-                _checkFormValidity();
-              }),
-              const SizedBox(height: 24),
-              const Text(
-                'Уведомления',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildToggleRow('Новые сообщения', showNewMessages, (value) {
-                setState(() => showNewMessages = value);
-                _checkFormValidity();
-              }),
-              const SizedBox(height: 8),
-              _buildToggleRow('Новые отзывы', showNewReviews, (value) {
-                setState(() => showNewReviews = value);
-                _checkFormValidity();
-              }),
-              const SizedBox(height: 8),
-              _buildToggleRow('Маркетинговые уведомления', showMarketing,
-                  (value) {
-                setState(() => showMarketing = value);
-                _checkFormValidity();
-              }),
-              Container(
-                height: 50,
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 20, bottom: 20),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(10),
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: _isFormValid,
-                  builder: (_, isValid, __) {
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        disabledBackgroundColor:
-                            Color(0xFF5B4FFF).withOpacity(0.3),
-                        backgroundColor: const Color(0xFF5B4FFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.shield,
+                            color: Colors.white,
+                            size: 30,
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                      ),
-                      onPressed: isValid ? _addEmployer : null,
-                      child: Text(
-                        "Сохранить изменения",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                              child: const Text('Приватность и уведомления'),
+                            ),
+                            const SizedBox(height: 4),
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : const Color(0xFF8E8E93),
+                              ),
+                              child: const Text('Управляйте видимостью информации'),
+                            ),
+                          ],
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
-                    );
-                  },
+                      child: const Text('Приватность'),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildToggleRow('Показывать телефон', showPhoneTab, (value) {
+                      setState(() => showPhoneTab = value);
+                      _checkFormValidity();
+                    }, isDark),
+                    const SizedBox(height: 8),
+                    _buildToggleRow('Показывать email', showEmailTab, (value) {
+                      setState(() => showEmailTab = value);
+                      _checkFormValidity();
+                    }, isDark),
+                    const SizedBox(height: 8),
+                    _buildToggleRow('Показывать время активности', showActivityTime,
+                            (value) {
+                          setState(() => showActivityTime = value);
+                          _checkFormValidity();
+                        }, isDark),
+                    const SizedBox(height: 24),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Уведомления'),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildToggleRow('Новые сообщения', showNewMessages, (value) {
+                      setState(() => showNewMessages = value);
+                      _checkFormValidity();
+                    }, isDark),
+                    const SizedBox(height: 8),
+                    _buildToggleRow('Новые отзывы', showNewReviews, (value) {
+                      setState(() => showNewReviews = value);
+                      _checkFormValidity();
+                    }, isDark),
+                    const SizedBox(height: 8),
+                    _buildToggleRow('Маркетинговые уведомления', showMarketing,
+                            (value) {
+                          setState(() => showMarketing = value);
+                          _checkFormValidity();
+                        }, isDark),
+                    Container(
+                      height: 50,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(top: 20, bottom: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _isFormValid,
+                        builder: (_, isValid, __) {
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              disabledBackgroundColor:
+                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF5B4FFF),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                            ),
+                            onPressed: isValid ? _addEmployer : null,
+                            child: const Text(
+                              "Сохранить изменения",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildToggleRow(String label, bool value, Function(bool) onChanged) {
-    return Container(
+  Widget _buildToggleRow(
+      String label, bool value, Function(bool) onChanged, bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F7),
+        color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F7),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.black,
+              color: isDark ? Colors.white : Colors.black,
             ),
+            child: Text(label),
           ),
           Switch(
             value: value,
             onChanged: onChanged,
             activeColor: const Color(0xFF5B4FFF),
             inactiveThumbColor: Colors.white,
-            inactiveTrackColor: const Color(0xFFD1D1D6),
+            inactiveTrackColor: isDark
+                ? const Color(0xFF4A4A4A)
+                : const Color(0xFFD1D1D6),
           ),
         ],
       ),
@@ -288,7 +314,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
       showLastSeen: finalShowActivityTime,
     ))
         .then(
-      (onValue) {
+          (onValue) {
         bloc.customersMe();
         showIOSStyleMessage(context, 'Сохранено');
       },
@@ -300,7 +326,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
       notifyMarketing: finalShowMarketing,
     ))
         .then(
-      (onValue) {
+          (onValue) {
         bloc.customersMe();
       },
     );

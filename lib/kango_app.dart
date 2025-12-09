@@ -1,9 +1,9 @@
-import 'package:buking/services/theme_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc.dart';
+import 'app_theme.dart';
 import 'generated/l10n.dart';
 import 'main.dart';
 import 'presentation/bloc/bloc_provider.dart';
@@ -20,8 +20,8 @@ class WawatApp extends StatefulWidget {
 class _WawatAppState extends State<WawatApp> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeManager(),
+    return ChangeNotifierProvider.value(
+      value: themeManager, // Используем уже загруженный themeManager из main.dart
       child: BlocProvider<AppBloc>(bloc: AppBloc(), child: App()),
     );
   }
@@ -30,21 +30,21 @@ class _WawatAppState extends State<WawatApp> {
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final themeManager = Provider.of<ThemeManager>(context);
-
     return MaterialApp(
       color: AppColors.appBarbgColor,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       navigatorObservers: [routeObserver],
-      theme: themeManager.lightTheme,
-      darkTheme: themeManager.darkTheme,
-      themeMode: themeManager.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      theme: appTheme,
       localizationsDelegates: [
         S.delegate,
+        // GlobalMaterialLocalizations.delegate,
+        // GlobalCupertinoLocalizations.delegate,
+        // GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: S.delegate.supportedLocales,
       home: SpleshScreen(),
+      // home: isviewed != 0 ? OnBoarding() : SpleshScreen(),
     );
   }
 }

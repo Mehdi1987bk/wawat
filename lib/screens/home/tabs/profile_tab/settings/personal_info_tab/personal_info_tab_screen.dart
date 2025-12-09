@@ -6,11 +6,14 @@ import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/common/image_selector.dart';
 import '../../../../../../presentation/resourses/app_colors.dart';
+import '../../../../../../services/theme_aware_screen.dart';
+import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
 
 class PersonalInfoTab extends BaseScreen {
@@ -63,133 +66,160 @@ class _PersonalInfoTabState
 
   @override
   Widget body() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             children: [
-              ProfileImageWidget(
-                imageUrl: 'url',
-                localFile: _selectedImage,
-                onCameraPressed: _selectImage,
-                size: 120,
-                borderRadius: 100,
-                cameraIconSize: 14,
-                showShadow: true,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Нажмите для изменения фото',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF8E8E93),
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildTextField('Полное имя', _fullNameController),
-              const SizedBox(height: 16),
-              _buildTextField('Email', _emailController),
-              const SizedBox(height: 16),
-              _buildTextField('Телефон', _phoneController),
-              const SizedBox(height: 16),
-              _buildTextField('Местоположение', _locationController),
-              const SizedBox(height: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'О себе',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _aboutController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFE5E5EA),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFE5E5EA),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF5B4FFF),
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.all(12),
-                    ),
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ],
-              ),
-              Container(
-                height: 50,
-                width: double.infinity,
-                margin: const EdgeInsets.only(
-                  top: 20,
-                  bottom: 50,
-                ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(10),
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: _isFormValid,
-                  builder: (_, isValid, __) {
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        disabledBackgroundColor:
-                            Color(0xFF5B4FFF).withOpacity(0.3),
-                        backgroundColor: const Color(0xFF5B4FFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    ProfileImageWidget(
+                      imageUrl: 'url',
+                      localFile: _selectedImage,
+                      onCameraPressed: _selectImage,
+                      size: 120,
+                      borderRadius: 100,
+                      cameraIconSize: 14,
+                      showShadow: true,
+                    ),
+                    const SizedBox(height: 12),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark
+                            ? const Color(0xFF9CA3AF)
+                            : const Color(0xFF8E8E93),
                       ),
-                      onPressed: isValid ? _addEmployer : null,
-                      child: Text(
-                        "Сохранить изменения",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                      child: const Text('Нажмите для изменения фото'),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildTextField('Полное имя', _fullNameController, isDark),
+                    const SizedBox(height: 16),
+                    _buildTextField('Email', _emailController, isDark),
+                    const SizedBox(height: 16),
+                    _buildTextField('Телефон', _phoneController, isDark),
+                    const SizedBox(height: 16),
+                    _buildTextField('Местоположение', _locationController, isDark),
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          child: const Text('О себе'),
                         ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _aboutController,
+                          maxLines: 4,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: isDark
+                                ? const Color(0xFF2A2A2A)
+                                : Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: isDark
+                                    ? const Color(0xFF4A4A4A)
+                                    : const Color(0xFFE5E5EA),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: isDark
+                                    ? const Color(0xFF4A4A4A)
+                                    : const Color(0xFFE5E5EA),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF5B4FFF),
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.all(12),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      height: 50,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(
+                        top: 20,
+                        bottom: 50,
                       ),
-                    );
-                  },
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _isFormValid,
+                        builder: (_, isValid, __) {
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              disabledBackgroundColor:
+                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF5B4FFF),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                            ),
+                            onPressed: isValid ? _addEmployer : null,
+                            child: const Text(
+                              "Сохранить изменения",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
-        ),
-        const SizedBox(height: 20),
-      ],
+        );
+      },
     );
   }
 
@@ -202,7 +232,7 @@ class _PersonalInfoTabState
     final source = await showSelectImageSourceAlert(context);
     if (source != null) {
       final image =
-          await ImagePicker().pickImage(source: source, imageQuality: 80);
+      await ImagePicker().pickImage(source: source, imageQuality: 80);
       if (image != null) {
         final file = File(image.path);
 
@@ -217,37 +247,48 @@ class _PersonalInfoTabState
 
         await bloc.onImageSelected(file);
         showIOSStyleMessage(context, 'Сохранено');
-
       }
     }
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(
+      String label, TextEditingController controller, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: isDark ? Colors.white : Colors.black,
           ),
+          child: Text(label),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? Colors.white : Colors.black,
+          ),
           decoration: InputDecoration(
+            filled: true,
+            fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFFE5E5EA),
+              borderSide: BorderSide(
+                color: isDark
+                    ? const Color(0xFF4A4A4A)
+                    : const Color(0xFFE5E5EA),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFFE5E5EA),
+              borderSide: BorderSide(
+                color: isDark
+                    ? const Color(0xFF4A4A4A)
+                    : const Color(0xFFE5E5EA),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -262,7 +303,6 @@ class _PersonalInfoTabState
               vertical: 12,
             ),
           ),
-          style: const TextStyle(fontSize: 14),
         ),
       ],
     );
@@ -297,16 +337,15 @@ class _PersonalInfoTabState
 
     bloc
         .profileEdit(
-            name: name,
-            email: email,
-            phone: phone,
-            location: location,
-            about: about)
+        name: name,
+        email: email,
+        phone: phone,
+        location: location,
+        about: about)
         .then(
-      (onValue) {
+          (onValue) {
         bloc.customersMe();
         showIOSStyleMessage(context, 'Сохранено');
-
       },
     );
   }

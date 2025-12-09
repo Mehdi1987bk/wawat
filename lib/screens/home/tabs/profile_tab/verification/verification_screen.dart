@@ -4,9 +4,11 @@ import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_response.dart';
+import '../../../../../services/theme_manager.dart';
 import '../settings/experience_tab/experience_tab_screen.dart';
 
 class VerificationScreen extends BaseScreen {
@@ -50,36 +52,40 @@ class _VerificationScreenState
 
   @override
   Widget body() {
-    if (_isLoadingStatus) {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
 
-    final hasVerification = _verificationData?.hasVerification ?? false;
-    final isVerified = _verificationData?.isVerified ?? false;
+        if (_isLoadingStatus) {
+          return Scaffold(
+            backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+            body: Center(
+              child: CircularProgressIndicator(
+                color: isDark ? const Color(0xFF6366F1) : const Color(0xFF00B4A6),
+              ),
+            ),
+          );
+        }
 
-    // Если верифицирован - показываем экран успеха
-    if (isVerified) {
-      return _buildVerifiedScreen();
-    }
+        final hasVerification = _verificationData?.hasVerification ?? false;
+        final isVerified = _verificationData?.isVerified ?? false;
 
-    // Если заявка на проверке - показываем экран ожидания
-    if (hasVerification) {
-      return _buildPendingScreen();
-    }
+        if (isVerified) {
+          return _buildVerifiedScreen(isDark);
+        }
 
-    // Если заявки нет - показываем форму загрузки
-    return _buildUploadDocumentsScreen();
+        if (hasVerification) {
+          return _buildPendingScreen(isDark);
+        }
+
+        return _buildUploadDocumentsScreen(isDark);
+      },
+    );
   }
 
-  // Экран для верифицированного пользователя
-  Widget _buildVerifiedScreen() {
+  Widget _buildVerifiedScreen(bool isDark) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: Column(
           children: [
@@ -89,16 +95,21 @@ class _VerificationScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 24),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Верификация',
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
+                    child: const Text('Верификация'),
                   ),
                 ],
               ),
@@ -110,7 +121,6 @@ class _VerificationScreenState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Success Icon
                       Container(
                         width: 120,
                         height: 120,
@@ -125,37 +135,41 @@ class _VerificationScreenState
                         ),
                       ),
                       const SizedBox(height: 32),
-                      // Title
-                      const Text(
-                        'Вы верифицированы!',
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
+                        child: const Text('Вы верифицированы!'),
                       ),
                       const SizedBox(height: 16),
-                      // Description
-                      Text(
-                        'Ваш аккаунт успешно верифицирован.\nТеперь у вас есть статус "Проверенный пользователь"',
-                        textAlign: TextAlign.center,
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey[600],
+                          color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                           height: 1.5,
+                        ),
+                        child: const Text(
+                          'Ваш аккаунт успешно верифицирован.\nТеперь у вас есть статус "Проверенный пользователь"',
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       const SizedBox(height: 40),
-                      // Info Card
-                      Container(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: isDark
+                                  ? Colors.black.withOpacity(0.3)
+                                  : Colors.black.withOpacity(0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -169,9 +183,13 @@ class _VerificationScreenState
                               iconBgColor: const Color(0xFFE8F5E9),
                               title: 'Документы одобрены',
                               subtitle: 'Все проверки пройдены',
+                              isDark: isDark,
                             ),
                             const SizedBox(height: 16),
-                            Divider(color: Colors.grey[200], height: 1),
+                            Divider(
+                              color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                              height: 1,
+                            ),
                             const SizedBox(height: 16),
                             _buildInfoRow(
                               icon: Icons.check_circle,
@@ -179,16 +197,19 @@ class _VerificationScreenState
                               iconBgColor: const Color(0xFFE8F5E9),
                               title: 'Проверка завершена',
                               subtitle: 'Аккаунт верифицирован',
+                              isDark: isDark,
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Success Note
-                      Container(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E9),
+                          color: isDark
+                              ? const Color(0xFF1E3A1E)
+                              : const Color(0xFFE8F5E9),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -200,11 +221,14 @@ class _VerificationScreenState
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                'Вы можете пользоваться всеми функциями платформы',
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey[700],
+                                  color: isDark ? const Color(0xFFB0B0B0) : Colors.grey[700],
+                                ),
+                                child: const Text(
+                                  'Вы можете пользоваться всеми функциями платформы',
                                 ),
                               ),
                             ),
@@ -222,10 +246,9 @@ class _VerificationScreenState
     );
   }
 
-  // Экран ожидания проверки (hasVerification = true, isVerified = false)
-  Widget _buildPendingScreen() {
+  Widget _buildPendingScreen(bool isDark) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: Column(
           children: [
@@ -235,16 +258,21 @@ class _VerificationScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 24),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Верификация',
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
+                    child: const Text('Верификация'),
                   ),
                 ],
               ),
@@ -256,7 +284,6 @@ class _VerificationScreenState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Pending Icon
                       Container(
                         width: 120,
                         height: 120,
@@ -271,37 +298,41 @@ class _VerificationScreenState
                         ),
                       ),
                       const SizedBox(height: 32),
-                      // Title
-                      const Text(
-                        'Заявка на рассмотрении',
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
+                        child: const Text('Заявка на рассмотрении'),
                       ),
                       const SizedBox(height: 16),
-                      // Description
-                      Text(
-                        'Ваша заявка на верификацию была успешно отправлена.\nМы проверим ваши документы в течение 1-3 рабочих дней.',
-                        textAlign: TextAlign.center,
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey[600],
+                          color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                           height: 1.5,
+                        ),
+                        child: const Text(
+                          'Ваша заявка на верификацию была успешно отправлена.\nМы проверим ваши документы в течение 1-3 рабочих дней.',
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       const SizedBox(height: 40),
-                      // Info Card
-                      Container(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: isDark
+                                  ? Colors.black.withOpacity(0.3)
+                                  : Colors.black.withOpacity(0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -315,9 +346,13 @@ class _VerificationScreenState
                               iconBgColor: const Color(0xFFE8F5E9),
                               title: 'Документы отправлены',
                               subtitle: 'Паспорт и селфи получены',
+                              isDark: isDark,
                             ),
                             const SizedBox(height: 16),
-                            Divider(color: Colors.grey[200], height: 1),
+                            Divider(
+                              color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                              height: 1,
+                            ),
                             const SizedBox(height: 16),
                             _buildInfoRow(
                               icon: Icons.schedule,
@@ -325,16 +360,19 @@ class _VerificationScreenState
                               iconBgColor: const Color(0xFFFFF3E0),
                               title: 'На проверке',
                               subtitle: 'Ожидайте результатов',
+                              isDark: isDark,
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Waiting Note
-                      Container(
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8F2FC),
+                          color: isDark
+                              ? const Color(0xFF1E2A3A)
+                              : const Color(0xFFE8F2FC),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -346,11 +384,14 @@ class _VerificationScreenState
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                'Мы уведомим вас о результатах проверки',
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey[700],
+                                  color: isDark ? const Color(0xFFB0B0B0) : Colors.grey[700],
+                                ),
+                                child: const Text(
+                                  'Мы уведомим вас о результатах проверки',
                                 ),
                               ),
                             ),
@@ -374,6 +415,7 @@ class _VerificationScreenState
     required Color iconBgColor,
     required String title,
     required String subtitle,
+    required bool isDark,
   }) {
     return Row(
       children: [
@@ -391,21 +433,23 @@ class _VerificationScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
+                child: Text(title),
               ),
               const SizedBox(height: 2),
-              Text(
-                subtitle,
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.grey[600],
+                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                 ),
+                child: Text(subtitle),
               ),
             ],
           ),
@@ -414,9 +458,9 @@ class _VerificationScreenState
     );
   }
 
-  Widget _buildUploadDocumentsScreen() {
+  Widget _buildUploadDocumentsScreen(bool isDark) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -428,16 +472,21 @@ class _VerificationScreenState
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back, size: 24),
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 24,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Верификация',
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
+                      child: const Text('Верификация'),
                     ),
                   ],
                 ),
@@ -457,34 +506,41 @@ class _VerificationScreenState
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Верификация аккаунта',
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
+                child: const Text('Верификация аккаунта'),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Подтвердите свою личность для повышения\nдоверия',
-                textAlign: TextAlign.center,
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey,
+                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey,
                   height: 1.4,
+                ),
+                child: const Text(
+                  'Подтвердите свою личность для повышения\nдоверия',
+                  textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: 30),
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -493,21 +549,23 @@ class _VerificationScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Статус верификации',
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
+                      child: const Text('Статус верификации'),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Загрузите документы для проверки',
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                       ),
+                      child: const Text('Загрузите документы для проверки'),
                     ),
                   ],
                 ),
@@ -520,11 +578,11 @@ class _VerificationScreenState
                 title: 'Паспорт',
                 subtitle: 'Основной документ',
                 status: _passportImage != null ? 'Загружено' : 'Не загружено',
-                statusColor:
-                    _passportImage != null ? Colors.green : Colors.grey,
+                statusColor: _passportImage != null ? Colors.green : Colors.grey,
                 uploadText: 'Загрузить паспорт',
                 image: _passportImage,
                 onTap: _pickPassportImage,
+                isDark: isDark,
               ),
               const SizedBox(height: 16),
               _buildDocumentCard(
@@ -539,13 +597,14 @@ class _VerificationScreenState
                 image: _selfieImage,
                 onTap: _pickSelfieImage,
                 showUploadIcon: true,
+                isDark: isDark,
               ),
               const SizedBox(height: 24),
               RichText(
                 text: TextSpan(
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                     height: 1.5,
                   ),
                   children: const [
@@ -558,7 +617,7 @@ class _VerificationScreenState
                     ),
                     TextSpan(
                       text:
-                          'Проверка документов занимает 1-3 рабочих дня. После одобрения вы получите статус "Проверенный пользователь".',
+                      'Проверка документов занимает 1-3 рабочих дня. После одобрения вы получите статус "Проверенный пользователь".',
                     ),
                   ],
                 ),
@@ -576,25 +635,24 @@ class _VerificationScreenState
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    disabledBackgroundColor:
-                        AppColors.appColor.withOpacity(0.6),
+                    disabledBackgroundColor: AppColors.appColor.withOpacity(0.6),
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
                       : const Text(
-                          'Отправить на проверку',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    'Отправить на проверку',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
@@ -651,10 +709,8 @@ class _VerificationScreenState
       );
 
       if (mounted) {
-        showIOSStyleMessage(
-            context, 'Документы успешно отправлены на проверку');
+        showIOSStyleMessage(context, 'Документы успешно отправлены на проверку');
 
-        // Перезагрузить статус
         await _loadVerificationStatus();
       }
     } catch (e) {
@@ -686,17 +742,21 @@ class _VerificationScreenState
     required String uploadText,
     required File? image,
     required VoidCallback onTap,
+    required bool isDark,
     bool showUploadIcon = false,
   }) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -720,21 +780,23 @@ class _VerificationScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
+                      child: Text(title),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      subtitle,
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[500],
+                        color: isDark ? const Color(0xFF6B7280) : Colors.grey[500],
                       ),
+                      child: Text(subtitle),
                     ),
                   ],
                 ),
@@ -746,7 +808,7 @@ class _VerificationScreenState
                     Icon(
                       Icons.upload_outlined,
                       size: 18,
-                      color: Colors.grey[400],
+                      color: isDark ? const Color(0xFF6B7280) : Colors.grey[400],
                     ),
                   if (image != null)
                     Icon(
@@ -765,49 +827,50 @@ class _VerificationScreenState
               width: double.infinity,
               height: 180,
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]!,
                   style: BorderStyle.solid,
                   width: 1.5,
                 ),
               ),
               child: CustomPaint(
                 painter: DashedBorderPainter(
-                  color: Colors.grey[350]!,
+                  color: isDark ? const Color(0xFF4A4A4A) : Colors.grey[350]!,
                   strokeWidth: 1.5,
                   gap: 6,
                 ),
                 child: image != null
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          image,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                      )
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(
+                    image,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+                )
                     : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.upload_outlined,
-                            size: 32,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            uploadText,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.upload_outlined,
+                      size: 32,
+                      color: isDark ? const Color(0xFF6B7280) : Colors.grey[400],
+                    ),
+                    const SizedBox(height: 10),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[500],
+                        fontWeight: FontWeight.w500,
                       ),
+                      child: Text(uploadText),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

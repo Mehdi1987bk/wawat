@@ -1,4 +1,3 @@
-import 'package:buking/data/network/api/chat_api.dart';
 import 'package:buking/data/network/response/type_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,15 +14,14 @@ import 'data/cache/data_cache_manager.dart';
 import 'data/network/api/auth_api.dart';
 import 'data/network/response/language.dart';
 import 'data/network/response/notifications.dart';
-import 'data/network/response/packet_type_resp.dart';
 import 'data/network/response/privacy.dart';
 import 'data/network/response/professional.dart';
-import 'data/network/response/profile_info.dart';
 import 'data/network/response/rating.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
 import 'kango_app.dart';
+import 'services/theme_manager.dart';
 import 'wawat/wawat_app.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,12 +30,39 @@ final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
 const baseUrl = 'https://wawat.tahirguliyev.com';
 final RouteObserver<ModalRoute<void>> routeObserver =
-    RouteObserver<ModalRoute<void>>();
+RouteObserver<ModalRoute<void>>();
+
+// Глобальная переменная для ThemeManager
+late ThemeManager themeManager;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final dir = await getApplicationDocumentsDirectory();
+
+  await Hive.initFlutter(dir.path);
+
+
+  // ВАЖНО: Проверьте, есть ли ProfileInfoAdapter и зарегистрируйте его
+  // if (!Hive.isAdapterRegistered(7)) Hive.registerAdapter(ProfileInfoAdapter());
+
+  // Автоматическая очистка при ошибке
+  try {
+    final boxes = ['userBox', 'authBox', 'cacheBox'];
+    for (var boxName in boxes) {
+      if (await Hive.boxExists(boxName)) {
+        await Hive.openBox(boxName);
+      }
+    }
+  } catch (e) {
+    print('⚠️ Hive error detected: $e');
+    print('🧹 Clearing corrupted Hive data...');
+
+    // Удаляем все боксы
+    await Hive.deleteFromDisk();
+
+    print('✅ Hive cache cleared successfully');
+  }
 
   Hive
     ..init(dir.path)
@@ -47,28 +72,23 @@ void main() async {
     ..registerAdapter(PrivacyAdapter())
     ..registerAdapter(LanguageAdapter())
     ..registerAdapter(ProfessionalAdapter())
-    ..registerAdapter(ProfileInfoAdapter())
-    ..registerAdapter(PacketTypeRespAdapter())
     ..registerAdapter(TypeOptionAdapter());
+
   _registerDependency();
 
-  runApp(WawatApp());
+  // Загружаем тему ДО запуска приложения
+  themeManager = await ThemeManager.create();
 
-  // runApp(GrandWayApp());
+  runApp(WawatApp());
 }
+
 
 void _registerDependency() {
-  // ✅ СНАЧАЛА регистрируем CacheManager (до создания Dio!)
-  sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
-
-  // ✅ ТЕПЕРЬ создаём Dio (CallInterceptor сможет получить CacheManager)
   final dio = _initDio();
-
   sl.registerLazySingleton<AuthApi>(() => AuthApi(dio));
-  sl.registerLazySingleton<ChatApi>(() => ChatApi(dio));
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
+  sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
 }
-
 
 Dio _initDio() {
   final dio = Dio();
