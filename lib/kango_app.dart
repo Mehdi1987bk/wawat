@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:provider/provider.dart';
 
 import 'app_bloc.dart';
 import 'app_theme.dart';
@@ -10,6 +9,7 @@ import 'main.dart';
 import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';
 import 'screens/splesh/splesh_screen.dart';
+import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -21,7 +21,10 @@ class WawatApp extends StatefulWidget {
 class _WawatAppState extends State<WawatApp> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AppBloc>(bloc: AppBloc(), child: App());
+    return ChangeNotifierProvider(
+      create: (_) => ThemeManager(),
+      child: BlocProvider<AppBloc>(bloc: AppBloc(), child: App()),
+    );
   }
 }
 
