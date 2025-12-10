@@ -45,16 +45,19 @@ class _TextFilddState extends State<TextFildd> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
         padding: EdgeInsets.only(top: 5, left: 10, right: 10),
         margin: const EdgeInsets.only(top: 5, left: 20, right: 20),
         height: 60,
         decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.cardColor,
             borderRadius: new BorderRadius.circular(10.0),
             border: _focusNode.hasFocus
-                ? Border.all(color: Colors.red)
-                : Border.all(color: Colors.grey.withOpacity(0.2))),
+                ? Border.all(color: theme.primaryColor)
+                : Border.all(color: theme.dividerColor)),
 
         child: Focus(
           onFocusChange: (hasFocus) {
@@ -69,15 +72,18 @@ class _TextFilddState extends State<TextFildd> {
               textInputAction: widget.textInputAction,
               maxLines: 1,
               focusNode: _focusNode,
-              cursorColor: AppColors.appColor,
-              style: TextStyle(color: AppColors.darkBlue, fontSize: 20),
+              cursorColor: theme.primaryColor,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontSize: 20
+              ),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(bottom: 18, left: 15, top: 0, right: 10),
                 suffixIconConstraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
                 border: InputBorder.none,
                 labelStyle: TextStyle(
                     color: finKodNumberFocus || widget._cartController.text.trim().isEmpty
-                        ? Colors.black54
+                        ? (isDark ? Colors.white70 : Colors.black54)
                         : Colors.transparent,
                     fontSize: 18),
                 labelText: widget.labelText,

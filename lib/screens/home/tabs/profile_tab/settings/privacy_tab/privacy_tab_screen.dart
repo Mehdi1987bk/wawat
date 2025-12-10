@@ -2,9 +2,11 @@ import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/screens/home/tabs/profile_tab/settings/privacy_tab/privacy_tab_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/request/privacy_settings.dart';
+import '../../../../../../presentation/theme/theme_provider.dart';
 
 class PrivacyTab extends BaseScreen {
   final bool showPhoneTab;
@@ -138,6 +140,27 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                     ],
                   ),
                 ],
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Внешний вид',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, _) {
+                  return _buildToggleRow(
+                    'Темная тема',
+                    themeProvider.isDarkMode,
+                    (value) {
+                      themeProvider.toggleTheme();
+                    },
+                  );
+                },
               ),
               const SizedBox(height: 24),
               const Text(
