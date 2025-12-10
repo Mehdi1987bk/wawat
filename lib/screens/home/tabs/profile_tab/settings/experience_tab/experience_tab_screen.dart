@@ -759,7 +759,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
 void showIOSStyleAlert(BuildContext context, String message,
     {bool isError = true}) {
-  final themeManager = Provider.of<ThemeManager>(context, listen: false);
+  final themeManager = Provider.of<ThemeManager>(context);
   final isDark = themeManager.isDarkMode;
 
   showDialog(
@@ -820,7 +820,7 @@ void showIOSStyleMessage(
       bool isSuccess = true,
       Duration duration = const Duration(seconds: 2),
     }) {
-  final themeManager = Provider.of<ThemeManager>(context, listen: false);
+  final themeManager = Provider.of<ThemeManager>(context);
   final isDark = themeManager.isDarkMode;
 
   showDialog(

@@ -29,7 +29,7 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
 
     return ThemeAwareScreen(
 
@@ -431,7 +431,7 @@ class _ProfileTabScreenState
     String? yes,
     String? no,
   }) {
-    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final themeManager = Provider.of<ThemeManager>(context);
     final isDark = themeManager.isDarkMode;
 
     showModalBottomSheet(

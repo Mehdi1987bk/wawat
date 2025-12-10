@@ -15,7 +15,7 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),

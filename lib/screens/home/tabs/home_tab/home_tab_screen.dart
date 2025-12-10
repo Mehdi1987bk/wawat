@@ -54,7 +54,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
 
     return ThemeAwareScreen(
       isDark: isDark,

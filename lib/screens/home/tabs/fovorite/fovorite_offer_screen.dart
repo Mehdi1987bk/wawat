@@ -53,7 +53,7 @@ class _FovoriteOfferListScreenState
   }
 
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
 
     return ThemeAwareScreen(
       isDark: isDark,
