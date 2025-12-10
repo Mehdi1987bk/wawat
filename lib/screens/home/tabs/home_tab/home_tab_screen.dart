@@ -86,8 +86,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
             ),
           ),
         );
-      },
-    );
   }
 
   Widget _buildHeroSection(bool isDark) {

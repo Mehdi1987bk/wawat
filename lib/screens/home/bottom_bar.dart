@@ -15,11 +15,9 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-        return AnimatedContainer(
+    return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -88,8 +86,6 @@ class BottomBar extends StatelessWidget {
             ),
           ),
         );
-      },
-    );
   }
 }
 

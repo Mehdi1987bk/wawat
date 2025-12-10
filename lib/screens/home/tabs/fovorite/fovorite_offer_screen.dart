@@ -132,8 +132,6 @@ class _FovoriteOfferListScreenState
             ),
           ),
         );
-      },
-    );
   }
 
   @override

@@ -214,7 +214,6 @@ class _CreatePostScreenState
       cities: _allCities,
       selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
       isLoading: _isLoadingCities,
-    );
 
     if (selectedCity != null) {
       setState(() {
@@ -461,8 +460,6 @@ class _CreatePostScreenState
             ),
           ),
         );
-      },
-    );
   }
 
   Widget _buildOfferTypeDropdown(bool isDark) {
@@ -567,9 +564,7 @@ class _CreatePostScreenState
           controller.text =
           '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
         }
-      },
       isDark: isDark,
-    );
   }
 
   Widget _buildTimeField(TextEditingController controller, bool isDark) {
@@ -607,9 +602,7 @@ class _CreatePostScreenState
           controller.text =
           '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
         }
-      },
       isDark: isDark,
-    );
   }
 
   Future<void> _submitOffer() async {
@@ -738,7 +731,6 @@ class _CreatePostScreenState
           ],
         ),
       ),
-    );
   }
 
   Widget _buildCityField({

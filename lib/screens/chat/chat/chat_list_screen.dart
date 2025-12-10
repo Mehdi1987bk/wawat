@@ -297,8 +297,6 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             ),
           ),
         );
-      },
-    );
   }
 
   void _showConversationMenu(Conversation conversation, bool isDark) {
