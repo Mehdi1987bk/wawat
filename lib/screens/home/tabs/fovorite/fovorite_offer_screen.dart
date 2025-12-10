@@ -52,13 +52,15 @@ class _FovoriteOfferListScreenState
     });
   }
 
+  @override
+  bool get useSystemOverlay => false;
+
+  @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
-
-
-    return ThemeAwareScreen(
-      isDark: isDark,
-      child: SafeArea(
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return SafeArea(
         child: RefreshIndicator(
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           color: isDark ? const Color(0xFF6366F1) : null,
@@ -130,7 +132,8 @@ class _FovoriteOfferListScreenState
             ],
           ),
         ),
-      ),
+      );
+      },
     );
   }
 

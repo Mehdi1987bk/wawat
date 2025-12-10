@@ -88,6 +88,9 @@ class _ProfileTabScreenState
   }
 
   @override
+  bool get useSystemOverlay => false;
+
+  @override
   ProfileTabBloc provideBloc() {
     return ProfileTabBloc();
   }
