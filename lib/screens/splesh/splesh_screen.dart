@@ -1,11 +1,10 @@
-import 'package:buking/presentation/resourses/app_colors.dart';
-import 'package:flutter/cupertino.dart';
+  import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
- import '../home/home_screen.dart';
-import '../home/tabs/home_tab/home_tab_screen.dart';
+import '../home/home_screen.dart';
+ import 'Intro_page.dart';
 
 bool cartNumberFocus = false;
 bool finKodNumberFocus = false;
@@ -25,19 +24,23 @@ class _SpleshScreenState extends State<SpleshScreen> {
       ),
       sl.get<AuthRepository>().firstOpen(),
     ]).then((value) {
-      sl.get<AuthRepository>().setIsFirstOpen();
-      if (value.last) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return HomeScreen();
-        }));
-      } else {
+      final isNotFirstOpen = value.last; // true = уже был запуск, false = первый раз
+
+      if (isNotFirstOpen) {
+        // Повторный вход - сразу на главный экран
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) {
-              return HomeScreen();
-            },
+            builder: (BuildContext context) => HomeScreen(),
+          ),
+        );
+      } else {
+        // Первый вход - показываем IntroPage и сохраняем флаг
+        sl.get<AuthRepository>().setIsFirstOpen();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => IntroPage(),
           ),
         );
       }

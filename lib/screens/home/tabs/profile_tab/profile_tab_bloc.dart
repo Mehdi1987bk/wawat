@@ -11,10 +11,10 @@ import '../../../../main.dart';
 
 class ProfileTabBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
-  final CacheManager _cacheManager = sl.get<CacheManager>();
 
   late final Stream<User> userDetails =
-      ValueConnectableStream(authRepository.userDetails).autoConnect();
-  late final Future<void> logout = authRepository.logout();
+  ValueConnectableStream(authRepository.userDetails).autoConnect();
 
- }
+  // Исправлено: сделал метод вместо поля
+  Future<void> logout() => authRepository.logout();
+}

@@ -38,53 +38,91 @@ class _ProfileTabScreenState
         return StreamBuilder<User>(
           stream: bloc.userDetails,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return SafeArea(
-                child: Stack(
+            // Обработка ошибок
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 80),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: EdgeInsets.only(left: 16, right: 16, top: 20),
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 20),
-                                  _buildProfileHeader(snapshot.requireData, isDark),
-                                  const SizedBox(height: 16),
-                                  _buildStatsCard(context, snapshot.requireData, isDark),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            _buildMenuSection(snapshot.requireData, isDark),
-                            const SizedBox(height: 120),
-                          ],
-                        ),
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: isDark ? Colors.white54 : Colors.black54,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Ошибка загрузки данных',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black,
+                        fontSize: 16,
                       ),
                     ),
-                    BuildHeader(context,isDark),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {});
+                      },
+                      child: const Text('Попробовать снова'),
+                    ),
                   ],
                 ),
               );
             }
-            return SizedBox();
+
+            // Показ загрузки
+            if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: isDark ? Colors.white : WawatColors.primary,
+                ),
+              );
+            }
+
+            // Данные загружены
+            return SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 80),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                            padding: EdgeInsets.only(left: 10, right: 10),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                _buildProfileHeader(snapshot.requireData, isDark),
+                                const SizedBox(height: 16),
+                                _buildStatsCard(context, snapshot.requireData, isDark),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildMenuSection(snapshot.requireData, isDark),
+                          const SizedBox(height: 120),
+                        ],
+                      ),
+                    ),
+                  ),
+                  BuildHeader(context, isDark),
+                ],
+              ),
+            );
           },
         );
       },
@@ -394,12 +432,12 @@ class _ProfileTabScreenState
           GestureDetector(
             onTap: () => showLogoutBottomSheet(
                 title: "Выйти",
-                description:"Вы уверены, что хотите выйти?",
+                description: "Вы уверены, что хотите выйти?",
                 yes: "Да, выйти",
                 no: "Нет, отменить",
                 context: context,
                 onConfirmLogout: () {
-                  bloc.logout.then(
+                  bloc.logout().then(  // ИСПРАВЛЕНО: Добавлены скобки ()
                         (value) {
                       return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                         builder: (BuildContext context) {

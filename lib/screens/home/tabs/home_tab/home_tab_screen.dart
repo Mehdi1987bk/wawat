@@ -67,11 +67,10 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                   controller: _scrollController,
                   child: Column(
                     children: [
-                      _buildHeroSection(isDark),
-                      SearchFormWidget(
+                       SearchFormWidget(
                         bloc: bloc,
                       ),
-                      _buildPopularOffers(isDark),
+                      // _buildPopularOffers(isDark),
                     ],
                   ),
                 ),
@@ -84,116 +83,69 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     );
   }
 
-  Widget _buildHeroSection(bool isDark) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Image.asset(
-            "asset/home_back.png",
-            color: isDark ? Colors.white.withOpacity(0.9) : null,
-            colorBlendMode: isDark ? BlendMode.modulate : null,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : WawatColors.textPrimary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-            child: Text(
-              'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-              color:
-              isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-            child: Text(
-              'Быстрая и безопасная доставка посылок по всему миру',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildPopularOffers(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: WawatDimensions.spacingMd),
-        StreamBuilder<List<OfferModel>>(
-          stream: bloc.paginableList,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final groups = snapshot.requireData;
-              if (groups.isEmpty) {
-                return Center(
-                  child: Text(''),
-                );
-              }
-
-              return Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: WawatDimensions.spacingMd),
-                    child: Center(
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 300),
-                        style: WawatTextStyles.h2.copyWith(
-                          color:
-                          isDark ? Colors.white : WawatTextStyles.h2.color,
-                        ),
-                        child: Text(
-                          'Популярные предложения',
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 40),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: groups.length,
-                      itemBuilder: (context, index) {
-                        final offer = groups[index];
-
-                        return WawatCourierCard(
-                          courier: offer,
-                          onFavoriteToggle: (v) {
-                            bloc.setFavorites(offer.id);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            }
-
-            return const SizedBox();
-          },
-        )
-      ],
-    );
-  }
+  // Widget _buildPopularOffers(bool isDark) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       SizedBox(height: WawatDimensions.spacingMd),
+  //       StreamBuilder<List<OfferModel>>(
+  //         stream: bloc.paginableList,
+  //         builder: (context, snapshot) {
+  //           if (snapshot.hasData) {
+  //             final groups = snapshot.requireData;
+  //             if (groups.isEmpty) {
+  //               return Center(
+  //                 child: Text(''),
+  //               );
+  //             }
+  //
+  //             return Column(
+  //               children: [
+  //                 Padding(
+  //                   padding: EdgeInsets.symmetric(
+  //                       horizontal: WawatDimensions.spacingMd),
+  //                   child: Center(
+  //                     child: AnimatedDefaultTextStyle(
+  //                       duration: const Duration(milliseconds: 300),
+  //                       style: WawatTextStyles.h2.copyWith(
+  //                         color:
+  //                         isDark ? Colors.white : WawatTextStyles.h2.color,
+  //                       ),
+  //                       child: Text(
+  //                         'Популярные предложения',
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding: EdgeInsets.only(top: 20, bottom: 40),
+  //                   child: ListView.builder(
+  //                     shrinkWrap: true,
+  //                     physics: const NeverScrollableScrollPhysics(),
+  //                     itemCount: groups.length,
+  //                     itemBuilder: (context, index) {
+  //                       final offer = groups[index];
+  //
+  //                       return WawatCourierCard(
+  //                         courier: offer,
+  //                         onFavoriteToggle: (v) {
+  //                           bloc.setFavorites(offer.id);
+  //                         },
+  //                       );
+  //                     },
+  //                   ),
+  //                 ),
+  //               ],
+  //             );
+  //           }
+  //
+  //           return const SizedBox();
+  //         },
+  //       )
+  //     ],
+  //   );
+  // }
 
   @override
   void dispose() {
