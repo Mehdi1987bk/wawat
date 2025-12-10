@@ -148,7 +148,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   bool get wantKeepAlive => false;
 
 
-  bool get resizeToAvoidBottomInset => true;  // ← ДОБАВЛЕНА ЭТА СТРОКА
+  bool get resizeToAvoidBottomInset => true;
 }
 
 abstract class BaseStateWithFlushBar<T extends BaseScreen,

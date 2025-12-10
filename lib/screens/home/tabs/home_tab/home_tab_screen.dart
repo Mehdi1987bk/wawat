@@ -117,7 +117,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               fontSize: 15,
               fontWeight: FontWeight.w400,
               color:
-                  isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
+              isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -156,7 +156,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                         duration: const Duration(milliseconds: 300),
                         style: WawatTextStyles.h2.copyWith(
                           color:
-                              isDark ? Colors.white : WawatTextStyles.h2.color,
+                          isDark ? Colors.white : WawatTextStyles.h2.color,
                         ),
                         child: Text(
                           'Популярные предложения',
@@ -242,8 +242,8 @@ Widget BuildHeader(BuildContext context, bool isDark) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return NotificationScreen();
-              }));
+                    return NotificationScreen();
+                  }));
             }
           },
           child: AnimatedContainer(

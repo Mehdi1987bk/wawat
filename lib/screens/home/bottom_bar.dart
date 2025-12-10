@@ -15,76 +15,79 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              BottomNavigationItem(
-                index: 0,
-                selectedIndex: selectedIndex,
-                label: 'Поиск',
-                svgIcon: 'asset/tab1.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 1,
-                selectedIndex: selectedIndex,
-                label: 'Чаты',
-                svgIcon: 'asset/tab2.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 2,
-                selectedIndex: selectedIndex,
-                label: 'Подать',
-                svgIcon: 'asset/tab3.svg',
-                onChanged: onChanged,
-                isCentral: true,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 3,
-                selectedIndex: selectedIndex,
-                label: 'Избранное',
-                svgIcon: 'asset/tab4.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 4,
-                selectedIndex: selectedIndex,
-                label: 'Аккаунт',
-                svgIcon: 'asset/tab5.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
               ),
             ],
           ),
-        ),
-      ),
+          child: SafeArea(
+            top: false,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  BottomNavigationItem(
+                    index: 0,
+                    selectedIndex: selectedIndex,
+                    label: 'Поиск',
+                    svgIcon: 'asset/tab1.svg',
+                    onChanged: onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 1,
+                    selectedIndex: selectedIndex,
+                    label: 'Чаты',
+                    svgIcon: 'asset/tab2.svg',
+                    onChanged: onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 2,
+                    selectedIndex: selectedIndex,
+                    label: 'Подать',
+                    svgIcon: 'asset/tab3.svg',
+                    onChanged: onChanged,
+                    isCentral: true,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 3,
+                    selectedIndex: selectedIndex,
+                    label: 'Избранное',
+                    svgIcon: 'asset/tab4.svg',
+                    onChanged: onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 4,
+                    selectedIndex: selectedIndex,
+                    label: 'Аккаунт',
+                    svgIcon: 'asset/tab5.svg',
+                    onChanged: onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -133,17 +136,17 @@ class BottomNavigationItem extends StatelessWidget {
           color: isCentral && isSelected
               ? null
               : (isSelected
-              ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
-              : Colors.transparent),
+                  ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
+                  : Colors.transparent),
           borderRadius: BorderRadius.circular(12),
           boxShadow: isCentral && isSelected
               ? [
-            BoxShadow(
-              color: Color(0xFF2662EA).withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ]
+                  BoxShadow(
+                    color: Color(0xFF2662EA).withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
         child: Column(
@@ -157,8 +160,8 @@ class BottomNavigationItem extends StatelessWidget {
                 color: isCentral && isSelected
                     ? Colors.white.withOpacity(0.3)
                     : (isSelected
-                    ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
-                    : Colors.transparent),
+                        ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
+                        : Colors.transparent),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: SvgPicture.asset(

@@ -53,7 +53,8 @@ class _FovoriteOfferListScreenState
   }
 
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
+
 
     return ThemeAwareScreen(
       isDark: isDark,
@@ -82,7 +83,7 @@ class _FovoriteOfferListScreenState
                               child: Padding(
                                 padding: EdgeInsets.only(
                                     top:
-                                        MediaQuery.of(context).size.height / 3),
+                                    MediaQuery.of(context).size.height / 3),
                                 child: Center(
                                   child: AnimatedDefaultTextStyle(
                                     duration: const Duration(milliseconds: 300),
@@ -103,7 +104,7 @@ class _FovoriteOfferListScreenState
                           return SliverPadding(
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
-                                (context, groupIndex) {
+                                    (context, groupIndex) {
                                   final offer = groups[groupIndex];
 
                                   return WawatCourierCard(
