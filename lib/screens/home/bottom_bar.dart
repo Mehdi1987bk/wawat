@@ -89,7 +89,7 @@ class BottomBar extends StatelessWidget {
   }
 }
 
-class BottomNavigationItem extends StatelessWidget {
+class BottomNavigationItem extends StatefulWidget {
   final int index;
   final int selectedIndex;
   final String label;
@@ -110,10 +110,34 @@ class BottomNavigationItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<BottomNavigationItem> createState() => _BottomNavigationItemState();
+}
+
+class _BottomNavigationItemState extends State<BottomNavigationItem> {
+  bool _wasSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _wasSelected = widget.selectedIndex == widget.index;
+  }
+
+  @override
+  void didUpdateWidget(BottomNavigationItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Обновляем состояние после rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _wasSelected = widget.selectedIndex == widget.index;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bool isSelected = selectedIndex == index;
+    final bool isSelected = widget.selectedIndex == widget.index;
     final Color activeColor = Color(0xFF2857DA);
-    final Color inactiveColor = isDark ? const Color(0xFF6B7280) : Color(0xFF9E9E9E);
+    final Color inactiveColor = widget.isDark ? const Color(0xFF6B7280) : Color(0xFF9E9E9E);
 
     // Градиент для центральной кнопки
     final gradient = LinearGradient(
@@ -122,21 +146,29 @@ class BottomNavigationItem extends StatelessWidget {
       end: Alignment.bottomRight,
     );
 
+    // Анимация только при активации (becoming selected), мгновенная смена при деактивации
+    final bool shouldAnimate = isSelected && !_wasSelected;
+    final Duration animDuration = shouldAnimate
+        ? const Duration(milliseconds: 200)
+        : Duration.zero;
+
     return GestureDetector(
-      onTap: () => onChanged(index),
+      behavior: HitTestBehavior.opaque,
+      onTap: () => widget.onChanged(widget.index),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: animDuration,
+        curve: Curves.easeOut,
         width: MediaQuery.of(context).size.width * 0.17,
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
         decoration: BoxDecoration(
-          gradient: isCentral && isSelected ? gradient : null,
-          color: isCentral && isSelected
+          gradient: widget.isCentral && isSelected ? gradient : null,
+          color: widget.isCentral && isSelected
               ? null
               : (isSelected
-              ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
+              ? (widget.isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
               : Colors.transparent),
           borderRadius: BorderRadius.circular(12),
-          boxShadow: isCentral && isSelected
+          boxShadow: widget.isCentral && isSelected
               ? [
             BoxShadow(
               color: Color(0xFF2662EA).withOpacity(0.3),
@@ -151,22 +183,23 @@ class BottomNavigationItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
+              duration: animDuration,
+              curve: Curves.easeOut,
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isCentral && isSelected
+                color: widget.isCentral && isSelected
                     ? Colors.white.withOpacity(0.3)
                     : (isSelected
-                    ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
+                    ? (widget.isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
                     : Colors.transparent),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: SvgPicture.asset(
-                svgIcon,
+                widget.svgIcon,
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                  isCentral && isSelected
+                  widget.isCentral && isSelected
                       ? Colors.white
                       : (isSelected ? activeColor : inactiveColor),
                   BlendMode.srcIn,
@@ -175,16 +208,17 @@ class BottomNavigationItem extends StatelessWidget {
             ),
             SizedBox(height: 6),
             AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 300),
+              duration: animDuration,
+              curve: Curves.easeOut,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: isCentral && isSelected
+                color: widget.isCentral && isSelected
                     ? Colors.white
                     : (isSelected ? activeColor : inactiveColor),
               ),
               child: Text(
-                label,
+                widget.label,
                 textAlign: TextAlign.center,
               ),
             ),
