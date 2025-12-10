@@ -13,7 +13,6 @@ import '../../../../presentation/bloc/utils.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
-import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import 'home_tab_bloc.dart';
 import 'notification/notification_screen.dart';
@@ -54,13 +53,10 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
-
-    return ThemeAwareScreen(
-      isDark: isDark,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return SafeArea(
           child: Stack(
             children: [
               Padding(
@@ -81,8 +77,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               BuildHeader(context, isDark),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -121,7 +117,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               fontSize: 15,
               fontWeight: FontWeight.w400,
               color:
-                  isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
+              isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -160,7 +156,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                         duration: const Duration(milliseconds: 300),
                         style: WawatTextStyles.h2.copyWith(
                           color:
-                              isDark ? Colors.white : WawatTextStyles.h2.color,
+                          isDark ? Colors.white : WawatTextStyles.h2.color,
                         ),
                         child: Text(
                           'Популярные предложения',
@@ -246,8 +242,8 @@ Widget BuildHeader(BuildContext context, bool isDark) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return NotificationScreen();
-              }));
+                    return NotificationScreen();
+                  }));
             }
           },
           child: AnimatedContainer(

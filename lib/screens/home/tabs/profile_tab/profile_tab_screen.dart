@@ -13,9 +13,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
-import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
- import '../../home_screen.dart';
+import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
 
 class ProfileTabScreen extends BaseScreen {
@@ -29,65 +28,63 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
-
-    return ThemeAwareScreen(
-
-          isDark: isDark,
-          child: StreamBuilder<User>(
-            stream: bloc.userDetails,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return SafeArea(
-                  child: Stack(
-                    children: [
-                      SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 80),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                margin: EdgeInsets.only(left: 16, right: 16, top: 20),
-                                padding: EdgeInsets.only(left: 10, right: 10),
-                                decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    const SizedBox(height: 20),
-                                    _buildProfileHeader(snapshot.requireData, isDark),
-                                    const SizedBox(height: 16),
-                                    _buildStatsCard(context, snapshot.requireData, isDark),
-                                  ],
-                                ),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return StreamBuilder<User>(
+          stream: bloc.userDetails,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return SafeArea(
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 80),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 24),
-                              _buildMenuSection(snapshot.requireData, isDark),
-                              const SizedBox(height: 120),
-                            ],
-                          ),
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 20),
+                                  _buildProfileHeader(snapshot.requireData, isDark),
+                                  const SizedBox(height: 16),
+                                  _buildStatsCard(context, snapshot.requireData, isDark),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildMenuSection(snapshot.requireData, isDark),
+                            const SizedBox(height: 120),
+                          ],
                         ),
                       ),
-                      BuildHeader(context,isDark),
-                    ],
-                  ),
-                );
-              }
-              return SizedBox();
-            },
-          ),
+                    ),
+                    BuildHeader(context,isDark),
+                  ],
+                ),
+              );
+            }
+            return SizedBox();
+          },
         );
-
+      },
+    );
   }
 
   @override

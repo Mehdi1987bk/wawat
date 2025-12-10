@@ -120,7 +120,7 @@ class __TabsState extends State<_Tabs> {
     super.initState();
 
     _tabs = <Widget>[
-      HomeTabScreen(),
+      HomeTabScreen( ),
       ChatListScreen(),
       CreatePostScreen(),
       FovoriteOfferListScreen(),
