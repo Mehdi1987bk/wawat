@@ -820,7 +820,7 @@ void showIOSStyleMessage(
       bool isSuccess = true,
       Duration duration = const Duration(seconds: 2),
     }) {
-  final themeManager = Provider.of<ThemeManager>(context);
+  final themeManager = Provider.of<ThemeManager>(context, listen: false); // ← ДОБАВЛЕНО listen: false
 
   final isDark = themeManager.isDarkMode;
 

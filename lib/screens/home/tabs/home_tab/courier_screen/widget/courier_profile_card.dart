@@ -1,6 +1,8 @@
 import 'package:buking/presentation/resourses/app_colors.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../../../data/network/api/chat_api.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../../main.dart';
@@ -93,6 +95,7 @@ class CourierProfileCard extends StatelessWidget {
                         ],
                       ),
                     ),
+                  const SizedBox(height: 8),
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
@@ -109,7 +112,7 @@ class CourierProfileCard extends StatelessWidget {
                       Row(
                         children: List.generate(
                           5,
-                              (index) => const Icon(
+                          (index) => const Icon(
                             Icons.star,
                             color: Colors.amber,
                             size: 16,
@@ -121,9 +124,11 @@ class CourierProfileCard extends StatelessWidget {
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 14,
-                          color: isDark ? const Color(0xFFE5E7EB) : Colors.black87,
+                          color:
+                              isDark ? const Color(0xFFE5E7EB) : Colors.black87,
                         ),
-                        child: Text('${stats.ratingAvg} (${stats.ratingCount} отзывов)'),
+                        child: Text(
+                            '${stats.ratingAvg} (${stats.ratingCount} отзывов)'),
                       ),
                     ],
                   ),
@@ -150,7 +155,8 @@ class CourierProfileCard extends StatelessWidget {
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+                      color:
+                          isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
                       height: 1.5,
                     ),
                     child: Text(
@@ -168,7 +174,9 @@ class CourierProfileCard extends StatelessWidget {
                           value: '${professional.responseTimeMinutes ?? 0}',
                           label: 'минут',
                           sublabel: 'Ответ',
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F8FD),
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFF5F8FD),
                           isDark: isDark,
                         ),
                       ),
@@ -179,7 +187,9 @@ class CourierProfileCard extends StatelessWidget {
                           value: '${professional.maxWeightKg ?? 0}',
                           label: 'кг',
                           sublabel: 'Макс. вес',
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF4FDF8),
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFF4FDF8),
                           isDark: isDark,
                         ),
                       ),
@@ -195,7 +205,9 @@ class CourierProfileCard extends StatelessWidget {
                           value: '\$${professional.insuranceUsd ?? 0}',
                           label: '',
                           sublabel: 'Страховка',
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFBF9FE),
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFFBF9FE),
                           isDark: isDark,
                         ),
                       ),
@@ -206,7 +218,9 @@ class CourierProfileCard extends StatelessWidget {
                           value: '${(professional.onTimePercent ?? 0)}%',
                           label: '',
                           sublabel: 'Воремя',
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFBFBF1),
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFFBFBF1),
                           isDark: isDark,
                         ),
                       ),
@@ -283,9 +297,18 @@ class CourierProfileCard extends StatelessWidget {
         context,
         userId: data.user.id ?? 0,
         userName: data.user.fullname ?? 'Пользователь',
-        onSuccess: (message) {
-          print("${message}");
-       },
+        onSuccess: (message) async {
+          try {
+            final chatApi = ChatApi(sl.get<Dio>());
+
+            chatApi.startChat({
+              'user_id': data.user.id,
+              'body': message,
+            });
+          } catch (e) {
+            print('Ошибка отправки сообщения: $e');
+          }
+        },
       );
     }
   }

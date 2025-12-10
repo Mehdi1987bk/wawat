@@ -1,7 +1,9 @@
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../../data/network/api/chat_api.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
@@ -75,12 +77,34 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
         context,
         userId: widget.courier.user?.id ?? 0,
         userName: widget.courier.user?.fullname ?? 'Пользователь',
-        onSuccess: (message) {
-          print("${message}");
-         },
+        onSuccess: (message) async {
+          try {
+            // Создаем ChatApi
+            final chatApi = ChatApi(sl.get<Dio>());
+
+
+
+            chatApi.startChat({
+              'user_id': widget.courier.user?.id,
+              'body': message,
+            });
+
+          } catch (e) {
+             if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Ошибка отправки сообщения: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+          }
+        },
       );
     }
   }
+
 
 
   @override
@@ -363,7 +387,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                       CupertinoPageRoute(
                                         builder: (BuildContext context) {
                                           return CourierDetailsScreen(
-                                            courierId: widget.courier.id,
+                                            courierId: widget.courier.user?.id ?? 0,
                                           );
                                         },
                                       ),

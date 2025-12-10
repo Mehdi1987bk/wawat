@@ -62,14 +62,11 @@ class _StartChatContentState extends State<_StartChatContent> {
       return;
     }
 
-    // Закрываем модальное окно
-    Navigator.pop(context);
+     Navigator.pop(context);
 
-    // Передаем текст через callback
-    widget.onSuccess?.call(message);
+     widget.onSuccess?.call(message);
 
-    // Показываем уведомление
-    showIOSStyleMessage(context, 'Сообщение отправлено!');
+     showIOSStyleMessage(context, 'Сообщение отправлено!');
   }
 
   @override
