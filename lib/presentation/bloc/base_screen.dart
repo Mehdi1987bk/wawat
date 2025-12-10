@@ -42,7 +42,13 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
         builder: (context, themeManager, child) {
           final isDark = themeManager.isDarkMode;
           return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+            value: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+              statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+              systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
+              systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+            ),
             child: GestureDetector(
               onTap: () {
                 FocusScope.of(context).unfocus();

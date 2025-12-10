@@ -13,7 +13,6 @@ import '../../../../presentation/bloc/utils.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
-import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import 'home_tab_bloc.dart';
 import 'notification/notification_screen.dart';
@@ -54,13 +53,10 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
-
-    return ThemeAwareScreen(
-      isDark: isDark,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return SafeArea(
           child: Stack(
             children: [
               Padding(
@@ -81,8 +77,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               BuildHeader(context, isDark),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

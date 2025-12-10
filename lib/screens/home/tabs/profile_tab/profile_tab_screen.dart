@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
-import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
  import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
@@ -29,12 +28,10 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
-
-    return ThemeAwareScreen(
-
-          isDark: isDark,
-          child: StreamBuilder<User>(
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return StreamBuilder<User>(
             stream: bloc.userDetails,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
@@ -85,9 +82,9 @@ class _ProfileTabScreenState
               }
               return SizedBox();
             },
-          ),
-        );
-
+          );
+      },
+    );
   }
 
   @override
