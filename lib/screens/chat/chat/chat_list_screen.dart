@@ -46,11 +46,9 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
   @override
   Widget body() {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-        return ThemeAwareScreen(
+    return ThemeAwareScreen(
           isDark: isDark,
           child: SafeArea(
             child: Scaffold(
@@ -297,9 +295,9 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             ),
           ),
         );
-      },
-    );
-  }
+      }
+
+
 
   void _showConversationMenu(Conversation conversation, bool isDark) {
     showModalBottomSheet(

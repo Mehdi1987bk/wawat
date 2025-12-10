@@ -29,11 +29,10 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   Widget body() {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-        return ThemeAwareScreen(
+    return ThemeAwareScreen(
+
           isDark: isDark,
           child: StreamBuilder<User>(
             stream: bloc.userDetails,
@@ -88,8 +87,7 @@ class _ProfileTabScreenState
             },
           ),
         );
-      },
-    );
+
   }
 
   @override

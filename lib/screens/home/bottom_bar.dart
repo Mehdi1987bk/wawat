@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
- import '../../services/theme_manager.dart';
+import '../../services/theme_manager.dart';
 
 class BottomBar extends StatelessWidget {
   final ValueChanged<int> onChanged;
@@ -15,80 +15,76 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              BottomNavigationItem(
+                index: 0,
+                selectedIndex: selectedIndex,
+                label: 'Поиск',
+                svgIcon: 'asset/tab1.svg',
+                onChanged: onChanged,
+                isCentral: false,
+                isDark: isDark,
+              ),
+              BottomNavigationItem(
+                index: 1,
+                selectedIndex: selectedIndex,
+                label: 'Чаты',
+                svgIcon: 'asset/tab2.svg',
+                onChanged: onChanged,
+                isCentral: false,
+                isDark: isDark,
+              ),
+              BottomNavigationItem(
+                index: 2,
+                selectedIndex: selectedIndex,
+                label: 'Подать',
+                svgIcon: 'asset/tab3.svg',
+                onChanged: onChanged,
+                isCentral: true,
+                isDark: isDark,
+              ),
+              BottomNavigationItem(
+                index: 3,
+                selectedIndex: selectedIndex,
+                label: 'Избранное',
+                svgIcon: 'asset/tab4.svg',
+                onChanged: onChanged,
+                isCentral: false,
+                isDark: isDark,
+              ),
+              BottomNavigationItem(
+                index: 4,
+                selectedIndex: selectedIndex,
+                label: 'Аккаунт',
+                svgIcon: 'asset/tab5.svg',
+                onChanged: onChanged,
+                isCentral: false,
+                isDark: isDark,
               ),
             ],
           ),
-          child: SafeArea(
-            top: false,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  BottomNavigationItem(
-                    index: 0,
-                    selectedIndex: selectedIndex,
-                    label: 'Поиск',
-                    svgIcon: 'asset/tab1.svg',
-                    onChanged: onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                  ),
-                  BottomNavigationItem(
-                    index: 1,
-                    selectedIndex: selectedIndex,
-                    label: 'Чаты',
-                    svgIcon: 'asset/tab2.svg',
-                    onChanged: onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                  ),
-                  BottomNavigationItem(
-                    index: 2,
-                    selectedIndex: selectedIndex,
-                    label: 'Подать',
-                    svgIcon: 'asset/tab3.svg',
-                    onChanged: onChanged,
-                    isCentral: true,
-                    isDark: isDark,
-                  ),
-                  BottomNavigationItem(
-                    index: 3,
-                    selectedIndex: selectedIndex,
-                    label: 'Избранное',
-                    svgIcon: 'asset/tab4.svg',
-                    onChanged: onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                  ),
-                  BottomNavigationItem(
-                    index: 4,
-                    selectedIndex: selectedIndex,
-                    label: 'Аккаунт',
-                    svgIcon: 'asset/tab5.svg',
-                    onChanged: onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

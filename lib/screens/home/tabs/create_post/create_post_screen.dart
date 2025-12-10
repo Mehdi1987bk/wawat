@@ -50,9 +50,9 @@ class _CreatePostScreenState
   final TextEditingController flightDateController = TextEditingController();
   final TextEditingController flightTimeController = TextEditingController();
   final TextEditingController deliveryDateFromController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController deliveryDateToController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController purchaseDateController = TextEditingController();
   final TextEditingController purchaseTimeController = TextEditingController();
 
@@ -229,239 +229,231 @@ class _CreatePostScreenState
     }
   }
 
-  @override
   Widget body() {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-        return ThemeAwareScreen(
-          isDark: isDark,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            color: isDark ? const Color(0xFF121212) : Colors.white,
-            child: SafeArea(
-              child: Column(
-                children: [
-                  BuildHeader(context, isDark),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(20),
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 100),
-                        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? const Color(0xFF1E1E1E)
-                              : const Color(0xFFFAFAFA),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                              Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                              blurRadius: 20,
-                              offset: Offset(0, 8),
-                            ),
-                          ],
+    return ThemeAwareScreen(
+      isDark: isDark,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        color: isDark ? const Color(0xFF121212) : Colors.white,
+        child: SafeArea(
+          child: Column(
+            children: [
+              BuildHeader(context, isDark),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(20),
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 100),
+                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF1E1E1E)
+                          : const Color(0xFFFAFAFA),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 20,
+                          offset: Offset(0, 8),
                         ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            Container(
-                              width: double.infinity,
-                              child: Image.asset(
-                                "asset/add_offer.png",
-                                color:
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          child: Image.asset(
+                            "asset/add_offer.png",
+                            color:
                                 isDark ? Colors.white.withOpacity(0.9) : null,
-                                colorBlendMode:
-                                isDark ? BlendMode.modulate : null,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 300),
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                              child: const Text('Подать'),
-                            ),
-                            const SizedBox(height: 8),
-                            AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 300),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? const Color(0xFFB0B0B0)
-                                    : const Color(0xFF8E8E93),
-                                height: 1.4,
-                              ),
-                              textAlign: TextAlign.center,
-                              child: const Text(
-                                'Создайте объявление для поиска курьера или\nклиента',
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            _buildLabel('Тип предложения',
-                                isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            _buildOfferTypeDropdown(isDark),
-                            const SizedBox(height: 20),
-                            _buildLabel('Тип посылки',
-                                isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            PackageTypesSelector(
-                              packageTypes: _allPackageTypes,
-                              selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                              onSelectionChanged: (newSelection) {
-                                setState(() {
-                                  _selectedPackageTypeCodes = newSelection;
-                                });
-                              },
-                              isLoading: _isLoadingPackageTypes,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildLabel('Откуда',
-                                isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            _buildCityField(
-                              controller: fromController,
-                              hint: 'Город отправления',
-                              selectedCity: _selectedFromCity,
-                              onTap: () => _showCitySelector(isFromCity: true),
-                              isDark: isDark,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildLabel('Куда', isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            _buildCityField(
-                              controller: toController,
-                              hint: 'Город назначения',
-                              selectedCity: _selectedToCity,
-                              onTap: () => _showCitySelector(isFromCity: false),
-                              isDark: isDark,
-                            ),
-                            const SizedBox(height: 20),
-                            ..._buildDateTimeFields(isDark),
-                            _buildLabel('Максимальный вес (кг)',
-                                isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            _buildTextField(
-                              controller: maxWeightController,
-                              hint: '0',
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              isDark: isDark,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildLabel('Цена за кг (\$)',
-                                isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            _buildTextField(
-                              controller: priceController,
-                              hint: '0',
-                              keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'^\d+\.?\d{0,2}')),
-                              ],
-                              isDark: isDark,
-                            ),
-                            const SizedBox(height: 20),
-                            _buildLabel('Описание',
-                                isRequired: true, isDark: isDark),
-                            const SizedBox(height: 8),
-                            _buildTextField(
-                              controller: descriptionController,
-                              hint: 'Расскажите о своих услугах доставки...',
-                              maxLines: 5,
-                              isDark: isDark,
-                            ),
-                            const SizedBox(height: 20),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: (_isFormValid && !_isSubmitting)
-                                      ? _submitOffer
-                                      : null,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isFormValid
-                                        ? const Color(0xFF5B51FF)
-                                        : (isDark
+                            colorBlendMode: isDark ? BlendMode.modulate : null,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          child: const Text('Подать'),
+                        ),
+                        const SizedBox(height: 8),
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark
+                                ? const Color(0xFFB0B0B0)
+                                : const Color(0xFF8E8E93),
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                          child: const Text(
+                            'Создайте объявление для поиска курьера или\nклиента',
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        _buildLabel('Тип предложения',
+                            isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        _buildOfferTypeDropdown(isDark),
+                        const SizedBox(height: 20),
+                        _buildLabel('Тип посылки',
+                            isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        PackageTypesSelector(
+                          packageTypes: _allPackageTypes,
+                          selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                          onSelectionChanged: (newSelection) {
+                            setState(() {
+                              _selectedPackageTypeCodes = newSelection;
+                            });
+                          },
+                          isLoading: _isLoadingPackageTypes,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildLabel('Откуда', isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        _buildCityField(
+                          controller: fromController,
+                          hint: 'Город отправления',
+                          selectedCity: _selectedFromCity,
+                          onTap: () => _showCitySelector(isFromCity: true),
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildLabel('Куда', isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        _buildCityField(
+                          controller: toController,
+                          hint: 'Город назначения',
+                          selectedCity: _selectedToCity,
+                          onTap: () => _showCitySelector(isFromCity: false),
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 20),
+                        ..._buildDateTimeFields(isDark),
+                        _buildLabel('Максимальный вес (кг)',
+                            isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: maxWeightController,
+                          hint: '0',
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildLabel('Цена за кг (\$)',
+                            isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: priceController,
+                          hint: '0',
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildLabel('Описание',
+                            isRequired: true, isDark: isDark),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: descriptionController,
+                          hint: 'Расскажите о своих услугах доставки...',
+                          maxLines: 5,
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: (_isFormValid && !_isSubmitting)
+                                  ? _submitOffer
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _isFormValid
+                                    ? const Color(0xFF5B51FF)
+                                    : (isDark
                                         ? const Color(0xFF2A2A2A)
                                         : const Color(0xFFE5E5EA)),
-                                    foregroundColor: _isFormValid
-                                        ? Colors.white
-                                        : (isDark
+                                foregroundColor: _isFormValid
+                                    ? Colors.white
+                                    : (isDark
                                         ? const Color(0xFF6B7280)
                                         : const Color(0xFF8E8E93)),
-                                    elevation: 0,
-                                    disabledBackgroundColor: isDark
-                                        ? const Color(0xFF2A2A2A)
-                                        : const Color(0xFFE5E5EA),
-                                    disabledForegroundColor: isDark
-                                        ? const Color(0xFF6B7280)
-                                        : const Color(0xFF8E8E93),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: _isSubmitting
-                                      ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor:
-                                      AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  )
-                                      : Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        "asset/micro.png",
-                                        color: _isFormValid
-                                            ? Colors.white
-                                            : (isDark
-                                            ? const Color(0xFF6B7280)
-                                            : Colors.grey),
-                                        width: 20,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Опубликовать объявление',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                elevation: 0,
+                                disabledBackgroundColor: isDark
+                                    ? const Color(0xFF2A2A2A)
+                                    : const Color(0xFFE5E5EA),
+                                disabledForegroundColor: isDark
+                                    ? const Color(0xFF6B7280)
+                                    : const Color(0xFF8E8E93),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
+                              child: _isSubmitting
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                          "asset/micro.png",
+                                          color: _isFormValid
+                                              ? Colors.white
+                                              : (isDark
+                                                  ? const Color(0xFF6B7280)
+                                                  : Colors.grey),
+                                          width: 20,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Опубликовать объявление',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -557,7 +549,7 @@ class _CreatePostScreenState
                   onSurface: isDark ? Colors.white : Colors.black,
                 ),
                 dialogBackgroundColor:
-                isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    isDark ? const Color(0xFF1E1E1E) : Colors.white,
               ),
               child: child!,
             );
@@ -565,7 +557,7 @@ class _CreatePostScreenState
         );
         if (date != null) {
           controller.text =
-          '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+              '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
         }
       },
       isDark: isDark,
@@ -596,7 +588,7 @@ class _CreatePostScreenState
                     onSurface: isDark ? Colors.white : Colors.black,
                   ),
                   dialogBackgroundColor:
-                  isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 ),
                 child: child!,
               ),
@@ -605,7 +597,7 @@ class _CreatePostScreenState
         );
         if (time != null) {
           controller.text =
-          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+              '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
         }
       },
       isDark: isDark,
@@ -627,18 +619,18 @@ class _CreatePostScreenState
         cityFromId: _selectedFromCity!.id,
         cityToId: _selectedToCity!.id,
         flightDate:
-        selectedOfferType == 'courier' ? flightDateController.text : '',
+            selectedOfferType == 'courier' ? flightDateController.text : '',
         flightTime:
-        selectedOfferType == 'courier' ? flightTimeController.text : '',
+            selectedOfferType == 'courier' ? flightTimeController.text : '',
         deliveryDateFrom: selectedOfferType == 'sender'
             ? deliveryDateFromController.text
             : '',
         deliveryDateTo:
-        selectedOfferType == 'sender' ? deliveryDateToController.text : '',
+            selectedOfferType == 'sender' ? deliveryDateToController.text : '',
         purchaseDate:
-        selectedOfferType == 'buyer' ? purchaseDateController.text : '',
+            selectedOfferType == 'buyer' ? purchaseDateController.text : '',
         purchaseTime:
-        selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
+            selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
         packageType: packageType,
         maxWeightKg: int.parse(maxWeightController.text),
         pricePerKg: double.parse(priceController.text),
@@ -772,41 +764,41 @@ class _CreatePostScreenState
             Expanded(
               child: selectedCity != null
                   ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    child: Text(selectedCity.name),
-                  ),
-                  const SizedBox(height: 4),
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? const Color(0xFFB0B0B0)
-                          : const Color(0xFF8E8E93),
-                    ),
-                    child: Text(
-                        '${selectedCity.countryName} (${selectedCity.countryCode})'),
-                  ),
-                ],
-              )
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          child: Text(selectedCity.name),
+                        ),
+                        const SizedBox(height: 4),
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark
+                                ? const Color(0xFFB0B0B0)
+                                : const Color(0xFF8E8E93),
+                          ),
+                          child: Text(
+                              '${selectedCity.countryName} (${selectedCity.countryCode})'),
+                        ),
+                      ],
+                    )
                   : AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: TextStyle(
-                  fontSize: 15,
-                  color: isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFC7C7CC),
-                ),
-                child: Text(hint),
-              ),
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: isDark
+                            ? const Color(0xFF6B7280)
+                            : const Color(0xFFC7C7CC),
+                      ),
+                      child: Text(hint),
+                    ),
             ),
             Icon(
               selectedCity != null
@@ -815,8 +807,8 @@ class _CreatePostScreenState
               color: selectedCity != null
                   ? const Color(0xFF5B51FF)
                   : (isDark
-                  ? const Color(0xFF6B7280)
-                  : const Color(0xFFC7C7CC)),
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFC7C7CC)),
               size: 20,
             ),
           ],
@@ -868,12 +860,12 @@ class _CreatePostScreenState
           ),
           suffixIcon: suffixIcon != null
               ? Icon(
-            suffixIcon,
-            color: isDark
-                ? const Color(0xFF6B7280)
-                : const Color(0xFFC7C7CC),
-            size: 20,
-          )
+                  suffixIcon,
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFC7C7CC),
+                  size: 20,
+                )
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -943,8 +935,8 @@ class _CreatePostScreenState
                       color: value != null
                           ? (isDark ? Colors.white : Colors.black)
                           : (isDark
-                          ? const Color(0xFF6B7280)
-                          : const Color(0xFFC7C7CC)),
+                              ? const Color(0xFF6B7280)
+                              : const Color(0xFFC7C7CC)),
                     ),
                     child: Text(
                         value != null ? (displayNames?[value] ?? value) : hint),
