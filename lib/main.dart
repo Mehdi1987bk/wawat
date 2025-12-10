@@ -44,10 +44,6 @@ void main() async {
   await Hive.initFlutter(dir.path);
 
 
-  // ВАЖНО: Проверьте, есть ли ProfileInfoAdapter и зарегистрируйте его
-  // if (!Hive.isAdapterRegistered(7)) Hive.registerAdapter(ProfileInfoAdapter());
-
-  // Автоматическая очистка при ошибке
   try {
     final boxes = ['userBox', 'authBox', 'cacheBox'];
     for (var boxName in boxes) {
@@ -56,14 +52,9 @@ void main() async {
       }
     }
   } catch (e) {
-    print('⚠️ Hive error detected: $e');
-    print('🧹 Clearing corrupted Hive data...');
-
-    // Удаляем все боксы
     await Hive.deleteFromDisk();
 
-    print('✅ Hive cache cleared successfully');
-  }
+   }
 
   Hive
     ..init(dir.path)
@@ -78,8 +69,7 @@ void main() async {
 
   _registerDependency();
 
-  // Загружаем тему ДО запуска приложения
-  themeManager = await ThemeManager.create();
+   themeManager = await ThemeManager.create();
 
   runApp(WawatApp());
 }

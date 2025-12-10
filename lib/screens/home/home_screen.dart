@@ -68,7 +68,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
 
   @override
   Widget body() {
-    return Stack(  // ← УБРАН ВЛОЖЕННЫЙ Scaffold
+    return Stack(
       children: [
         _Tabs(
           selectedIndex: _selectedIndex,

@@ -1,4 +1,5 @@
-  import 'package:flutter/cupertino.dart';
+import 'package:buking/presentation/resourses/app_colors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/repositories/auth_repository.dart';
@@ -24,23 +25,27 @@ class _SpleshScreenState extends State<SpleshScreen> {
       ),
       sl.get<AuthRepository>().firstOpen(),
     ]).then((value) {
-      final isNotFirstOpen = value.last; // true = уже был запуск, false = первый раз
+      final isFirstOpen = value.last as bool;
 
-      if (isNotFirstOpen) {
-        // Повторный вход - сразу на главный экран
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => HomeScreen(),
-          ),
-        );
-      } else {
-        // Первый вход - показываем IntroPage и сохраняем флаг
+      if (isFirstOpen) {
+        // Первый запуск - показать IntroPage
         sl.get<AuthRepository>().setIsFirstOpen();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) => IntroPage(),
+            builder: (BuildContext context) {
+              return IntroPage();
+            },
+          ),
+        );
+      } else {
+        // Повторный запуск - перейти на HomeScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return HomeScreen();
+            },
           ),
         );
       }

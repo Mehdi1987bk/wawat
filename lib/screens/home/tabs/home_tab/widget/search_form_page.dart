@@ -192,7 +192,10 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         return Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: _buildSearchForm(isDark),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _buildSearchForm(isDark),
+            ),
           ),
         );
       },

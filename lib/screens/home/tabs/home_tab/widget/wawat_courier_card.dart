@@ -75,9 +75,9 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
         context,
         userId: widget.courier.user?.id ?? 0,
         userName: widget.courier.user?.fullname ?? 'Пользователь',
-        onSuccess: () {
-          // Handle success if needed
-        },
+        onSuccess: (message) {
+          print("${message}");
+         },
       );
     }
   }

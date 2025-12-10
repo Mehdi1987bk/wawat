@@ -283,9 +283,9 @@ class CourierProfileCard extends StatelessWidget {
         context,
         userId: data.user.id ?? 0,
         userName: data.user.fullname ?? 'Пользователь',
-        onSuccess: () {
-          // Handle success if needed
-        },
+        onSuccess: (message) {
+          print("${message}");
+       },
       );
     }
   }
