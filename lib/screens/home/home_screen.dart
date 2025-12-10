@@ -120,7 +120,7 @@ class __TabsState extends State<_Tabs> {
     super.initState();
 
     _tabs = <Widget>[
-      HomeTabScreen( ),
+      HomeTabScreen(),
       ChatListScreen(),
       CreatePostScreen(),
       FovoriteOfferListScreen(),
@@ -130,6 +130,9 @@ class __TabsState extends State<_Tabs> {
 
   @override
   Widget build(BuildContext context) {
-    return _tabs[widget.selectedIndex];
+    return IndexedStack(
+      index: widget.selectedIndex,
+      children: _tabs,
+    );
   }
 }
