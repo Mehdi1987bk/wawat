@@ -26,6 +26,10 @@ class ProfileTabScreen extends BaseScreen {
 
 class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
+
+  @override
+  bool get useSystemOverlay => false;
+
   @override
   Widget body() {
     return Consumer<ThemeManager>(

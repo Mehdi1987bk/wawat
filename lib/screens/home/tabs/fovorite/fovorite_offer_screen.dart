@@ -37,6 +37,8 @@ class _FovoriteOfferListScreenState
     extends BaseState<FovoriteOfferListScreen, FovoriteOfferBloc> {
   final PublishSubject<void> onPacketsAdded = PublishSubject();
   final ScrollController _scrollController = ScrollController();
+  @override
+  bool get useSystemOverlay => false;
 
   @override
   void initState() {

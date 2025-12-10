@@ -25,6 +25,10 @@ class CreatePostScreen extends BaseScreen {
 
 class _CreatePostScreenState
     extends BaseState<CreatePostScreen, CreatePostBloc> {
+
+  @override
+  bool get useSystemOverlay => false;
+
   String? selectedOfferType;
 
   Set<String> _selectedPackageTypeCodes = {};

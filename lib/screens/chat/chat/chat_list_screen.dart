@@ -23,6 +23,8 @@ class ChatListScreen extends BaseScreen {
 class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   final ScrollController _scrollController = ScrollController();
   bool _showArchived = false;
+  @override
+  bool get useSystemOverlay => false;
 
   @override
   void initState() {

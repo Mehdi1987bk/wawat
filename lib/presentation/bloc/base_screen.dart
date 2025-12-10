@@ -41,32 +41,40 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
       child: Consumer<ThemeManager>(
         builder: (context, themeManager, child) {
           final isDark = themeManager.isDarkMode;
-          return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-              statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-              systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
-              systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-            ),
-            child: GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-              },
-              child: Scaffold(
-                key: scaffoldKey,
-                appBar: appBar(),
-                drawer: drawer(),
-                backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-                primary: primary,
-                drawerEdgeDragWidth: drawerEdgeDragWidth,
-                bottomNavigationBar: bottomNavigationBar(),
-                floatingActionButton: floatingActionButton(),
-                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-                body: _buildBody(),
-              ),
+
+          final scaffold = GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: Scaffold(
+              key: scaffoldKey,
+              appBar: appBar(),
+              drawer: drawer(),
+              backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+              primary: primary,
+              drawerEdgeDragWidth: drawerEdgeDragWidth,
+              bottomNavigationBar: bottomNavigationBar(),
+              floatingActionButton: floatingActionButton(),
+              resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+              body: _buildBody(),
             ),
           );
+
+          // Только главный экран управляет системными цветами
+          if (useSystemOverlay) {
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+                systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
+                systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+              ),
+              child: scaffold,
+            );
+          }
+
+          return scaffold;
         },
       ),
     );
@@ -149,6 +157,9 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
 
 
   bool get resizeToAvoidBottomInset => true;
+
+  // Переопределите на false для табов внутри IndexedStack
+  bool get useSystemOverlay => true;
 }
 
 abstract class BaseStateWithFlushBar<T extends BaseScreen,

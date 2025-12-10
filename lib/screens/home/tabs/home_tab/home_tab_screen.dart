@@ -34,6 +34,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
 
   @override
   bool get showProgressIndicator => false;
+  @override
+  bool get useSystemOverlay => false;
 
   @override
   void initState() {
