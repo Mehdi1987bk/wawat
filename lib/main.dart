@@ -12,6 +12,7 @@ import 'call_interceptor.dart';
 import 'data/cache/cache_manager.dart';
 import 'data/cache/data_cache_manager.dart';
 import 'data/network/api/auth_api.dart';
+import 'data/network/api/chat_api.dart'; // ← ДОБАВЛЕНО
 import 'data/network/response/language.dart';
 import 'data/network/response/notifications.dart';
 import 'data/network/response/privacy.dart';
@@ -43,7 +44,6 @@ void main() async {
 
   await Hive.initFlutter(dir.path);
 
-
   try {
     final boxes = ['userBox', 'authBox', 'cacheBox'];
     for (var boxName in boxes) {
@@ -53,8 +53,7 @@ void main() async {
     }
   } catch (e) {
     await Hive.deleteFromDisk();
-
-   }
+  }
 
   Hive
     ..init(dir.path)
@@ -69,15 +68,15 @@ void main() async {
 
   _registerDependency();
 
-   themeManager = await ThemeManager.create();
+  themeManager = await ThemeManager.create();
 
   runApp(WawatApp());
 }
 
-
 void _registerDependency() {
   final dio = _initDio();
   sl.registerLazySingleton<AuthApi>(() => AuthApi(dio));
+  sl.registerLazySingleton<ChatApi>(() => ChatApi(dio)); // ← ДОБАВЛЕНО
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
   sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
 }

@@ -33,9 +33,9 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
         customersMe();
       }
     });
-    onReflash.listen((event) {
-      load(refresh: true);
-    });
+    // onReflash.listen((event) {
+    //   load(refresh: true);
+    // });
   }
 
   Future<void> loadList() async {

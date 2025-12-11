@@ -37,19 +37,19 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   @override
   bool get useSystemOverlay => false;
 
-  @override
-  void initState() {
-    super.initState();
-
-    bloc.load();
-    _scrollController.addListener(() {
-      hideKeyboardOnScroll(context, _scrollController);
-      if (_scrollController.position.extentAfter <=
-          MediaQuery.of(context).size.height) {
-        bloc.load();
-      }
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   bloc.load();
+  //   _scrollController.addListener(() {
+  //     hideKeyboardOnScroll(context, _scrollController);
+  //     if (_scrollController.position.extentAfter <=
+  //         MediaQuery.of(context).size.height) {
+  //       bloc.load();
+  //     }
+  //   });
+  // }
 
   int _selectedTab = 0;
 
