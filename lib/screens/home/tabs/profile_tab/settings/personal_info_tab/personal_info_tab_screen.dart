@@ -137,6 +137,7 @@ class _PersonalInfoTabState
                         TextField(
                           controller: _aboutController,
                           maxLines: 4,
+                          keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark ? Colors.white : Colors.black,
@@ -268,6 +269,7 @@ class _PersonalInfoTabState
         const SizedBox(height: 8),
         TextField(
           controller: controller,
+          keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white : Colors.black,

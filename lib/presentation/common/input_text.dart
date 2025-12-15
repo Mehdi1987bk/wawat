@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
- import '../../screens/splesh/splesh_screen.dart';
+import '../../screens/splesh/splesh_screen.dart';
 import '../resourses/app_colors.dart';
 
 class TextFildd extends StatefulWidget {
@@ -12,11 +12,11 @@ class TextFildd extends StatefulWidget {
 
   TextFildd(
       {Key? key,
-      this.controller,
-      this.validator,
-      this.autovalidateMode = AutovalidateMode.onUserInteraction,
-      this.labelText,
-      this.textInputAction})
+        this.controller,
+        this.validator,
+        this.autovalidateMode = AutovalidateMode.onUserInteraction,
+        this.labelText,
+        this.textInputAction})
       : super(key: key);
 
   @override
@@ -42,6 +42,7 @@ class _TextFilddState extends State<TextFildd> {
     _focusNode.removeListener(_focusListener);
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -52,7 +53,7 @@ class _TextFilddState extends State<TextFildd> {
         margin: const EdgeInsets.only(top: 5, left: 20, right: 20),
         height: 60,
         decoration: BoxDecoration(
-            color: theme.cardColor,  // Адаптируется к теме
+            color: theme.cardColor,
             borderRadius: new BorderRadius.circular(10.0),
             border: _focusNode.hasFocus
                 ? Border.all(color: theme.primaryColor)
@@ -72,8 +73,9 @@ class _TextFilddState extends State<TextFildd> {
               maxLines: 1,
               focusNode: _focusNode,
               cursorColor: theme.primaryColor,
+              keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО ДЛЯ КЛАВИАТУРЫ
               style: TextStyle(
-                  color: theme.colorScheme.onSurface,  // Адаптируется к теме
+                  color: theme.colorScheme.onSurface,
                   fontSize: 20
               ),
               decoration: InputDecoration(
@@ -92,5 +94,4 @@ class _TextFilddState extends State<TextFildd> {
         )
     );
   }
-
 }

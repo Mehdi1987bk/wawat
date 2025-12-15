@@ -132,7 +132,7 @@ class _DeliveryFullListScreenState
                             bloc
                                 .editStatusOffer(
                               offer.id.toString(),
-                              isVisible == true ? "active" : "deleted",
+                              isVisible == true ? "active" : "archived",
                             )
                                 .then((onValue) => bloc.loadList());
                           },
