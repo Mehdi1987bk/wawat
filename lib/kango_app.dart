@@ -36,16 +36,16 @@ class App extends StatelessWidget {
       builder: (context, themeManager, child) {
         final isDark = themeManager.isDarkMode;
 
-        // Устанавливаем глобальные системные цвета для клавиатуры
+        // ВАЖНО для Android: устанавливаем цвета навигационной панели
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-            // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
-            // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
             statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
-            systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
+            // ← КЛЮЧЕВОЕ для Android клавиатуры
+            systemNavigationBarColor: isDark ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
             systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+            systemNavigationBarDividerColor: Colors.transparent,
           ),
         );
 
@@ -54,15 +54,10 @@ class App extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           navigatorObservers: [routeObserver],
-          theme: ThemeData(
-            brightness: isDark ? Brightness.dark : Brightness.light, // ← ВАЖНО для темы
-            scaffoldBackgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF5B4FFF),
-              brightness: isDark ? Brightness.dark : Brightness.light,
-            ),
-            useMaterial3: true,
-          ),
+          // ← КЛЮЧЕВОЕ: тема с правильным brightness
+          theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
           localizationsDelegates: [
             S.delegate,
           ],
@@ -70,6 +65,42 @@ class App extends StatelessWidget {
           home: SpleshScreen(),
         );
       },
+    );
+  }
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: Colors.white,
+      colorScheme: ColorScheme.light(
+        primary: const Color(0xFF5B4FFF),
+        secondary: const Color(0xFF5B4FFF),
+        surface: Colors.white,
+        background: Colors.white,
+      ),
+      useMaterial3: true,
+      // Эти настройки могут помочь
+      inputDecorationTheme: InputDecorationTheme(
+        fillColor: Colors.white,
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      colorScheme: ColorScheme.dark(
+        primary: const Color(0xFF5B4FFF),
+        secondary: const Color(0xFF5B4FFF),
+        surface: const Color(0xFF1E1E1E),
+        background: const Color(0xFF121212),
+      ),
+      useMaterial3: true,
+      // Эти настройки могут помочь
+      inputDecorationTheme: InputDecorationTheme(
+        fillColor: const Color(0xFF1E1E1E),
+      ),
     );
   }
 }
