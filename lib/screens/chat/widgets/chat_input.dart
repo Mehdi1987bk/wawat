@@ -76,6 +76,7 @@ class _ChatInputState extends State<ChatInput> {
                     controller: widget.controller,
                     maxLines: null,
                     textInputAction: TextInputAction.newline,
+                    keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
                     style: WawatTextStyles.body.copyWith(
                       color: isDark ? Colors.white : Colors.black,
                     ),

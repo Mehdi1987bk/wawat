@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../presentation/resourses/wawat_colors.dart';
 import '../../presentation/resourses/wawat_dimensions.dart';
 import '../../presentation/resourses/wawat_text_styles.dart';
+import '../../services/theme_manager.dart';
 
 /// Поле ввода для приложения Wawat
 class WawatInputField extends StatefulWidget {
@@ -68,84 +70,97 @@ class _WawatInputFieldState extends State<WawatInputField> {
         ? WawatDimensions.inputHeightModal
         : WawatDimensions.inputHeight;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: WawatTextStyles.label,
-          ),
-          SizedBox(height: WawatDimensions.spacingSm),
-        ],
-        Container(
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(WawatDimensions.inputBorderRadius),
-            border: Border.all(
-              color: _isFocused
-                  ? WawatColors.inputFocusedBorder
-                  : WawatColors.inputBorder,
-              width: _isFocused ? 0.8 : 0.8,
-            ),
-          ),
-          child: TextFormField(
-            controller: widget.controller,
-            focusNode: _focusNode,
-            obscureText: _obscureText,
-            keyboardType: widget.keyboardType,
-             onChanged: widget.onChanged,
-            onTap: widget.onTap,
-            readOnly: widget.readOnly,
-            maxLines: widget.maxLines,
-            style: WawatTextStyles.body,
-            decoration: InputDecoration(
-              hintText: widget.placeholder,
-              hintStyle: WawatTextStyles.placeholder,
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(
-                left: widget.prefixIcon != null
-                    ? WawatDimensions.inputTextPadding
-                    : WawatDimensions.spacingMd,
-                right: WawatDimensions.spacingMd,
-                top: widget.obscureText ? 11 : 0, // подберите нужное значение
-                bottom: 0,
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.label != null) ...[
+              Text(
+                widget.label!,
+                style: WawatTextStyles.label.copyWith(
+                  color: isDark ? Colors.white70 : WawatTextStyles.label.color,
+                ),
               ),
-              prefixIcon: widget.prefixIcon != null
-                  ? Padding(
-                      padding: EdgeInsets.only(
-                        left: WawatDimensions.inputIconPadding,
-                        right: WawatDimensions.inputIconPadding,
-                      ),
-                      child: widget.prefixIcon,
-                    )
-                  : null,
-              prefixIconConstraints: BoxConstraints(
-                minWidth: WawatDimensions.iconLarge,
-                minHeight: WawatDimensions.iconLarge,
+              SizedBox(height: WawatDimensions.spacingSm),
+            ],
+            Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(WawatDimensions.inputBorderRadius),
+                border: Border.all(
+                  color: _isFocused
+                      ? WawatColors.inputFocusedBorder
+                      : (isDark ? const Color(0xFF4A4A4A) : WawatColors.inputBorder),
+                  width: _isFocused ? 0.8 : 0.8,
+                ),
               ),
-              suffixIcon: widget.suffixIcon != null
-                  ? widget.suffixIcon
-                  : widget.obscureText
-                      ? IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: WawatColors.textSecondary,
+              child: TextFormField(
+                controller: widget.controller,
+                focusNode: _focusNode,
+                obscureText: _obscureText,
+                keyboardType: widget.keyboardType,
+                keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
+                onChanged: widget.onChanged,
+                onTap: widget.onTap,
+                readOnly: widget.readOnly,
+                maxLines: widget.maxLines,
+                style: WawatTextStyles.body.copyWith(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  hintText: widget.placeholder,
+                  hintStyle: WawatTextStyles.placeholder.copyWith(
+                    color: isDark ? const Color(0xFF6B7280) : WawatTextStyles.placeholder.color,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.only(
+                    left: widget.prefixIcon != null
+                        ? WawatDimensions.inputTextPadding
+                        : WawatDimensions.spacingMd,
+                    right: WawatDimensions.spacingMd,
+                    top: widget.obscureText ? 11 : 0,
+                    bottom: 0,
+                  ),
+                  prefixIcon: widget.prefixIcon != null
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                            left: WawatDimensions.inputIconPadding,
+                            right: WawatDimensions.inputIconPadding,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
+                          child: widget.prefixIcon,
                         )
                       : null,
+                  prefixIconConstraints: BoxConstraints(
+                    minWidth: WawatDimensions.iconLarge,
+                    minHeight: WawatDimensions.iconLarge,
+                  ),
+                  suffixIcon: widget.suffixIcon != null
+                      ? widget.suffixIcon
+                      : widget.obscureText
+                          ? IconButton(
+                              icon: Icon(
+                                _obscureText
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: isDark ? Colors.white70 : WawatColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              },
+                            )
+                          : null,
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
