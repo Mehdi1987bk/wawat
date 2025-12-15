@@ -36,33 +36,33 @@ class App extends StatelessWidget {
       builder: (context, themeManager, child) {
         final isDark = themeManager.isDarkMode;
 
-        // Устанавливаем глобальные системные цвета для клавиатуры
-        SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-            // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
-            // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
-            statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
-            systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
-            systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-          ),
-        );
-
         return MaterialApp(
           color: AppColors.appBarbgColor,
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           navigatorObservers: [routeObserver],
+          // Светлая тема
           theme: ThemeData(
-            brightness: isDark ? Brightness.dark : Brightness.light,
-            scaffoldBackgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: Colors.white,
             colorScheme: ColorScheme.fromSeed(
               seedColor: const Color(0xFF5B4FFF),
-              brightness: isDark ? Brightness.dark : Brightness.light,
+              brightness: Brightness.light,
             ),
             useMaterial3: true,
           ),
+          // Темная тема
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF121212),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF5B4FFF),
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          // Переключение между темами
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
           localizationsDelegates: [
             S.delegate,
           ],
