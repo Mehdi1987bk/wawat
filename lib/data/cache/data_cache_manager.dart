@@ -1,6 +1,7 @@
 
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../network/response/user.dart';
 import 'cache_manager.dart';
@@ -93,6 +94,35 @@ class DataCacheManager implements CacheManager {
     final box = await _settingsBox;
     return box.put(_firstOpen, false);
   }
+
+  // Добавьте эти методы в класс DataCacheManager
+
+  @override
+  Future<int?> getUserId() async {
+    try {
+      final box = await _userBox;
+      final user = box.get(_userKey);
+      if (user != null && user is User) {
+        return user.id;
+      }
+      return null;
+    } catch (e) {
+      print('Error getting user ID: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<String?> getToken() async {
+    try {
+      return await getAccessToken();
+    } catch (e) {
+      print('Error getting token: $e');
+      return null;
+    }
+  }
+
+
 
 
 }

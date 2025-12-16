@@ -3,17 +3,19 @@ import 'package:buking/screens/home/tabs/home_tab/widget/search_form_page.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/wawat_courier_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
+import '../../../../presentation/bloc/utils.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
-import '../../../auth/auth_modal/auth_required_modal.dart';
-import '../../../auth/login/login_modal.dart';
-import '../../../auth/registration/registration_modal.dart';
+import '../../../../services/theme_manager.dart';
 import 'home_tab_bloc.dart';
+import 'notification/notification_screen.dart';
 
 class HomeTabScreen extends BaseScreen {
   @override
@@ -21,216 +23,129 @@ class HomeTabScreen extends BaseScreen {
 }
 
 class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
+  final PublishSubject<void> onPacketsAdded = PublishSubject();
+  final ScrollController _scrollController = ScrollController();
+
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   final _dateFromController = TextEditingController();
   final _dateToController = TextEditingController();
   final _categoryController = TextEditingController();
 
+  @override
+  bool get showProgressIndicator => false;
+  @override
+  bool get useSystemOverlay => false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   bloc.load();
+  //   _scrollController.addListener(() {
+  //     hideKeyboardOnScroll(context, _scrollController);
+  //     if (_scrollController.position.extentAfter <=
+  //         MediaQuery.of(context).size.height) {
+  //       bloc.load();
+  //     }
+  //   });
+  // }
+
   int _selectedTab = 0;
 
   @override
   Widget body() {
-    return Scaffold(
-      backgroundColor: WawatColors.backgroundLight,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Main content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    BuildHeader(context),
-                    _buildHeroSection(),
-                    SearchFormWidget(bloc: bloc,),
-                    SizedBox(height: WawatDimensions.spacingLg),
-                    _buildPopularOffers(),
-                  ],
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+        return SafeArea(
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 60, bottom: 80),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                       SearchFormWidget(
+                        bloc: bloc,
+                      ),
+                      // _buildPopularOffers(isDark),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            // Bottom Navigation
-            _buildBottomNavigation(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeroSection() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 20),
-          child: Image.asset(
-            "asset/home_ban.png",
-            width: 127,
+              BuildHeader(context, isDark),
+            ],
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
-          child: Text(
-            'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: WawatColors.textPrimary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30),
-          child: Text(
-            'Быстрая и безопасная доставка посылок по всему миру',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-              color: WawatColors.textSecondary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPopularOffers() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingMd),
-          child: Center(
-            child: Text(
-              'Популярные предложения',
-              style: WawatTextStyles.h2,
-            ),
-          ),
-        ),
-        SizedBox(height: WawatDimensions.spacingMd),
-        FutureBuilder<OfferListResponse>(
-          future: bloc.myOffers(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (!snapshot.hasData || snapshot.data?.data == null) {
-              return const SizedBox();
-            }
-            return ListView.builder(
-              padding: EdgeInsets.only(bottom: 30),
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: snapshot.requireData.data.length,
-              itemBuilder: (context, index) {
-                return WawatCourierCard(
-                  courier: snapshot.requireData.data[index],
-                  onDetails: () async {
-                    final isLogged = await sl.get<AuthRepository>().isLogged();
-                    if (!isLogged) {
-                      return AuthModalUtils.showAuthRequiredModal(context);
-                    } else {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (BuildContext context) {
-                            return Container(
-                              child: Text("Details"),
-                            );
-                          },
-                        ),
-                      );
-                    }
-                  },
-                  onMessage: () async {
-                    final isLogged = await sl.get<AuthRepository>().isLogged();
-                    if (!isLogged) {
-                      return AuthModalUtils.showAuthRequiredModal(context);
-                    } else {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (BuildContext context) {
-                            return Container(
-                              child: Text("Messagesss"),
-                            );
-                          },
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomNavigation() {
-    return Container(
-      height: WawatDimensions.bottomNavHeight,
-      decoration: BoxDecoration(
-        color: WawatColors.backgroundWhite,
-        boxShadow: [
-          BoxShadow(
-            color: WawatColors.shadowLight,
-            blurRadius: WawatDimensions.shadowBlurLight,
-            offset: Offset(0, -WawatDimensions.shadowOffsetY),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildBottomNavItem(Icons.search, 'Поиск', 0),
-          _buildBottomNavItem(Icons.chat_bubble_outline, 'Чаты', 1),
-          _buildBottomNavItem(Icons.add_circle, 'Подать', 2),
-          _buildBottomNavItem(Icons.favorite_outline, 'Избранное', 3),
-          _buildBottomNavItem(Icons.person_outline, 'Аккаунт', 4),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(IconData icon, String label, int index) {
-    final isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTab = index;
-        });
-        if (index == 4) {
-          // Account tab - show auth modal
-          AuthModalUtils.showAuthRequiredModal(context);
-        }
+        );
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? WawatColors.primary : WawatColors.textSecondary,
-            size: WawatDimensions.bottomNavIconSize,
-          ),
-          SizedBox(height: 4),
-          Text(
-            label,
-            style: WawatTextStyles.caption.copyWith(
-              color:
-                  isSelected ? WawatColors.primary : WawatColors.textSecondary,
-              fontSize: 10,
-            ),
-          ),
-        ],
-      ),
     );
   }
+
+
+  // Widget _buildPopularOffers(bool isDark) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       SizedBox(height: WawatDimensions.spacingMd),
+  //       StreamBuilder<List<OfferModel>>(
+  //         stream: bloc.paginableList,
+  //         builder: (context, snapshot) {
+  //           if (snapshot.hasData) {
+  //             final groups = snapshot.requireData;
+  //             if (groups.isEmpty) {
+  //               return Center(
+  //                 child: Text(''),
+  //               );
+  //             }
+  //
+  //             return Column(
+  //               children: [
+  //                 Padding(
+  //                   padding: EdgeInsets.symmetric(
+  //                       horizontal: WawatDimensions.spacingMd),
+  //                   child: Center(
+  //                     child: AnimatedDefaultTextStyle(
+  //                       duration: const Duration(milliseconds: 300),
+  //                       style: WawatTextStyles.h2.copyWith(
+  //                         color:
+  //                         isDark ? Colors.white : WawatTextStyles.h2.color,
+  //                       ),
+  //                       child: Text(
+  //                         'Популярные предложения',
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding: EdgeInsets.only(top: 20, bottom: 40),
+  //                   child: ListView.builder(
+  //                     shrinkWrap: true,
+  //                     physics: const NeverScrollableScrollPhysics(),
+  //                     itemCount: groups.length,
+  //                     itemBuilder: (context, index) {
+  //                       final offer = groups[index];
+  //
+  //                       return WawatCourierCard(
+  //                         courier: offer,
+  //                         onFavoriteToggle: (v) {
+  //                           bloc.setFavorites(offer.id);
+  //                         },
+  //                       );
+  //                     },
+  //                   ),
+  //                 ),
+  //               ],
+  //             );
+  //           }
+  //
+  //           return const SizedBox();
+  //         },
+  //       )
+  //     ],
+  //   );
+  // }
 
   @override
   void dispose() {
@@ -239,18 +154,29 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     _dateFromController.dispose();
     _dateToController.dispose();
     _categoryController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   HomeTabBloc provideBloc() {
-    return HomeTabBloc();
+    return HomeTabBloc(onPacketsAdded);
   }
 }
 
-Widget BuildHeader(BuildContext context) {
-  return Container(
-    color: Colors.white,
+Widget BuildHeader(BuildContext context, bool isDark) {
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    decoration: BoxDecoration(
+      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
     padding: EdgeInsets.all(WawatDimensions.spacingMd),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -259,6 +185,8 @@ Widget BuildHeader(BuildContext context) {
           'asset/logo.png',
           fit: BoxFit.fitWidth,
           height: 40,
+          color: isDark ? Colors.white : null,
+          colorBlendMode: isDark ? BlendMode.modulate : null,
         ),
         GestureDetector(
           onTap: () async {
@@ -268,14 +196,23 @@ Widget BuildHeader(BuildContext context) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return Container();
-              }));
+                    return NotificationScreen();
+                  }));
             }
           },
-          child: Image.asset(
-            'asset/notif_aa.png',
-            fit: BoxFit.fitWidth,
-            height: 40,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Image.asset(
+              'asset/notif_aa.png',
+              fit: BoxFit.fitWidth,
+              height: 35,
+              color: isDark ? Colors.white : null,
+              colorBlendMode: isDark ? BlendMode.modulate : null,
+            ),
           ),
         ),
       ],

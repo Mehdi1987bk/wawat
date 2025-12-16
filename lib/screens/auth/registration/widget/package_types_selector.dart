@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/package_types_response.dart';
 import '../../../../data/network/response/type_option.dart';
+import '../../../../services/theme_manager.dart';
 
 class PackageTypesSelector extends StatefulWidget {
   final List<PackageType> packageTypes;
@@ -32,7 +34,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     final selectedNames = <String>[];
     for (var code in widget.selectedPackageTypeCodes) {
       final pkg = widget.packageTypes.firstWhere(
-        (p) => p.code == code,
+            (p) => p.code == code,
         orElse: () => PackageType(
           code: '',
           name: '',
@@ -48,7 +50,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     return result.isNotEmpty ? result : 'Выбор';
   }
 
-  void _showPackageTypesBottomSheet() {
+  void _showPackageTypesBottomSheet(bool isDark) {
     if (widget.packageTypes.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -71,15 +73,16 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
       return;
     }
 
-    _showPackageTypesBottomSheetContent();
+    _showPackageTypesBottomSheetContent(isDark);
   }
 
-  void _showPackageTypesBottomSheetContent() {
+  void _showPackageTypesBottomSheetContent(bool isDark) {
     final localSelectedCodes =
-        Set<String>.from(widget.selectedPackageTypeCodes);
+    Set<String>.from(widget.selectedPackageTypeCodes);
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
@@ -94,7 +97,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            color: Colors.white,
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           ),
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.7,
@@ -107,17 +110,20 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Выберите специализацию',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close),
+                      child: Icon(
+                        Icons.close,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                   ],
                 ),
@@ -125,48 +131,69 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
               const SizedBox(height: 16),
               Expanded(
                 child: widget.packageTypes.isEmpty
-                    ? const Center(
-                        child: Text('Типы упаковки не найдены'),
-                      )
+                    ? Center(
+                  child: Text(
+                    'Типы упаковки не найдены',
+                    style: TextStyle(
+                      color: isDark
+                          ? const Color(0xFFB0B0B0)
+                          : Colors.black87,
+                    ),
+                  ),
+                )
                     : ListView.builder(
-                        itemCount: widget.packageTypes.length,
-                        itemBuilder: (context, index) {
-                          final packageType = widget.packageTypes[index];
-                          final isSelected =
-                              localSelectedCodes.contains(packageType.code);
+                  itemCount: widget.packageTypes.length,
+                  itemBuilder: (context, index) {
+                    final packageType = widget.packageTypes[index];
+                    final isSelected =
+                    localSelectedCodes.contains(packageType.code);
 
-                          return ListTile(
-                            leading: Text(
-                              packageType.icon,
-                              style: const TextStyle(fontSize: 28),
-                            ),
-                            title: Text(
-                              packageType.name,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            trailing: isSelected
-                                ? const Icon(
-                                    Icons.check_circle,
-                                    color: Color(0xFF5B51FF),
-                                    size: 28,
-                                  )
-                                : const Icon(
-                                    Icons.circle_outlined,
-                                    color: Colors.grey,
-                                    size: 28,
-                                  ),
-                            onTap: () {
-                              setStateBottomSheet(() {
-                                if (isSelected) {
-                                  localSelectedCodes.remove(packageType.code);
-                                } else {
-                                  localSelectedCodes.add(packageType.code);
-                                }
-                              });
-                            },
-                          );
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? (isDark
+                            ? const Color(0xFF2A2A2A)
+                            : const Color(0xFFF0EDFF))
+                            : Colors.transparent,
+                      ),
+                      child: ListTile(
+                        leading: Text(
+                          packageType.icon,
+                          style: const TextStyle(fontSize: 28),
+                        ),
+                        title: Text(
+                          packageType.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(
+                          Icons.check_circle,
+                          color: Color(0xFF5B51FF),
+                          size: 28,
+                        )
+                            : Icon(
+                          Icons.circle_outlined,
+                          color: isDark
+                              ? const Color(0xFF6B7280)
+                              : Colors.grey,
+                          size: 28,
+                        ),
+                        onTap: () {
+                          setStateBottomSheet(() {
+                            if (isSelected) {
+                              localSelectedCodes.remove(packageType.code);
+                            } else {
+                              localSelectedCodes.add(packageType.code);
+                            }
+                          });
                         },
                       ),
+                    );
+                  },
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -203,69 +230,93 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final isPlaceholder = widget.selectedPackageTypeCodes.isEmpty && !widget.isLoading;
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+        final isPlaceholder =
+            widget.selectedPackageTypeCodes.isEmpty && !widget.isLoading;
 
-    return GestureDetector(
-      onTap: widget.isLoading ? null : _showPackageTypesBottomSheet,
-      child: Container(
-        height: 60,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(
-            color: const Color(0xFFE5E5EA),
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  // Показываем иконку только когда отображается "Выбор"
-                  if (isPlaceholder) ...[
-                    Image.asset(
-                      "asset/search.png",
-                      color: const Color(0xFF5B51FF),
-                      width: 20,
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Expanded(
-                    child: Text(
-                      widget.isLoading
-                          ? 'Загрузка...'
-                          : _getSelectedPackageTypesDisplay(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: widget.isLoading
-                            ? const Color(0xFFC7C7CC)
-                            : isPlaceholder
-                            ? const Color(0xFF8E8E93) // Цвет для placeholder
-                            : Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+        return GestureDetector(
+          onTap: widget.isLoading ? null : () => _showPackageTypesBottomSheet(isDark),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 60,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xFF3A3A3A)
+                    : const Color(0xFFE5E5EA),
+                width: 1,
               ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.expand_more,
-              color: Color(0xFF8E8E93),
-              size: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (isPlaceholder) ...[
+                        Image.asset(
+                          "asset/search.png",
+                          color: const Color(0xFF5B51FF),
+                          width: 20,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: widget.isLoading
+                                ? (isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFFC7C7CC))
+                                : isPlaceholder
+                                ? (isDark
+                                ? const Color(0xFF9CA3AF)
+                                : const Color(0xFF8E8E93))
+                                : (isDark ? Colors.white : Colors.black),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          child: Text(
+                            widget.isLoading
+                                ? 'Загрузка...'
+                                : _getSelectedPackageTypesDisplay(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.expand_more,
+                  color: isDark
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF8E8E93),
+                  size: 20,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

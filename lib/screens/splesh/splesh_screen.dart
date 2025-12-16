@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
- import '../home/home_screen.dart';
-import '../home/tabs/home_tab/home_tab_screen.dart';
+import '../home/home_screen.dart';
+ import 'Intro_page.dart';
 
 bool cartNumberFocus = false;
 bool finKodNumberFocus = false;
@@ -25,13 +25,21 @@ class _SpleshScreenState extends State<SpleshScreen> {
       ),
       sl.get<AuthRepository>().firstOpen(),
     ]).then((value) {
-      sl.get<AuthRepository>().setIsFirstOpen();
-      if (value.last) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (BuildContext context) {
-          return HomeScreen();
-        }));
+      final isFirstOpen = value.last as bool;
+
+      if (isFirstOpen) {
+        // Первый запуск - показать IntroPage
+        sl.get<AuthRepository>().setIsFirstOpen();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return IntroPage();
+            },
+          ),
+        );
       } else {
+        // Повторный запуск - перейти на HomeScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

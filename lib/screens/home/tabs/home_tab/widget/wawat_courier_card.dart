@@ -1,344 +1,573 @@
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../../data/network/api/chat_api.dart';
 import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../main.dart';
+import '../../../../../services/theme_manager.dart';
+import '../courier_screen/courier_screen.dart';
+import 'auth_modal_utils.dart';
+import 'start_chat_modal.dart';
 
-class WawatCourierCard extends StatelessWidget {
+class WawatCourierCard extends StatefulWidget {
   final OfferModel courier;
-  final VoidCallback? onDetails;
-  final VoidCallback? onMessage;
+  final bool detailsActiv;
+  final bool sendMessageActiv;
+
+  final Function(bool)? onFavoriteToggle;
+  final Function(bool)? onVisibilityToggle;
 
   const WawatCourierCard({
     Key? key,
     required this.courier,
-    this.onDetails,
-    this.onMessage,
+    this.onFavoriteToggle,
+    this.onVisibilityToggle,
+    this.detailsActiv = true,
+    this.sendMessageActiv = true,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 24,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header: Avatar + Name + Chips
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Avatar
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
+  State<WawatCourierCard> createState() => _WawatCourierCardState();
+}
+
+class _WawatCourierCardState extends State<WawatCourierCard> {
+  late bool isFavorite;
+  late bool isVisible;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.courier.isFavourite ?? false;
+    isVisible = widget.courier.status == "active" ? true : false;
+  }
+
+  void _toggleFavorite() async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+      widget.onFavoriteToggle?.call(isFavorite);
+    }
+  }
+
+  void _toggleVisibility() async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      setState(() {
+        isVisible = !isVisible;
+      });
+      widget.onVisibilityToggle?.call(isVisible);
+    }
+  }
+
+  void _handleStartChat() async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!isLogged) {
+      return AuthModalUtils.showAuthRequiredModal(context);
+    } else {
+      StartChatModal.show(
+        context,
+        userId: widget.courier.user?.id ?? 0,
+        userName: widget.courier.user?.fullname ?? 'Пользователь',
+        onSuccess: (message) async {
+          try {
+            // Создаем ChatApi
+            final chatApi = ChatApi(sl.get<Dio>());
+
+
+
+            chatApi.startChat({
+              'user_id': widget.courier.user?.id,
+              'body': message,
+            });
+
+          } catch (e) {
+             if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Ошибка отправки сообщения: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 3),
                 ),
-                child: courier.user.avatar != null
-                    ? ClipOval(
-                        child: Image.network(
-                          courier.user.avatar!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                            );
-                          },
+              );
+            }
+          }
+        },
+      );
+    }
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return Stack(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                    blurRadius: 24,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                      )
-                    : Center(
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 30,
+                        child: widget.courier.user?.avatar != null
+                            ? ClipOval(
+                          child: Image.network(
+                            widget.courier.user!.avatar!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                            : Center(
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 30,
+                          ),
                         ),
                       ),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Name
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            courier.user.fullname,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1A1A1A),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        // Rating chip
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 6,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '⭐',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                courier.user.ratingAvg.toStringAsFixed(1),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1A1A1A),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4),
-                    // Chips
-                    Wrap(
-                      spacing: 5,
-                      runSpacing: 8,
-                      children: [
-                        // Offer type chip
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(0xFFD4E8FF),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.flight,
-                                size: 16,
-                                color: Color(0xFF2196F3),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                courier.offerType.title,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF2196F3),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Verified chip
-                        if (courier.user.isVerified)
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF4CAF50),
-                                    shape: BoxShape.circle,
+                                Flexible(
+                                  child: AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 300),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark
+                                          ? Colors.white
+                                          : const Color(0xFF1A1A1A),
+                                    ),
+                                    child: Text(
+                                      widget.courier.user?.fullname ?? 'Пользователь',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Проверен',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF4CAF50),
+                                SizedBox(width: 8),
+                                if ((widget.courier.user?.ratingAvg ?? 0) > 0)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 6,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '⭐',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        SizedBox(width: 6),
+                                        AnimatedDefaultTextStyle(
+                                          duration:
+                                          const Duration(milliseconds: 300),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark
+                                                ? Colors.white
+                                                : const Color(0xFF1A1A1A),
+                                          ),
+                                          child: Text(
+                                            (widget.courier.user?.ratingAvg ?? 0)
+                                                .toStringAsFixed(1),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            Wrap(
+                              spacing: 5,
+                              runSpacing: 8,
+                              children: [
+                                if (widget.courier.offerType != null)
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? const Color(0xFF1E3A5F)
+                                          : const Color(0xFFD4E8FF),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.flight,
+                                          size: 16,
+                                          color: const Color(0xFF2196F3),
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          widget.courier.offerType!.title,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF2196F3),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                if (widget.courier.user?.isVerified == true)
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Image.asset(
+                                          "asset/prof_3.png",
+                                          width: 16,
+                                        ),
+                                        SizedBox(width: 3),
+                                        Text(
+                                          'Проверен',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF4CAF50),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  if (widget.courier.description?.isNotEmpty ?? false)
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: isDark
+                            ? const Color(0xFFB0B0B0)
+                            : Colors.black87,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      child: Text(widget.courier.description!),
+                    ),
+                  SizedBox(height: 24),
+                  Column(
+                    children: [
+                      _buildDetailRow(
+                        'Маршрут:',
+                        '${widget.courier.cityFrom?.name ?? '-'} → ${widget.courier.cityTo?.name ?? '-'}',
+                        isDark,
+                      ),
+                      if (widget.courier.mainDate != null)
+                        _buildDetailRow(
+                          'Дата:',
+                          _formatDate(widget.courier.mainDate!),
+                          isDark,
+                        ),
+                      if (widget.courier.maxWeightKg != null)
+                        _buildDetailRow(
+                          'Вес:',
+                          '${widget.courier.maxWeightKg} кг',
+                          isDark,
+                        ),
+                      if (widget.courier.mainTime != null)
+                        _buildDetailRow(
+                          'Время:',
+                          _formatTime(widget.courier.mainTime!),
+                          isDark,
+                        ),
+                      if (widget.courier.pricePerKg != null)
+                        _buildDetailRow(
+                          'Цена:',
+                          '${widget.courier.pricePerKg} \$/кг',
+                          isDark,
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      if (widget.detailsActiv == true)
+                        Expanded(
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x335B5FFF),
+                                  blurRadius: 16,
+                                  offset: Offset(0, 4),
                                 ),
                               ],
                             ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () async {
+                                  final isLogged =
+                                  await sl.get<AuthRepository>().isLogged();
+                                  if (!isLogged) {
+                                    return AuthModalUtils.showAuthRequiredModal(
+                                        context);
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(
+                                        builder: (BuildContext context) {
+                                          return CourierDetailsScreen(
+                                            courierId: widget.courier.user?.id ?? 0,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(16),
+                                child: Center(
+                                  child: Text(
+                                    'Подробнее',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                      ],
-                    ),
-                  ],
-                ),
+                        ),
+                      if (widget.detailsActiv == true) SizedBox(width: 12),
+                      if (widget.sendMessageActiv == true)
+                        Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: 48,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFF5B5FFF),
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              color: isDark
+                                  ? const Color(0xFF1E1E3F)
+                                  : Colors.transparent,
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: _handleStartChat,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Center(
+                                  child: Text(
+                                    'Написать',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF5B5FFF),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(height: 16),
-
-          // Description
-          Text(
-            courier.description,
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF9E9E9E),
-              fontWeight: FontWeight.w400,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 24),
-
-          // Details Table
-          Column(
-            children: [
-              _buildDetailRow(
-                'Маршрут:',
-                '${courier.cityFrom.name} → ${courier.cityTo.name}',
-              ),
-              _buildDetailRow(
-                'Дата:',
-                _formatDate(courier.mainDate),
-              ),
-              _buildDetailRow(
-                'Вес:',
-                '${courier.maxWeightKg} кг',
-              ),
-              if (courier.mainTime != null)
-                _buildDetailRow(
-                  'Время:',
-                  _formatTime(courier.mainTime!),
-                ),
-              _buildDetailRow(
-                'Цена:',
-                '${courier.pricePerKg} ₼/кг',
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-
-          // Buttons
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 48,
+            if (widget.sendMessageActiv == true)
+              Positioned(
+                top: 15,
+                right: 35,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
+                    color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                    shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Color(0x335B5FFF),
-                        blurRadius: 16,
-                        offset: Offset(0, 4),
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Material(
                     color: Colors.transparent,
+                    shape: CircleBorder(),
                     child: InkWell(
-                      onTap: onDetails,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Center(
-                        child: Text(
-                          'Подробнее',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
+                      onTap: _toggleFavorite,
+                      borderRadius: BorderRadius.circular(28),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : const Color(0xFF5B5FFF),
+                          size: 24,
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  height: 48,
+            if (widget.sendMessageActiv == false)
+              Positioned(
+                top: 15,
+                right: 35,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color(0xFF5B5FFF),
-                      width: 2,
-                    ),
+                    color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
+                  padding: EdgeInsets.all(8),
                   child: Material(
                     color: Colors.transparent,
-                    child: InkWell(
-                      onTap: onMessage,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Center(
-                        child: Text(
-                          'Написать',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF5B5FFF),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InkWell(
+                          onTap: _toggleVisibility,
+                          borderRadius: BorderRadius.circular(28),
+                          child: Icon(
+                            isVisible ? Icons.visibility : Icons.visibility_off,
+                            color: WawatColors.primary,
+                            size: 24,
                           ),
                         ),
-                      ),
+                        SizedBox(height: 4),
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark
+                                ? const Color(0xFFB0B0B0)
+                                : Colors.black87,
+                          ),
+                          child: Text(isVisible == true ? "Скрыть" : "Показать"),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: WawatColors.textPrimary,
+              color: isDark
+                  ? const Color(0xFF9CA3AF)
+                  : WawatColors.textPrimary,
             ),
+            child: Text(label),
           ),
           Flexible(
-            child: Text(
-              value,
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1A1A1A),
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
               ),
               textAlign: TextAlign.right,
-              overflow: TextOverflow.ellipsis,
+              child: Text(
+                value,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],

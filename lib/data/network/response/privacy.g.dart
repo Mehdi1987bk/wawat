@@ -19,7 +19,7 @@ class PrivacyAdapter extends TypeAdapter<Privacy> {
     return Privacy(
       showPhone: fields[0] as bool?,
       showEmail: fields[1] as bool?,
-      showLastSeen: fields[2] as bool?,
+      showActivityTime: fields[2] as bool?,
     );
   }
 
@@ -32,7 +32,7 @@ class PrivacyAdapter extends TypeAdapter<Privacy> {
       ..writeByte(1)
       ..write(obj.showEmail)
       ..writeByte(2)
-      ..write(obj.showLastSeen);
+      ..write(obj.showActivityTime);
   }
 
   @override
@@ -53,11 +53,11 @@ class PrivacyAdapter extends TypeAdapter<Privacy> {
 Privacy _$PrivacyFromJson(Map<String, dynamic> json) => Privacy(
       showPhone: json['show_phone'] as bool?,
       showEmail: json['show_email'] as bool?,
-      showLastSeen: json['show_last_seen'] as bool?,
+      showActivityTime: json['show_activity_time'] as bool?,
     );
 
 Map<String, dynamic> _$PrivacyToJson(Privacy instance) => <String, dynamic>{
       'show_phone': instance.showPhone,
       'show_email': instance.showEmail,
-      'show_last_seen': instance.showLastSeen,
+      'show_activity_time': instance.showActivityTime,
     };

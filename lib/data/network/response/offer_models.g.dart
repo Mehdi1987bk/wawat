@@ -20,30 +20,39 @@ Map<String, dynamic> _$OfferListResponseToJson(OfferListResponse instance) =>
 
 OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
       id: json['id'] as int,
-      offerType:
-          OfferTypeModel.fromJson(json['offer_type'] as Map<String, dynamic>),
-      cityFrom: CityModel.fromJson(json['city_from'] as Map<String, dynamic>),
-      cityTo: CityModel.fromJson(json['city_to'] as Map<String, dynamic>),
+      offerType: json['offer_type'] == null
+          ? null
+          : OfferTypeModel.fromJson(json['offer_type'] as Map<String, dynamic>),
+      cityFrom: json['city_from'] == null
+          ? null
+          : CityModel.fromJson(json['city_from'] as Map<String, dynamic>),
+      cityTo: json['city_to'] == null
+          ? null
+          : CityModel.fromJson(json['city_to'] as Map<String, dynamic>),
       flightDate: json['flight_date'] as String?,
       flightTime: json['flight_time'] as String?,
       deliveryDateFrom: json['delivery_date_from'] as String?,
       deliveryDateTo: json['delivery_date_to'] as String?,
       purchaseDate: json['purchase_date'] as String?,
       purchaseTime: json['purchase_time'] as String?,
-      mainDate: json['main_date'] as String,
+      mainDate: json['main_date'] as String?,
       mainTime: json['main_time'] as String?,
-      packageType: PackageTypeModel.fromJson(
-          json['package_type'] as Map<String, dynamic>),
-      maxWeightKg: json['max_weight_kg'] as String,
-      pricePerKg: json['price_per_kg'] as String,
-      description: json['description'] as String,
-      status: json['status'] as String,
-      publishedAt: json['published_at'] as String,
-      languages: (json['languages'] as List<dynamic>)
-          .map((e) => LanguageModel.fromJson(e as Map<String, dynamic>))
+      packageType: json['package_type'] == null
+          ? null
+          : PackageTypeModel.fromJson(
+              json['package_type'] as Map<String, dynamic>),
+      maxWeightKg: json['max_weight_kg'] as String?,
+      pricePerKg: json['price_per_kg'] as String?,
+      description: json['description'] as String?,
+      status: json['status'] as String?,
+      publishedAt: json['published_at'] as String?,
+      languages: (json['languages'] as List<dynamic>?)
+          ?.map((e) => LanguageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      isFavorited: json['is_favorited'] as bool,
+      user: json['user'] == null
+          ? null
+          : UserModel.fromJson(json['user'] as Map<String, dynamic>),
+      isFavourite: json['is_favourite'] as bool?,
     );
 
 Map<String, dynamic> _$OfferModelToJson(OfferModel instance) =>
@@ -68,7 +77,7 @@ Map<String, dynamic> _$OfferModelToJson(OfferModel instance) =>
       'published_at': instance.publishedAt,
       'languages': instance.languages,
       'user': instance.user,
-      'is_favorited': instance.isFavorited,
+      'is_favourite': instance.isFavourite,
     };
 
 OfferTypeModel _$OfferTypeModelFromJson(Map<String, dynamic> json) =>

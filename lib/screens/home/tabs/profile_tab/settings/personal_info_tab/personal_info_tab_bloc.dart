@@ -17,6 +17,7 @@ class PersonalInfoTabBloc extends BaseBloc {
     imageUrl = null;
     images = file;
     userAvatar.add(file);
+    authRepository.addAvatar(images!);
   }
 
   Future<void> customersMe() => authRepository.customersMe();
@@ -37,5 +38,5 @@ class PersonalInfoTabBloc extends BaseBloc {
           about,
           // images,
         ),
-      ) ;
+      );
 }

@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../services/theme_manager.dart';
 import '../resourses/app_colors.dart';
 import 'base_bloc.dart';
 import 'bloc_provider.dart';
@@ -17,6 +19,11 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   late Bloc bloc;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+  @override
+  Color? backgroundColor() {
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    return isDark ? const Color(0xFF121212) : Colors.white;
+  }
 
   @override
   void initState() {
@@ -25,24 +32,52 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
     bloc.init();
   }
 
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return BlocProvider<Bloc>(
       bloc: bloc,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
-        child: Scaffold(
-          key: scaffoldKey,
-          appBar: appBar(),
-          drawer: drawer(),
-          backgroundColor: AppColors.bgColor,
-          primary: primary,
-          drawerEdgeDragWidth: drawerEdgeDragWidth,
-          bottomNavigationBar: bottomNavigationBar(),
-          floatingActionButton: floatingActionButton(),
-          body: _buildBody(),
-        ),
+      child: Consumer<ThemeManager>(
+        builder: (context, themeManager, child) {
+          final isDark = themeManager.isDarkMode;
+
+          final scaffold = GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: Scaffold(
+              key: scaffoldKey,
+              appBar: appBar(),
+              drawer: drawer(),
+              backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+              primary: primary,
+              drawerEdgeDragWidth: drawerEdgeDragWidth,
+              bottomNavigationBar: bottomNavigationBar(),
+              floatingActionButton: floatingActionButton(),
+              resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+              body: _buildBody(),
+            ),
+          );
+
+          // Только главный экран управляет системными цветами
+          if (useSystemOverlay) {
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
+                // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
+                statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
+                systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
+                systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+              ),
+              child: scaffold,
+            );
+          }
+
+          return scaffold;
+        },
       ),
     );
   }
@@ -122,11 +157,15 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   bool get wantKeepAlive => false;
 
-  Color? backgroundColor() => null;
+
+  bool get resizeToAvoidBottomInset => true;
+
+  // Переопределите на false для табов внутри IndexedStack
+  bool get useSystemOverlay => true;
 }
 
 abstract class BaseStateWithFlushBar<T extends BaseScreen,
-    Bloc extends BaseBloc> extends BaseState<T, Bloc> {
+Bloc extends BaseBloc> extends BaseState<T, Bloc> {
   final Duration _animDuration = Duration(milliseconds: 500);
   PublishSubject<bool> _flush = PublishSubject<bool>();
   String? _message;
@@ -144,11 +183,11 @@ abstract class BaseStateWithFlushBar<T extends BaseScreen,
                 duration: _animDuration,
                 child: (snapshot.hasData && snapshot.data!)
                     ? FlushWidget(
-                        message: _message ?? '',
-                        onTap: () {
-                          _flush.add(false);
-                        },
-                      )
+                  message: _message ?? '',
+                  onTap: () {
+                    _flush.add(false);
+                  },
+                )
                     : const SizedBox.shrink(),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return SizeTransition(
