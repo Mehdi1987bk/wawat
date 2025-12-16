@@ -135,6 +135,26 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
+
+  Future<void> blockUser(int userId) async {
+    try {
+      await _chatApi.blockUser({'user_id': userId});
+      await loadConversations();
+    } catch (e) {
+      print('Error blocking user: $e');
+    }
+  }
+
+  Future<void> unblockUser(int userId) async {
+    try {
+      await _chatApi.unblockUser({'user_id': userId});
+      await loadConversations();
+    } catch (e) {
+      print('Error unblocking user: $e');
+    }
+  }
+
+
   Future<void> loadArchivedConversations() async {
     _showArchived = true;
     _currentPage = 1;

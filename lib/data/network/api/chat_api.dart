@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import '../response/chat_response.dart';
+import '../response/target_user_request.dart';
 
 part 'chat_api.g.dart';
 
@@ -88,4 +89,8 @@ abstract class ChatApi {
   // Unblock user
   @POST('/chats/unblock')
   Future<BlockResponse> unblockUser(@Body() Map<String, dynamic> body);
+
+  // Unblock user
+  @POST('/reviews/request')
+  Future<void> sendReviews(@Body() TargetUserRequest request);
 }

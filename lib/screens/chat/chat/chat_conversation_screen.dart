@@ -66,12 +66,12 @@ class _ChatConversationScreenState
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+                isDark ? Brightness.light : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
             backgroundColor:
-            isDark ? const Color(0xFF121212) : WawatColors.backgroundLight,
+                isDark ? const Color(0xFF121212) : WawatColors.backgroundLight,
             appBar: _buildAppBar(isDark),
             body: Column(
               children: [
@@ -212,15 +212,15 @@ class _ChatConversationScreenState
                   backgroundColor: WawatColors.primary.withOpacity(0.1),
                   backgroundImage: widget.conversation.user.avatarUrl.isNotEmpty
                       ? CachedNetworkImageProvider(
-                      widget.conversation.user.avatarUrl)
+                          widget.conversation.user.avatarUrl)
                       : null,
                   child: widget.conversation.user.avatarUrl.isEmpty
                       ? Text(
-                    widget.conversation.user.fullname[0].toUpperCase(),
-                    style: WawatTextStyles.bodyBold.copyWith(
-                      color: WawatColors.primary,
-                    ),
-                  )
+                          widget.conversation.user.fullname[0].toUpperCase(),
+                          style: WawatTextStyles.bodyBold.copyWith(
+                            color: WawatColors.primary,
+                          ),
+                        )
                       : null,
                 ),
                 if (widget.conversation.user.isOnline)
@@ -234,9 +234,8 @@ class _ChatConversationScreenState
                         color: WawatColors.success,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF1E1E1E)
-                              : Colors.white,
+                          color:
+                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
                           width: 2,
                         ),
                       ),
@@ -297,8 +296,8 @@ class _ChatConversationScreenState
                       color: widget.conversation.user.isOnline
                           ? WawatColors.success
                           : (isDark
-                          ? const Color(0xFF9CA3AF)
-                          : WawatColors.textSecondary),
+                              ? const Color(0xFF9CA3AF)
+                              : WawatColors.textSecondary),
                     ),
                     child: Text(
                       widget.conversation.user.getLastSeenText(),
@@ -323,30 +322,47 @@ class _ChatConversationScreenState
           onSelected: (value) {
             switch (value) {
               case 'block':
-                _showBlockDialog(isDark);
+                _showSendRequestFromRewiew(isDark);
                 break;
-              case 'delete':
-                _showDeleteDialog(isDark);
-                break;
+
             }
           },
+
           itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'block',
-              child: Row(
-                children: [
-                  Icon(Icons.block, size: 20, color: WawatColors.error),
-                  SizedBox(width: WawatDimensions.spacingSm),
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: WawatTextStyles.body.copyWith(
-                      color: isDark ? Colors.white : Colors.black,
+            if (widget.conversation.user.isBlocked ?? true  )
+              PopupMenuItem(
+                value: 'block',
+                child: Row(
+                  children: [
+                    Icon(Icons.block, size: 20, color: WawatColors.error),
+                    SizedBox(width: WawatDimensions.spacingSm),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: WawatTextStyles.body.copyWith(
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Заблокировать'),
                     ),
-                    child: const Text('Заблокировать'),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            if (widget.conversation.user.isBlocked ?? false)
+              PopupMenuItem(
+                value: 'unblock',
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, size: 20, color: WawatColors.success),
+                    SizedBox(width: WawatDimensions.spacingSm),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: WawatTextStyles.body.copyWith(
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Разблокировать'),
+                    ),
+                  ],
+                ),
+              ),
             PopupMenuItem(
               value: 'delete',
               child: Row(
@@ -386,16 +402,16 @@ class _ChatConversationScreenState
               borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
             ),
             child: _selectedFile!.path.toLowerCase().endsWith('.jpg') ||
-                _selectedFile!.path.toLowerCase().endsWith('.png') ||
-                _selectedFile!.path.toLowerCase().endsWith('.jpeg')
+                    _selectedFile!.path.toLowerCase().endsWith('.png') ||
+                    _selectedFile!.path.toLowerCase().endsWith('.jpeg')
                 ? ClipRRect(
-              borderRadius:
-              BorderRadius.circular(WawatDimensions.radiusSmall),
-              child: Image.file(
-                _selectedFile!,
-                fit: BoxFit.cover,
-              ),
-            )
+                    borderRadius:
+                        BorderRadius.circular(WawatDimensions.radiusSmall),
+                    child: Image.file(
+                      _selectedFile!,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                 : Icon(Icons.insert_drive_file, color: WawatColors.primary),
           ),
           SizedBox(width: WawatDimensions.spacingSm),
@@ -415,9 +431,8 @@ class _ChatConversationScreenState
           IconButton(
             icon: Icon(
               Icons.close,
-              color: isDark
-                  ? const Color(0xFF9CA3AF)
-                  : WawatColors.textSecondary,
+              color:
+                  isDark ? const Color(0xFF9CA3AF) : WawatColors.textSecondary,
             ),
             onPressed: () {
               setState(() {
@@ -430,57 +445,8 @@ class _ChatConversationScreenState
     );
   }
 
-  void _showBlockDialog(bool isDark) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        title: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 300),
-          style: WawatTextStyles.h3.copyWith(
-            color: isDark ? Colors.white : Colors.black,
-          ),
-          child: const Text('Заблокировать пользователя?'),
-        ),
-        content: AnimatedDefaultTextStyle(
-          duration: const Duration(milliseconds: 300),
-          style: WawatTextStyles.body.copyWith(
-            color: isDark ? const Color(0xFFB0B0B0) : Colors.black,
-          ),
-          child: Text(
-            'Вы уверены, что хотите заблокировать ${widget.conversation.user.fullname}?',
-          ),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Отмена',
-              style: WawatTextStyles.bodyBold.copyWith(
-                color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              bloc.blockUser(widget.conversation.user.id);
-            },
-            child: Text(
-              'Заблокировать',
-              style:
-              WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showDeleteDialog(bool isDark) {
+   void _showSendRequestFromRewiew(bool isDark) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -490,7 +456,7 @@ class _ChatConversationScreenState
           style: WawatTextStyles.h3.copyWith(
             color: isDark ? Colors.white : Colors.black,
           ),
-          child: const Text('Удалить чат?'),
+          child: const Text('Разблокировать пользователя?'),
         ),
         content: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
@@ -498,7 +464,7 @@ class _ChatConversationScreenState
             color: isDark ? const Color(0xFFB0B0B0) : Colors.black,
           ),
           child: Text(
-            'Вы уверены, что хотите удалить переписку с ${widget.conversation.user.fullname}?',
+            'Вы уверены, что хотите разблокировать ${widget.conversation.user.fullname}?',
           ),
         ),
         shape: RoundedRectangleBorder(
@@ -517,13 +483,12 @@ class _ChatConversationScreenState
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              bloc.deleteConversation();
-              Navigator.pop(context);
+              bloc.sendReviews(widget.conversation.user.id);
             },
             child: Text(
-              'Удалить',
+              'Разблокировать',
               style:
-              WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+              WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
             ),
           ),
         ],

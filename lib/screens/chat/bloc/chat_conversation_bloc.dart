@@ -5,6 +5,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../data/cache/cache_manager.dart';
 import '../../../data/network/api/chat_api.dart';
 import '../../../data/network/response/chat_response.dart';
+import '../../../data/network/response/target_user_request.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
 import '../../../services/pusher_service.dart';
@@ -15,11 +16,13 @@ class ChatConversationBloc extends BaseBloc {
   final CacheManager _cacheManager = sl.get<CacheManager>();
 
   final BehaviorSubject<List<ChatMessage>> _messagesSubject =
-  BehaviorSubject.seeded([]);
+      BehaviorSubject.seeded([]);
   final BehaviorSubject<bool> _isLoadingMoreSubject =
-  BehaviorSubject.seeded(false);
+      BehaviorSubject.seeded(false);
+
 
   Stream<List<ChatMessage>> get messagesStream => _messagesSubject.stream;
+
   Stream<bool> get isLoadingMoreStream => _isLoadingMoreSubject.stream;
 
   int? _conversationId;
@@ -35,7 +38,8 @@ class ChatConversationBloc extends BaseBloc {
     final token = await _cacheManager.getToken();
     if (token != null) {
       await _pusherService.initialize(token);
-      await _pusherService.subscribeToConversation(conversationId, _onNewMessage);
+      await _pusherService.subscribeToConversation(
+          conversationId, _onNewMessage);
     }
   }
 
@@ -45,6 +49,10 @@ class ChatConversationBloc extends BaseBloc {
       if (messageData == null) return;
 
       final message = ChatMessage.fromJson(messageData);
+
+      // Проверяем, не закрыт ли subject
+      if (_messagesSubject.isClosed) return;
+
       final currentMessages = _messagesSubject.value;
 
       // Проверяем, не наше ли это сообщение (избегаем дубликатов)
@@ -75,12 +83,16 @@ class ChatConversationBloc extends BaseBloc {
 
     try {
       final response =
-      await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      _messagesSubject.add(response.data.reversed.toList());
+          await _chatApi.getMessages(_conversationId!, 50, _currentPage);
+      if (!_messagesSubject.isClosed) {
+        _messagesSubject.add(response.data.reversed.toList());
+      }
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading messages: $e');
-      _messagesSubject.addError(e);
+      if (!_messagesSubject.isClosed) {
+        _messagesSubject.addError(e);
+      }
     }
   }
 
@@ -92,25 +104,31 @@ class ChatConversationBloc extends BaseBloc {
     }
 
     _isLoadingMore = true;
-    _isLoadingMoreSubject.add(true);
+    if (!_isLoadingMoreSubject.isClosed) {
+      _isLoadingMoreSubject.add(true);
+    }
 
     try {
       _currentPage++;
       final response =
-      await _chatApi.getMessages(_conversationId!, 50, _currentPage);
+          await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
-      final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([
-        ...currentMessages,
-        ...response.data.reversed.toList(),
-      ]);
+      if (!_messagesSubject.isClosed) {
+        final currentMessages = _messagesSubject.value;
+        _messagesSubject.add([
+          ...currentMessages,
+          ...response.data.reversed.toList(),
+        ]);
+      }
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading more: $e');
       _currentPage--;
     } finally {
       _isLoadingMore = false;
-      _isLoadingMoreSubject.add(false);
+      if (!_isLoadingMoreSubject.isClosed) {
+        _isLoadingMoreSubject.add(false);
+      }
     }
   }
 
@@ -135,26 +153,21 @@ class ChatConversationBloc extends BaseBloc {
       }
 
       // Добавляем сообщение в список
-      final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([response.data, ...currentMessages]);
+      if (!_messagesSubject.isClosed) {
+        final currentMessages = _messagesSubject.value;
+        _messagesSubject.add([response.data, ...currentMessages]);
+      }
     } catch (e) {
       print('Error sending message: $e');
     }
   }
 
-  Future<void> blockUser(int userId) async {
-    try {
-      await _chatApi.blockUser({'user_id': userId});
-    } catch (e) {
-      print('Error blocking user: $e');
-    }
-  }
 
-  Future<void> deleteConversation() async {
+
+  Future<void> sendReviews(int id) async {
     if (_conversationId == null) return;
-
-    try {
-      await _chatApi.deleteConversation(_conversationId!);
+     try {
+      await _chatApi.sendReviews(TargetUserRequest(targetUserId: id));
     } catch (e) {
       print('Error deleting conversation: $e');
     }

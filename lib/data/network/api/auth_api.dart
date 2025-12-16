@@ -121,8 +121,8 @@ abstract class AuthApi {
 
   @PATCH('/api/v1/offers/{id}/status')
   Future<void> editStatusOffer(
-      @Path() String id,
-      @Body() EditStatusOfferRequest request,
+    @Path() String id,
+    @Body() EditStatusOfferRequest request,
   );
 
   @GET('/api/v1/offers')
