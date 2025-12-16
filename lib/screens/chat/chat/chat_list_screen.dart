@@ -422,6 +422,40 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
               leading: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
+                  color: conversation.user.isBlocked
+                      ? WawatColors.success.withOpacity(0.1)
+                      : WawatColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  conversation.user.isBlocked ? Icons.check_circle : Icons.block,
+                  color: conversation.user.isBlocked
+                      ? WawatColors.success
+                      : WawatColors.error,
+                  size: 20,
+                ),
+              ),
+              title: Text(
+                conversation.user.isBlocked ? 'Разблокировать' : 'Заблокировать',
+                style: WawatTextStyles.body.copyWith(
+                  color: conversation.user.isBlocked
+                      ? (isDark ? Colors.white : Colors.black)
+                      : WawatColors.error,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                if (conversation.user.isBlocked) {
+                  _showUnblockDialog(conversation, isDark);
+                } else {
+                  _showBlockDialog(conversation, isDark);
+                }
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
                   color: WawatColors.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -445,6 +479,96 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             SizedBox(height: WawatDimensions.spacingMd),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showBlockDialog(Conversation conversation, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Заблокировать пользователя?',
+          style: WawatTextStyles.h3.copyWith(
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        content: Text(
+          'Вы уверены, что хотите заблокировать ${conversation.user.fullname}?',
+          style: WawatTextStyles.body.copyWith(
+            color: isDark ? const Color(0xFFB0B0B0) : Colors.black,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Отмена',
+              style: WawatTextStyles.bodyBold.copyWith(
+                color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              bloc.blockUser(conversation.user.id);
+            },
+            child: Text(
+              'Заблокировать',
+              style: WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showUnblockDialog(Conversation conversation, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Разблокировать пользователя?',
+          style: WawatTextStyles.h3.copyWith(
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        content: Text(
+          'Вы уверены, что хотите разблокировать ${conversation.user.fullname}?',
+          style: WawatTextStyles.body.copyWith(
+            color: isDark ? const Color(0xFFB0B0B0) : Colors.black,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Отмена',
+              style: WawatTextStyles.bodyBold.copyWith(
+                color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              bloc.unblockUser(conversation.user.id);
+            },
+            child: Text(
+              'Разблокировать',
+              style: WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
+            ),
+          ),
+        ],
       ),
     );
   }
