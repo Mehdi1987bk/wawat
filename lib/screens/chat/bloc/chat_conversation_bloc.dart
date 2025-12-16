@@ -45,6 +45,10 @@ class ChatConversationBloc extends BaseBloc {
       if (messageData == null) return;
 
       final message = ChatMessage.fromJson(messageData);
+
+      // Проверяем, не закрыт ли subject
+      if (_messagesSubject.isClosed) return;
+
       final currentMessages = _messagesSubject.value;
 
       // Проверяем, не наше ли это сообщение (избегаем дубликатов)
@@ -76,11 +80,15 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
-      _messagesSubject.add(response.data.reversed.toList());
+      if (!_messagesSubject.isClosed) {
+        _messagesSubject.add(response.data.reversed.toList());
+      }
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading messages: $e');
-      _messagesSubject.addError(e);
+      if (!_messagesSubject.isClosed) {
+        _messagesSubject.addError(e);
+      }
     }
   }
 
@@ -92,25 +100,31 @@ class ChatConversationBloc extends BaseBloc {
     }
 
     _isLoadingMore = true;
-    _isLoadingMoreSubject.add(true);
+    if (!_isLoadingMoreSubject.isClosed) {
+      _isLoadingMoreSubject.add(true);
+    }
 
     try {
       _currentPage++;
       final response =
       await _chatApi.getMessages(_conversationId!, 50, _currentPage);
 
-      final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([
-        ...currentMessages,
-        ...response.data.reversed.toList(),
-      ]);
+      if (!_messagesSubject.isClosed) {
+        final currentMessages = _messagesSubject.value;
+        _messagesSubject.add([
+          ...currentMessages,
+          ...response.data.reversed.toList(),
+        ]);
+      }
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading more: $e');
       _currentPage--;
     } finally {
       _isLoadingMore = false;
-      _isLoadingMoreSubject.add(false);
+      if (!_isLoadingMoreSubject.isClosed) {
+        _isLoadingMoreSubject.add(false);
+      }
     }
   }
 
@@ -135,8 +149,10 @@ class ChatConversationBloc extends BaseBloc {
       }
 
       // Добавляем сообщение в список
-      final currentMessages = _messagesSubject.value;
-      _messagesSubject.add([response.data, ...currentMessages]);
+      if (!_messagesSubject.isClosed) {
+        final currentMessages = _messagesSubject.value;
+        _messagesSubject.add([response.data, ...currentMessages]);
+      }
     } catch (e) {
       print('Error sending message: $e');
     }
