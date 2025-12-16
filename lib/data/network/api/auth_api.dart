@@ -8,6 +8,7 @@ import '../../../domain/entities/pagination.dart';
 import '../../../main.dart';
 import '../request/courier_offer_model.dart';
 import '../request/courier_profile.dart';
+import '../request/create_review_request.dart';
 import '../request/delivery_offer_request.dart';
 import '../request/edit_status_offer_request.dart';
 import '../request/forgot_password_request.dart';
@@ -159,6 +160,11 @@ abstract class AuthApi {
   @POST('/api/v1/profile/avatar')
   Future<void> addAvatar(
     @Part(name: 'avatar') File avatar,
+  );
+
+  @POST('/api/v1/reviews')
+  Future<void> sendReviews(
+    @Body() CreateReviewRequest request,
   );
 
   @POST('/api/v1/verification/submit')

@@ -10,6 +10,7 @@ import '../cache/cache_manager.dart';
 import '../network/api/auth_api.dart';
 import '../network/request/courier_offer_model.dart';
 import '../network/request/courier_profile.dart';
+import '../network/request/create_review_request.dart';
 import '../network/request/delivery_offer_request.dart';
 import '../network/request/edit_status_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
@@ -196,9 +197,8 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> editStatusOffer(
-      String id, EditStatusOfferRequest request) {
-    return _authApi.editStatusOffer(id,request);
+  Future<void> editStatusOffer(String id, EditStatusOfferRequest request) {
+    return _authApi.editStatusOffer(id, request);
   }
 
   @override
@@ -221,6 +221,12 @@ class DataAuthRepository implements AuthRepository {
 
   Future<void> addAvatar(File avatar) {
     return _authApi.addAvatar(avatar);
+  }
+
+  Future<void> sendReviews(
+    CreateReviewRequest request,
+  ) {
+    return _authApi.sendReviews(request);
   }
 
   Future<void> submitVerification(

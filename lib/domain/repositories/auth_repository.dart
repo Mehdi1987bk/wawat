@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../../data/network/request/courier_offer_model.dart';
 import '../../data/network/request/courier_profile.dart';
+import '../../data/network/request/create_review_request.dart';
 import '../../data/network/request/delivery_offer_request.dart';
 import '../../data/network/request/edit_status_offer_request.dart';
 import '../../data/network/request/forgot_password_request.dart';
@@ -81,8 +82,7 @@ abstract class AuthRepository {
 
   Future<Pagination<OfferModel>> myOffers(int page);
 
-  Future<void> editStatusOffer(
-      String id, EditStatusOfferRequest request);
+  Future<void> editStatusOffer(String id, EditStatusOfferRequest request);
 
   Future<bool> firstOpen();
 
@@ -91,6 +91,8 @@ abstract class AuthRepository {
   Future<VerificationResponse> verificationStatus();
 
   Future<void> addAvatar(File avatar);
+
+  Future<void> sendReviews(CreateReviewRequest request);
 
   Future<void> submitVerification(
       {required File passport, required File selfie});

@@ -5,6 +5,7 @@ import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_
 import 'package:buking/screens/home/tabs/home_tab/courier_screen/widget/courier_ratings_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../../data/network/request/create_review_request.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../services/theme_aware_screen.dart';
@@ -45,7 +46,16 @@ class _CourierDetailsScreenState
                     child: Column(
                       children: [
                         const SizedBox(height: 16),
-                        CourierProfileCard(data: data),
+                        CourierProfileCard(
+                          data: data,
+                          onReviewSubmitted: (CreateReviewRequest request) {
+                             print(
+                                'Review Request ID: ${request.reviewRequestId}');
+                            print('Target ID: ${request.targetId}');
+                            print('Rating: ${request.rating}');
+                            print('Comment: ${request.comment}');
+                          },
+                        ),
                         const SizedBox(height: 16),
                         _buildTabButtons(isDark),
                         const SizedBox(height: 16),
@@ -57,7 +67,9 @@ class _CourierDetailsScreenState
                 }
                 return Center(
                   child: CircularProgressIndicator(
-                    color: isDark ? const Color(0xFF6366F1) : const Color(0xFF5B5BFF),
+                    color: isDark
+                        ? const Color(0xFF6366F1)
+                        : const Color(0xFF5B5BFF),
                   ),
                 );
               },
@@ -90,7 +102,8 @@ class _CourierDetailsScreenState
         children: [
           _buildTabButton(index: 0, icon: Icons.description, isDark: isDark),
           _buildTabButton(index: 1, icon: Icons.star_outline, isDark: isDark),
-          _buildTabButton(index: 2, icon: Icons.location_on_outlined, isDark: isDark),
+          _buildTabButton(
+              index: 2, icon: Icons.location_on_outlined, isDark: isDark),
         ],
       ),
     );
@@ -113,9 +126,7 @@ class _CourierDetailsScreenState
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? const Color(0xFF5B5BFF)
-                : Colors.transparent,
+            color: isSelected ? const Color(0xFF5B5BFF) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(

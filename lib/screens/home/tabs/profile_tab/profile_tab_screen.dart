@@ -16,6 +16,7 @@ import '../../../../data/network/response/user.dart';
 import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
+import 'courier_reviews_page.dart';
 
 class ProfileTabScreen extends BaseScreen {
   ProfileTabScreen({Key? key}) : super(key: key);
@@ -399,13 +400,23 @@ class _ProfileTabScreenState
           ),
           const SizedBox(height: 12),
 
-          _buildMenuItem(
-            icon: Icons.star_outline,
-            title: 'Отзывы',
-            subtitle: 'Посмотреть отзывы',
-            bgColor: const Color(0xFFFEF3C7),
-            iconColor: const Color(0xFFFCD34D),
-            isDark: isDark,
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return CourierReviewsPage(user: user);
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.star_outline,
+              title: 'Отзывы',
+              subtitle: 'Посмотреть отзывы',
+              bgColor: const Color(0xFFFEF3C7),
+              iconColor: const Color(0xFFFCD34D),
+              isDark: isDark,
+            ),
           ),
           const SizedBox(height: 12),
 

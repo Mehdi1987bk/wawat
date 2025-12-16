@@ -1,13 +1,15 @@
 import 'package:buking/screens/home/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../services/theme_aware_screen.dart';
+import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
-import 'package:flutter/material.dart';
 
 import 'login_bloc.dart';
 
@@ -24,9 +26,9 @@ class LoginModal extends StatefulWidget {
   State<LoginModal> createState() => _LoginModalState();
 
   static Future<void> show(
-    BuildContext context, {
-    required VoidCallback onRegister,
-  }) {
+      BuildContext context, {
+        required VoidCallback onRegister,
+      }) {
     return showDialog(
       context: context,
       barrierDismissible: true,
@@ -114,154 +116,184 @@ class _LoginModalState extends State<LoginModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: WawatDimensions.spacingLg,
-      ),
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: WawatDimensions.modalMaxWidth,
-        ),
-        decoration: BoxDecoration(
-          color: WawatColors.backgroundWhite,
-          borderRadius:
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: WawatDimensions.spacingLg,
+          ),
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: WawatDimensions.modalMaxWidth,
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : WawatColors.backgroundWhite,
+              borderRadius:
               BorderRadius.circular(WawatDimensions.modalBorderRadius),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: EdgeInsets.all(WawatDimensions.spacingMd),
-              child: Row(
-                children: [
-                  Image.asset("asset/mini_logo.png", width: 35),
-                  SizedBox(width: WawatDimensions.spacingSm),
-                  Expanded(
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
+                  padding: EdgeInsets.all(WawatDimensions.spacingMd),
+                  child: Row(
+                    children: [
+                      Image.asset("asset/mini_logo.png", width: 35),
+                      SizedBox(width: WawatDimensions.spacingSm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? const Color(0xFF6366F1)
+                                    : WawatColors.primary,
+                                height: 1.4,
+                              ),
+                              child: const Text('Вход'),
+                            ),
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: WawatTextStyles.caption.copyWith(
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : WawatColors.textSecondary,
+                              ),
+                              child: const Text('Добро пожаловать обратно'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Form
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: Form(
+                    key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Вход',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: WawatColors.primary,
-                            height: 1.4,
+                        WawatInputField(
+                          label: 'EMAIL',
+                          placeholder: 'example@mail.com',
+                          prefixIcon: Icon(
+                            Icons.email,
+                            size: WawatDimensions.iconMedium,
+                            color: isDark
+                                ? const Color(0xFF9CA3AF)
+                                : WawatColors.textSecondary,
+                          ),
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          isModal: true,
+                        ),
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        WawatInputField(
+                          label: 'ПАРОЛЬ',
+                          placeholder: 'Минимум 6 символов',
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            size: WawatDimensions.iconMedium,
+                            color: isDark
+                                ? const Color(0xFF9CA3AF)
+                                : WawatColors.textSecondary,
+                          ),
+                          controller: _passwordController,
+                          obscureText: true,
+                          isModal: true,
+                        ),
+                        SizedBox(height: WawatDimensions.spacingSm),
+
+                        // Forgot Password Link
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: _handleForgotPassword,
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: WawatTextStyles.link.copyWith(
+                                color: isDark
+                                    ? const Color(0xFF6366F1)
+                                    : WawatColors.primary,
+                              ),
+                              child: const Text('Забыли пароль?'),
+                            ),
                           ),
                         ),
-                        Text(
-                          'Добро пожаловать обратно',
-                          style: WawatTextStyles.caption,
+                        SizedBox(height: WawatDimensions.spacingLg),
+
+                        // Login Button with loading state
+                        WawatButton(
+                          text: _isLoading ? 'Вход...' : 'Войти',
+                          onPressed: _isLoading ? null : _handleLogin,
+                          width: double.infinity,
+                        ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        // Register Link
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              widget.onRegister();
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                style: WawatTextStyles.body.copyWith(
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Нет аккаунта? ',
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? const Color(0xFF9CA3AF)
+                                          : WawatColors.textSecondary,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: 'Зарегистрироваться',
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? const Color(0xFF6366F1)
+                                          : WawatColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form
-            Padding(
-              padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    WawatInputField(
-                      label: 'EMAIL',
-                      placeholder: 'example@mail.com',
-                      prefixIcon:
-                          Icon(Icons.email, size: WawatDimensions.iconMedium),
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      isModal: true,
-
-                    ),
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    WawatInputField(
-                      label: 'ПАРОЛЬ',
-                      placeholder: 'Минимум 6 символов',
-                      prefixIcon:
-                          Icon(Icons.lock, size: WawatDimensions.iconMedium),
-                      controller: _passwordController,
-                      obscureText: true,
-                      isModal: true,
-
-                    ),
-                    SizedBox(height: WawatDimensions.spacingSm),
-
-                    // Forgot Password Link
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: _handleForgotPassword,
-                        child: Text(
-                          'Забыли пароль?',
-                          style: WawatTextStyles.link,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: WawatDimensions.spacingLg),
-
-                    // Login Button with loading state
-                    WawatButton(
-                      text: _isLoading ? 'Вход...' : 'Войти',
-                      onPressed: _isLoading ? null : _handleLogin,
-                      width: double.infinity,
-                    ),
-
-                    // // Loading indicator
-                    // if (_isLoading)
-                    //   Center(
-                    //     child: Padding(
-                    //       padding:
-                    //           EdgeInsets.only(top: WawatDimensions.spacingSm),
-                    //       child: CircularProgressIndicator(),
-                    //     ),
-                    //   ),
-
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // Register Link
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          widget.onRegister();
-                        },
-                        child: RichText(
-                          text: TextSpan(
-                            style: WawatTextStyles.body,
-                            children: [
-                              TextSpan(
-                                text: 'Нет аккаунта? ',
-                                style:
-                                    TextStyle(color: WawatColors.textSecondary),
-                              ),
-                              TextSpan(
-                                text: 'Зарегистрироваться',
-                                style: WawatTextStyles.link,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

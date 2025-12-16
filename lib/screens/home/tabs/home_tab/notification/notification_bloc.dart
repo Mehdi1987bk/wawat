@@ -1,6 +1,7 @@
 import 'package:buking/presentation/bloc/base_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../../../../data/network/request/create_review_request.dart';
 import '../../../../../data/network/response/notification_response.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
@@ -16,7 +17,9 @@ class NotificationBloc extends BaseBloc {
   // Streams для UI
   Stream<NotificationResponse?> get notificationsStream =>
       _notificationsSubject.stream;
+
   Stream<bool> get loadingStream => _loadingSubject.stream;
+
   Stream<String?> get errorStream => _errorSubject.stream;
 
   // Загрузка нотификаций
@@ -60,6 +63,9 @@ class NotificationBloc extends BaseBloc {
       );
     }
   }
+
+  Future<void> sendReviews(CreateReviewRequest request) =>
+      userRepository.sendReviews(request);
 
   @override
   void dispose() {
