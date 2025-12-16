@@ -15,6 +15,8 @@ class ChatUser {
   final bool isVerified;
   @JsonKey(name: 'last_seen_at')
   final String? lastSeenAt;
+  @JsonKey(name: 'is_blocked', defaultValue: false)
+  final bool isBlocked;
 
   ChatUser({
     required this.id,
@@ -22,6 +24,7 @@ class ChatUser {
     this.avatar,
     this.isVerified = false,
     this.lastSeenAt,
+    this.isBlocked = false,
   });
 
   factory ChatUser.fromJson(Map<String, dynamic> json) =>

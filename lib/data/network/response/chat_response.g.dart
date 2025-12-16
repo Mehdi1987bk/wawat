@@ -12,6 +12,7 @@ ChatUser _$ChatUserFromJson(Map<String, dynamic> json) => ChatUser(
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool? ?? false,
       lastSeenAt: json['last_seen_at'] as String?,
+      isBlocked: json['is_blocked'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ChatUserToJson(ChatUser instance) => <String, dynamic>{
@@ -20,6 +21,7 @@ Map<String, dynamic> _$ChatUserToJson(ChatUser instance) => <String, dynamic>{
       'avatar': instance.avatar,
       'is_verified': instance.isVerified,
       'last_seen_at': instance.lastSeenAt,
+      'is_blocked': instance.isBlocked,
     };
 
 ChatFile _$ChatFileFromJson(Map<String, dynamic> json) => ChatFile(

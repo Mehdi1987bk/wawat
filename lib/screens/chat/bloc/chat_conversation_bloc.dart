@@ -150,6 +150,14 @@ class ChatConversationBloc extends BaseBloc {
     }
   }
 
+  Future<void> unblockUser(int userId) async {
+    try {
+      await _chatApi.unblockUser({'user_id': userId});
+    } catch (e) {
+      print('Error unblocking user: $e');
+    }
+  }
+
   Future<void> deleteConversation() async {
     if (_conversationId == null) return;
 
