@@ -172,4 +172,9 @@ abstract class AuthApi {
     @Part(name: 'documents[passport]') required File passport,
     @Part(name: 'documents[selfie]') required File selfie,
   });
+
+
+  @GET('/api/v1/reviews/received')
+  Future<VerificationResponse> myAboutReviev();
+
 }
