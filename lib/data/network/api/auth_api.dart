@@ -32,6 +32,7 @@ import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
 import '../response/partner_user_response.dart';
 import '../response/registration_response.dart';
+import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
 import '../response/user.dart';
 import '../response/verification_response.dart';
@@ -175,6 +176,10 @@ abstract class AuthApi {
 
 
   @GET('/api/v1/reviews/received')
-  Future<VerificationResponse> myAboutReviev();
+  Future<ReviewsResponse> myAboutReviev();
+
+
+  @GET('/api/v1/reviews/left')
+  Future<ReviewsResponse> myAboutLeft();
 
 }

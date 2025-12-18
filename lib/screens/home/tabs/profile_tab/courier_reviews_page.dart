@@ -1,405 +1,197 @@
+import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../services/theme_aware_screen.dart';
+import '../../../../../services/theme_manager.dart';
+import '../../../../data/network/response/reviews_response.dart';
+import '../home_tab/courier_screen/courier_details_bloc.dart';
 
-import '../../../../data/network/response/user.dart';
+class MyRevievsScreen extends BaseScreen {
+  final int courierId;
 
-class CourierReviewsPage extends StatefulWidget {
-  final User user;
-
-  const CourierReviewsPage({Key? key, required this.user}) : super(key: key);
+  MyRevievsScreen({
+    Key? key,
+    required this.courierId,
+  }) : super(key: key);
 
   @override
-  State<CourierReviewsPage> createState() => _CourierReviewsPageState();
+  State<MyRevievsScreen> createState() => _MyRevievsScreenState();
 }
 
-class _CourierReviewsPageState extends State<CourierReviewsPage> {
-  int _selectedTab = 0; // 0 - Полученные, 1 - Оставленные
+class _MyRevievsScreenState
+    extends BaseState<MyRevievsScreen, CourierDetailsBloc> {
+  int _selectedTab = 0;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // AppBar
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  const SizedBox(height: 8),
-                  // Иконка
-                  Center(
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFFB800), Color(0xFFFF8C00)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(
-                        Icons.star,
-                        size: 45,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Заголовок
-                  const Text(
-                    'Отзывы',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Подзаголовок
-                  const Text(
-                    'Ваша репутация и отзывы о работе',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF9CA3AF),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Карточка со статистикой
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 32,
-                      horizontal: 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Рейтинг
-                        const Text(
-                          '4.7',
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Звезды
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            5,
-                            (index) => const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 3),
-                              child: Icon(
-                                Icons.star,
-                                color: Color(0xFFFFB800),
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Средний рейтинг',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Всего отзывов
-                        const Text(
-                          '3',
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Всего отзывов',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Процент положительных
-                        const Text(
-                          '96%',
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Положительных',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Табы
-                  Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _selectedTab = 0),
-                            child: Container(
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: _selectedTab == 0
-                                    ? Colors.white
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: _selectedTab == 0
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Полученные',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: _selectedTab == 0
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                  color: _selectedTab == 0
-                                      ? Colors.black
-                                      : const Color(0xFF9CA3AF),
+  Widget body() {
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: SafeArea(
+            child: FutureBuilder<PartnerUserResponse>(
+              future: bloc.getUserById(widget.courierId),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final data = snapshot.requireData.data;
+                  return Column(
+                    children: [
+                      _buildHeader(data, isDark),
+                      const SizedBox(height: 16),
+                      _buildTabButtons(isDark),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: _selectedTab == 0
+                              ? FutureBuilder<ReviewsResponse>(
+                                  future: bloc.myAboutReviev(),
+                                  builder: (context, reviewsSnapshot) {
+                                    if (reviewsSnapshot.hasData) {
+                                      final reviewsData =
+                                          reviewsSnapshot.requireData.data;
+                                      return _buildReceivedReviews(
+                                          reviewsData, isDark);
+                                    }
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        color: isDark
+                                            ? const Color(0xFF6366F1)
+                                            : const Color(0xFF5B5BFF),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : FutureBuilder<ReviewsResponse>(
+                                  future: bloc.myAboutLeft(),
+                                  builder: (context, reviewsSnapshot) {
+                                    if (reviewsSnapshot.hasData) {
+                                      final reviewsData =
+                                          reviewsSnapshot.requireData.data;
+                                      return _buildLeftReviews(
+                                          reviewsData, isDark);
+                                    }
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        color: isDark
+                                            ? const Color(0xFF6366F1)
+                                            : const Color(0xFF5B5BFF),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                            ),
-                          ),
                         ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _selectedTab = 1),
-                            child: Container(
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: _selectedTab == 1
-                                    ? Colors.white
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: _selectedTab == 1
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Оставленные',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: _selectedTab == 1
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                  color: _selectedTab == 1
-                                      ? Colors.black
-                                      : const Color(0xFF9CA3AF),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  );
+                }
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: isDark
+                        ? const Color(0xFF6366F1)
+                        : const Color(0xFF5B5BFF),
                   ),
-                  const SizedBox(height: 24),
-                  // Список отзывов
-                  _buildReviewItem(
-                    name: 'Мария С.',
-                    route: 'Москва → Дубай',
-                    date: '15 янв 2024',
-                    comment:
-                        'Отличный курьер! Доставил посылку быстро и аккуратно. Всегда на связи, информировал о статусе доставки. Рекомендую!',
-                    rating: 5,
-                    avatarColor: const Color(0xFF7C3AED),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildReviewItem(
-                    name: 'Алексей К.',
-                    route: 'СПб → Лондон',
-                    date: '10 янв 2024',
-                    comment:
-                        'Хороший сервис, но немного задержался с доставкой. В целом доволен.',
-                    rating: 4,
-                    avatarColor: const Color(0xFF6366F1),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildReviewItem(
-                    name: 'Дмитрий В.',
-                    route: 'Москва → Стамбул',
-                    date: '5 янв 2024',
-                    comment:
-                        'Профессиональный подход! Посылка дошла в идеальном состоянии. Спасибо за качественную работу!',
-                    rating: 5,
-                    avatarColor: const Color(0xFF8B5CF6),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                );
+              },
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildReviewItem({
-    required String name,
-    required String route,
-    required String date,
-    required String comment,
-    required int rating,
-    required Color avatarColor,
-  }) {
-    return Container(
+  Widget _buildHeader(Data data, bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
             blurRadius: 8,
-            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Аватар
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color:
+                    isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.arrow_back_ios_new,
+                size: 18,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
           Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
+            width: 50,
+            height: 50,
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  avatarColor,
-                  avatarColor.withOpacity(0.7),
-                ],
+                colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
             ),
             child: const Center(
-              child: Text(
-                '👨',
-                style: TextStyle(fontSize: 24),
+              child: Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 28,
               ),
             ),
           ),
           const SizedBox(width: 12),
-          // Контент
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
+                  child: const Text(
+                    'Пользователь',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 4),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 17,
+                    const Text('⭐', style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 4),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                       ),
-                    ),
-                    // Звезды
-                    Row(
-                      children: List.generate(
-                        5,
-                        (index) => Icon(
-                          index < rating ? Icons.star : Icons.star_border,
-                          color: const Color(0xFFFFB800),
-                          size: 18,
-                        ),
+                      child: Text(
+                        (data.stats.ratingCount).toStringAsFixed(1),
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$route • $date',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  comment,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                    height: 1.4,
-                  ),
                 ),
               ],
             ),
@@ -407,5 +199,300 @@ class _CourierReviewsPageState extends State<CourierReviewsPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildTabButtons(bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildTabButton(index: 0, title: "Полученные", isDark: isDark),
+          _buildTabButton(index: 1, title: "Оставленные", isDark: isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabButton({
+    required int index,
+    required String title,
+    required bool isDark,
+  }) {
+    final isSelected = _selectedTab == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedTab = index;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF5B5BFF) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? const Color(0xFF6B7280) : Colors.grey[400]),
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Полученные отзывы (из data.reviewsReceived)
+  Widget _buildReceivedReviews(List<ReviewModel> reviews, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          if (reviews.isEmpty)
+            _buildEmptyState('Оставленных отзывов нет', isDark)
+          else
+            ...reviews.map((review) {
+              return _buildLeftReviewCard(review, isDark);
+            }).toList(),
+        ],
+      ),
+    );
+  }
+
+  // Оставленные отзывы (из ReviewsResponse)
+  Widget _buildLeftReviews(List<ReviewModel> reviews, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          if (reviews.isEmpty)
+            _buildEmptyState('Оставленных отзывов нет', isDark)
+          else
+            ...reviews.map((review) {
+              return _buildLeftReviewCard(review, isDark);
+            }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String message, bool isDark) {
+    return Container(
+      height: 300,
+      child: Center(
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: TextStyle(
+            fontSize: 16,
+            color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+          ),
+          child: Text(message),
+        ),
+      ),
+    );
+  }
+
+  // Карточка для полученных отзывов (Review)
+  Widget _buildReceivedReviewCard(Review review, bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF5B5BFF),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    review.author.fullname[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                  child: Text(review.author.fullname),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: List.generate(
+              5,
+              (index) => Icon(
+                Icons.star,
+                size: 14,
+                color: index < int.parse(review.rating)
+                    ? Colors.amber
+                    : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+              height: 1.4,
+            ),
+            child: Text(review.comment),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Карточка для оставленных отзывов (ReviewModel)
+  Widget _buildLeftReviewCard(ReviewModel review, bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF5B5BFF),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    ((review.author?.fullname ?? review.target?.fullname) ??
+                            "")[0]
+                        .toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                  child: Text(
+                      (review.author?.fullname ?? review.target?.fullname) ??
+                          ""),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: List.generate(
+              5,
+              (index) => Icon(
+                Icons.star,
+                size: 14,
+                color:
+                    index < (int.tryParse(review.rating.toString() ?? '0') ?? 0)
+                        ? Colors.amber
+                        : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+              height: 1.4,
+            ),
+            child: Text(review.comment ?? ''),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  CourierDetailsBloc provideBloc() {
+    return CourierDetailsBloc();
   }
 }

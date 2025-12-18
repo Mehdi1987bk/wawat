@@ -33,6 +33,7 @@ import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/partner_user_response.dart';
 import '../network/response/registration_response.dart';
+import '../network/response/reviews_response.dart';
 import '../network/response/user.dart';
 import '../network/response/verification_response.dart';
 
@@ -227,6 +228,14 @@ class DataAuthRepository implements AuthRepository {
     CreateReviewRequest request,
   ) {
     return _authApi.sendReviews(request);
+  }
+
+  Future<ReviewsResponse> myAboutReviev() {
+    return _authApi.myAboutReviev();
+  }
+
+  Future<ReviewsResponse> myAboutLeft() {
+    return _authApi.myAboutLeft();
   }
 
   Future<void> submitVerification(

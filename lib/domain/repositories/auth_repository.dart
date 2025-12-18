@@ -24,6 +24,7 @@ import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/registration_response.dart';
+import '../../data/network/response/reviews_response.dart';
 import '../../data/network/response/user.dart';
 import '../../data/network/response/verification_response.dart';
 import '../entities/pagination.dart';
@@ -93,6 +94,10 @@ abstract class AuthRepository {
   Future<void> addAvatar(File avatar);
 
   Future<void> sendReviews(CreateReviewRequest request);
+
+  Future<ReviewsResponse> myAboutReviev();
+
+  Future<ReviewsResponse> myAboutLeft();
 
   Future<void> submitVerification(
       {required File passport, required File selfie});

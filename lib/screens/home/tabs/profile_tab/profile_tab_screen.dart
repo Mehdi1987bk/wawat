@@ -405,7 +405,7 @@ class _ProfileTabScreenState
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return CourierReviewsPage(user: user);
+                  return MyRevievsScreen( courierId: user.id ?? 0,);
                 },
               ),
             ),
