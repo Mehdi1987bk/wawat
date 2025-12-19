@@ -1,11 +1,11 @@
 import 'package:buking/screens/home/tabs/profile_tab/widgte/supported_locale.dart';
 import 'package:buking/services/theme_manager.dart';
+import 'package:buking/presentation/resourses/app_colors.dart';
+import 'package:buking/generated/l10n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../../../presentation/resourses/app_colors.dart';
-import '/../generated/l10n.dart';
 
 class LocalizationPopUp extends StatefulWidget {
   final ValueChanged<Locale> onChanged;
