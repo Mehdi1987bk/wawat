@@ -63,7 +63,6 @@ class App extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 navigatorKey: navigatorKey,
                 navigatorObservers: [routeObserver],
-                // ← КЛЮЧЕВОЕ: тема с правильным brightness
                 theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
                 darkTheme: _buildDarkTheme(),
                 themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -73,17 +72,20 @@ class App extends StatelessWidget {
                   GlobalCupertinoLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                 ],
-                localeListResolutionCallback: (locales, supportedLocales) {
-                  if (snapshot.hasData) {
-                    return snapshot.requireData;
+                locale: snapshot.data ?? const Locale("en"),
+                localeResolutionCallback: (locale, supportedLocales) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return snapshot.data;
                   }
-                  const currentLocale = Locale("en");
-                  bloc.setLocale(currentLocale);
-                  return currentLocale;
+                  if (locale != null && supportedLocales.contains(locale)) {
+                    return locale;
+                  }
+                  return const Locale("en");
                 },
                 supportedLocales: S.delegate.supportedLocales,
                 home: SpleshScreen(),
               );
+
             },
           );
 
