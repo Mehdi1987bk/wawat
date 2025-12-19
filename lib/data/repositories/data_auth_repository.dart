@@ -168,8 +168,8 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<CitiesResponse> getCities() {
-    return _authApi.getCities();
+  Future<CitiesResponse> getCities(String search ) {
+    return _authApi.getCities(search,200);
   }
 
   @override

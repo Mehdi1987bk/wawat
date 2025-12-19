@@ -588,9 +588,15 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<CitiesResponse> getCities() async {
+  Future<CitiesResponse> getCities(
+    String search,
+    int limit,
+  ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'q': search,
+      r'limit': limit,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CitiesResponse>(Options(

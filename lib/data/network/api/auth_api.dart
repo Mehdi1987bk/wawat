@@ -111,7 +111,10 @@ abstract class AuthApi {
   Future<PackageTypesResponse> getPackageType();
 
   @GET('/api/v1/geo/cities')
-  Future<CitiesResponse> getCities();
+  Future<CitiesResponse> getCities(
+    @Query("q") String search,
+    @Query("limit") int limit,
+  );
 
   @GET('/api/v1/dictionaries/offer-types')
   Future<OfferTypeResponse> getOfferTypes();
@@ -174,12 +177,9 @@ abstract class AuthApi {
     @Part(name: 'documents[selfie]') required File selfie,
   });
 
-
   @GET('/api/v1/reviews/received')
   Future<ReviewsResponse> myAboutReviev();
 
-
   @GET('/api/v1/reviews/left')
   Future<ReviewsResponse> myAboutLeft();
-
 }

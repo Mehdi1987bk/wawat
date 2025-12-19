@@ -10,6 +10,7 @@ import '../../../../../data/network/response/package_types_response.dart';
 import '../../../../../services/theme_manager.dart';
 import '../home_tab_bloc.dart';
 import '../search/search_offer_list_screen.dart';
+import 'city_selector.dart';
 
 class SearchFormWidget extends StatefulWidget {
   final HomeTabBloc bloc;
@@ -89,7 +90,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
 
   Future<void> _loadCities() async {
     try {
-      final cities = await widget.bloc.getCities();
+      final cities = await widget.bloc.getCities('');
 
       setState(() {
         _allCities = List<City>.from(cities.data);
@@ -113,11 +114,21 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     }
   }
 
+  Future<List<City>> _searchCities(String search) async {
+    try {
+      final result = await widget.bloc.getCities(search);
+      return result.data;
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<void> _showCitySelector({required bool isFromCity}) async {
     final selectedCity = await showCitySelector(
       context: context,
-      cities: _allCities,
+      initialCities: _allCities,
       selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
+      onSearch: _searchCities,
       isLoading: _isLoadingCities,
     );
 

@@ -71,7 +71,7 @@ abstract class AuthRepository {
 
   Future<PackageTypesResponse> getPackageType();
 
-  Future<CitiesResponse> getCities();
+  Future<CitiesResponse> getCities(String search );
 
   Future<void> createOffers(CourierOfferModel request);
 

@@ -67,15 +67,16 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
 
   Future<OfferTypeResponse> getOfferTypes() => userRepository.getOfferTypes();
 
-  Future<CitiesResponse> getCities() async {
-    final result = await userRepository.getCities();
+  Future<CitiesResponse> getCities(String search) async {
+    final result = await userRepository.getCities(search);
     for (var i = 0;
-        i < (result.data.length > 5 ? 5 : result.data.length);
-        i++) {
+    i < (result.data.length > 5 ? 5 : result.data.length);
+    i++) {
       final city = result.data[i];
       print('  ✓ ${city.name} (${city.countryName})');
     }
 
     return result;
   }
+
 }

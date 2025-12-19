@@ -5,6 +5,7 @@ import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
+import 'package:buking/screens/home/tabs/profile_tab/widgte/localization_pop_up.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/logout_dialog_content.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
 import 'package:flutter/cupertino.dart';
@@ -106,6 +107,8 @@ class _ProfileTabScreenState
                             ),
                             child: Column(
                               children: [
+
+                                 const SizedBox(height: 12),
                                 const SizedBox(height: 20),
                                 _buildProfileHeader(snapshot.requireData, isDark),
                                 const SizedBox(height: 16),
@@ -113,6 +116,26 @@ class _ProfileTabScreenState
                               ],
                             ),
                           ),
+                          StreamBuilder<Locale?>(
+                              stream: bloc.locale,
+                              builder: (context, snapshot) {
+                              return  GestureDetector(
+                                  onTap: () => _showMenu(snapshot.data),
+                                  child: _buildLanguageItem(
+                                    icon: Icons.language,
+                                    title: 'Язык',
+                                    subtitle: "languageSubtitle",
+                                    bgColor: themeManager.isDarkMode
+                                        ? const Color(0xFF1E3A2F)
+                                        : const Color(0xFFDCFCE7),
+                                    iconColor: themeManager.isDarkMode
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFF059669),
+                                    isDarkMode: themeManager.isDarkMode,
+                                    currentLanguage: snapshot.requireData?.languageCode ?? "null",
+                                  ),
+                                );
+                              }),
                           const SizedBox(height: 24),
                           _buildMenuSection(snapshot.requireData, isDark),
                           const SizedBox(height: 120),
@@ -135,6 +158,112 @@ class _ProfileTabScreenState
     return ProfileTabBloc();
   }
 
+  Widget _buildLanguageItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color bgColor,
+    required Color iconColor,
+    required bool isDarkMode,
+    required String currentLanguage,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              size: 24,
+              color: iconColor,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+                  ),
+                  child: Text(title),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Индикатор текущего языка
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  iconColor.withOpacity(0.2),
+                  iconColor.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: iconColor.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  currentLanguage,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: iconColor,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 18,
+                  color: iconColor,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget _buildProfileHeader(User user, bool isDark) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,6 +601,31 @@ class _ProfileTabScreenState
       ),
     );
   }
+
+  void _showMenu(Locale? locale) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(35),
+          topRight: Radius.circular(35),
+        ),
+      ),
+      builder: (_) {
+        return LocalizationPopUp(
+          currentLocale: locale,
+          onChanged: (Locale newLocale) async {
+             bloc.setLocale(newLocale);
+
+
+             Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
 
   void showLogoutBottomSheet({
     required BuildContext context,

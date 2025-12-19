@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'data/cache/cache_manager.dart';
-import 'kango_app.dart';
+import 'wawat_app.dart';
 import 'main.dart';
 
 class CallInterceptor extends Interceptor {

@@ -22,7 +22,7 @@ import 'data/network/response/rating.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
-import 'kango_app.dart';
+import 'wawat_app.dart';
 import 'services/theme_manager.dart';
 import 'wawat/wawat_app.dart';
 

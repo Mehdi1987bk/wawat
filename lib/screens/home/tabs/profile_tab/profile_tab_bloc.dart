@@ -11,6 +11,15 @@ import '../../../../main.dart';
 
 class ProfileTabBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
+  final CacheManager _cacheManager = sl.get<CacheManager>();
+
+
+  late final Stream<Locale?> locale = _cacheManager.locale;
+
+  void setLocale(Locale locale) {
+    _cacheManager.saveLocale(locale);
+  }
+
 
   late final Stream<User> userDetails =
   ValueConnectableStream(authRepository.userDetails).autoConnect();

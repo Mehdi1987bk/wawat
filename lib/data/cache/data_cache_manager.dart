@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,9 +15,11 @@ const _settingsCache = 'SettingsCache';
 const _refreshTokenKey = 'RefreshTokenKey';
 const _accessTokenKey = 'AccessTokenKey';
 const _refreshTokenTime = 'RefreshTokenTime';
+const _localeKey = 'LocaleKey';
 
 const _userKey = 'UserKey';
 const _firstOpen = 'FirstOpen';
+late final Box settingsBox;
 
 class DataCacheManager implements CacheManager {
   final Future<Box> _authBox = Hive.openBox(_authCache);
@@ -123,6 +127,33 @@ class DataCacheManager implements CacheManager {
   }
 
 
+  @override
+  Stream<Locale?> get locale async* {
+    final box = await _settingsBox;
+    yield* box.watch(key: _localeKey).map((event) {
+      final currentLanguageCode = event.value as String?;
+      return currentLanguageCode == null ? null : Locale((currentLanguageCode));
+    }).startWith(
+      box.get(_localeKey) == null
+          ? null
+          : Locale(
+        box.get(_localeKey),
+      ),
+    );
+  }
+
+  @override
+  Future<void> saveLocale(Locale locale) async {
+    final box = await _settingsBox;
+    return box.put(_localeKey, locale.languageCode);
+  }
+
+  @override
+  Locale? getLocale() {
+    return Locale(
+      settingsBox.get(_localeKey),
+    );
+  }
 
 
 }
