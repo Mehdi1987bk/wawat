@@ -2,12 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_bloc.dart';
-import 'app_theme.dart';
-import 'generated/l10n.dart';
+ import 'generated/l10n.dart';
 import 'main.dart';
 import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';

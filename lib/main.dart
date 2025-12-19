@@ -32,9 +32,8 @@ final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
 const baseUrl = 'https://wawat.tahirguliyev.com';
 final RouteObserver<ModalRoute<void>> routeObserver =
-RouteObserver<ModalRoute<void>>();
+    RouteObserver<ModalRoute<void>>();
 
-// Глобальная переменная для ThemeManager
 late ThemeManager themeManager;
 
 void main() async {
@@ -43,17 +42,6 @@ void main() async {
   final dir = await getApplicationDocumentsDirectory();
 
   await Hive.initFlutter(dir.path);
-
-  try {
-    final boxes = ['userBox', 'authBox', 'cacheBox'];
-    for (var boxName in boxes) {
-      if (await Hive.boxExists(boxName)) {
-        await Hive.openBox(boxName);
-      }
-    }
-  } catch (e) {
-    await Hive.deleteFromDisk();
-  }
 
   Hive
     ..init(dir.path)
