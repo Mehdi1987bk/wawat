@@ -14,7 +14,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found in local.properties")
+    throw new GradleException("Не найден путь Flutter SDK в local.properties")
 }
 
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -28,19 +28,20 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+
 android {
     namespace "az.buking.buking"
     compileSdkVersion 35
-    ndkVersion "27.0.12077973"
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '1.8'
     }
 
     sourceSets {
@@ -49,13 +50,12 @@ android {
 
     defaultConfig {
         applicationId "az.buking.buking"
-        minSdkVersion 27
-        targetSdkVersion 35
+        minSdkVersion 22
+        targetSdk 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
     }
-
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -68,15 +68,6 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            ndk {
-                debugSymbolLevel 'FULL'
-            }
-        }
-    }
-
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = false
         }
     }
 }
@@ -87,13 +78,4 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.1.5'
-
-    constraints {
-        implementation("androidx.core:core-ktx:1.15.0") {
-            because("AGP compatibility")
-        }
-        implementation("androidx.core:core:1.15.0") {
-            because("AGP compatibility")
-        }
-    }
 }

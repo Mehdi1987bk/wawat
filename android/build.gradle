@@ -17,11 +17,6 @@ allprojects {
     }
     configurations.all {
         exclude group: "com.google.errorprone", module: "error_prone_annotations"
-
-        resolutionStrategy {
-            force 'androidx.core:core:1.15.0'
-            force 'androidx.core:core-ktx:1.15.0'
-        }
     }
 }
 

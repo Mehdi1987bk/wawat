@@ -22,7 +22,6 @@ version: 1.0.14+14
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
-
 dependencies:
   flutter:
     sdk: flutter
@@ -77,7 +76,6 @@ dependencies:
   pusher_channels_flutter: ^2.2.1
   provider: ^6.1.1
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -91,6 +89,7 @@ dev_dependencies:
 
 dependency_overrides:
   path_provider: 2.1.5
+
 
 flutter_launcher_icons:
   android: true
