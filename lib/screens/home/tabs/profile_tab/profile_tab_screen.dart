@@ -603,9 +603,13 @@ class _ProfileTabScreenState
   }
 
   void _showMenu(Locale? locale) {
+    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isDark = themeManager.isDarkMode;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(35),
@@ -615,11 +619,8 @@ class _ProfileTabScreenState
       builder: (_) {
         return LocalizationPopUp(
           currentLocale: locale,
-          onChanged: (Locale newLocale) async {
-             bloc.setLocale(newLocale);
-
-
-             Navigator.pop(context);
+          onChanged: (Locale newLocale) {
+            bloc.setLocale(newLocale);
           },
         );
       },
