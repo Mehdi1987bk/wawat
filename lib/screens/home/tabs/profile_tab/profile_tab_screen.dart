@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
@@ -116,26 +117,7 @@ class _ProfileTabScreenState
                               ],
                             ),
                           ),
-                          StreamBuilder<Locale?>(
-                              stream: bloc.locale,
-                              builder: (context, snapshot) {
-                              return  GestureDetector(
-                                  onTap: () => _showMenu(snapshot.data),
-                                  child: _buildLanguageItem(
-                                    icon: Icons.language,
-                                    title: 'Язык',
-                                    subtitle: "languageSubtitle",
-                                    bgColor: themeManager.isDarkMode
-                                        ? const Color(0xFF1E3A2F)
-                                        : const Color(0xFFDCFCE7),
-                                    iconColor: themeManager.isDarkMode
-                                        ? const Color(0xFF10B981)
-                                        : const Color(0xFF059669),
-                                    isDarkMode: themeManager.isDarkMode,
-                                    currentLanguage: snapshot.requireData?.languageCode ?? "null",
-                                  ),
-                                );
-                              }),
+
                           const SizedBox(height: 24),
                           _buildMenuSection(snapshot.requireData, isDark),
                           const SizedBox(height: 120),
@@ -468,6 +450,30 @@ class _ProfileTabScreenState
       child: Column(
         children: [
           // ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМНОЙ ТЕМЫ =====
+          StreamBuilder<Locale?>(
+              stream: bloc.locale,
+              builder: (context, snapshot) {
+                if(snapshot.hasData){
+                  return  GestureDetector(
+                    onTap: () => _showMenu(snapshot.data),
+                    child: _buildLanguageItem(
+                      icon: Icons.language,
+                      title: S.of(context).languandff,
+                      subtitle: "languageSubtitle",
+                      bgColor: isDark
+                          ? const Color(0xFF1E3A2F)
+                          : const Color(0xFFDCFCE7),
+                      iconColor: isDark
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFF059669),
+                      isDarkMode: isDark,
+                      currentLanguage: snapshot.requireData?.languageCode ?? "null",
+                    ),
+                  );
+                }return SizedBox();
+              }),
+          const SizedBox(height: 12),
+
           Consumer<ThemeManager>(
             builder: (context, themeManager, child) {
               return GestureDetector(
@@ -603,9 +609,13 @@ class _ProfileTabScreenState
   }
 
   void _showMenu(Locale? locale) {
+    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isDark = themeManager.isDarkMode;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(35),
@@ -615,11 +625,8 @@ class _ProfileTabScreenState
       builder: (_) {
         return LocalizationPopUp(
           currentLocale: locale,
-          onChanged: (Locale newLocale) async {
-             bloc.setLocale(newLocale);
-
-
-             Navigator.pop(context);
+          onChanged: (Locale newLocale) {
+            bloc.setLocale(newLocale);
           },
         );
       },

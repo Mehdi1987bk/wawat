@@ -4,8 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../../../presentation/resourses/app_colors.dart';
-import '/../generated/l10n.dart';
+ 
 
 class LocalizationPopUp extends StatefulWidget {
   final ValueChanged<Locale> onChanged;
