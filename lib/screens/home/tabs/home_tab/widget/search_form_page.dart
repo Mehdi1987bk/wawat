@@ -50,6 +50,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   Future<void> _loadAllData() async {
+    if (!mounted) return;
     setState(() {
       _isLoadingCities = true;
       _isLoadingOfferTypes = true;
@@ -65,52 +66,50 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   Future<void> _loadOfferTypes() async {
     try {
       final offerTypes = await widget.bloc.getOfferTypes();
-
+      if (!mounted) return;
       setState(() {
         _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
         _isLoadingOfferTypes = false;
       });
     } catch (e, stackTrace) {
+      if (!mounted) return;
       setState(() {
         _isLoadingOfferTypes = false;
         _allOfferTypes = [];
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки типов предложений: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка загрузки типов предложений: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
   Future<void> _loadCities() async {
     try {
       final cities = await widget.bloc.getCities('');
-
+      if (!mounted) return;
       setState(() {
         _allCities = List<City>.from(cities.data);
         _isLoadingCities = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoadingCities = false;
         _allCities = [];
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки городов: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка загрузки городов: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
