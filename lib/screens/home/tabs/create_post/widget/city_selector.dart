@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/city.dart';
 
@@ -5,14 +6,18 @@ class CitySelector extends StatefulWidget {
   final List<City> cities;
   final City? selectedCity;
   final Function(City) onCitySelected;
+  final Function(String) onSearchChanged;
   final bool isLoading;
+  final bool isDark;
 
   const CitySelector({
     Key? key,
     required this.cities,
     required this.selectedCity,
     required this.onCitySelected,
+    required this.onSearchChanged,
     this.isLoading = false,
+    this.isDark = false,
   }) : super(key: key);
 
   @override
@@ -21,42 +26,40 @@ class CitySelector extends StatefulWidget {
 
 class _CitySelectorState extends State<CitySelector> {
   final TextEditingController _searchController = TextEditingController();
-  List<City> _filteredCities = [];
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    _filteredCities = widget.cities;
-    _searchController.addListener(_filterCities);
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
-  void _filterCities() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      if (query.isEmpty) {
-        _filteredCities = widget.cities;
-      } else {
-        _filteredCities = widget.cities.where((city) {
-          return city.name.toLowerCase().contains(query) ||
-              city.countryName.toLowerCase().contains(query);
-        }).toList();
-      }
+  void _onSearchChanged() {
+    // Отменяем предыдущий таймер если он есть
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    // Создаем новый таймер на 500ms
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      final query = _searchController.text.trim();
+      widget.onSearchChanged(query);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
@@ -66,7 +69,9 @@ class _CitySelectorState extends State<CitySelector> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E5EA),
+              color: widget.isDark
+                  ? const Color(0xFF6B7280)
+                  : const Color(0xFFE5E5EA),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -77,17 +82,23 @@ class _CitySelectorState extends State<CitySelector> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Выберите город',
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: widget.isDark ? Colors.white : Colors.black,
                   ),
+                  child: const Text('Выберите город'),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Color(0xFF8E8E93)),
+                  icon: Icon(
+                    Icons.close,
+                    color: widget.isDark
+                        ? const Color(0xFFB0B0B0)
+                        : const Color(0xFF8E8E93),
+                  ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -98,30 +109,63 @@ class _CitySelectorState extends State<CitySelector> {
           // Search field
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F7),
+                color: widget.isDark
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFF2F2F7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
-                  color: Colors.black,
+                  color: widget.isDark ? Colors.white : Colors.black,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Поиск города...',
                   hintStyle: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFF8E8E93),
+                    color: widget.isDark
+                        ? const Color(0xFF6B7280)
+                        : const Color(0xFF8E8E93),
                   ),
                   prefixIcon: Icon(
                     Icons.search,
-                    color: Color(0xFF8E8E93),
+                    color: widget.isDark
+                        ? const Color(0xFF6B7280)
+                        : const Color(0xFF8E8E93),
                     size: 20,
                   ),
+                  suffixIcon: widget.isLoading
+                      ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFF5B51FF),
+                      ),
+                    ),
+                  )
+                      : _searchController.text.isNotEmpty
+                      ? IconButton(
+                    icon: Icon(
+                      Icons.clear,
+                      color: widget.isDark
+                          ? const Color(0xFF6B7280)
+                          : const Color(0xFF8E8E93),
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      _searchController.clear();
+                    },
+                  )
+                      : null,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
                   ),
@@ -134,13 +178,13 @@ class _CitySelectorState extends State<CitySelector> {
 
           // Cities list
           Expanded(
-            child: widget.isLoading
+            child: widget.isLoading && widget.cities.isEmpty
                 ? const Center(
               child: CircularProgressIndicator(
                 color: Color(0xFF5B51FF),
               ),
             )
-                : _filteredCities.isEmpty
+                : widget.cities.isEmpty
                 ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -148,14 +192,23 @@ class _CitySelectorState extends State<CitySelector> {
                   Icon(
                     Icons.search_off,
                     size: 64,
-                    color: Colors.grey.shade300,
+                    color: widget.isDark
+                        ? const Color(0xFF6B7280)
+                        : Colors.grey.shade300,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Города не найдены',
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey.shade600,
+                      color: widget.isDark
+                          ? const Color(0xFFB0B0B0)
+                          : Colors.grey.shade600,
+                    ),
+                    child: Text(
+                      _searchController.text.isEmpty
+                          ? 'Начните вводить название города'
+                          : 'Города не найдены',
                     ),
                   ),
                 ],
@@ -163,27 +216,31 @@ class _CitySelectorState extends State<CitySelector> {
             )
                 : ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _filteredCities.length,
-              separatorBuilder: (context, index) => const Divider(
+              itemCount: widget.cities.length,
+              separatorBuilder: (context, index) => Divider(
                 height: 1,
                 indent: 20,
                 endIndent: 20,
+                color: widget.isDark
+                    ? const Color(0xFF2A2A2A)
+                    : const Color(0xFFE5E5EA),
               ),
               itemBuilder: (context, index) {
-                final city = _filteredCities[index];
+                final city = widget.cities[index];
                 final isSelected = widget.selectedCity?.id == city.id;
 
                 return InkWell(
                   onTap: () {
                     widget.onCitySelected(city);
                   },
-                  child: Container(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
                     ),
                     color: isSelected
-                        ? const Color(0xFF5B51FF).withOpacity(0.05)
+                        ? const Color(0xFF5B51FF).withOpacity(0.1)
                         : Colors.transparent,
                     child: Row(
                       children: [
@@ -192,8 +249,9 @@ class _CitySelectorState extends State<CitySelector> {
                             crossAxisAlignment:
                             CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                city.name,
+                              AnimatedDefaultTextStyle(
+                                duration:
+                                const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: isSelected
@@ -201,16 +259,24 @@ class _CitySelectorState extends State<CitySelector> {
                                       : FontWeight.w500,
                                   color: isSelected
                                       ? const Color(0xFF5B51FF)
-                                      : Colors.black,
+                                      : (widget.isDark
+                                      ? Colors.white
+                                      : Colors.black),
                                 ),
+                                child: Text(city.name),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                '${city.countryName} (${city.countryCode})',
-                                style: const TextStyle(
+                              AnimatedDefaultTextStyle(
+                                duration:
+                                const Duration(milliseconds: 300),
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF8E8E93),
+                                  color: widget.isDark
+                                      ? const Color(0xFFB0B0B0)
+                                      : const Color(0xFF8E8E93),
                                 ),
+                                child: Text(
+                                    '${city.countryName} (${city.countryCode})'),
                               ),
                             ],
                           ),
@@ -232,24 +298,4 @@ class _CitySelectorState extends State<CitySelector> {
       ),
     );
   }
-}
-
-/// Функция для показа City Selector Bottom Sheet
-Future<City?> showCitySelector({
-  required BuildContext context,
-  required List<City> cities,
-  required City? selectedCity,
-  bool isLoading = false,
-}) {
-  return showModalBottomSheet<City>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) => CitySelector(
-      cities: cities,
-      selectedCity: selectedCity,
-      onCitySelected: (city) => Navigator.pop(context, city),
-      isLoading: isLoading,
-    ),
-  );
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../screens/splesh/splesh_screen.dart';
 import 'animated_password_toggle.dart';
- import '../resourses/app_colors.dart';
+import '../resourses/app_colors.dart';
 
 class PasswordField extends StatefulWidget {
   final TextEditingController? controller;
@@ -14,11 +13,11 @@ class PasswordField extends StatefulWidget {
 
   PasswordField(
       {Key? key,
-      this.controller,
-      this.validator,
-      this.autovalidateMode = AutovalidateMode.onUserInteraction,
-      this.labelText,
-      this.textInputAction})
+        this.controller,
+        this.validator,
+        this.autovalidateMode = AutovalidateMode.onUserInteraction,
+        this.labelText,
+        this.textInputAction})
       : super(key: key);
 
   @override
@@ -47,6 +46,10 @@ class _PasswordFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    // ← ДОБАВЛЕНО: Определяем тему
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
         height: 55,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -54,9 +57,7 @@ class _PasswordFieldState extends State<PasswordField> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-              color: Colors.grey.withOpacity(
-                0.3,
-              ),
+              color: Colors.grey.withOpacity(0.3),
               width: 2),
         ),
         child: Focus(
@@ -75,18 +76,22 @@ class _PasswordFieldState extends State<PasswordField> {
               maxLines: 1,
               focusNode: _focusNode,
               cursorColor: AppColors.appColor,
-              style: TextStyle(color: AppColors.darkBlue, fontSize: 20),
+              keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО ДЛЯ КЛАВИАТУРЫ
+              style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.darkBlue, // ← ИСПРАВЛЕНО
+                  fontSize: 20
+              ),
               decoration: InputDecoration(
                   suffixIconConstraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
                   border: InputBorder.none,
                   labelStyle: TextStyle(
                       color: finKodNumberFocus || widget._cartController.text.trim().isEmpty
-                          ? Colors.black54
+                          ? (isDark ? Colors.white70 : Colors.black54) // ← ИСПРАВЛЕНО
                           : Colors.transparent,
                       fontSize: 18),
                   hintText: '********',
                   hintStyle: TextStyle(
-                    color: Colors.grey,
+                    color: isDark ? Colors.grey[600] : Colors.grey, // ← ДОБАВЛЕНО
                     letterSpacing: 2.0,
                   ),
                   contentPadding: EdgeInsets.only(top: 8),

@@ -1,4 +1,5 @@
 import 'package:buking/screens/home/tabs/create_post/create_post_screen.dart';
+import 'package:buking/screens/home/tabs/fovorite/fovorite_offer_screen.dart';
 import 'package:buking/screens/home/tabs/home_tab/home_tab_screen.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/auth_modal_utils.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_screen.dart';
@@ -7,10 +8,10 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/bloc/base_screen.dart';
+import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
 class HomeScreen extends BaseScreen {
   final int? orderId;
@@ -36,7 +37,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
+          (timeStamp) {
         // if (widget.purchasedProduct != null) {
         //   showDialog(
         //     context: context,
@@ -67,33 +68,34 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
 
   @override
   Widget body() {
-    return Scaffold(
-      body: Stack(
-        children: [
-          _Tabs(
-            selectedIndex: _selectedIndex,
-          ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: BottomBar(
-                onChanged: (index) async {
-                  final isLogged = await sl.get<AuthRepository>().isLogged();
-                  if ((index != 0) && !isLogged) {
-                    return AuthModalUtils.showAuthRequiredModal(context);
-                  }
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                selectedIndex: _selectedIndex,
-              ),
+    return Stack(
+      children: [
+        _Tabs(
+          selectedIndex: _selectedIndex,
+        ),
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomBar(
+              onChanged: (index) async {
+                final isLogged = await sl.get<AuthRepository>().isLogged();
+                if ((index != 0) && !isLogged) {
+                  return AuthModalUtils.showAuthRequiredModal(context);
+                }
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              selectedIndex: _selectedIndex,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  @override
+  bool get resizeToAvoidBottomInset => false;  // ← ДОБАВЛЕНА ЭТА СТРОКА
 
   @override
   HomeBloc provideBloc() {
@@ -118,19 +120,16 @@ class __TabsState extends State<_Tabs> {
     super.initState();
 
     _tabs = <Widget>[
-      HomeTabScreen(),
-      Container(),
+      HomeTabScreen( ),
+      ChatListScreen(),
       CreatePostScreen(),
-      Container(),
+      FovoriteOfferListScreen(),
       ProfileTabScreen(),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(
-      index: widget.selectedIndex,
-      children: _tabs,
-    );
+    return _tabs[widget.selectedIndex];
   }
 }

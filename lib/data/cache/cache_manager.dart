@@ -1,5 +1,7 @@
 
 
+import 'dart:ui';
+
 import '../network/response/user.dart';
 
 abstract class CacheManager {
@@ -26,4 +28,13 @@ abstract class CacheManager {
 
   Future<void> setIsFirstOpen();
 
+  Future<int?> getUserId();
+  Future<String?> getToken();
+
+
+  Future<void> saveLocale(Locale locale);
+
+  Stream<Locale?> get locale;
+
+  Locale? getLocale();
 }

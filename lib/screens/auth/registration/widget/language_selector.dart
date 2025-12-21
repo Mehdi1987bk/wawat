@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/language.dart';
+import '../../../../services/theme_manager.dart';
 
 class LanguageSelector extends StatefulWidget {
   final List<Language> languages;
@@ -35,7 +37,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     final selectedNames = <String>[];
     for (var code in widget.selectedLanguageCodes) {
       final lang = widget.languages.firstWhere(
-        (l) => l.code == code,
+            (l) => l.code == code,
         orElse: () => Language(code: '', name: 'Unknown'),
       );
       if (lang.code.isNotEmpty) {
@@ -55,7 +57,6 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     print('isLoading: ${widget.isLoading}');
     print('selectedLanguageCodes: ${widget.selectedLanguageCodes}');
 
-    // ✅ Если данные загружаются, показываем сообщение
     if (widget.languages.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -67,7 +68,6 @@ class _LanguageSelectorState extends State<LanguageSelector> {
       return;
     }
 
-    // ✅ Если данные не загружены и не загружаются - показываем ошибку
     if (widget.languages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -83,11 +83,13 @@ class _LanguageSelectorState extends State<LanguageSelector> {
   }
 
   void _showLanguagesBottomSheetContent() {
-    // Создаем локальную копию выбранных языков
+    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isDark = themeManager.isDarkMode;
     final localSelectedCodes = Set<String>.from(widget.selectedLanguageCodes);
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
@@ -95,14 +97,16 @@ class _LanguageSelectorState extends State<LanguageSelector> {
         ),
       ),
       builder: (context) => StatefulBuilder(
-        builder: (context, setStateBottomSheet) => Container(
+        builder: (context, setStateBottomSheet) => AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              color: Colors.white),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          ),
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.7,
           ),
@@ -114,17 +118,21 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Выберите языки',
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
+                      child: const Text('Выберите языки'),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close),
+                      child: Icon(
+                        Icons.close,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                   ],
                 ),
@@ -132,66 +140,80 @@ class _LanguageSelectorState extends State<LanguageSelector> {
               const SizedBox(height: 16),
               Expanded(
                 child: widget.languages.isEmpty
-                    ? const Center(
-                        child: Text('Языки не найдены'),
-                      )
+                    ? Center(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : Colors.grey,
+                    ),
+                    child: const Text('Языки не найдены'),
+                  ),
+                )
                     : ListView.builder(
-                        itemCount: widget.languages.length,
-                        itemBuilder: (context, index) {
-                          final language = widget.languages[index];
-                          // Теперь используем localSelectedCodes вместо widget.selectedLanguageCodes
-                          final isSelected =
-                              localSelectedCodes.contains(language.code);
+                  itemCount: widget.languages.length,
+                  itemBuilder: (context, index) {
+                    final language = widget.languages[index];
+                    final isSelected =
+                    localSelectedCodes.contains(language.code);
 
-                          print(
-                              'ListTile $index: ${language.name} (code=${language.code}, selected=$isSelected)');
+                    print(
+                        'ListTile $index: ${language.name} (code=${language.code}, selected=$isSelected)');
 
-                          return ListTile(
-                            title: Text(
-                              language.name ?? 'Неизвестный язык',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            subtitle: Text(
-                              'Код: ${language.code}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            trailing: isSelected
-                                ? const Icon(
-                                    Icons.check_circle,
-                                    color: Color(0xFF5B51FF),
-                                    size: 28,
-                                  )
-                                : const Icon(
-                                    Icons.circle_outlined,
-                                    color: Colors.grey,
-                                    size: 28,
-                                  ),
-                            onTap: () {
-                              // Обновляем локальное состояние
-                              setStateBottomSheet(() {
-                                if (isSelected) {
-                                  localSelectedCodes.remove(language.code);
-                                  print(
-                                      'Удален язык: ${language.name} (code: ${language.code})');
-                                } else {
-                                  localSelectedCodes.add(language.code);
-                                  print(
-                                      'Добавлен язык: ${language.name} (code: ${language.code})');
-                                }
-                              });
-                            },
-                          );
-                        },
+                    return ListTile(
+                      title: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        child: Text(language.name ?? 'Неизвестный язык'),
                       ),
+                      subtitle: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? const Color(0xFF6B7280)
+                              : Colors.grey,
+                        ),
+                        child: Text('Код: ${language.code}'),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(
+                        Icons.check_circle,
+                        color: Color(0xFF5B51FF),
+                        size: 28,
+                      )
+                          : Icon(
+                        Icons.circle_outlined,
+                        color: isDark
+                            ? const Color(0xFF6B7280)
+                            : Colors.grey,
+                        size: 28,
+                      ),
+                      onTap: () {
+                        setStateBottomSheet(() {
+                          if (isSelected) {
+                            localSelectedCodes.remove(language.code);
+                            print(
+                                'Удален язык: ${language.name} (code: ${language.code})');
+                          } else {
+                            localSelectedCodes.add(language.code);
+                            print(
+                                'Добавлен язык: ${language.name} (code: ${language.code})');
+                          }
+                        });
+                      },
+                    );
+                  },
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Применяем изменения только при нажатии кнопки
                     widget.onSelectionChanged(localSelectedCodes);
                     print(
                         'Bottom sheet закрыта, выбранные языки: $localSelectedCodes');
@@ -225,69 +247,86 @@ class _LanguageSelectorState extends State<LanguageSelector> {
 
   @override
   Widget build(BuildContext context) {
-    final isPlaceholder = widget.selectedLanguageCodes.isEmpty && !widget.isLoading;
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+        final isPlaceholder =
+            widget.selectedLanguageCodes.isEmpty && !widget.isLoading;
 
-    return GestureDetector(
-      onTap: widget.isLoading ? null : _showLanguagesBottomSheet,
-      child: Container(
-        height: 60,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(
-            color: const Color(0xFFE5E5EA),
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  // Показываем иконку только когда отображается "Выбор"
-                  if (isPlaceholder) ...[
-                    Image.asset(
-                      "asset/globus.png",
-                      color: const Color(0xFF5B51FF),
-                      width: 20,
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Expanded(
-                    child: Text(
-                      widget.isLoading
-                          ? 'Загрузка...'
-                          : _getSelectedLanguagesDisplay(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: widget.isLoading
-                            ? const Color(0xFFC7C7CC)
-                            : isPlaceholder
-                            ? const Color(0xFF8E8E93) // Цвет для placeholder
-                            : Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+        return GestureDetector(
+          onTap: widget.isLoading ? null : _showLanguagesBottomSheet,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 60,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xFF4A4A4A)
+                    : const Color(0xFFE5E5EA),
+                width: 1,
               ),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.expand_more,
-              color: Color(0xFF8E8E93),
-              size: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (isPlaceholder) ...[
+                        Image.asset(
+                          "asset/globus.png",
+                          color: const Color(0xFF5B51FF),
+                          width: 20,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: widget.isLoading
+                                ? (isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFFC7C7CC))
+                                : isPlaceholder
+                                ? (isDark
+                                ? const Color(0xFF9CA3AF)
+                                : const Color(0xFF8E8E93))
+                                : (isDark ? Colors.white : Colors.black),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          child: Text(
+                            widget.isLoading
+                                ? 'Загрузка...'
+                                : _getSelectedLanguagesDisplay(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.expand_more,
+                  color: isDark
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF8E8E93),
+                  size: 20,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

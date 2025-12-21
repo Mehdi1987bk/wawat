@@ -14,12 +14,12 @@ class Privacy extends HiveObject {
   final bool? showEmail;
 
   @HiveField(2)
-  final bool? showLastSeen;
+  final bool? showActivityTime;
 
   Privacy({
     required this.showPhone,
     required this.showEmail,
-    required this.showLastSeen,
+    required this.showActivityTime,
   });
 
   factory Privacy.fromJson(Map<String, dynamic> json) =>

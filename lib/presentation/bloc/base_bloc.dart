@@ -36,7 +36,8 @@ abstract class BaseBloc {
   }
 
   Future<T> run<T>(Future<T> future) async {
-    loadingSink.add(++_taskCounter > 0);
+    // loadingSink.add(++_taskCounter > 0); // ❌ Убрали индикатор загрузки
+    ++_taskCounter;
     try {
       var result = await future;
       return Future.value(result);
@@ -45,17 +46,17 @@ abstract class BaseBloc {
       dispatchError(e);
       return Future.error(e);
     } finally {
-      if (!_loadingIndicator.isClosed) {
-        _loadingIndicator.add(--_taskCounter > 0);
-      }
+      --_taskCounter;
+      // if (!_loadingIndicator.isClosed) {
+      //   _loadingIndicator.add(--_taskCounter > 0); // ❌ Убрали индикатор загрузки
+      // }
     }
   }
 
-
-
   void _localeHandler<T>(
       Locale locale, EventSink<T> sink, AsyncBloc<T> bloc) async {
-    loadingSink.add(++_taskCounter > 0);
+    // loadingSink.add(++_taskCounter > 0); // ❌ Убрали индикатор загрузки
+    ++_taskCounter;
     try {
       final value = await bloc();
       sink.add(value);
@@ -63,9 +64,10 @@ abstract class BaseBloc {
       dispatchError(e);
       print(e);
     } finally {
-      if (!_loadingIndicator.isClosed) {
-        _loadingIndicator.add(--_taskCounter > 0);
-      }
+      --_taskCounter;
+      // if (!_loadingIndicator.isClosed) {
+      //   _loadingIndicator.add(--_taskCounter > 0); // ❌ Убрали индикатор загрузки
+      // }
     }
   }
 }

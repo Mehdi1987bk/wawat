@@ -13,10 +13,10 @@ const initialLastPaginationPage = 1;
 abstract class PaginableBloc<T> extends BaseBloc {
   List<T> data = <T>[];
   bool loaderVisibility = true;
-   Future<Pagination<T>>? source;
+  Future<Pagination<T>>? source;
   BehaviorSubject<List<T>> paginableList = BehaviorSubject<List<T>>();
 
-   CancelableOperation<Pagination<T>>? _cancellableOperation;
+  CancelableOperation<Pagination<T>>? _cancellableOperation;
   int _page = initialPaginationPage;
   int _lastPage = initialLastPaginationPage;
   bool _isRunning = false;
@@ -50,7 +50,7 @@ abstract class PaginableBloc<T> extends BaseBloc {
 
   void _loadData({bool refresh = false, bool cancelable = false}) {
     _isRunning = true;
-    loadingSink.add(true && loaderVisibility);
+    loadingSink.add(loaderVisibility);
     if (cancelable) {
       if (_cancellableOperation?.isCanceled == false) {
         _cancellableOperation?.cancel();

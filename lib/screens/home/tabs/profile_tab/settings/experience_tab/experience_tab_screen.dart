@@ -2,12 +2,15 @@ import 'package:buking/data/network/response/type_option.dart';
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/response/language.dart';
 import '../../../../../../data/network/response/language_response.dart';
 import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
+import '../../../../../../services/theme_aware_screen.dart';
+import '../../../../../../services/theme_manager.dart';
 import '../../../../../auth/registration/widget/language_selector.dart';
 import '../../../../../auth/registration/widget/package_types_selector.dart';
 import 'experience_tab_bloc.dart';
@@ -24,7 +27,8 @@ class ExperienceTab extends BaseScreen {
   State<ExperienceTab> createState() => _ExperienceTabState();
 }
 
-class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> with ErrorDispatcher{
+class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
+    with ErrorDispatcher {
   final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
 
   late TextEditingController _maxWeightController;
@@ -33,8 +37,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
   late TextEditingController _priceToController;
 
   int _selectedExperience = 3;
-  String _selectedWorkTimeFrom = '09:00';
-  String _selectedWorkTimeTo = '18:00';
+  String _selectedWorkTimeFrom = '00:00';
+  String _selectedWorkTimeTo = '00:00';
   Set<String> _selectedLanguageCodes = {};
   Set<String> _selectedPackageTypeCodes = {};
 
@@ -50,64 +54,75 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     final professional = widget.user.professional;
 
     _maxWeightController = TextEditingController(
-      text: professional?.maxWeightKg?.toStringAsFixed(0) ?? '',
+      text: professional?.maxWeightKg ?? '',
     );
     _insuranceController = TextEditingController(
-      text: professional?.insuranceAmount?.toStringAsFixed(0) ?? '',
+      text: professional?.insuranceAmount ?? '',
     );
     _priceFromController = TextEditingController(
-      text: professional?.pricePerKgMin?.toStringAsFixed(2) ?? '',
+      text: professional?.pricePerKgMin ?? '',
     );
     _priceToController = TextEditingController(
-      text: professional?.pricePerKgMax?.toStringAsFixed(2) ?? '',
+      text: professional?.pricePerKgMax ?? '',
     );
 
-    _selectedExperience = professional?.workExperienceYears ?? 3;
+    _maxWeightController.addListener(_validateForm);
+    _insuranceController.addListener(_validateForm);
+    _priceFromController.addListener(_validateForm);
+    _priceToController.addListener(_validateForm);
 
-    _selectedWorkTimeFrom = (professional?.workTimeFrom?.isNotEmpty ?? false)
-        ? professional!.workTimeFrom!
-        : '09:00';
-    _selectedWorkTimeTo = (professional?.workTimeTo?.isNotEmpty ?? false)
-        ? professional!.workTimeTo!
-        : '18:00';
+    _selectedExperience =
+        int.tryParse(professional?.workExperienceYears ?? '') ?? 3;
 
-    // ✅ Исправленная инициализация языков
-    if (professional != null && professional.languages.isNotEmpty) {
-      _selectedLanguageCodes = professional.languages
-          .map((l) {
-        try {
-          return (l.code as String?) ?? '';
-        } catch (e) {
-          print('ERROR parsing language code: $e');
-          return '';
-        }
-      })
-          .where((code) => code.isNotEmpty)
-          .toSet();
-      print(
-          'DEBUG initState: Инициализировано языков из professional: $_selectedLanguageCodes');
+    if (professional?.workTimeFrom != null &&
+        professional!.workTimeFrom!.isNotEmpty) {
+      final parts = professional.workTimeFrom!.split(':');
+      _selectedWorkTimeFrom =
+      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
-    // ✅ Исправленная инициализация типов упаковки - используем code
-    if (professional != null && professional.packageTypes.isNotEmpty) {
-      _selectedPackageTypeCodes = professional.packageTypes
-          .map((p) {
-        try {
-          return (p.code as String?) ?? '';
-        } catch (e) {
-          print('ERROR parsing package type code: $e');
-          return '';
-        }
-      })
+    if (professional?.workTimeTo != null &&
+        professional!.workTimeTo!.isNotEmpty) {
+      final parts = professional.workTimeTo!.split(':');
+      _selectedWorkTimeTo =
+      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+    }
+
+    if (professional != null && professional.languages.isNotEmpty) {
+      _selectedLanguageCodes = professional.languages
+          .map((l) => l.code ?? '')
           .where((code) => code.isNotEmpty)
           .toSet();
-      print(
-          'DEBUG initState: Инициализировано типов упаковки: $_selectedPackageTypeCodes');
+    }
+
+    if (professional != null && professional.packageTypes.isNotEmpty) {
+      _selectedPackageTypeCodes = professional.packageTypes
+          .map((p) => p.code ?? '')
+          .where((code) => code.isNotEmpty)
+          .toSet();
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLanguagesAndPackageTypes();
+      _validateForm();
     });
+  }
+
+  void _validateForm() {
+    final isMaxWeightFilled = _maxWeightController.text.trim().isNotEmpty;
+    final isInsuranceFilled = _insuranceController.text.trim().isNotEmpty;
+    final isPriceFromFilled = _priceFromController.text.trim().isNotEmpty;
+    final isPriceToFilled = _priceToController.text.trim().isNotEmpty;
+    final hasLanguages = _selectedLanguageCodes.isNotEmpty;
+    final hasPackageTypes =
+        _selectedPackageTypeCodes.isNotEmpty || _allPackageTypes.isEmpty;
+
+    _isFormValid.value = isMaxWeightFilled &&
+        isInsuranceFilled &&
+        isPriceFromFilled &&
+        isPriceToFilled &&
+        hasLanguages &&
+        hasPackageTypes;
   }
 
   Future<void> _loadLanguagesAndPackageTypes() async {
@@ -115,11 +130,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         !_isLoadingPackageTypes &&
         _allLanguages.isNotEmpty &&
         _allPackageTypes.isNotEmpty) {
-      print('DEBUG: Данные уже загружены, пропускаем повторную загрузку');
       return;
     }
-
-    print('========== DEBUG: Начало загрузки языков и типов ==========');
 
     setState(() {
       _isLoadingLanguages = true;
@@ -130,36 +142,17 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     _loadPackageTypes();
   }
 
-  /// Загрузить языки
   Future<void> _loadLanguages() async {
     try {
-      print('========== DEBUG: Начало загрузки языков ==========');
-
       final languages = await bloc.getLanguages();
-
-      print('API Response languages type: ${languages.runtimeType}');
-      print('API Response languages.data length: ${languages.data.length}');
-
-      if (languages.data.isNotEmpty) {
-        print(
-            'First language: ${languages.data[0].name} (code: ${languages.data[0].code})');
-        for (var lang in languages.data) {
-          print('  ✓ ${lang.code}: ${lang.name}');
-        }
-      }
 
       setState(() {
         _allLanguages = List<Language>.from(languages.data);
         _isLoadingLanguages = false;
       });
 
-      print('After setState: _allLanguages.length: ${_allLanguages.length}');
-      print('========== DEBUG: Загрузка языков завершена ==========');
+      _validateForm();
     } catch (e, stackTrace) {
-      print('========== ERROR: Ошибка загрузки языков ==========');
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-
       setState(() {
         _isLoadingLanguages = false;
         _allLanguages = [];
@@ -177,32 +170,17 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     }
   }
 
-  /// Загрузить типы упаковки
   Future<void> _loadPackageTypes() async {
     try {
-      print('========== DEBUG: Начало загрузки типов упаковки ==========');
-
       final packageTypes = await bloc.getPackageTypes();
-
-      print('API Response packageTypes length: ${packageTypes.data.length}');
-      if (packageTypes.data.isNotEmpty) {
-        for (var pkg in packageTypes.data) {
-          print('  ✓ ${pkg.code}: ${pkg.name} (icon: ${pkg.icon})');
-        }
-      }
 
       setState(() {
         _allPackageTypes = List<PackageType>.from(packageTypes.data);
         _isLoadingPackageTypes = false;
       });
 
-      print('After setState: _allPackageTypes.length: ${_allPackageTypes.length}');
-      print('========== DEBUG: Загрузка типов завершена ==========');
+      _validateForm();
     } catch (e, stackTrace) {
-      print('========== ERROR: Ошибка загрузки типов упаковки ==========');
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-
       setState(() {
         _isLoadingPackageTypes = false;
         _allPackageTypes = [];
@@ -224,7 +202,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     try {
       final timeString =
       _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
-
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -260,7 +237,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         ),
       );
     } catch (e) {
-      print('ERROR in _showTimePickerFrom: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
@@ -273,7 +249,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     try {
       final timeString =
       _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
-
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -309,7 +284,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         ),
       );
     } catch (e) {
-      print('ERROR in _showTimePickerTo: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
@@ -339,10 +313,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
       return;
     }
 
-    print('DEBUG _saveChanges:');
-    print('  Languages: $_selectedLanguageCodes');
-    print('  Package Types: $_selectedPackageTypeCodes');
-
     final courierProfile = bloc.createProfessionalRequest(
       workExperienceYears: _selectedExperience,
       maxWeightKg: int.tryParse(_maxWeightController.text) ?? 0,
@@ -357,335 +327,313 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
     bloc.createProfessional(courierProfile).then((_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Данные об опыте сохранены'),
-            backgroundColor: Color(0xFF5B4FFF),
-          ),
-        );
-      }
-    }).then((value) {
-      bloc.customersMe();
-      showTopSnackbar("Сохранено", "Сохранено", true, context);
-    });
-  }
-
-  void _resetForm() {
-    final professional = widget.user.professional;
-
-    setState(() {
-      _selectedExperience = professional?.workExperienceYears ?? 3;
-      _maxWeightController.text =
-          professional?.maxWeightKg?.toStringAsFixed(0) ?? '15';
-      _insuranceController.text =
-          professional?.insuranceAmount?.toStringAsFixed(0) ?? '5000';
-      _priceFromController.text =
-          professional?.pricePerKgMin?.toStringAsFixed(2) ?? '1.50';
-      _priceToController.text =
-          professional?.pricePerKgMax?.toStringAsFixed(2) ?? '3.00';
-      _selectedWorkTimeFrom = (professional?.workTimeFrom?.isNotEmpty ?? false)
-          ? professional!.workTimeFrom!
-          : '09:00';
-      _selectedWorkTimeTo = (professional?.workTimeTo?.isNotEmpty ?? false)
-          ? professional!.workTimeTo!
-          : '18:00';
-
-      _selectedLanguageCodes.clear();
-      if (professional != null && professional.languages.isNotEmpty) {
-        _selectedLanguageCodes = professional.languages
-            .map((l) {
-          try {
-            return (l.code as String?) ?? '';
-          } catch (e) {
-            print('ERROR parsing language code in reset: $e');
-            return '';
-          }
-        })
-            .where((code) => code.isNotEmpty)
-            .toSet();
-      }
-
-      _selectedPackageTypeCodes.clear();
-      if (professional != null && professional.packageTypes.isNotEmpty) {
-        _selectedPackageTypeCodes = professional.packageTypes
-            .map((p) {
-          try {
-            return (p.code as String?) ?? '';
-          } catch (e) {
-            print('ERROR parsing package type code in reset: $e');
-            return '';
-          }
-        })
-            .where((code) => code.isNotEmpty)
-            .toSet();
+        showIOSStyleMessage(context, 'Данные об опыте сохранены');
       }
     });
   }
 
   @override
   Widget body() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Опыт работы',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildExperienceSlider(),
-              const SizedBox(height: 16),
-              const Text(
-                'Максимальный вес (кг)',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildInputField(_maxWeightController),
-              const SizedBox(height: 16),
-              const Text(
-                'Страхование (\$)',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildInputField(_insuranceController),
-              const SizedBox(height: 16),
-              const Text(
-                'Диапазон цен (\$/кг)',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'От',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              _buildInputField(_priceFromController),
-              const SizedBox(height: 12),
-              const Text(
-                'До',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 4),
-              _buildInputField(_priceToController),
-              const SizedBox(height: 16),
-              const Text(
-                'Рабочие часы',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'С',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildTimePickerField(
-                          _selectedWorkTimeFrom.isNotEmpty
-                              ? _selectedWorkTimeFrom
-                              : '09:00',
-                          _showTimePickerFrom,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'До',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildTimePickerField(
-                          _selectedWorkTimeTo.isNotEmpty
-                              ? _selectedWorkTimeTo
-                              : '18:00',
-                          _showTimePickerTo,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Языки общения',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              LanguageSelector(
-                languages: _allLanguages,
-                selectedLanguageCodes: _selectedLanguageCodes,
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    _selectedLanguageCodes = newSelection;
-                  });
-                },
-                isLoading: _isLoadingLanguages,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Специализация',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _allPackageTypes.isEmpty && !_isLoadingPackageTypes
-                  ? Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xFFE5E5EA),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  color: const Color(0xFFF5F5F5),
-                ),
-                child: const Text(
-                  'Типы упаковки недоступны на сервере',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              )
-                  : PackageTypesSelector(
-                packageTypes: _allPackageTypes,
-                selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                onSelectionChanged: (newSelection) {
-                  setState(() {
-                    _selectedPackageTypeCodes = newSelection;
-                  });
-                },
-                isLoading: _isLoadingPackageTypes,
-              ),
-              Container(
-                height: 50,
-                width: double.infinity,
-                margin: const EdgeInsets.only(
-                  top: 20,
-                 ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: _isFormValid,
-                  builder: (_, isValid, __) {
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        disabledBackgroundColor:
-                        Color(0xFF5B4FFF).withOpacity(0.3),
-                        backgroundColor: const Color(0xFF5B4FFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                      ),
-                      onPressed: isValid ? _saveChanges : null,
-                      child: Text(
-                        "Сохранить изменения",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
 
-      ],
+        return ThemeAwareScreen(
+          isDark: isDark,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Опыт работы'),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildExperienceSlider(isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Максимальный вес (кг)'),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInputField(_maxWeightController, isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Страхование (\$)'),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInputField(_insuranceController, isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Диапазон цен (\$/кг)'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        child: const Text('От'),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    _buildInputField(_priceFromController, isDark),
+                    const SizedBox(height: 12),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('До'),
+                    ),
+                    const SizedBox(height: 4),
+                    _buildInputField(_priceToController, isDark),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Рабочие часы'),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                                child: const Text('С'),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildTimePickerField(
+                                _selectedWorkTimeFrom.isNotEmpty
+                                    ? _selectedWorkTimeFrom
+                                    : '09:00',
+                                _showTimePickerFrom,
+                                isDark,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                                child: const Text('До'),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildTimePickerField(
+                                _selectedWorkTimeTo.isNotEmpty
+                                    ? _selectedWorkTimeTo
+                                    : '18:00',
+                                _showTimePickerTo,
+                                isDark,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Языки общения'),
+                    ),
+                    const SizedBox(height: 8),
+                    LanguageSelector(
+                      languages: _allLanguages,
+                      selectedLanguageCodes: _selectedLanguageCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedLanguageCodes = newSelection;
+                        });
+                        _validateForm();
+                      },
+                      isLoading: _isLoadingLanguages,
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      child: const Text('Специализация'),
+                    ),
+                    const SizedBox(height: 8),
+                    _allPackageTypes.isEmpty && !_isLoadingPackageTypes
+                        ? AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF4A4A4A)
+                              : const Color(0xFFE5E5EA),
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        color: isDark
+                            ? const Color(0xFF2A2A2A)
+                            : const Color(0xFFF5F5F5),
+                      ),
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        child: const Text('Типы упаковки недоступны на сервере'),
+                      ),
+                    )
+                        : PackageTypesSelector(
+                      packageTypes: _allPackageTypes,
+                      selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                      onSelectionChanged: (newSelection) {
+                        setState(() {
+                          _selectedPackageTypeCodes = newSelection;
+                        });
+                        _validateForm();
+                      },
+                      isLoading: _isLoadingPackageTypes,
+                    ),
+                    Container(
+                      height: 50,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _isFormValid,
+                        builder: (_, isValid, __) {
+                          return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              disabledBackgroundColor:
+                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF5B4FFF),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                            ),
+                            onPressed: isValid ? _saveChanges : null,
+                            child: const Text(
+                              "Сохранить изменения",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildInputField(TextEditingController controller) {
+  Widget _buildInputField(TextEditingController controller, bool isDark) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      style: TextStyle(
+        fontSize: 14,
+        color: isDark ? Colors.white : Colors.black,
+      ),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFFE5E5EA),
+          borderSide: BorderSide(
+            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFFE5E5EA),
+          borderSide: BorderSide(
+            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -700,23 +648,22 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
           vertical: 12,
         ),
       ),
-      style: const TextStyle(
-        fontSize: 14,
-        color: Colors.black,
-      ),
     );
   }
 
   Widget _buildTimePickerField(
       String value,
       VoidCallback onTap,
+      bool isDark,
       ) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
           border: Border.all(
-            color: const Color(0xFFE5E5EA),
+            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
           ),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -724,17 +671,18 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              value,
-              style: const TextStyle(
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.black,
+                color: isDark ? Colors.white : Colors.black,
                 fontWeight: FontWeight.w500,
               ),
+              child: Text(value),
             ),
-            const Icon(
+            Icon(
               Icons.access_time,
-              color: Color(0xFF8E8E93),
+              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF8E8E93),
               size: 20,
             ),
           ],
@@ -743,7 +691,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
     );
   }
 
-  Widget _buildExperienceSlider() {
+  Widget _buildExperienceSlider(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -754,7 +702,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
           divisions: 9,
           label: '$_selectedExperience лет',
           activeColor: const Color(0xFF5B4FFF),
-          inactiveColor: const Color(0xFFE5E5EA),
+          inactiveColor: isDark
+              ? const Color(0xFF4A4A4A)
+              : const Color(0xFFE5E5EA),
           onChanged: (value) {
             setState(() {
               _selectedExperience = value.toInt();
@@ -763,14 +713,23 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
+          child: const Text(
+            'Выбранный опыт:',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF5B4FFF),
+            ),
+          ).toString().contains('_selectedExperience')
+              ? Text(
             'Выбранный опыт: $_selectedExperience лет',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF5B4FFF),
             ),
-          ),
+          )
+              : const SizedBox(),
         ),
       ],
     );
@@ -783,10 +742,132 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc> wi
 
   @override
   void dispose() {
+    _maxWeightController.removeListener(_validateForm);
+    _insuranceController.removeListener(_validateForm);
+    _priceFromController.removeListener(_validateForm);
+    _priceToController.removeListener(_validateForm);
+
     _maxWeightController.dispose();
     _insuranceController.dispose();
     _priceFromController.dispose();
     _priceToController.dispose();
+    _isFormValid.dispose();
+
     super.dispose();
   }
+}
+
+void showIOSStyleAlert(BuildContext context, String message,
+    {bool isError = true}) {
+  final themeManager = Provider.of<ThemeManager>(context, listen: false);
+  final isDark = themeManager.isDarkMode;
+
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isError ? Icons.error_outline : Icons.check_circle_outline,
+                color: isError ? Colors.red : Colors.green,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: isError ? Colors.red : Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void showIOSStyleMessage(
+    BuildContext context,
+    String message, {
+      bool isSuccess = true,
+      Duration duration = const Duration(seconds: 2),
+    }) {
+  final themeManager = Provider.of<ThemeManager>(context, listen: false); // ← ДОБАВЛЕНО listen: false
+
+  final isDark = themeManager.isDarkMode;
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.1),
+    builder: (BuildContext context) {
+      Future.delayed(duration, () {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+      return Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

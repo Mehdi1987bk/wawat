@@ -1,6 +1,9 @@
 
+import 'dart:ui';
+
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../network/response/user.dart';
 import 'cache_manager.dart';
@@ -12,9 +15,11 @@ const _settingsCache = 'SettingsCache';
 const _refreshTokenKey = 'RefreshTokenKey';
 const _accessTokenKey = 'AccessTokenKey';
 const _refreshTokenTime = 'RefreshTokenTime';
+const _localeKey = 'LocaleKey';
 
 const _userKey = 'UserKey';
 const _firstOpen = 'FirstOpen';
+late final Box settingsBox;
 
 class DataCacheManager implements CacheManager {
   final Future<Box> _authBox = Hive.openBox(_authCache);
@@ -92,6 +97,62 @@ class DataCacheManager implements CacheManager {
   Future<void> setIsFirstOpen() async {
     final box = await _settingsBox;
     return box.put(_firstOpen, false);
+  }
+
+  // Добавьте эти методы в класс DataCacheManager
+
+  @override
+  Future<int?> getUserId() async {
+    try {
+      final box = await _userBox;
+      final user = box.get(_userKey);
+      if (user != null && user is User) {
+        return user.id;
+      }
+      return null;
+    } catch (e) {
+      print('Error getting user ID: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<String?> getToken() async {
+    try {
+      return await getAccessToken();
+    } catch (e) {
+      print('Error getting token: $e');
+      return null;
+    }
+  }
+
+
+  @override
+  Stream<Locale?> get locale async* {
+    final box = await _settingsBox;
+    yield* box.watch(key: _localeKey).map((event) {
+      final currentLanguageCode = event.value as String?;
+      return currentLanguageCode == null ? null : Locale((currentLanguageCode));
+    }).startWith(
+      box.get(_localeKey) == null
+          ? null
+          : Locale(
+        box.get(_localeKey),
+      ),
+    );
+  }
+
+  @override
+  Future<void> saveLocale(Locale locale) async {
+    final box = await _settingsBox;
+    return box.put(_localeKey, locale.languageCode);
+  }
+
+  @override
+  Locale? getLocale() {
+    return Locale(
+      settingsBox.get(_localeKey),
+    );
   }
 
 

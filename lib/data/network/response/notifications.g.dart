@@ -17,9 +17,9 @@ class NotificationsAdapter extends TypeAdapter<Notifications> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Notifications(
-      newMessages: fields[0] as bool?,
-      newReviews: fields[1] as bool?,
-      marketing: fields[2] as bool?,
+      notifyNewMessages: fields[0] as bool?,
+      notifyNewReviews: fields[1] as bool?,
+      notifyMarketing: fields[2] as bool?,
     );
   }
 
@@ -28,11 +28,11 @@ class NotificationsAdapter extends TypeAdapter<Notifications> {
     writer
       ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.newMessages)
+      ..write(obj.notifyNewMessages)
       ..writeByte(1)
-      ..write(obj.newReviews)
+      ..write(obj.notifyNewReviews)
       ..writeByte(2)
-      ..write(obj.marketing);
+      ..write(obj.notifyMarketing);
   }
 
   @override
@@ -52,14 +52,14 @@ class NotificationsAdapter extends TypeAdapter<Notifications> {
 
 Notifications _$NotificationsFromJson(Map<String, dynamic> json) =>
     Notifications(
-      newMessages: json['new_messages'] as bool?,
-      newReviews: json['new_reviews'] as bool?,
-      marketing: json['marketing'] as bool?,
+      notifyNewMessages: json['notify_new_messages'] as bool?,
+      notifyNewReviews: json['notify_new_reviews'] as bool?,
+      notifyMarketing: json['notify_marketing'] as bool?,
     );
 
 Map<String, dynamic> _$NotificationsToJson(Notifications instance) =>
     <String, dynamic>{
-      'new_messages': instance.newMessages,
-      'new_reviews': instance.newReviews,
-      'marketing': instance.marketing,
+      'notify_new_messages': instance.notifyNewMessages,
+      'notify_new_reviews': instance.notifyNewReviews,
+      'notify_marketing': instance.notifyMarketing,
     };

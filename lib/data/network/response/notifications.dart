@@ -6,18 +6,18 @@ part 'notifications.g.dart';
 @HiveType(typeId: 4)
 class Notifications extends HiveObject {
   @HiveField(0)
-  final bool? newMessages;
+  final bool? notifyNewMessages;
 
   @HiveField(1)
-  final bool? newReviews;
+  final bool? notifyNewReviews;
 
   @HiveField(2)
-  final bool? marketing;
+  final bool? notifyMarketing;
 
   Notifications({
-    required this.newMessages,
-    required this.newReviews,
-    required this.marketing,
+    required this.notifyNewMessages,
+    required this.notifyNewReviews,
+    required this.notifyMarketing,
   });
 
   factory Notifications.fromJson(Map<String, dynamic> json) =>
@@ -25,3 +25,4 @@ class Notifications extends HiveObject {
 
   Map<String, dynamic> toJson() => _$NotificationsToJson(this);
 }
+

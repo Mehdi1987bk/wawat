@@ -12,29 +12,36 @@ import 'call_interceptor.dart';
 import 'data/cache/cache_manager.dart';
 import 'data/cache/data_cache_manager.dart';
 import 'data/network/api/auth_api.dart';
+import 'data/network/api/chat_api.dart'; // ← ДОБАВЛЕНО
 import 'data/network/response/language.dart';
 import 'data/network/response/notifications.dart';
 import 'data/network/response/privacy.dart';
 import 'data/network/response/professional.dart';
+import 'data/network/response/profile_info.dart';
 import 'data/network/response/rating.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
-import 'kango_app.dart';
+import 'wawat_app.dart';
+import 'services/theme_manager.dart';
 import 'wawat/wawat_app.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
-const baseUrl = 'https://wawat.tahirguliyev.com';
+const baseUrl = 'http://62.84.176.158';
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
+
+late ThemeManager themeManager;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final dir = await getApplicationDocumentsDirectory();
+
+  await Hive.initFlutter(dir.path);
 
   Hive
     ..init(dir.path)
@@ -44,17 +51,20 @@ void main() async {
     ..registerAdapter(PrivacyAdapter())
     ..registerAdapter(LanguageAdapter())
     ..registerAdapter(ProfessionalAdapter())
+    ..registerAdapter(ProfileInfoAdapter())
     ..registerAdapter(TypeOptionAdapter());
+
   _registerDependency();
 
-  runApp(WawatApp());
+  themeManager = await ThemeManager.create();
 
-  // runApp(GrandWayApp());
+  runApp(WawatApp());
 }
 
 void _registerDependency() {
   final dio = _initDio();
   sl.registerLazySingleton<AuthApi>(() => AuthApi(dio));
+  sl.registerLazySingleton<ChatApi>(() => ChatApi(dio)); // ← ДОБАВЛЕНО
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
   sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
 }

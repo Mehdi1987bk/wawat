@@ -4,13 +4,17 @@ import 'package:dio/dio.dart' hide Headers;
 
 import 'package:retrofit/retrofit.dart';
 
+import '../../../domain/entities/pagination.dart';
 import '../../../main.dart';
 import '../request/courier_offer_model.dart';
 import '../request/courier_profile.dart';
+import '../request/create_review_request.dart';
 import '../request/delivery_offer_request.dart';
+import '../request/edit_status_offer_request.dart';
 import '../request/forgot_password_request.dart';
 import '../request/login_request.dart';
 import '../request/notification_settings.dart';
+import '../request/offer_response.dart';
 import '../request/otp_verify_request.dart';
 import '../request/privacy_settings.dart';
 import '../request/registration_request.dart';
@@ -20,14 +24,18 @@ import '../response/cities_response.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
 import '../response/login_response_data.dart';
+import '../response/notification_response.dart';
 import '../response/offer_models.dart';
 import '../response/offer_type_model.dart';
 import '../response/offer_types_response.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
+import '../response/partner_user_response.dart';
 import '../response/registration_response.dart';
+import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
 import '../response/user.dart';
+import '../response/verification_response.dart';
 
 part 'auth_api.g.dart';
 
@@ -103,11 +111,75 @@ abstract class AuthApi {
   Future<PackageTypesResponse> getPackageType();
 
   @GET('/api/v1/geo/cities')
-  Future<CitiesResponse> getCities();
+  Future<CitiesResponse> getCities(
+    @Query("q") String search,
+    @Query("limit") int limit,
+  );
 
   @GET('/api/v1/dictionaries/offer-types')
   Future<OfferTypeResponse> getOfferTypes();
 
   @GET('/api/v1/offers/my')
-  Future<OfferListResponse> myOffers();
+  Future<Pagination<OfferModel>> myOffers(
+    @Query('page') int page,
+  );
+
+  @PATCH('/api/v1/offers/{id}/status')
+  Future<void> editStatusOffer(
+    @Path() String id,
+    @Body() EditStatusOfferRequest request,
+  );
+
+  @GET('/api/v1/offers')
+  Future<Pagination<OfferModel>> searchOffers(
+    @Query('offer_type') String? offerType,
+    @Query('package_type') String? packageType,
+    @Query('city_from_id') int? cityFromId,
+    @Query('city_to_id') int? cityToId,
+    @Query('date_from') String? dateFrom,
+    @Query('date_to') String? dateTo,
+    @Query('sort') String? sort,
+    @Query('page') int page,
+  );
+
+  @GET('/api/v1/offers/favorites')
+  Future<Pagination<OfferModel>> getFavorites(
+    @Query('page') int page,
+  );
+
+  @GET('/api/v1/users/{date}')
+  Future<PartnerUserResponse> getUserById(
+    @Path() int date,
+  );
+
+  @GET('/api/v1/notifications')
+  Future<NotificationResponse> notifications();
+
+  @POST('/api/v1/favorites/toggle')
+  Future<void> setFavorites(@Body() OfferResponse request);
+
+  @GET('/api/v1/verification/status')
+  Future<VerificationResponse> verificationStatus();
+
+  @POST('/api/v1/profile/avatar')
+  Future<void> addAvatar(
+    @Part(name: 'avatar') File avatar,
+  );
+
+  @POST('/api/v1/reviews')
+  Future<void> sendReviews(
+    @Body() CreateReviewRequest request,
+  );
+
+  @POST('/api/v1/verification/submit')
+  Future<void> submitVerification({
+    @Part(name: 'documents[passport]') required File passport,
+    @Part(name: 'documents[selfie]') required File selfie,
+  });
+
+  @GET('/api/v1/reviews/received')
+  Future<ReviewsResponse> myAboutReviev();
+
+  @GET('/api/v1/reviews/left')
+  Future<ReviewsResponse> myAboutLeft();
 }

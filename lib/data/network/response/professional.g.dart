@@ -17,15 +17,15 @@ class ProfessionalAdapter extends TypeAdapter<Professional> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Professional(
-      workExperienceYears: fields[0] as int?,
-      maxWeightKg: fields[1] as double?,
-      insuranceAmount: fields[2] as double?,
-      pricePerKgMin: fields[3] as double?,
-      pricePerKgMax: fields[4] as double?,
+      workExperienceYears: fields[0] as String?,
+      maxWeightKg: fields[1] as String?,
+      insuranceAmount: fields[2] as String?,
+      pricePerKgMin: fields[3] as String?,
+      pricePerKgMax: fields[4] as String?,
       workTimeFrom: fields[5] as String?,
       workTimeTo: fields[6] as String?,
       languages: (fields[7] as List).cast<Language>(),
-      packageTypes: (fields[8] as List).cast<dynamic>(),
+      packageTypes: (fields[8] as List).cast<PacketTypeResp>(),
     );
   }
 
@@ -69,27 +69,30 @@ class ProfessionalAdapter extends TypeAdapter<Professional> {
 // **************************************************************************
 
 Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
-      workExperienceYears: json['work_experience_years'] as int?,
-      maxWeightKg: (json['max_weight_kg'] as num?)?.toDouble(),
-      insuranceAmount: (json['insurance_amount'] as num?)?.toDouble(),
-      pricePerKgMin: (json['price_per_kg_min'] as num?)?.toDouble(),
-      pricePerKgMax: (json['price_per_kg_max'] as num?)?.toDouble(),
+      workExperienceYears: json['experience_years'] as String?,
+      maxWeightKg: json['max_weight_kg'] as String?,
+      insuranceAmount: json['insurance_usd'] as String?,
+      pricePerKgMin: json['price_from'] as String?,
+      pricePerKgMax: json['price_to'] as String?,
       workTimeFrom: json['work_time_from'] as String?,
       workTimeTo: json['work_time_to'] as String?,
       languages: (json['languages'] as List<dynamic>?)
               ?.map((e) => Language.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      packageTypes: json['package_types'] as List<dynamic>? ?? const [],
+      packageTypes: (json['package_types'] as List<dynamic>?)
+              ?.map((e) => PacketTypeResp.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$ProfessionalToJson(Professional instance) =>
     <String, dynamic>{
-      'work_experience_years': instance.workExperienceYears,
+      'experience_years': instance.workExperienceYears,
       'max_weight_kg': instance.maxWeightKg,
-      'insurance_amount': instance.insuranceAmount,
-      'price_per_kg_min': instance.pricePerKgMin,
-      'price_per_kg_max': instance.pricePerKgMax,
+      'insurance_usd': instance.insuranceAmount,
+      'price_from': instance.pricePerKgMin,
+      'price_to': instance.pricePerKgMax,
       'work_time_from': instance.workTimeFrom,
       'work_time_to': instance.workTimeTo,
       'languages': instance.languages,
