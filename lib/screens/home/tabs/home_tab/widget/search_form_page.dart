@@ -264,7 +264,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           _buildDateField(_dateFromController, 'дд.мм.гггг', isDark),
           SizedBox(height: 20),
 
-          _buildFieldLabel('Дата до', isDark),
+          _buildFieldLabel('Дата по', isDark),
           SizedBox(height: 10),
           _buildDateField(_dateToController, 'дд.мм.гггг', isDark),
           SizedBox(height: 28),

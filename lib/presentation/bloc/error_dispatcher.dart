@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../resourses/app_colors.dart';
+import '../../services/theme_manager.dart';
 import 'base_bloc.dart';
 import 'base_screen.dart';
 
@@ -18,34 +20,15 @@ on BaseState<Page, Bloc> {
     super.initState();
 
     errorSubscription = bloc.errorStream
+    // ❌ Полностью убираем Dio ошибки
+        .where((error) => error is! DioException)
         .transform(
       ThrottleStreamTransformer<Object>(
             (_) => TimerStream<Object>(true, const Duration(seconds: 2)),
       ),
     )
         .listen((error) {
-      if (error is DioError) {
-        final response = error.response;
-        final data = response?.data;
-        String message = "Something went wrong";
-
-        // ✅ если сервер вернул просто строку
-        if (data is String && data.isNotEmpty) {
-          message = data.trim();
-        }
-        // ✅ если сервер вернул JSON с ключом "message"
-        else if (data is Map && data['message'] is String) {
-          message = data['message'];
-        }
-
-
-        showTopSnackbar("Error", message, false, context);
-        print("❌ [ErrorDispatcher] DioError: $message");
-        return;
-      }
-
-      // ✅ если ошибка не DioError
-      showTopSnackbar("Error", error.toString(), false, context);
+      showTopSnackbar(error.toString(), false, context);
       print("❌ [ErrorDispatcher] ${error.toString()}");
     });
   }
@@ -61,110 +44,157 @@ on BaseState<Page, Bloc> {
 
 ///
 /// Показывает красивый snackbar сверху экрана
+/// (поддержка светлой / тёмной темы)
 ///
 void showTopSnackbar(
-    String title, String message, bool isSuccess, BuildContext context) {
+    String message,
+    bool isSuccess,
+    BuildContext context,
+    ) {
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
 
+  final isDark =
+      Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+
   final controller = AnimationController(
     vsync: Navigator.of(context),
-    duration: const Duration(milliseconds: 300),
+    duration: const Duration(milliseconds: 400),
   );
 
   overlayEntry = OverlayEntry(
     builder: (context) => AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
+        final slideValue =
+        Curves.easeOutBack.transform(controller.value);
+
         return Positioned(
-          top: MediaQuery.of(context).padding.top +
-              20 -
-              (controller.value * 100),
+          top: MediaQuery.of(context).padding.top + 16,
           left: 16,
           right: 16,
-          child: GestureDetector(
-            onVerticalDragUpdate: (details) {
-              if (details.primaryDelta! < -10) {
-                controller.forward().then((_) => overlayEntry.remove());
-              }
-            },
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isSuccess ? AppColors.appColor : Colors.red,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.all(25),
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          bottomLeft: Radius.circular(30),
-                        ),
-                        color: isSuccess ? AppColors.appColor : Colors.red,
+          child: Transform.translate(
+            offset: Offset(0, -100 * (1 - slideValue)),
+            child: Opacity(
+              opacity: controller.value,
+              child: GestureDetector(
+                onVerticalDragUpdate: (details) {
+                  if (details.primaryDelta != null &&
+                      details.primaryDelta! < -10) {
+                    controller.reverse().then((_) {
+                      if (overlayEntry.mounted) {
+                        overlayEntry.remove();
+                      }
+                    });
+                  }
+                },
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF1E1E1E)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSuccess
+                            ? const Color(0xFF5B51FF)
+                            .withOpacity(0.3)
+                            : Colors.red.withOpacity(0.3),
+                        width: 1,
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Center(
-                            child: Container(
-                              width: 20,
-                              height: 20,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                isSuccess ? Icons.check : Icons.close,
-                                color: isSuccess
-                                    ? AppColors.appColor
-                                    : Colors.red,
-                                size: 20,
-                              ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black
+                              .withOpacity(isDark ? 0.5 : 0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: isSuccess
+                                  ? const Color(0xFF5B51FF)
+                                  .withOpacity(0.1)
+                                  : Colors.red.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isSuccess
+                                  ? Icons.check_circle
+                                  : Icons.error,
+                              color: isSuccess
+                                  ? const Color(0xFF5B51FF)
+                                  : Colors.red,
+                              size: 24,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                            right: 20, top: 25, bottom: 25, left: 20),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(30),
-                            bottomRight: Radius.circular(30),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              right: 16,
+                              top: 16,
+                              bottom: 16,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isSuccess ? 'Успешно!' : 'Ошибка',
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  message,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? const Color(0xFFB0B0B0)
+                                        : const Color(0xFF8E8E93),
+                                    fontSize: 14,
+                                    height: 1.4,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              message,
-                              style: TextStyle(
-                                color: Colors.grey[800],
-                                fontSize: 16,
-                              ),
-                              maxLines: null,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ],
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFFC7C7CC),
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            controller.reverse().then((_) {
+                              if (overlayEntry.mounted) {
+                                overlayEntry.remove();
+                              }
+                            });
+                          },
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -175,7 +205,15 @@ void showTopSnackbar(
   );
 
   overlay.insert(overlayEntry);
-  Future.delayed(const Duration(seconds: 3), () {
-    controller.forward().then((_) => overlayEntry.remove());
+  controller.forward();
+
+  Future.delayed(const Duration(seconds: 4), () {
+    if (overlayEntry.mounted) {
+      controller.reverse().then((_) {
+        if (overlayEntry.mounted) {
+          overlayEntry.remove();
+        }
+      });
+    }
   });
 }

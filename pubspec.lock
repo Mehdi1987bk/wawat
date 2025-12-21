@@ -1399,6 +1399,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  snack_utils:
+    dependency: "direct main"
+    description:
+      name: snack_utils
+      sha256: c5f56d5cc6bb02e63a8076843280cbfd27e872e2bbdc795030ca80afbab1f93f
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   source_gen:
     dependency: transitive
     description:

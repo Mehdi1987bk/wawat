@@ -25,7 +25,7 @@ class NotificationItem {
   final String? body;
   final NotificationData? data;
   @JsonKey(name: 'is_read')
-  final bool isRead;
+  late final bool isRead;
   @JsonKey(name: 'created_at')
   final String createdAt;
 

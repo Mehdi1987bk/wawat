@@ -111,21 +111,22 @@ class BottomNavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedIndex == index;
-    final Color activeColor = Color(0xFF2857DA);
-    final Color inactiveColor = isDark ? const Color(0xFF6B7280) : Color(0xFF9E9E9E);
+    final Color activeColor = isDark ? Colors.white : const Color(0xFF2857DA);
+    final Color inactiveColor =
+        isDark ? const Color(0xFF6B7280) : Color(0xFF9E9E9E);
 
     // Цвета для состояний
     final Color bgColor = isCentral && isSelected
         ? Colors.transparent
         : (isSelected
-        ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
-        : Colors.transparent);
+            ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
+            : Colors.transparent);
 
     final Color iconBgColor = isCentral && isSelected
         ? Colors.white.withOpacity(0.3)
         : (isSelected
-        ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
-        : Colors.transparent);
+            ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
+            : Colors.transparent);
 
     final Color iconColor = isCentral && isSelected
         ? Colors.white
@@ -152,16 +153,18 @@ class BottomNavigationItem extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
               decoration: BoxDecoration(
                 gradient: isCentral && isSelected ? gradient : null,
-                color: isCentral && isSelected ? null : Color.lerp(Colors.transparent, bgColor, value),
+                color: isCentral && isSelected
+                    ? null
+                    : Color.lerp(Colors.transparent, bgColor, value),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: isCentral && isSelected
                     ? [
-                  BoxShadow(
-                    color: Color(0xFF2662EA).withOpacity(0.3 * value),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
+                        BoxShadow(
+                          color: Color(0xFF2662EA).withOpacity(0.3 * value),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
                     : null,
               ),
               child: Column(
@@ -179,9 +182,8 @@ class BottomNavigationItem extends StatelessWidget {
                       width: 18,
                       height: 18,
                       colorFilter: ColorFilter.mode(
-                        Color.lerp(inactiveColor, iconColor, value)!,
-                        BlendMode.srcIn,
-                      ),
+                          Color.lerp(inactiveColor, iconColor, value)!,
+                          BlendMode.srcIn),
                     ),
                   ),
                   SizedBox(height: 6),

@@ -449,8 +449,7 @@ class _ProfileTabScreenState
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
         children: [
-          // ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМНОЙ ТЕМЫ =====
-          StreamBuilder<Locale?>(
+           StreamBuilder<Locale?>(
               stream: bloc.locale,
               builder: (context, snapshot) {
                 if(snapshot.hasData){

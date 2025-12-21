@@ -88,6 +88,29 @@ class App extends StatelessWidget {
           );
 
         });
+
+    // return     MaterialApp(
+    //   color: AppColors.appBarbgColor,
+    //   debugShowCheckedModeBanner: false,
+    //   navigatorKey: navigatorKey,
+    //   navigatorObservers: [routeObserver],
+    //    darkTheme: _buildDarkTheme(),
+    //    localizationsDelegates: [
+    //     S.delegate,
+    //     GlobalMaterialLocalizations.delegate,
+    //     GlobalCupertinoLocalizations.delegate,
+    //     GlobalWidgetsLocalizations.delegate,
+    //   ],
+    //    localeResolutionCallback: (locale, supportedLocales) {
+    //
+    //     if (locale != null && supportedLocales.contains(locale)) {
+    //       return locale;
+    //     }
+    //     return const Locale("en");
+    //   },
+    //   supportedLocales: S.delegate.supportedLocales,
+    //   home: SpleshScreen(),
+    // );
   }
 
   ThemeData _buildLightTheme() {

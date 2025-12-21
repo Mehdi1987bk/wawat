@@ -16,14 +16,13 @@ class ProfileTabBloc extends BaseBloc {
 
   late final Stream<Locale?> locale = _cacheManager.locale;
 
+
+
   void setLocale(Locale locale) {
     _cacheManager.saveLocale(locale);
   }
-
-
   late final Stream<User> userDetails =
   ValueConnectableStream(authRepository.userDetails).autoConnect();
 
-  // Исправлено: сделал метод вместо поля
-  Future<void> logout() => authRepository.logout();
+   Future<void> logout() => authRepository.logout();
 }

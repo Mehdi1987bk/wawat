@@ -22,6 +22,7 @@ class NotificationScreen extends BaseScreen {
 
 class _NotificationScreenState
     extends BaseState<NotificationScreen, NotificationBloc> {
+
   @override
   void initState() {
     super.initState();
@@ -38,12 +39,12 @@ class _NotificationScreenState
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness:
-                isDark ? Brightness.light : Brightness.dark,
+            isDark ? Brightness.light : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : AppColors.bgColor,
+            isDark ? const Color(0xFF121212) : AppColors.bgColor,
             body: SafeArea(
               child: Column(
                 children: [
@@ -166,8 +167,8 @@ class _NotificationScreenState
           color: notification.isRead
               ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
               : (isDark
-                  ? WawatColors.primary.withOpacity(0.15)
-                  : WawatColors.primary.withOpacity(0.05)),
+              ? WawatColors.primary.withOpacity(0.15)
+              : WawatColors.primary.withOpacity(0.05)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: notification.isRead
@@ -178,12 +179,12 @@ class _NotificationScreenState
           boxShadow: isDark
               ? []
               : [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -316,19 +317,81 @@ class _NotificationScreenState
       ),
       child: notification.icon != null && notification.icon!.isNotEmpty
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Image.network(
-                  notification.icon!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(iconData, color: iconColor, size: 24);
-                  },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Image.network(
+            notification.icon!,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(iconData, color: iconColor, size: 24);
+            },
+          ),
+        ),
+      )
+          : Icon(iconData, color: iconColor, size: 24),
+    );
+  }
+
+  void _handleNotificationTap(NotificationItem notification, bool isDark) {
+    setState(() {
+      notification.isRead = true;
+    });
+
+    // Печатаем уведомление
+    print("Прочитано уведомление: ${notification.title} - ${notification.body}");
+
+    if (notification.type == "review_request") {
+      _showReviewBottomSheet(notification, isDark);
+    } else {
+       showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            title: Text(
+              notification.title ?? "",
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Text(
+              notification.body ?? "",
+              style: TextStyle(
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Закрыть',
+                  style: TextStyle(
+                    color: WawatColors.primary,
+                  ),
                 ),
               ),
-            )
-          : Icon(iconData, color: iconColor, size: 24),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void _showReviewBottomSheet(NotificationItem notification, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ReviewBottomSheet(
+        notification: notification,
+        isDark: isDark,
+        bloc: bloc,
+        onReviewSubmitted: () {
+          bloc.loadNotifications();
+        },
+      ),
     );
   }
 
@@ -436,30 +499,6 @@ class _NotificationScreenState
     );
   }
 
-  void _handleNotificationTap(NotificationItem notification, bool isDark) {
-    // Показываем bottom sheet только для review_request
-    if (notification.type == "review_request") {
-      _showReviewBottomSheet(notification, isDark);
-    }
-  }
-
-  void _showReviewBottomSheet(NotificationItem notification, bool isDark) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _ReviewBottomSheet(
-        notification: notification,
-        isDark: isDark,
-        bloc: bloc,
-        onReviewSubmitted: () {
-          // Перезагружаем уведомления после отправки отзыва
-          bloc.loadNotifications();
-        },
-      ),
-    );
-  }
-
   String _formatDate(String dateString) {
     try {
       final date = DateTime.parse(dateString);
@@ -491,6 +530,7 @@ class _NotificationScreenState
     return NotificationBloc();
   }
 }
+
 
 class _ReviewBottomSheet extends StatefulWidget {
   final NotificationItem notification;

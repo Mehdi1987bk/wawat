@@ -68,17 +68,17 @@ class CreatePostBloc extends BaseBloc {
 
       return result;
     } catch (e, stackTrace) {
-      if (e.toString().contains('404')) {
-        _cachedPackageTypes = PackageTypesResponse(data: []);
-        return _cachedPackageTypes!;
-      }
+      // if (e.toString().contains('404')) {
+      //   _cachedPackageTypes = PackageTypesResponse(data: []);
+      //   return _cachedPackageTypes!;
+      // }
 
       rethrow;
     }
   }
 
   Future<void> createOffers(CourierOfferModel request) =>
-      authRepository.createOffers(request);
+      run(authRepository.createOffers(request));
 
   Future<OfferTypeResponse> getOfferTypes() => authRepository.getOfferTypes();
 

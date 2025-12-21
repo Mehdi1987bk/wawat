@@ -113,11 +113,12 @@ class _PersonalInfoTabState
                       child: const Text('Нажмите для изменения фото'),
                     ),
                     const SizedBox(height: 24),
-                    _buildTextField('Полное имя', _fullNameController, isDark),
+                    // ❌ Только для чтения с "пленкой"
+                    _buildReadOnlyTextField('Полное имя', _fullNameController, isDark),
                     const SizedBox(height: 16),
-                    _buildTextField('Email', _emailController, isDark),
+                    _buildReadOnlyTextField('Email', _emailController, isDark),
                     const SizedBox(height: 16),
-                    _buildTextField('Телефон', _phoneController, isDark),
+                    _buildReadOnlyTextField('Телефон', _phoneController, isDark),
                     const SizedBox(height: 16),
                     _buildTextField('Местоположение', _locationController, isDark),
                     const SizedBox(height: 16),
@@ -137,7 +138,7 @@ class _PersonalInfoTabState
                         TextField(
                           controller: _aboutController,
                           maxLines: 4,
-                          keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО
+                          keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark ? Colors.white : Colors.black,
@@ -269,7 +270,7 @@ class _PersonalInfoTabState
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО
+          keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white : Colors.black,
@@ -305,6 +306,70 @@ class _PersonalInfoTabState
               vertical: 12,
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  // ❌ Новая функция для ReadOnly полей с "пленкой"
+  Widget _buildReadOnlyTextField(
+      String label, TextEditingController controller, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+          child: Text(label),
+        ),
+        const SizedBox(height: 8),
+        Stack(
+          children: [
+            TextField(
+              controller: controller,
+              readOnly: true,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: isDark
+                    ? const Color(0xFF2A2A2A)
+                    : Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: isDark
+                        ? const Color(0xFF4A4A4A)
+                        : const Color(0xFFE5E5EA),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: isDark
+                        ? const Color(0xFF4A4A4A)
+                        : const Color(0xFFE5E5EA),
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.2)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

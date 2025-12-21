@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/screens/home/tabs/create_post/widget/city_selector.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class CreatePostScreen extends BaseScreen {
 }
 
 class _CreatePostScreenState
-    extends BaseState<CreatePostScreen, CreatePostBloc> {
+    extends BaseState<CreatePostScreen, CreatePostBloc>  with ErrorDispatcher{
 
   @override
   bool get useSystemOverlay => false;
@@ -58,8 +59,8 @@ class _CreatePostScreenState
   TextEditingController();
   final TextEditingController deliveryDateToController =
   TextEditingController();
-  final TextEditingController purchaseDateController = TextEditingController();
-  final TextEditingController purchaseTimeController = TextEditingController();
+  final TextEditingController purchaseDateFromController = TextEditingController();
+  final TextEditingController purchaseDateToController = TextEditingController();
 
   final TextEditingController maxWeightController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -75,8 +76,8 @@ class _CreatePostScreenState
     flightTimeController.addListener(_updateButtonState);
     deliveryDateFromController.addListener(_updateButtonState);
     deliveryDateToController.addListener(_updateButtonState);
-    purchaseDateController.addListener(_updateButtonState);
-    purchaseTimeController.addListener(_updateButtonState);
+    purchaseDateFromController.addListener(_updateButtonState);
+    purchaseDateToController.addListener(_updateButtonState);
     maxWeightController.addListener(_updateButtonState);
     priceController.addListener(_updateButtonState);
     descriptionController.addListener(_updateButtonState);
@@ -114,8 +115,8 @@ class _CreatePostScreenState
         return deliveryDateFromController.text.isNotEmpty &&
             deliveryDateToController.text.isNotEmpty;
       case 'buyer':
-        return purchaseDateController.text.isNotEmpty &&
-            purchaseTimeController.text.isNotEmpty;
+        return purchaseDateFromController.text.isNotEmpty &&
+            purchaseDateToController.text.isNotEmpty;
       default:
         return false;
     }
@@ -484,8 +485,8 @@ class _CreatePostScreenState
           flightTimeController.clear();
           deliveryDateFromController.clear();
           deliveryDateToController.clear();
-          purchaseDateController.clear();
-          purchaseTimeController.clear();
+          purchaseDateFromController.clear();
+          purchaseDateToController.clear();
         });
       },
       items: _allOfferTypes.map((type) => type.code).toList(),
@@ -526,13 +527,13 @@ class _CreatePostScreenState
 
       case 'buyer':
         return [
-          _buildLabel('Дата покупки', isRequired: true, isDark: isDark),
+          _buildLabel('Дата покупки с', isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(purchaseDateController, 'дд.мм.гггг', isDark),
+          _buildDateField(purchaseDateFromController, 'дд.мм.гггг', isDark),
           const SizedBox(height: 20),
-          _buildLabel('Время покупки', isRequired: true, isDark: isDark),
+          _buildLabel('Дата покупки до', isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildTimeField(purchaseTimeController, isDark),
+          _buildDateField(purchaseDateToController, 'дд.мм.гггг', isDark),
           const SizedBox(height: 20),
         ];
 
@@ -643,9 +644,9 @@ class _CreatePostScreenState
         deliveryDateTo:
         selectedOfferType == 'sender' ? deliveryDateToController.text : '',
         purchaseDate:
-        selectedOfferType == 'buyer' ? purchaseDateController.text : '',
+        selectedOfferType == 'buyer' ? purchaseDateFromController.text : '',
         purchaseTime:
-        selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
+        selectedOfferType == 'buyer' ? purchaseDateToController.text : '',
         packageType: packageType,
         maxWeightKg: int.parse(maxWeightController.text),
         pricePerKg: double.parse(priceController.text),
@@ -668,29 +669,7 @@ class _CreatePostScreenState
       }
     } catch (e, stackTrace) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Ошибка при отправке: ${e.toString()}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'OK',
-              textColor: Colors.white,
-              onPressed: () {},
-            ),
-          ),
-        );
+
       }
     } finally {
       if (mounted) {
@@ -709,8 +688,8 @@ class _CreatePostScreenState
       flightTimeController.clear();
       deliveryDateFromController.clear();
       deliveryDateToController.clear();
-      purchaseDateController.clear();
-      purchaseTimeController.clear();
+      purchaseDateFromController.clear();
+      purchaseDateToController.clear();
       maxWeightController.clear();
       priceController.clear();
       descriptionController.clear();
@@ -829,7 +808,6 @@ class _CreatePostScreenState
       ),
     );
   }
-
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
