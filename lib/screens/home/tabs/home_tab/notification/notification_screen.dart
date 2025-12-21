@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +22,8 @@ class NotificationScreen extends BaseScreen {
 }
 
 class _NotificationScreenState
-    extends BaseState<NotificationScreen, NotificationBloc> {
-
+    extends BaseState<NotificationScreen, NotificationBloc>
+    with ErrorDispatcher {
   @override
   void initState() {
     super.initState();
@@ -39,12 +40,12 @@ class _NotificationScreenState
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+                isDark ? Brightness.light : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
             backgroundColor:
-            isDark ? const Color(0xFF121212) : AppColors.bgColor,
+                isDark ? const Color(0xFF121212) : AppColors.bgColor,
             body: SafeArea(
               child: Column(
                 children: [
@@ -167,8 +168,8 @@ class _NotificationScreenState
           color: notification.isRead
               ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
               : (isDark
-              ? WawatColors.primary.withOpacity(0.15)
-              : WawatColors.primary.withOpacity(0.05)),
+                  ? WawatColors.primary.withOpacity(0.15)
+                  : WawatColors.primary.withOpacity(0.05)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: notification.isRead
@@ -179,12 +180,12 @@ class _NotificationScreenState
           boxShadow: isDark
               ? []
               : [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -317,81 +318,19 @@ class _NotificationScreenState
       ),
       child: notification.icon != null && notification.icon!.isNotEmpty
           ? ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Image.network(
-            notification.icon!,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Icon(iconData, color: iconColor, size: 24);
-            },
-          ),
-        ),
-      )
-          : Icon(iconData, color: iconColor, size: 24),
-    );
-  }
-
-  void _handleNotificationTap(NotificationItem notification, bool isDark) {
-    setState(() {
-      notification.isRead = true;
-    });
-
-    // Печатаем уведомление
-    print("Прочитано уведомление: ${notification.title} - ${notification.body}");
-
-    if (notification.type == "review_request") {
-      _showReviewBottomSheet(notification, isDark);
-    } else {
-       showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            title: Text(
-              notification.title ?? "",
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: Text(
-              notification.body ?? "",
-              style: TextStyle(
-                color: isDark ? Colors.white70 : Colors.black87,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Закрыть',
-                  style: TextStyle(
-                    color: WawatColors.primary,
-                  ),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Image.network(
+                  notification.icon!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(iconData, color: iconColor, size: 24);
+                  },
                 ),
               ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  void _showReviewBottomSheet(NotificationItem notification, bool isDark) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _ReviewBottomSheet(
-        notification: notification,
-        isDark: isDark,
-        bloc: bloc,
-        onReviewSubmitted: () {
-          bloc.loadNotifications();
-        },
-      ),
+            )
+          : Icon(iconData, color: iconColor, size: 24),
     );
   }
 
@@ -499,6 +438,53 @@ class _NotificationScreenState
     );
   }
 
+  void _handleNotificationTap(NotificationItem notification, bool isDark) {
+    // Принтуем при любом нажатии
+    print('нажался');
+    print(
+        'Notification tapped: ID=${notification.id}, Type=${notification.type}, Title=${notification.title}');
+
+    // Помечаем как прочитанную
+    bloc.markAsRead(notification.id);
+
+    // Показываем соответствующий bottom sheet
+    if (notification.type == "review_request") {
+      _showReviewBottomSheet(notification, isDark);
+    } else {
+      _showNotificationDetailBottomSheet(notification, isDark);
+    }
+  }
+
+  void _showReviewBottomSheet(NotificationItem notification, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ReviewBottomSheet(
+        notification: notification,
+        isDark: isDark,
+        bloc: bloc,
+        onReviewSubmitted: () {
+          // Перезагружаем уведомления после отправки отзыва
+          bloc.loadNotifications();
+        },
+      ),
+    );
+  }
+
+  void _showNotificationDetailBottomSheet(
+      NotificationItem notification, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _NotificationDetailBottomSheet(
+        notification: notification,
+        isDark: isDark,
+      ),
+    );
+  }
+
   String _formatDate(String dateString) {
     try {
       final date = DateTime.parse(dateString);
@@ -530,7 +516,6 @@ class _NotificationScreenState
     return NotificationBloc();
   }
 }
-
 
 class _ReviewBottomSheet extends StatefulWidget {
   final NotificationItem notification;
@@ -809,6 +794,231 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
           ),
         );
       }
+    }
+  }
+}
+
+class _NotificationDetailBottomSheet extends StatelessWidget {
+  final NotificationItem notification;
+  final bool isDark;
+
+  const _NotificationDetailBottomSheet({
+    required this.notification,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(28),
+            topRight: Radius.circular(28),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Drag indicator
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF4A4A4A)
+                          : WawatColors.backgroundLight,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Icon
+                Center(
+                  child: _buildNotificationIcon(notification),
+                ),
+                const SizedBox(height: 20),
+
+                // Title
+                Center(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: WawatTextStyles.h2.copyWith(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    child: Text(
+                      notification.title ?? "",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Date
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF6B7280)
+                          : WawatColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: WawatTextStyles.caption.copyWith(
+                        color: isDark
+                            ? const Color(0xFF9CA3AF)
+                            : WawatColors.textSecondary,
+                      ),
+                      child: Text(_formatDate(notification.createdAt)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Divider
+                Divider(
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : WawatColors.backgroundLight,
+                  thickness: 1,
+                ),
+                const SizedBox(height: 24),
+
+                // Body text
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: WawatTextStyles.body.copyWith(
+                    color: isDark
+                        ? const Color(0xFF9CA3AF)
+                        : WawatColors.textSecondary,
+                    height: 1.6,
+                  ),
+                  child: Text(
+                    notification.body ?? "",
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Close button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      print(
+                          'Close button tapped for notification: ${notification.id}');
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: WawatColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                    ),
+                    child: Text(
+                      'Закрыть',
+                      style: WawatTextStyles.button.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationIcon(NotificationItem notification) {
+    Color bgColor;
+    Color iconColor;
+    IconData iconData;
+
+    switch (notification.type) {
+      case "review_request":
+        bgColor = WawatColors.warning.withOpacity(0.1);
+        iconColor = WawatColors.warning;
+        iconData = Icons.star_outline;
+        break;
+      case "message":
+        bgColor = WawatColors.info.withOpacity(0.1);
+        iconColor = WawatColors.info;
+        iconData = Icons.message_outlined;
+        break;
+      default:
+        bgColor = WawatColors.primary.withOpacity(0.1);
+        iconColor = WawatColors.primary;
+        iconData = Icons.star;
+    }
+
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: bgColor,
+        shape: BoxShape.circle,
+      ),
+      child: notification.icon != null && notification.icon!.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.network(
+                  notification.icon!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(iconData, color: iconColor, size: 40);
+                  },
+                ),
+              ),
+            )
+          : Icon(iconData, color: iconColor, size: 40),
+    );
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final now = DateTime.now();
+      final difference = now.difference(date);
+
+      if (difference.inDays == 0) {
+        if (difference.inHours == 0) {
+          if (difference.inMinutes == 0) {
+            return 'Только что';
+          }
+          return '${difference.inMinutes} мин назад';
+        }
+        return '${difference.inHours} ч назад';
+      } else if (difference.inDays == 1) {
+        return 'Вчера';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays} дн назад';
+      } else {
+        return DateFormat('dd.MM.yyyy').format(date);
+      }
+    } catch (e) {
+      return dateString;
     }
   }
 }

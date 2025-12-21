@@ -12,7 +12,7 @@ class NotificationBloc extends BaseBloc {
   // Координация - управление состоянием UI
   final _notificationsSubject = BehaviorSubject<NotificationResponse?>();
   final _loadingSubject = BehaviorSubject<bool>.seeded(false);
-  final _errorSubject = BehaviorSubject<String?>();
+  final _errorSubject = PublishSubject<String?>();
 
   // Streams для UI
   Stream<NotificationResponse?> get notificationsStream =>
@@ -38,21 +38,27 @@ class NotificationBloc extends BaseBloc {
   }
 
   // Пометить нотификацию как прочитанную
-  Future<void> markAsRead(int notificationId) async {
+  void markAsRead(int notificationId) {
+    print('Marking notification as read: $notificationId');
+
     // TODO: Вызвать API для пометки как прочитанной
-    // Пока просто обновим локально
-    final currentNotifications = _notificationsSubject.value;
+    // await userRepository.markNotificationAsRead(notificationId);
+
+    // Обновляем локально
+    final currentNotifications = _notificationsSubject.valueOrNull;
     if (currentNotifications != null) {
       final updatedData = currentNotifications.data.map((item) {
         if (item.id == notificationId) {
+          // Создаем новый объект с обновленным isRead
           return NotificationItem(
             id: item.id,
             type: item.type,
             title: item.title,
             body: item.body,
             icon: item.icon,
+            data: item.data,
             createdAt: item.createdAt,
-            isRead: true,
+            isRead: true, // Помечаем как прочитанную
           );
         }
         return item;
@@ -61,11 +67,13 @@ class NotificationBloc extends BaseBloc {
       _notificationsSubject.add(
         NotificationResponse(data: updatedData),
       );
+
+      print('Notification $notificationId marked as read');
     }
   }
 
   Future<void> sendReviews(CreateReviewRequest request) =>
-      userRepository.sendReviews(request);
+      run(userRepository.sendReviews(request));
 
   @override
   void dispose() {
