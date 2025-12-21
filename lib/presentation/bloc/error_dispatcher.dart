@@ -20,14 +20,47 @@ on BaseState<Page, Bloc> {
     super.initState();
 
     errorSubscription = bloc.errorStream
-    // ❌ Полностью убираем Dio ошибки
-        .where((error) => error is! DioException)
         .transform(
       ThrottleStreamTransformer<Object>(
             (_) => TimerStream<Object>(true, const Duration(seconds: 2)),
       ),
     )
         .listen((error) {
+      if (error is DioException) {
+        final response = error.response;
+        final data = response?.data;
+        String message = "Something went wrong";
+
+        print("🔍 [ErrorDispatcher] StatusCode: ${response?.statusCode}");
+        print("🔍 [ErrorDispatcher] Data type: ${data.runtimeType}");
+        print("🔍 [ErrorDispatcher] Data: $data");
+
+        // ✅ Обработка JSON с ключом "message"
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey('message')) {
+            message = data['message'].toString();
+          } else if (data.containsKey('error')) {
+            message = data['error'].toString();
+          } else {
+            // Если есть другие ключи, показываем первый
+            message = data.values.first.toString();
+          }
+        }
+        // ✅ Обработка простой строки
+        else if (data is String && data.isNotEmpty) {
+          message = data.trim();
+        }
+        // ✅ Обработка списка ошибок валидации
+        else if (data is List && data.isNotEmpty) {
+          message = data.first.toString();
+        }
+
+        showTopSnackbar(message, false, context);
+        print("❌ [ErrorDispatcher] DioException: $message");
+        return;
+      }
+
+      // ✅ Обработка других ошибок
       showTopSnackbar(error.toString(), false, context);
       print("❌ [ErrorDispatcher] ${error.toString()}");
     });
@@ -43,8 +76,7 @@ on BaseState<Page, Bloc> {
 }
 
 ///
-/// Показывает красивый snackbar сверху экрана
-/// (поддержка светлой / тёмной темы)
+/// Показывает красивый snackbar сверху экрана с поддержкой темной/светлой темы
 ///
 void showTopSnackbar(
     String message,
@@ -54,8 +86,8 @@ void showTopSnackbar(
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
 
-  final isDark =
-      Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+  // Определяем текущую тему через Provider (как в create_post_screen)
+  final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
   final controller = AnimationController(
     vsync: Navigator.of(context),
@@ -66,8 +98,7 @@ void showTopSnackbar(
     builder: (context) => AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
-        final slideValue =
-        Curves.easeOutBack.transform(controller.value);
+        final slideValue = Curves.easeOutBack.transform(controller.value);
 
         return Positioned(
           top: MediaQuery.of(context).padding.top + 16,
@@ -79,8 +110,7 @@ void showTopSnackbar(
               opacity: controller.value,
               child: GestureDetector(
                 onVerticalDragUpdate: (details) {
-                  if (details.primaryDelta != null &&
-                      details.primaryDelta! < -10) {
+                  if (details.primaryDelta! < -10) {
                     controller.reverse().then((_) {
                       if (overlayEntry.mounted) {
                         overlayEntry.remove();
@@ -98,15 +128,13 @@ void showTopSnackbar(
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSuccess
-                            ? const Color(0xFF5B51FF)
-                            .withOpacity(0.3)
+                            ? const Color(0xFF5B51FF).withOpacity(0.3)
                             : Colors.red.withOpacity(0.3),
                         width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black
-                              .withOpacity(isDark ? 0.5 : 0.1),
+                          color: Colors.black.withOpacity(isDark ? 0.5 : 0.1),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -114,22 +142,19 @@ void showTopSnackbar(
                     ),
                     child: Row(
                       children: [
-                        Padding(
+                        Container(
                           padding: const EdgeInsets.all(16),
                           child: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
                               color: isSuccess
-                                  ? const Color(0xFF5B51FF)
-                                  .withOpacity(0.1)
+                                  ? const Color(0xFF5B51FF).withOpacity(0.1)
                                   : Colors.red.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              isSuccess
-                                  ? Icons.check_circle
-                                  : Icons.error,
+                              isSuccess ? Icons.check_circle : Icons.error,
                               color: isSuccess
                                   ? const Color(0xFF5B51FF)
                                   : Colors.red,
@@ -146,8 +171,7 @@ void showTopSnackbar(
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   isSuccess ? 'Успешно!' : 'Ошибка',

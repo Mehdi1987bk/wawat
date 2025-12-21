@@ -449,28 +449,30 @@ class _ProfileTabScreenState
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
         children: [
-           StreamBuilder<Locale?>(
+          StreamBuilder<Locale?>(
               stream: bloc.locale,
               builder: (context, snapshot) {
-                if(snapshot.hasData){
-                  return  GestureDetector(
-                    onTap: () => _showMenu(snapshot.data),
-                    child: _buildLanguageItem(
-                      icon: Icons.language,
-                      title: S.of(context).languandff,
-                      subtitle: "languageSubtitle",
-                      bgColor: isDark
-                          ? const Color(0xFF1E3A2F)
-                          : const Color(0xFFDCFCE7),
-                      iconColor: isDark
-                          ? const Color(0xFF10B981)
-                          : const Color(0xFF059669),
-                      isDarkMode: isDark,
-                      currentLanguage: snapshot.requireData?.languageCode ?? "null",
-                    ),
-                  );
-                }return SizedBox();
+                // Получаем текущий locale из snapshot или используем дефолтный
+                final currentLocale = snapshot.data ?? const Locale("en");
+
+                return GestureDetector(
+                  onTap: () => _showMenu(snapshot.data),
+                  child: _buildLanguageItem(
+                    icon: Icons.language,
+                    title: S.of(context).languandff,
+                    subtitle: "languageSubtitle",
+                    bgColor: isDark
+                        ? const Color(0xFF1E3A2F)
+                        : const Color(0xFFDCFCE7),
+                    iconColor: isDark
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF059669),
+                    isDarkMode: isDark,
+                    currentLanguage: currentLocale.languageCode,
+                  ),
+                );
               }),
+
           const SizedBox(height: 12),
 
           Consumer<ThemeManager>(

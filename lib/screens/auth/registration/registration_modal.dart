@@ -9,6 +9,7 @@ import '../../../domain/entities/patterns.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
@@ -70,15 +71,10 @@ class _RegistrationModalState extends State<RegistrationModal> {
       if (mounted) setState(() => _isLoading = isLoading);
     });
 
+    // 🔥 ИСПРАВЛЕНИЕ: добавлена обработка ошибок
     _bloc.errorStream.listen((error) {
       if (!mounted) return;
-      // Показываем алерт
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ошибка регистрации: $error'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showTopSnackbar(error.toString(), false, context);
     });
   }
 
@@ -88,7 +84,6 @@ class _RegistrationModalState extends State<RegistrationModal> {
             Patterns.email.hasMatch(_emailController.text.trim()) &&
             Patterns.textField.hasMatch(_phoneController.text.trim()) &&
             Patterns.textField.hasMatch(_passwordController.text.trim()) &&
-            _passwordController.text == _confirmPasswordController.text &&
             _agreedToTerms &&
             _selectedLanguageCodes.isNotEmpty;
 
