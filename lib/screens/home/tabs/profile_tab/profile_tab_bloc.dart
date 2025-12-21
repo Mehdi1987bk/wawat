@@ -5,6 +5,7 @@ import 'package:buking/presentation/bloc/base_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../data/cache/cache_manager.dart';
+import '../../../../data/network/request/support_request.dart';
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
@@ -16,7 +17,7 @@ class ProfileTabBloc extends BaseBloc {
 
   late final Stream<Locale?> locale = _cacheManager.locale;
 
-
+  Future<void> support(SupportRequest request)=> authRepository.support(request);
 
   void setLocale(Locale locale) {
     _cacheManager.saveLocale(locale);

@@ -68,7 +68,7 @@ class _LoginModalState extends State<LoginModal> {
 
     if (!mounted) return;
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => HomeScreen()),
     );
@@ -117,6 +117,7 @@ class _LoginModalState extends State<LoginModal> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     isModal: true,
+                    isEmail: true,
                   ),
                   const SizedBox(height: 16),
 

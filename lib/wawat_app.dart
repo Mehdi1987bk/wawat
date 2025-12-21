@@ -93,8 +93,10 @@ class App extends StatelessWidget {
       color: AppColors.appBarbgColor,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+
       navigatorObservers: [routeObserver],
        darkTheme: _buildDarkTheme(),
+
        localizationsDelegates: [
         S.delegate,
         GlobalMaterialLocalizations.delegate,

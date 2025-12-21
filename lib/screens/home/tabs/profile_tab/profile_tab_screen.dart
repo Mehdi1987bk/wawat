@@ -3,6 +3,7 @@ import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
+import 'package:buking/screens/home/tabs/profile_tab/support/support_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/localization_pop_up.dart';
@@ -29,7 +30,6 @@ class ProfileTabScreen extends BaseScreen {
 
 class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
-
   @override
   bool get useSystemOverlay => false;
 
@@ -73,7 +73,8 @@ class _ProfileTabScreenState
             }
 
             // Показ загрузки
-            if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                !snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(
                   color: isDark ? Colors.white : WawatColors.primary,
@@ -93,14 +94,18 @@ class _ProfileTabScreenState
                         children: [
                           AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
-                            margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                            margin:
+                                EdgeInsets.only(left: 16, right: 16, top: 20),
                             padding: EdgeInsets.only(left: 10, right: 10),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                                  color: Colors.black
+                                      .withOpacity(isDark ? 0.3 : 0.05),
                                   blurRadius: 10,
                                   offset: const Offset(0, 2),
                                 ),
@@ -108,16 +113,16 @@ class _ProfileTabScreenState
                             ),
                             child: Column(
                               children: [
-
-                                 const SizedBox(height: 12),
+                                const SizedBox(height: 12),
                                 const SizedBox(height: 20),
-                                _buildProfileHeader(snapshot.requireData, isDark),
+                                _buildProfileHeader(
+                                    snapshot.requireData, isDark),
                                 const SizedBox(height: 16),
-                                _buildStatsCard(context, snapshot.requireData, isDark),
+                                _buildStatsCard(
+                                    context, snapshot.requireData, isDark),
                               ],
                             ),
                           ),
-
                           const SizedBox(height: 24),
                           _buildMenuSection(snapshot.requireData, isDark),
                           const SizedBox(height: 120),
@@ -189,7 +194,9 @@ class _ProfileTabScreenState
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                   child: Text(title),
                 ),
@@ -246,6 +253,7 @@ class _ProfileTabScreenState
       ),
     );
   }
+
   Widget _buildProfileHeader(User user, bool isDark) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +331,9 @@ class _ProfileTabScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
+                  color: isDark
+                      ? const Color(0xFFB0B0B0)
+                      : const Color(0xFF6B7280),
                 ),
                 child: Text(user.email ?? ""),
               ),
@@ -332,7 +342,9 @@ class _ProfileTabScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
+                  color: isDark
+                      ? const Color(0xFFB0B0B0)
+                      : const Color(0xFF6B7280),
                 ),
                 child: Text(user.phone ?? ""),
               ),
@@ -472,9 +484,7 @@ class _ProfileTabScreenState
                   ),
                 );
               }),
-
           const SizedBox(height: 12),
-
           Consumer<ThemeManager>(
             builder: (context, themeManager, child) {
               return GestureDetector(
@@ -486,7 +496,9 @@ class _ProfileTabScreenState
                       ? Icons.dark_mode
                       : Icons.light_mode,
                   title: 'Тема оформления',
-                  subtitle: themeManager.isDarkMode ? 'Тёмная тема включена' : 'Светлая тема включена',
+                  subtitle: themeManager.isDarkMode
+                      ? 'Тёмная тема включена'
+                      : 'Светлая тема включена',
                   bgColor: themeManager.isDarkMode
                       ? const Color(0xFF1E1E3F)
                       : const Color(0xFFFEF3C7),
@@ -499,12 +511,11 @@ class _ProfileTabScreenState
             },
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => Navigator.push(context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-                  return VerificationScreen(user: user);
-                })),
+              return VerificationScreen(user: user);
+            })),
             child: _buildMenuItem(
               icon: Icons.shield_outlined,
               title: 'Верификация',
@@ -515,7 +526,6 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => Navigator.push(
               context,
@@ -535,13 +545,14 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => Navigator.push(
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return MyRevievsScreen( courierId: user.id ?? 0,);
+                  return MyRevievsScreen(
+                    courierId: user.id ?? 0,
+                  );
                 },
               ),
             ),
@@ -555,7 +566,25 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return SupportScreen();
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.headset_mic_rounded,
+              title: 'Техподдежка',
+              subtitle: 'Написать в техподдежку',
+              bgColor: Color(0xFF031B7A).withOpacity(0.9),
+              iconColor: Colors.white,
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(height: 12),
           GestureDetector(
             onTap: () => Navigator.push(
               context,
@@ -575,7 +604,6 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => showLogoutBottomSheet(
                 title: "Выйти",
@@ -584,9 +612,11 @@ class _ProfileTabScreenState
                 no: "Нет, отменить",
                 context: context,
                 onConfirmLogout: () {
-                  bloc.logout().then(  // ИСПРАВЛЕНО: Добавлены скобки ()
-                        (value) {
-                      return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                  bloc.logout().then(
+                    // ИСПРАВЛЕНО: Добавлены скобки ()
+                    (value) {
+                      return Navigator.pushAndRemoveUntil(context,
+                          MaterialPageRoute(
                         builder: (BuildContext context) {
                           return HomeScreen();
                         },
@@ -633,7 +663,6 @@ class _ProfileTabScreenState
       },
     );
   }
-
 
   void showLogoutBottomSheet({
     required BuildContext context,
@@ -786,7 +815,9 @@ class _ProfileTabScreenState
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                   child: Text(title),
                 ),
@@ -816,10 +847,10 @@ class _ProfileTabScreenState
         borderRadius: BorderRadius.circular(20),
         gradient: isOn
             ? const LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        )
+                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
             : null,
         color: isOn ? null : const Color(0xFFE5E7EB),
         boxShadow: [

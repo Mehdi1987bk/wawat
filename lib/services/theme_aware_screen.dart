@@ -23,7 +23,7 @@ class ThemeAwareScreen extends StatelessWidget {
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
         // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
-        statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         systemNavigationBarColor: isDark
             ? (darkBackgroundColor ?? const Color(0xFF121212))
             : (lightBackgroundColor ?? Colors.white),

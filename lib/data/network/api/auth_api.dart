@@ -18,6 +18,7 @@ import '../request/offer_response.dart';
 import '../request/otp_verify_request.dart';
 import '../request/privacy_settings.dart';
 import '../request/registration_request.dart';
+import '../request/support_request.dart';
 import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/cities_response.dart';
@@ -145,6 +146,11 @@ abstract class AuthApi {
   @GET('/api/v1/offers/favorites')
   Future<Pagination<OfferModel>> getFavorites(
     @Query('page') int page,
+  );
+
+  @POST('/api/v1/support')
+  Future<void> support(
+    @Body() SupportRequest request,
   );
 
   @GET('/api/v1/users/{date}')

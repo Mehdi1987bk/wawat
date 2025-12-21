@@ -361,9 +361,23 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: maxWeightController,
                           hint: '0',
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true), // Клавиатура с точкой/запятой
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), // Разрешаем цифры, точку и запятую
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              // Заменяем запятую на точку для единообразия
+                              final text = newValue.text.replaceAll(',', '.');
+
+                              // Проверяем, что только одна точка
+                              if (text.split('.').length > 2) {
+                                return oldValue; // Отклоняем ввод, если больше одной точки
+                              }
+
+                              return TextEditingValue(
+                                text: text,
+                                selection: TextSelection.collapsed(offset: text.length),
+                              );
+                            }),
                           ],
                           isDark: isDark,
                         ),
@@ -374,11 +388,23 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: priceController,
                           hint: '0',
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                          keyboardType: TextInputType.numberWithOptions(decimal: true), // Клавиатура с точкой/запятой
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d+\.?\d{0,2}')),
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), // Разрешаем цифры, точку и запятую
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              // Заменяем запятую на точку для единообразия
+                              final text = newValue.text.replaceAll(',', '.');
+
+                              // Проверяем, что только одна точка
+                              if (text.split('.').length > 2) {
+                                return oldValue; // Отклоняем ввод, если больше одной точки
+                              }
+
+                              return TextEditingValue(
+                                text: text,
+                                selection: TextSelection.collapsed(offset: text.length),
+                              );
+                            }),
                           ],
                           isDark: isDark,
                         ),

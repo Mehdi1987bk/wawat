@@ -122,7 +122,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
 
     if (!mounted) return;
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => HomeScreen()),
     );
@@ -219,6 +219,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                           placeholder: 'example@mail.com',
                           controller: _emailController,
                           isModal: true,
+                          isEmail: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
                         WawatInputField(
