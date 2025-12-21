@@ -92,5 +92,7 @@
     </array>
     <key>io.flutter.embedded_views_preview</key>
     <true/>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
 </dict>
 </plist>

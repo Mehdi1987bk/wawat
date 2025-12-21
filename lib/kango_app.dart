@@ -34,6 +34,8 @@ class App extends StatelessWidget {
       navigatorKey: navigatorKey,
       navigatorObservers: [routeObserver],
       theme: appTheme,
+      darkTheme: appThemeDark,
+      themeMode: ThemeMode.system,
       localizationsDelegates: [
         S.delegate,
         // GlobalMaterialLocalizations.delegate,

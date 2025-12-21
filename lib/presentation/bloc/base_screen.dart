@@ -25,13 +25,25 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
     bloc.init();
   }
 
+  /// Returns the appropriate SystemUiOverlayStyle based on current theme.
+  /// Override this in subclass to customize status bar appearance.
+  SystemUiOverlayStyle getSystemUiOverlayStyle(BuildContext context) {
+    // Check if current theme is dark
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+
+    // On dark theme: use light style (white icons/text)
+    // On light theme: use dark style (black icons/text)
+    return isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return BlocProvider<Bloc>(
       bloc: bloc,
       child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
+        value: getSystemUiOverlayStyle(context),
         child: Scaffold(
           key: scaffoldKey,
           appBar: appBar(),
