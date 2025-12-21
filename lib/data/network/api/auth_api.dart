@@ -152,6 +152,11 @@ abstract class AuthApi {
     @Path() int date,
   );
 
+  @POST('/api/v1/notifications/{date}/read')
+  Future<void> notificationsRead(
+    @Path() int date,
+  );
+
   @GET('/api/v1/notifications')
   Future<NotificationResponse> notifications();
 

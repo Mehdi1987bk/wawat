@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../resourses/app_colors.dart';
 import '../../services/theme_manager.dart';
 import 'base_bloc.dart';
 import 'base_screen.dart';
@@ -20,49 +19,27 @@ on BaseState<Page, Bloc> {
     super.initState();
 
     errorSubscription = bloc.errorStream
-        .transform(
-      ThrottleStreamTransformer<Object>(
-            (_) => TimerStream<Object>(true, const Duration(seconds: 2)),
-      ),
-    )
+        .throttleTime(const Duration(seconds: 2))
         .listen((error) {
       if (error is DioException) {
         final response = error.response;
+
+        // Показываем только ошибки со статусом 422
+        if (response?.statusCode != 422) {
+          return;
+        }
+
         final data = response?.data;
         String message = "Something went wrong";
 
-        print("🔍 [ErrorDispatcher] StatusCode: ${response?.statusCode}");
-        print("🔍 [ErrorDispatcher] Data type: ${data.runtimeType}");
-        print("🔍 [ErrorDispatcher] Data: $data");
-
-        // ✅ Обработка JSON с ключом "message"
-        if (data is Map<String, dynamic>) {
-          if (data.containsKey('message')) {
-            message = data['message'].toString();
-          } else if (data.containsKey('error')) {
-            message = data['error'].toString();
-          } else {
-            // Если есть другие ключи, показываем первый
-            message = data.values.first.toString();
-          }
-        }
-        // ✅ Обработка простой строки
-        else if (data is String && data.isNotEmpty) {
+        if (data is String && data.isNotEmpty) {
           message = data.trim();
-        }
-        // ✅ Обработка списка ошибок валидации
-        else if (data is List && data.isNotEmpty) {
-          message = data.first.toString();
+        } else if (data is Map && data['message'] is String) {
+          message = data['message'];
         }
 
         showTopSnackbar(message, false, context);
-        print("❌ [ErrorDispatcher] DioException: $message");
-        return;
       }
-
-      // ✅ Обработка других ошибок
-      showTopSnackbar(error.toString(), false, context);
-      print("❌ [ErrorDispatcher] ${error.toString()}");
     });
   }
 
@@ -75,9 +52,6 @@ on BaseState<Page, Bloc> {
   ErrorHandler? get errorHandler => null;
 }
 
-///
-/// Показывает красивый snackbar сверху экрана с поддержкой темной/светлой темы
-///
 void showTopSnackbar(
     String message,
     bool isSuccess,
@@ -86,7 +60,6 @@ void showTopSnackbar(
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
 
-  // Определяем текущую тему через Provider (как в create_post_screen)
   final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
   final controller = AnimationController(

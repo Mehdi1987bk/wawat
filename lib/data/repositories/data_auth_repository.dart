@@ -168,8 +168,8 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<CitiesResponse> getCities(String search ) {
-    return _authApi.getCities(search,200);
+  Future<CitiesResponse> getCities(String search) {
+    return _authApi.getCities(search, 200);
   }
 
   @override
@@ -236,6 +236,10 @@ class DataAuthRepository implements AuthRepository {
 
   Future<ReviewsResponse> myAboutLeft() {
     return _authApi.myAboutLeft();
+  }
+
+  Future<void> notificationsRead(int date) {
+    return _authApi.notificationsRead(date);
   }
 
   Future<void> submitVerification(

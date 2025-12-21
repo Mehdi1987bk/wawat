@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../../data/network/request/create_review_request.dart';
@@ -37,12 +38,12 @@ class NotificationBloc extends BaseBloc {
     }
   }
 
+
   // Пометить нотификацию как прочитанную
   void markAsRead(int notificationId) {
     print('Marking notification as read: $notificationId');
 
-    // TODO: Вызвать API для пометки как прочитанной
-    // await userRepository.markNotificationAsRead(notificationId);
+    userRepository.notificationsRead(notificationId);
 
     // Обновляем локально
     final currentNotifications = _notificationsSubject.valueOrNull;
@@ -67,13 +68,57 @@ class NotificationBloc extends BaseBloc {
       _notificationsSubject.add(
         NotificationResponse(data: updatedData),
       );
-
       print('Notification $notificationId marked as read');
     }
   }
 
-  Future<void> sendReviews(CreateReviewRequest request) =>
-      run(userRepository.sendReviews(request));
+
+  /// 🔥 Теперь возвращает bool
+  Future<bool> sendReviews(CreateReviewRequest request) async {
+    _loadingSubject.add(true);  // ✅ Используем локальный subject
+    _errorSubject.add(null);    // ✅ Сбрасываем предыдущую ошибку
+
+    try {
+      await userRepository.sendReviews(request);
+      print('✅ Review sent successfully');
+      return true;
+    } on DioException catch (e) {
+      final message = _parseDioError(e);
+      print('❌ DioException: $message'); // Для отладки
+      _errorSubject.add(message);  // ✅ Используем локальный subject
+      return false;
+    } catch (e) {
+      print('❌ Unknown error: $e');
+      _errorSubject.add('Ошибка отправки отзыва');
+      return false;
+    } finally {
+      _loadingSubject.add(false);  // ✅ Используем локальный subject
+    }
+  }
+
+  String _parseDioError(DioException e) {
+    final data = e.response?.data;
+
+    if (data is Map<String, dynamic>) {
+      // Сначала проверяем message
+      if (data['message'] != null) {
+        return data['message'].toString();
+      }
+
+      // Потом errors
+      if (data['errors'] is Map) {
+        final errors = data['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final first = errors.values.first;
+          if (first is List && first.isNotEmpty) {
+            return first.first.toString();
+          }
+        }
+      }
+    }
+
+    return 'Ошибка запроса (${e.response?.statusCode ?? "неизвестно"})';
+  }
 
   @override
   void dispose() {

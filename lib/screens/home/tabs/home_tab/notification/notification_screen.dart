@@ -22,8 +22,7 @@ class NotificationScreen extends BaseScreen {
 }
 
 class _NotificationScreenState
-    extends BaseState<NotificationScreen, NotificationBloc>
-    with ErrorDispatcher {
+    extends BaseState<NotificationScreen, NotificationBloc> with ErrorDispatcher{
   @override
   void initState() {
     super.initState();
@@ -40,12 +39,12 @@ class _NotificationScreenState
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness:
-                isDark ? Brightness.light : Brightness.dark,
+            isDark ? Brightness.light : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : AppColors.bgColor,
+            isDark ? const Color(0xFF121212) : AppColors.bgColor,
             body: SafeArea(
               child: Column(
                 children: [
@@ -168,8 +167,8 @@ class _NotificationScreenState
           color: notification.isRead
               ? (isDark ? const Color(0xFF1E1E1E) : Colors.white)
               : (isDark
-                  ? WawatColors.primary.withOpacity(0.15)
-                  : WawatColors.primary.withOpacity(0.05)),
+              ? WawatColors.primary.withOpacity(0.15)
+              : WawatColors.primary.withOpacity(0.05)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: notification.isRead
@@ -180,12 +179,12 @@ class _NotificationScreenState
           boxShadow: isDark
               ? []
               : [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -318,18 +317,18 @@ class _NotificationScreenState
       ),
       child: notification.icon != null && notification.icon!.isNotEmpty
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Image.network(
-                  notification.icon!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(iconData, color: iconColor, size: 24);
-                  },
-                ),
-              ),
-            )
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Image.network(
+            notification.icon!,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(iconData, color: iconColor, size: 24);
+            },
+          ),
+        ),
+      )
           : Icon(iconData, color: iconColor, size: 24),
     );
   }
@@ -441,8 +440,7 @@ class _NotificationScreenState
   void _handleNotificationTap(NotificationItem notification, bool isDark) {
     // Принтуем при любом нажатии
     print('нажался');
-    print(
-        'Notification tapped: ID=${notification.id}, Type=${notification.type}, Title=${notification.title}');
+    print('Notification tapped: ID=${notification.id}, Type=${notification.type}, Title=${notification.title}');
 
     // Помечаем как прочитанную
     bloc.markAsRead(notification.id);
@@ -472,8 +470,7 @@ class _NotificationScreenState
     );
   }
 
-  void _showNotificationDetailBottomSheet(
-      NotificationItem notification, bool isDark) {
+  void _showNotificationDetailBottomSheet(NotificationItem notification, bool isDark) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -538,6 +535,21 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
   int _rating = 0;
   final TextEditingController _commentController = TextEditingController();
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Слушаем ошибки из bloc
+    widget.bloc.errorStream.listen((error) {
+      if (error != null && mounted) {
+
+        showTopSnackbar(error.toString(), false, context);
+
+
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -643,9 +655,9 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                             color: _rating >= starNumber
                                 ? WawatColors.warning
                                 : (widget.isDark
-                                        ? const Color(0xFF4A4A4A)
-                                        : WawatColors.textSecondary)
-                                    .withOpacity(0.3),
+                                ? const Color(0xFF4A4A4A)
+                                : WawatColors.textSecondary)
+                                .withOpacity(0.3),
                           ),
                         ),
                       );
@@ -671,8 +683,8 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                         hintText: 'Напишите ваш комментарий...',
                         hintStyle: WawatTextStyles.body.copyWith(
                           color: (widget.isDark
-                                  ? const Color(0xFF6B7280)
-                                  : WawatColors.textSecondary)
+                              ? const Color(0xFF6B7280)
+                              : WawatColors.textSecondary)
                               .withOpacity(0.5),
                         ),
                         border: InputBorder.none,
@@ -690,11 +702,11 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:
-                          _isSubmitting || _rating == 0 ? null : _submitReview,
+                      _isSubmitting || _rating == 0 ? null : _submitReview,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: WawatColors.primary,
                         disabledBackgroundColor:
-                            WawatColors.primary.withOpacity(0.5),
+                        WawatColors.primary.withOpacity(0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -702,20 +714,20 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                       ),
                       child: _isSubmitting
                           ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
                           : Text(
-                              'Отправить',
-                              style: WawatTextStyles.button.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                        'Отправить',
+                        style: WawatTextStyles.button.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -748,7 +760,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
-                const Text('Ошибка: отсутствуют данные для отправки отзыва'),
+            const Text('Ошибка: отсутствуют данные для отправки отзыва'),
             backgroundColor: WawatColors.error,
           ),
         );
@@ -760,40 +772,30 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
       _isSubmitting = true;
     });
 
-    try {
-      // Создаем запрос с правильными параметрами
-      final request = CreateReviewRequest(
-        reviewRequestId: widget.notification.id, // id уведомления
-        targetId: requesterId, // requester_id из data
-        rating: _rating, // оценка от 1 до 5
-        comment: _commentController.text.trim(), // комментарий
-      );
+    // Создаем запрос с правильными параметрами
+    final request = CreateReviewRequest(
+      reviewRequestId: widget.notification.id, // id уведомления
+      targetId: requesterId, // requester_id из data
+      rating: _rating, // оценка от 1 до 5
+      comment: _commentController.text.trim(), // комментарий
+    );
 
-      // Отправляем отзыв
-      await widget.bloc.sendReviews(request);
+    // 🔥 ПРОВЕРЯЕМ РЕЗУЛЬТАТ!
+    final success = await widget.bloc.sendReviews(request);
 
-      if (mounted) {
-        // Закрываем bottom sheet
-        Navigator.of(context).pop();
+    if (!mounted) return;
 
-        showIOSStyleMessage(context, 'Спасибо за ваш отзыв!');
+    setState(() {
+      _isSubmitting = false;
+    });
 
-        // Вызываем callback для обновления списка уведомлений
-        widget.onReviewSubmitted();
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
+    if (success) {
+      // ✅ Успешно
+      Navigator.of(context).pop();
+      showIOSStyleMessage(context, 'Спасибо за ваш отзыв!');
+      widget.onReviewSubmitted();
+    } else {
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка отправки отзыва: ${e.toString()}'),
-            backgroundColor: WawatColors.error,
-          ),
-        );
-      }
     }
   }
 }
@@ -921,8 +923,7 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      print(
-                          'Close button tapped for notification: ${notification.id}');
+                      print('Close button tapped for notification: ${notification.id}');
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
@@ -980,18 +981,18 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
       ),
       child: notification.icon != null && notification.icon!.isNotEmpty
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(40),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.network(
-                  notification.icon!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(iconData, color: iconColor, size: 40);
-                  },
-                ),
-              ),
-            )
+        borderRadius: BorderRadius.circular(40),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Image.network(
+            notification.icon!,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(iconData, color: iconColor, size: 40);
+            },
+          ),
+        ),
+      )
           : Icon(iconData, color: iconColor, size: 40),
     );
   }

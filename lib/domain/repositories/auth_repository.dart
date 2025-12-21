@@ -71,7 +71,7 @@ abstract class AuthRepository {
 
   Future<PackageTypesResponse> getPackageType();
 
-  Future<CitiesResponse> getCities(String search );
+  Future<CitiesResponse> getCities(String search);
 
   Future<void> createOffers(CourierOfferModel request);
 
@@ -98,6 +98,8 @@ abstract class AuthRepository {
   Future<ReviewsResponse> myAboutReviev();
 
   Future<ReviewsResponse> myAboutLeft();
+
+  Future<void> notificationsRead(int date);
 
   Future<void> submitVerification(
       {required File passport, required File selfie});

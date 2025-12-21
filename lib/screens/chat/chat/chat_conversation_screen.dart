@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:buking/data/network/response/chat_response.dart';
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:buking/presentation/resourses/wawat_dimensions.dart';
 import 'package:buking/presentation/resourses/wawat_text_styles.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../home/tabs/home_tab/courier_screen/courier_screen.dart';
+import '../../home/tabs/profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_bubble.dart';
@@ -30,7 +32,8 @@ class ChatConversationScreen extends BaseScreen {
 }
 
 class _ChatConversationScreenState
-    extends BaseState<ChatConversationScreen, ChatConversationBloc> {
+    extends BaseState<ChatConversationScreen, ChatConversationBloc>
+    with ErrorDispatcher {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   File? _selectedFile;
@@ -66,12 +69,12 @@ class _ChatConversationScreenState
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness:
-                isDark ? Brightness.light : Brightness.dark,
+            isDark ? Brightness.light : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
             backgroundColor:
-                isDark ? const Color(0xFF121212) : WawatColors.backgroundLight,
+            isDark ? const Color(0xFF121212) : WawatColors.backgroundLight,
             appBar: _buildAppBar(isDark),
             body: Column(
               children: [
@@ -193,16 +196,17 @@ class _ChatConversationScreenState
         onPressed: () => Navigator.pop(context),
       ),
       title: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (BuildContext context) {
-              return CourierDetailsScreen(
-                courierId: widget.conversation.user.id,
-              );
-            },
-          ),
-        ),
+        onTap: () =>
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return CourierDetailsScreen(
+                    courierId: widget.conversation.user.id,
+                  );
+                },
+              ),
+            ),
         child: Row(
           children: [
             Stack(
@@ -341,9 +345,10 @@ class _ChatConversationScreenState
             ),
           ),
         ),
-       ],
+      ],
     );
   }
+
   Widget _buildFilePreview(bool isDark) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -361,16 +366,16 @@ class _ChatConversationScreenState
               borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
             ),
             child: _selectedFile!.path.toLowerCase().endsWith('.jpg') ||
-                    _selectedFile!.path.toLowerCase().endsWith('.png') ||
-                    _selectedFile!.path.toLowerCase().endsWith('.jpeg')
+                _selectedFile!.path.toLowerCase().endsWith('.png') ||
+                _selectedFile!.path.toLowerCase().endsWith('.jpeg')
                 ? ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(WawatDimensions.radiusSmall),
-                    child: Image.file(
-                      _selectedFile!,
-                      fit: BoxFit.cover,
-                    ),
-                  )
+              borderRadius:
+              BorderRadius.circular(WawatDimensions.radiusSmall),
+              child: Image.file(
+                _selectedFile!,
+                fit: BoxFit.cover,
+              ),
+            )
                 : Icon(Icons.insert_drive_file, color: WawatColors.primary),
           ),
           SizedBox(width: WawatDimensions.spacingSm),
@@ -381,7 +386,10 @@ class _ChatConversationScreenState
                 color: isDark ? Colors.white : Colors.black,
               ),
               child: Text(
-                _selectedFile!.path.split('/').last,
+                _selectedFile!
+                    .path
+                    .split('/')
+                    .last,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -391,7 +399,7 @@ class _ChatConversationScreenState
             icon: Icon(
               Icons.close,
               color:
-                  isDark ? const Color(0xFF9CA3AF) : WawatColors.textSecondary,
+              isDark ? const Color(0xFF9CA3AF) : WawatColors.textSecondary,
             ),
             onPressed: () {
               setState(() {
@@ -406,9 +414,11 @@ class _ChatConversationScreenState
 
 
   void _showSendRequestFromRewiew(bool isDark) {
+    final screenContext = context; // Сохраняем контекст экрана
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         title: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
@@ -431,7 +441,7 @@ class _ChatConversationScreenState
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               'Отмена',
               style: WawatTextStyles.bodyBold.copyWith(
@@ -440,21 +450,22 @@ class _ChatConversationScreenState
             ),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              bloc.sendReviews(widget.conversation.user.id);
+            onPressed: () async {
+              Navigator.pop(dialogContext); // Закрываем диалог
+              final success = await bloc.sendReviews(widget.conversation.user.id);
+              if (success && mounted) {
+                showIOSStyleMessage(screenContext, 'Запрос на отзыв отправлен!'); // Используем контекст экрана
+              }
             },
             child: Text(
               'Отправить',
-              style:
-              WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
+              style: WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
             ),
           ),
         ],
       ),
     );
   }
-
 
   @override
   ChatConversationBloc provideBloc() {
