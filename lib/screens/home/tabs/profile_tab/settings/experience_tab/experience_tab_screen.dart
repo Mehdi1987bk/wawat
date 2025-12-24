@@ -36,7 +36,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   late TextEditingController _priceFromController;
   late TextEditingController _priceToController;
 
-  int _selectedExperience = 3;
+  double _selectedExperience = 0.5; // Изменено с int на double
   String _selectedWorkTimeFrom = '00:00';
   String _selectedWorkTimeTo = '00:00';
   Set<String> _selectedLanguageCodes = {};
@@ -54,10 +54,10 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     final professional = widget.user.professional;
 
     _maxWeightController = TextEditingController(
-      text: professional?.maxWeightKg ?? '',
+      text: professional?.maxWeightKg?.toString() ?? '',
     );
     _insuranceController = TextEditingController(
-      text: professional?.insuranceAmount ?? '',
+      text: professional?.insuranceAmount?.toString() ?? '',
     );
     _priceFromController = TextEditingController(
       text: professional?.pricePerKgMin ?? '',
@@ -71,8 +71,14 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     _priceFromController.addListener(_validateForm);
     _priceToController.addListener(_validateForm);
 
-    _selectedExperience =
-        int.tryParse(professional?.workExperienceYears ?? '') ?? 3;
+    // Инициализация опыта с поддержкой половинных значений
+    if (professional?.workExperienceYears != null) {
+      _selectedExperience = professional!.workExperienceYears!.toDouble();
+      if (_selectedExperience < 0.5) _selectedExperience = 0.5;
+      if (_selectedExperience > 15) _selectedExperience = 15;
+    } else {
+      _selectedExperience = 0.5;
+    }
 
     if (professional?.workTimeFrom != null &&
         professional!.workTimeFrom!.isNotEmpty) {
@@ -314,7 +320,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     }
 
     final courierProfile = bloc.createProfessionalRequest(
-      workExperienceYears: _selectedExperience,
+      workExperienceYears: _selectedExperience.toInt(),
       maxWeightKg: int.tryParse(_maxWeightController.text) ?? 0,
       insuranceAmount: int.tryParse(_insuranceController.text) ?? 0,
       pricePerKgMin: double.tryParse(_priceFromController.text) ?? 0,
@@ -328,6 +334,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     bloc.createProfessional(courierProfile).then((_) {
       if (mounted) {
         showIOSStyleMessage(context, 'Данные об опыте сохранены');
+        bloc.customersMe();
       }
     });
   }
@@ -695,44 +702,56 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Slider(
-          value: _selectedExperience.toDouble(),
-          min: 1,
-          max: 10,
-          divisions: 9,
-          label: '$_selectedExperience лет',
-          activeColor: const Color(0xFF5B4FFF),
-          inactiveColor: isDark
-              ? const Color(0xFF4A4A4A)
-              : const Color(0xFFE5E5EA),
-          onChanged: (value) {
-            setState(() {
-              _selectedExperience = value.toInt();
-            });
-          },
+        Transform.translate(
+          offset: const Offset(-12, 0), // Сдвигаем влево на 12 пикселей
+          child: Transform.scale(
+            scaleX: 1.05, // Растягиваем немного по горизонтали
+            alignment: Alignment.centerLeft,
+            child: Slider(
+              value: _selectedExperience,
+              min: 0.5,
+              max: 15,
+              divisions: 29,
+              label: _selectedExperience % 1 == 0
+                  ? '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
+                  : '${_selectedExperience.toStringAsFixed(1)} года',
+              activeColor: const Color(0xFF5B4FFF),
+              inactiveColor: isDark
+                  ? const Color(0xFF4A4A4A)
+                  : const Color(0xFFE5E5EA),
+              onChanged: (value) {
+                setState(() {
+                  _selectedExperience = (value * 2).round() / 2;
+                });
+              },
+            ),
+          ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: const Text(
-            'Выбранный опыт:',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF5B4FFF),
-            ),
-          ).toString().contains('_selectedExperience')
-              ? Text(
-            'Выбранный опыт: $_selectedExperience лет',
+          padding: const EdgeInsets.symmetric(horizontal: 0),
+          child: Text(
+            _selectedExperience % 1 == 0
+                ? 'Выбранный опыт: ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
+                : 'Выбранный опыт: ${_selectedExperience.toStringAsFixed(1)} года',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF5B4FFF),
             ),
-          )
-              : const SizedBox(),
+          ),
         ),
       ],
     );
+  }
+  // Вспомогательный метод для правильного склонения
+  String _getYearLabel(int years) {
+    if (years % 10 == 1 && years % 100 != 11) {
+      return 'год';
+    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
+      return 'года';
+    } else {
+      return 'лет';
+    }
   }
 
   @override
@@ -820,7 +839,7 @@ void showIOSStyleMessage(
       bool isSuccess = true,
       Duration duration = const Duration(seconds: 2),
     }) {
-  final themeManager = Provider.of<ThemeManager>(context, listen: false); // ← ДОБАВЛЕНО listen: false
+  final themeManager = Provider.of<ThemeManager>(context, listen: false);
 
   final isDark = themeManager.isDarkMode;
 

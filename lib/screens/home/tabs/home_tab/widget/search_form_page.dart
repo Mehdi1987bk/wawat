@@ -498,8 +498,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         final date = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
-          firstDate: DateTime.now(),
-          lastDate: DateTime(2026),
+          firstDate: DateTime.now(), // Начиная с сегодняшнего дня
+          lastDate: DateTime.now().add(Duration(days: 365 * 10)), // На 10 лет вперед
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(

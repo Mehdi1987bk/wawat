@@ -11,28 +11,33 @@ part 'professional.g.dart';
 @HiveType(typeId: 1)
 class Professional extends HiveObject {
   @HiveField(0)
+
+
   @JsonKey(name: 'experience_years')
-  final String? workExperienceYears;
+  final int? workExperienceYears; // Изменено на int
 
   @HiveField(1)
-  final String? maxWeightKg;
+  @JsonKey(name: 'max_weight_kg')
+  final int? maxWeightKg; // Изменено на int
 
   @HiveField(2)
   @JsonKey(name: 'insurance_usd')
-  final String? insuranceAmount;
+  final int? insuranceAmount; // Изменено на int
 
   @HiveField(3)
   @JsonKey(name: 'price_from')
-  final String? pricePerKgMin;
+  final String? pricePerKgMin; // Остается String, т.к. в JSON "43.00"
 
   @HiveField(4)
   @JsonKey(name: 'price_to')
-  final String? pricePerKgMax;
+  final String? pricePerKgMax; // Остается String, т.к. в JSON "43.00"
 
   @HiveField(5)
+  @JsonKey(name: 'work_time_from')
   final String? workTimeFrom;
 
   @HiveField(6)
+  @JsonKey(name: 'work_time_to')
   final String? workTimeTo;
 
   @HiveField(7)

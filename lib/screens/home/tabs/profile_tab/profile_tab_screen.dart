@@ -41,8 +41,7 @@ class _ProfileTabScreenState
         return StreamBuilder<User>(
           stream: bloc.userDetails,
           builder: (context, snapshot) {
-            // Обработка ошибок
-            if (snapshot.hasError) {
+             if (snapshot.hasError) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -72,8 +71,7 @@ class _ProfileTabScreenState
               );
             }
 
-            // Показ загрузки
-            if (snapshot.connectionState == ConnectionState.waiting ||
+             if (snapshot.connectionState == ConnectionState.waiting ||
                 !snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(
@@ -82,8 +80,7 @@ class _ProfileTabScreenState
               );
             }
 
-            // Данные загружены
-            return SafeArea(
+             return SafeArea(
               child: Stack(
                 children: [
                   SingleChildScrollView(
@@ -590,7 +587,7 @@ class _ProfileTabScreenState
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return EditProfileScreen(user: user);
+                  return EditProfileScreen( );
                 },
               ),
             ),

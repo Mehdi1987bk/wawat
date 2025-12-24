@@ -98,11 +98,11 @@ class _CreatePostScreenState
         _selectedFromCity != null &&
         _selectedToCity != null &&
         maxWeightController.text.isNotEmpty &&
-        int.tryParse(maxWeightController.text) != null &&
-        int.parse(maxWeightController.text) > 0 &&
+        double.tryParse(maxWeightController.text.replaceAll(',', '.')) != null &&  // Изменено на double
+        double.parse(maxWeightController.text.replaceAll(',', '.')) > 0 &&         // Изменено на double
         priceController.text.isNotEmpty &&
-        double.tryParse(priceController.text) != null &&
-        double.parse(priceController.text) > 0 &&
+        double.tryParse(priceController.text.replaceAll(',', '.')) != null &&      // Добавлен replaceAll
+        double.parse(priceController.text.replaceAll(',', '.')) > 0 &&             // Добавлен replaceAll
         descriptionController.text.trim().isNotEmpty;
 
     if (!baseValid) return false;
@@ -579,8 +579,8 @@ class _CreatePostScreenState
         final date = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
-          firstDate: DateTime.now(),
-          lastDate: DateTime(2026),
+          firstDate: DateTime.now(), // Начиная с сегодняшнего дня
+          lastDate: DateTime.now().add(Duration(days: 365 * 10)), // На 10 лет вперед
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
@@ -656,6 +656,10 @@ class _CreatePostScreenState
     try {
       final packageType = _selectedPackageTypeCodes.first;
 
+      // Парсим значения, заменяя запятую на точку
+      final maxWeight = double.parse(maxWeightController.text.replaceAll(',', '.'));
+      final price = double.parse(priceController.text.replaceAll(',', '.'));
+
       final request = CourierOfferModel(
         offerType: selectedOfferType!,
         cityFromId: _selectedFromCity!.id,
@@ -674,8 +678,8 @@ class _CreatePostScreenState
         purchaseTime:
         selectedOfferType == 'buyer' ? purchaseDateToController.text : '',
         packageType: packageType,
-        maxWeightKg: int.parse(maxWeightController.text),
-        pricePerKg: double.parse(priceController.text),
+        maxWeightKg: maxWeight.round(),  // Если API ожидает int, округляем. Если double, используйте maxWeight
+        pricePerKg: price,
         description: descriptionController.text.trim(),
       );
 
@@ -683,19 +687,22 @@ class _CreatePostScreenState
 
       if (mounted) {
         FocusManager.instance.primaryFocus?.unfocus();
-
         _scrollController.animateTo(
           0,
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
         showIOSStyleMessage(context, 'Объявление опубликовано!');
-
         _clearAllFields();
       }
     } catch (e, stackTrace) {
       if (mounted) {
-
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
