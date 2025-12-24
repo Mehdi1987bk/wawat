@@ -41,6 +41,16 @@ class _SearchOfferListScreenState
   void initState() {
     super.initState();
 
+    // Устанавливаем параметры поиска перед загрузкой
+    bloc.setSearchParams(
+      offerType: widget.offerType,
+      packageType: widget.packageType,
+      cityFromId: widget.cityFromId,
+      cityToId: widget.cityToId,
+      dateFrom: widget.dateFrom,
+      dateTo: widget.dateTo,
+    );
+
     bloc.load();
     _scrollController.addListener(() {
       hideKeyboardOnScroll(context, _scrollController);
@@ -66,7 +76,7 @@ class _SearchOfferListScreenState
               },
               child: Stack(
                 children: [
-                  BuildHeader(context, isDark ),
+                  BuildHeader(context, isDark),
                   Padding(
                     padding: const EdgeInsets.only(top: 70),
                     child: CustomScrollView(
