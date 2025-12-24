@@ -20,6 +20,7 @@ import '../network/request/offer_response.dart';
 import '../network/request/otp_verify_request.dart';
 import '../network/request/privacy_settings.dart';
 import '../network/request/registration_request.dart';
+import '../network/request/support_request.dart';
 import '../network/request/user_request.dart';
 import '../network/response/all_request_data.dart';
 import '../network/response/cities_response.dart';
@@ -168,8 +169,8 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<CitiesResponse> getCities() {
-    return _authApi.getCities();
+  Future<CitiesResponse> getCities(String search) {
+    return _authApi.getCities(search, 200);
   }
 
   @override
@@ -238,6 +239,10 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.myAboutLeft();
   }
 
+  Future<void> notificationsRead(int date) {
+    return _authApi.notificationsRead(date);
+  }
+
   Future<void> submitVerification(
       {required File passport, required File selfie}) {
     return _authApi.submitVerification(
@@ -248,6 +253,10 @@ class DataAuthRepository implements AuthRepository {
 
   Future<Pagination<OfferModel>> getFavorites(int page) {
     return _authApi.getFavorites(page);
+  }
+
+  Future<void> support(SupportRequest request) {
+    return _authApi.support(request);
   }
 
   Future<PartnerUserResponse> getUserById(int date) {

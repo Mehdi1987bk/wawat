@@ -60,7 +60,7 @@ class OfferModel {
   final PackageTypeModel? packageType;
 
   @JsonKey(name: 'max_weight_kg')
-  final String? maxWeightKg;
+  final int? maxWeightKg;
 
   @JsonKey(name: 'price_per_kg')
   final String? pricePerKg;
@@ -80,7 +80,6 @@ class OfferModel {
   @JsonKey(name: 'user')
   final UserModel? user;
 
-  // ✅ ИЗМЕНЕНО: is_favorited -> is_favourite (как в вашем JSON)
   @JsonKey(name: 'is_favourite')
   final bool? isFavourite;
 
@@ -138,7 +137,7 @@ class OfferTypeModel {
 @JsonSerializable()
 class CityModel {
   @JsonKey(name: 'id')
-  final String id;
+  final int id;
 
   @JsonKey(name: 'name')
   final String name;
@@ -218,7 +217,7 @@ class UserModel {
   final bool isVerified;
 
   @JsonKey(name: 'rating_avg')
-  final num ratingAvg;
+  final int ratingAvg;
 
   @JsonKey(name: 'rating_count')
   final int ratingCount;

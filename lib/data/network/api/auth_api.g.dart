@@ -14,7 +14,7 @@ class _AuthApi implements AuthApi {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'https://wawat.tahirguliyev.com';
+    baseUrl ??= 'http://62.84.176.158';
   }
 
   final Dio _dio;
@@ -588,9 +588,15 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<CitiesResponse> getCities() async {
+  Future<CitiesResponse> getCities(
+    String search,
+    int limit,
+  ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'q': search,
+      r'limit': limit,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CitiesResponse>(Options(
@@ -801,6 +807,32 @@ class _AuthApi implements AuthApi {
   }
 
   @override
+  Future<void> support(SupportRequest request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<void>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/support',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    await _dio.fetch<void>(_options);
+  }
+
+  @override
   Future<PartnerUserResponse> getUserById(int date) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -831,6 +863,31 @@ class _AuthApi implements AuthApi {
       rethrow;
     }
     return _value;
+  }
+
+  @override
+  Future<void> notificationsRead(int date) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<void>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/notifications/${date}/read',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    await _dio.fetch<void>(_options);
   }
 
   @override

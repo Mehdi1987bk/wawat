@@ -14,7 +14,7 @@ class _ChatApi implements ChatApi {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'https://wawat.tahirguliyev.com/api/v1';
+    baseUrl ??= 'http://62.84.176.158/api/v1';
   }
 
   final Dio _dio;

@@ -189,6 +189,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "kuryerTariflri": MessageLookupByLibrary.simpleMessage("Kuryer tarifləri"),
     "l": MessageLookupByLibrary.simpleMessage("Ölçü:"),
     "lEhir": MessageLookupByLibrary.simpleMessage("İl - şehir"),
+    "languandff": MessageLookupByLibrary.simpleMessage("Language"),
     "laq": MessageLookupByLibrary.simpleMessage("Əlaqə"),
     "lavEt": MessageLookupByLibrary.simpleMessage("əlavə et"),
     "lavXidmt": MessageLookupByLibrary.simpleMessage("Əlavə xidmət:"),

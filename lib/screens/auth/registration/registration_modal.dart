@@ -1,7 +1,6 @@
 import 'package:buking/screens/auth/registration/registration_bloc.dart';
 import 'package:buking/screens/auth/registration/widget/language_selector.dart';
 import 'package:buking/screens/home/home_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +9,7 @@ import '../../../domain/entities/patterns.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
@@ -45,7 +45,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  bool _agreedToTerms = false;
+  bool _agreedToTerms = true;
   Set<String> _selectedLanguageCodes = {};
   List<Language> _allLanguages = [];
   bool _isLoadingLanguages = false;
@@ -71,15 +71,10 @@ class _RegistrationModalState extends State<RegistrationModal> {
       if (mounted) setState(() => _isLoading = isLoading);
     });
 
+    // 🔥 ИСПРАВЛЕНИЕ: добавлена обработка ошибок
     _bloc.errorStream.listen((error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка регистрации: $error'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      showTopSnackbar(error.toString(), false, context);
     });
   }
 
@@ -89,7 +84,6 @@ class _RegistrationModalState extends State<RegistrationModal> {
             Patterns.email.hasMatch(_emailController.text.trim()) &&
             Patterns.textField.hasMatch(_phoneController.text.trim()) &&
             Patterns.textField.hasMatch(_passwordController.text.trim()) &&
-            _passwordController.text == _confirmPasswordController.text &&
             _agreedToTerms &&
             _selectedLanguageCodes.isNotEmpty;
 
@@ -112,8 +106,9 @@ class _RegistrationModalState extends State<RegistrationModal> {
     }
   }
 
+  /// 🔥 Обработка регистрации с блокировкой навигации при ошибке
   void _handleRegister() async {
-    await _bloc.register(
+    final success = await _bloc.register(
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
       phone: _phoneController.text.trim(),
@@ -123,12 +118,14 @@ class _RegistrationModalState extends State<RegistrationModal> {
       communicationLanguageCodes: _selectedLanguageCodes.toList(),
     );
 
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-      );
-    }
+    if (!success) return; // ⛔ НЕ НАВИГИРУЕМ
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => HomeScreen()),
+    );
   }
 
   @override
@@ -139,9 +136,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(
-            horizontal: WawatDimensions.spacingLg,
-          ),
+          insetPadding:
+          EdgeInsets.symmetric(horizontal: WawatDimensions.spacingLg),
           child: Container(
             constraints: BoxConstraints(
               maxWidth: WawatDimensions.modalMaxWidth,
@@ -158,7 +154,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // HEADER
-                Container(
+                Padding(
                   padding: EdgeInsets.all(WawatDimensions.spacingMd),
                   child: Row(
                     children: [
@@ -214,73 +210,55 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         WawatInputField(
                           label: 'ПОЛНОЕ ИМЯ',
                           placeholder: 'Введите ваше имя',
-                          prefixIcon: Icon(
-                            Icons.person,
-                            color: isDark
-                                ? const Color(0xFF9CA3AF)
-                                : WawatColors.textSecondary,
-                          ),
                           controller: _nameController,
                           isModal: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
-
                         WawatInputField(
                           label: 'EMAIL',
                           placeholder: 'example@mail.com',
-                          prefixIcon: Icon(
-                            Icons.email,
-                            color: isDark
-                                ? const Color(0xFF9CA3AF)
-                                : WawatColors.textSecondary,
-                          ),
                           controller: _emailController,
                           isModal: true,
+                          isEmail: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
-
                         WawatInputField(
                           label: 'ТЕЛЕФОН',
                           placeholder: '+7 (999) 123-45-67',
-                          prefixIcon: Icon(
-                            Icons.phone,
-                            color: isDark
-                                ? const Color(0xFF9CA3AF)
-                                : WawatColors.textSecondary,
-                          ),
                           controller: _phoneController,
                           isModal: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
-
                         WawatInputField(
                           label: 'ПАРОЛЬ',
                           placeholder: 'Минимум 6 символов',
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            color: isDark
-                                ? const Color(0xFF9CA3AF)
-                                : WawatColors.textSecondary,
-                          ),
                           controller: _passwordController,
                           obscureText: true,
                           isModal: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
-
                         WawatInputField(
                           label: 'ПОДТВЕРДИТЕ ПАРОЛЬ',
                           placeholder: 'Повторите пароль',
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            color: isDark
-                                ? const Color(0xFF9CA3AF)
-                                : WawatColors.textSecondary,
-                          ),
                           controller: _confirmPasswordController,
                           obscureText: true,
                           isModal: true,
                         ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        // 🔹 Языки
+                        if (_allLanguages.isNotEmpty)
+                          LanguageSelector(
+                            languages: _allLanguages,
+                            selectedLanguageCodes: _selectedLanguageCodes,
+                            onSelectionChanged: (selected) {
+                              setState(() {
+                                _selectedLanguageCodes = selected;
+                              });
+                              _validateForm();
+                            },
+                          ),
 
                         SizedBox(height: WawatDimensions.spacingLg),
 

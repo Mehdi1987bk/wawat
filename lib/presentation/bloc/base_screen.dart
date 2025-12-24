@@ -68,7 +68,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
                 statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
                 // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
                 // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
-                statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
+                statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
                 systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
                 systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
               ),

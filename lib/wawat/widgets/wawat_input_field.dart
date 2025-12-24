@@ -4,7 +4,6 @@ import '../../presentation/resourses/wawat_colors.dart';
 import '../../presentation/resourses/wawat_dimensions.dart';
 import '../../presentation/resourses/wawat_text_styles.dart';
 import '../../services/theme_manager.dart';
-
 /// Поле ввода для приложения Wawat
 class WawatInputField extends StatefulWidget {
   final String? label;
@@ -20,6 +19,7 @@ class WawatInputField extends StatefulWidget {
   final VoidCallback? onTap;
   final bool readOnly;
   final int? maxLines;
+  final bool isEmail; // Новый параметр
 
   const WawatInputField({
     Key? key,
@@ -36,6 +36,7 @@ class WawatInputField extends StatefulWidget {
     this.onTap,
     this.readOnly = false,
     this.maxLines = 1,
+    this.isEmail = false, // По умолчанию false
   }) : super(key: key);
 
   @override
@@ -62,6 +63,20 @@ class _WawatInputFieldState extends State<WawatInputField> {
   void dispose() {
     _focusNode.dispose();
     super.dispose();
+  }
+
+  // Определяем тип клавиатуры
+  TextInputType get _effectiveKeyboardType {
+    // Если явно передан keyboardType, используем его
+    if (widget.keyboardType != null) {
+      return widget.keyboardType!;
+    }
+    // Если isEmail = true, используем email клавиатуру
+    if (widget.isEmail) {
+      return TextInputType.emailAddress;
+    }
+    // По умолчанию обычная клавиатура
+    return TextInputType.text;
   }
 
   @override
@@ -102,7 +117,7 @@ class _WawatInputFieldState extends State<WawatInputField> {
                 controller: widget.controller,
                 focusNode: _focusNode,
                 obscureText: _obscureText,
-                keyboardType: widget.keyboardType,
+                keyboardType: _effectiveKeyboardType, // Используем вычисленный тип
                 keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
                 onChanged: widget.onChanged,
                 onTap: widget.onTap,
@@ -161,43 +176,6 @@ class _WawatInputFieldState extends State<WawatInputField> {
           ],
         );
       },
-    );
-  }
-}
-
-/// Dropdown поле
-class WawatDropdownField extends StatelessWidget {
-  final String? label;
-  final String placeholder;
-  final Widget? prefixIcon;
-  final VoidCallback onTap;
-  final String? value;
-  final bool isModal;
-
-  const WawatDropdownField({
-    Key? key,
-    this.label,
-    required this.placeholder,
-    this.prefixIcon,
-    required this.onTap,
-    this.value,
-    this.isModal = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return WawatInputField(
-      label: label,
-      placeholder: placeholder,
-      prefixIcon: prefixIcon,
-      readOnly: true,
-      onTap: onTap,
-      isModal: isModal,
-      controller: TextEditingController(text: value),
-      suffixIcon: Icon(
-        Icons.arrow_drop_down,
-        color: WawatColors.textSecondary,
-      ),
     );
   }
 }

@@ -9,7 +9,7 @@ part of 'city.dart';
 City _$CityFromJson(Map<String, dynamic> json) => City(
       id: json['id'] as int,
       name: json['name'] as String,
-      countryId: json['country_id'] as String,
+      countryId: json['country_id'] as int,
       countryCode: json['country_code'] as String,
       countryName: json['country_name'] as String,
     );

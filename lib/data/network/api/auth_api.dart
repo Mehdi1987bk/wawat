@@ -18,6 +18,7 @@ import '../request/offer_response.dart';
 import '../request/otp_verify_request.dart';
 import '../request/privacy_settings.dart';
 import '../request/registration_request.dart';
+import '../request/support_request.dart';
 import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/cities_response.dart';
@@ -111,7 +112,10 @@ abstract class AuthApi {
   Future<PackageTypesResponse> getPackageType();
 
   @GET('/api/v1/geo/cities')
-  Future<CitiesResponse> getCities();
+  Future<CitiesResponse> getCities(
+    @Query("q") String search,
+    @Query("limit") int limit,
+  );
 
   @GET('/api/v1/dictionaries/offer-types')
   Future<OfferTypeResponse> getOfferTypes();
@@ -144,8 +148,18 @@ abstract class AuthApi {
     @Query('page') int page,
   );
 
+  @POST('/api/v1/support')
+  Future<void> support(
+    @Body() SupportRequest request,
+  );
+
   @GET('/api/v1/users/{date}')
   Future<PartnerUserResponse> getUserById(
+    @Path() int date,
+  );
+
+  @POST('/api/v1/notifications/{date}/read')
+  Future<void> notificationsRead(
     @Path() int date,
   );
 
@@ -174,12 +188,9 @@ abstract class AuthApi {
     @Part(name: 'documents[selfie]') required File selfie,
   });
 
-
   @GET('/api/v1/reviews/received')
   Future<ReviewsResponse> myAboutReviev();
 
-
   @GET('/api/v1/reviews/left')
   Future<ReviewsResponse> myAboutLeft();
-
 }

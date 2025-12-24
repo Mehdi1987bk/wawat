@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/screens/home/tabs/create_post/widget/city_selector.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../auth/registration/widget/package_types_selector.dart';
 import '../home_tab/home_tab_screen.dart';
+import '../home_tab/widget/city_selector.dart';
 import '../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import 'create_post_bloc.dart';
 
@@ -24,7 +26,7 @@ class CreatePostScreen extends BaseScreen {
 }
 
 class _CreatePostScreenState
-    extends BaseState<CreatePostScreen, CreatePostBloc> {
+    extends BaseState<CreatePostScreen, CreatePostBloc>  with ErrorDispatcher{
 
   @override
   bool get useSystemOverlay => false;
@@ -54,11 +56,11 @@ class _CreatePostScreenState
   final TextEditingController flightDateController = TextEditingController();
   final TextEditingController flightTimeController = TextEditingController();
   final TextEditingController deliveryDateFromController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController deliveryDateToController =
-      TextEditingController();
-  final TextEditingController purchaseDateController = TextEditingController();
-  final TextEditingController purchaseTimeController = TextEditingController();
+  TextEditingController();
+  final TextEditingController purchaseDateFromController = TextEditingController();
+  final TextEditingController purchaseDateToController = TextEditingController();
 
   final TextEditingController maxWeightController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -74,8 +76,8 @@ class _CreatePostScreenState
     flightTimeController.addListener(_updateButtonState);
     deliveryDateFromController.addListener(_updateButtonState);
     deliveryDateToController.addListener(_updateButtonState);
-    purchaseDateController.addListener(_updateButtonState);
-    purchaseTimeController.addListener(_updateButtonState);
+    purchaseDateFromController.addListener(_updateButtonState);
+    purchaseDateToController.addListener(_updateButtonState);
     maxWeightController.addListener(_updateButtonState);
     priceController.addListener(_updateButtonState);
     descriptionController.addListener(_updateButtonState);
@@ -113,8 +115,8 @@ class _CreatePostScreenState
         return deliveryDateFromController.text.isNotEmpty &&
             deliveryDateToController.text.isNotEmpty;
       case 'buyer':
-        return purchaseDateController.text.isNotEmpty &&
-            purchaseTimeController.text.isNotEmpty;
+        return purchaseDateFromController.text.isNotEmpty &&
+            purchaseDateToController.text.isNotEmpty;
       default:
         return false;
     }
@@ -162,7 +164,7 @@ class _CreatePostScreenState
 
   Future<void> _loadCities() async {
     try {
-      final cities = await bloc.getCities();
+      final cities = await bloc.getCities('');
 
       setState(() {
         _allCities = List<City>.from(cities.data);
@@ -212,11 +214,21 @@ class _CreatePostScreenState
     }
   }
 
+  Future<List<City>> _searchCities(String search) async {
+    try {
+      final result = await bloc.getCities(search);
+      return result.data;
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<void> _showCitySelector({required bool isFromCity}) async {
     final selectedCity = await showCitySelector(
       context: context,
-      cities: _allCities,
+      initialCities: _allCities,
       selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
+      onSearch: _searchCities,
       isLoading: _isLoadingCities,
     );
 
@@ -235,7 +247,6 @@ class _CreatePostScreenState
 
   Widget body() {
     final isDark = Provider.of<ThemeManager>(context).isDarkMode;
-
 
     return ThemeAwareScreen(
       isDark: isDark,
@@ -274,7 +285,7 @@ class _CreatePostScreenState
                           child: Image.asset(
                             "asset/add_offer.png",
                             color:
-                                isDark ? Colors.white.withOpacity(0.9) : null,
+                            isDark ? Colors.white.withOpacity(0.9) : null,
                             colorBlendMode: isDark ? BlendMode.modulate : null,
                           ),
                         ),
@@ -350,9 +361,23 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: maxWeightController,
                           hint: '0',
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true), // Клавиатура с точкой/запятой
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), // Разрешаем цифры, точку и запятую
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              // Заменяем запятую на точку для единообразия
+                              final text = newValue.text.replaceAll(',', '.');
+
+                              // Проверяем, что только одна точка
+                              if (text.split('.').length > 2) {
+                                return oldValue; // Отклоняем ввод, если больше одной точки
+                              }
+
+                              return TextEditingValue(
+                                text: text,
+                                selection: TextSelection.collapsed(offset: text.length),
+                              );
+                            }),
                           ],
                           isDark: isDark,
                         ),
@@ -363,11 +388,23 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: priceController,
                           hint: '0',
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
+                          keyboardType: TextInputType.numberWithOptions(decimal: true), // Клавиатура с точкой/запятой
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d+\.?\d{0,2}')),
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), // Разрешаем цифры, точку и запятую
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              // Заменяем запятую на точку для единообразия
+                              final text = newValue.text.replaceAll(',', '.');
+
+                              // Проверяем, что только одна точка
+                              if (text.split('.').length > 2) {
+                                return oldValue; // Отклоняем ввод, если больше одной точки
+                              }
+
+                              return TextEditingValue(
+                                text: text,
+                                selection: TextSelection.collapsed(offset: text.length),
+                              );
+                            }),
                           ],
                           isDark: isDark,
                         ),
@@ -395,13 +432,13 @@ class _CreatePostScreenState
                                 backgroundColor: _isFormValid
                                     ? const Color(0xFF5B51FF)
                                     : (isDark
-                                        ? const Color(0xFF2A2A2A)
-                                        : const Color(0xFFE5E5EA)),
+                                    ? const Color(0xFF2A2A2A)
+                                    : const Color(0xFFE5E5EA)),
                                 foregroundColor: _isFormValid
                                     ? Colors.white
                                     : (isDark
-                                        ? const Color(0xFF6B7280)
-                                        : const Color(0xFF8E8E93)),
+                                    ? const Color(0xFF6B7280)
+                                    : const Color(0xFF8E8E93)),
                                 elevation: 0,
                                 disabledBackgroundColor: isDark
                                     ? const Color(0xFF2A2A2A)
@@ -415,38 +452,38 @@ class _CreatePostScreenState
                               ),
                               child: _isSubmitting
                                   ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.white),
-                                      ),
-                                    )
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                  AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              )
                                   : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Image.asset(
-                                          "asset/micro.png",
-                                          color: _isFormValid
-                                              ? Colors.white
-                                              : (isDark
-                                                  ? const Color(0xFF6B7280)
-                                                  : Colors.grey),
-                                          width: 20,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Опубликовать объявление',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "asset/micro.png",
+                                    color: _isFormValid
+                                        ? Colors.white
+                                        : (isDark
+                                        ? const Color(0xFF6B7280)
+                                        : Colors.grey),
+                                    width: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Опубликовать объявление',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -474,8 +511,8 @@ class _CreatePostScreenState
           flightTimeController.clear();
           deliveryDateFromController.clear();
           deliveryDateToController.clear();
-          purchaseDateController.clear();
-          purchaseTimeController.clear();
+          purchaseDateFromController.clear();
+          purchaseDateToController.clear();
         });
       },
       items: _allOfferTypes.map((type) => type.code).toList(),
@@ -516,13 +553,13 @@ class _CreatePostScreenState
 
       case 'buyer':
         return [
-          _buildLabel('Дата покупки', isRequired: true, isDark: isDark),
+          _buildLabel('Дата покупки с', isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(purchaseDateController, 'дд.мм.гггг', isDark),
+          _buildDateField(purchaseDateFromController, 'дд.мм.гггг', isDark),
           const SizedBox(height: 20),
-          _buildLabel('Время покупки', isRequired: true, isDark: isDark),
+          _buildLabel('Дата покупки до', isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildTimeField(purchaseTimeController, isDark),
+          _buildDateField(purchaseDateToController, 'дд.мм.гггг', isDark),
           const SizedBox(height: 20),
         ];
 
@@ -554,7 +591,7 @@ class _CreatePostScreenState
                   onSurface: isDark ? Colors.white : Colors.black,
                 ),
                 dialogBackgroundColor:
-                    isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                isDark ? const Color(0xFF1E1E1E) : Colors.white,
               ),
               child: child!,
             );
@@ -562,7 +599,7 @@ class _CreatePostScreenState
         );
         if (date != null) {
           controller.text =
-              '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+          '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
         }
       },
       isDark: isDark,
@@ -593,7 +630,7 @@ class _CreatePostScreenState
                     onSurface: isDark ? Colors.white : Colors.black,
                   ),
                   dialogBackgroundColor:
-                      isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 ),
                 child: child!,
               ),
@@ -602,7 +639,7 @@ class _CreatePostScreenState
         );
         if (time != null) {
           controller.text =
-              '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
         }
       },
       isDark: isDark,
@@ -624,18 +661,18 @@ class _CreatePostScreenState
         cityFromId: _selectedFromCity!.id,
         cityToId: _selectedToCity!.id,
         flightDate:
-            selectedOfferType == 'courier' ? flightDateController.text : '',
+        selectedOfferType == 'courier' ? flightDateController.text : '',
         flightTime:
-            selectedOfferType == 'courier' ? flightTimeController.text : '',
+        selectedOfferType == 'courier' ? flightTimeController.text : '',
         deliveryDateFrom: selectedOfferType == 'sender'
             ? deliveryDateFromController.text
             : '',
         deliveryDateTo:
-            selectedOfferType == 'sender' ? deliveryDateToController.text : '',
+        selectedOfferType == 'sender' ? deliveryDateToController.text : '',
         purchaseDate:
-            selectedOfferType == 'buyer' ? purchaseDateController.text : '',
+        selectedOfferType == 'buyer' ? purchaseDateFromController.text : '',
         purchaseTime:
-            selectedOfferType == 'buyer' ? purchaseTimeController.text : '',
+        selectedOfferType == 'buyer' ? purchaseDateToController.text : '',
         packageType: packageType,
         maxWeightKg: int.parse(maxWeightController.text),
         pricePerKg: double.parse(priceController.text),
@@ -658,29 +695,7 @@ class _CreatePostScreenState
       }
     } catch (e, stackTrace) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Ошибка при отправке: ${e.toString()}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'OK',
-              textColor: Colors.white,
-              onPressed: () {},
-            ),
-          ),
-        );
+
       }
     } finally {
       if (mounted) {
@@ -699,8 +714,8 @@ class _CreatePostScreenState
       flightTimeController.clear();
       deliveryDateFromController.clear();
       deliveryDateToController.clear();
-      purchaseDateController.clear();
-      purchaseTimeController.clear();
+      purchaseDateFromController.clear();
+      purchaseDateToController.clear();
       maxWeightController.clear();
       priceController.clear();
       descriptionController.clear();
@@ -769,41 +784,41 @@ class _CreatePostScreenState
             Expanded(
               child: selectedCity != null
                   ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 300),
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : Colors.black,
-                          ),
-                          child: Text(selectedCity.name),
-                        ),
-                        const SizedBox(height: 4),
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 300),
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark
-                                ? const Color(0xFFB0B0B0)
-                                : const Color(0xFF8E8E93),
-                          ),
-                          child: Text(
-                              '${selectedCity.countryName} (${selectedCity.countryCode})'),
-                        ),
-                      ],
-                    )
-                  : AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: isDark
-                            ? const Color(0xFF6B7280)
-                            : const Color(0xFFC7C7CC),
-                      ),
-                      child: Text(hint),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
+                    child: Text(selectedCity.name),
+                  ),
+                  const SizedBox(height: 4),
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? const Color(0xFFB0B0B0)
+                          : const Color(0xFF8E8E93),
+                    ),
+                    child: Text(
+                        '${selectedCity.countryName} (${selectedCity.countryCode})'),
+                  ),
+                ],
+              )
+                  : AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFC7C7CC),
+                ),
+                child: Text(hint),
+              ),
             ),
             Icon(
               selectedCity != null
@@ -811,26 +826,23 @@ class _CreatePostScreenState
                   : Icons.location_on_outlined,
               color: selectedCity != null
                   ? const Color(0xFF5B51FF)
-                  : (isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFC7C7CC)),
-              size: 20,
+                  : (isDark ? const Color(0xFF6B7280) : const Color(0xFFC7C7CC)),
+              size: 22,
             ),
           ],
         ),
       ),
     );
   }
-
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
-    IconData? suffixIcon,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     int maxLines = 1,
+    IconData? suffixIcon,
     bool readOnly = false,
     VoidCallback? onTap,
-    List<TextInputFormatter>? inputFormatters,
     required bool isDark,
   }) {
     return AnimatedContainer(
@@ -849,10 +861,10 @@ class _CreatePostScreenState
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         maxLines: maxLines,
         readOnly: readOnly,
         onTap: onTap,
-        inputFormatters: inputFormatters,
         style: TextStyle(
           fontSize: 15,
           color: isDark ? Colors.white : Colors.black,
@@ -863,34 +875,17 @@ class _CreatePostScreenState
             fontSize: 15,
             color: isDark ? const Color(0xFF6B7280) : const Color(0xFFC7C7CC),
           ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16),
           suffixIcon: suffixIcon != null
               ? Icon(
-                  suffixIcon,
-                  color: isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFC7C7CC),
-                  size: 20,
-                )
+            suffixIcon,
+            color: isDark
+                ? const Color(0xFF6B7280)
+                : const Color(0xFFC7C7CC),
+            size: 20,
+          )
               : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: Color(0xFF5B51FF),
-              width: 1,
-            ),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
         ),
       ),
     );
@@ -902,12 +897,12 @@ class _CreatePostScreenState
     required String icon,
     required Function(String?) onChanged,
     required List<String> items,
-    Map<String, String>? displayNames,
+    required Map<String, String> displayNames,
     required bool isDark,
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      height: 60,
+      height: 56,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -923,13 +918,13 @@ class _CreatePostScreenState
         child: DropdownButton2<String>(
           isExpanded: true,
           customButton: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Image.asset(
                   icon,
-                  color: const Color(0xFF5B51FF),
                   width: 20,
+                  color: const Color(0xFF5B51FF),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -940,11 +935,12 @@ class _CreatePostScreenState
                       color: value != null
                           ? (isDark ? Colors.white : Colors.black)
                           : (isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFFC7C7CC)),
+                          ? const Color(0xFF6B7280)
+                          : const Color(0xFFC7C7CC)),
                     ),
                     child: Text(
-                        value != null ? (displayNames?[value] ?? value) : hint),
+                      value != null ? (displayNames[value] ?? value) : hint,
+                    ),
                   ),
                 ),
                 Icon(
@@ -961,7 +957,7 @@ class _CreatePostScreenState
             return DropdownMenuItem<String>(
               value: item,
               child: Text(
-                displayNames?[item] ?? item,
+                displayNames[item] ?? item,
                 style: TextStyle(
                   fontSize: 15,
                   color: isDark ? Colors.white : Colors.black,
@@ -976,47 +972,16 @@ class _CreatePostScreenState
               color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
             ),
             elevation: 3,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             offset: const Offset(0, -6),
             maxHeight: 300,
           ),
           menuItemStyleData: const MenuItemStyleData(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    fromController.removeListener(_updateButtonState);
-    toController.removeListener(_updateButtonState);
-    flightDateController.removeListener(_updateButtonState);
-    flightTimeController.removeListener(_updateButtonState);
-    deliveryDateFromController.removeListener(_updateButtonState);
-    deliveryDateToController.removeListener(_updateButtonState);
-    purchaseDateController.removeListener(_updateButtonState);
-    purchaseTimeController.removeListener(_updateButtonState);
-    maxWeightController.removeListener(_updateButtonState);
-    priceController.removeListener(_updateButtonState);
-    descriptionController.removeListener(_updateButtonState);
-
-    fromController.dispose();
-    toController.dispose();
-    flightDateController.dispose();
-    flightTimeController.dispose();
-    deliveryDateFromController.dispose();
-    deliveryDateToController.dispose();
-    purchaseDateController.dispose();
-    purchaseTimeController.dispose();
-    maxWeightController.dispose();
-    priceController.dispose();
-    descriptionController.dispose();
-
-    _scrollController.dispose();
-
-    super.dispose();
   }
 
   @override

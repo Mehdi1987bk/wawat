@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../../data/network/request/create_review_request.dart';
@@ -12,7 +13,7 @@ class NotificationBloc extends BaseBloc {
   // Координация - управление состоянием UI
   final _notificationsSubject = BehaviorSubject<NotificationResponse?>();
   final _loadingSubject = BehaviorSubject<bool>.seeded(false);
-  final _errorSubject = BehaviorSubject<String?>();
+  final _errorSubject = PublishSubject<String?>();
 
   // Streams для UI
   Stream<NotificationResponse?> get notificationsStream =>
@@ -37,22 +38,28 @@ class NotificationBloc extends BaseBloc {
     }
   }
 
+
   // Пометить нотификацию как прочитанную
-  Future<void> markAsRead(int notificationId) async {
-    // TODO: Вызвать API для пометки как прочитанной
-    // Пока просто обновим локально
-    final currentNotifications = _notificationsSubject.value;
+  void markAsRead(int notificationId) {
+    print('Marking notification as read: $notificationId');
+
+    userRepository.notificationsRead(notificationId);
+
+    // Обновляем локально
+    final currentNotifications = _notificationsSubject.valueOrNull;
     if (currentNotifications != null) {
       final updatedData = currentNotifications.data.map((item) {
         if (item.id == notificationId) {
+          // Создаем новый объект с обновленным isRead
           return NotificationItem(
             id: item.id,
             type: item.type,
             title: item.title,
             body: item.body,
             icon: item.icon,
+            data: item.data,
             createdAt: item.createdAt,
-            isRead: true,
+            isRead: true, // Помечаем как прочитанную
           );
         }
         return item;
@@ -61,11 +68,57 @@ class NotificationBloc extends BaseBloc {
       _notificationsSubject.add(
         NotificationResponse(data: updatedData),
       );
+      print('Notification $notificationId marked as read');
     }
   }
 
-  Future<void> sendReviews(CreateReviewRequest request) =>
-      userRepository.sendReviews(request);
+
+  /// 🔥 Теперь возвращает bool
+  Future<bool> sendReviews(CreateReviewRequest request) async {
+    _loadingSubject.add(true);  // ✅ Используем локальный subject
+    _errorSubject.add(null);    // ✅ Сбрасываем предыдущую ошибку
+
+    try {
+      await userRepository.sendReviews(request);
+      print('✅ Review sent successfully');
+      return true;
+    } on DioException catch (e) {
+      final message = _parseDioError(e);
+      print('❌ DioException: $message'); // Для отладки
+      _errorSubject.add(message);  // ✅ Используем локальный subject
+      return false;
+    } catch (e) {
+      print('❌ Unknown error: $e');
+      _errorSubject.add('Ошибка отправки отзыва');
+      return false;
+    } finally {
+      _loadingSubject.add(false);  // ✅ Используем локальный subject
+    }
+  }
+
+  String _parseDioError(DioException e) {
+    final data = e.response?.data;
+
+    if (data is Map<String, dynamic>) {
+      // Сначала проверяем message
+      if (data['message'] != null) {
+        return data['message'].toString();
+      }
+
+      // Потом errors
+      if (data['errors'] is Map) {
+        final errors = data['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final first = errors.values.first;
+          if (first is List && first.isNotEmpty) {
+            return first.first.toString();
+          }
+        }
+      }
+    }
+
+    return 'Ошибка запроса (${e.response?.statusCode ?? "неизвестно"})';
+  }
 
   @override
   void dispose() {

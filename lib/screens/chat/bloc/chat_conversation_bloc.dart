@@ -164,12 +164,15 @@ class ChatConversationBloc extends BaseBloc {
 
 
 
-  Future<void> sendReviews(int id) async {
-    if (_conversationId == null) return;
-     try {
-      await _chatApi.sendReviews(TargetUserRequest(targetUserId: id));
+  Future<bool> sendReviews(int id) async {
+    if (_conversationId == null) return false;
+    try {
+      await run(_chatApi.sendReviews(TargetUserRequest(targetUserId: id)));
+      // Если дошли сюда без ошибки - значит успешно
+      return true;
     } catch (e) {
-      print('Error deleting conversation: $e');
+      print('Error sending reviews: $e');
+      return false;
     }
   }
 

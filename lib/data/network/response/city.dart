@@ -7,7 +7,7 @@ class City {
   final int id;
   final String name;
   @JsonKey(name: 'country_id')
-  final String countryId;
+  final int countryId;
   @JsonKey(name: 'country_code')
   final String countryCode;
   @JsonKey(name: 'country_name')

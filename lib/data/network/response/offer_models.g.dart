@@ -41,7 +41,7 @@ OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
           ? null
           : PackageTypeModel.fromJson(
               json['package_type'] as Map<String, dynamic>),
-      maxWeightKg: json['max_weight_kg'] as String?,
+      maxWeightKg: json['max_weight_kg'] as int?,
       pricePerKg: json['price_per_kg'] as String?,
       description: json['description'] as String?,
       status: json['status'] as String?,
@@ -93,7 +93,7 @@ Map<String, dynamic> _$OfferTypeModelToJson(OfferTypeModel instance) =>
     };
 
 CityModel _$CityModelFromJson(Map<String, dynamic> json) => CityModel(
-      id: json['id'] as String,
+      id: json['id'] as int,
       name: json['name'] as String,
       country: json['country'] as String,
     );
@@ -135,7 +135,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
-      ratingAvg: json['rating_avg'] as num,
+      ratingAvg: json['rating_avg'] as int,
       ratingCount: json['rating_count'] as int,
     );
 

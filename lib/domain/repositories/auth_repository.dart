@@ -12,6 +12,7 @@ import '../../data/network/request/offer_response.dart';
 import '../../data/network/request/otp_verify_request.dart';
 import '../../data/network/request/privacy_settings.dart';
 import '../../data/network/request/registration_request.dart';
+import '../../data/network/request/support_request.dart';
 import '../../data/network/response/all_request_data.dart';
 import '../../data/network/response/cities_response.dart';
 import '../../data/network/response/language_response.dart';
@@ -71,7 +72,7 @@ abstract class AuthRepository {
 
   Future<PackageTypesResponse> getPackageType();
 
-  Future<CitiesResponse> getCities();
+  Future<CitiesResponse> getCities(String search);
 
   Future<void> createOffers(CourierOfferModel request);
 
@@ -99,10 +100,14 @@ abstract class AuthRepository {
 
   Future<ReviewsResponse> myAboutLeft();
 
+  Future<void> notificationsRead(int date);
+
   Future<void> submitVerification(
       {required File passport, required File selfie});
 
   Future<Pagination<OfferModel>> getFavorites(int page);
+
+  Future<void> support(SupportRequest request);
 
   Future<void> setIsFirstOpen();
 

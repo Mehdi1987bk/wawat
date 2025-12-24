@@ -3,8 +3,10 @@ import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
+import 'package:buking/screens/home/tabs/profile_tab/support/support_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
+import 'package:buking/screens/home/tabs/profile_tab/widgte/localization_pop_up.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/logout_dialog_content.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,6 +15,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
@@ -27,7 +30,6 @@ class ProfileTabScreen extends BaseScreen {
 
 class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
-
   @override
   bool get useSystemOverlay => false;
 
@@ -71,7 +73,8 @@ class _ProfileTabScreenState
             }
 
             // Показ загрузки
-            if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                !snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(
                   color: isDark ? Colors.white : WawatColors.primary,
@@ -91,14 +94,18 @@ class _ProfileTabScreenState
                         children: [
                           AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
-                            margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                            margin:
+                                EdgeInsets.only(left: 16, right: 16, top: 20),
                             padding: EdgeInsets.only(left: 10, right: 10),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              color: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                                  color: Colors.black
+                                      .withOpacity(isDark ? 0.3 : 0.05),
                                   blurRadius: 10,
                                   offset: const Offset(0, 2),
                                 ),
@@ -106,10 +113,13 @@ class _ProfileTabScreenState
                             ),
                             child: Column(
                               children: [
+                                const SizedBox(height: 12),
                                 const SizedBox(height: 20),
-                                _buildProfileHeader(snapshot.requireData, isDark),
+                                _buildProfileHeader(
+                                    snapshot.requireData, isDark),
                                 const SizedBox(height: 16),
-                                _buildStatsCard(context, snapshot.requireData, isDark),
+                                _buildStatsCard(
+                                    context, snapshot.requireData, isDark),
                               ],
                             ),
                           ),
@@ -133,6 +143,115 @@ class _ProfileTabScreenState
   @override
   ProfileTabBloc provideBloc() {
     return ProfileTabBloc();
+  }
+
+  Widget _buildLanguageItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color bgColor,
+    required Color iconColor,
+    required bool isDarkMode,
+    required String currentLanguage,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              size: 24,
+              color: iconColor,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
+                  ),
+                  child: Text(title),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Индикатор текущего языка
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  iconColor.withOpacity(0.2),
+                  iconColor.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: iconColor.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  currentLanguage,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: iconColor,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 18,
+                  color: iconColor,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildProfileHeader(User user, bool isDark) {
@@ -212,7 +331,9 @@ class _ProfileTabScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
+                  color: isDark
+                      ? const Color(0xFFB0B0B0)
+                      : const Color(0xFF6B7280),
                 ),
                 child: Text(user.email ?? ""),
               ),
@@ -221,7 +342,9 @@ class _ProfileTabScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
+                  color: isDark
+                      ? const Color(0xFFB0B0B0)
+                      : const Color(0xFF6B7280),
                 ),
                 child: Text(user.phone ?? ""),
               ),
@@ -338,7 +461,30 @@ class _ProfileTabScreenState
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: Column(
         children: [
-          // ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМНОЙ ТЕМЫ =====
+          StreamBuilder<Locale?>(
+              stream: bloc.locale,
+              builder: (context, snapshot) {
+                // Получаем текущий locale из snapshot или используем дефолтный
+                final currentLocale = snapshot.data ?? const Locale("en");
+
+                return GestureDetector(
+                  onTap: () => _showMenu(snapshot.data),
+                  child: _buildLanguageItem(
+                    icon: Icons.language,
+                    title: S.of(context).languandff,
+                    subtitle: "languageSubtitle",
+                    bgColor: isDark
+                        ? const Color(0xFF1E3A2F)
+                        : const Color(0xFFDCFCE7),
+                    iconColor: isDark
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF059669),
+                    isDarkMode: isDark,
+                    currentLanguage: currentLocale.languageCode,
+                  ),
+                );
+              }),
+          const SizedBox(height: 12),
           Consumer<ThemeManager>(
             builder: (context, themeManager, child) {
               return GestureDetector(
@@ -350,7 +496,9 @@ class _ProfileTabScreenState
                       ? Icons.dark_mode
                       : Icons.light_mode,
                   title: 'Тема оформления',
-                  subtitle: themeManager.isDarkMode ? 'Тёмная тема включена' : 'Светлая тема включена',
+                  subtitle: themeManager.isDarkMode
+                      ? 'Тёмная тема включена'
+                      : 'Светлая тема включена',
                   bgColor: themeManager.isDarkMode
                       ? const Color(0xFF1E1E3F)
                       : const Color(0xFFFEF3C7),
@@ -363,12 +511,11 @@ class _ProfileTabScreenState
             },
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => Navigator.push(context,
                 CupertinoPageRoute(builder: (BuildContext context) {
-                  return VerificationScreen(user: user);
-                })),
+              return VerificationScreen(user: user);
+            })),
             child: _buildMenuItem(
               icon: Icons.shield_outlined,
               title: 'Верификация',
@@ -379,7 +526,6 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => Navigator.push(
               context,
@@ -399,13 +545,14 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => Navigator.push(
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return MyRevievsScreen( courierId: user.id ?? 0,);
+                  return MyRevievsScreen(
+                    courierId: user.id ?? 0,
+                  );
                 },
               ),
             ),
@@ -419,7 +566,25 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return SupportScreen();
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.headset_mic_rounded,
+              title: 'Техподдежка',
+              subtitle: 'Написать в техподдежку',
+              bgColor: Color(0xFF031B7A).withOpacity(0.9),
+              iconColor: Colors.white,
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(height: 12),
           GestureDetector(
             onTap: () => Navigator.push(
               context,
@@ -439,7 +604,6 @@ class _ProfileTabScreenState
             ),
           ),
           const SizedBox(height: 12),
-
           GestureDetector(
             onTap: () => showLogoutBottomSheet(
                 title: "Выйти",
@@ -448,9 +612,11 @@ class _ProfileTabScreenState
                 no: "Нет, отменить",
                 context: context,
                 onConfirmLogout: () {
-                  bloc.logout().then(  // ИСПРАВЛЕНО: Добавлены скобки ()
-                        (value) {
-                      return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                  bloc.logout().then(
+                    // ИСПРАВЛЕНО: Добавлены скобки ()
+                    (value) {
+                      return Navigator.pushAndRemoveUntil(context,
+                          MaterialPageRoute(
                         builder: (BuildContext context) {
                           return HomeScreen();
                         },
@@ -470,6 +636,31 @@ class _ProfileTabScreenState
           ),
         ],
       ),
+    );
+  }
+
+  void _showMenu(Locale? locale) {
+    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isDark = themeManager.isDarkMode;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(35),
+          topRight: Radius.circular(35),
+        ),
+      ),
+      builder: (_) {
+        return LocalizationPopUp(
+          currentLocale: locale,
+          onChanged: (Locale newLocale) {
+            bloc.setLocale(newLocale);
+          },
+        );
+      },
     );
   }
 
@@ -624,7 +815,9 @@ class _ProfileTabScreenState
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: isDarkMode ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+                    color: isDarkMode
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF000000),
                   ),
                   child: Text(title),
                 ),
@@ -654,10 +847,10 @@ class _ProfileTabScreenState
         borderRadius: BorderRadius.circular(20),
         gradient: isOn
             ? const LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        )
+                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
             : null,
         color: isOn ? null : const Color(0xFFE5E7EB),
         boxShadow: [

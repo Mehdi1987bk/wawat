@@ -22,7 +22,7 @@ import 'data/network/response/rating.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
-import 'kango_app.dart';
+import 'wawat_app.dart';
 import 'services/theme_manager.dart';
 import 'wawat/wawat_app.dart';
 
@@ -30,11 +30,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
-const baseUrl = 'https://wawat.tahirguliyev.com';
+const baseUrl = 'http://62.84.176.158';
 final RouteObserver<ModalRoute<void>> routeObserver =
-RouteObserver<ModalRoute<void>>();
+    RouteObserver<ModalRoute<void>>();
 
-// Глобальная переменная для ThemeManager
 late ThemeManager themeManager;
 
 void main() async {
@@ -43,17 +42,6 @@ void main() async {
   final dir = await getApplicationDocumentsDirectory();
 
   await Hive.initFlutter(dir.path);
-
-  try {
-    final boxes = ['userBox', 'authBox', 'cacheBox'];
-    for (var boxName in boxes) {
-      if (await Hive.boxExists(boxName)) {
-        await Hive.openBox(boxName);
-      }
-    }
-  } catch (e) {
-    await Hive.deleteFromDisk();
-  }
 
   Hive
     ..init(dir.path)

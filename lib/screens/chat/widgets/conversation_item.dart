@@ -42,165 +42,193 @@ class ConversationItem extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               borderRadius: BorderRadius.circular(28),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 5, top: 5, bottom: 5, right: 10),
-                child: Row(
-                  children: [
-                    Stack(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 5, top: 5, bottom: 5, right: 10),
+                    child: Row(
                       children: [
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: isDark
-                              ? WawatColors.primary.withOpacity(0.2)
-                              : WawatColors.primary.withOpacity(0.1),
-                          backgroundImage: conversation.user.avatarUrl.isNotEmpty
-                              ? CachedNetworkImageProvider(conversation.user.avatarUrl)
-                              : null,
-                          child: conversation.user.avatarUrl.isEmpty
-                              ? Text(
-                            conversation.user.fullname[0].toUpperCase(),
-                            style: WawatTextStyles.h2.copyWith(
-                              color: WawatColors.primary,
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 28,
+                              backgroundColor: isDark
+                                  ? WawatColors.primary.withOpacity(0.2)
+                                  : WawatColors.primary.withOpacity(0.1),
+                              backgroundImage:
+                                  conversation.user.avatarUrl.isNotEmpty
+                                      ? CachedNetworkImageProvider(
+                                          conversation.user.avatarUrl)
+                                      : null,
+                              child: conversation.user.avatarUrl.isEmpty
+                                  ? Text(
+                                      conversation.user.fullname[0]
+                                          .toUpperCase(),
+                                      style: WawatTextStyles.h2.copyWith(
+                                        color: WawatColors.primary,
+                                      ),
+                                    )
+                                  : null,
                             ),
-                          )
-                              : null,
-                        ),
-                        if (conversation.user.isOnline)
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              width: 14,
-                              height: 14,
-                              decoration: BoxDecoration(
-                                color: WawatColors.success,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                                  width: 2,
+                            if (conversation.user.isOnline)
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 14,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    color: WawatColors.success,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isDark
+                                          ? const Color(0xFF1E1E1E)
+                                          : Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    SizedBox(width: WawatDimensions.spacingMd),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                          ],
+                        ),
+                        SizedBox(width: WawatDimensions.spacingMd),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      child: AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 300),
-                                        style: WawatTextStyles.bodyBold.copyWith(
-                                          color: isDark ? Colors.white : Colors.black,
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: AnimatedDefaultTextStyle(
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            style: WawatTextStyles.bodyBold
+                                                .copyWith(
+                                              color: isDark
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                            child: Text(
+                                              conversation.user.fullname,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         ),
-                                        child: Text(
-                                          conversation.user.fullname,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        if (conversation.user.isVerified ==
+                                            true)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Image.asset(
+                                                  "asset/prof_3.png",
+                                                  width: 16,
+                                                ),
+                                                const SizedBox(width: 3),
+                                                const Text(
+                                                  'Проверен',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF4CAF50),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        if (conversation.isPinned) ...[
+                                          const SizedBox(width: 4),
+                                          const Icon(
+                                            Icons.push_pin,
+                                            size: 14,
+                                            color: WawatColors.warning,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: WawatDimensions.spacingSm),
+                                  AnimatedDefaultTextStyle(
+                                    duration: const Duration(milliseconds: 300),
+                                    style: WawatTextStyles.caption.copyWith(
+                                      color: isDark
+                                          ? const Color(0xFF9CA3AF)
+                                          : WawatColors.textSecondary,
+                                    ),
+                                    child: Text(
+                                      conversation.lastMessage?.timeString ??
+                                          '',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AnimatedDefaultTextStyle(
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      style: WawatTextStyles.body.copyWith(
+                                        color: conversation.unreadCount > 0
+                                            ? WawatColors.primary
+                                            : (isDark
+                                                ? const Color(0xFF9CA3AF)
+                                                : WawatColors.textSecondary),
+                                        fontWeight: conversation.unreadCount > 0
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                      ),
+                                      child: Text(
+                                        conversation.unreadCount > 0
+                                            ? (conversation.unreadCount > 99
+                                                ? '99+'
+                                                : '${conversation.unreadCount} новых сообщения')
+                                            : conversation.lastMessagePreview,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                    if (conversation.user.isVerified == true)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 2,
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Image.asset(
-                                              "asset/prof_3.png",
-                                              width: 16,
-                                            ),
-                                            const SizedBox(width: 3),
-                                            const Text(
-                                              'Проверен',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: Color(0xFF4CAF50),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    if (conversation.isPinned) ...[
-                                      const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.push_pin,
-                                        size: 14,
-                                        color: WawatColors.warning,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: WawatDimensions.spacingSm),
-                              AnimatedDefaultTextStyle(
-                                duration: const Duration(milliseconds: 300),
-                                style: WawatTextStyles.caption.copyWith(
-                                  color: isDark
-                                      ? const Color(0xFF9CA3AF)
-                                      : WawatColors.textSecondary,
-                                ),
-                                child: Text(
-                                  conversation.lastMessage?.timeString ?? '',
-                                ),
+                                  ),
+                                  Container(
+                                    width: 50,
+                                    height: 30,
+                                  )
+                                ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 300),
-                                  style: WawatTextStyles.body.copyWith(
-                                    color: conversation.unreadCount > 0
-                                        ? WawatColors.primary
-                                        : (isDark
-                                        ? const Color(0xFF9CA3AF)
-                                        : WawatColors.textSecondary),
-                                    fontWeight: conversation.unreadCount > 0
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
-                                  child: Text(
-                                    conversation.unreadCount > 0
-                                        ? (conversation.unreadCount > 99
-                                        ? '99+'
-                                        : '${conversation.unreadCount} новых сообщения')
-                                        : conversation.lastMessagePreview,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: onTapMenu,
-                                behavior: HitTestBehavior.translucent,
-                                child: Icon(
-                                  Icons.more_horiz,
-                                  color: isDark
-                                      ? const Color(0xFF9CA3AF)
-                                      : Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: GestureDetector(
+                      onTap: onTapMenu,
+                      behavior: HitTestBehavior.translucent,
+                      child: Container(
+                        height: 48,
+                        width: 50,
+                        child: Icon(
+                          Icons.more_horiz,
+                          color:
+                              isDark ? const Color(0xFF9CA3AF) : Colors.black54,
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

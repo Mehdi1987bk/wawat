@@ -28,89 +28,91 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    return SafeArea(
+      child: Consumer<ThemeManager>(
+        builder: (context, themeManager, child) {
+          final isDark = themeManager.isDarkMode;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: isDark
-                    ? Colors.black.withOpacity(0.3)
-                    : WawatColors.shadowLight,
-                blurRadius: 8,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          padding: EdgeInsets.all(WawatDimensions.spacingSm),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(
-                  _showAttachMenu ? Icons.close : Icons.attach_file,
-                  color: WawatColors.primary,
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : WawatColors.shadowLight,
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _showAttachMenu = !_showAttachMenu;
-                  });
-                  if (_showAttachMenu) {
-                    _showAttachOptions(isDark);
-                  }
-                },
-              ),
-              Expanded(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF2A2A2A)
-                        : WawatColors.inputBackground,
-                    borderRadius: BorderRadius.circular(WawatDimensions.radiusLarge),
+              ],
+            ),
+            padding: EdgeInsets.all(WawatDimensions.spacingSm),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    _showAttachMenu ? Icons.close : Icons.attach_file,
+                    color: WawatColors.primary,
                   ),
-                  child: TextField(
-                    controller: widget.controller,
-                    maxLines: null,
-                    textInputAction: TextInputAction.newline,
-                    keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
-                    style: WawatTextStyles.body.copyWith(
-                      color: isDark ? Colors.white : Colors.black,
+                  onPressed: () {
+                    setState(() {
+                      _showAttachMenu = !_showAttachMenu;
+                    });
+                    if (_showAttachMenu) {
+                      _showAttachOptions(isDark);
+                    }
+                  },
+                ),
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF2A2A2A)
+                          : WawatColors.inputBackground,
+                      borderRadius: BorderRadius.circular(WawatDimensions.radiusLarge),
                     ),
-                    decoration: InputDecoration(
-                      hintText: 'Сообщение...',
-                      hintStyle: WawatTextStyles.placeholder.copyWith(
-                        color: isDark
-                            ? const Color(0xFF6B7280)
-                            : WawatTextStyles.placeholder.color,
+                    child: TextField(
+                      controller: widget.controller,
+                      maxLines: null,
+                      textInputAction: TextInputAction.newline,
+                      keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
+                      style: WawatTextStyles.body.copyWith(
+                        color: isDark ? Colors.white : Colors.black,
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: WawatDimensions.spacingMd,
-                        vertical: WawatDimensions.spacingSm,
+                      decoration: InputDecoration(
+                        hintText: 'Сообщение...',
+                        hintStyle: WawatTextStyles.placeholder.copyWith(
+                          color: isDark
+                              ? const Color(0xFF6B7280)
+                              : WawatTextStyles.placeholder.color,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: WawatDimensions.spacingMd,
+                          vertical: WawatDimensions.spacingSm,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(width: WawatDimensions.spacingSm),
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: WawatColors.primaryGradient,
-                  shape: BoxShape.circle,
+                SizedBox(width: WawatDimensions.spacingSm),
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: WawatColors.primaryGradient,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: widget.onSend,
+                  ),
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.send, color: Colors.white),
-                  onPressed: widget.onSend,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
