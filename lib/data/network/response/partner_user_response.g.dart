@@ -27,12 +27,13 @@ Data _$DataFromJson(Map<String, dynamic> json) => Data(
       professional:
           Professional.fromJson(json['professional'] as Map<String, dynamic>),
       stats: Stats.fromJson(json['stats'] as Map<String, dynamic>),
+      settings: Settings.fromJson(json['settings'] as Map<String, dynamic>),
       reviewsReceived: (json['reviews_received'] as List<dynamic>)
           .map((e) => Review.fromJson(e as Map<String, dynamic>))
           .toList(),
       reviewsLeft: json['reviews_left'] as List<dynamic>,
-      offers:
-          OfferModelResponse.fromJson(json['offers'] as Map<String, dynamic>),
+      offers: Offers.fromJson(json['offers'] as Map<String, dynamic>),
+      favorites: json['favorites'] as List<dynamic>,
     );
 
 Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
@@ -40,9 +41,11 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
       'profile': instance.profile,
       'professional': instance.professional,
       'stats': instance.stats,
+      'settings': instance.settings,
       'reviews_received': instance.reviewsReceived,
       'reviews_left': instance.reviewsLeft,
       'offers': instance.offers,
+      'favorites': instance.favorites,
     };
 
 UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
@@ -85,7 +88,7 @@ Map<String, dynamic> _$LanguageToJson(Language instance) => <String, dynamic>{
     };
 
 Profile _$ProfileFromJson(Map<String, dynamic> json) => Profile(
-      locationCityId: json['location_city_id'] as String?,
+      locationCityId: json['location_city_id'] as int?,
       locationCityName: json['location_city_name'] as String?,
       locationCountryName: json['location_country_name'] as String?,
       locationText: json['location_text'] as String?,
@@ -103,9 +106,9 @@ Map<String, dynamic> _$ProfileToJson(Profile instance) => <String, dynamic>{
     };
 
 Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
-      experienceYears: json['experience_years'] as String?,
-      maxWeightKg: json['max_weight_kg'] as String?,
-      insuranceUsd: json['insurance_usd'] as String?,
+      experienceYears: json['experience_years'] as int?,
+      maxWeightKg: json['max_weight_kg'] as int?,
+      insuranceUsd: json['insurance_usd'] as int?,
       priceFrom: json['price_from'] as String?,
       priceTo: json['price_to'] as String?,
       workTimeFrom: json['work_time_from'] as String?,
@@ -115,7 +118,9 @@ Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
       languages: (json['languages'] as List<dynamic>)
           .map((e) => Language.fromJson(e as Map<String, dynamic>))
           .toList(),
-      packageTypes: json['package_types'] as List<dynamic>,
+      packageTypes: (json['package_types'] as List<dynamic>)
+          .map((e) => PackageType.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$ProfessionalToJson(Professional instance) =>
@@ -133,13 +138,27 @@ Map<String, dynamic> _$ProfessionalToJson(Professional instance) =>
       'package_types': instance.packageTypes,
     };
 
+PackageType _$PackageTypeFromJson(Map<String, dynamic> json) => PackageType(
+      code: json['code'] as String,
+      title: json['title'] as String,
+      icon: json['icon'] as String,
+    );
+
+Map<String, dynamic> _$PackageTypeToJson(PackageType instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'title': instance.title,
+      'icon': instance.icon,
+    };
+
 Stats _$StatsFromJson(Map<String, dynamic> json) => Stats(
       offersTotal: json['offers_total'] as int,
       offersActive: json['offers_active'] as int,
       ratingAvg: (json['rating_avg'] as num).toDouble(),
       ratingCount: json['rating_count'] as int,
+      reviewsReceivedCount: json['reviews_received_count'] as int,
       positivePercent: json['positive_percent'] as int,
-      yearsOnPlatform: (json['years_on_platform'] as num).toDouble(),
+      yearsOnPlatform: json['years_on_platform'] as int,
     );
 
 Map<String, dynamic> _$StatsToJson(Stats instance) => <String, dynamic>{
@@ -147,13 +166,123 @@ Map<String, dynamic> _$StatsToJson(Stats instance) => <String, dynamic>{
       'offers_active': instance.offersActive,
       'rating_avg': instance.ratingAvg,
       'rating_count': instance.ratingCount,
+      'reviews_received_count': instance.reviewsReceivedCount,
       'positive_percent': instance.positivePercent,
       'years_on_platform': instance.yearsOnPlatform,
     };
 
+Settings _$SettingsFromJson(Map<String, dynamic> json) => Settings(
+      privacy: Privacy.fromJson(json['privacy'] as Map<String, dynamic>),
+      notificationSettings: NotificationSettingsaa.fromJson(
+          json['notificationSettings'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
+      'privacy': instance.privacy,
+      'notificationSettings': instance.notificationSettings,
+    };
+
+Privacy _$PrivacyFromJson(Map<String, dynamic> json) => Privacy(
+      id: json['id'] as int,
+      userId: json['user_id'] as int,
+      showPhone: json['show_phone'] as bool,
+      showEmail: json['show_email'] as bool,
+      showActivityTime: json['show_activity_time'] as bool,
+      createdAt: json['created_at'] as String?,
+      updatedAt: json['updated_at'] as String?,
+    );
+
+Map<String, dynamic> _$PrivacyToJson(Privacy instance) => <String, dynamic>{
+      'id': instance.id,
+      'user_id': instance.userId,
+      'show_phone': instance.showPhone,
+      'show_email': instance.showEmail,
+      'show_activity_time': instance.showActivityTime,
+      'created_at': instance.createdAt,
+      'updated_at': instance.updatedAt,
+    };
+
+NotificationSettingsaa _$NotificationSettingsaaFromJson(
+        Map<String, dynamic> json) =>
+    NotificationSettingsaa(
+      id: json['id'] as int,
+      userId: json['user_id'] as int,
+      notifyNewMessages: json['notify_new_messages'] as bool,
+      notifyNewReviews: json['notify_new_reviews'] as bool,
+      notifyMarketing: json['notify_marketing'] as bool,
+      createdAt: json['created_at'] as String?,
+      updatedAt: json['updated_at'] as String?,
+    );
+
+Map<String, dynamic> _$NotificationSettingsaaToJson(
+        NotificationSettingsaa instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'user_id': instance.userId,
+      'notify_new_messages': instance.notifyNewMessages,
+      'notify_new_reviews': instance.notifyNewReviews,
+      'notify_marketing': instance.notifyMarketing,
+      'created_at': instance.createdAt,
+      'updated_at': instance.updatedAt,
+    };
+
+Offers _$OffersFromJson(Map<String, dynamic> json) => Offers(
+      active: (json['active'] as List<dynamic>)
+          .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      inactive: (json['inactive'] as List<dynamic>)
+          .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$OffersToJson(Offers instance) => <String, dynamic>{
+      'active': instance.active,
+      'inactive': instance.inactive,
+    };
+
+OfferType _$OfferTypeFromJson(Map<String, dynamic> json) => OfferType(
+      code: json['code'] as String,
+      title: json['title'] as String,
+    );
+
+Map<String, dynamic> _$OfferTypeToJson(OfferType instance) => <String, dynamic>{
+      'code': instance.code,
+      'title': instance.title,
+    };
+
+City _$CityFromJson(Map<String, dynamic> json) => City(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      country: json['country'] as String,
+    );
+
+Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'country': instance.country,
+    };
+
+OfferUser _$OfferUserFromJson(Map<String, dynamic> json) => OfferUser(
+      id: json['id'] as int,
+      fullname: json['fullname'] as String,
+      avatar: json['avatar'] as String?,
+      isVerified: json['is_verified'] as bool,
+      ratingAvg: (json['rating_avg'] as num).toDouble(),
+      ratingCount: json['rating_count'] as int,
+    );
+
+Map<String, dynamic> _$OfferUserToJson(OfferUser instance) => <String, dynamic>{
+      'id': instance.id,
+      'fullname': instance.fullname,
+      'avatar': instance.avatar,
+      'is_verified': instance.isVerified,
+      'rating_avg': instance.ratingAvg,
+      'rating_count': instance.ratingCount,
+    };
+
 Review _$ReviewFromJson(Map<String, dynamic> json) => Review(
       id: json['id'] as int,
-      rating: json['rating'] as String,
+      rating: json['rating'] as int,
       comment: json['comment'] as String,
       isPublic: json['is_public'] as bool,
       isVerifiedDelivery: json['is_verified_delivery'] as String?,

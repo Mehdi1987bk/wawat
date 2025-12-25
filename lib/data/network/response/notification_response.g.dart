@@ -53,6 +53,7 @@ NotificationData _$NotificationDataFromJson(Map<String, dynamic> json) =>
       senderId: json['sender_id'] as int?,
       senderName: json['sender_name'] as String?,
       conversationId: json['conversation_id'] as int?,
+      reviewRequestId: json['review_request_id'] as int?,
     );
 
 Map<String, dynamic> _$NotificationDataToJson(NotificationData instance) =>
@@ -62,4 +63,5 @@ Map<String, dynamic> _$NotificationDataToJson(NotificationData instance) =>
       'sender_id': instance.senderId,
       'sender_name': instance.senderName,
       'conversation_id': instance.conversationId,
+      'review_request_id': instance.reviewRequestId,
     };

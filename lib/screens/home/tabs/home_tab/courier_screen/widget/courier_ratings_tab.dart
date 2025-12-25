@@ -126,7 +126,7 @@ class CourierRatingsTab extends StatelessWidget {
                   (index) => Icon(
                 Icons.star,
                 size: 14,
-                color: index < int.parse(review.rating)
+                color: index < review.rating
                     ? Colors.amber
                     : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
               ),

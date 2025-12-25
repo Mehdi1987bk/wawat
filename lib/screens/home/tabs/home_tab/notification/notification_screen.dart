@@ -256,24 +256,24 @@ class _NotificationScreenState
                           child: Text(_formatDate(notification.createdAt)),
                         ),
                         const Spacer(),
-                        if (notification.type == "review_request")
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: WawatColors.warning.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Требует действия',
-                              style: WawatTextStyles.caption.copyWith(
-                                color: WawatColors.warning,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                        // if (notification.type == "review_request")
+                        //   Container(
+                        //     padding: const EdgeInsets.symmetric(
+                        //       horizontal: 8,
+                        //       vertical: 4,
+                        //     ),
+                        //     decoration: BoxDecoration(
+                        //       color: WawatColors.warning.withOpacity(0.1),
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //     child: Text(
+                        //       'Требует действия',
+                        //       style: WawatTextStyles.caption.copyWith(
+                        //         color: WawatColors.warning,
+                        //         fontWeight: FontWeight.w600,
+                        //       ),
+                        //     ),
+                        //   ),
                       ],
                     ),
                   ],
@@ -774,7 +774,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
 
     // Создаем запрос с правильными параметрами
     final request = CreateReviewRequest(
-      reviewRequestId: widget.notification.id, // id уведомления
+      reviewRequestId: widget.notification.data?.reviewRequestId, // id уведомления
       targetId: requesterId, // requester_id из data
       rating: _rating, // оценка от 1 до 5
       comment: _commentController.text.trim(), // комментарий

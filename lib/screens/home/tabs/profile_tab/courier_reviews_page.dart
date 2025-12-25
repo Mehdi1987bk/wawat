@@ -188,7 +188,7 @@ class _MyRevievsScreenState
                         color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                       child: Text(
-                        (data.stats.ratingCount).toStringAsFixed(1),
+                        (data.stats.ratingAvg).toStringAsFixed(1),
                       ),
                     ),
                   ],
@@ -382,7 +382,7 @@ class _MyRevievsScreenState
               (index) => Icon(
                 Icons.star,
                 size: 14,
-                color: index < int.parse(review.rating)
+                color: index < review.rating
                     ? Colors.amber
                     : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
               ),

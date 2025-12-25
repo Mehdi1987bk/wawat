@@ -45,14 +45,33 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   }
 
   void _toggleFavorite() async {
-    final isLogged = await sl.get<AuthRepository>().isLogged();
-    if (!isLogged) {
-      return AuthModalUtils.showAuthRequiredModal(context);
-    } else {
+    try {
+      final isLogged = await sl.get<AuthRepository>().isLogged();
+
+      // Проверяем, что виджет все еще в дереве
+      if (!mounted) return;
+
+      if (!isLogged) {
+        AuthModalUtils.showAuthRequiredModal(context);
+        return;
+      }
+
       setState(() {
         isFavorite = !isFavorite;
       });
+
       widget.onFavoriteToggle?.call(isFavorite);
+
+    } catch (e) {
+      // Обрабатываем ошибку
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

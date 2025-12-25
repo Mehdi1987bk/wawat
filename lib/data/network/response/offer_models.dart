@@ -74,13 +74,13 @@ class OfferModel {
   @JsonKey(name: 'published_at')
   final String? publishedAt;
 
-  @JsonKey(name: 'languages')
+  @JsonKey(name: 'languages', includeIfNull: false)
   final List<LanguageModel>? languages;
 
   @JsonKey(name: 'user')
   final UserModel? user;
 
-  @JsonKey(name: 'is_favourite')
+  @JsonKey(name: 'is_favourite', includeIfNull: false, defaultValue: false)
   final bool? isFavourite;
 
   OfferModel({

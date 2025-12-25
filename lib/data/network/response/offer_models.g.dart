@@ -52,33 +52,42 @@ OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
       user: json['user'] == null
           ? null
           : UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      isFavourite: json['is_favourite'] as bool?,
+      isFavourite: json['is_favourite'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$OfferModelToJson(OfferModel instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'offer_type': instance.offerType,
-      'city_from': instance.cityFrom,
-      'city_to': instance.cityTo,
-      'flight_date': instance.flightDate,
-      'flight_time': instance.flightTime,
-      'delivery_date_from': instance.deliveryDateFrom,
-      'delivery_date_to': instance.deliveryDateTo,
-      'purchase_date': instance.purchaseDate,
-      'purchase_time': instance.purchaseTime,
-      'main_date': instance.mainDate,
-      'main_time': instance.mainTime,
-      'package_type': instance.packageType,
-      'max_weight_kg': instance.maxWeightKg,
-      'price_per_kg': instance.pricePerKg,
-      'description': instance.description,
-      'status': instance.status,
-      'published_at': instance.publishedAt,
-      'languages': instance.languages,
-      'user': instance.user,
-      'is_favourite': instance.isFavourite,
-    };
+Map<String, dynamic> _$OfferModelToJson(OfferModel instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'offer_type': instance.offerType,
+    'city_from': instance.cityFrom,
+    'city_to': instance.cityTo,
+    'flight_date': instance.flightDate,
+    'flight_time': instance.flightTime,
+    'delivery_date_from': instance.deliveryDateFrom,
+    'delivery_date_to': instance.deliveryDateTo,
+    'purchase_date': instance.purchaseDate,
+    'purchase_time': instance.purchaseTime,
+    'main_date': instance.mainDate,
+    'main_time': instance.mainTime,
+    'package_type': instance.packageType,
+    'max_weight_kg': instance.maxWeightKg,
+    'price_per_kg': instance.pricePerKg,
+    'description': instance.description,
+    'status': instance.status,
+    'published_at': instance.publishedAt,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('languages', instance.languages);
+  val['user'] = instance.user;
+  writeNotNull('is_favourite', instance.isFavourite);
+  return val;
+}
 
 OfferTypeModel _$OfferTypeModelFromJson(Map<String, dynamic> json) =>
     OfferTypeModel(

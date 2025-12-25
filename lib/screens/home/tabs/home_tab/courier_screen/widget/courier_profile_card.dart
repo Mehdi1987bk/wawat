@@ -143,13 +143,13 @@ class CourierProfileCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildStatItem(
-                        value: '${data.reviewsReceived.length}',
+                        value: '${data.reviewsReceived?.length}',
                         label: 'Доставок',
                         color: Colors.blue,
                         isDark: isDark,
                       ),
                       _buildStatItem(
-                        value: '${data.professional.onTimePercent}%',
+                        value: '${(data.professional.onTimePercent ?? "0")}%',
                         label: 'Успешно',
                         color: Colors.green,
                         isDark: isDark,

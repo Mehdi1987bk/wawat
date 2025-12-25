@@ -60,7 +60,7 @@ class ExperienceTabBloc extends BaseBloc {
   }
 
   Future<void> createProfessional(CourierProfile request) {
-    return authRepository.createProfessional(request);
+    return run(authRepository.createProfessional(request));
   }
 
 

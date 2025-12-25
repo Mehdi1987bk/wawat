@@ -54,7 +54,7 @@ class CourierOffersTab extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) {
             return WawatCourierCard(
               detailsActiv: false,
-              courier: data.offers.active[index]!,
+              courier: data.offers.active[index],
             );
           },
         );

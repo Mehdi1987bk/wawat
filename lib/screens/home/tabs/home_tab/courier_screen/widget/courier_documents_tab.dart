@@ -87,9 +87,7 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.calendar_today,
             title: 'На платформе',
-            value: data.user.createdAt == null
-                ? '--'
-                : data.user.createdAt.toString(),
+            value: data.stats.yearsOnPlatform.toString() + " " + "дней",
             iconColor: Colors.purple,
             isDark: isDark,
           ),

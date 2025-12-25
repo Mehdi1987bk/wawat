@@ -710,7 +710,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
             child: Slider(
               value: _selectedExperience,
               min: 0.5,
-              max: 15,
+              max: 10,
               divisions: 29,
               label: _selectedExperience % 1 == 0
                   ? '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'

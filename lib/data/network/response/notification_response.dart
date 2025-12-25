@@ -58,6 +58,8 @@ class NotificationData {
   final String? senderName;
   @JsonKey(name: 'conversation_id')
   final int? conversationId;
+  @JsonKey(name: 'review_request_id')
+  final int? reviewRequestId;
 
   NotificationData({
     this.requesterId,
@@ -65,6 +67,7 @@ class NotificationData {
     this.senderId,
     this.senderName,
     this.conversationId,
+    this.reviewRequestId,
   });
 
   factory NotificationData.fromJson(Map<String, dynamic> json) =>
