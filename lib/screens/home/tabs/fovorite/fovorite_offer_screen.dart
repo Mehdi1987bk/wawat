@@ -18,6 +18,7 @@ class FovoriteOfferListScreen extends BaseScreen {
   final String? dateFrom;
   final String? dateTo;
 
+
   FovoriteOfferListScreen({
     Key? key,
     this.offerType,
