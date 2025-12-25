@@ -20,6 +20,7 @@ import 'data/network/response/privacy.dart';
 import 'data/network/response/professional.dart';
 import 'data/network/response/profile_info.dart';
 import 'data/network/response/rating.dart';
+import 'data/network/response/stats.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
@@ -51,6 +52,7 @@ void main() async {
     ..registerAdapter(NotificationsAdapter())
     ..registerAdapter(PrivacyAdapter())
     ..registerAdapter(LanguageAdapter())
+    ..registerAdapter(StatsAdapter())
     ..registerAdapter(ProfessionalAdapter())
     ..registerAdapter(ProfileInfoAdapter())
     ..registerAdapter(PacketTypeRespAdapter())

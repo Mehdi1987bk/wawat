@@ -56,8 +56,6 @@ class _FovoriteOfferListScreenState
 
   Widget body() {
     final isDark = Provider.of<ThemeManager>(context).isDarkMode;
-
-
     return ThemeAwareScreen(
       isDark: isDark,
       child: SafeArea(
@@ -122,7 +120,6 @@ class _FovoriteOfferListScreenState
                             padding: EdgeInsets.only(top: 20, bottom: 120),
                           );
                         }
-
                         return const SliverToBoxAdapter(child: SizedBox());
                       },
                     )

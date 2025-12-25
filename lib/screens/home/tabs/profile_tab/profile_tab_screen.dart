@@ -362,14 +362,14 @@ class _ProfileTabScreenState
             children: [
               _buildStatItem(
                 icon: "asset/prof_ic_1.png",
-                value: '24',
+                value: user.stats?.deliveriesCount.toString() ?? "",
                 label: 'Доставки',
                 context: context,
                 isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_2.png",
-                value: user.rating?.average.toString() ?? "0",
+                value: user.stats?.ratingAvg.toString() ?? "",
                 label: 'Рейтинг',
                 context: context,
                 isDark: isDark,
@@ -382,14 +382,14 @@ class _ProfileTabScreenState
             children: [
               _buildStatItem(
                 icon: "asset/prof_ic_3.png",
-                value: '18',
+                value: user.stats?.reviewsReceivedCount.toString() ?? "",
                 label: 'Отзывы',
                 context: context,
                 isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_4.png",
-                value: '2 года',
+                value:(user.stats?.yearsOnPlatform?.toStringAsFixed(0) ?? "") + ' дней',
                 label: 'На сайте',
                 context: context,
                 isDark: isDark,

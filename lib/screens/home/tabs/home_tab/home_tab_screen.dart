@@ -182,7 +182,7 @@ Widget BuildHeader(BuildContext context, bool isDark) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Image.asset(
-          'asset/logo.png',
+          'asset/icon.jpeg',
           fit: BoxFit.fitWidth,
           height: 40,
           color: isDark ? Colors.white : null,

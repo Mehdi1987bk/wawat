@@ -31,13 +31,14 @@ class UserAdapter extends TypeAdapter<User> {
       createdAt: fields[11] as DateTime?,
       isVerified: fields[13] as bool?,
       profile: fields[12] as ProfileInfo?,
+      stats: fields[14] as Stats?,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -65,7 +66,9 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(12)
       ..write(obj.profile)
       ..writeByte(13)
-      ..write(obj.isVerified);
+      ..write(obj.isVerified)
+      ..writeByte(14)
+      ..write(obj.stats);
   }
 
   @override
@@ -111,6 +114,9 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       profile: json['profile'] == null
           ? null
           : ProfileInfo.fromJson(json['profile'] as Map<String, dynamic>),
+      stats: json['stats'] == null
+          ? null
+          : Stats.fromJson(json['stats'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -128,4 +134,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'created_at': instance.createdAt?.toIso8601String(),
       'profile': instance.profile,
       'is_verified': instance.isVerified,
+      'stats': instance.stats,
     };
