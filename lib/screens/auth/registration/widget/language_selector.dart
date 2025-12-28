@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/language.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../services/theme_manager.dart';
 
 class LanguageSelector extends StatefulWidget {
@@ -30,8 +31,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
         '_getSelectedLanguagesDisplay called: selectedCodes=${widget.selectedLanguageCodes}, allLanguages=${widget.languages.length}');
 
     if (widget.selectedLanguageCodes.isEmpty) {
-      print('  -> Нет выбранных языков, возвращаю "Выбор"');
-      return 'Выбор';
+       return S.of(context).nhgngn5;
     }
 
     final selectedNames = <String>[];
@@ -42,13 +42,11 @@ class _LanguageSelectorState extends State<LanguageSelector> {
       );
       if (lang.code.isNotEmpty) {
         selectedNames.add(lang.name ?? '');
-        print('  -> Добавлен язык: ${lang.name} (code: ${lang.code})');
-      }
+       }
     }
 
     final result = selectedNames.join(', ');
-    print('  -> Результат: $result');
-    return result.isNotEmpty ? result : 'Выбор';
+     return result.isNotEmpty ? result : S.of(context).nhgngn5;
   }
 
   void _showLanguagesBottomSheet() {
@@ -59,8 +57,8 @@ class _LanguageSelectorState extends State<LanguageSelector> {
 
     if (widget.languages.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Языки загружаются. Попробуйте позже.'),
+          SnackBar(
+          content: Text(S.of(context).vfd34),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 3),
         ),
@@ -70,8 +68,8 @@ class _LanguageSelectorState extends State<LanguageSelector> {
 
     if (widget.languages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Языки не загружены. Попробуйте позже.'),
+          SnackBar(
+          content: Text(S.of(context).bgdfbgfd3),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
@@ -125,7 +123,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Выберите языки'),
+                      child:   Text(S.of(context).bgvfd3),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
@@ -148,7 +146,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                           ? const Color(0xFF9CA3AF)
                           : Colors.grey,
                     ),
-                    child: const Text('Языки не найдены'),
+                    child:   Text(S.of(context).bdg3),
                   ),
                 )
                     : ListView.builder(
@@ -168,7 +166,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                           fontSize: 16,
                           color: isDark ? Colors.white : Colors.black,
                         ),
-                        child: Text(language.name ?? 'Неизвестный язык'),
+                        child: Text(language.name ?? S.of(context).nhtg5),
                       ),
                       subtitle: AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
@@ -178,7 +176,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                               ? const Color(0xFF6B7280)
                               : Colors.grey,
                         ),
-                        child: Text('Код: ${language.code}'),
+                        child: Text(S.of(context).bmy5+' ${language.code}'),
                       ),
                       trailing: isSelected
                           ? const Icon(
@@ -197,12 +195,10 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                         setStateBottomSheet(() {
                           if (isSelected) {
                             localSelectedCodes.remove(language.code);
-                            print(
-                                'Удален язык: ${language.name} (code: ${language.code})');
+                         
                           } else {
                             localSelectedCodes.add(language.code);
-                            print(
-                                'Добавлен язык: ${language.name} (code: ${language.code})');
+                            
                           }
                         });
                       },
@@ -214,9 +210,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                 padding: const EdgeInsets.all(16),
                 child: ElevatedButton(
                   onPressed: () {
-                    widget.onSelectionChanged(localSelectedCodes);
-                    print(
-                        'Bottom sheet закрыта, выбранные языки: $localSelectedCodes');
+                    widget.onSelectionChanged(localSelectedCodes); 
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -228,8 +222,8 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                     minimumSize: const Size(double.infinity, 50),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Применить',
+                  child:   Text(
+                    S.of(context).bnht,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -304,7 +298,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                           ),
                           child: Text(
                             widget.isLoading
-                                ? 'Загрузка...'
+                                ? S.of(context).bgfbgfb4
                                 : _getSelectedLanguagesDisplay(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

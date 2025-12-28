@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../generated/l10n.dart';
 import '../../presentation/resourses/wawat_colors.dart';
 import '../../presentation/resourses/wawat_dimensions.dart';
 import '../../presentation/resourses/wawat_text_styles.dart';
@@ -87,26 +88,28 @@ class WawatRoleChip extends StatelessWidget {
     required this.role,
   }) : super(key: key);
 
-  String get _icon {
-    switch (role.toLowerCase()) {
-      case 'курьер':
-      case 'courier':
-        return '✈️';
-      case 'отправитель':
-      case 'sender':
-        return '📤';
-      case 'покупатель':
-      case 'buyer':
-        return '🛍️';
-      default:
-        return '👤';
+  // Метод вместо геттера, принимает context
+  String _getIcon(BuildContext context) {
+    final roleLower = role.toLowerCase();
+    final courierText = S.of(context).frefd.toLowerCase();
+    final senderText = S.of(context).fvvdf.toLowerCase();
+    final buyerText = S.of(context).fvgbfdb.toLowerCase();
+
+    if (roleLower == courierText || roleLower == 'courier') {
+      return '✈️';
+    } else if (roleLower == senderText || roleLower == 'sender') {
+      return '📤';
+    } else if (roleLower == buyerText || roleLower == 'buyer') {
+      return '🛍️';
+    } else {
+      return '👤';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return WawatChip(
-      text: '$_icon $role',
+      text: '${_getIcon(context)} $role',
       type: WawatChipType.purple,
     );
   }
@@ -119,7 +122,7 @@ class WawatVerifiedChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WawatChip(
-      text: '🟢 Проверен',
+      text: S.of(context).fvdgd,
       type: WawatChipType.green,
     );
   }

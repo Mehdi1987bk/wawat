@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/country.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../services/theme_manager.dart';
 
@@ -184,7 +185,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Выберите страну',
+                  S.of(context).nbtynt7,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -205,7 +206,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                 color: widget.isDark ? Colors.white : Colors.black,
               ),
               decoration: InputDecoration(
-                hintText: 'Поиск страны...',
+                hintText: S.of(context).mjh5y,
                 hintStyle: TextStyle(
                   color: widget.isDark ? Colors.white38 : Colors.grey,
                 ),

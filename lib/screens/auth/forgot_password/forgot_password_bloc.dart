@@ -14,8 +14,7 @@ class ForgotPasswordBloc extends BaseBloc {
   String? _verificationToken;
   String? get verificationToken => _verificationToken;
 
-  /// Шаг 1: Запрос OTP по email
-  Future<bool> requestOtp(String email) async {
+   Future<bool> requestOtp(String email) async {
     loadingSink.add(true);
 
     final request = ForgotPasswordRequestEmail(email: email);
@@ -36,8 +35,7 @@ class ForgotPasswordBloc extends BaseBloc {
     }
   }
 
-  /// Шаг 2: Проверка OTP
-  Future<bool> verifyOtp(String otp) async {
+   Future<bool> verifyOtp(String otp) async {
     if (_verificationToken == null) {
       errorSink.add('Токен не найден');
       return false;
@@ -65,8 +63,7 @@ class ForgotPasswordBloc extends BaseBloc {
     }
   }
 
-  /// Шаг 3: Сброс пароля
-  Future<bool> resetPassword(String password, String passwordConfirmation) async {
+   Future<bool> resetPassword(String password, String passwordConfirmation) async {
     if (_verificationToken == null) {
       errorSink.add('Токен не найден');
       return false;

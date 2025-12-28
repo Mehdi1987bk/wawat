@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../data/network/response/country.dart';
 import '../../../data/network/response/language.dart';
 import '../../../domain/entities/patterns.dart';
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
@@ -187,26 +188,21 @@ class _RegistrationModalState extends State<RegistrationModal> {
                   padding: EdgeInsets.all(WawatDimensions.spacingMd),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.flight,
-                        color: isDark
-                            ? const Color(0xFF6366F1)
-                            : WawatColors.primary,
-                        size: WawatDimensions.iconLarge,
-                      ),
+                      Image.asset("asset/mini_logo.png", width: 35),
+
                       SizedBox(width: WawatDimensions.spacingSm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Регистрация',
+                              S.of(context).nyt7,
                               style: WawatTextStyles.h3.copyWith(
                                 color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                             Text(
-                              'Присоединяйтесь к нам',
+                              S.of(context).nty3,
                               style: WawatTextStyles.caption.copyWith(
                                 color: isDark
                                     ? const Color(0xFF9CA3AF)
@@ -235,14 +231,14 @@ class _RegistrationModalState extends State<RegistrationModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         WawatInputField(
-                          label: 'ПОЛНОЕ ИМЯ',
-                          placeholder: 'Введите ваше имя',
+                          label: S.of(context).btr3,
+                          placeholder: S.of(context).nbgf3,
                           controller: _nameController,
                           isModal: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
                         WawatInputField(
-                          label: 'EMAIL',
+                          label: S.of(context).emailbgf,
                           placeholder: 'example@mail.com',
                           controller: _emailController,
                           isModal: true,
@@ -250,9 +246,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
 
-                        // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ
-                        Text(
-                          'ТЕЛЕФОН',
+                         Text(
+                          S.of(context).bgf34,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -264,8 +259,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Country code selector
-                            CountryCodeSelector(
+                             CountryCodeSelector(
                               selectedCountry: _selectedCountry,
                               countries: _allCountries,
                               isLoading: _isLoadingCountries,
@@ -275,8 +269,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                               },
                             ),
                             const SizedBox(width: 8),
-                            // Phone input
-                            Expanded(
+                             Expanded(
                               child: Container(
                                 height: 48,
                                 decoration: BoxDecoration(
@@ -316,16 +309,16 @@ class _RegistrationModalState extends State<RegistrationModal> {
 
                         SizedBox(height: WawatDimensions.spacingMd),
                         WawatInputField(
-                          label: 'ПАРОЛЬ',
-                          placeholder: 'Минимум 6 символов',
+                          label: S.of(context).bgf35,
+                          placeholder: S.of(context).bgfbvgfd3,
                           controller: _passwordController,
                           obscureText: true,
                           isModal: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
                         WawatInputField(
-                          label: 'ПОДТВЕРДИТЕ ПАРОЛЬ',
-                          placeholder: 'Повторите пароль',
+                          label: S.of(context).bg334,
+                          placeholder: S.of(context).vbrgf2,
                           controller: _confirmPasswordController,
                           obscureText: true,
                           isModal: true,
@@ -353,8 +346,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                           builder: (_, isValid, __) {
                             return WawatButton(
                               text: _isLoading
-                                  ? 'Регистрация...'
-                                  : 'Создать аккаунт',
+                                  ? S.of(context).bgfd3
+                                  : S.of(context).bgd2,
                               onPressed: (isValid && !_isLoading)
                                   ? _handleRegister
                                   : null,
@@ -376,7 +369,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                                 style: WawatTextStyles.body,
                                 children: [
                                   TextSpan(
-                                    text: 'Уже есть аккаунт? ',
+                                    text: S.of(context).muj56,
                                     style: TextStyle(
                                       color: isDark
                                           ? const Color(0xFF9CA3AF)
@@ -384,7 +377,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: 'Войти',
+                                    text: S.of(context).ujt4,
                                     style: WawatTextStyles.link.copyWith(
                                       color: isDark
                                           ? const Color(0xFF6366F1)

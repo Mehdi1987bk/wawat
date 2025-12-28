@@ -6,6 +6,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../../domain/entities/pagination.dart';
 import '../../../main.dart';
+import '../request/change_password_request.dart';
 import '../request/courier_offer_model.dart';
 import '../request/courier_profile.dart';
 import '../request/create_review_request.dart';
@@ -217,5 +218,8 @@ abstract class AuthApi {
 
   @GET('/api/v1/geo/countries')
   Future<CountriesResponse> getCountries();
+
+  @POST('/api/v1/auth/change-password')
+  Future<void> changePassword(@Body() ChangePasswordRequest request);
 
 }

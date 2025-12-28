@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../../../data/network/response/user.dart';
 import '../../../../../services/theme_manager.dart';
 import '../profile_tab_bloc.dart';
+import '../settings/change_password_tab/change_password_tab_screen.dart';
 import '../settings/experience_tab/experience_tab_screen.dart';
 import '../settings/personal_info_tab/personal_info_tab_screen.dart';
 import '../settings/privacy_tab/privacy_tab_screen.dart';
@@ -23,7 +24,7 @@ class _EditProfileScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this); // 🔥 Изменено на 4
   }
 
   @override
@@ -129,6 +130,13 @@ class _EditProfileScreenState
                                 child: Icon(Icons.shield, size: 24),
                               ),
                             ),
+                            // 🔥 Новая вкладка для пароля
+                            Tab(
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Icon(Icons.key, size: 24),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -164,6 +172,8 @@ class _EditProfileScreenState
                             ExperienceTab(
                               user: snapshot.requireData,
                             ),
+                            // 🔥 Новая вкладка
+                            ChangePasswordTab(),
                           ],
                         ),
                       ),

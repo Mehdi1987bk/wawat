@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../../generated/l10n.dart';
 import '../../home/tabs/home_tab/courier_screen/courier_screen.dart';
 import '../../home/tabs/profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import '../bloc/chat_conversation_bloc.dart';
@@ -112,7 +113,7 @@ class _ChatConversationScreenState
                                       ? const Color(0xFFB0B0B0)
                                       : WawatColors.textSecondary,
                                 ),
-                                child: const Text('Начните переписку'),
+                                child:   Text(S.of(context).vgfbgf4),
                               ),
                             ],
                           ),
@@ -281,8 +282,8 @@ class _ChatConversationScreenState
                                 width: 16,
                               ),
                               const SizedBox(width: 3),
-                              const Text(
-                                'Проверен',
+                                Text(
+                                S.of(context).bgfbgfbgf4,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -314,8 +315,7 @@ class _ChatConversationScreenState
         ),
       ),
       actions: [
-        // Кнопка запроса на отзыв
-        IconButton(
+         IconButton(
           onPressed: () => _showSendRequestFromRewiew(isDark),
           icon: Container(
             width: 36,
@@ -414,7 +414,7 @@ class _ChatConversationScreenState
 
 
   void _showSendRequestFromRewiew(bool isDark) {
-    final screenContext = context; // Сохраняем контекст экрана
+    final screenContext = context;  
 
     showDialog(
       context: context,
@@ -425,7 +425,7 @@ class _ChatConversationScreenState
           style: WawatTextStyles.h3.copyWith(
             color: isDark ? Colors.white : Colors.black,
           ),
-          child: const Text('Отправить запрос на отзыв?'),
+          child:   Text(S.of(context).bgfbgfb4),
         ),
         content: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
@@ -433,7 +433,7 @@ class _ChatConversationScreenState
             color: isDark ? const Color(0xFFB0B0B0) : Colors.black,
           ),
           child: Text(
-            'Вы уверены, что хотите отправить ${widget.conversation.user.fullname} запрос на оценку ваших услуг?',
+            S.of(context).bgfbfgb4+' ${widget.conversation.user.fullname} ' + S.of(context).bfgbgbgy6,
           ),
         ),
         shape: RoundedRectangleBorder(
@@ -443,7 +443,7 @@ class _ChatConversationScreenState
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: Text(
-              'Отмена',
+              S.of(context).bgbgfgb43,
               style: WawatTextStyles.bodyBold.copyWith(
                 color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
               ),
@@ -454,11 +454,11 @@ class _ChatConversationScreenState
               Navigator.pop(dialogContext); // Закрываем диалог
               final success = await bloc.sendReviews(widget.conversation.user.id);
               if (success && mounted) {
-                showIOSStyleMessage(screenContext, 'Запрос на отзыв отправлен!'); // Используем контекст экрана
+                showIOSStyleMessage(screenContext, S.of(context).bgfbfg3);  
               }
             },
             child: Text(
-              'Отправить',
+              S.of(context).cdsdssde3,
               style: WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
             ),
           ),

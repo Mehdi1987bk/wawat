@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
@@ -30,18 +31,15 @@ class ForgotPasswordModal extends StatefulWidget {
 class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
   final _bloc = ForgotPasswordBloc();
 
-  // Controllers
-  final _emailController = TextEditingController();
+   final _emailController = TextEditingController();
   final _otpController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // State
-  int _currentStep = 0; // 0 = email, 1 = otp, 2 = new password
+   int _currentStep = 0;  
   bool _isLoading = false;
 
-  // Timer for OTP
-  Timer? _timer;
+   Timer? _timer;
   int _secondsRemaining = 0;
 
   @override
@@ -88,11 +86,10 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  /// Шаг 1: Отправить код на email
-  void _handleRequestOtp() async {
+   void _handleRequestOtp() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      showTopSnackbar('Введите email', false, context);
+      showTopSnackbar(S.of(context).email, false, context);
       return;
     }
 
@@ -100,7 +97,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
     if (success && mounted) {
       setState(() => _currentStep = 1);
       _startTimer(600); // 10 минут
-      showTopSnackbar('Код отправлен на $email', true, context);
+      showTopSnackbar(S.of(context).emailfre, true, context);
     }
   }
 
@@ -108,7 +105,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
   void _handleVerifyOtp() async {
     final otp = _otpController.text.trim();
     if (otp.isEmpty || otp.length != 6) {
-      showTopSnackbar('Введите 6-значный код', false, context);
+      showTopSnackbar(S.of(context).rfred2, false, context);
       return;
     }
 
@@ -125,18 +122,18 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (password.isEmpty || password.length < 6) {
-      showTopSnackbar('Пароль минимум 6 символов', false, context);
+      showTopSnackbar(S.of(context).vfd4, false, context);
       return;
     }
 
     if (password != confirmPassword) {
-      showTopSnackbar('Пароли не совпадают', false, context);
+      showTopSnackbar(S.of(context).vfdv3, false, context);
       return;
     }
 
     final success = await _bloc.resetPassword(password, confirmPassword);
     if (success && mounted) {
-      showTopSnackbar('Пароль успешно изменён!', true, context);
+      showTopSnackbar(S.of(context).rfewf43, true, context);
       Navigator.of(context).pop();
     }
   }
@@ -148,7 +145,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
     final success = await _bloc.requestOtp(_emailController.text.trim());
     if (success && mounted) {
       _startTimer(600);
-      showTopSnackbar('Код отправлен повторно', true, context);
+      showTopSnackbar(S.of(context).nhtf34, true, context);
     }
   }
 
@@ -189,7 +186,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
   }
 
   Widget _buildHeader(bool isDark) {
-    final titles = ['Забыли пароль?', 'Введите код', 'Новый пароль'];
+    final titles = [S.of(context).vfd23, S.of(context).vfd3, S.of(context).vfddfvd2];
 
     return Row(
       children: [
@@ -246,7 +243,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Введите email, на который зарегистрирован аккаунт',
+          S.of(context).emailvfd,
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white70 : Colors.grey.shade600,
@@ -254,7 +251,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         ),
         const SizedBox(height: 16),
         WawatInputField(
-          label: 'EMAIL',
+          label: S.of(context).emailbngf,
           placeholder: 'example@mail.com',
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
@@ -263,7 +260,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         ),
         const SizedBox(height: 20),
         WawatButton(
-          text: _isLoading ? 'Отправка...' : 'Отправить код',
+          text: _isLoading ? S.of(context).bgf3 : S.of(context).mut3,
           onPressed: _isLoading ? null : _handleRequestOtp,
           width: double.infinity,
         ),
@@ -276,7 +273,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Код отправлен на ${_emailController.text}',
+        S.of(context).bvgf2 + ' ${_emailController.text}',
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white70 : Colors.grey.shade600,
@@ -310,7 +307,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
               GestureDetector(
                 onTap: _isLoading ? null : _handleResendOtp,
                 child: Text(
-                  'Отправить повторно',
+                  S.of(context).bgf24,
                   style: WawatTextStyles.link.copyWith(
                     color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
                   ),
@@ -322,7 +319,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         const SizedBox(height: 20),
 
         WawatButton(
-          text: _isLoading ? 'Проверка...' : 'Подтвердить',
+          text: _isLoading ? S.of(context).bgf2 : S.of(context).vfd245,
           onPressed: _isLoading ? null : _handleVerifyOtp,
           width: double.infinity,
         ),
@@ -371,7 +368,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Придумайте новый пароль',
+          S.of(context).uy3,
           style: TextStyle(
             fontSize: 14,
             color: isDark ? Colors.white70 : Colors.grey.shade600,
@@ -380,8 +377,8 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         const SizedBox(height: 16),
 
         WawatInputField(
-          label: 'НОВЫЙ ПАРОЛЬ',
-          placeholder: 'Минимум 6 символов',
+          label: S.of(context).fvrdevfd54,
+          placeholder: S.of(context).my65,
           controller: _passwordController,
           obscureText: true,
           isModal: true,
@@ -389,8 +386,8 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         const SizedBox(height: 16),
 
         WawatInputField(
-          label: 'ПОДТВЕРДИТЕ ПАРОЛЬ',
-          placeholder: 'Повторите пароль',
+          label: S.of(context).uj334,
+          placeholder: S.of(context).ujt3,
           controller: _confirmPasswordController,
           obscureText: true,
           isModal: true,
@@ -398,7 +395,7 @@ class _ForgotPasswordModalState extends State<ForgotPasswordModal> {
         const SizedBox(height: 20),
 
         WawatButton(
-          text: _isLoading ? 'Сохранение...' : 'Сохранить пароль',
+          text: _isLoading ? S.of(context).nbhty3 : S.of(context).ukj3,
           onPressed: _isLoading ? null : _handleResetPassword,
           width: double.infinity,
         ),

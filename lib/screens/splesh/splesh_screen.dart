@@ -28,8 +28,7 @@ class _SpleshScreenState extends State<SpleshScreen> {
       final isFirstOpen = value.last as bool;
 
       if (isFirstOpen) {
-        // Первый запуск - показать IntroPage
-        sl.get<AuthRepository>().setIsFirstOpen();
+         sl.get<AuthRepository>().setIsFirstOpen();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -39,8 +38,7 @@ class _SpleshScreenState extends State<SpleshScreen> {
           ),
         );
       } else {
-        // Повторный запуск - перейти на HomeScreen
-        Navigator.pushReplacement(
+         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) {
@@ -61,8 +59,6 @@ class _SpleshScreenState extends State<SpleshScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              // Color(0xFF2662EA),
-              // Color(0xFF9333EA),
               Colors.white,
               Colors.white,
             ],

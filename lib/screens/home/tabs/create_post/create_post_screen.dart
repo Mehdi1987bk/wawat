@@ -10,6 +10,7 @@ import '../../../../data/network/request/courier_offer_model.dart';
 import '../../../../data/network/response/city.dart';
 import '../../../../data/network/response/offer_type_model.dart';
 import '../../../../data/network/response/package_types_response.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../auth/registration/widget/package_types_selector.dart';
@@ -153,7 +154,7 @@ class _CreatePostScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка загрузки типов предложений: $e'),
+            content: Text(S.of(context).bgfdbf3+' $e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -179,7 +180,7 @@ class _CreatePostScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка загрузки городов: $e'),
+            content: Text(S.of(context).bgvrgrbgr3 + ' $e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -205,7 +206,7 @@ class _CreatePostScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка загрузки типов упаковки: $e'),
+            content: Text(S.of(context).vfdvfdvfdv3+' $e'),
             backgroundColor: Colors.orange,
             duration: const Duration(seconds: 5),
           ),
@@ -297,7 +298,7 @@ class _CreatePostScreenState
                             fontWeight: FontWeight.w600,
                             color: isDark ? Colors.white : Colors.black,
                           ),
-                          child: const Text('Подать'),
+                          child:   Text(S.of(context).bvfv2r),
                         ),
                         const SizedBox(height: 8),
                         AnimatedDefaultTextStyle(
@@ -310,17 +311,17 @@ class _CreatePostScreenState
                             height: 1.4,
                           ),
                           textAlign: TextAlign.center,
-                          child: const Text(
-                            'Создайте объявление для поиска курьера или\nклиента',
+                          child:   Text(
+                            S.of(context).bgfbgbgfbgf,
                           ),
                         ),
                         const SizedBox(height: 32),
-                        _buildLabel('Тип предложения',
+                        _buildLabel(S.of(context).bgfbgfbgf,
                             isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildOfferTypeDropdown(isDark),
                         const SizedBox(height: 20),
-                        _buildLabel('Тип посылки',
+                        _buildLabel(S.of(context).nhgnhg4,
                             isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         PackageTypesSelector(
@@ -334,28 +335,28 @@ class _CreatePostScreenState
                           isLoading: _isLoadingPackageTypes,
                         ),
                         const SizedBox(height: 20),
-                        _buildLabel('Откуда', isRequired: true, isDark: isDark),
+                        _buildLabel(S.of(context).hythyt4, isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildCityField(
                           controller: fromController,
-                          hint: 'Город отправления',
+                          hint: S.of(context).kiukiuku6,
                           selectedCity: _selectedFromCity,
                           onTap: () => _showCitySelector(isFromCity: true),
                           isDark: isDark,
                         ),
                         const SizedBox(height: 20),
-                        _buildLabel('Куда', isRequired: true, isDark: isDark),
+                        _buildLabel(S.of(context).kiuykiu67, isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildCityField(
                           controller: toController,
-                          hint: 'Город назначения',
+                          hint: S.of(context).lkiuliuu6,
                           selectedCity: _selectedToCity,
                           onTap: () => _showCitySelector(isFromCity: false),
                           isDark: isDark,
                         ),
                         const SizedBox(height: 20),
                         ..._buildDateTimeFields(isDark),
-                        _buildLabel('Максимальный вес (кг)',
+                        _buildLabel(S.of(context).mjjhm6,
                             isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildTextField(
@@ -382,7 +383,7 @@ class _CreatePostScreenState
                           isDark: isDark,
                         ),
                         const SizedBox(height: 20),
-                        _buildLabel('Цена за кг (\$)',
+                        _buildLabel(S.of(context).bgfbgf34 + " (\$)",
                             isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildTextField(
@@ -409,12 +410,12 @@ class _CreatePostScreenState
                           isDark: isDark,
                         ),
                         const SizedBox(height: 20),
-                        _buildLabel('Описание',
+                        _buildLabel(S.of(context).vfdbg2r3,
                             isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildTextField(
                           controller: descriptionController,
-                          hint: 'Расскажите о своих услугах доставки...',
+                          hint: S.of(context).bdfbd2w,
                           maxLines: 5,
                           isDark: isDark,
                         ),
@@ -476,7 +477,7 @@ class _CreatePostScreenState
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Опубликовать объявление',
+                                    S.of(context).bgfbgf3,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -501,7 +502,7 @@ class _CreatePostScreenState
 
   Widget _buildOfferTypeDropdown(bool isDark) {
     return _buildDropdownField(
-      hint: 'Выберите тип',
+      hint: S.of(context).bgfbgfb3,
       value: selectedOfferType,
       icon: "asset/search.png",
       onChanged: (value) {
@@ -529,11 +530,11 @@ class _CreatePostScreenState
     switch (selectedOfferType) {
       case 'courier':
         return [
-          _buildLabel('Дата вылета', isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgfbgf3, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(flightDateController, 'дд.мм.гггг', isDark),
+          _buildDateField(flightDateController, S.of(context).bgbgfg334, isDark),
           const SizedBox(height: 20),
-          _buildLabel('Время вылета', isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgfbgf3434, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
           _buildTimeField(flightTimeController, isDark),
           const SizedBox(height: 20),
@@ -541,25 +542,25 @@ class _CreatePostScreenState
 
       case 'sender':
         return [
-          _buildLabel('Дата доставки с', isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgdfbg345, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(deliveryDateFromController, 'дд.мм.гггг', isDark),
+          _buildDateField(deliveryDateFromController, S.of(context).bgfbgf4554, isDark),
           const SizedBox(height: 20),
-          _buildLabel('Дата доставки до', isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgfgbfbgf345, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(deliveryDateToController, 'дд.мм.гггг', isDark),
+          _buildDateField(deliveryDateToController, S.of(context).bgfdbgf345, isDark),
           const SizedBox(height: 20),
         ];
 
       case 'buyer':
         return [
-          _buildLabel('Дата покупки с', isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgfb3, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(purchaseDateFromController, 'дд.мм.гггг', isDark),
+          _buildDateField(purchaseDateFromController, S.of(context).bgfbggfbgf34, isDark),
           const SizedBox(height: 20),
-          _buildLabel('Дата покупки до', isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).vfdv34, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(purchaseDateToController, 'дд.мм.гггг', isDark),
+          _buildDateField(purchaseDateToController, S.of(context).bgfbggfbgf34, isDark),
           const SizedBox(height: 20),
         ];
 
@@ -609,7 +610,7 @@ class _CreatePostScreenState
   Widget _buildTimeField(TextEditingController controller, bool isDark) {
     return _buildTextField(
       controller: controller,
-      hint: 'чч:мм (24-часовой формат)',
+      hint: S.of(context).vfdvfddfv24,
       suffixIcon: Icons.access_time,
       readOnly: true,
       onTap: () async {
@@ -692,14 +693,14 @@ class _CreatePostScreenState
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
-        showIOSStyleMessage(context, 'Объявление опубликовано!');
+        showIOSStyleMessage(context, S.of(context).vfdvfd24);
         _clearAllFields();
       }
     } catch (e, stackTrace) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка: $e'),
+            content: Text(S.of(context).vfdvf423+' $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -747,7 +748,7 @@ class _CreatePostScreenState
           ),
           children: [
             if (isRequired)
-              const TextSpan(
+                TextSpan(
                 text: ' *',
                 style: TextStyle(
                   color: Colors.red,

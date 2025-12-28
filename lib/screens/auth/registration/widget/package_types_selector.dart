@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/package_types_response.dart';
 import '../../../../data/network/response/type_option.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../services/theme_manager.dart';
 
 class PackageTypesSelector extends StatefulWidget {
@@ -28,7 +29,7 @@ class PackageTypesSelector extends StatefulWidget {
 class _PackageTypesSelectorState extends State<PackageTypesSelector> {
   String _getSelectedPackageTypesDisplay() {
     if (widget.selectedPackageTypeCodes.isEmpty) {
-      return 'Выбор';
+      return S.of(context).gbfbgfbfg4;
     }
 
     final selectedNames = <String>[];
@@ -47,14 +48,14 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     }
 
     final result = selectedNames.join(', ');
-    return result.isNotEmpty ? result : 'Выбор';
+    return result.isNotEmpty ? result : S.of(context).gbfbgfbfg4;
   }
 
   void _showPackageTypesBottomSheet(bool isDark) {
     if (widget.packageTypes.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Типы упаковки загружаются. Попробуйте позже.'),
+          SnackBar(
+          content: Text(S.of(context).t53grvfe5),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 3),
         ),
@@ -64,8 +65,8 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
 
     if (widget.packageTypes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Типы упаковки не загружены. Попробуйте позже.'),
+          SnackBar(
+          content: Text(S.of(context).bgfbgfbgf4),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
@@ -111,7 +112,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Выберите специализацию',
+                      S.of(context).bfgbgfb3,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -133,7 +134,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                 child: widget.packageTypes.isEmpty
                     ? Center(
                   child: Text(
-                    'Типы упаковки не найдены',
+                    S.of(context).bgbffgb3,
                     style: TextStyle(
                       color: isDark
                           ? const Color(0xFFB0B0B0)
@@ -211,8 +212,8 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                     minimumSize: const Size(double.infinity, 50),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Применить',
+                  child:   Text(
+                    S.of(context).bgfbggfbfg3,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -294,7 +295,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                           ),
                           child: Text(
                             widget.isLoading
-                                ? 'Загрузка...'
+                                ? S.of(context).bgfbgfb4
                                 : _getSelectedPackageTypesDisplay(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

@@ -11,8 +11,7 @@ class ThemeManager extends ChangeNotifier {
 
   ThemeManager();
 
-  // Синхронная инициализация - вызывается ДО создания приложения
-  static Future<ThemeManager> create() async {
+   static Future<ThemeManager> create() async {
     final manager = ThemeManager();
     await manager._loadTheme();
     manager._isInitialized = true;

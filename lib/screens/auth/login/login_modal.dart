@@ -2,6 +2,7 @@ import 'package:buking/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
@@ -20,7 +21,8 @@ class LoginModal extends StatefulWidget {
   @override
   State<LoginModal> createState() => _LoginModalState();
 
-  static Future<void> show(BuildContext context, {required VoidCallback onRegister}) {
+  static Future<void> show(BuildContext context,
+      {required VoidCallback onRegister}) {
     return showDialog(
       context: context,
       barrierDismissible: true,
@@ -83,12 +85,17 @@ class _LoginModalState extends State<LoginModal> {
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: WawatDimensions.spacingLg),
+          insetPadding:
+              EdgeInsets.symmetric(horizontal: WawatDimensions.spacingLg),
           child: Container(
-            constraints: BoxConstraints(maxWidth: WawatDimensions.modalMaxWidth),
+            constraints:
+                BoxConstraints(maxWidth: WawatDimensions.modalMaxWidth),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : WawatColors.backgroundWhite,
-              borderRadius: BorderRadius.circular(WawatDimensions.modalBorderRadius),
+              color: isDark
+                  ? const Color(0xFF1E1E1E)
+                  : WawatColors.backgroundWhite,
+              borderRadius:
+                  BorderRadius.circular(WawatDimensions.modalBorderRadius),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -100,11 +107,14 @@ class _LoginModalState extends State<LoginModal> {
                     children: [
                       Image.asset("asset/mini_logo.png", width: 35),
                       const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text('Вход', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      Expanded(
+                        child: Text(S.of(context).umt645,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600)),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close, color: isDark ? Colors.white : Colors.black),
+                        icon: Icon(Icons.close,
+                            color: isDark ? Colors.white : Colors.black),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -113,7 +123,7 @@ class _LoginModalState extends State<LoginModal> {
 
                   // Email
                   WawatInputField(
-                    label: 'EMAIL',
+                    label: S.of(context).emailbgf,
                     placeholder: 'example@mail.com',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -124,8 +134,8 @@ class _LoginModalState extends State<LoginModal> {
 
                   // Password
                   WawatInputField(
-                    label: 'ПАРОЛЬ',
-                    placeholder: 'Минимум 6 символов',
+                    label: S.of(context).nty35,
+                    placeholder: S.of(context).nfngfngf645,
                     controller: _passwordController,
                     obscureText: true,
                     isModal: true,
@@ -141,9 +151,11 @@ class _LoginModalState extends State<LoginModal> {
                       children: [
                         Spacer(),
                         Text(
-                          'Забыли пароль?',
+                          S.of(context).kiyt3,
                           style: WawatTextStyles.link.copyWith(
-                            color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
+                            color: isDark
+                                ? const Color(0xFF6366F1)
+                                : WawatColors.primary,
                           ),
                           textAlign: TextAlign.end,
                         ),
@@ -155,7 +167,7 @@ class _LoginModalState extends State<LoginModal> {
 
                   // Login button
                   WawatButton(
-                    text: _isLoading ? 'Вход...' : 'Войти',
+                    text: _isLoading ? S.of(context).ykuj3 : S.of(context).iykuj34,
                     onPressed: _isLoading ? null : _handleLogin,
                     width: double.infinity,
                   ),
@@ -168,9 +180,11 @@ class _LoginModalState extends State<LoginModal> {
                       widget.onRegister();
                     },
                     child: Text(
-                      'Нет аккаунта? Зарегистрироваться',
+                      S.of(context).myt3,
                       style: WawatTextStyles.link.copyWith(
-                        color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
+                        color: isDark
+                            ? const Color(0xFF6366F1)
+                            : WawatColors.primary,
                       ),
                     ),
                   ),

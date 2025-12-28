@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 
-/// Модальное окно "Требуется регистрация"
-class AuthRequiredModal extends StatelessWidget {
+ class AuthRequiredModal extends StatelessWidget {
   final VoidCallback onRegister;
   final VoidCallback onLogin;
 
@@ -44,8 +44,7 @@ class AuthRequiredModal extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icon
-                Container(
+                 Container(
                   width: 54,
                   height: 54,
                   decoration: BoxDecoration(
@@ -65,9 +64,8 @@ class AuthRequiredModal extends StatelessWidget {
                 ),
                 SizedBox(height: WawatDimensions.spacingLg),
 
-                // Title
-                Text(
-                  'Требуется регистрация',
+                 Text(
+                  S.of(context).t54,
                   style: WawatTextStyles.h3.copyWith(
                     color: isDark ? Colors.white : Colors.black,
                   ),
@@ -75,9 +73,8 @@ class AuthRequiredModal extends StatelessWidget {
                 ),
                 SizedBox(height: WawatDimensions.spacingMd),
 
-                // Description
-                Text(
-                  'Для доступа к этой функции необходимо зарегистрироваться или войти в аккаунт',
+                 Text(
+                  S.of(context).rft43,
                   style: WawatTextStyles.caption.copyWith(
                     color: isDark
                         ? const Color(0xFF9CA3AF)
@@ -87,27 +84,24 @@ class AuthRequiredModal extends StatelessWidget {
                 ),
                 SizedBox(height: WawatDimensions.spacingLg),
 
-                // Register Button
-                WawatButton(
-                  text: 'Зарегистрироваться',
+                 WawatButton(
+                  text: S.of(context).ffr4,
                   onPressed: onRegister,
                   width: double.infinity,
                 ),
                 SizedBox(height: WawatDimensions.spacingMd),
 
-                // Login Button
-                WawatOutlineButton(
-                  text: 'Войти',
+                 WawatOutlineButton(
+                  text: S.of(context).fr43,
                   onPressed: onLogin,
                   width: double.infinity,
                 ),
                 SizedBox(height: WawatDimensions.spacingMd),
 
-                // Cancel Link
-                TextButton(
+                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
-                    'Отмена',
+                    S.of(context).fre45,
                     style: WawatTextStyles.body.copyWith(
                       color: isDark
                           ? const Color(0xFF9CA3AF)

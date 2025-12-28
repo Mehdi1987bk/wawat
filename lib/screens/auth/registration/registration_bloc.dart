@@ -16,13 +16,11 @@ class RegistrationBloc extends BaseBloc {
   late final Future<LanguageResponse> getLanguages =
   _authRepository.getLanguages();
 
-  /// Получить список стран
-  Future<CountriesResponse> getCountries() {
+   Future<CountriesResponse> getCountries() {
     return _authApi.getCountries();
   }
 
-  /// 🔥 ВАЖНО: теперь возвращает bool
-  Future<bool> register({
+   Future<bool> register({
     required String name,
     required String email,
     required String phone,
@@ -47,21 +45,19 @@ class RegistrationBloc extends BaseBloc {
 
     try {
       await _authRepository.registration(request);
-      return true; // ✅ УСПЕХ
+      return true;
     } on DioException catch (e) {
       final message = _parseDioError(e);
       errorSink.add(message);
-      return false; // ❌ ОШИБКА
-    } catch (_) {
-      errorSink.add('Ошибка регистрации');
       return false;
+    } catch (_) {
+       return false;
     } finally {
       loadingSink.add(false);
     }
   }
 
-  /// 🔧 Парсер ошибок API
-  String _parseDioError(DioException e) {
+   String _parseDioError(DioException e) {
     final data = e.response?.data;
 
     if (data is Map<String, dynamic>) {

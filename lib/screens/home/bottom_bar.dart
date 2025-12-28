@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../generated/l10n.dart';
 import '../../services/theme_manager.dart';
 
 class BottomBar extends StatelessWidget {
@@ -38,7 +39,7 @@ class BottomBar extends StatelessWidget {
               BottomNavigationItem(
                 index: 0,
                 selectedIndex: selectedIndex,
-                label: 'Поиск',
+                label: S.of(context).nhhfge4,
                 svgIcon: 'asset/tab1.svg',
                 onChanged: onChanged,
                 isCentral: false,
@@ -47,7 +48,7 @@ class BottomBar extends StatelessWidget {
               BottomNavigationItem(
                 index: 1,
                 selectedIndex: selectedIndex,
-                label: 'Чаты',
+                label: S.of(context).mjhmhjmj5,
                 svgIcon: 'asset/tab2.svg',
                 onChanged: onChanged,
                 isCentral: false,
@@ -56,7 +57,7 @@ class BottomBar extends StatelessWidget {
               BottomNavigationItem(
                 index: 2,
                 selectedIndex: selectedIndex,
-                label: 'Подать',
+                label: S.of(context).nhnnh5,
                 svgIcon: 'asset/tab3.svg',
                 onChanged: onChanged,
                 isCentral: true,
@@ -65,7 +66,7 @@ class BottomBar extends StatelessWidget {
               BottomNavigationItem(
                 index: 3,
                 selectedIndex: selectedIndex,
-                label: 'Избранное',
+                label: S.of(context).gbfbgfgb,
                 svgIcon: 'asset/tab4.svg',
                 onChanged: onChanged,
                 isCentral: false,
@@ -74,7 +75,7 @@ class BottomBar extends StatelessWidget {
               BottomNavigationItem(
                 index: 4,
                 selectedIndex: selectedIndex,
-                label: 'Аккаунт',
+                label: S.of(context).vfdvfdvfd,
                 svgIcon: 'asset/tab5.svg',
                 onChanged: onChanged,
                 isCentral: false,
@@ -132,8 +133,7 @@ class BottomNavigationItem extends StatelessWidget {
         ? Colors.white
         : (isSelected ? activeColor : inactiveColor);
 
-    // Градиент для центральной кнопки
-    final gradient = LinearGradient(
+     final gradient = LinearGradient(
       colors: [Color(0xFF2662EA), Color(0xFF9333EA)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
@@ -82,7 +83,7 @@ class _ChatInputState extends State<ChatInput> {
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Сообщение...',
+                        hintText: S.of(context).yhtrhtrtrh4,
                         hintStyle: WawatTextStyles.placeholder.copyWith(
                           color: isDark
                               ? const Color(0xFF6B7280)
@@ -154,7 +155,7 @@ class _ChatInputState extends State<ChatInput> {
                 style: WawatTextStyles.bodyBold.copyWith(
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child: const Text('Фото'),
+                child:   Text(S.of(context).bgfbgfbg4),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -178,7 +179,7 @@ class _ChatInputState extends State<ChatInput> {
                 style: WawatTextStyles.bodyBold.copyWith(
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child: const Text('Файл'),
+                child:   Text(S.of(context).bgfbgfgf4),
               ),
               onTap: () {
                 Navigator.pop(context);

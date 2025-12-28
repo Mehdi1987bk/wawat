@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/network/response/chat_response.dart';
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
@@ -134,8 +135,8 @@ class ConversationItem extends StatelessWidget {
                                                   width: 16,
                                                 ),
                                                 const SizedBox(width: 3),
-                                                const Text(
-                                                  'Проверен',
+                                                  Text(
+                                                  S.of(context).bgfbgf4,
                                                   style: TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w600,
@@ -192,7 +193,7 @@ class ConversationItem extends StatelessWidget {
                                         conversation.unreadCount > 0
                                             ? (conversation.unreadCount > 99
                                                 ? '99+'
-                                                : '${conversation.unreadCount} новых сообщения')
+                                                : '${conversation.unreadCount} ' + S.of(context).bgbgffbgfg4)
                                             : conversation.lastMessagePreview,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

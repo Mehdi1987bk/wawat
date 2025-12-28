@@ -4,6 +4,8 @@ import 'package:buking/services/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../generated/l10n.dart';
+
 class IntroPage extends StatelessWidget {
   const IntroPage({Key? key}) : super(key: key);
 
@@ -20,15 +22,13 @@ class IntroPage extends StatelessWidget {
             child: SafeArea(
               child: Column(
                 children: [
-                  // Центральный контент
                   Expanded(
                     child: Center(
                       child: SingleChildScrollView(
-                        child: _buildHeroSection(isDark),
+                        child: _buildHeroSection(context, isDark), 
                       ),
                     ),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: _buildSearchButton(context),
@@ -73,10 +73,10 @@ class IntroPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Text(
-                'Продолжить',
-                style: TextStyle(
+                S.of(context).vfdvd,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -89,7 +89,7 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection(bool isDark) {
+  Widget _buildHeroSection(BuildContext context, bool isDark) { // Добавлен BuildContext context
     return Column(
       children: [
         Padding(
@@ -111,8 +111,8 @@ class IntroPage extends StatelessWidget {
               height: 1.4,
             ),
             textAlign: TextAlign.center,
-            child: const Text(
-              'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
+            child: Text(
+              S.of(context).vvvvvf,
             ),
           ),
         ),
@@ -123,13 +123,12 @@ class IntroPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color:
-              isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
+              color: isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
               height: 1.4,
             ),
             textAlign: TextAlign.center,
-            child: const Text(
-              'Быстрая и безопасная доставка посылок по всему миру',
+            child: Text(
+              S.of(context).r43,
             ),
           ),
         ),
@@ -138,7 +137,6 @@ class IntroPage extends StatelessWidget {
   }
 }
 
-// Класс с цветами (если у вас еще нет)
 class WawatColors {
   static const Color textPrimary = Color(0xFF333333);
   static const Color textSecondary = Color(0xFF666666);
