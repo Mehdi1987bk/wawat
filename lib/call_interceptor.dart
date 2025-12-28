@@ -23,6 +23,12 @@ class CallInterceptor extends Interceptor {
       options.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
     }
 
+    // Добавляем язык в header
+    final locale = await _storage.getLocaleAsync();
+    if (locale != null) {
+      options.headers['Accept-Language'] = locale.languageCode;
+    }
+
     return handler.next(options);
   }
 

@@ -9,6 +9,7 @@ import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
+import '../forgot_password/forgot_password_modal.dart';
 import '../login/login_bloc.dart';
 
 class LoginModal extends StatefulWidget {
@@ -129,7 +130,28 @@ class _LoginModalState extends State<LoginModal> {
                     obscureText: true,
                     isModal: true,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
+// Forgot password link
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      ForgotPasswordModal.show(context);
+                    },
+                    child: Row(
+                      children: [
+                        Spacer(),
+                        Text(
+                          'Забыли пароль?',
+                          style: WawatTextStyles.link.copyWith(
+                            color: isDark ? const Color(0xFF6366F1) : WawatColors.primary,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
 
                   // Login button
                   WawatButton(

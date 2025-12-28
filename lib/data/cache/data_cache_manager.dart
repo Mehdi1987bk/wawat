@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:hive_flutter/adapters.dart';
@@ -99,8 +98,6 @@ class DataCacheManager implements CacheManager {
     return box.put(_firstOpen, false);
   }
 
-  // Добавьте эти методы в класс DataCacheManager
-
   @override
   Future<int?> getUserId() async {
     try {
@@ -155,5 +152,11 @@ class DataCacheManager implements CacheManager {
     );
   }
 
-
+  // ДОБАВИТЬ ЭТОТ МЕТОД
+  @override
+  Future<Locale?> getLocaleAsync() async {
+    final box = await _settingsBox;
+    final languageCode = box.get(_localeKey);
+    return languageCode == null ? null : Locale(languageCode);
+  }
 }

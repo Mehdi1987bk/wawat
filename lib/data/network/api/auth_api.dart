@@ -12,6 +12,9 @@ import '../request/create_review_request.dart';
 import '../request/delivery_offer_request.dart';
 import '../request/edit_status_offer_request.dart';
 import '../request/forgot_password_request.dart';
+import '../request/forgot_password_request_email.dart';
+import '../request/forgot_password_reset_request.dart';
+import '../request/forgot_password_verify_request.dart';
 import '../request/login_request.dart';
 import '../request/notification_settings.dart';
 import '../request/offer_response.dart';
@@ -22,6 +25,7 @@ import '../request/support_request.dart';
 import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/cities_response.dart';
+import '../response/forgot_password_response.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
 import '../response/login_response_data.dart';
@@ -193,4 +197,20 @@ abstract class AuthApi {
 
   @GET('/api/v1/reviews/left')
   Future<ReviewsResponse> myAboutLeft();
+
+  @POST('/api/v1/auth/forgot-password/request')
+  Future<ForgotPasswordResponse> forgotPasswordRequest(
+      @Body() ForgotPasswordRequestEmail request,
+      );
+
+  @POST('/api/v1/auth/forgot-password/verify')
+  Future<void> forgotPasswordVerify(
+      @Body() ForgotPasswordVerifyRequest request,
+      );
+
+  @POST('/api/v1/auth/forgot-password/reset')
+  Future<void> forgotPasswordReset(
+      @Body() ForgotPasswordResetRequest request,
+      );
+
 }

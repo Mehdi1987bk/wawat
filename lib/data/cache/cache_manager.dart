@@ -1,5 +1,3 @@
-
-
 import 'dart:ui';
 
 import '../network/response/user.dart';
@@ -37,4 +35,6 @@ abstract class CacheManager {
   Stream<Locale?> get locale;
 
   Locale? getLocale();
+
+  Future<Locale?> getLocaleAsync();  // <-- ДОБАВИТЬ ЭТУ СТРОКУ
 }
