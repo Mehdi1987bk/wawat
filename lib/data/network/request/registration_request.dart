@@ -14,6 +14,8 @@ class RegistrationRequest {
   final List<String> languages;
   @JsonKey(name: 'accepted_terms')
   final bool acceptedTerms;
+  @JsonKey(name: 'calling_code')
+  final String? callingCode;
 
   RegistrationRequest({
     required this.fullname,
@@ -23,6 +25,7 @@ class RegistrationRequest {
     required this.passwordConfirmation,
     required this.languages,
     required this.acceptedTerms,
+    this.callingCode,
   });
 
   factory RegistrationRequest.fromJson(Map<String, dynamic> json) =>

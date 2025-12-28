@@ -25,6 +25,7 @@ import '../request/support_request.dart';
 import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/cities_response.dart';
+import '../response/countries_response.dart';
 import '../response/forgot_password_response.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
@@ -212,5 +213,9 @@ abstract class AuthApi {
   Future<void> forgotPasswordReset(
       @Body() ForgotPasswordResetRequest request,
       );
+
+
+  @GET('/api/v1/geo/countries')
+  Future<CountriesResponse> getCountries();
 
 }
