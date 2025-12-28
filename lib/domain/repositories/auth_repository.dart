@@ -55,12 +55,14 @@ abstract class AuthRepository {
   Future<LanguageResponse> getLanguages();
 
   Future<void> profileEdit(
-    String name,
-    String email,
-    String phone,
-    String location,
-    String about,
-  );
+      String name,
+      String email,
+      String phone,
+      String location,
+      String about,
+      String? callingCode,
+      );
+
 
   Future<void> forgotPassword(ForgotPasswordrRequest request);
 

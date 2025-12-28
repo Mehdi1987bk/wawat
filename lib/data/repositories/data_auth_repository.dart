@@ -128,20 +128,25 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.getLanguages();
   }
 
+  @override
   Future<void> profileEdit(
-    String name,
-    String email,
-    String phone,
-    String location,
-    String about,
-  ) {
+      String name,
+      String email,
+      String phone,
+      String location,
+      String about,
+      String? callingCode,
+      ) {
     return _authApi.profileEdit(UserRequest(
-        fullname: name,
-        email: email,
-        phone: phone,
-        about: about,
-        locationText: location));
+      fullname: name,
+      email: email,
+      phone: phone,
+      about: about,
+      locationText: location,
+      callingCode: callingCode,
+    ));
   }
+
 
   @override
   Future<void> forgotPassword(ForgotPasswordrRequest request) {

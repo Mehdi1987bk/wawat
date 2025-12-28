@@ -14,6 +14,7 @@ UserRequest _$UserRequestFromJson(Map<String, dynamic> json) => UserRequest(
       locationText: json['location_text'] as String?,
       about: json['about'] as String?,
       yearsOfExperienceText: json['years_of_experience_text'] as String?,
+      callingCode: json['calling_code'] as String?,
     );
 
 Map<String, dynamic> _$UserRequestToJson(UserRequest instance) {
@@ -33,5 +34,6 @@ Map<String, dynamic> _$UserRequestToJson(UserRequest instance) {
   writeNotNull('location_text', instance.locationText);
   writeNotNull('about', instance.about);
   writeNotNull('years_of_experience_text', instance.yearsOfExperienceText);
+  writeNotNull('calling_code', instance.callingCode);
   return val;
 }

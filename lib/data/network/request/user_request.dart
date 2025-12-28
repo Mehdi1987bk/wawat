@@ -13,8 +13,6 @@ class UserRequest {
   @JsonKey(name: 'phone')
   final String phone;
 
-
-
   @JsonKey(name: 'location_city_id', includeIfNull: false)
   final int? locationCityId;
 
@@ -27,46 +25,49 @@ class UserRequest {
   @JsonKey(name: 'years_of_experience_text', includeIfNull: false)
   final String? yearsOfExperienceText;
 
+  @JsonKey(name: 'calling_code', includeIfNull: false)
+  final String? callingCode;
+
   UserRequest({
     required this.fullname,
     required this.email,
     required this.phone,
-     this.locationCityId,
+    this.locationCityId,
     this.locationText,
     this.about,
     this.yearsOfExperienceText,
+    this.callingCode,
   });
 
-  /// Convert a UserRequest instance to JSON map
   factory UserRequest.fromJson(Map<String, dynamic> json) =>
       _$UserRequestFromJson(json);
 
-  /// Convert a UserRequest instance to JSON
   Map<String, dynamic> toJson() => _$UserRequestToJson(this);
 
-  /// Copy with method for easy modifications
   UserRequest copyWith({
     String? fullname,
     String? email,
     String? phone,
-     int? locationCityId,
+    int? locationCityId,
     String? locationText,
     String? about,
     String? yearsOfExperienceText,
+    String? callingCode,
   }) {
     return UserRequest(
       fullname: fullname ?? this.fullname,
       email: email ?? this.email,
       phone: phone ?? this.phone,
-       locationCityId: locationCityId ?? this.locationCityId,
+      locationCityId: locationCityId ?? this.locationCityId,
       locationText: locationText ?? this.locationText,
       about: about ?? this.about,
       yearsOfExperienceText: yearsOfExperienceText ?? this.yearsOfExperienceText,
+      callingCode: callingCode ?? this.callingCode,
     );
   }
 
   @override
   String toString() {
-    return 'UserRequest(fullname: $fullname, email: $email, phone: $phone,  locationCityId: $locationCityId, locationText: $locationText, about: $about, yearsOfExperienceText: $yearsOfExperienceText)';
+    return 'UserRequest(fullname: $fullname, email: $email, phone: $phone, locationCityId: $locationCityId, locationText: $locationText, about: $about, yearsOfExperienceText: $yearsOfExperienceText, callingCode: $callingCode)';
   }
 }

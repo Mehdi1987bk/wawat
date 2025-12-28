@@ -1,9 +1,11 @@
 import 'package:buking/screens/auth/registration/registration_bloc.dart';
+import 'package:buking/screens/auth/registration/widget/country_code_selector.dart';
 import 'package:buking/screens/auth/registration/widget/language_selector.dart';
 import 'package:buking/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/network/response/country.dart';
 import '../../../data/network/response/language.dart';
 import '../../../domain/entities/patterns.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
@@ -50,6 +52,11 @@ class _RegistrationModalState extends State<RegistrationModal> {
   List<Language> _allLanguages = [];
   bool _isLoadingLanguages = false;
 
+  // Countries
+  List<Country> _allCountries = [];
+  Country? _selectedCountry;
+  bool _isLoadingCountries = false;
+
   final _bloc = RegistrationBloc();
   bool _isLoading = false;
 
@@ -66,12 +73,12 @@ class _RegistrationModalState extends State<RegistrationModal> {
     _confirmPasswordController.addListener(_validateForm);
 
     _loadLanguages();
+    _loadCountries();
 
     _bloc.loadingStream.listen((isLoading) {
       if (mounted) setState(() => _isLoading = isLoading);
     });
 
-    // 🔥 ИСПРАВЛЕНИЕ: добавлена обработка ошибок
     _bloc.errorStream.listen((error) {
       if (!mounted) return;
       showTopSnackbar(error.toString(), false, context);
@@ -85,7 +92,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
             Patterns.textField.hasMatch(_phoneController.text.trim()) &&
             Patterns.textField.hasMatch(_passwordController.text.trim()) &&
             _agreedToTerms &&
-            _selectedLanguageCodes.isNotEmpty;
+            _selectedLanguageCodes.isNotEmpty &&
+            _selectedCountry != null;
 
     _isFormValidNotifier.value = isValid;
   }
@@ -106,7 +114,27 @@ class _RegistrationModalState extends State<RegistrationModal> {
     }
   }
 
-  /// 🔥 Обработка регистрации с блокировкой навигации при ошибке
+  Future<void> _loadCountries() async {
+    try {
+      setState(() => _isLoadingCountries = true);
+      final response = await _bloc.getCountries();
+      if (mounted) {
+        setState(() {
+          _allCountries = response.data;
+          // По умолчанию выбираем Азербайджан (AZ)
+          _selectedCountry = _allCountries.firstWhere(
+                (c) => c.code == 'AZ',
+            orElse: () => _allCountries.first,
+          );
+          _isLoadingCountries = false;
+        });
+        _validateForm();
+      }
+    } catch (_) {
+      setState(() => _isLoadingCountries = false);
+    }
+  }
+
   void _handleRegister() async {
     final success = await _bloc.register(
       name: _nameController.text.trim(),
@@ -116,9 +144,10 @@ class _RegistrationModalState extends State<RegistrationModal> {
       passwordConfirmation: _confirmPasswordController.text.trim(),
       acceptedTerms: _agreedToTerms,
       communicationLanguageCodes: _selectedLanguageCodes.toList(),
+      callingCode: _selectedCountry?.callingCode,
     );
 
-    if (!success) return; // ⛔ НЕ НАВИГИРУЕМ
+    if (!success) return;
 
     if (!mounted) return;
 
@@ -173,8 +202,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                             Text(
                               'Регистрация',
                               style: WawatTextStyles.h3.copyWith(
-                                color:
-                                isDark ? Colors.white : Colors.black,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                             Text(
@@ -191,8 +219,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                       IconButton(
                         icon: Icon(
                           Icons.close,
-                          color:
-                          isDark ? Colors.white : Colors.black,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
@@ -222,12 +249,71 @@ class _RegistrationModalState extends State<RegistrationModal> {
                           isEmail: true,
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
-                        WawatInputField(
-                          label: 'ТЕЛЕФОН',
-                          placeholder: '+7 (999) 123-45-67',
-                          controller: _phoneController,
-                          isModal: true,
+
+                        // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ
+                        Text(
+                          'ТЕЛЕФОН',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white70 : Colors.grey.shade600,
+                            letterSpacing: 0.5,
+                          ),
                         ),
+                        const SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Country code selector
+                            CountryCodeSelector(
+                              selectedCountry: _selectedCountry,
+                              countries: _allCountries,
+                              isLoading: _isLoadingCountries,
+                              onChanged: (country) {
+                                setState(() => _selectedCountry = country);
+                                _validateForm();
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            // Phone input
+                            Expanded(
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF2A2A2A)
+                                      : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? Colors.white12
+                                        : Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: '123 45 67',
+                                    hintStyle: TextStyle(
+                                      color: isDark
+                                          ? Colors.white38
+                                          : Colors.grey,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                     ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
                         SizedBox(height: WawatDimensions.spacingMd),
                         WawatInputField(
                           label: 'ПАРОЛЬ',
@@ -269,8 +355,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                               text: _isLoading
                                   ? 'Регистрация...'
                                   : 'Создать аккаунт',
-                              onPressed:
-                              (isValid && !_isLoading)
+                              onPressed: (isValid && !_isLoading)
                                   ? _handleRegister
                                   : null,
                               width: double.infinity,

@@ -117,6 +117,9 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       stats: json['stats'] == null
           ? null
           : Stats.fromJson(json['stats'] as Map<String, dynamic>),
+      country: json['country'] == null
+          ? null
+          : Country.fromJson(json['country'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -135,4 +138,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'profile': instance.profile,
       'is_verified': instance.isVerified,
       'stats': instance.stats,
+      'country': instance.country,
     };

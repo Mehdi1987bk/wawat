@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/screens/auth/registration/widget/country_code_selector.dart';
 import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/personal_info_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/widget/profile_image_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../../data/network/response/country.dart';
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/common/image_selector.dart';
@@ -41,6 +43,12 @@ class _PersonalInfoTabState
   late String _initialLocation;
   late String _initialAbout;
 
+  // Countries
+  List<Country> _allCountries = [];
+  Country? _selectedCountry;
+  Country? _initialCountry;
+  bool _isLoadingCountries = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +58,8 @@ class _PersonalInfoTabState
     _initialPhone = widget.user.phone ?? '';
     _initialLocation = widget.user.profile?.locationText ?? '';
     _initialAbout = widget.user.profile?.about ?? '';
+    _initialCountry = widget.user.country;
+    _selectedCountry = widget.user.country;
 
     _fullNameController = TextEditingController(text: _initialFullname);
     _emailController = TextEditingController(text: _initialEmail);
@@ -62,6 +72,31 @@ class _PersonalInfoTabState
     _phoneController.addListener(_validateForm);
     _locationController.addListener(_validateForm);
     _aboutController.addListener(_validateForm);
+
+    _loadCountries();
+  }
+
+  Future<void> _loadCountries() async {
+    try {
+      setState(() => _isLoadingCountries = true);
+      final response = await bloc.getCountries();
+      if (mounted) {
+        setState(() {
+          _allCountries = response.data;
+          // Если у пользователя уже есть код - находим его в списке
+          if (widget.user.country != null) {
+            _selectedCountry = _allCountries.firstWhere(
+                  (c) => c.id == widget.user.country!.id,
+              orElse: () => widget.user.country!,
+            );
+            _initialCountry = _selectedCountry;
+          }
+          _isLoadingCountries = false;
+        });
+      }
+    } catch (_) {
+      setState(() => _isLoadingCountries = false);
+    }
   }
 
   @override
@@ -113,12 +148,14 @@ class _PersonalInfoTabState
                       child: const Text('Нажмите для изменения фото'),
                     ),
                     const SizedBox(height: 24),
-                    // ❌ Только для чтения с "пленкой"
                     _buildReadOnlyTextField('Полное имя', _fullNameController, isDark),
                     const SizedBox(height: 16),
                     _buildReadOnlyTextField('Email', _emailController, isDark),
                     const SizedBox(height: 16),
-                    _buildReadOnlyTextField('Телефон', _phoneController, isDark),
+
+                    // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ (РЕДАКТИРУЕМЫЙ)
+                    _buildPhoneFieldWithCountry(isDark),
+
                     const SizedBox(height: 16),
                     _buildTextField('Местоположение', _locationController, isDark),
                     const SizedBox(height: 16),
@@ -225,6 +262,92 @@ class _PersonalInfoTabState
     );
   }
 
+  // 🔥 Телефон с выбором кода страны
+  Widget _buildPhoneFieldWithCountry(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+          child: const Text('Телефон'),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            // Country code selector (editable)
+            CountryCodeSelector(
+              selectedCountry: _selectedCountry,
+              countries: _allCountries,
+              isLoading: _isLoadingCountries,
+              onChanged: (country) {
+                setState(() => _selectedCountry = country);
+                _validateForm();
+              },
+            ),
+            const SizedBox(width: 8),
+
+            // Phone number field (read-only)
+            Expanded(
+              child: Stack(
+                children: [
+                  TextField(
+                    controller: _phoneController,
+                    readOnly: true,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: isDark
+                          ? const Color(0xFF2A2A2A)
+                          : Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: isDark
+                              ? const Color(0xFF4A4A4A)
+                              : const Color(0xFFE5E5EA),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: isDark
+                              ? const Color(0xFF4A4A4A)
+                              : const Color(0xFFE5E5EA),
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.black.withOpacity(0.2)
+                            : Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   provideBloc() {
     return PersonalInfoTabBloc();
@@ -311,7 +434,6 @@ class _PersonalInfoTabState
     );
   }
 
-  // ❌ Новая функция для ReadOnly полей с "пленкой"
   Widget _buildReadOnlyTextField(
       String label, TextEditingController controller, bool isDark) {
     return Column(
@@ -386,11 +508,15 @@ class _PersonalInfoTabState
         currentEmail.isNotEmpty &&
         currentPhone.isNotEmpty;
 
+    // Проверяем изменился ли код страны
+    final isCountryChanged = _selectedCountry?.id != _initialCountry?.id;
+
     final isAnythingChanged = currentFullname != _initialFullname ||
         currentEmail != _initialEmail ||
         currentPhone != _initialPhone ||
         currentLocation != _initialLocation ||
-        currentAbout != _initialAbout;
+        currentAbout != _initialAbout ||
+        isCountryChanged;
 
     _isFormValid.value = isRequiredFieldsFilled && isAnythingChanged;
   }
@@ -404,15 +530,20 @@ class _PersonalInfoTabState
 
     bloc
         .profileEdit(
-        name: name,
-        email: email,
-        phone: phone,
-        location: location,
-        about: about)
+      name: name,
+      email: email,
+      phone: phone,
+      location: location,
+      about: about,
+      callingCode: _selectedCountry?.callingCode,
+    )
         .then(
           (onValue) {
+        // Обновляем initial значение после сохранения
+        _initialCountry = _selectedCountry;
         bloc.customersMe();
         showIOSStyleMessage(context, 'Сохранено');
+        _validateForm(); // Пересчитываем валидацию
       },
     );
   }

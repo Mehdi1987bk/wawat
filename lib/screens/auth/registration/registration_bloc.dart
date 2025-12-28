@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 
+import '../../../data/network/api/auth_api.dart';
 import '../../../data/network/request/registration_request.dart';
+import '../../../data/network/response/countries_response.dart';
 import '../../../data/network/response/language_response.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
@@ -9,9 +11,15 @@ import '../../../presentation/bloc/base_bloc.dart';
 
 class RegistrationBloc extends BaseBloc {
   final AuthRepository _authRepository = sl.get<AuthRepository>();
+  final AuthApi _authApi = sl.get<AuthApi>();
 
   late final Future<LanguageResponse> getLanguages =
   _authRepository.getLanguages();
+
+  /// Получить список стран
+  Future<CountriesResponse> getCountries() {
+    return _authApi.getCountries();
+  }
 
   /// 🔥 ВАЖНО: теперь возвращает bool
   Future<bool> register({
@@ -22,6 +30,7 @@ class RegistrationBloc extends BaseBloc {
     required String passwordConfirmation,
     required bool acceptedTerms,
     required List<String> communicationLanguageCodes,
+    String? callingCode,
   }) async {
     loadingSink.add(true);
 
@@ -33,6 +42,7 @@ class RegistrationBloc extends BaseBloc {
       passwordConfirmation: passwordConfirmation,
       acceptedTerms: acceptedTerms,
       languages: communicationLanguageCodes,
+      callingCode: callingCode,
     );
 
     try {

@@ -16,6 +16,7 @@ RegistrationRequest _$RegistrationRequestFromJson(Map<String, dynamic> json) =>
       languages:
           (json['languages'] as List<dynamic>).map((e) => e as String).toList(),
       acceptedTerms: json['accepted_terms'] as bool,
+      callingCode: json['calling_code'] as String?,
     );
 
 Map<String, dynamic> _$RegistrationRequestToJson(
@@ -28,4 +29,5 @@ Map<String, dynamic> _$RegistrationRequestToJson(
       'password_confirmation': instance.passwordConfirmation,
       'languages': instance.languages,
       'accepted_terms': instance.acceptedTerms,
+      'calling_code': instance.callingCode,
     };

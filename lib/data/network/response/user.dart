@@ -3,7 +3,8 @@ import 'package:buking/data/network/response/professional.dart';
 import 'package:buking/data/network/response/profile_info.dart';
 import 'package:buking/data/network/response/rating.dart';
 import 'package:buking/data/network/response/type_option.dart';
-import 'package:buking/data/network/response/stats.dart'; // ← добавь импорт
+import 'package:buking/data/network/response/stats.dart';
+import 'package:buking/data/network/response/country.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -57,7 +58,9 @@ class User extends HiveObject {
   final bool? isVerified;
 
   @HiveField(14)
-  final Stats? stats; // ← добавь новое поле
+  final Stats? stats;
+
+   final Country? country;
 
   User({
     required this.id,
@@ -74,7 +77,8 @@ class User extends HiveObject {
     this.createdAt,
     this.isVerified,
     this.profile,
-    this.stats, // ← добавь в конструктор
+    this.stats,
+    this.country,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
