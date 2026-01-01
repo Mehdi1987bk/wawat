@@ -86,7 +86,7 @@ class _PersonalInfoTabState
           // Если у пользователя уже есть код - находим его в списке
           if (widget.user.country != null) {
             _selectedCountry = _allCountries.firstWhere(
-                  (c) => c.id == widget.user.country!.id,
+              (c) => c.id == widget.user.country!.id,
               orElse: () => widget.user.country!,
             );
             _initialCountry = _selectedCountry;
@@ -148,7 +148,8 @@ class _PersonalInfoTabState
                       child: const Text('Нажмите для изменения фото'),
                     ),
                     const SizedBox(height: 24),
-                    _buildReadOnlyTextField('Полное имя', _fullNameController, isDark),
+                    _buildReadOnlyTextField(
+                        'Полное имя', _fullNameController, isDark),
                     const SizedBox(height: 16),
                     _buildReadOnlyTextField('Email', _emailController, isDark),
                     const SizedBox(height: 16),
@@ -157,7 +158,8 @@ class _PersonalInfoTabState
                     _buildPhoneFieldWithCountry(isDark),
 
                     const SizedBox(height: 16),
-                    _buildTextField('Местоположение', _locationController, isDark),
+                    _buildTextField(
+                        'Местоположение', _locationController, isDark),
                     const SizedBox(height: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,16 +177,16 @@ class _PersonalInfoTabState
                         TextField(
                           controller: _aboutController,
                           maxLines: 4,
-                          keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
+                          keyboardAppearance:
+                              isDark ? Brightness.dark : Brightness.light,
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark ? Colors.white : Colors.black,
                           ),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: isDark
-                                ? const Color(0xFF2A2A2A)
-                                : Colors.white,
+                            fillColor:
+                                isDark ? const Color(0xFF2A2A2A) : Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
@@ -230,7 +232,7 @@ class _PersonalInfoTabState
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                                  const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -304,9 +306,8 @@ class _PersonalInfoTabState
                     ),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: isDark
-                          ? const Color(0xFF2A2A2A)
-                          : Colors.white,
+                      fillColor:
+                          isDark ? const Color(0xFF2A2A2A) : Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
@@ -357,7 +358,7 @@ class _PersonalInfoTabState
     final source = await showSelectImageSourceAlert(context);
     if (source != null) {
       final image =
-      await ImagePicker().pickImage(source: source, imageQuality: 80);
+          await ImagePicker().pickImage(source: source, imageQuality: 80);
       if (image != null) {
         final file = File(image.path);
 
@@ -372,6 +373,8 @@ class _PersonalInfoTabState
 
         await bloc.onImageSelected(file);
         showIOSStyleMessage(context, 'Сохранено');
+        Future.delayed(Duration(seconds: 2))
+            .then((onValue) => bloc.customersMe());
       }
     }
   }
@@ -404,17 +407,15 @@ class _PersonalInfoTabState
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: isDark
-                    ? const Color(0xFF4A4A4A)
-                    : const Color(0xFFE5E5EA),
+                color:
+                    isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: isDark
-                    ? const Color(0xFF4A4A4A)
-                    : const Color(0xFFE5E5EA),
+                color:
+                    isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -460,9 +461,7 @@ class _PersonalInfoTabState
               ),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: isDark
-                    ? const Color(0xFF2A2A2A)
-                    : Colors.white,
+                fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
@@ -538,7 +537,7 @@ class _PersonalInfoTabState
       callingCode: _selectedCountry?.callingCode,
     )
         .then(
-          (onValue) {
+      (onValue) {
         // Обновляем initial значение после сохранения
         _initialCountry = _selectedCountry;
         bloc.customersMe();

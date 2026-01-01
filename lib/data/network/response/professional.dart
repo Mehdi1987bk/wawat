@@ -14,7 +14,7 @@ class Professional extends HiveObject {
 
 
   @JsonKey(name: 'experience_years')
-  final int? workExperienceYears; // Изменено на int
+  final String? workExperienceYears; // Изменено на int
 
   @HiveField(1)
   @JsonKey(name: 'max_weight_kg')

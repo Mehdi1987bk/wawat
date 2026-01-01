@@ -343,7 +343,7 @@ class _ProfileTabScreenState
                       ? const Color(0xFFB0B0B0)
                       : const Color(0xFF6B7280),
                 ),
-                child: Text(user.phone ?? ""),
+                child: Text((user.country?.callingCode ?? "") + (user.phone ?? "")),
               ),
             ],
           ),

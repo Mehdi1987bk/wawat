@@ -73,7 +73,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
     // Инициализация опыта с поддержкой половинных значений
     if (professional?.workExperienceYears != null) {
-      _selectedExperience = professional!.workExperienceYears!.toDouble();
+      _selectedExperience = double.tryParse(professional!.workExperienceYears ?? "")!;
       if (_selectedExperience < 0.5) _selectedExperience = 0.5;
       if (_selectedExperience > 15) _selectedExperience = 15;
     } else {

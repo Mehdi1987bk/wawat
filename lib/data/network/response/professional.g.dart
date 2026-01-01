@@ -17,7 +17,7 @@ class ProfessionalAdapter extends TypeAdapter<Professional> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Professional(
-      workExperienceYears: fields[0] as int?,
+      workExperienceYears: fields[0] as String?,
       maxWeightKg: fields[1] as int?,
       insuranceAmount: fields[2] as int?,
       pricePerKgMin: fields[3] as String?,
@@ -69,7 +69,7 @@ class ProfessionalAdapter extends TypeAdapter<Professional> {
 // **************************************************************************
 
 Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
-      workExperienceYears: json['experience_years'] as int?,
+      workExperienceYears: json['experience_years'] as String?,
       maxWeightKg: json['max_weight_kg'] as int?,
       insuranceAmount: json['insurance_usd'] as int?,
       pricePerKgMin: json['price_from'] as String?,
