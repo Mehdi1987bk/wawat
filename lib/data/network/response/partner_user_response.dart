@@ -208,7 +208,7 @@ class Stats {
   @JsonKey(name: 'reviews_received_count')
   final int reviewsReceivedCount;
   @JsonKey(name: 'positive_percent')
-  final int positivePercent;
+  final double positivePercent;
   @JsonKey(name: 'years_on_platform')
   final int yearsOnPlatform;
 
@@ -388,7 +388,7 @@ class OfferUser {
 class Review {
   final int id;
   final int rating;
-  final String comment;
+  final String? comment;
   @JsonKey(name: 'is_public')
   final bool isPublic;
   @JsonKey(name: 'is_verified_delivery')

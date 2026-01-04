@@ -105,7 +105,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Fikriniz bizim üçün çox vacibdir",
     ),
     "bfd4r53gfd": MessageLookupByLibrary.simpleMessage(
-      "Qaranlıq tema aktivdir",
+      "Qaranlıq modu aktivdir",
     ),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("Fayl"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Şəkil"),
@@ -151,7 +151,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "bgf35": MessageLookupByLibrary.simpleMessage("ŞİFRƏ"),
     "bgf43bgfd3": MessageLookupByLibrary.simpleMessage("Rəylərə bax"),
     "bgfb3": MessageLookupByLibrary.simpleMessage("Alış tarixi başlanğıc"),
-    "bgfb453": MessageLookupByLibrary.simpleMessage("İşıqlı tema aktivdir"),
+    "bgfb453": MessageLookupByLibrary.simpleMessage("İşıqlı modu aktivdir"),
     "bgfb4tr3getbger": MessageLookupByLibrary.simpleMessage(
       "Təcrübə məlumatları saxlanıldı",
     ),

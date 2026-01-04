@@ -8,12 +8,14 @@ import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../main.dart';
+import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import '../../widget/auth_modal_utils.dart';
 import '../../widget/start_chat_modal.dart';
+import 'error_parser.dart';
 
 class CourierProfileCard extends StatelessWidget {
   final Data data;
@@ -61,32 +63,32 @@ class CourierProfileCard extends StatelessWidget {
                     children: [
                       user.avatar != null && user.avatar!.isNotEmpty
                           ? ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          user.avatar!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        ),
-                      )
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.network(
+                                user.avatar!,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            )
                           : Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF5B5BFF),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.yellow[600],
-                          ),
-                        ),
-                      ),
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF5B5BFF),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.yellow[600],
+                                ),
+                              ),
+                            ),
                     ],
                   ),
-                   if (user.isVerified == true)
+                  if (user.isVerified == true)
                     Container(
                       margin: const EdgeInsets.only(top: 8),
                       padding: const EdgeInsets.symmetric(
@@ -128,7 +130,7 @@ class CourierProfileCard extends StatelessWidget {
                     children: [
                       Row(
                         children: List.generate(
-                          5,
+                          stats.ratingAvg.toInt(),
                           (index) => const Icon(
                             Icons.star,
                             color: Colors.amber,
@@ -698,25 +700,18 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
     try {
       final authRepository = sl.get<AuthRepository>();
 
-      // Создаем запрос для отзыва о курьере
       final request = CreateReviewRequest(
-        reviewRequestId: null, // null, потому что это не из уведомления
-        targetId: widget.courierId, // ID курьера
-        rating: _rating, // оценка от 1 до 5
-        comment: _commentController.text.trim(), // комментарий
+        reviewRequestId: null,
+        targetId: widget.courierId,
+        rating: _rating,
+        comment: _commentController.text.trim(),
       );
 
-      // Отправляем отзыв
       await authRepository.sendReviews(request);
 
       if (mounted) {
-        // Закрываем bottom sheet
         Navigator.of(context).pop();
-
-        // Показываем сообщение об успехе
         showIOSStyleMessage(context, S.of(context).gergergre335345);
-
-        // Вызываем callback с объектом CreateReviewRequest
         widget.onReviewSubmitted(request);
       }
     } catch (e) {
@@ -725,13 +720,8 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
           _isSubmitting = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).berbtebteg353434 + ' ${e.toString()}'),
-            backgroundColor: WawatColors.error,
-          ),
-        );
+        // ✅ Используем парсер
+        showTopSnackbar(ErrorParser.parseDioError(e), false, context);
       }
     }
-  }
-}
+  }}

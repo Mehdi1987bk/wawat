@@ -384,7 +384,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         color:
                             isDark ? const Color(0xFFB0B0B0) : Colors.black87,
                       ),
-                      maxLines: 3,
+                      maxLines: 20,
                       overflow: TextOverflow.ellipsis,
                       child: Text(widget.courier.description!),
                     ),
@@ -417,6 +417,11 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         _buildDetailRow(
                           S.of(context).rggre5egre,
                           '${widget.courier.pricePerKg} \$/кг',
+                          isDark,
+                        ), if (widget.courier.packageType != null)
+                        _buildDetailRow(
+                          S.of(context).nhgnhg4,
+                          '${widget.courier.packageType?.code}',
                           isDark,
                         ),
                     ],

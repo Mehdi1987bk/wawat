@@ -72,7 +72,7 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.phone,
             title: S.of(context).tbergwf35grwfsvfg43,
-            value: data.user.phone ?? '--',
+            value: data.user.phone != null ? ( data.user.fullname+data.user.phone!  ):'--',
             iconColor: Colors.green,
             isDark: isDark,
           ),

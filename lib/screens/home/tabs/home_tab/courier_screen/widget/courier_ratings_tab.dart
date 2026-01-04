@@ -147,7 +147,7 @@ class CourierRatingsTab extends StatelessWidget {
               color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
               height: 1.4,
             ),
-            child: Text(review.comment),
+            child: Text(review.comment ?? ""),
           ),
         ],
       ),

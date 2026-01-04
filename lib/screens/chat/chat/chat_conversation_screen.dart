@@ -281,15 +281,6 @@ class _ChatConversationScreenState
                                 "asset/prof_3.png",
                                 width: 16,
                               ),
-                              const SizedBox(width: 3),
-                                Text(
-                                S.of(context).bgfbgfbgf4,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF4CAF50),
-                                ),
-                              ),
                             ],
                           ),
                         ),

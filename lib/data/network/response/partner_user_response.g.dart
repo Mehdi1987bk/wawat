@@ -157,7 +157,7 @@ Stats _$StatsFromJson(Map<String, dynamic> json) => Stats(
       ratingAvg: (json['rating_avg'] as num).toDouble(),
       ratingCount: json['rating_count'] as int,
       reviewsReceivedCount: json['reviews_received_count'] as int,
-      positivePercent: json['positive_percent'] as int,
+      positivePercent: (json['positive_percent'] as num).toDouble(),
       yearsOnPlatform: json['years_on_platform'] as int,
     );
 
@@ -283,7 +283,7 @@ Map<String, dynamic> _$OfferUserToJson(OfferUser instance) => <String, dynamic>{
 Review _$ReviewFromJson(Map<String, dynamic> json) => Review(
       id: json['id'] as int,
       rating: json['rating'] as int,
-      comment: json['comment'] as String,
+      comment: json['comment'] as String?,
       isPublic: json['is_public'] as bool,
       isVerifiedDelivery: json['is_verified_delivery'] as String?,
       author: ReviewAuthor.fromJson(json['author'] as Map<String, dynamic>),
