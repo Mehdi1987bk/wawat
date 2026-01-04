@@ -1,5 +1,8 @@
 import 'package:buking/data/network/response/user.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../generated/l10n.dart';
 
 part 'chat_response.g.dart';
 
@@ -49,9 +52,9 @@ class ChatUser {
     }
   }
 
-  String getLastSeenText() {
-    if (isOnline) return 'онлайн';
-    if (lastSeenAt == null) return 'не в сети';
+  String getLastSeenText(BuildContext context) {
+    if (isOnline) return S.of(context).fdbdfbweg4g323g;
+    if (lastSeenAt == null) return S.of(context).bfdgbebteb443;
 
     try {
       final lastSeen = DateTime.parse(lastSeenAt!);
@@ -59,14 +62,14 @@ class ChatUser {
       final difference = now.difference(lastSeen);
 
       if (difference.inMinutes < 60) {
-        return '${difference.inMinutes} минут назад';
+        return '${difference.inMinutes} ' + S.of(context).bfdebr3b3b33;
       } else if (difference.inHours < 24) {
-        return '${difference.inHours} часов назад';
+        return '${difference.inHours} ' + S.of(context).bfdeberb3brtbfds;
       } else {
-        return '${difference.inDays} дней назад';
+        return '${difference.inDays} ' + S.of(context).bebe233btsdvs;
       }
     } catch (e) {
-      return 'не в сети';
+      return S.of(context).bef43g4g343fbsd;
     }
   }
 }
@@ -112,7 +115,7 @@ class ChatMessage {
     required this.type,
     this.body,
     this.file,
-    this.user,
+     this.user,
     required this.createdAt,
   });
 
@@ -129,7 +132,7 @@ class ChatMessage {
     }
   }
 
-  String get timeString {
+   String timeString(BuildContext context) {
     try {
       final dateTime = createdAtDateTime;
       final now = DateTime.now();
@@ -139,7 +142,7 @@ class ChatMessage {
       if (messageDate == today) {
         return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
       } else if (messageDate == today.subtract(Duration(days: 1))) {
-        return 'Вчера';
+        return S.of(context).bfvdg34g43g34;
       } else {
         return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
       }
@@ -179,10 +182,10 @@ class Conversation {
 
   Map<String, dynamic> toJson() => _$ConversationToJson(this);
 
-  String get lastMessagePreview {
+   String lastMessagePreview(BuildContext context) {
     if (lastMessage == null) return '';
-    if (lastMessage!.type == 'image') return '📷 Фото';
-    if (lastMessage!.type == 'file') return '📎 Файл';
+    if (lastMessage!.type == 'image') return '📷 ' + S.of(context).bfdbfbrewgq34;
+    if (lastMessage!.type == 'file') return '📎 ' + S.of(context).bfdb3brwqgevds432;
     return lastMessage!.body ?? '';
   }
 }

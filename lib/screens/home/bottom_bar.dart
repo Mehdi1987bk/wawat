@@ -116,8 +116,7 @@ class BottomNavigationItem extends StatelessWidget {
     final Color inactiveColor =
         isDark ? const Color(0xFF6B7280) : Color(0xFF9E9E9E);
 
-    // Цвета для состояний
-    final Color bgColor = isCentral && isSelected
+     final Color bgColor = isCentral && isSelected
         ? Colors.transparent
         : (isSelected
             ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
@@ -126,7 +125,7 @@ class BottomNavigationItem extends StatelessWidget {
     final Color iconBgColor = isCentral && isSelected
         ? Colors.white.withOpacity(0.3)
         : (isSelected
-            ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFDBEAFE))
+            ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFFFFFFF))
             : Colors.transparent);
 
     final Color iconColor = isCentral && isSelected

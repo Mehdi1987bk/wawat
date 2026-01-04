@@ -1,13 +1,12 @@
-import 'package:buking/data/network/response/type_option.dart';
-import 'package:buking/presentation/bloc/base_screen.dart';
+ import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/response/language.dart';
-import '../../../../../../data/network/response/language_response.dart';
-import '../../../../../../data/network/response/package_types_response.dart';
+ import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
+ import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
@@ -73,7 +72,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
     // Инициализация опыта с поддержкой половинных значений
     if (professional?.workExperienceYears != null) {
-      _selectedExperience = double.tryParse(professional!.workExperienceYears ?? "")!;
+      _selectedExperience =
+          double.tryParse(professional!.workExperienceYears ?? "")!;
       if (_selectedExperience < 0.5) _selectedExperience = 0.5;
       if (_selectedExperience > 15) _selectedExperience = 15;
     } else {
@@ -84,14 +84,14 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         professional!.workTimeFrom!.isNotEmpty) {
       final parts = professional.workTimeFrom!.split(':');
       _selectedWorkTimeFrom =
-      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional?.workTimeTo != null &&
         professional!.workTimeTo!.isNotEmpty) {
       final parts = professional.workTimeTo!.split(':');
       _selectedWorkTimeTo =
-      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional != null && professional.languages.isNotEmpty) {
@@ -167,7 +167,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка загрузки языков: $e'),
+            content: Text(S.of(context).vdfvfd4rg5ger + '$e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -195,7 +195,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка загрузки типов упаковки: $e'),
+            content: Text(S.of(context).vfdvd54gves + ' $e'),
             backgroundColor: Colors.orange,
             duration: const Duration(seconds: 5),
           ),
@@ -207,11 +207,11 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   Future<void> _showTimePickerFrom() async {
     try {
       final timeString =
-      _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
+          _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
-        throw Exception('Неверный формат времени: $timeString');
+        throw Exception(S.of(context).vfdv3rgfre42 + ' $timeString');
       }
 
       final hour = int.parse(timeParts[0]);
@@ -235,7 +235,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeFrom =
-                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -245,7 +245,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(S.of(context).vdf3fg3rvs + ' $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -254,11 +256,11 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   Future<void> _showTimePickerTo() async {
     try {
       final timeString =
-      _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
+          _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
-        throw Exception('Неверный формат времени: $timeString');
+        throw Exception(S.of(context).vfd3fggvrgds + ' $timeString');
       }
 
       final hour = int.parse(timeParts[0]);
@@ -282,7 +284,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeTo =
-                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -292,7 +294,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(S.of(context).fvdvefr34vfsvd+' $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -301,8 +303,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   void _saveChanges() {
     if (_selectedLanguageCodes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Выберите хотя бы один язык'),
+          SnackBar(
+          content: Text(S.of(context).vfd3rvewr3r),
           backgroundColor: Colors.red,
         ),
       );
@@ -311,8 +313,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
     if (_selectedPackageTypeCodes.isEmpty && _allPackageTypes.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Выберите хотя бы одну специализацию'),
+          SnackBar(
+          content: Text(S.of(context).yhthrgtr35hg4gd),
           backgroundColor: Colors.red,
         ),
       );
@@ -333,7 +335,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
     bloc.createProfessional(courierProfile).then((_) {
       if (mounted) {
-        showIOSStyleMessage(context, 'Данные об опыте сохранены');
+        showIOSStyleMessage(context, S.of(context).bgfb4tr3getbger);
         bloc.customersMe();
       }
     });
@@ -375,7 +377,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Опыт работы'),
+                      child:   Text(S.of(context).bryh4tb4thb4yhhe),
                     ),
                     const SizedBox(height: 8),
                     _buildExperienceSlider(isDark),
@@ -387,7 +389,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Максимальный вес (кг)'),
+                      child:   Text(S.of(context).brbt444b3tgsdgetr),
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(_maxWeightController, isDark),
@@ -399,7 +401,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Страхование (\$)'),
+                      child:   Text(S.of(context).vevrtbgvt5ybtvew+"\$)"),
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(_insuranceController, isDark),
@@ -411,7 +413,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Диапазон цен (\$/кг)'),
+                      child:   Text(S.of(context).bgdbtb4brgd),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -422,7 +424,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                           fontWeight: FontWeight.w500,
                           color: isDark ? Colors.white : Colors.black,
                         ),
-                        child: const Text('От'),
+                        child:   Text(S.of(context).bgfbgf534tg534g),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -435,7 +437,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('До'),
+                      child:   Text(S.of(context).bry5yn4ny4bde),
                     ),
                     const SizedBox(height: 4),
                     _buildInputField(_priceToController, isDark),
@@ -447,7 +449,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Рабочие часы'),
+                      child:   Text(S.of(context).nujnhry4hrt),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -463,7 +465,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                   fontWeight: FontWeight.w500,
                                   color: isDark ? Colors.white : Colors.black,
                                 ),
-                                child: const Text('С'),
+                                child:   Text(S.of(context).btrb4tdb4tbr),
                               ),
                               const SizedBox(height: 4),
                               _buildTimePickerField(
@@ -488,7 +490,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                   fontWeight: FontWeight.w500,
                                   color: isDark ? Colors.white : Colors.black,
                                 ),
-                                child: const Text('До'),
+                                child:   Text(S.of(context).greg54eh3rwgs),
                               ),
                               const SizedBox(height: 4),
                               _buildTimePickerField(
@@ -511,7 +513,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Языки общения'),
+                      child:   Text(S.of(context).nybhtgr54terfw3),
                     ),
                     const SizedBox(height: 8),
                     LanguageSelector(
@@ -533,47 +535,48 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Специализация'),
+                      child:   Text(S.of(context).greg3greg43grgre),
                     ),
                     const SizedBox(height: 8),
                     _allPackageTypes.isEmpty && !_isLoadingPackageTypes
                         ? AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF4A4A4A)
-                              : const Color(0xFFE5E5EA),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        color: isDark
-                            ? const Color(0xFF2A2A2A)
-                            : const Color(0xFFF5F5F5),
-                      ),
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 300),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark
-                              ? const Color(0xFF9CA3AF)
-                              : Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        child: const Text('Типы упаковки недоступны на сервере'),
-                      ),
-                    )
+                            duration: const Duration(milliseconds: 300),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF4A4A4A)
+                                    : const Color(0xFFE5E5EA),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              color: isDark
+                                  ? const Color(0xFF2A2A2A)
+                                  : const Color(0xFFF5F5F5),
+                            ),
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              child:   Text(
+                                  S.of(context).trh35hteh354heh),
+                            ),
+                          )
                         : PackageTypesSelector(
-                      packageTypes: _allPackageTypes,
-                      selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                      onSelectionChanged: (newSelection) {
-                        setState(() {
-                          _selectedPackageTypeCodes = newSelection;
-                        });
-                        _validateForm();
-                      },
-                      isLoading: _isLoadingPackageTypes,
-                    ),
+                            packageTypes: _allPackageTypes,
+                            selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                            onSelectionChanged: (newSelection) {
+                              setState(() {
+                                _selectedPackageTypeCodes = newSelection;
+                              });
+                              _validateForm();
+                            },
+                            isLoading: _isLoadingPackageTypes,
+                          ),
                     Container(
                       height: 50,
                       width: double.infinity,
@@ -588,7 +591,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                                  const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -597,8 +600,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                               elevation: 0,
                             ),
                             onPressed: isValid ? _saveChanges : null,
-                            child: const Text(
-                              "Сохранить изменения",
+                            child:   Text(
+                              S.of(context).htrh4hedh4th4,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -659,10 +662,10 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   }
 
   Widget _buildTimePickerField(
-      String value,
-      VoidCallback onTap,
-      bool isDark,
-      ) {
+    String value,
+    VoidCallback onTap,
+    bool isDark,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -716,9 +719,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                   ? '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
                   : '${_selectedExperience.toStringAsFixed(1)} года',
               activeColor: const Color(0xFF5B4FFF),
-              inactiveColor: isDark
-                  ? const Color(0xFF4A4A4A)
-                  : const Color(0xFFE5E5EA),
+              inactiveColor:
+                  isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               onChanged: (value) {
                 setState(() {
                   _selectedExperience = (value * 2).round() / 2;
@@ -731,8 +733,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
           padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Text(
             _selectedExperience % 1 == 0
-                ? 'Выбранный опыт: ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
-                : 'Выбранный опыт: ${_selectedExperience.toStringAsFixed(1)} года',
+                ? S.of(context).bgdretr35grdf+' ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
+                : S.of(context).vfdbvg3grgr34g+' ${_selectedExperience.toStringAsFixed(1)} года',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -743,14 +745,16 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       ],
     );
   }
+
   // Вспомогательный метод для правильного склонения
   String _getYearLabel(int years) {
     if (years % 10 == 1 && years % 100 != 11) {
-      return 'год';
-    } else if ([2, 3, 4].contains(years % 10) && ![12, 13, 14].contains(years % 100)) {
-      return 'года';
+      return S.of(context).fregt56hgte;
+    } else if ([2, 3, 4].contains(years % 10) &&
+        ![12, 13, 14].contains(years % 100)) {
+      return S.of(context).fregt56hgte;
     } else {
-      return 'лет';
+      return S.of(context).myijtyhg34ewfrv;
     }
   }
 
@@ -817,7 +821,7 @@ void showIOSStyleAlert(BuildContext context, String message,
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'OK',
+                  S.of(context).ok,
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
@@ -834,11 +838,11 @@ void showIOSStyleAlert(BuildContext context, String message,
 }
 
 void showIOSStyleMessage(
-    BuildContext context,
-    String message, {
-      bool isSuccess = true,
-      Duration duration = const Duration(seconds: 2),
-    }) {
+  BuildContext context,
+  String message, {
+  bool isSuccess = true,
+  Duration duration = const Duration(seconds: 2),
+}) {
   final themeManager = Provider.of<ThemeManager>(context, listen: false);
 
   final isDark = themeManager.isDarkMode;

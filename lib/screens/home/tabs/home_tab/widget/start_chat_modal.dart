@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 
@@ -57,7 +58,7 @@ class _StartChatContentState extends State<_StartChatContent> {
 
     if (message.isEmpty) {
       setState(() {
-        _errorMessage = 'Пожалуйста, введите сообщение';
+        _errorMessage = S.of(context).by5htg4refg4tr3few;
       });
       return;
     }
@@ -66,7 +67,7 @@ class _StartChatContentState extends State<_StartChatContent> {
 
      widget.onSuccess?.call(message);
 
-     showIOSStyleMessage(context, 'Сообщение отправлено!');
+     showIOSStyleMessage(context, S.of(context).ybrfsg4t34gtgrvfedvfd);
   }
 
   @override
@@ -143,7 +144,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                                   fontWeight: FontWeight.w500,
                                 ),
                                 child: Text(
-                                  'Вы на связи с ${widget.userName}. Напоминаем, что общение происходит напрямую между пользователями, и сайт не отвечает за содержание переписки. ',
+                                S.of(context).rth435gtre+  ' ${widget.userName}.' + S.of(context).brtevrfg45rfs,
                                 ),
                               ),
                             ),
@@ -161,7 +162,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                         ),
-                        child: const Text('Напишите сообщение'),
+                        child:   Text(S.of(context).hrt4h5hte43h454),
                       ),
 
                       const SizedBox(height: 16),
@@ -184,7 +185,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                           maxLines: 5,
                           maxLength: 500,
                           decoration: InputDecoration(
-                            hintText: 'Введите ваше сообщение...',
+                            hintText: S.of(context).rthh4ger34f34,
                             hintStyle: TextStyle(
                               color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9E9E9E),
                               fontSize: 14,
@@ -246,9 +247,9 @@ class _StartChatContentState extends State<_StartChatContent> {
                           child: InkWell(
                             onTap: _sendMessage,
                             borderRadius: BorderRadius.circular(16),
-                            child: const Center(
+                            child:   Center(
                               child: Text(
-                                'Отправить',
+                                S.of(context).brg353gffvw34fr3,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,

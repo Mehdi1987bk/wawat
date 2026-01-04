@@ -75,10 +75,10 @@ class S {
     );
   }
 
-  /// `Şəxsi kabinetə giriş`
+  /// `Login to account`
   String get LoginQiris {
     return Intl.message(
-      'Şəxsi kabinetə giriş',
+      'Login to account',
       name: 'LoginQiris',
       desc: '',
       args: [],
@@ -95,44 +95,49 @@ class S {
     );
   }
 
-  /// `E-mail addresinizi daxil edin`
+  /// `Enter your email address`
   String get emailAddresiniziDaxilEdin {
     return Intl.message(
-      'E-mail addresinizi daxil edin',
+      'Enter your email address',
       name: 'emailAddresiniziDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şifrənizi daxil edin`
+  /// `Enter your password`
   String get ifrniziDaxilEdin {
     return Intl.message(
-      'Şifrənizi daxil edin',
+      'Enter your password',
       name: 'ifrniziDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şifrəmi unutdum`
+  /// `Forgot password`
   String get ifrmiUnutdum {
     return Intl.message(
-      'Şifrəmi unutdum',
+      'Forgot password',
       name: 'ifrmiUnutdum',
       desc: '',
       args: [],
     );
   }
 
-  /// `İrəli`
+  /// `Next`
   String get rli {
-    return Intl.message('İrəli', name: 'rli', desc: '', args: []);
+    return Intl.message('Next', name: 'rli', desc: '', args: []);
   }
 
-  /// `E-mail adres`
+  /// `Email address`
   String get emailAdres {
-    return Intl.message('E-mail adres', name: 'emailAdres', desc: '', args: []);
+    return Intl.message(
+      'Email address',
+      name: 'emailAdres',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Sign up`
@@ -140,50 +145,50 @@ class S {
     return Intl.message('Sign up', name: 'signUp', desc: '', args: []);
   }
 
-  /// `Qeydiyyatdan keçin`
+  /// `Register`
   String get qeydiyyatdanKein {
     return Intl.message(
-      'Qeydiyyatdan keçin',
+      'Register',
       name: 'qeydiyyatdanKein',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şifrə`
+  /// `Password`
   String get ifr {
-    return Intl.message('Şifrə', name: 'ifr', desc: '', args: []);
+    return Intl.message('Password', name: 'ifr', desc: '', args: []);
   }
 
-  /// `Şifrəmi unutmusam`
+  /// `Forgot password`
   String get ifrmiUnutmusam {
     return Intl.message(
-      'Şifrəmi unutmusam',
+      'Forgot password',
       name: 'ifrmiUnutmusam',
       desc: '',
       args: [],
     );
   }
 
-  /// `Salam`
+  /// `Hello`
   String get salam {
-    return Intl.message('Salam', name: 'salam', desc: '', args: []);
+    return Intl.message('Hello', name: 'salam', desc: '', args: []);
   }
 
-  /// `Bu gün sizə xoş alış-verişlər arzu edirik`
+  /// `We wish you happy shopping today`
   String get buGnSizXoAlverilrArzuEdirik {
     return Intl.message(
-      'Bu gün sizə xoş alış-verişlər arzu edirik',
+      'We wish you happy shopping today',
       name: 'buGnSizXoAlverilrArzuEdirik',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun kodu`
+  /// `Product code`
   String get mhsulunKodu {
     return Intl.message(
-      'Məhsulun kodu',
+      'Product code',
       name: 'mhsulunKodu',
       desc: '',
       args: [],
@@ -200,39 +205,39 @@ class S {
     return Intl.message('SC status: ', name: 'scStatus', desc: '', args: []);
   }
 
-  /// `Qiymət: `
+  /// `Price: `
   String get qiymt {
-    return Intl.message('Qiymət: ', name: 'qiymt', desc: '', args: []);
+    return Intl.message('Price: ', name: 'qiymt', desc: '', args: []);
   }
 
-  /// `Kargo çəkisi: `
+  /// `Cargo weight: `
   String get kargoKisi {
     return Intl.message(
-      'Kargo çəkisi: ',
+      'Cargo weight: ',
       name: 'kargoKisi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun linki`
+  /// `Product link`
   String get mhsulunLinki {
     return Intl.message(
-      'Məhsulun linki',
+      'Product link',
       name: 'mhsulunLinki',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sifariş ver`
+  /// `Place order`
   String get sifariVer {
-    return Intl.message('Sifariş ver', name: 'sifariVer', desc: '', args: []);
+    return Intl.message('Place order', name: 'sifariVer', desc: '', args: []);
   }
 
-  /// `Faktura`
+  /// `Invoice`
   String get fakturaLavEt {
-    return Intl.message('Faktura', name: 'fakturaLavEt', desc: '', args: []);
+    return Intl.message('Invoice', name: 'fakturaLavEt', desc: '', args: []);
   }
 
   /// `Choose Image`
@@ -260,59 +265,59 @@ class S {
     return Intl.message('Cancel', name: 'cancel', desc: '', args: []);
   }
 
-  /// `Endirin`
+  /// `Download`
   String get endirin {
-    return Intl.message('Endirin', name: 'endirin', desc: '', args: []);
+    return Intl.message('Download', name: 'endirin', desc: '', args: []);
   }
 
-  /// `Bağlamalarım`
+  /// `My packages`
   String get balamalarm {
-    return Intl.message('Bağlamalarım', name: 'balamalarm', desc: '', args: []);
+    return Intl.message('My packages', name: 'balamalarm', desc: '', args: []);
   }
 
-  /// `Bütün bağlamalarım`
+  /// `All my packages`
   String get btnBalamalarm {
     return Intl.message(
-      'Bütün bağlamalarım',
+      'All my packages',
       name: 'btnBalamalarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Mağaza: `
+  /// `Store: `
   String get maaza {
-    return Intl.message('Mağaza: ', name: 'maaza', desc: '', args: []);
+    return Intl.message('Store: ', name: 'maaza', desc: '', args: []);
   }
 
-  /// `Məhsulun tipi: `
+  /// `Product type: `
   String get mhsulunTipi {
     return Intl.message(
-      'Məhsulun tipi: ',
+      'Product type: ',
       name: 'mhsulunTipi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kargo qiyməti: `
+  /// `Shipping cost: `
   String get kargoQiymti {
     return Intl.message(
-      'Kargo qiyməti: ',
+      'Shipping cost: ',
       name: 'kargoQiymti',
       desc: '',
       args: [],
     );
   }
 
-  /// `Qeyd`
+  /// `Note`
   String get qeyd {
-    return Intl.message('Qeyd', name: 'qeyd', desc: '', args: []);
+    return Intl.message('Note', name: 'qeyd', desc: '', args: []);
   }
 
-  /// `Ödəniş edin`
+  /// `Pay`
   String get dniEdin {
-    return Intl.message('Ödəniş edin', name: 'dniEdin', desc: '', args: []);
+    return Intl.message('Pay', name: 'dniEdin', desc: '', args: []);
   }
 
   /// `Please grant accessing storage permission to continue`
@@ -330,29 +335,29 @@ class S {
     return Intl.message('Retry', name: 'retry', desc: '', args: []);
   }
 
-  /// `əlavə et`
+  /// `Add`
   String get lavEt {
-    return Intl.message('əlavə et', name: 'lavEt', desc: '', args: []);
+    return Intl.message('Add', name: 'lavEt', desc: '', args: []);
   }
 
-  /// `Kod`
+  /// `Code`
   String get kod {
-    return Intl.message('Kod', name: 'kod', desc: '', args: []);
+    return Intl.message('Code', name: 'kod', desc: '', args: []);
   }
 
-  /// `Faktura kodunu əlavə edin`
+  /// `Add invoice code`
   String get fakturaKodunuLavEdin {
     return Intl.message(
-      'Faktura kodunu əlavə edin',
+      'Add invoice code',
       name: 'fakturaKodunuLavEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Düzəliş`
+  /// `Edit`
   String get dzli {
-    return Intl.message('Düzəliş', name: 'dzli', desc: '', args: []);
+    return Intl.message('Edit', name: 'dzli', desc: '', args: []);
   }
 
   /// `KGO9920xxxxxx`
@@ -365,89 +370,89 @@ class S {
     );
   }
 
-  /// `Məhsulun qiyməti (TL)`
+  /// `Product price (TL)`
   String get mhsulunQiymtiTl {
     return Intl.message(
-      'Məhsulun qiyməti (TL)',
+      'Product price (TL)',
       name: 'mhsulunQiymtiTl',
       desc: '',
       args: [],
     );
   }
 
-  /// `Qiyməti`
+  /// `Price`
   String get qiymti {
-    return Intl.message('Qiyməti', name: 'qiymti', desc: '', args: []);
+    return Intl.message('Price', name: 'qiymti', desc: '', args: []);
   }
 
-  /// `Faktura`
+  /// `Invoice`
   String get faktura {
-    return Intl.message('Faktura', name: 'faktura', desc: '', args: []);
+    return Intl.message('Invoice', name: 'faktura', desc: '', args: []);
   }
 
-  /// `Ətraflı`
+  /// `Details`
   String get trafl {
-    return Intl.message('Ətraflı', name: 'trafl', desc: '', args: []);
+    return Intl.message('Details', name: 'trafl', desc: '', args: []);
   }
 
-  /// `Faktura qiyməti`
+  /// `Invoice amount`
   String get fakturaQiymti {
     return Intl.message(
-      'Faktura qiyməti',
+      'Invoice amount',
       name: 'fakturaQiymti',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kargo takip NO.`
+  /// `Cargo tracking NO.`
   String get kargoTakipNo {
     return Intl.message(
-      'Kargo takip NO.',
+      'Cargo tracking NO.',
       name: 'kargoTakipNo',
       desc: '',
       args: [],
     );
   }
 
-  /// `Çəki`
+  /// `Weight`
   String get ki {
-    return Intl.message('Çəki', name: 'ki', desc: '', args: []);
+    return Intl.message('Weight', name: 'ki', desc: '', args: []);
   }
 
-  /// `Çatdırılma`
+  /// `Delivery`
   String get atdrlma {
-    return Intl.message('Çatdırılma', name: 'atdrlma', desc: '', args: []);
+    return Intl.message('Delivery', name: 'atdrlma', desc: '', args: []);
   }
 
-  /// `Məhsulun sayı`
+  /// `Product quantity`
   String get mhsulunSay {
     return Intl.message(
-      'Məhsulun sayı',
+      'Product quantity',
       name: 'mhsulunSay',
       desc: '',
       args: [],
     );
   }
 
-  /// `Əlavə xidmətlər`
+  /// `Additional services`
   String get lavXidmtlr {
     return Intl.message(
-      'Əlavə xidmətlər',
+      'Additional services',
       name: 'lavXidmtlr',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kateqoriya`
+  /// `Category`
   String get kateqoriya {
-    return Intl.message('Kateqoriya', name: 'kateqoriya', desc: '', args: []);
+    return Intl.message('Category', name: 'kateqoriya', desc: '', args: []);
   }
 
-  /// `Ödəmə`
+  /// `Payment`
   String get dm {
-    return Intl.message('Ödəmə', name: 'dm', desc: '', args: []);
+    return Intl.message('Payment', name: 'dm', desc: '', args: []);
   }
 
   /// `SC status`
@@ -460,74 +465,74 @@ class S {
     return Intl.message('Status', name: 'statuss', desc: '', args: []);
   }
 
-  /// `Əməliyyatlar`
+  /// `Operations`
   String get mliyyatlar {
-    return Intl.message('Əməliyyatlar', name: 'mliyyatlar', desc: '', args: []);
+    return Intl.message('Operations', name: 'mliyyatlar', desc: '', args: []);
   }
 
-  /// `Faktura əlavə edin`
+  /// `Add invoice`
   String get fakturaLavEdin {
     return Intl.message(
-      'Faktura əlavə edin',
+      'Add invoice',
       name: 'fakturaLavEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Yadda saxla`
+  /// `Save`
   String get yaddaSaxla {
-    return Intl.message('Yadda saxla', name: 'yaddaSaxla', desc: '', args: []);
+    return Intl.message('Save', name: 'yaddaSaxla', desc: '', args: []);
   }
 
-  /// `Bağlamalar`
+  /// `Packages`
   String get balamalar {
-    return Intl.message('Bağlamalar', name: 'balamalar', desc: '', args: []);
+    return Intl.message('Packages', name: 'balamalar', desc: '', args: []);
   }
 
-  /// `Sifarişlər`
+  /// `Orders`
   String get sifarilr {
-    return Intl.message('Sifarişlər', name: 'sifarilr', desc: '', args: []);
+    return Intl.message('Orders', name: 'sifarilr', desc: '', args: []);
   }
 
-  /// `Kuryer sifariş et`
+  /// `Order courier`
   String get kuryerSifariEt {
     return Intl.message(
-      'Kuryer sifariş et',
+      'Order courier',
       name: 'kuryerSifariEt',
       desc: '',
       args: [],
     );
   }
 
-  /// `Xidmətlərimi`
+  /// `My services`
   String get xidmtlrimi {
-    return Intl.message('Xidmətlərimi', name: 'xidmtlrimi', desc: '', args: []);
+    return Intl.message('My services', name: 'xidmtlrimi', desc: '', args: []);
   }
 
-  /// `Giriş et`
+  /// `Login`
   String get giriEt {
-    return Intl.message('Giriş et', name: 'giriEt', desc: '', args: []);
+    return Intl.message('Login', name: 'giriEt', desc: '', args: []);
   }
 
-  /// `DIgər bölmələr`
+  /// `Other sections`
   String get digrBlmlr {
     return Intl.message(
-      'DIgər bölmələr',
+      'Other sections',
       name: 'digrBlmlr',
       desc: '',
       args: [],
     );
   }
 
-  /// `Balansınız`
+  /// `Your balance`
   String get balansnz {
-    return Intl.message('Balansınız', name: 'balansnz', desc: '', args: []);
+    return Intl.message('Your balance', name: 'balansnz', desc: '', args: []);
   }
 
-  /// `AZN balansı`
+  /// `AZN balance`
   String get aznBalans {
-    return Intl.message('AZN balansı', name: 'aznBalans', desc: '', args: []);
+    return Intl.message('AZN balance', name: 'aznBalans', desc: '', args: []);
   }
 
   /// `250.0`
@@ -535,144 +540,149 @@ class S {
     return Intl.message('250.0', name: 'aznnnn', desc: '', args: []);
   }
 
-  /// `TL balansı`
+  /// `TL balance`
   String get tlBalans {
-    return Intl.message('TL balansı', name: 'tlBalans', desc: '', args: []);
+    return Intl.message('TL balance', name: 'tlBalans', desc: '', args: []);
   }
 
-  /// `Şəxsi kabinet`
+  /// `Personal account`
   String get xsiKabinet {
     return Intl.message(
-      'Şəxsi kabinet',
+      'Personal account',
       name: 'xsiKabinet',
       desc: '',
       args: [],
     );
   }
 
-  /// `© 2021 Kango | Bütün Hüquqlar Qorunur`
+  /// `© 2021 Kango | All Rights Reserved`
   String get oluxBtnHquqlarQorunur {
     return Intl.message(
-      '© 2021 Kango | Bütün Hüquqlar Qorunur',
+      '© 2021 Kango | All Rights Reserved',
       name: 'oluxBtnHquqlarQorunur',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şəxsi məlumatlarım`
+  /// `My personal information`
   String get xsiMlumatlarm {
     return Intl.message(
-      'Şəxsi məlumatlarım',
+      'My personal information',
       name: 'xsiMlumatlarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Xarici ünvanlarım`
+  /// `My foreign addresses`
   String get xariciNvanlarm {
     return Intl.message(
-      'Xarici ünvanlarım',
+      'My foreign addresses',
       name: 'xariciNvanlarm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şifrəni dəyiş`
+  /// `Change password`
   String get ifrniDyi {
-    return Intl.message('Şifrəni dəyiş', name: 'ifrniDyi', desc: '', args: []);
+    return Intl.message(
+      'Change password',
+      name: 'ifrniDyi',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `Çıxış et`
+  /// `Log out`
   String get xEt {
-    return Intl.message('Çıxış et', name: 'xEt', desc: '', args: []);
+    return Intl.message('Log out', name: 'xEt', desc: '', args: []);
   }
 
-  /// `Kuryer sifarişi`
+  /// `Courier order`
   String get kuryerSifarii {
     return Intl.message(
-      'Kuryer sifarişi',
+      'Courier order',
       name: 'kuryerSifarii',
       desc: '',
       args: [],
     );
   }
 
-  /// `Onlayn daşıma haqqı ödənişi`
+  /// `Online shipping payment`
   String get onlaynDamaHaqqDnii {
     return Intl.message(
-      'Onlayn daşıma haqqı ödənişi',
+      'Online shipping payment',
       name: 'onlaynDamaHaqqDnii',
       desc: '',
       args: [],
     );
   }
 
-  /// `Tariflər`
+  /// `Tariffs`
   String get tariflr {
-    return Intl.message('Tariflər', name: 'tariflr', desc: '', args: []);
+    return Intl.message('Tariffs', name: 'tariflr', desc: '', args: []);
   }
 
-  /// `Xəbərlər`
+  /// `News`
   String get xbrlr {
-    return Intl.message('Xəbərlər', name: 'xbrlr', desc: '', args: []);
+    return Intl.message('News', name: 'xbrlr', desc: '', args: []);
   }
 
-  /// `Kango filialları`
+  /// `Kango branches`
   String get kangoFiliallar {
     return Intl.message(
-      'Kango filialları',
+      'Kango branches',
       name: 'kangoFiliallar',
       desc: '',
       args: [],
     );
   }
 
-  /// `Əlaqə`
+  /// `Contact`
   String get laq {
-    return Intl.message('Əlaqə', name: 'laq', desc: '', args: []);
+    return Intl.message('Contact', name: 'laq', desc: '', args: []);
   }
 
-  /// `tarixçəsi`
+  /// `History`
   String get tarixsi {
-    return Intl.message('tarixçəsi', name: 'tarixsi', desc: '', args: []);
+    return Intl.message('History', name: 'tarixsi', desc: '', args: []);
   }
 
-  /// `Kuryer tarifləri`
+  /// `Courier tariffs`
   String get kuryerTariflri {
     return Intl.message(
-      'Kuryer tarifləri',
+      'Courier tariffs',
       name: 'kuryerTariflri',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sürətli poçt daşıma xidməti`
+  /// `Express delivery service`
   String get srtliPotDamaXidmti {
     return Intl.message(
-      'Sürətli poçt daşıma xidməti',
+      'Express delivery service',
       name: 'srtliPotDamaXidmti',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bakı şəhər daxili`
+  /// `Within Baku city`
   String get bakHrDaxili {
     return Intl.message(
-      'Bakı şəhər daxili',
+      'Within Baku city',
       name: 'bakHrDaxili',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bakı kəndləri`
+  /// `Baku suburbs`
   String get bakKndlri {
-    return Intl.message('Bakı kəndləri', name: 'bakKndlri', desc: '', args: []);
+    return Intl.message('Baku suburbs', name: 'bakKndlri', desc: '', args: []);
   }
 
   /// `Kango Tel: 012 525 43 43`
@@ -685,395 +695,395 @@ class S {
     );
   }
 
-  /// `Qeyd: Kuryer ödəşini nəğd şəkildə bağlamanızı çatdıran kuryerə ödəyəcəksiniz`
+  /// `Note: You will pay the courier in cash upon delivery`
   String get qeydKuryerDiniNdKildBalamanzAtdranKuryerDycksiniz {
     return Intl.message(
-      'Qeyd: Kuryer ödəşini nəğd şəkildə bağlamanızı çatdıran kuryerə ödəyəcəksiniz',
+      'Note: You will pay the courier in cash upon delivery',
       name: 'qeydKuryerDiniNdKildBalamanzAtdranKuryerDycksiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kuryer sifarişi sadəcə Nərimanov filialı üçün keçərlidir`
+  /// `Courier order is only available for Narimanov branch`
   String get kuryerSifariiSadcNrimanovFilialNKerlidir {
     return Intl.message(
-      'Kuryer sifarişi sadəcə Nərimanov filialı üçün keçərlidir',
+      'Courier order is only available for Narimanov branch',
       name: 'kuryerSifariiSadcNrimanovFilialNKerlidir',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ünvanınızı qeyd edin`
+  /// `Enter your address`
   String get nvannzQeydEdin {
     return Intl.message(
-      'Ünvanınızı qeyd edin',
+      'Enter your address',
       name: 'nvannzQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Adınız`
+  /// `Your name`
   String get adnz {
-    return Intl.message('Adınız', name: 'adnz', desc: '', args: []);
+    return Intl.message('Your name', name: 'adnz', desc: '', args: []);
   }
 
-  /// `Adınızı daxil edin`
+  /// `Enter your name`
   String get adnzDaxilEdin {
     return Intl.message(
-      'Adınızı daxil edin',
+      'Enter your name',
       name: 'adnzDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Soyadınız`
+  /// `Your surname`
   String get soyadnz {
-    return Intl.message('Soyadınız', name: 'soyadnz', desc: '', args: []);
+    return Intl.message('Your surname', name: 'soyadnz', desc: '', args: []);
   }
 
-  /// `Soyadınızı daxil edin`
+  /// `Enter your surname`
   String get soyadnzDaxilEdin {
     return Intl.message(
-      'Soyadınızı daxil edin',
+      'Enter your surname',
       name: 'soyadnzDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Doğum tarixiniz`
+  /// `Date of birth`
   String get doumTarixiniz {
     return Intl.message(
-      'Doğum tarixiniz',
+      'Date of birth',
       name: 'doumTarixiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cinsiniz`
+  /// `Your gender`
   String get cinsiniz {
-    return Intl.message('Cinsiniz', name: 'cinsiniz', desc: '', args: []);
+    return Intl.message('Your gender', name: 'cinsiniz', desc: '', args: []);
   }
 
-  /// `Email adresiniz`
+  /// `Your email address`
   String get emailAdresiniz {
     return Intl.message(
-      'Email adresiniz',
+      'Your email address',
       name: 'emailAdresiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Email adresinizi daxil edin`
+  /// `Enter your email address`
   String get emailAdresiniziDaxilEdin {
     return Intl.message(
-      'Email adresinizi daxil edin',
+      'Enter your email address',
       name: 'emailAdresiniziDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Doğum tarixinizi qeyd edin`
+  /// `Enter your date of birth`
   String get doumTarixiniziQeydEdin {
     return Intl.message(
-      'Doğum tarixinizi qeyd edin',
+      'Enter your date of birth',
       name: 'doumTarixiniziQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kişi`
+  /// `Male`
   String get kii {
-    return Intl.message('Kişi', name: 'kii', desc: '', args: []);
+    return Intl.message('Male', name: 'kii', desc: '', args: []);
   }
 
-  /// `Qadın`
+  /// `Female`
   String get qadn {
-    return Intl.message('Qadın', name: 'qadn', desc: '', args: []);
+    return Intl.message('Female', name: 'qadn', desc: '', args: []);
   }
 
-  /// `Faktura əlavə et`
+  /// `Add invoice`
   String get fakturaLavEtcsa {
     return Intl.message(
-      'Faktura əlavə et',
+      'Add invoice',
       name: 'fakturaLavEtcsa',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kargo nömrəsi`
+  /// `Cargo number`
   String get kargoNmrsi {
-    return Intl.message(
-      'Kargo nömrəsi',
-      name: 'kargoNmrsi',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Cargo number', name: 'kargoNmrsi', desc: '', args: []);
   }
 
-  /// `Təsdiq et`
+  /// `Confirm`
   String get tsdiqEt {
-    return Intl.message('Təsdiq et', name: 'tsdiqEt', desc: '', args: []);
+    return Intl.message('Confirm', name: 'tsdiqEt', desc: '', args: []);
   }
 
-  /// `Təsdiqlə və sifariş et`
+  /// `Confirm and order`
   String get tsdiqlVSifariEt {
     return Intl.message(
-      'Təsdiqlə və sifariş et',
+      'Confirm and order',
       name: 'tsdiqlVSifariEt',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ana səhifə`
+  /// `Home`
   String get anaShif {
-    return Intl.message('Ana səhifə', name: 'anaShif', desc: '', args: []);
+    return Intl.message('Home', name: 'anaShif', desc: '', args: []);
   }
 
-  /// `Tariflərimiz -`
+  /// `Our tariffs -`
   String get tariflrimiz {
     return Intl.message(
-      'Tariflərimiz -',
+      'Our tariffs -',
       name: 'tariflrimiz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Türkiyədən çatdırılma`
+  /// `Delivery from Turkey`
   String get trkiydnAtdrlma {
     return Intl.message(
-      'Türkiyədən çatdırılma',
+      'Delivery from Turkey',
       name: 'trkiydnAtdrlma',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bakı və Sumqayıt şəhərləri üzrə`
+  /// `For Baku and Sumgait cities`
   String get bakVSumqaytHrlriZr {
     return Intl.message(
-      'Bakı və Sumqayıt şəhərləri üzrə',
+      'For Baku and Sumgait cities',
       name: 'bakVSumqaytHrlriZr',
       desc: '',
       args: [],
     );
   }
 
-  /// `Gəncə, Mingəçevir və Lənkəran şəhərləri üzrə`
+  /// `For Ganja, Mingachevir and Lankaran cities`
   String get gncMingevirVLnkranHrlriZr {
     return Intl.message(
-      'Gəncə, Mingəçevir və Lənkəran şəhərləri üzrə',
+      'For Ganja, Mingachevir and Lankaran cities',
       name: 'gncMingevirVLnkranHrlriZr',
       desc: '',
       args: [],
     );
   }
 
-  /// `Standart çatdırılma və maye məhsulları üzrə`
+  /// `Standard delivery and liquid products`
   String get standartAtdrlmaVMayeMhsullarZr {
     return Intl.message(
-      'Standart çatdırılma və maye məhsulları üzrə',
+      'Standard delivery and liquid products',
       name: 'standartAtdrlmaVMayeMhsullarZr',
       desc: '',
       args: [],
     );
   }
 
-  /// `HƏCMSƏL məhsullar üzrə`
+  /// `VOLUMETRIC products`
   String get hcmslMhsullarZr {
     return Intl.message(
-      'HƏCMSƏL məhsullar üzrə',
+      'VOLUMETRIC products',
       name: 'hcmslMhsullarZr',
       desc: '',
       args: [],
     );
   }
 
-  /// `Üç tərəfinin (en, uzunluğ, hündürlük) cəmi 1 metrdən çox olan bağlamalar həcmsəl çəki kimi hesablanır. Həcmsəl çəki = En x Uzunluğ x Hündürlük / 6000. Hazırda həcimsəl çəki hesablanmır.`
+  /// `Packages with a total of three sides (width, length, height) exceeding 1 meter are calculated as volumetric weight. Volumetric weight = Width x Length x Height / 6000. Currently volumetric weight is not calculated.`
   String get trfininEnUzunluHndrlkCmi1MetrdnOxOlanBalamalar {
     return Intl.message(
-      'Üç tərəfinin (en, uzunluğ, hündürlük) cəmi 1 metrdən çox olan bağlamalar həcmsəl çəki kimi hesablanır. Həcmsəl çəki = En x Uzunluğ x Hündürlük / 6000. Hazırda həcimsəl çəki hesablanmır.',
+      'Packages with a total of three sides (width, length, height) exceeding 1 meter are calculated as volumetric weight. Volumetric weight = Width x Length x Height / 6000. Currently volumetric weight is not calculated.',
       name: 'trfininEnUzunluHndrlkCmi1MetrdnOxOlanBalamalar',
       desc: '',
       args: [],
     );
   }
 
-  /// `0 qr - 100 qr`
+  /// `0 gr - 100 gr`
   String get Qr100Qrc {
-    return Intl.message('0 qr - 100 qr', name: 'Qr100Qrc', desc: '', args: []);
+    return Intl.message('0 gr - 100 gr', name: 'Qr100Qrc', desc: '', args: []);
   }
 
-  /// `101 qr - 250 qr`
+  /// `101 gr - 250 gr`
   String get Qr250Qr {
-    return Intl.message('101 qr - 250 qr', name: 'Qr250Qr', desc: '', args: []);
+    return Intl.message('101 gr - 250 gr', name: 'Qr250Qr', desc: '', args: []);
   }
 
-  /// `251 qr - 500 qr`
+  /// `251 gr - 500 gr`
   String get Qr500Qr {
-    return Intl.message('251 qr - 500 qr', name: 'Qr500Qr', desc: '', args: []);
+    return Intl.message('251 gr - 500 gr', name: 'Qr500Qr', desc: '', args: []);
   }
 
-  /// `501 qr - 1 kq`
+  /// `501 gr - 1 kg`
   String get Qr1Kq {
-    return Intl.message('501 qr - 1 kq', name: 'Qr1Kq', desc: '', args: []);
+    return Intl.message('501 gr - 1 kg', name: 'Qr1Kq', desc: '', args: []);
   }
 
-  /// `1 kq üzərində`
+  /// `Over 1 kg`
   String get KqZrind {
-    return Intl.message('1 kq üzərində', name: 'KqZrind', desc: '', args: []);
+    return Intl.message('Over 1 kg', name: 'KqZrind', desc: '', args: []);
   }
 
-  /// `Təkrar şifrəniz`
+  /// `Repeat password`
   String get tkrarIfrniz {
     return Intl.message(
-      'Təkrar şifrəniz',
+      'Repeat password',
       name: 'tkrarIfrniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Təyin etdiyiniz giriş şifrəsini təkrar daxil edin`
+  /// `Re-enter the password you set`
   String get tyinEtdiyinizGiriIfrsiniTkrarDaxilEdin {
     return Intl.message(
-      'Təyin etdiyiniz giriş şifrəsini təkrar daxil edin',
+      'Re-enter the password you set',
       name: 'tyinEtdiyinizGiriIfrsiniTkrarDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şifrəniz`
+  /// `Your password`
   String get ifrniz {
-    return Intl.message('Şifrəniz', name: 'ifrniz', desc: '', args: []);
+    return Intl.message('Your password', name: 'ifrniz', desc: '', args: []);
   }
 
-  /// `Giriş şifrənizi təyin edin`
+  /// `Set your login password`
   String get giriIfrniziTyinEdin {
     return Intl.message(
-      'Giriş şifrənizi təyin edin',
+      'Set your login password',
       name: 'giriIfrniziTyinEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Mobil nömrəniz`
+  /// `Your mobile number`
   String get mobilNmrniz {
     return Intl.message(
-      'Mobil nömrəniz',
+      'Your mobile number',
       name: 'mobilNmrniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Cins`
+  /// `Gender`
   String get cins {
-    return Intl.message('Cins', name: 'cins', desc: '', args: []);
+    return Intl.message('Gender', name: 'cins', desc: '', args: []);
   }
 
-  /// `Mağaza`
+  /// `Store`
   String get maazae {
-    return Intl.message('Mağaza', name: 'maazae', desc: '', args: []);
+    return Intl.message('Store', name: 'maazae', desc: '', args: []);
   }
 
-  /// `kq`
+  /// `kg`
   String get kq {
-    return Intl.message('kq', name: 'kq', desc: '', args: []);
+    return Intl.message('kg', name: 'kq', desc: '', args: []);
   }
 
-  /// `Mağaza`
+  /// `Store`
   String get maazavd {
-    return Intl.message('Mağaza', name: 'maazavd', desc: '', args: []);
+    return Intl.message('Store', name: 'maazavd', desc: '', args: []);
   }
 
-  /// `tl`
+  /// `TL`
   String get tl {
-    return Intl.message('tl', name: 'tl', desc: '', args: []);
+    return Intl.message('TL', name: 'tl', desc: '', args: []);
   }
 
-  /// `Bağlama:`
+  /// `Package:`
   String get balama {
-    return Intl.message('Bağlama:', name: 'balama', desc: '', args: []);
+    return Intl.message('Package:', name: 'balama', desc: '', args: []);
   }
 
-  /// `Ad, Soyad:`
+  /// `Name, Surname:`
   String get adSoyad {
-    return Intl.message('Ad, Soyad:', name: 'adSoyad', desc: '', args: []);
+    return Intl.message('Name, Surname:', name: 'adSoyad', desc: '', args: []);
   }
 
-  /// `Ünvan:`
+  /// `Address:`
   String get nvan {
-    return Intl.message('Ünvan:', name: 'nvan', desc: '', args: []);
+    return Intl.message('Address:', name: 'nvan', desc: '', args: []);
   }
 
-  /// `Geri`
+  /// `Back`
   String get geri {
-    return Intl.message('Geri', name: 'geri', desc: '', args: []);
+    return Intl.message('Back', name: 'geri', desc: '', args: []);
   }
 
-  /// `Şəxsiyyət vəsiqəsinin seriya nömrəsi`
+  /// `ID card serial number`
   String get xsiyytVsiqsininSeriyaNmrsi {
     return Intl.message(
-      'Şəxsiyyət vəsiqəsinin seriya nömrəsi',
+      'ID card serial number',
       name: 'xsiyytVsiqsininSeriyaNmrsi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şəxsiyyət vəsiqəsinin FİN kodu`
+  /// `ID card FIN code`
   String get xsiyytVsiqsininFnKodu {
     return Intl.message(
-      'Şəxsiyyət vəsiqəsinin FİN kodu',
+      'ID card FIN code',
       name: 'xsiyytVsiqsininFnKodu',
       desc: '',
       args: [],
     );
   }
 
-  /// `Filial seçin`
+  /// `Select branch`
   String get filialSein {
-    return Intl.message('Filial seçin', name: 'filialSein', desc: '', args: []);
+    return Intl.message(
+      'Select branch',
+      name: 'filialSein',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `Ş.V. -nin seriya nömrəsi`
+  /// `ID serial number`
   String get vNinSeriyaNmrsi {
     return Intl.message(
-      'Ş.V. -nin seriya nömrəsi',
+      'ID serial number',
       name: 'vNinSeriyaNmrsi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ünvanınızı daxil edin`
+  /// `Enter your address`
   String get nvannzDaxilEdin {
     return Intl.message(
-      'Ünvanınızı daxil edin',
+      'Enter your address',
       name: 'nvannzDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Daxil etdiyiniz e-mail ünvana növbəti addım haqqında məktub göndərildi!`
+  /// `A letter about the next step has been sent to the email you entered!`
   String get daxilEtdiyini {
     return Intl.message(
-      'Daxil etdiyiniz e-mail ünvana növbəti addım haqqında məktub göndərildi!',
+      'A letter about the next step has been sent to the email you entered!',
       name: 'daxilEtdiyini',
       desc: '',
       args: [],
@@ -1090,10 +1100,10 @@ class S {
     );
   }
 
-  /// `Telefon nömrələrimiz`
+  /// `Our phone numbers`
   String get telefonNmrlrimiz {
     return Intl.message(
-      'Telefon nömrələrimiz',
+      'Our phone numbers',
       name: 'telefonNmrlrimiz',
       desc: '',
       args: [],
@@ -1110,15 +1120,15 @@ class S {
     );
   }
 
-  /// `Ünvan`
+  /// `Address`
   String get nvand {
-    return Intl.message('Ünvan', name: 'nvand', desc: '', args: []);
+    return Intl.message('Address', name: 'nvand', desc: '', args: []);
   }
 
-  /// `Bakı şəhəri, Nərimanov rayonu, Ağa Neymatulla b 44/2 (Metropark t.m yanı)`
+  /// `Baku city, Narimanov district, Agha Neymatulla st. 44/2 (next to Metropark shopping center)`
   String get bakHriNrimanovRayonuAaNeymatullaB442MetroparkTm {
     return Intl.message(
-      'Bakı şəhəri, Nərimanov rayonu, Ağa Neymatulla b 44/2 (Metropark t.m yanı)',
+      'Baku city, Narimanov district, Agha Neymatulla st. 44/2 (next to Metropark shopping center)',
       name: 'bakHriNrimanovRayonuAaNeymatullaB442MetroparkTm',
       desc: '',
       args: [],
@@ -1135,325 +1145,315 @@ class S {
     );
   }
 
-  /// `Bildirişlərim`
+  /// `My notifications`
   String get bildirilrim {
     return Intl.message(
-      'Bildirişlərim',
+      'My notifications',
       name: 'bildirilrim',
       desc: '',
       args: [],
     );
   }
 
-  /// `Balans keçmişi`
+  /// `Balance history`
   String get balansKemii {
     return Intl.message(
-      'Balans keçmişi',
+      'Balance history',
       name: 'balansKemii',
       desc: '',
       args: [],
     );
   }
 
-  /// `Balans tarixçəsi`
+  /// `Balance history`
   String get balansTarixsi {
     return Intl.message(
-      'Balans tarixçəsi',
+      'Balance history',
       name: 'balansTarixsi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Balans artımı`
+  /// `Balance top-up`
   String get balansArtm {
     return Intl.message(
-      'Balans artımı',
+      'Balance top-up',
       name: 'balansArtm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bağla`
+  /// `Close`
   String get bala {
-    return Intl.message('Bağla', name: 'bala', desc: '', args: []);
+    return Intl.message('Close', name: 'bala', desc: '', args: []);
   }
 
-  /// `Balans artırın`
+  /// `Top up balance`
   String get balansArtrn {
     return Intl.message(
-      'Balans artırın',
+      'Top up balance',
       name: 'balansArtrn',
       desc: '',
       args: [],
     );
   }
 
-  /// `İstədiyiniz məbləği daxil edin`
+  /// `Enter the desired amount`
   String get stdiyinizMbliDaxilEdin {
     return Intl.message(
-      'İstədiyiniz məbləği daxil edin',
+      'Enter the desired amount',
       name: 'stdiyinizMbliDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `TL balansınızdan çıxıldı`
+  /// `Deducted from TL balance`
   String get tlBalansnzdanXld {
     return Intl.message(
-      'TL balansınızdan çıxıldı',
+      'Deducted from TL balance',
       name: 'tlBalansnzdanXld',
       desc: '',
       args: [],
     );
   }
 
-  /// `TL balansınıza əlavə olundu`
+  /// `Added to TL balance`
   String get tlBalansnzaLavOlundu {
     return Intl.message(
-      'TL balansınıza əlavə olundu',
+      'Added to TL balance',
       name: 'tlBalansnzaLavOlundu',
       desc: '',
       args: [],
     );
   }
 
-  /// `Azn balansınıza əlavə olundu`
+  /// `Added to AZN balance`
   String get aznBalansnzaLavOlundu {
     return Intl.message(
-      'Azn balansınıza əlavə olundu',
+      'Added to AZN balance',
       name: 'aznBalansnzaLavOlundu',
       desc: '',
       args: [],
     );
   }
 
-  /// `Azn balansınızdan çıxıldı`
+  /// `Deducted from AZN balance`
   String get aznBalansnzdanXld {
     return Intl.message(
-      'Azn balansınızdan çıxıldı',
+      'Deducted from AZN balance',
       name: 'aznBalansnzdanXld',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun qiyməti`
+  /// `Product price`
   String get mhsulunQiymti {
     return Intl.message(
-      'Məhsulun qiyməti',
+      'Product price',
       name: 'mhsulunQiymti',
       desc: '',
       args: [],
     );
   }
 
-  /// `Toplam məbləğ`
+  /// `Total amount`
   String get toplamMbl {
-    return Intl.message('Toplam məbləğ', name: 'toplamMbl', desc: '', args: []);
+    return Intl.message('Total amount', name: 'toplamMbl', desc: '', args: []);
   }
 
-  /// `Paket birlesmesi`
+  /// `Package consolidation`
   String get paketBirlesmesi {
     return Intl.message(
-      'Paket birlesmesi',
+      'Package consolidation',
       name: 'paketBirlesmesi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kargo dəyəri`
+  /// `Cargo value`
   String get kargoDyri {
-    return Intl.message('Kargo dəyəri', name: 'kargoDyri', desc: '', args: []);
+    return Intl.message('Cargo value', name: 'kargoDyri', desc: '', args: []);
   }
 
-  /// `Sifarişiniz yeniləndi və yaddaşa verildi`
+  /// `Your order has been updated and saved`
   String get sifariinizYenilndiVYaddaaVerildi {
     return Intl.message(
-      'Sifarişiniz yeniləndi və yaddaşa verildi',
+      'Your order has been updated and saved',
       name: 'sifariinizYenilndiVYaddaaVerildi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Dəyişikliklər qeydə alındı`
+  /// `Changes saved`
   String get dyiikliklrQeydAlnd {
     return Intl.message(
-      'Dəyişikliklər qeydə alındı',
+      'Changes saved',
       name: 'dyiikliklrQeydAlnd',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsul`
+  /// `Product`
   String get mhsul {
-    return Intl.message('Məhsul', name: 'mhsul', desc: '', args: []);
+    return Intl.message('Product', name: 'mhsul', desc: '', args: []);
   }
 
-  /// `Məhsulun ölçüsü`
+  /// `Product size`
   String get mhsulunLs {
-    return Intl.message(
-      'Məhsulun ölçüsü',
-      name: 'mhsulunLs',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Product size', name: 'mhsulunLs', desc: '', args: []);
   }
 
-  /// `Məhsulun ölçüsünü qeyd edin`
+  /// `Enter product size`
   String get mhsulunLsnQeydEdin {
     return Intl.message(
-      'Məhsulun ölçüsünü qeyd edin',
+      'Enter product size',
       name: 'mhsulunLsnQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun linkini qeyd edin`
+  /// `Enter product link`
   String get mhsulunLinkiniQeydEdin {
     return Intl.message(
-      'Məhsulun linkini qeyd edin',
+      'Enter product link',
       name: 'mhsulunLinkiniQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Yeni məhsul`
+  /// `New product`
   String get yeniMhsul {
-    return Intl.message('Yeni məhsul', name: 'yeniMhsul', desc: '', args: []);
+    return Intl.message('New product', name: 'yeniMhsul', desc: '', args: []);
   }
 
-  /// `Məhsulun sayını qeyd edin`
+  /// `Enter product quantity`
   String get mhsulunSaynQeydEdin {
     return Intl.message(
-      'Məhsulun sayını qeyd edin',
+      'Enter product quantity',
       name: 'mhsulunSaynQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun qiyməti qeyd edin`
+  /// `Enter product price`
   String get mhsulunQiymtiQeydEdin {
     return Intl.message(
-      'Məhsulun qiyməti qeyd edin',
+      'Enter product price',
       name: 'mhsulunQiymtiQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun digər detalları`
+  /// `Other product details`
   String get mhsulunDigrDetallar {
     return Intl.message(
-      'Məhsulun digər detalları',
+      'Other product details',
       name: 'mhsulunDigrDetallar',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun digər detallarını qeyd edin`
+  /// `Enter other product details`
   String get mhsulunDigrDetallarnQeydEdin {
     return Intl.message(
-      'Məhsulun digər detallarını qeyd edin',
+      'Enter other product details',
       name: 'mhsulunDigrDetallarnQeydEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sifariş et`
+  /// `Order`
   String get sifariEt {
-    return Intl.message('Sifariş et', name: 'sifariEt', desc: '', args: []);
+    return Intl.message('Order', name: 'sifariEt', desc: '', args: []);
   }
 
-  /// `Məhsulun qiymətini qeyd edərkən Türkiyə daxili kargonu da üzərinə gəlib qiymət xanasına yazmalısınız. Əks halda sifrişiniz alınarkən balansınızdan çıxılacaqdır.`
-  String get mhsulunQiymtiniQeydEdrknTrkiyDaxiliKargonuDaZrinGlib {
+  /// `When entering the product price, you must add the domestic Turkey shipping cost. Otherwise, the amount will be deducted from your balance upon purchase.`
+  String get mhsulunQiymtiniQeydEdirknTrkiyDaxiliKargonuDaZrinGlib {
     return Intl.message(
-      'Məhsulun qiymətini qeyd edərkən Türkiyə daxili kargonu da üzərinə gəlib qiymət xanasına yazmalısınız. Əks halda sifrişiniz alınarkən balansınızdan çıxılacaqdır.',
-      name: 'mhsulunQiymtiniQeydEdrknTrkiyDaxiliKargonuDaZrinGlib',
+      'When entering the product price, you must add the domestic Turkey shipping cost. Otherwise, the amount will be deducted from your balance upon purchase.',
+      name: 'mhsulunQiymtiniQeydEdirknTrkiyDaxiliKargonuDaZrinGlib',
       desc: '',
       args: [],
     );
   }
 
-  /// `Geriyə`
+  /// `Back`
   String get geriy {
-    return Intl.message('Geriyə', name: 'geriy', desc: '', args: []);
+    return Intl.message('Back', name: 'geriy', desc: '', args: []);
   }
 
-  /// `Toplam qiymət`
+  /// `Total price`
   String get toplamQiymt {
-    return Intl.message(
-      'Toplam qiymət',
-      name: 'toplamQiymt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Total price', name: 'toplamQiymt', desc: '', args: []);
   }
 
-  /// `Ümumi məhsul qiyməti`
+  /// `Total product price`
   String get mumiMhsulQiymti {
     return Intl.message(
-      'Ümumi məhsul qiyməti',
+      'Total product price',
       name: 'mumiMhsulQiymti',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ümumi xidmət haqqı (3%)`
+  /// `Total service fee (3%)`
   String get mumiXidmtHaqq5 {
     return Intl.message(
-      'Ümumi xidmət haqqı (3%)',
+      'Total service fee (3%)',
       name: 'mumiXidmtHaqq5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ümumi məhsul sayı`
+  /// `Total product quantity`
   String get mumiMhsulSay {
     return Intl.message(
-      'Ümumi məhsul sayı',
+      'Total product quantity',
       name: 'mumiMhsulSay',
       desc: '',
       args: [],
     );
   }
 
-  /// `Təcili sifariş`
+  /// `Urgent order`
   String get tciliSifari {
     return Intl.message(
-      'Təcili sifariş',
+      'Urgent order',
       name: 'tciliSifari',
       desc: '',
       args: [],
     );
   }
 
-  /// `* Əlavə xidmətlərin ödənişini sifarişin təhvili zamanı edilir.`
+  /// `* Payment for additional services is made upon order delivery.`
   String get lavXidmtlrinDniiniSifariinThviliZamanEdilir {
     return Intl.message(
-      '* Əlavə xidmətlərin ödənişini sifarişin təhvili zamanı edilir.',
+      '* Payment for additional services is made upon order delivery.',
       name: 'lavXidmtlrinDniiniSifariinThviliZamanEdilir',
       desc: '',
       args: [],
     );
   }
 
-  /// `Seçilmiş xidmətlər`
+  /// `Selected services`
   String get seilmiXidmtlr {
     return Intl.message(
-      'Seçilmiş xidmətlər',
+      'Selected services',
       name: 'seilmiXidmtlr',
       desc: '',
       args: [],
@@ -1465,95 +1465,90 @@ class S {
     return Intl.message('+1', name: 'one', desc: '', args: []);
   }
 
-  /// `* Sifarişin məbləği kargonuz Türkiyə ofisinə çatdıqda bəlli olacaqdır.`
+  /// `* The order amount will be determined when your cargo arrives at the Turkey office.`
   String get sifariinMbliKargonuzTrkiyOfisinAtdqdaBlliOlacaqdr {
     return Intl.message(
-      '* Sifarişin məbləği kargonuz Türkiyə ofisinə çatdıqda bəlli olacaqdır.',
+      '* The order amount will be determined when your cargo arrives at the Turkey office.',
       name: 'sifariinMbliKargonuzTrkiyOfisinAtdqdaBlliOlacaqdr',
       desc: '',
       args: [],
     );
   }
 
-  /// `* Zəhmət olmasa məsafəli satış sözləşməsini qəbul edin.`
+  /// `* Please accept the distance sales agreement.`
   String get zhmtOlmasaMsafliSatSzlmsiniQbulEdin {
     return Intl.message(
-      '* Zəhmət olmasa məsafəli satış sözləşməsini qəbul edin.',
+      '* Please accept the distance sales agreement.',
       name: 'zhmtOlmasaMsafliSatSzlmsiniQbulEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məsafəli satış sözləşməsini qəbul edirəm.`
+  /// `I accept the distance sales agreement.`
   String get msafliSatSzlmsiniQbulEdirm {
     return Intl.message(
-      'Məsafəli satış sözləşməsini qəbul edirəm.',
+      'I accept the distance sales agreement.',
       name: 'msafliSatSzlmsiniQbulEdirm',
       desc: '',
       args: [],
     );
   }
 
-  /// `Səbətə əlavə et`
+  /// `Add to cart`
   String get sbtLavEt {
-    return Intl.message(
-      'Səbətə əlavə et',
-      name: 'sbtLavEt',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Add to cart', name: 'sbtLavEt', desc: '', args: []);
   }
 
-  /// `Ödəniş et`
+  /// `Pay`
   String get dniEt {
-    return Intl.message('Ödəniş et', name: 'dniEt', desc: '', args: []);
+    return Intl.message('Pay', name: 'dniEt', desc: '', args: []);
   }
 
-  /// `Səbətim`
+  /// `My cart`
   String get sbtim {
-    return Intl.message('Səbətim', name: 'sbtim', desc: '', args: []);
+    return Intl.message('My cart', name: 'sbtim', desc: '', args: []);
   }
 
-  /// `Say`
+  /// `Quantity`
   String get say {
-    return Intl.message('Say', name: 'say', desc: '', args: []);
+    return Intl.message('Quantity', name: 'say', desc: '', args: []);
   }
 
-  /// `Ölçü:`
+  /// `Size:`
   String get l {
-    return Intl.message('Ölçü:', name: 'l', desc: '', args: []);
+    return Intl.message('Size:', name: 'l', desc: '', args: []);
   }
 
-  /// `Şəxsi məlumatlar`
+  /// `Personal information`
   String get xsiMlumatlar {
     return Intl.message(
-      'Şəxsi məlumatlar',
+      'Personal information',
       name: 'xsiMlumatlar',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ad`
+  /// `Name`
   String get ad {
-    return Intl.message('Ad', name: 'ad', desc: '', args: []);
+    return Intl.message('Name', name: 'ad', desc: '', args: []);
   }
 
-  /// `Soyad`
+  /// `Surname`
   String get soyad {
-    return Intl.message('Soyad', name: 'soyad', desc: '', args: []);
+    return Intl.message('Surname', name: 'soyad', desc: '', args: []);
   }
 
-  /// `Filial`
+  /// `Branch`
   String get filial {
-    return Intl.message('Filial', name: 'filial', desc: '', args: []);
+    return Intl.message('Branch', name: 'filial', desc: '', args: []);
   }
 
-  /// `Filiallarımız`
+  /// `Our branches`
   String get filiallarmz {
     return Intl.message(
-      'Filiallarımız',
+      'Our branches',
       name: 'filiallarmz',
       desc: '',
       args: [],
@@ -1565,475 +1560,445 @@ class S {
     return Intl.message('Kango Tel:', name: 'kangoTel', desc: '', args: []);
   }
 
-  /// `Sizin paketiniz yoxdur`
+  /// `You have no packages`
   String get sizinPaxdur {
     return Intl.message(
-      'Sizin paketiniz yoxdur',
+      'You have no packages',
       name: 'sizinPaxdur',
       desc: '',
       args: [],
     );
   }
 
-  /// `Paket elave olundu`
+  /// `Package added`
   String get paketElaveOlundu {
     return Intl.message(
-      'Paket elave olundu',
+      'Package added',
       name: 'paketElaveOlundu',
       desc: '',
       args: [],
     );
   }
 
-  /// `Paket əlavə edilmişdir`
+  /// `Package has been added`
   String get paketLavEdilmidir {
     return Intl.message(
-      'Paket əlavə edilmişdir',
+      'Package has been added',
       name: 'paketLavEdilmidir',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ümumi qiymət:`
+  /// `Total price:`
   String get mumiQiymt {
-    return Intl.message('Ümumi qiymət:', name: 'mumiQiymt', desc: '', args: []);
+    return Intl.message('Total price:', name: 'mumiQiymt', desc: '', args: []);
   }
 
-  /// `Bakı ofisində bağlamalarınız yoxdur`
+  /// `You have no packages at Baku office`
   String get bakOfisindBalamalarnzYoxdur {
     return Intl.message(
-      'Bakı ofisində bağlamalarınız yoxdur',
+      'You have no packages at Baku office',
       name: 'bakOfisindBalamalarnzYoxdur',
       desc: '',
       args: [],
     );
   }
 
-  /// `Məhsulun çəkisi:`
+  /// `Product weight:`
   String get mhsulunKisi {
     return Intl.message(
-      'Məhsulun çəkisi:',
+      'Product weight:',
       name: 'mhsulunKisi',
       desc: '',
       args: [],
     );
   }
 
-  /// `Əlavə xidmət:`
+  /// `Additional service:`
   String get lavXidmt {
-    return Intl.message('Əlavə xidmət:', name: 'lavXidmt', desc: '', args: []);
+    return Intl.message(
+      'Additional service:',
+      name: 'lavXidmt',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `Bu məhsulu simək istədiyinizə əminsiniz?`
+  /// `Are you sure you want to delete this product?`
   String get buMhsuluSimkIstdiyinizMinsiniz {
     return Intl.message(
-      'Bu məhsulu simək istədiyinizə əminsiniz?',
+      'Are you sure you want to delete this product?',
       name: 'buMhsuluSimkIstdiyinizMinsiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Beli`
+  /// `Yes`
   String get beli {
-    return Intl.message('Beli', name: 'beli', desc: '', args: []);
+    return Intl.message('Yes', name: 'beli', desc: '', args: []);
   }
 
-  /// `Heir`
+  /// `No`
   String get heir {
-    return Intl.message('Heir', name: 'heir', desc: '', args: []);
+    return Intl.message('No', name: 'heir', desc: '', args: []);
   }
 
-  /// `Onlayn daşıma`
+  /// `Online delivery`
   String get onlaynDama {
     return Intl.message(
-      'Onlayn daşıma',
+      'Online delivery',
       name: 'onlaynDama',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ünvan Baş ofis`
+  /// `Head office address`
   String get nvanBaOfis {
     return Intl.message(
-      'Ünvan Baş ofis',
+      'Head office address',
       name: 'nvanBaOfis',
       desc: '',
       args: [],
     );
   }
 
-  /// `Xidmətlərimiz`
+  /// `Our services`
   String get xidmetlerimiz {
     return Intl.message(
-      'Xidmətlərimiz',
+      'Our services',
       name: 'xidmetlerimiz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sifarişlərim`
+  /// `My orders`
   String get sifarilrim {
-    return Intl.message('Sifarişlərim', name: 'sifarilrim', desc: '', args: []);
+    return Intl.message('My orders', name: 'sifarilrim', desc: '', args: []);
   }
 
-  /// `Vergi numarası`
+  /// `Tax number`
   String get vergiNumaras {
-    return Intl.message(
-      'Vergi numarası',
-      name: 'vergiNumaras',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Tax number', name: 'vergiNumaras', desc: '', args: []);
   }
 
-  /// `Mobil telefon`
+  /// `Mobile phone`
   String get mobilTelefon {
     return Intl.message(
-      'Mobil telefon',
+      'Mobile phone',
       name: 'mobilTelefon',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ülke`
+  /// `Country`
   String get lke {
-    return Intl.message('Ülke', name: 'lke', desc: '', args: []);
+    return Intl.message('Country', name: 'lke', desc: '', args: []);
   }
 
-  /// `Semt`
+  /// `District`
   String get semt {
-    return Intl.message('Semt', name: 'semt', desc: '', args: []);
+    return Intl.message('District', name: 'semt', desc: '', args: []);
   }
 
-  /// `Adres başlığı`
+  /// `Address title`
   String get adresBal {
-    return Intl.message('Adres başlığı', name: 'adresBal', desc: '', args: []);
+    return Intl.message('Address title', name: 'adresBal', desc: '', args: []);
   }
 
-  /// `İlçe`
+  /// `District`
   String get le {
-    return Intl.message('İlçe', name: 'le', desc: '', args: []);
+    return Intl.message('District', name: 'le', desc: '', args: []);
   }
 
-  /// `ZIP/Post kodu`
+  /// `ZIP/Post code`
   String get zippostKodu {
     return Intl.message(
-      'ZIP/Post kodu',
+      'ZIP/Post code',
       name: 'zippostKodu',
       desc: '',
       args: [],
     );
   }
 
-  /// `Türkiyə ünvanım`
+  /// `My Turkey address`
   String get trkiyNvanm {
     return Intl.message(
-      'Türkiyə ünvanım',
+      'My Turkey address',
       name: 'trkiyNvanm',
       desc: '',
       args: [],
     );
   }
 
-  /// `İl - şehir`
+  /// `Province - city`
   String get lEhir {
-    return Intl.message('İl - şehir', name: 'lEhir', desc: '', args: []);
+    return Intl.message('Province - city', name: 'lEhir', desc: '', args: []);
   }
 
-  /// `Imtina edilib`
+  /// `Rejected`
   String get imtinaEdilib {
-    return Intl.message(
-      'Imtina edilib',
-      name: 'imtinaEdilib',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Rejected', name: 'imtinaEdilib', desc: '', args: []);
   }
 
-  /// `Yaradilib`
+  /// `Created`
   String get yaradilib {
-    return Intl.message('Yaradilib', name: 'yaradilib', desc: '', args: []);
+    return Intl.message('Created', name: 'yaradilib', desc: '', args: []);
   }
 
-  /// `Odenis edilib`
+  /// `Paid`
   String get odenisEdilib {
-    return Intl.message(
-      'Odenis edilib',
-      name: 'odenisEdilib',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Paid', name: 'odenisEdilib', desc: '', args: []);
   }
 
-  /// `Turkiye ofisindedir`
+  /// `At Turkey office`
   String get turkiyeOfisindedir {
     return Intl.message(
-      'Turkiye ofisindedir',
+      'At Turkey office',
       name: 'turkiyeOfisindedir',
       desc: '',
       args: [],
     );
   }
 
-  /// `Alinib`
+  /// `Received`
   String get alinib {
-    return Intl.message('Alinib', name: 'alinib', desc: '', args: []);
+    return Intl.message('Received', name: 'alinib', desc: '', args: []);
   }
 
-  /// `Kargodadir`
+  /// `In transit`
   String get kargodadir {
-    return Intl.message('Kargodadir', name: 'kargodadir', desc: '', args: []);
+    return Intl.message('In transit', name: 'kargodadir', desc: '', args: []);
   }
 
-  /// `Baki ofisindedir`
+  /// `At Baku office`
   String get bakiOfisindedir {
     return Intl.message(
-      'Baki ofisindedir',
+      'At Baku office',
       name: 'bakiOfisindedir',
       desc: '',
       args: [],
     );
   }
 
-  /// `Tehvil verilib`
+  /// `Delivered`
   String get tehvilVerilib {
-    return Intl.message(
-      'Tehvil verilib',
-      name: 'tehvilVerilib',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Delivered', name: 'tehvilVerilib', desc: '', args: []);
   }
 
-  /// `Dasinma haqqi odenilib`
+  /// `Shipping paid`
   String get dasinmaHaqqiOdenilib {
     return Intl.message(
-      'Dasinma haqqi odenilib',
+      'Shipping paid',
       name: 'dasinmaHaqqiOdenilib',
       desc: '',
       args: [],
     );
   }
 
-  /// `Problemli baglama`
+  /// `Problem package`
   String get problemliBaglama {
     return Intl.message(
-      'Problemli baglama',
+      'Problem package',
       name: 'problemliBaglama',
       desc: '',
       args: [],
     );
   }
 
-  /// `Silmək istədiyinizdən əminsinizmi?`
+  /// `Are you sure you want to delete?`
   String get silmkIstdiyinizMinsiniz {
     return Intl.message(
-      'Silmək istədiyinizdən əminsinizmi?',
+      'Are you sure you want to delete?',
       name: 'silmkIstdiyinizMinsiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Rədd etmək`
+  /// `Reject`
   String get rddEtmk {
-    return Intl.message('Rədd etmək', name: 'rddEtmk', desc: '', args: []);
+    return Intl.message('Reject', name: 'rddEtmk', desc: '', args: []);
   }
 
-  /// `Tesdiq edirem`
+  /// `I confirm`
   String get tesdiqEdirem {
-    return Intl.message(
-      'Tesdiq edirem',
-      name: 'tesdiqEdirem',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('I confirm', name: 'tesdiqEdirem', desc: '', args: []);
   }
 
-  /// `Kopyalandı`
+  /// `Copied`
   String get kopyaland {
-    return Intl.message('Kopyalandı', name: 'kopyaland', desc: '', args: []);
+    return Intl.message('Copied', name: 'kopyaland', desc: '', args: []);
   }
 
-  /// `Filiallar`
+  /// `Branches`
   String get filiallar {
-    return Intl.message('Filiallar', name: 'filiallar', desc: '', args: []);
+    return Intl.message('Branches', name: 'filiallar', desc: '', args: []);
   }
 
-  /// `Ümumi məhsul dəyəri`
+  /// `Total product value`
   String get mumiMhsulDyri {
     return Intl.message(
-      'Ümumi məhsul dəyəri',
+      'Total product value',
       name: 'mumiMhsulDyri',
       desc: '',
       args: [],
     );
   }
 
-  /// `Kanqo ailəsinə xoş gəlmisiniz`
+  /// `Welcome to Kango family`
   String get kanqoAilsinXoGlmisiniz {
     return Intl.message(
-      'Kanqo ailəsinə xoş gəlmisiniz',
+      'Welcome to Kango family',
       name: 'kanqoAilsinXoGlmisiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şəxsiyyət vəsiqəsinin FİN kodu daxil edin`
+  /// `Enter ID card FIN code`
   String get xsiyytVsiqsininFnKoduDaxilEdin {
     return Intl.message(
-      'Şəxsiyyət vəsiqəsinin FİN kodu daxil edin',
+      'Enter ID card FIN code',
       name: 'xsiyytVsiqsininFnKoduDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Şifrəniz (minimum 6 simvol olmalıdır)`
+  /// `Password (minimum 6 characters)`
   String get ifrnizMinimum6SimvolOlmaldr {
     return Intl.message(
-      'Şifrəniz (minimum 6 simvol olmalıdır)',
+      'Password (minimum 6 characters)',
       name: 'ifrnizMinimum6SimvolOlmaldr',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sizin sifarişiniz yoxdur`
+  /// `You have no orders`
   String get sizinSifariinizYoxdur {
     return Intl.message(
-      'Sizin sifarişiniz yoxdur',
+      'You have no orders',
       name: 'sizinSifariinizYoxdur',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sizin bağlamaniz yoxdur`
+  /// `You have no packages`
   String get sizinBalamanizYoxdur {
     return Intl.message(
-      'Sizin bağlamaniz yoxdur',
+      'You have no packages',
       name: 'sizinBalamanizYoxdur',
       desc: '',
       args: [],
     );
   }
 
-  /// `Asan sifariş`
+  /// `Quick order`
   String get srtliSifari {
-    return Intl.message(
-      'Asan sifariş',
-      name: 'srtliSifari',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Quick order', name: 'srtliSifari', desc: '', args: []);
   }
 
-  /// `Parol uyğunsuzluğu`
+  /// `Password mismatch`
   String get parolUyunsuzluu {
     return Intl.message(
-      'Parol uyğunsuzluğu',
+      'Password mismatch',
       name: 'parolUyunsuzluu',
       desc: '',
       args: [],
     );
   }
 
-  /// `Parol səhvdir`
+  /// `Wrong password`
   String get parolShvdir {
     return Intl.message(
-      'Parol səhvdir',
+      'Wrong password',
       name: 'parolShvdir',
       desc: '',
       args: [],
     );
   }
 
-  /// `Seçilməyib`
+  /// `Not selected`
   String get seilmyib {
-    return Intl.message('Seçilməyib', name: 'seilmyib', desc: '', args: []);
+    return Intl.message('Not selected', name: 'seilmyib', desc: '', args: []);
   }
 
-  /// `Nömrəni göstər`
+  /// `Show number`
   String get nmrniGstr {
-    return Intl.message(
-      'Nömrəni göstər',
-      name: 'nmrniGstr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Show number', name: 'nmrniGstr', desc: '', args: []);
   }
 
-  /// `Nömrənizi daxil edin`
+  /// `Enter your number`
   String get nmrniziDaxilEdin {
     return Intl.message(
-      'Nömrənizi daxil edin',
+      'Enter your number',
       name: 'nmrniziDaxilEdin',
       desc: '',
       args: [],
     );
   }
 
-  /// `Bu nömrə sizin üçün ayrıldı`
+  /// `This number has been assigned to you`
   String get buNmrSizinNAyrld {
     return Intl.message(
-      'Bu nömrə sizin üçün ayrıldı',
+      'This number has been assigned to you',
       name: 'buNmrSizinNAyrld',
       desc: '',
       args: [],
     );
   }
 
-  /// `Diqqət! Tətbiq versiyası yenilənmişdir. Davam edə bilmək üçün tətbiqi yeniləməlisiniz.`
+  /// `Attention! The app version has been updated. You need to update the app to continue.`
   String get diqqtTtbiqVersiyasYenilnmidirDavamEdBilmkNTtbiqiYenilmlisiniz {
     return Intl.message(
-      'Diqqət! Tətbiq versiyası yenilənmişdir. Davam edə bilmək üçün tətbiqi yeniləməlisiniz.',
+      'Attention! The app version has been updated. You need to update the app to continue.',
       name: 'diqqtTtbiqVersiyasYenilnmidirDavamEdBilmkNTtbiqiYenilmlisiniz',
       desc: '',
       args: [],
     );
   }
 
-  /// `Davam etmək`
+  /// `Continue`
   String get davamEtmk {
-    return Intl.message('Davam etmək', name: 'davamEtmk', desc: '', args: []);
+    return Intl.message('Continue', name: 'davamEtmk', desc: '', args: []);
   }
 
-  /// `Tətbiqi yeniləyinmək`
+  /// `Update app`
   String get ttbiqiYenilyinmk {
     return Intl.message(
-      'Tətbiqi yeniləyinmək',
+      'Update app',
       name: 'ttbiqiYenilyinmk',
       desc: '',
       args: [],
     );
   }
 
-  /// `Mahalle`
+  /// `Neighborhood`
   String get mahalle {
-    return Intl.message('Mahalle', name: 'mahalle', desc: '', args: []);
+    return Intl.message('Neighborhood', name: 'mahalle', desc: '', args: []);
   }
 
-  /// `Profili silmək`
+  /// `Delete profile`
   String get profiliSilmk {
     return Intl.message(
-      'Profili silmək',
+      'Delete profile',
       name: 'profiliSilmk',
       desc: '',
       args: [],
     );
   }
 
-  /// `Hörmətli müştəri, bildirmək istəyirik ki siz hesabi silmekle hesabınıza bağlı olan bütün bağlamalardan imtina etmiş olursunuz. Ve bunu təsdiq etmiş sayılırsınız.`
+  /// `Dear customer, please note that by deleting your account, you will forfeit all packages associated with your account. You confirm this.`
   String get hrmtliMtriBildirmkIstyirikKiSizHesabiSilmekleHesabnzaBal {
     return Intl.message(
-      'Hörmətli müştəri, bildirmək istəyirik ki siz hesabi silmekle hesabınıza bağlı olan bütün bağlamalardan imtina etmiş olursunuz. Ve bunu təsdiq etmiş sayılırsınız.',
+      'Dear customer, please note that by deleting your account, you will forfeit all packages associated with your account. You confirm this.',
       name: 'hrmtliMtriBildirmkIstyirikKiSizHesabiSilmekleHesabnzaBal',
       desc: '',
       args: [],
@@ -2045,170 +2010,165 @@ class S {
     return Intl.message('Language', name: 'languandff', desc: '', args: []);
   }
 
-  /// `🟢 Проверен`
+  /// `🟢 Verified`
   String get fvdgd {
-    return Intl.message('🟢 Проверен', name: 'fvdgd', desc: '', args: []);
+    return Intl.message('🟢 Verified', name: 'fvdgd', desc: '', args: []);
   }
 
-  /// `курьер`
+  /// `courier`
   String get frefd {
-    return Intl.message('курьер', name: 'frefd', desc: '', args: []);
+    return Intl.message('courier', name: 'frefd', desc: '', args: []);
   }
 
-  /// `отправитель`
+  /// `sender`
   String get fvvdf {
-    return Intl.message('отправитель', name: 'fvvdf', desc: '', args: []);
+    return Intl.message('sender', name: 'fvvdf', desc: '', args: []);
   }
 
-  /// `покупатель`
+  /// `buyer`
   String get fvgbfdb {
-    return Intl.message('покупатель', name: 'fvgbfdb', desc: '', args: []);
+    return Intl.message('buyer', name: 'fvgbfdb', desc: '', args: []);
   }
 
-  /// `Продолжить`
+  /// `Continue`
   String get vfdvd {
-    return Intl.message('Продолжить', name: 'vfdvd', desc: '', args: []);
+    return Intl.message('Continue', name: 'vfdvd', desc: '', args: []);
   }
 
-  /// `Ищи тех, кто летит — и передавай посылки надёжно и быстро`
+  /// `Find travelers — and send packages reliably and quickly`
   String get vvvvvf {
     return Intl.message(
-      'Ищи тех, кто летит — и передавай посылки надёжно и быстро',
+      'Find travelers — and send packages reliably and quickly',
       name: 'vvvvvf',
       desc: '',
       args: [],
     );
   }
 
-  /// `Быстрая и безопасная доставка посылок по всему миру`
+  /// `Fast and safe parcel delivery worldwide`
   String get r43 {
     return Intl.message(
-      'Быстрая и безопасная доставка посылок по всему миру',
+      'Fast and safe parcel delivery worldwide',
       name: 'r43',
       desc: '',
       args: [],
     );
   }
 
-  /// `Требуется регистрация`
+  /// `Registration required`
   String get t54 {
     return Intl.message(
-      'Требуется регистрация',
+      'Registration required',
       name: 't54',
       desc: '',
       args: [],
     );
   }
 
-  /// `Для доступа к этой функции необходимо зарегистрироваться или войти в аккаунт`
+  /// `To access this feature, you need to register or log in`
   String get rft43 {
     return Intl.message(
-      'Для доступа к этой функции необходимо зарегистрироваться или войти в аккаунт',
+      'To access this feature, you need to register or log in',
       name: 'rft43',
       desc: '',
       args: [],
     );
   }
 
-  /// `Зарегистрироваться`
+  /// `Register`
   String get ffr4 {
-    return Intl.message('Зарегистрироваться', name: 'ffr4', desc: '', args: []);
+    return Intl.message('Register', name: 'ffr4', desc: '', args: []);
   }
 
-  /// `Войти`
+  /// `Log in`
   String get fr43 {
-    return Intl.message('Войти', name: 'fr43', desc: '', args: []);
+    return Intl.message('Log in', name: 'fr43', desc: '', args: []);
   }
 
-  /// `Отмена`
+  /// `Cancel`
   String get fre45 {
-    return Intl.message('Отмена', name: 'fre45', desc: '', args: []);
+    return Intl.message('Cancel', name: 'fre45', desc: '', args: []);
   }
 
-  /// `Введите email`
+  /// `Enter email`
   String get email {
-    return Intl.message('Введите email', name: 'email', desc: '', args: []);
+    return Intl.message('Enter email', name: 'email', desc: '', args: []);
   }
 
-  /// `Код отправлен на $email`
+  /// `Code sent to $email`
   String get emailfre {
     return Intl.message(
-      'Код отправлен на \$email',
+      'Code sent to \$email',
       name: 'emailfre',
       desc: '',
       args: [],
     );
   }
 
-  /// `Введите 6-значный код`
+  /// `Enter 6-digit code`
   String get rfred2 {
     return Intl.message(
-      'Введите 6-значный код',
+      'Enter 6-digit code',
       name: 'rfred2',
       desc: '',
       args: [],
     );
   }
 
-  /// `Пароль минимум 6 символов`
+  /// `Password minimum 6 characters`
   String get vfd4 {
     return Intl.message(
-      'Пароль минимум 6 символов',
+      'Password minimum 6 characters',
       name: 'vfd4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Пароли не совпадают`
+  /// `Passwords do not match`
   String get vfdv3 {
     return Intl.message(
-      'Пароли не совпадают',
+      'Passwords do not match',
       name: 'vfdv3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Пароль успешно изменён!`
+  /// `Password successfully changed!`
   String get rfewf43 {
     return Intl.message(
-      'Пароль успешно изменён!',
+      'Password successfully changed!',
       name: 'rfewf43',
       desc: '',
       args: [],
     );
   }
 
-  /// `Код отправлен повторно`
+  /// `Code resent`
   String get nhtf34 {
-    return Intl.message(
-      'Код отправлен повторно',
-      name: 'nhtf34',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Code resent', name: 'nhtf34', desc: '', args: []);
   }
 
-  /// `Введите код`
+  /// `Enter code`
   String get vfd3 {
-    return Intl.message('Введите код', name: 'vfd3', desc: '', args: []);
+    return Intl.message('Enter code', name: 'vfd3', desc: '', args: []);
   }
 
-  /// `Забыли пароль?`
+  /// `Forgot password?`
   String get vfd23 {
-    return Intl.message('Забыли пароль?', name: 'vfd23', desc: '', args: []);
+    return Intl.message('Forgot password?', name: 'vfd23', desc: '', args: []);
   }
 
-  /// `Новый пароль`
+  /// `New password`
   String get vfddfvd2 {
-    return Intl.message('Новый пароль', name: 'vfddfvd2', desc: '', args: []);
+    return Intl.message('New password', name: 'vfddfvd2', desc: '', args: []);
   }
 
-  /// `Введите email, на который зарегистрирован аккаунт`
+  /// `Enter the email your account is registered with`
   String get emailvfd {
     return Intl.message(
-      'Введите email, на который зарегистрирован аккаунт',
+      'Enter the email your account is registered with',
       name: 'emailvfd',
       desc: '',
       args: [],
@@ -2220,89 +2180,84 @@ class S {
     return Intl.message('EMAIL', name: 'emailbngf', desc: '', args: []);
   }
 
-  /// `Отправка...`
+  /// `Sending...`
   String get bgf3 {
-    return Intl.message('Отправка...', name: 'bgf3', desc: '', args: []);
+    return Intl.message('Sending...', name: 'bgf3', desc: '', args: []);
   }
 
-  /// `Отправить код`
+  /// `Send code`
   String get mut3 {
-    return Intl.message('Отправить код', name: 'mut3', desc: '', args: []);
+    return Intl.message('Send code', name: 'mut3', desc: '', args: []);
   }
 
-  /// `Код отправлен на`
+  /// `Code sent to`
   String get bvgf2 {
-    return Intl.message('Код отправлен на', name: 'bvgf2', desc: '', args: []);
+    return Intl.message('Code sent to', name: 'bvgf2', desc: '', args: []);
   }
 
-  /// `Отправить повторно`
+  /// `Resend`
   String get bgf24 {
-    return Intl.message(
-      'Отправить повторно',
-      name: 'bgf24',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Resend', name: 'bgf24', desc: '', args: []);
   }
 
-  /// `Проверка...`
+  /// `Verifying...`
   String get bgf2 {
-    return Intl.message('Проверка...', name: 'bgf2', desc: '', args: []);
+    return Intl.message('Verifying...', name: 'bgf2', desc: '', args: []);
   }
 
-  /// `Подтвердить`
+  /// `Confirm`
   String get vfd245 {
-    return Intl.message('Подтвердить', name: 'vfd245', desc: '', args: []);
+    return Intl.message('Confirm', name: 'vfd245', desc: '', args: []);
   }
 
-  /// `Придумайте новый пароль`
+  /// `Create a new password`
   String get uy3 {
     return Intl.message(
-      'Придумайте новый пароль',
+      'Create a new password',
       name: 'uy3',
       desc: '',
       args: [],
     );
   }
 
-  /// `НОВЫЙ ПАРОЛЬ`
+  /// `NEW PASSWORD`
   String get fvrdevfd54 {
-    return Intl.message('НОВЫЙ ПАРОЛЬ', name: 'fvrdevfd54', desc: '', args: []);
+    return Intl.message('NEW PASSWORD', name: 'fvrdevfd54', desc: '', args: []);
   }
 
-  /// `Минимум 6 символов`
+  /// `Minimum 6 characters`
   String get my65 {
-    return Intl.message('Минимум 6 символов', name: 'my65', desc: '', args: []);
-  }
-
-  /// `ПОДТВЕРДИТЕ ПАРОЛЬ`
-  String get uj334 {
     return Intl.message(
-      'ПОДТВЕРДИТЕ ПАРОЛЬ',
-      name: 'uj334',
+      'Minimum 6 characters',
+      name: 'my65',
       desc: '',
       args: [],
     );
   }
 
-  /// `Повторите пароль`
+  /// `CONFIRM PASSWORD`
+  String get uj334 {
+    return Intl.message('CONFIRM PASSWORD', name: 'uj334', desc: '', args: []);
+  }
+
+  /// `Repeat password`
   String get ujt3 {
-    return Intl.message('Повторите пароль', name: 'ujt3', desc: '', args: []);
+    return Intl.message('Repeat password', name: 'ujt3', desc: '', args: []);
   }
 
-  /// `Сохранение...`
+  /// `Saving...`
   String get nbhty3 {
-    return Intl.message('Сохранение...', name: 'nbhty3', desc: '', args: []);
+    return Intl.message('Saving...', name: 'nbhty3', desc: '', args: []);
   }
 
-  /// `Сохранить пароль`
+  /// `Save password`
   String get ukj3 {
-    return Intl.message('Сохранить пароль', name: 'ukj3', desc: '', args: []);
+    return Intl.message('Save password', name: 'ukj3', desc: '', args: []);
   }
 
-  /// `Вход`
+  /// `Login`
   String get umt645 {
-    return Intl.message('Вход', name: 'umt645', desc: '', args: []);
+    return Intl.message('Login', name: 'umt645', desc: '', args: []);
   }
 
   /// `EMAIL`
@@ -2310,724 +2265,2979 @@ class S {
     return Intl.message('EMAIL', name: 'emailbgf', desc: '', args: []);
   }
 
-  /// `ПАРОЛЬ`
+  /// `PASSWORD`
   String get nty35 {
-    return Intl.message('ПАРОЛЬ', name: 'nty35', desc: '', args: []);
+    return Intl.message('PASSWORD', name: 'nty35', desc: '', args: []);
   }
 
-  /// `Минимум 6 символов`
+  /// `Minimum 6 characters`
   String get nfngfngf645 {
     return Intl.message(
-      'Минимум 6 символов',
+      'Minimum 6 characters',
       name: 'nfngfngf645',
       desc: '',
       args: [],
     );
   }
 
-  /// `Забыли пароль?`
+  /// `Forgot password?`
   String get kiyt3 {
-    return Intl.message('Забыли пароль?', name: 'kiyt3', desc: '', args: []);
+    return Intl.message('Forgot password?', name: 'kiyt3', desc: '', args: []);
   }
 
-  /// `Вход...`
+  /// `Logging in...`
   String get ykuj3 {
-    return Intl.message('Вход...', name: 'ykuj3', desc: '', args: []);
+    return Intl.message('Logging in...', name: 'ykuj3', desc: '', args: []);
   }
 
-  /// `Войти`
+  /// `Log in`
   String get iykuj34 {
-    return Intl.message('Войти', name: 'iykuj34', desc: '', args: []);
+    return Intl.message('Log in', name: 'iykuj34', desc: '', args: []);
   }
 
-  /// `Нет аккаунта? Зарегистрироваться`
+  /// `No account? Register`
   String get myt3 {
     return Intl.message(
-      'Нет аккаунта? Зарегистрироваться',
+      'No account? Register',
       name: 'myt3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Регистрация`
+  /// `Registration`
   String get nyt7 {
-    return Intl.message('Регистрация', name: 'nyt7', desc: '', args: []);
+    return Intl.message('Registration', name: 'nyt7', desc: '', args: []);
   }
 
-  /// `Присоединяйтесь к нам`
+  /// `Join us`
   String get nty3 {
-    return Intl.message(
-      'Присоединяйтесь к нам',
-      name: 'nty3',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Join us', name: 'nty3', desc: '', args: []);
   }
 
-  /// `ПОЛНОЕ ИМЯ`
+  /// `FULL NAME`
   String get btr3 {
-    return Intl.message('ПОЛНОЕ ИМЯ', name: 'btr3', desc: '', args: []);
+    return Intl.message('FULL NAME', name: 'btr3', desc: '', args: []);
   }
 
-  /// `Введите ваше имя`
+  /// `Enter your name`
   String get nbgf3 {
-    return Intl.message('Введите ваше имя', name: 'nbgf3', desc: '', args: []);
+    return Intl.message('Enter your name', name: 'nbgf3', desc: '', args: []);
   }
 
-  /// `ТЕЛЕФОН`
+  /// `PHONE`
   String get bgf34 {
-    return Intl.message('ТЕЛЕФОН', name: 'bgf34', desc: '', args: []);
+    return Intl.message('PHONE', name: 'bgf34', desc: '', args: []);
   }
 
-  /// `ПАРОЛЬ`
+  /// `PASSWORD`
   String get bgf35 {
-    return Intl.message('ПАРОЛЬ', name: 'bgf35', desc: '', args: []);
+    return Intl.message('PASSWORD', name: 'bgf35', desc: '', args: []);
   }
 
-  /// `Минимум 6 символов`
+  /// `Minimum 6 characters`
   String get bgfbvgfd3 {
     return Intl.message(
-      'Минимум 6 символов',
+      'Minimum 6 characters',
       name: 'bgfbvgfd3',
       desc: '',
       args: [],
     );
   }
 
-  /// `ПОДТВЕРДИТЕ ПАРОЛЬ`
+  /// `CONFIRM PASSWORD`
   String get bg334 {
+    return Intl.message('CONFIRM PASSWORD', name: 'bg334', desc: '', args: []);
+  }
+
+  /// `Repeat password`
+  String get vbrgf2 {
+    return Intl.message('Repeat password', name: 'vbrgf2', desc: '', args: []);
+  }
+
+  /// `Registering...`
+  String get bgfd3 {
+    return Intl.message('Registering...', name: 'bgfd3', desc: '', args: []);
+  }
+
+  /// `Create account`
+  String get bgd2 {
+    return Intl.message('Create account', name: 'bgd2', desc: '', args: []);
+  }
+
+  /// `Already have an account?`
+  String get muj56 {
     return Intl.message(
-      'ПОДТВЕРДИТЕ ПАРОЛЬ',
-      name: 'bg334',
+      'Already have an account?',
+      name: 'muj56',
       desc: '',
       args: [],
     );
   }
 
-  /// `Повторите пароль`
-  String get vbrgf2 {
-    return Intl.message('Повторите пароль', name: 'vbrgf2', desc: '', args: []);
-  }
-
-  /// `Регистрация...`
-  String get bgfd3 {
-    return Intl.message('Регистрация...', name: 'bgfd3', desc: '', args: []);
-  }
-
-  /// `Создать аккаунт`
-  String get bgd2 {
-    return Intl.message('Создать аккаунт', name: 'bgd2', desc: '', args: []);
-  }
-
-  /// `Уже есть аккаунт?`
-  String get muj56 {
-    return Intl.message('Уже есть аккаунт?', name: 'muj56', desc: '', args: []);
-  }
-
-  /// `Войти`
+  /// `Log in`
   String get ujt4 {
-    return Intl.message('Войти', name: 'ujt4', desc: '', args: []);
+    return Intl.message('Log in', name: 'ujt4', desc: '', args: []);
   }
 
-  /// `Выберите страну`
+  /// `Select country`
   String get nbtynt7 {
-    return Intl.message('Выберите страну', name: 'nbtynt7', desc: '', args: []);
+    return Intl.message('Select country', name: 'nbtynt7', desc: '', args: []);
   }
 
-  /// `Поиск страны...`
+  /// `Search country...`
   String get mjh5y {
-    return Intl.message('Поиск страны...', name: 'mjh5y', desc: '', args: []);
+    return Intl.message('Search country...', name: 'mjh5y', desc: '', args: []);
   }
 
-  /// `Выбор`
+  /// `Select`
   String get nhgngn5 {
-    return Intl.message('Выбор', name: 'nhgngn5', desc: '', args: []);
+    return Intl.message('Select', name: 'nhgngn5', desc: '', args: []);
   }
 
-  /// `Языки загружаются. Попробуйте позже.`
+  /// `Languages loading. Try again later.`
   String get vfd34 {
     return Intl.message(
-      'Языки загружаются. Попробуйте позже.',
+      'Languages loading. Try again later.',
       name: 'vfd34',
       desc: '',
       args: [],
     );
   }
 
-  /// `Языки не загружены. Попробуйте позже.`
+  /// `Languages not loaded. Try again later.`
   String get bgdfbgfd3 {
     return Intl.message(
-      'Языки не загружены. Попробуйте позже.',
+      'Languages not loaded. Try again later.',
       name: 'bgdfbgfd3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Выберите языки`
+  /// `Select languages`
   String get bgvfd3 {
-    return Intl.message('Выберите языки', name: 'bgvfd3', desc: '', args: []);
+    return Intl.message('Select languages', name: 'bgvfd3', desc: '', args: []);
   }
 
-  /// `Языки не найдены`
+  /// `Languages not found`
   String get bdg3 {
-    return Intl.message('Языки не найдены', name: 'bdg3', desc: '', args: []);
+    return Intl.message(
+      'Languages not found',
+      name: 'bdg3',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `Неизвестный язык`
+  /// `Unknown language`
   String get nhtg5 {
-    return Intl.message('Неизвестный язык', name: 'nhtg5', desc: '', args: []);
+    return Intl.message('Unknown language', name: 'nhtg5', desc: '', args: []);
   }
 
-  /// `Код:`
+  /// `Code:`
   String get bmy5 {
-    return Intl.message('Код:', name: 'bmy5', desc: '', args: []);
+    return Intl.message('Code:', name: 'bmy5', desc: '', args: []);
   }
 
-  /// `Применить`
+  /// `Apply`
   String get bnht {
-    return Intl.message('Применить', name: 'bnht', desc: '', args: []);
+    return Intl.message('Apply', name: 'bnht', desc: '', args: []);
   }
 
-  /// `Загрузка...`
+  /// `Loading...`
   String get bgfbgfb4 {
-    return Intl.message('Загрузка...', name: 'bgfbgfb4', desc: '', args: []);
+    return Intl.message('Loading...', name: 'bgfbgfb4', desc: '', args: []);
   }
 
-  /// `Выбор`
+  /// `Select`
   String get gbfbgfbfg4 {
-    return Intl.message('Выбор', name: 'gbfbgfbfg4', desc: '', args: []);
+    return Intl.message('Select', name: 'gbfbgfbfg4', desc: '', args: []);
   }
 
-  /// `Типы упаковки загружаются. Попробуйте позже.`
+  /// `Package types loading. Try again later.`
   String get t53grvfe5 {
     return Intl.message(
-      'Типы упаковки загружаются. Попробуйте позже.',
+      'Package types loading. Try again later.',
       name: 't53grvfe5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Типы упаковки не загружены. Попробуйте позже.`
+  /// `Package types not loaded. Try again later.`
   String get bgfbgfbgf4 {
     return Intl.message(
-      'Типы упаковки не загружены. Попробуйте позже.',
+      'Package types not loaded. Try again later.',
       name: 'bgfbgfbgf4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Выберите специализацию`
+  /// `Select specialization`
   String get bfgbgfb3 {
     return Intl.message(
-      'Выберите специализацию',
+      'Select specialization',
       name: 'bfgbgfb3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Типы упаковки не найдены`
+  /// `Package types not found`
   String get bgbffgb3 {
     return Intl.message(
-      'Типы упаковки не найдены',
+      'Package types not found',
       name: 'bgbffgb3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Применить`
+  /// `Apply`
   String get bgfbggfbfg3 {
-    return Intl.message('Применить', name: 'bgfbggfbfg3', desc: '', args: []);
+    return Intl.message('Apply', name: 'bgfbggfbfg3', desc: '', args: []);
   }
 
-  /// `Начните переписку`
+  /// `Start a conversation`
   String get vgfbgf4 {
     return Intl.message(
-      'Начните переписку',
+      'Start a conversation',
       name: 'vgfbgf4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Вы уверены, что хотите отправить`
+  /// `Are you sure you want to send`
   String get bgfbfgb4 {
     return Intl.message(
-      'Вы уверены, что хотите отправить',
+      'Are you sure you want to send',
       name: 'bgfbfgb4',
       desc: '',
       args: [],
     );
   }
 
-  /// `запрос на оценку ваших услуг?`
+  /// `a request to rate your services?`
   String get bfgbgbgy6 {
     return Intl.message(
-      'запрос на оценку ваших услуг?',
+      'a request to rate your services?',
       name: 'bfgbgbgy6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Отмена`
+  /// `Cancel`
   String get bgbgfgb43 {
-    return Intl.message('Отмена', name: 'bgbgfgb43', desc: '', args: []);
+    return Intl.message('Cancel', name: 'bgbgfgb43', desc: '', args: []);
   }
 
-  /// `Запрос на отзыв отправлен!`
+  /// `Review request sent!`
   String get bgfbfg3 {
     return Intl.message(
-      'Запрос на отзыв отправлен!',
+      'Review request sent!',
       name: 'bgfbfg3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Отправить`
+  /// `Send`
   String get cdsdssde3 {
-    return Intl.message('Отправить', name: 'cdsdssde3', desc: '', args: []);
+    return Intl.message('Send', name: 'cdsdssde3', desc: '', args: []);
   }
 
-  /// `Входящие`
+  /// `Inbox`
   String get vfdvfd3 {
-    return Intl.message('Входящие', name: 'vfdvfd3', desc: '', args: []);
+    return Intl.message('Inbox', name: 'vfdvfd3', desc: '', args: []);
   }
 
-  /// `Архив`
+  /// `Archive`
   String get vfdvfdvf3 {
-    return Intl.message('Архив', name: 'vfdvfdvf3', desc: '', args: []);
+    return Intl.message('Archive', name: 'vfdvfdvf3', desc: '', args: []);
   }
 
-  /// `Нет чатов`
+  /// `No chats`
   String get vfgdvfd3 {
-    return Intl.message('Нет чатов', name: 'vfgdvfd3', desc: '', args: []);
+    return Intl.message('No chats', name: 'vfgdvfd3', desc: '', args: []);
   }
 
-  /// `Действия с чатом`
+  /// `Chat actions`
   String get vfdvfddvfdvf3 {
     return Intl.message(
-      'Действия с чатом',
+      'Chat actions',
       name: 'vfdvfddvfdvf3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Открепить`
+  /// `Unpin`
   String get htyyhttyh7 {
-    return Intl.message('Открепить', name: 'htyyhttyh7', desc: '', args: []);
+    return Intl.message('Unpin', name: 'htyyhttyh7', desc: '', args: []);
   }
 
-  /// `Закрепить`
+  /// `Pin`
   String get juyjy7 {
-    return Intl.message('Закрепить', name: 'juyjy7', desc: '', args: []);
+    return Intl.message('Pin', name: 'juyjy7', desc: '', args: []);
   }
 
-  /// `Разархивировать`
+  /// `Unarchive`
   String get yjyj67 {
-    return Intl.message('Разархивировать', name: 'yjyj67', desc: '', args: []);
+    return Intl.message('Unarchive', name: 'yjyj67', desc: '', args: []);
   }
 
-  /// `Архивировать`
+  /// `Archive`
   String get mkuuj7 {
-    return Intl.message('Архивировать', name: 'mkuuj7', desc: '', args: []);
+    return Intl.message('Archive', name: 'mkuuj7', desc: '', args: []);
   }
 
-  /// `Разблокировать`
+  /// `Unblock`
   String get jnyjyjyu8 {
-    return Intl.message(
-      'Разблокировать',
-      name: 'jnyjyjyu8',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Unblock', name: 'jnyjyjyu8', desc: '', args: []);
   }
 
-  /// `Заблокировать`
+  /// `Block`
   String get ynmjymjy8 {
-    return Intl.message('Заблокировать', name: 'ynmjymjy8', desc: '', args: []);
+    return Intl.message('Block', name: 'ynmjymjy8', desc: '', args: []);
   }
 
-  /// `Удалить чат`
+  /// `Delete chat`
   String get mymuyy7 {
-    return Intl.message('Удалить чат', name: 'mymuyy7', desc: '', args: []);
+    return Intl.message('Delete chat', name: 'mymuyy7', desc: '', args: []);
   }
 
-  /// `Удалить чат?`
+  /// `Delete chat?`
   String get mumju7 {
-    return Intl.message('Удалить чат?', name: 'mumju7', desc: '', args: []);
+    return Intl.message('Delete chat?', name: 'mumju7', desc: '', args: []);
   }
 
-  /// `Вы уверены, что хотите удалить переписку с`
+  /// `Are you sure you want to delete the conversation with`
   String get njmuy5 {
     return Intl.message(
-      'Вы уверены, что хотите удалить переписку с',
+      'Are you sure you want to delete the conversation with',
       name: 'njmuy5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Отмена`
+  /// `Cancel`
   String get bhtgbht55 {
-    return Intl.message('Отмена', name: 'bhtgbht55', desc: '', args: []);
+    return Intl.message('Cancel', name: 'bhtgbht55', desc: '', args: []);
   }
 
-  /// `Удалить`
+  /// `Delete`
   String get nhtntt5 {
-    return Intl.message('Удалить', name: 'nhtntt5', desc: '', args: []);
+    return Intl.message('Delete', name: 'nhtntt5', desc: '', args: []);
   }
 
-  /// `Заблокировать пользователя?`
+  /// `Block user?`
   String get bgfbfbg5 {
-    return Intl.message(
-      'Заблокировать пользователя?',
-      name: 'bgfbfbg5',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Block user?', name: 'bgfbfbg5', desc: '', args: []);
   }
 
-  /// `Вы уверены, что хотите заблокировать`
+  /// `Are you sure you want to block`
   String get bghfbgb5 {
     return Intl.message(
-      'Вы уверены, что хотите заблокировать',
+      'Are you sure you want to block',
       name: 'bghfbgb5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Отмена`
+  /// `Cancel`
   String get bgtbgtbgbtg4 {
-    return Intl.message('Отмена', name: 'bgtbgtbgbtg4', desc: '', args: []);
+    return Intl.message('Cancel', name: 'bgtbgtbgbtg4', desc: '', args: []);
   }
 
-  /// `Заблокировать`
+  /// `Block`
   String get bghfgbg4 {
-    return Intl.message('Заблокировать', name: 'bghfgbg4', desc: '', args: []);
+    return Intl.message('Block', name: 'bghfgbg4', desc: '', args: []);
   }
 
-  /// `Разблокировать пользователя?`
+  /// `Unblock user?`
   String get gbfgbfgfb34 {
     return Intl.message(
-      'Разблокировать пользователя?',
+      'Unblock user?',
       name: 'gbfgbfgfb34',
       desc: '',
       args: [],
     );
   }
 
-  /// `Вы уверены, что хотите разблокировать`
+  /// `Are you sure you want to unblock`
   String get bgfbgffg4 {
     return Intl.message(
-      'Вы уверены, что хотите разблокировать',
+      'Are you sure you want to unblock',
       name: 'bgfbgffg4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Отмена`
+  /// `Cancel`
   String get bvgfbf4 {
-    return Intl.message('Отмена', name: 'bvgfbf4', desc: '', args: []);
+    return Intl.message('Cancel', name: 'bvgfbf4', desc: '', args: []);
   }
 
-  /// `Разблокировать`
+  /// `Unblock`
   String get hythy4 {
-    return Intl.message('Разблокировать', name: 'hythy4', desc: '', args: []);
+    return Intl.message('Unblock', name: 'hythy4', desc: '', args: []);
   }
 
-  /// `Сообщение...`
+  /// `Message...`
   String get yhtrhtrtrh4 {
-    return Intl.message(
-      'Сообщение...',
-      name: 'yhtrhtrtrh4',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Message...', name: 'yhtrhtrtrh4', desc: '', args: []);
   }
 
-  /// `Фото`
+  /// `Photo`
   String get bgfbgfbg4 {
-    return Intl.message('Фото', name: 'bgfbgfbg4', desc: '', args: []);
+    return Intl.message('Photo', name: 'bgfbgfbg4', desc: '', args: []);
   }
 
-  /// `Файл`
+  /// `File`
   String get bgfbgfgf4 {
-    return Intl.message('Файл', name: 'bgfbgfgf4', desc: '', args: []);
+    return Intl.message('File', name: 'bgfbgfgf4', desc: '', args: []);
   }
 
-  /// `Проверен`
+  /// `Verified`
   String get bgfbgf4 {
-    return Intl.message('Проверен', name: 'bgfbgf4', desc: '', args: []);
+    return Intl.message('Verified', name: 'bgfbgf4', desc: '', args: []);
   }
 
-  /// `новых сообщения`
+  /// `new messages`
   String get bgbgffbgfg4 {
     return Intl.message(
-      'новых сообщения',
+      'new messages',
       name: 'bgbgffbgfg4',
       desc: '',
       args: [],
     );
   }
 
-  /// `Аккаунт`
+  /// `Account`
   String get vfdvfdvfd {
-    return Intl.message('Аккаунт', name: 'vfdvfdvfd', desc: '', args: []);
+    return Intl.message('Account', name: 'vfdvfdvfd', desc: '', args: []);
   }
 
-  /// `Избранное`
+  /// `Favorites`
   String get gbfbgfgb {
-    return Intl.message('Избранное', name: 'gbfbgfgb', desc: '', args: []);
+    return Intl.message('Favorites', name: 'gbfbgfgb', desc: '', args: []);
   }
 
-  /// `Подать`
+  /// `Post`
   String get nhnnh5 {
-    return Intl.message('Подать', name: 'nhnnh5', desc: '', args: []);
+    return Intl.message('Post', name: 'nhnnh5', desc: '', args: []);
   }
 
-  /// `Чаты`
+  /// `Chats`
   String get mjhmhjmj5 {
-    return Intl.message('Чаты', name: 'mjhmhjmj5', desc: '', args: []);
+    return Intl.message('Chats', name: 'mjhmhjmj5', desc: '', args: []);
   }
 
-  /// `Поиск`
+  /// `Search`
   String get nhhfge4 {
-    return Intl.message('Поиск', name: 'nhhfge4', desc: '', args: []);
+    return Intl.message('Search', name: 'nhhfge4', desc: '', args: []);
   }
 
-  /// `Ошибка загрузки типов предложений:`
+  /// `Error loading offer types:`
   String get bgfdbf3 {
     return Intl.message(
-      'Ошибка загрузки типов предложений:',
+      'Error loading offer types:',
       name: 'bgfdbf3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ошибка загрузки городов:`
+  /// `Error loading cities:`
   String get bgvrgrbgr3 {
     return Intl.message(
-      'Ошибка загрузки городов:',
+      'Error loading cities:',
       name: 'bgvrgrbgr3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ошибка загрузки типов упаковки:`
+  /// `Error loading package types:`
   String get vfdvfdvfdv3 {
     return Intl.message(
-      'Ошибка загрузки типов упаковки:',
+      'Error loading package types:',
       name: 'vfdvfdvfdv3',
       desc: '',
       args: [],
     );
   }
 
-  /// `Подать`
+  /// `Post`
   String get bvfv2r {
-    return Intl.message('Подать', name: 'bvfv2r', desc: '', args: []);
+    return Intl.message('Post', name: 'bvfv2r', desc: '', args: []);
   }
 
-  /// `Создайте объявление для поиска курьера или\nклиента`
+  /// `Create a listing to find a courier or\nclient`
   String get mjjhmjjmj5 {
     return Intl.message(
-      'Создайте объявление для поиска курьера или\nклиента',
+      'Create a listing to find a courier or\nclient',
       name: 'mjjhmjjmj5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Создайте объявление для поиска курьера или\nклиента`
+  /// `Create a listing to find a courier or\nclient`
   String get bgfbgbgfbgf {
     return Intl.message(
-      'Создайте объявление для поиска курьера или\nклиента',
+      'Create a listing to find a courier or\nclient',
       name: 'bgfbgbgfbgf',
       desc: '',
       args: [],
     );
   }
 
-  /// `Тип предложения`
+  /// `Offer type`
   String get bgfbgfbgf {
-    return Intl.message(
-      'Тип предложения',
-      name: 'bgfbgfbgf',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Offer type', name: 'bgfbgfbgf', desc: '', args: []);
   }
 
-  /// `Тип посылки`
+  /// `Package type`
   String get nhgnhg4 {
-    return Intl.message('Тип посылки', name: 'nhgnhg4', desc: '', args: []);
+    return Intl.message('Package type', name: 'nhgnhg4', desc: '', args: []);
   }
 
-  /// `Откуда`
+  /// `From`
   String get hythyt4 {
-    return Intl.message('Откуда', name: 'hythyt4', desc: '', args: []);
+    return Intl.message('From', name: 'hythyt4', desc: '', args: []);
   }
 
-  /// `Город отправления`
+  /// `Departure city`
   String get kiukiuku6 {
     return Intl.message(
-      'Город отправления',
+      'Departure city',
       name: 'kiukiuku6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Куда`
+  /// `To`
   String get kiuykiu67 {
-    return Intl.message('Куда', name: 'kiuykiu67', desc: '', args: []);
+    return Intl.message('To', name: 'kiuykiu67', desc: '', args: []);
   }
 
-  /// `Город назначения`
+  /// `Destination city`
   String get lkiuliuu6 {
     return Intl.message(
-      'Город назначения',
+      'Destination city',
       name: 'lkiuliuu6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Максимальный вес (кг)`
+  /// `Maximum weight (kg)`
   String get mjjhm6 {
     return Intl.message(
-      'Максимальный вес (кг)',
+      'Maximum weight (kg)',
       name: 'mjjhm6',
       desc: '',
       args: [],
     );
   }
 
-  /// `Цена за кг`
+  /// `Price per kg`
   String get bgfbgf34 {
-    return Intl.message('Цена за кг', name: 'bgfbgf34', desc: '', args: []);
+    return Intl.message('Price per kg', name: 'bgfbgf34', desc: '', args: []);
   }
 
-  /// `Описание`
+  /// `Description`
   String get vfdbg2r3 {
-    return Intl.message('Описание', name: 'vfdbg2r3', desc: '', args: []);
+    return Intl.message('Description', name: 'vfdbg2r3', desc: '', args: []);
   }
 
-  /// `Расскажите о своих услугах доставки...`
+  /// `Tell us about your delivery services...`
   String get bdfbd2w {
     return Intl.message(
-      'Расскажите о своих услугах доставки...',
+      'Tell us about your delivery services...',
       name: 'bdfbd2w',
       desc: '',
       args: [],
     );
   }
 
-  /// `Опубликовать объявление`
+  /// `Publish listing`
   String get bgfbgf3 {
+    return Intl.message('Publish listing', name: 'bgfbgf3', desc: '', args: []);
+  }
+
+  /// `Select type`
+  String get bgfbgfb3 {
+    return Intl.message('Select type', name: 'bgfbgfb3', desc: '', args: []);
+  }
+
+  /// `dd.mm.yyyy`
+  String get bgbgfg334 {
+    return Intl.message('dd.mm.yyyy', name: 'bgbgfg334', desc: '', args: []);
+  }
+
+  /// `Departure time`
+  String get bgfbgf3434 {
     return Intl.message(
-      'Опубликовать объявление',
-      name: 'bgfbgf3',
+      'Departure time',
+      name: 'bgfbgf3434',
       desc: '',
       args: [],
     );
   }
 
-  /// `Выберите тип`
-  String get bgfbgfb3 {
-    return Intl.message('Выберите тип', name: 'bgfbgfb3', desc: '', args: []);
-  }
-
-  /// `дд.мм.гггг`
-  String get bgbgfg334 {
-    return Intl.message('дд.мм.гггг', name: 'bgbgfg334', desc: '', args: []);
-  }
-
-  /// `Время вылета`
-  String get bgfbgf3434 {
-    return Intl.message('Время вылета', name: 'bgfbgf3434', desc: '', args: []);
-  }
-
-  /// `Дата доставки с`
+  /// `Delivery date from`
   String get bgdfbg345 {
     return Intl.message(
-      'Дата доставки с',
+      'Delivery date from',
       name: 'bgdfbg345',
       desc: '',
       args: [],
     );
   }
 
-  /// `дд.мм.гггг`
+  /// `dd.mm.yyyy`
   String get bgfbgf4554 {
-    return Intl.message('дд.мм.гггг', name: 'bgfbgf4554', desc: '', args: []);
+    return Intl.message('dd.mm.yyyy', name: 'bgfbgf4554', desc: '', args: []);
   }
 
-  /// `дд.мм.гггг`
+  /// `dd.mm.yyyy`
   String get bgfdbgf345 {
-    return Intl.message('дд.мм.гггг', name: 'bgfdbgf345', desc: '', args: []);
+    return Intl.message('dd.mm.yyyy', name: 'bgfdbgf345', desc: '', args: []);
   }
 
-  /// `Дата доставки до`
+  /// `Delivery date to`
   String get bgfgbfbgf345 {
     return Intl.message(
-      'Дата доставки до',
+      'Delivery date to',
       name: 'bgfgbfbgf345',
       desc: '',
       args: [],
     );
   }
 
-  /// `Дата покупки с`
+  /// `Purchase date from`
   String get bgfb3 {
-    return Intl.message('Дата покупки с', name: 'bgfb3', desc: '', args: []);
+    return Intl.message(
+      'Purchase date from',
+      name: 'bgfb3',
+      desc: '',
+      args: [],
+    );
   }
 
-  /// `дд.мм.гггг`
+  /// `dd.mm.yyyy`
   String get bgfbggfbgf34 {
-    return Intl.message('дд.мм.гггг', name: 'bgfbggfbgf34', desc: '', args: []);
+    return Intl.message('dd.mm.yyyy', name: 'bgfbggfbgf34', desc: '', args: []);
   }
 
-  /// `Дата покупки до`
+  /// `Purchase date to`
   String get vfdv34 {
-    return Intl.message('Дата покупки до', name: 'vfdv34', desc: '', args: []);
+    return Intl.message('Purchase date to', name: 'vfdv34', desc: '', args: []);
   }
 
-  /// `чч:мм (24-часовой формат)`
+  /// `hh:mm (24-hour format)`
   String get vfdvfddfv24 {
     return Intl.message(
-      'чч:мм (24-часовой формат)',
+      'hh:mm (24-hour format)',
       name: 'vfdvfddfv24',
       desc: '',
       args: [],
     );
   }
 
-  /// `Объявление опубликовано!`
+  /// `Listing published!`
   String get vfdvfd24 {
     return Intl.message(
-      'Объявление опубликовано!',
+      'Listing published!',
       name: 'vfdvfd24',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ошибка:`
+  /// `Error:`
   String get vfdvf423 {
-    return Intl.message('Ошибка:', name: 'vfdvf423', desc: '', args: []);
+    return Intl.message('Error:', name: 'vfdvf423', desc: '', args: []);
+  }
+
+  /// `Error loading data`
+  String get dsvfsd {
+    return Intl.message(
+      'Error loading data',
+      name: 'dsvfsd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get fds {
+    return Intl.message('Try again', name: 'fds', desc: '', args: []);
+  }
+
+  /// `Verified`
+  String get h46h46 {
+    return Intl.message('Verified', name: 'h46h46', desc: '', args: []);
+  }
+
+  /// `Deliveries`
+  String get gbgrbyhe435 {
+    return Intl.message('Deliveries', name: 'gbgrbyhe435', desc: '', args: []);
+  }
+
+  /// `Rating`
+  String get hgg4235gb {
+    return Intl.message('Rating', name: 'hgg4235gb', desc: '', args: []);
+  }
+
+  /// `Reviews`
+  String get bgfh364 {
+    return Intl.message('Reviews', name: 'bgfh364', desc: '', args: []);
+  }
+
+  /// `On site`
+  String get htr345gfd {
+    return Intl.message('On site', name: 'htr345gfd', desc: '', args: []);
+  }
+
+  /// `days`
+  String get bgfbg33 {
+    return Intl.message('days', name: 'bgfbg33', desc: '', args: []);
+  }
+
+  /// `Select language`
+  String get vgfb35 {
+    return Intl.message('Select language', name: 'vgfb35', desc: '', args: []);
+  }
+
+  /// `Theme`
+  String get fggdf345 {
+    return Intl.message('Theme', name: 'fggdf345', desc: '', args: []);
+  }
+
+  /// `Dark theme enabled`
+  String get bfd4r53gfd {
+    return Intl.message(
+      'Dark theme enabled',
+      name: 'bfd4r53gfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Light theme enabled`
+  String get bgfb453 {
+    return Intl.message(
+      'Light theme enabled',
+      name: 'bgfb453',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification`
+  String get bdb4w5gfd {
+    return Intl.message('Verification', name: 'bdb4w5gfd', desc: '', args: []);
+  }
+
+  /// `Verify documents`
+  String get bdfgt43refg {
+    return Intl.message(
+      'Verify documents',
+      name: 'bdfgt43refg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listings`
+  String get bdfbfd43tgfd {
+    return Intl.message('Listings', name: 'bdfbfd43tgfd', desc: '', args: []);
+  }
+
+  /// `Listing history`
+  String get bdfbertgfvdre {
+    return Intl.message(
+      'Listing history',
+      name: 'bdfbertgfvdre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reviews`
+  String get nfgn53tgdfg {
+    return Intl.message('Reviews', name: 'nfgn53tgdfg', desc: '', args: []);
+  }
+
+  /// `View reviews`
+  String get bgf43bgfd3 {
+    return Intl.message('View reviews', name: 'bgf43bgfd3', desc: '', args: []);
+  }
+
+  /// `Support`
+  String get bgfbgfeerfdfd {
+    return Intl.message('Support', name: 'bgfbgfeerfdfd', desc: '', args: []);
+  }
+
+  /// `Contact support`
+  String get bgbgf34fdg {
+    return Intl.message(
+      'Contact support',
+      name: 'bgbgf34fdg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get bgfbgf34gvfd {
+    return Intl.message('Settings', name: 'bgfbgf34gvfd', desc: '', args: []);
+  }
+
+  /// `Account management`
+  String get nfngret4 {
+    return Intl.message(
+      'Account management',
+      name: 'nfngret4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log out`
+  String get ngfngfn44 {
+    return Intl.message('Log out', name: 'ngfngfn44', desc: '', args: []);
+  }
+
+  /// `Are you sure you want to log out?`
+  String get vxer3 {
+    return Intl.message(
+      'Are you sure you want to log out?',
+      name: 'vxer3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes, log out`
+  String get bg33a {
+    return Intl.message('Yes, log out', name: 'bg33a', desc: '', args: []);
+  }
+
+  /// `No, cancel`
+  String get bnbv3h {
+    return Intl.message('No, cancel', name: 'bnbv3h', desc: '', args: []);
+  }
+
+  /// `Log out`
+  String get bgd32 {
+    return Intl.message('Log out', name: 'bgd32', desc: '', args: []);
+  }
+
+  /// `Logging out`
+  String get bgfnyuj3 {
+    return Intl.message('Logging out', name: 'bgfnyuj3', desc: '', args: []);
+  }
+
+  /// `User`
+  String get hghfg4bhn {
+    return Intl.message('User', name: 'hghfg4bhn', desc: '', args: []);
+  }
+
+  /// `Received`
+  String get hbfgh3 {
+    return Intl.message('Received', name: 'hbfgh3', desc: '', args: []);
+  }
+
+  /// `Given`
+  String get gert3tger {
+    return Intl.message('Given', name: 'gert3tger', desc: '', args: []);
+  }
+
+  /// `No reviews given`
+  String get bvfdgb43 {
+    return Intl.message(
+      'No reviews given',
+      name: 'bvfdgb43',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No reviews given`
+  String get bfdtw4ew4 {
+    return Intl.message(
+      'No reviews given',
+      name: 'bfdtw4ew4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History is empty`
+  String get gbdyh5g {
+    return Intl.message(
+      'History is empty',
+      name: 'gbdyh5g',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History`
+  String get bfdgbt5 {
+    return Intl.message('History', name: 'bfdgbt5', desc: '', args: []);
+  }
+
+  /// `Show all`
+  String get bgnhju46 {
+    return Intl.message('Show all', name: 'bgnhju46', desc: '', args: []);
+  }
+
+  /// `Active`
+  String get mjghmjtr446 {
+    return Intl.message('Active', name: 'mjghmjtr446', desc: '', args: []);
+  }
+
+  /// `Completed`
+  String get ljkl73 {
+    return Intl.message('Completed', name: 'ljkl73', desc: '', args: []);
+  }
+
+  /// `Cancelled`
+  String get bdgbfgrtr4 {
+    return Intl.message('Cancelled', name: 'bdgbfgrtr4', desc: '', args: []);
+  }
+
+  /// `Active`
+  String get vbdgbfre2 {
+    return Intl.message('Active', name: 'vbdgbfre2', desc: '', args: []);
+  }
+
+  /// `Date not specified`
+  String get vfd223bdgbf {
+    return Intl.message(
+      'Date not specified',
+      name: 'vfd223bdgbf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date not specified`
+  String get vbdgbfvbdgbf {
+    return Intl.message(
+      'Date not specified',
+      name: 'vbdgbfvbdgbf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select language`
+  String get bgfbgfbg33344343 {
+    return Intl.message(
+      'Select language',
+      name: 'bgfbgfbg33344343',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Azerbaijani`
+  String get azrbaycan {
+    return Intl.message('Azerbaijani', name: 'azrbaycan', desc: '', args: []);
+  }
+
+  /// `Russian`
+  String get rudssian {
+    return Intl.message('Russian', name: 'rudssian', desc: '', args: []);
+  }
+
+  /// `English`
+  String get english {
+    return Intl.message('English', name: 'english', desc: '', args: []);
+  }
+
+  /// `Turkish`
+  String get turkish {
+    return Intl.message('Turkish', name: 'turkish', desc: '', args: []);
+  }
+
+  /// `Edit profile`
+  String get vfgbhyujkerg3 {
+    return Intl.message(
+      'Edit profile',
+      name: 'vfgbhyujkerg3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification`
+  String get bd3435fvd {
+    return Intl.message('Verification', name: 'bd3435fvd', desc: '', args: []);
+  }
+
+  /// `You are verified!`
+  String get vfdfv22434 {
+    return Intl.message(
+      'You are verified!',
+      name: 'vfdfv22434',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your account has been successfully verified.\nYou now have the status `
+  String get vfdvfdvfvfdewr44 {
+    return Intl.message(
+      'Your account has been successfully verified.\nYou now have the status ',
+      name: 'vfdvfdvfvfdewr44',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Documents approved`
+  String get vfdvfdr3r34 {
+    return Intl.message(
+      'Documents approved',
+      name: 'vfdvfdr3r34',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All checks passed`
+  String get vfvfd443r43 {
+    return Intl.message(
+      'All checks passed',
+      name: 'vfvfd443r43',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification completed`
+  String get gttbr42435t345 {
+    return Intl.message(
+      'Verification completed',
+      name: 'gttbr42435t345',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Account verified`
+  String get bdfdw432534vfd {
+    return Intl.message(
+      'Account verified',
+      name: 'bdfdw432534vfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can use all platform features`
+  String get dfbdf424fdv {
+    return Intl.message(
+      'You can use all platform features',
+      name: 'dfbdf424fdv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification`
+  String get vfdgfdvfd42343 {
+    return Intl.message(
+      'Verification',
+      name: 'vfdgfdvfd42343',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Application under review`
+  String get vdfvfd42422 {
+    return Intl.message(
+      'Application under review',
+      name: 'vdfvfd42422',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your verification application has been successfully submitted.\nWe will review your documents within 1-3 business days.`
+  String get n13vdf43 {
+    return Intl.message(
+      'Your verification application has been successfully submitted.\nWe will review your documents within 1-3 business days.',
+      name: 'n13vdf43',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Documents submitted`
+  String get vfdvfd22343 {
+    return Intl.message(
+      'Documents submitted',
+      name: 'vfdvfd22343',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Passport and selfie received`
+  String get vfd233424 {
+    return Intl.message(
+      'Passport and selfie received',
+      name: 'vfd233424',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Under review`
+  String get juty4545 {
+    return Intl.message('Under review', name: 'juty4545', desc: '', args: []);
+  }
+
+  /// `Awaiting results`
+  String get hy4345 {
+    return Intl.message('Awaiting results', name: 'hy4345', desc: '', args: []);
+  }
+
+  /// `We will notify you of the verification results`
+  String get gtrgtr34343 {
+    return Intl.message(
+      'We will notify you of the verification results',
+      name: 'gtrgtr34343',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification`
+  String get gregrere4334 {
+    return Intl.message(
+      'Verification',
+      name: 'gregrere4334',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Account verification`
+  String get gre43fbd4t3 {
+    return Intl.message(
+      'Account verification',
+      name: 'gre43fbd4t3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verify your identity to increase\ntrust`
+  String get ngre24532vfds {
+    return Intl.message(
+      'Verify your identity to increase\ntrust',
+      name: 'ngre24532vfds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verification status`
+  String get gdfgdf4343gre {
+    return Intl.message(
+      'Verification status',
+      name: 'gdfgdf4343gre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload documents for verification`
+  String get get42fvfdvs {
+    return Intl.message(
+      'Upload documents for verification',
+      name: 'get42fvfdvs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Main document`
+  String get vdfvbfd34 {
+    return Intl.message('Main document', name: 'vdfvbfd34', desc: '', args: []);
+  }
+
+  /// `Passport`
+  String get vfd43vfd {
+    return Intl.message('Passport', name: 'vfd43vfd', desc: '', args: []);
+  }
+
+  /// `Uploaded`
+  String get gdf43gf {
+    return Intl.message('Uploaded', name: 'gdf43gf', desc: '', args: []);
+  }
+
+  /// `Not uploaded`
+  String get fbdbdf3434 {
+    return Intl.message('Not uploaded', name: 'fbdbdf3434', desc: '', args: []);
+  }
+
+  /// `Upload passport`
+  String get bdf234rffd {
+    return Intl.message(
+      'Upload passport',
+      name: 'bdf234rffd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selfie with passport`
+  String get gfdfd3434 {
+    return Intl.message(
+      'Selfie with passport',
+      name: 'gfdfd3434',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Identity verification`
+  String get bfxvdg34 {
+    return Intl.message(
+      'Identity verification',
+      name: 'bfxvdg34',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uploaded`
+  String get hrgrs434 {
+    return Intl.message('Uploaded', name: 'hrgrs434', desc: '', args: []);
+  }
+
+  /// `Not uploaded`
+  String get yghtrdf4343 {
+    return Intl.message(
+      'Not uploaded',
+      name: 'yghtrdf4343',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload selfie with passport`
+  String get fdggg35tr34g {
+    return Intl.message(
+      'Upload selfie with passport',
+      name: 'fdggg35tr34g',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Important:`
+  String get gbdgb3434 {
+    return Intl.message('Important:', name: 'gbdgb3434', desc: '', args: []);
+  }
+
+  /// `Document verification takes 1-3 business days. After approval, you will receive the status `
+  String get grgdfgdfg34t343t {
+    return Intl.message(
+      'Document verification takes 1-3 business days. After approval, you will receive the status ',
+      name: 'grgdfgdfg34t343t',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submit for review`
+  String get bfdbffd24343vfd {
+    return Intl.message(
+      'Submit for review',
+      name: 'bfdbffd24343vfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please upload both documents`
+  String get bgfbgd3ttgtebdsdf {
+    return Intl.message(
+      'Please upload both documents',
+      name: 'bgfbgd3ttgtebdsdf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Documents successfully submitted for review`
+  String get yhtjkuyil43 {
+    return Intl.message(
+      'Documents successfully submitted for review',
+      name: 'yhtjkuyil43',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error:`
+  String get bgdfgre345gtt4evwf {
+    return Intl.message(
+      'Error:',
+      name: 'bgdfgre345gtt4evwf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sent!`
+  String get bvetgh423rfc {
+    return Intl.message('Sent!', name: 'bvetgh423rfc', desc: '', args: []);
+  }
+
+  /// `We will contact you shortly`
+  String get bnmkuy43545g3 {
+    return Intl.message(
+      'We will contact you shortly',
+      name: 'bnmkuy43545g3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OK`
+  String get ok {
+    return Intl.message('OK', name: 'ok', desc: '', args: []);
+  }
+
+  /// `Support`
+  String get get3434gvrevef {
+    return Intl.message('Support', name: 'get3434gvrevef', desc: '', args: []);
+  }
+
+  /// `How can we help?`
+  String get bgrf4tb4dgfb {
+    return Intl.message(
+      'How can we help?',
+      name: 'bgrf4tb4dgfb',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe your problem and we will\nrespond as soon as possible`
+  String get rtbrtb4t4t4tb4n {
+    return Intl.message(
+      'Describe your problem and we will\nrespond as soon as possible',
+      name: 'rtbrtb4t4t4tb4n',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Problem description`
+  String get nrtn33ss {
+    return Intl.message(
+      'Problem description',
+      name: 'nrtn33ss',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tell us more about your problem...`
+  String get bbddgbtgbbvb {
+    return Intl.message(
+      'Tell us more about your problem...',
+      name: 'bbddgbtgbbvb',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please describe your problem`
+  String get nntteev5eg {
+    return Intl.message(
+      'Please describe your problem',
+      name: 'nntteev5eg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Description must contain at least 10 characters`
+  String get bbddert42t54gdg {
+    return Intl.message(
+      'Description must contain at least 10 characters',
+      name: 'bbddert42t54gdg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Minimum 10 characters`
+  String get gbrg533gds24rtegv {
+    return Intl.message(
+      'Minimum 10 characters',
+      name: 'gbrg533gds24rtegv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send`
+  String get bed2245fvfsgd {
+    return Intl.message('Send', name: 'bed2245fvfsgd', desc: '', args: []);
+  }
+
+  /// `Response time`
+  String get dfg34fgdwrrew {
+    return Intl.message(
+      'Response time',
+      name: 'dfg34fgdwrrew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We usually respond within 24 hours`
+  String get gfdlek54jn3 {
+    return Intl.message(
+      'We usually respond within 24 hours',
+      name: 'gfdlek54jn3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listing history`
+  String get bd3g345h57h4b {
+    return Intl.message(
+      'Listing history',
+      name: 'bd3g345h57h4b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No listings`
+  String get gbterg534g45v4 {
+    return Intl.message(
+      'No listings',
+      name: 'gbterg534g45v4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your listing history will appear here`
+  String get ger345g3 {
+    return Intl.message(
+      'Your listing history will appear here',
+      name: 'ger345g3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Privacy and notifications`
+  String get gret4h5h53g2b {
+    return Intl.message(
+      'Privacy and notifications',
+      name: 'gret4h5h53g2b',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manage information visibility`
+  String get vfsvf33fr {
+    return Intl.message(
+      'Manage information visibility',
+      name: 'vfsvf33fr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Privacy`
+  String get vsf3r4gh57j6hnbd {
+    return Intl.message(
+      'Privacy',
+      name: 'vsf3r4gh57j6hnbd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show phone`
+  String get myiuk7564hd {
+    return Intl.message('Show phone', name: 'myiuk7564hd', desc: '', args: []);
+  }
+
+  /// `Show email`
+  String get emailnhrtybe {
+    return Intl.message('Show email', name: 'emailnhrtybe', desc: '', args: []);
+  }
+
+  /// `Show activity time`
+  String get bgfbgt4ry46hj57jhg {
+    return Intl.message(
+      'Show activity time',
+      name: 'bgfbgt4ry46hj57jhg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Notifications`
+  String get jyntytrk5j34r {
+    return Intl.message(
+      'Notifications',
+      name: 'jyntytrk5j34r',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New messages`
+  String get trbgtvrger56fd {
+    return Intl.message(
+      'New messages',
+      name: 'trbgtvrger56fd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New reviews`
+  String get ger4tr3345 {
+    return Intl.message('New reviews', name: 'ger4tr3345', desc: '', args: []);
+  }
+
+  /// `Marketing notifications`
+  String get bfvdeb3gg34 {
+    return Intl.message(
+      'Marketing notifications',
+      name: 'bfvdeb3gg34',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save changes`
+  String get gbd423g54bd {
+    return Intl.message(
+      'Save changes',
+      name: 'gbd423g54bd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved`
+  String get greg5g4g4g3 {
+    return Intl.message('Saved', name: 'greg5g4g4g3', desc: '', args: []);
+  }
+
+  /// `Saved`
+  String get gregre3rg {
+    return Intl.message('Saved', name: 'gregre3rg', desc: '', args: []);
+  }
+
+  /// `Saved`
+  String get nyh5jj53ge {
+    return Intl.message('Saved', name: 'nyh5jj53ge', desc: '', args: []);
+  }
+
+  /// `Phone`
+  String get vsf3grevsf43 {
+    return Intl.message('Phone', name: 'vsf3grevsf43', desc: '', args: []);
+  }
+
+  /// `Save changes`
+  String get grvge3g5 {
+    return Intl.message('Save changes', name: 'grvge3g5', desc: '', args: []);
+  }
+
+  /// `About`
+  String get vrevre43 {
+    return Intl.message('About', name: 'vrevre43', desc: '', args: []);
+  }
+
+  /// `Location`
+  String get bebfdb34g3vs {
+    return Intl.message('Location', name: 'bebfdb34g3vs', desc: '', args: []);
+  }
+
+  /// `Full name`
+  String get vrebveg34g3sd {
+    return Intl.message('Full name', name: 'vrebveg34g3sd', desc: '', args: []);
+  }
+
+  /// `Tap to change photo`
+  String get bvfdb4btevsf {
+    return Intl.message(
+      'Tap to change photo',
+      name: 'bvfdb4btevsf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error loading languages:`
+  String get vdfvfd4rg5ger {
+    return Intl.message(
+      'Error loading languages:',
+      name: 'vdfvfd4rg5ger',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error loading package types:`
+  String get vfdvd54gves {
+    return Intl.message(
+      'Error loading package types:',
+      name: 'vfdvd54gves',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid time format:`
+  String get vfdv3rgfre42 {
+    return Intl.message(
+      'Invalid time format:',
+      name: 'vfdv3rgfre42',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error:`
+  String get vdf3fg3rvs {
+    return Intl.message('Error:', name: 'vdf3fg3rvs', desc: '', args: []);
+  }
+
+  /// `Invalid time format:`
+  String get vfd3fggvrgds {
+    return Intl.message(
+      'Invalid time format:',
+      name: 'vfd3fggvrgds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error:`
+  String get fvdvefr34vfsvd {
+    return Intl.message('Error:', name: 'fvdvefr34vfsvd', desc: '', args: []);
+  }
+
+  /// `Select at least one language`
+  String get vfd3rvewr3r {
+    return Intl.message(
+      'Select at least one language',
+      name: 'vfd3rvewr3r',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select at least one specialization`
+  String get yhthrgtr35hg4gd {
+    return Intl.message(
+      'Select at least one specialization',
+      name: 'yhthrgtr35hg4gd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Experience data saved`
+  String get bgfb4tr3getbger {
+    return Intl.message(
+      'Experience data saved',
+      name: 'bgfb4tr3getbger',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Work experience`
+  String get bryh4tb4thb4yhhe {
+    return Intl.message(
+      'Work experience',
+      name: 'bryh4tb4thb4yhhe',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Maximum weight (kg)`
+  String get brbt444b3tgsdgetr {
+    return Intl.message(
+      'Maximum weight (kg)',
+      name: 'brbt444b3tgsdgetr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Insurance ($)`
+  String get brbtr54t43gfdg {
+    return Intl.message(
+      'Insurance (\$)',
+      name: 'brbtr54t43gfdg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Price range ($/kg)`
+  String get bgdbtb4brgd {
+    return Intl.message(
+      'Price range (\$/kg)',
+      name: 'bgdbtb4brgd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `From`
+  String get bgfbgf534tg534g {
+    return Intl.message('From', name: 'bgfbgf534tg534g', desc: '', args: []);
+  }
+
+  /// `To`
+  String get bry5yn4ny4bde {
+    return Intl.message('To', name: 'bry5yn4ny4bde', desc: '', args: []);
+  }
+
+  /// `Communication languages`
+  String get nybhtgr54terfw3 {
+    return Intl.message(
+      'Communication languages',
+      name: 'nybhtgr54terfw3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Working hours`
+  String get nujnhry4hrt {
+    return Intl.message(
+      'Working hours',
+      name: 'nujnhry4hrt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `From`
+  String get btrb4tdb4tbr {
+    return Intl.message('From', name: 'btrb4tdb4tbr', desc: '', args: []);
+  }
+
+  /// `To`
+  String get greg54eh3rwgs {
+    return Intl.message('To', name: 'greg54eh3rwgs', desc: '', args: []);
+  }
+
+  /// `Specialization`
+  String get greg3greg43grgre {
+    return Intl.message(
+      'Specialization',
+      name: 'greg3greg43grgre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Package types unavailable on server`
+  String get trh35hteh354heh {
+    return Intl.message(
+      'Package types unavailable on server',
+      name: 'trh35hteh354heh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save changes`
+  String get htrh4hedh4th4 {
+    return Intl.message(
+      'Save changes',
+      name: 'htrh4hedh4th4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected experience:`
+  String get bgdretr35grdf {
+    return Intl.message(
+      'Selected experience:',
+      name: 'bgdretr35grdf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected experience:`
+  String get vfdbvg3grgr34g {
+    return Intl.message(
+      'Selected experience:',
+      name: 'vfdbvg3grgr34g',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `year`
+  String get fregt56hgte {
+    return Intl.message('year', name: 'fregt56hgte', desc: '', args: []);
+  }
+
+  /// `years`
+  String get myijtyhg34ewfrv {
+    return Intl.message('years', name: 'myijtyhg34ewfrv', desc: '', args: []);
+  }
+
+  /// `Insurance (`
+  String get vevrtbgvt5ybtvew {
+    return Intl.message(
+      'Insurance (',
+      name: 'vevrtbgvt5ybtvew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password successfully changed`
+  String get vfegt4g3rvsfcfd {
+    return Intl.message(
+      'Password successfully changed',
+      name: 'vfegt4g3rvsfcfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change password`
+  String get brttt4htg3rfwd {
+    return Intl.message(
+      'Change password',
+      name: 'brttt4htg3rfwd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter current and new password`
+  String get brtb5h6h453grbegr {
+    return Intl.message(
+      'Enter current and new password',
+      name: 'brtb5h6h453grbegr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current password`
+  String get htrh64h5tger {
+    return Intl.message(
+      'Current password',
+      name: 'htrh64h5tger',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New password`
+  String get htrh56h5656 {
+    return Intl.message(
+      'New password',
+      name: 'htrh56h5656',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Minimum 6 characters`
+  String get bgrtyhnyn5jh4g3 {
+    return Intl.message(
+      'Minimum 6 characters',
+      name: 'bgrtyhnyn5jh4g3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm new password`
+  String get jyrtj57jhrttyh4te {
+    return Intl.message(
+      'Confirm new password',
+      name: 'jyrtj57jhrttyh4te',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Repeat new password`
+  String get jytuj56j56jj45 {
+    return Intl.message(
+      'Repeat new password',
+      name: 'jytuj56j56jj45',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save new password`
+  String get jt676676756jhr {
+    return Intl.message(
+      'Save new password',
+      name: 'jt676676756jhr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No favorites`
+  String get bgrfn5ynjh4tbegrvfvsdcx {
+    return Intl.message(
+      'No favorites',
+      name: 'bgrfn5ynjh4tbegrvfvsdcx',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select city`
+  String get bgrhtrgrfr445 {
+    return Intl.message(
+      'Select city',
+      name: 'bgrhtrgrfr445',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search city...`
+  String get hyrh5h4tgerwfs {
+    return Intl.message(
+      'Search city...',
+      name: 'hyrh5h4tgerwfs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start typing city name`
+  String get juu76j5yh4rtge {
+    return Intl.message(
+      'Start typing city name',
+      name: 'juu76j5yh4rtge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cities not found`
+  String get tyju65y4htge3rwfs {
+    return Intl.message(
+      'Cities not found',
+      name: 'tyju65y4htge3rwfs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login`
+  String get loginrbvgefrds {
+    return Intl.message('Login', name: 'loginrbvgefrds', desc: '', args: []);
+  }
+
+  /// `Select city`
+  String get tnhyj5brgbdfg {
+    return Intl.message(
+      'Select city',
+      name: 'tnhyj5brgbdfg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search city...`
+  String get nu6j5yhtge65h4tgre {
+    return Intl.message(
+      'Search city...',
+      name: 'nu6j5yhtge65h4tgre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cities not found`
+  String get nthybgtefr4terfd {
+    return Intl.message(
+      'Cities not found',
+      name: 'nthybgtefr4terfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a message`
+  String get by5htg4refg4tr3few {
+    return Intl.message(
+      'Please enter a message',
+      name: 'by5htg4refg4tr3few',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Message sent!`
+  String get ybrfsg4t34gtgrvfedvfd {
+    return Intl.message(
+      'Message sent!',
+      name: 'ybrfsg4t34gtgrvfedvfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You are connected with`
+  String get rth435gtre {
+    return Intl.message(
+      'You are connected with',
+      name: 'rth435gtre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please note that communication is directly between users, and the site is not responsible for the content of messages.`
+  String get brtevrfg45rfs {
+    return Intl.message(
+      'Please note that communication is directly between users, and the site is not responsible for the content of messages.',
+      name: 'brtevrfg45rfs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Write a message`
+  String get hrt4h5hte43h454 {
+    return Intl.message(
+      'Write a message',
+      name: 'hrt4h5hte43h454',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your message...`
+  String get rthh4ger34f34 {
+    return Intl.message(
+      'Enter your message...',
+      name: 'rthh4ger34f34',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send`
+  String get brg353gffvw34fr3 {
+    return Intl.message('Send', name: 'brg353gffvw34fr3', desc: '', args: []);
+  }
+
+  /// `Nothing found`
+  String get vetg3rwce3f4 {
+    return Intl.message(
+      'Nothing found',
+      name: 'vetg3rwce3f4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get searchbtrrevfdsc {
+    return Intl.message('Search', name: 'searchbtrrevfdsc', desc: '', args: []);
+  }
+
+  /// `Notifications`
+  String get gtregrfwd3rfewd35frwed {
+    return Intl.message(
+      'Notifications',
+      name: 'gtregrfwd3rfewd35frwed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No notifications`
+  String get vfev3r42e {
+    return Intl.message(
+      'No notifications',
+      name: 'vfev3r42e',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You have no new notifications yet`
+  String get fvedrwgt4rwfeqg453wrfs {
+    return Intl.message(
+      'You have no new notifications yet',
+      name: 'fvedrwgt4rwfeqg453wrfs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading error`
+  String get vbfedrgf4wvt4g3rwfsdv {
+    return Intl.message(
+      'Loading error',
+      name: 'vbfedrgf4wvt4g3rwfsdv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get vefgbrg35grwf45g3r {
+    return Intl.message(
+      'Try again',
+      name: 'vefgbrg35grwf45g3r',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Just now`
+  String get vfdevr3er3g3 {
+    return Intl.message('Just now', name: 'vfdevr3er3g3', desc: '', args: []);
+  }
+
+  /// `min ago`
+  String get gegereg34543tvfe {
+    return Intl.message(
+      'min ago',
+      name: 'gegereg34543tvfe',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `h ago`
+  String get vefdbt4evgrr35rw3r5ewfe {
+    return Intl.message(
+      'h ago',
+      name: 'vefdbt4evgrr35rw3r5ewfe',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yesterday`
+  String get btegrew35g4frsf4r3 {
+    return Intl.message(
+      'Yesterday',
+      name: 'btegrew35g4frsf4r3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `d ago`
+  String get ebvfrgevf24fewrvgr3 {
+    return Intl.message(
+      'd ago',
+      name: 'ebvfrgevf24fewrvgr3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Leave a review`
+  String get betg35rw355g3ref {
+    return Intl.message(
+      'Leave a review',
+      name: 'betg35rw355g3ref',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your opinion is very important to us`
+  String get betg465g3rwegt4 {
+    return Intl.message(
+      'Your opinion is very important to us',
+      name: 'betg465g3rwegt4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Write your comment...`
+  String get terg35t42r35t4rwefdsa {
+    return Intl.message(
+      'Write your comment...',
+      name: 'terg35t42r35t4rwefdsa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submit`
+  String get h4g53t4fregt453rfwegg43ref {
+    return Intl.message(
+      'Submit',
+      name: 'h4g53t4fregt453rfwegg43ref',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a rating`
+  String get ujik87j6hy5gt4rerfw54 {
+    return Intl.message(
+      'Please select a rating',
+      name: 'ujik87j6hy5gt4rerfw54',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error: missing data to submit review`
+  String get cdswwcf4f3fgrwsdc {
+    return Intl.message(
+      'Error: missing data to submit review',
+      name: 'cdswwcf4f3fgrwsdc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thank you for your review!`
+  String get fewef243fewf3efwas {
+    return Intl.message(
+      'Thank you for your review!',
+      name: 'fewef243fewf3efwas',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get gergt65h43t42335 {
+    return Intl.message('Close', name: 'gergt65h43t42335', desc: '', args: []);
+  }
+
+  /// `Just now`
+  String get nytrh564y4y5gteg5tegr {
+    return Intl.message(
+      'Just now',
+      name: 'nytrh564y4y5gteg5tegr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `min ago`
+  String get tehh6545ety4heg {
+    return Intl.message('min ago', name: 'tehh6545ety4heg', desc: '', args: []);
+  }
+
+  /// `h ago`
+  String get dbgre34vdvfs {
+    return Intl.message('h ago', name: 'dbgre34vdvfs', desc: '', args: []);
+  }
+
+  /// `Yesterday`
+  String get bterhb46h35g4wre {
+    return Intl.message(
+      'Yesterday',
+      name: 'bterhb46h35g4wre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `d ago`
+  String get tbh453g4wresdv {
+    return Intl.message('d ago', name: 'tbh453g4wresdv', desc: '', args: []);
+  }
+
+  /// `Contact information`
+  String get bteg4r5344wfvsfdg34wf {
+    return Intl.message(
+      'Contact information',
+      name: 'bteg4r5344wfvsfdg34wf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone`
+  String get tbergwf35grwfsvfg43 {
+    return Intl.message(
+      'Phone',
+      name: 'tbergwf35grwfsvfg43',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get emailg34rfvfs {
+    return Intl.message('Email', name: 'emailg34rfvfs', desc: '', args: []);
+  }
+
+  /// `On platform`
+  String get btegr4tfwrg3frwv {
+    return Intl.message(
+      'On platform',
+      name: 'btegr4tfwrg3frwv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `days`
+  String get etghrwf3fr3 {
+    return Intl.message('days', name: 'etghrwf3fr3', desc: '', args: []);
+  }
+
+  /// `Last seen`
+  String get btergwfe5g34rfecerv {
+    return Intl.message(
+      'Last seen',
+      name: 'btergwfe5g34rfecerv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Professional information`
+  String get bterv4gg353r5r35 {
+    return Intl.message(
+      'Professional information',
+      name: 'bterv4gg353r5r35',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Work experience`
+  String get bteettgr3gt4g3t4tg3 {
+    return Intl.message(
+      'Work experience',
+      name: 'bteettgr3gt4g3t4tg3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `years`
+  String get tebh4gterw4htgerwf {
+    return Intl.message(
+      'years',
+      name: 'tebh4gterw4htgerwf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Maximum weight`
+  String get evr4g653twgrv43gr {
+    return Intl.message(
+      'Maximum weight',
+      name: 'evr4g653twgrv43gr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `kg`
+  String get ethgr46htgbevgte {
+    return Intl.message('kg', name: 'ethgr46htgbevgte', desc: '', args: []);
+  }
+
+  /// `Insurance`
+  String get brtg3rtvebt4rgvbfd {
+    return Intl.message(
+      'Insurance',
+      name: 'brtg3rtvebt4rgvbfd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Price range ($/kg)`
+  String get vervrefg3gr45t3t4fwr34 {
+    return Intl.message(
+      'Price range (\$/kg)',
+      name: 'vervrefg3gr45t3t4fwr34',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Working hours`
+  String get beg53gt342feg35g2fw {
+    return Intl.message(
+      'Working hours',
+      name: 'beg53gt342feg35g2fw',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Response time`
+  String get btrg3243g5vfed34ft {
+    return Intl.message(
+      'Response time',
+      name: 'btrg3243g5vfed34ft',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `min`
+  String get btegr435tt24fwg34wf {
+    return Intl.message('min', name: 'btegr435tt24fwg34wf', desc: '', args: []);
+  }
+
+  /// `On-time deliveries`
+  String get tegr4rt3542frg3r {
+    return Intl.message(
+      'On-time deliveries',
+      name: 'tegr4rt3542frg3r',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Communication languages`
+  String get ki7ju6h5ytg4erf53fw {
+    return Intl.message(
+      'Communication languages',
+      name: 'ki7ju6h5ytg4erf53fw',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No active offers`
+  String get ynbreg4t3gfwr3gf {
+    return Intl.message(
+      'No active offers',
+      name: 'ynbreg4t3gfwr3gf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verified`
+  String get hgterfvb4btgv {
+    return Intl.message('Verified', name: 'hgterfvb4btgv', desc: '', args: []);
+  }
+
+  /// `reviews)`
+  String get y5rbtvfs4l53 {
+    return Intl.message('reviews)', name: 'y5rbtvfs4l53', desc: '', args: []);
+  }
+
+  /// `Deliveries`
+  String get tbgverfsdclk345frwcs {
+    return Intl.message(
+      'Deliveries',
+      name: 'tbgverfsdclk345frwcs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Successful`
+  String get mftdr4587vfg {
+    return Intl.message('Successful', name: 'mftdr4587vfg', desc: '', args: []);
+  }
+
+  /// `minutes`
+  String get hrtegrg43gvb4hger {
+    return Intl.message(
+      'minutes',
+      name: 'hrtegrg43gvb4hger',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Response`
+  String get brh45hg43g4tgve {
+    return Intl.message(
+      'Response',
+      name: 'brh45hg43g4tgve',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Max weight`
+  String get brthgteb4h5g4t35g {
+    return Intl.message(
+      'Max weight',
+      name: 'brthgteb4h5g4t35g',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `kg`
+  String get hyrhh6g453grth4ge {
+    return Intl.message('kg', name: 'hyrhh6g453grth4ge', desc: '', args: []);
+  }
+
+  /// `Insurance`
+  String get nrny5nrnrny5n5y454 {
+    return Intl.message(
+      'Insurance',
+      name: 'nrny5nrnrny5n5y454',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On time`
+  String get ntnhnhry454 {
+    return Intl.message('On time', name: 'ntnhnhry454', desc: '', args: []);
+  }
+
+  /// `Write`
+  String get nrhnnryhtnyr464 {
+    return Intl.message('Write', name: 'nrhnnryhtnyr464', desc: '', args: []);
+  }
+
+  /// `Rate courier`
+  String get ntnyyh4664bnrgn {
+    return Intl.message(
+      'Rate courier',
+      name: 'ntnyyh4664bnrgn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Write your comment...`
+  String get nhthnnhthnty554y54y {
+    return Intl.message(
+      'Write your comment...',
+      name: 'nhthnnhthnty554y54y',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submit`
+  String get nhtnhtnyth4465645 {
+    return Intl.message(
+      'Submit',
+      name: 'nhtnhtnyth4465645',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a rating`
+  String get rynryyrynrh444646 {
+    return Intl.message(
+      'Please select a rating',
+      name: 'rynryyrynrh444646',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thank you for your review!`
+  String get gergergre335345 {
+    return Intl.message(
+      'Thank you for your review!',
+      name: 'gergergre335345',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error submitting review:`
+  String get berbtebteg353434 {
+    return Intl.message(
+      'Error submitting review:',
+      name: 'berbtebteg353434',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No reviews`
+  String get bgrfw3542rfsd {
+    return Intl.message(
+      'No reviews',
+      name: 'bgrfw3542rfsd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ukrainian`
+  String get ukrainskiy {
+    return Intl.message('Ukrainian', name: 'ukrainskiy', desc: '', args: []);
+  }
+
+  /// `All categories`
+  String get vfdefrwgerg {
+    return Intl.message(
+      'All categories',
+      name: 'vfdefrwgerg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error loading offer types:`
+  String get egreergreger {
+    return Intl.message(
+      'Error loading offer types:',
+      name: 'egreergreger',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error loading cities:`
+  String get vfevevreveve {
+    return Intl.message(
+      'Error loading cities:',
+      name: 'vfevevreveve',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offer type`
+  String get hth453gwsf {
+    return Intl.message('Offer type', name: 'hth453gwsf', desc: '', args: []);
+  }
+
+  /// `From`
+  String get gtrh53ygr43g {
+    return Intl.message('From', name: 'gtrh53ygr43g', desc: '', args: []);
+  }
+
+  /// `Departure city`
+  String get htrh5hetsgft42 {
+    return Intl.message(
+      'Departure city',
+      name: 'htrh5hetsgft42',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `To`
+  String get htrhey34tgesft {
+    return Intl.message('To', name: 'htrhey34tgesft', desc: '', args: []);
+  }
+
+  /// `Destination city`
+  String get ryh53gr45h3 {
+    return Intl.message(
+      'Destination city',
+      name: 'ryh53gr45h3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date from`
+  String get br45gre24 {
+    return Intl.message('Date from', name: 'br45gre24', desc: '', args: []);
+  }
+
+  /// `dd.mm.yyyy`
+  String get grereg3gr3g3r3gr {
+    return Intl.message(
+      'dd.mm.yyyy',
+      name: 'grereg3gr3g3r3gr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date to`
+  String get vfedrgev3r2g4 {
+    return Intl.message('Date to', name: 'vfedrgev3r2g4', desc: '', args: []);
+  }
+
+  /// `Search`
+  String get reg23rdwerf32w {
+    return Intl.message('Search', name: 'reg23rdwerf32w', desc: '', args: []);
+  }
+
+  /// `Jan`
+  String get frg4543gr3gwgr3 {
+    return Intl.message('Jan', name: 'frg4543gr3gwgr3', desc: '', args: []);
+  }
+
+  /// `Feb`
+  String get f434f3vgterf43 {
+    return Intl.message('Feb', name: 'f434f3vgterf43', desc: '', args: []);
+  }
+
+  /// `Mar`
+  String get f3f43fr34g345g54h {
+    return Intl.message('Mar', name: 'f3f43fr34g345g54h', desc: '', args: []);
+  }
+
+  /// `Apr`
+  String get d2edf3f34 {
+    return Intl.message('Apr', name: 'd2edf3f34', desc: '', args: []);
+  }
+
+  /// `May`
+  String get ff3rfr34f3erf3r {
+    return Intl.message('May', name: 'ff3rfr34f3erf3r', desc: '', args: []);
+  }
+
+  /// `Jun`
+  String get f3rfr3vf3ref3d {
+    return Intl.message('Jun', name: 'f3rfr3vf3ref3d', desc: '', args: []);
+  }
+
+  /// `Jul`
+  String get f34f34f3r4fr3 {
+    return Intl.message('Jul', name: 'f34f34f3r4fr3', desc: '', args: []);
+  }
+
+  /// `Aug`
+  String get f3f3r5gf34fr34 {
+    return Intl.message('Aug', name: 'f3f3r5gf34fr34', desc: '', args: []);
+  }
+
+  /// `Sep`
+  String get f3rf3r4fder3 {
+    return Intl.message('Sep', name: 'f3rf3r4fder3', desc: '', args: []);
+  }
+
+  /// `Oct`
+  String get frrf33frf34fr3 {
+    return Intl.message('Oct', name: 'frrf33frf34fr3', desc: '', args: []);
+  }
+
+  /// `Nov`
+  String get frefr3rf2343fr4 {
+    return Intl.message('Nov', name: 'frefr3rf2343fr4', desc: '', args: []);
+  }
+
+  /// `Dec`
+  String get gregerrg33gr {
+    return Intl.message('Dec', name: 'gregerrg33gr', desc: '', args: []);
+  }
+
+  /// `Error:`
+  String get veferv3e4ver {
+    return Intl.message('Error:', name: 'veferv3e4ver', desc: '', args: []);
+  }
+
+  /// `User`
+  String get vfewrerewec {
+    return Intl.message('User', name: 'vfewrerewec', desc: '', args: []);
+  }
+
+  /// `Error sending message:`
+  String get vreevrrvrrvrevre {
+    return Intl.message(
+      'Error sending message:',
+      name: 'vreevrrvrrvrevre',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Flight date:`
+  String get bbrgtrewrg3v {
+    return Intl.message(
+      'Flight date:',
+      name: 'bbrgtrewrg3v',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delivery:`
+  String get btegw4er4tgwr45g {
+    return Intl.message(
+      'Delivery:',
+      name: 'btegw4er4tgwr45g',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purchase date:`
+  String get ger4w53g3tgsg {
+    return Intl.message(
+      'Purchase date:',
+      name: 'ger4w53g3tgsg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date:`
+  String get te3g35grfgsg {
+    return Intl.message('Date:', name: 'te3g35grfgsg', desc: '', args: []);
+  }
+
+  /// `User`
+  String get gte34rte5rg5er {
+    return Intl.message('User', name: 'gte34rte5rg5er', desc: '', args: []);
+  }
+
+  /// `Verified`
+  String get ge35e5g3gerg3 {
+    return Intl.message('Verified', name: 'ge35e5g3gerg3', desc: '', args: []);
+  }
+
+  /// `Route:`
+  String get getgrw35g3egeg3eg {
+    return Intl.message(
+      'Route:',
+      name: 'getgrw35g3egeg3eg',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Time:`
+  String get gerg3g3ge {
+    return Intl.message('Time:', name: 'gerg3g3ge', desc: '', args: []);
+  }
+
+  /// `Weight:`
+  String get gerg3g53grg {
+    return Intl.message('Weight:', name: 'gerg3g53grg', desc: '', args: []);
+  }
+
+  /// `Price:`
+  String get rggre5egre {
+    return Intl.message('Price:', name: 'rggre5egre', desc: '', args: []);
+  }
+
+  /// `Details`
+  String get etg5g43gdg {
+    return Intl.message('Details', name: 'etg5g43gdg', desc: '', args: []);
+  }
+
+  /// `Write`
+  String get grt4g4gdeg354 {
+    return Intl.message('Write', name: 'grt4g4gdeg354', desc: '', args: []);
+  }
+
+  /// `Hide`
+  String get gdreg53ge {
+    return Intl.message('Hide', name: 'gdreg53ge', desc: '', args: []);
+  }
+
+  /// `Show`
+  String get grg34g54gdgdg {
+    return Intl.message('Show', name: 'grg34g54gdgdg', desc: '', args: []);
+  }
+
+  /// `vfedvfd`
+  String get vfedvfd {
+    return Intl.message('vfedvfd', name: 'vfedvfd', desc: '', args: []);
+  }
+
+  /// `online`
+  String get fdbdfbweg4g323g {
+    return Intl.message('online', name: 'fdbdfbweg4g323g', desc: '', args: []);
+  }
+
+  /// `offline`
+  String get bfdgbebteb443 {
+    return Intl.message('offline', name: 'bfdgbebteb443', desc: '', args: []);
+  }
+
+  /// `minutes ago`
+  String get bfdebr3b3b33 {
+    return Intl.message(
+      'minutes ago',
+      name: 'bfdebr3b3b33',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `hours ago`
+  String get bfdeberb3brtbfds {
+    return Intl.message(
+      'hours ago',
+      name: 'bfdeberb3brtbfds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `days ago`
+  String get bebe233btsdvs {
+    return Intl.message('days ago', name: 'bebe233btsdvs', desc: '', args: []);
+  }
+
+  /// `offline`
+  String get bef43g4g343fbsd {
+    return Intl.message('offline', name: 'bef43g4g343fbsd', desc: '', args: []);
+  }
+
+  /// `Yesterday`
+  String get bfvdg34g43g34 {
+    return Intl.message('Yesterday', name: 'bfvdg34g43g34', desc: '', args: []);
+  }
+
+  /// `Photo`
+  String get bfdbfbrewgq34 {
+    return Intl.message('Photo', name: 'bfdbfbrewgq34', desc: '', args: []);
+  }
+
+  /// `File`
+  String get bfdb3brwqgevds432 {
+    return Intl.message('File', name: 'bfdb3brwqgevds432', desc: '', args: []);
   }
 }
 
@@ -3039,6 +5249,8 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
       Locale.fromSubtags(languageCode: 'en'),
       Locale.fromSubtags(languageCode: 'az'),
       Locale.fromSubtags(languageCode: 'ru'),
+      Locale.fromSubtags(languageCode: 'tr'),
+      Locale.fromSubtags(languageCode: 'uk'),
     ];
   }
 

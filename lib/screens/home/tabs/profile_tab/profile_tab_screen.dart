@@ -53,7 +53,7 @@ class _ProfileTabScreenState
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Ошибка загрузки данных',
+                      S.of(context).dsvfsd,
                       style: TextStyle(
                         color: isDark ? Colors.white : Colors.black,
                         fontSize: 16,
@@ -64,7 +64,7 @@ class _ProfileTabScreenState
                       onPressed: () {
                         setState(() {});
                       },
-                      child: const Text('Попробовать снова'),
+                      child:   Text(S.of(context).fds),
                     ),
                   ],
                 ),
@@ -208,8 +208,7 @@ class _ProfileTabScreenState
               ],
             ),
           ),
-          // Индикатор текущего языка
-          Container(
+           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -312,8 +311,8 @@ class _ProfileTabScreenState
                     ),
                     const SizedBox(width: 4),
                     Container(
-                      child: const Text(
-                        'Проверен',
+                      child:   Text(
+                        S.of(context).h46h46,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -363,14 +362,14 @@ class _ProfileTabScreenState
               _buildStatItem(
                 icon: "asset/prof_ic_1.png",
                 value: user.stats?.deliveriesCount.toString() ?? "",
-                label: 'Доставки',
+                label: S.of(context).gbgrbyhe435,
                 context: context,
                 isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_2.png",
                 value: user.stats?.ratingAvg.toString() ?? "",
-                label: 'Рейтинг',
+                label: S.of(context).hgg4235gb,
                 context: context,
                 isDark: isDark,
               ),
@@ -383,14 +382,14 @@ class _ProfileTabScreenState
               _buildStatItem(
                 icon: "asset/prof_ic_3.png",
                 value: user.stats?.reviewsReceivedCount.toString() ?? "",
-                label: 'Отзывы',
+                label: S.of(context).bgfh364,
                 context: context,
                 isDark: isDark,
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_4.png",
-                value:(user.stats?.yearsOnPlatform?.toStringAsFixed(0) ?? "") + ' дней',
-                label: 'На сайте',
+                value:(user.stats?.yearsOnPlatform?.toStringAsFixed(0) ?? "") + ' ' + S.of(context).bgfbg33,
+                label: S.of(context).htr345gfd,
                 context: context,
                 isDark: isDark,
               ),
@@ -461,15 +460,14 @@ class _ProfileTabScreenState
           StreamBuilder<Locale?>(
               stream: bloc.locale,
               builder: (context, snapshot) {
-                // Получаем текущий locale из snapshot или используем дефолтный
-                final currentLocale = snapshot.data ?? const Locale("en");
+                 final currentLocale = snapshot.data ?? const Locale("en");
 
                 return GestureDetector(
                   onTap: () => _showMenu(snapshot.data),
                   child: _buildLanguageItem(
                     icon: Icons.language,
                     title: S.of(context).languandff,
-                    subtitle: "languageSubtitle",
+                    subtitle: S.of(context).vgfb35,
                     bgColor: isDark
                         ? const Color(0xFF1E3A2F)
                         : const Color(0xFFDCFCE7),
@@ -492,10 +490,10 @@ class _ProfileTabScreenState
                   icon: themeManager.isDarkMode
                       ? Icons.dark_mode
                       : Icons.light_mode,
-                  title: 'Тема оформления',
+                  title: S.of(context).fggdf345,
                   subtitle: themeManager.isDarkMode
-                      ? 'Тёмная тема включена'
-                      : 'Светлая тема включена',
+                      ? S.of(context).bfd4r53gfd
+                      : S.of(context).bgfb453,
                   bgColor: themeManager.isDarkMode
                       ? const Color(0xFF1E1E3F)
                       : const Color(0xFFFEF3C7),
@@ -515,8 +513,8 @@ class _ProfileTabScreenState
             })),
             child: _buildMenuItem(
               icon: Icons.shield_outlined,
-              title: 'Верификация',
-              subtitle: 'Подтвердить документы',
+              title: S.of(context).bdb4w5gfd,
+              subtitle: S.of(context).bdfgt43refg,
               bgColor: const Color(0xFFECFDF5),
               iconColor: const Color(0xFF10B981),
               isDark: isDark,
@@ -534,8 +532,8 @@ class _ProfileTabScreenState
             ),
             child: _buildMenuItem(
               icon: Icons.access_time_filled,
-              title: 'Обьявления',
-              subtitle: 'Истории обьявления',
+              title: S.of(context).bdfbfd43tgfd,
+              subtitle: S.of(context).bdfbertgfvdre,
               bgColor: WawatColors.primary.withOpacity(0.1),
               iconColor: WawatColors.primary,
               isDark: isDark,
@@ -555,8 +553,8 @@ class _ProfileTabScreenState
             ),
             child: _buildMenuItem(
               icon: Icons.star_outline,
-              title: 'Отзывы',
-              subtitle: 'Посмотреть отзывы',
+              title: S.of(context).nfgn53tgdfg,
+              subtitle: S.of(context).bgf43bgfd3,
               bgColor: const Color(0xFFFEF3C7),
               iconColor: const Color(0xFFFCD34D),
               isDark: isDark,
@@ -574,8 +572,8 @@ class _ProfileTabScreenState
             ),
             child: _buildMenuItem(
               icon: Icons.headset_mic_rounded,
-              title: 'Техподдежка',
-              subtitle: 'Написать в техподдежку',
+              title: S.of(context).bgfbgfeerfdfd,
+              subtitle: S.of(context).bgbgf34fdg,
               bgColor: Color(0xFF031B7A).withOpacity(0.9),
               iconColor: Colors.white,
               isDark: isDark,
@@ -593,8 +591,8 @@ class _ProfileTabScreenState
             ),
             child: _buildMenuItem(
               icon: Icons.settings_outlined,
-              title: 'Настройки',
-              subtitle: 'Управление аккаунтом',
+              title: S.of(context).bgfbgf34gvfd,
+              subtitle: S.of(context).nfngret4,
               bgColor: const Color(0xFFEFF6FF),
               iconColor: const Color(0xFF3B82F6),
               isDark: isDark,
@@ -603,10 +601,10 @@ class _ProfileTabScreenState
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () => showLogoutBottomSheet(
-                title: "Выйти",
-                description: "Вы уверены, что хотите выйти?",
-                yes: "Да, выйти",
-                no: "Нет, отменить",
+                title: S.of(context).ngfngfn44,
+                description: S.of(context).vxer3,
+                yes: S.of(context).bg33a,
+                no: S.of(context).bnbv3h,
                 context: context,
                 onConfirmLogout: () {
                   bloc.logout().then(
@@ -623,8 +621,8 @@ class _ProfileTabScreenState
                 }),
             child: _buildMenuItem(
               icon: Icons.logout_outlined,
-              title: 'Выйти',
-              subtitle: 'Выход из аккаунта',
+              title: S.of(context).bgd32,
+              subtitle: S.of(context).bgfnyuj3,
               bgColor: const Color(0xFFFEE2E2),
               iconColor: const Color(0xFFFCA5A5),
               isLogout: true,

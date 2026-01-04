@@ -136,7 +136,7 @@ class Profile {
 @JsonSerializable()
 class Professional {
   @JsonKey(name: 'experience_years')
-  final int? experienceYears;
+  final String? experienceYears;
   @JsonKey(name: 'max_weight_kg')
   final int? maxWeightKg;
   @JsonKey(name: 'insurance_usd')

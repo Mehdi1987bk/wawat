@@ -4,7 +4,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
- 
+
+import '../../../../../generated/l10n.dart';
 
 class LocalizationPopUp extends StatefulWidget {
   final ValueChanged<Locale> onChanged;
@@ -25,7 +26,9 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
 
   @override
   Widget build(BuildContext context) {
-    final currentSupportedLocale = supportedLocales
+    final locales = getSupportedLocales(context); // Add this line
+
+    final currentSupportedLocale = locales // Changed from supportedLocales
         .firstWhereOrNull((element) => element.locale == _currentLocale);
 
     return Consumer<ThemeManager>(
@@ -34,7 +37,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          height: 420,  // Увеличена высота с 320 до 420
+          height: 420,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
             borderRadius: const BorderRadius.only(
@@ -50,7 +53,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),  // Уменьшены отступы
+            padding: const EdgeInsets.only(left: 16, right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -58,8 +61,8 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                 Center(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
-                    height: 4,  // Уменьшена высота
-                    width: 40,  // Уменьшена ширина
+                    height: 4,
+                    width: 40,
                     decoration: BoxDecoration(
                       color: isDark
                           ? Colors.white.withOpacity(0.3)
@@ -71,11 +74,11 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
 
                 // Заголовок
                 Container(
-                  margin: const EdgeInsets.only(top: 20, bottom: 16),  // Уменьшены отступы
+                  margin: const EdgeInsets.only(top: 20, bottom: 16),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),  // Уменьшен padding
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: isDark
@@ -90,25 +93,26 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(10),  // Уменьшен радиус
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           Icons.language,
                           color: isDark
                               ? const Color(0xFF10B981)
                               : const Color(0xFF059669),
-                          size: 20,  // Уменьшен размер иконки
+                          size: 20,
                         ),
                       ),
-                      const SizedBox(width: 10),  // Уменьшен отступ
+                      const SizedBox(width: 10),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
-                          fontSize: 20,  // Уменьшен размер шрифта
+                          fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF000000),
+                          color:
+                          isDark ? Colors.white : const Color(0xFF000000),
                         ),
-                        child: const Text("Выбери язык"),
+                        child: Text(S.of(context).bgfbgfbg33344343),
                       ),
                     ],
                   ),
@@ -118,17 +122,17 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                 Expanded(
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
-                    children: supportedLocales.map((e) {
+                    children: locales.map((e) { // Changed from supportedLocales
                       final isSelected = e == currentSupportedLocale;
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
                         onTap: () => onChanged(e),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.only(bottom: 10),  // Уменьшен отступ
+                          margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,  // Уменьшен padding
-                            vertical: 10,    // Уменьшен padding
+                            horizontal: 12,
+                            vertical: 10,
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
@@ -138,14 +142,14 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                 : (isDark
                                 ? const Color(0xFF2A2A2A)
                                 : const Color(0xFFF9FAFB)),
-                            borderRadius: BorderRadius.circular(14),  // Уменьшен радиус
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
                                   ? (isDark
                                   ? const Color(0xFF10B981)
                                   : const Color(0xFF059669))
                                   : Colors.transparent,
-                              width: 1.5,  // Уменьшена ширина границы
+                              width: 1.5,
                             ),
                             boxShadow: isSelected
                                 ? [
@@ -154,7 +158,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                     ? const Color(0xFF10B981)
                                     : const Color(0xFF059669))
                                     .withOpacity(0.2),
-                                blurRadius: 6,  // Уменьшен blur
+                                blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
                             ]
@@ -164,13 +168,13 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                             children: [
                               // Флаг
                               Container(
-                                width: 36,  // Уменьшен размер
-                                height: 36,  // Уменьшен размер
+                                width: 36,
+                                height: 36,
                                 decoration: BoxDecoration(
                                   color: isDark
                                       ? Colors.white.withOpacity(0.1)
                                       : Colors.white,
-                                  borderRadius: BorderRadius.circular(8),  // Уменьшен радиус
+                                  borderRadius: BorderRadius.circular(8),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.05),
@@ -182,17 +186,17 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                 alignment: Alignment.center,
                                 child: Text(
                                   e.image,
-                                  style: const TextStyle(fontSize: 20),  // Уменьшен размер эмодзи
+                                  style: const TextStyle(fontSize: 20),
                                 ),
                               ),
-                              const SizedBox(width: 12),  // Уменьшен отступ
+                              const SizedBox(width: 12),
 
                               // Название языка
                               Expanded(
                                 child: AnimatedDefaultTextStyle(
                                   duration: const Duration(milliseconds: 200),
                                   style: TextStyle(
-                                    fontSize: 16,  // Уменьшен размер шрифта
+                                    fontSize: 16,
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.w500,
@@ -211,8 +215,8 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                               // Чекбокс/индикатор
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                width: 22,  // Уменьшен размер
-                                height: 22,  // Уменьшен размер
+                                width: 22,
+                                height: 22,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: isSelected
@@ -236,7 +240,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                 child: isSelected
                                     ? const Icon(
                                   Icons.check,
-                                  size: 14,  // Уменьшен размер иконки
+                                  size: 14,
                                   color: Colors.white,
                                 )
                                     : null,
@@ -248,7 +252,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 16),  // Добавлен отступ снизу
+                const SizedBox(height: 16),
               ],
             ),
           ),

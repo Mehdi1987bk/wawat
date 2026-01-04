@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../../generated/l10n.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../widget/wawat_courier_card.dart';
 
@@ -20,11 +21,11 @@ class CourierDocumentsTab extends StatelessWidget {
 
         return Column(
           children: [
-            _buildContactInfo(isDark),
+            _buildContactInfo(isDark,context),
             const SizedBox(height: 16),
-            _buildProfessionalInfo(isDark),
+            _buildProfessionalInfo(isDark,context),
             const SizedBox(height: 16),
-            _buildLanguages(isDark),
+            _buildLanguages(isDark,context),
             const SizedBox(height: 20),
           ],
         );
@@ -32,7 +33,7 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildContactInfo(bool isDark) {
+  Widget _buildContactInfo(bool isDark , BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -57,20 +58,20 @@ class CourierDocumentsTab extends StatelessWidget {
               const Icon(Icons.person, color: Color(0xFF5B5BFF), size: 20),
               const SizedBox(width: 8),
               AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
+                duration:   Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child: const Text('Контактная информация'),
+                child:   Text(S.of(context).bteg4r5344wfvsfdg34wf),
               ),
             ],
           ),
           const SizedBox(height: 16),
           _buildContactItem(
             icon: Icons.phone,
-            title: 'Телефон',
+            title: S.of(context).tbergwf35grwfsvfg43,
             value: data.user.phone ?? '--',
             iconColor: Colors.green,
             isDark: isDark,
@@ -78,7 +79,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.email,
-            title: 'Email',
+            title: S.of(context).emailg34rfvfs,
             value: data.user.email ?? '--',
             iconColor: Colors.grey,
             isDark: isDark,
@@ -86,15 +87,15 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.calendar_today,
-            title: 'На платформе',
-            value: data.stats.yearsOnPlatform.toString() + " " + "дней",
+            title: S.of(context).btegr4tfwrg3frwv,
+            value: data.stats.yearsOnPlatform.toString() + " " + S.of(context).etghrwf3fr3,
             iconColor: Colors.purple,
             isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.access_time,
-            title: 'Последний раз в сети',
+            title: S.of(context).btergwfe5g34rfecerv,
             value: data.user.lastSeenAt == null
                 ? '--'
                 : data.user.lastSeenAt.toString(),
@@ -106,7 +107,7 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildProfessionalInfo(bool isDark) {
+  Widget _buildProfessionalInfo(bool isDark,BuildContext context) {
     final professional = data.professional;
 
     return AnimatedContainer(
@@ -139,16 +140,16 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child: const Text('Профессиональная информация'),
+                child:   Text(S.of(context).bterv4gg353r5r35),
               ),
             ],
           ),
           const SizedBox(height: 16),
           _buildContactItem(
             icon: Icons.stars,
-            title: 'Опыт работы',
+            title: S.of(context).bteettgr3gt4g3t4tg3,
             value: professional.experienceYears != null
-                ? '${professional.experienceYears} лет'
+                ? '${professional.experienceYears} ' + S.of(context).tebh4gterw4htgerwf
                 : '--',
             iconColor: Colors.orange,
             isDark: isDark,
@@ -156,9 +157,9 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.fitness_center,
-            title: 'Максимальный вес',
+            title: S.of(context).evr4g653twgrv43gr,
             value: professional.maxWeightKg != null
-                ? '${professional.maxWeightKg} кг'
+                ? '${professional.maxWeightKg} ' +S.of(context).ethgr46htgbevgte
                 : '--',
             iconColor: Colors.blue,
             isDark: isDark,
@@ -166,7 +167,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.security,
-            title: 'Страхование',
+            title: S.of(context).brtg3rtvebt4rgvbfd,
             value: professional.insuranceUsd != null
                 ? '\$${professional.insuranceUsd}'
                 : '--',
@@ -176,7 +177,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.attach_money,
-            title: 'Диапазон цен (\$/кг)',
+            title: S.of(context).vervrefg3gr45t3t4fwr34,
             value: professional.priceFrom != null && professional.priceTo != null
                 ? '\$${professional.priceFrom} - \$${professional.priceTo}'
                 : '--',
@@ -186,7 +187,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.schedule,
-            title: 'Рабочие часы',
+            title: S.of(context).beg53gt342feg35g2fw,
             value: professional.workTimeFrom != null && professional.workTimeTo != null
                 ? '${professional.workTimeFrom} - ${professional.workTimeTo}'
                 : '--',
@@ -196,9 +197,9 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.timer,
-            title: 'Время ответа',
+            title: S.of(context).btrg3243g5vfed34ft,
             value: professional.responseTimeMinutes != null
-                ? '${professional.responseTimeMinutes} мин'
+                ? '${professional.responseTimeMinutes} ' +S.of(context).btegr435tt24fwg34wf
                 : '--',
             iconColor: Colors.deepOrange,
             isDark: isDark,
@@ -206,7 +207,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.check_circle,
-            title: 'Вовремя доставок',
+            title: S.of(context).tegr4rt3542frg3r,
             value: professional.onTimePercent != null
                 ? '${professional.onTimePercent}%'
                 : '--',
@@ -258,44 +259,9 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecializationItem({
-    required IconData icon,
-    required String label,
-    required bool isDark,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isDark ? const Color(0xFF6B7280) : Colors.grey[400],
-            size: 28,
-          ),
-          const SizedBox(height: 8),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white : Colors.black,
-            ),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+ 
 
-  Widget _buildLanguages(bool isDark) {
+  Widget _buildLanguages(bool isDark, BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -326,7 +292,7 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child: const Text('Языки общения'),
+                child:   Text(S.of(context).ki7ju6h5ytg4erf53fw),
               ),
             ],
           ),

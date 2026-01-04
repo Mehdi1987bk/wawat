@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/response/country.dart';
 import '../../../../../../data/network/response/user.dart';
+import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/common/image_selector.dart';
 import '../../../../../../presentation/resourses/app_colors.dart';
@@ -128,7 +129,7 @@ class _PersonalInfoTabState
                 child: Column(
                   children: [
                     ProfileImageWidget(
-                      imageUrl: 'url',
+                      imageUrl: widget.user.avatar,
                       localFile: _selectedImage,
                       onCameraPressed: _selectImage,
                       size: 120,
@@ -145,11 +146,11 @@ class _PersonalInfoTabState
                             ? const Color(0xFF9CA3AF)
                             : const Color(0xFF8E8E93),
                       ),
-                      child: const Text('Нажмите для изменения фото'),
+                      child:   Text(S.of(context).bvfdb4btevsf),
                     ),
                     const SizedBox(height: 24),
                     _buildReadOnlyTextField(
-                        'Полное имя', _fullNameController, isDark),
+                        S.of(context).vrebveg34g3sd, _fullNameController, isDark),
                     const SizedBox(height: 16),
                     _buildReadOnlyTextField('Email', _emailController, isDark),
                     const SizedBox(height: 16),
@@ -159,7 +160,7 @@ class _PersonalInfoTabState
 
                     const SizedBox(height: 16),
                     _buildTextField(
-                        'Местоположение', _locationController, isDark),
+                        S.of(context).bebfdb34g3vs, _locationController, isDark),
                     const SizedBox(height: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +172,7 @@ class _PersonalInfoTabState
                             fontWeight: FontWeight.w600,
                             color: isDark ? Colors.white : Colors.black,
                           ),
-                          child: const Text('О себе'),
+                          child:   Text(S.of(context).vrevre43),
                         ),
                         const SizedBox(height: 8),
                         TextField(
@@ -241,8 +242,8 @@ class _PersonalInfoTabState
                               elevation: 0,
                             ),
                             onPressed: isValid ? _addEmployer : null,
-                            child: const Text(
-                              "Сохранить изменения",
+                            child:   Text(
+                              S.of(context).grvge3g5,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -276,7 +277,7 @@ class _PersonalInfoTabState
             fontWeight: FontWeight.w600,
             color: isDark ? Colors.white : Colors.black,
           ),
-          child: const Text('Телефон'),
+          child:   Text(S.of(context).vsf3grevsf43),
         ),
         const SizedBox(height: 8),
         Row(
@@ -363,8 +364,7 @@ class _PersonalInfoTabState
         final file = File(image.path);
 
         if (!file.existsSync()) {
-          print("Файл не найден: ${file.path}");
-          return;
+           return;
         }
 
         setState(() {
@@ -372,7 +372,7 @@ class _PersonalInfoTabState
         });
 
         await bloc.onImageSelected(file);
-        showIOSStyleMessage(context, 'Сохранено');
+        showIOSStyleMessage(context, S.of(context).gregre3rg);
         Future.delayed(Duration(seconds: 2))
             .then((onValue) => bloc.customersMe());
       }
@@ -541,7 +541,7 @@ class _PersonalInfoTabState
         // Обновляем initial значение после сохранения
         _initialCountry = _selectedCountry;
         bloc.customersMe();
-        showIOSStyleMessage(context, 'Сохранено');
+        showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
         _validateForm(); // Пересчитываем валидацию
       },
     );

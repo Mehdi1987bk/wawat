@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../services/theme_aware_screen.dart';
@@ -41,8 +42,7 @@ class _SearchOfferListScreenState
   void initState() {
     super.initState();
 
-    // Устанавливаем параметры поиска перед загрузкой
-    bloc.setSearchParams(
+     bloc.setSearchParams(
       offerType: widget.offerType,
       packageType: widget.packageType,
       cityFromId: widget.cityFromId,
@@ -76,9 +76,9 @@ class _SearchOfferListScreenState
               },
               child: Stack(
                 children: [
-                  BuildHeader(context, isDark),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 70),
+
+                   Padding(
+                    padding: const EdgeInsets.only(top: 50),
                     child: CustomScrollView(
                       controller: _scrollController,
                       slivers: [
@@ -113,7 +113,7 @@ class _SearchOfferListScreenState
                                                   ? const Color(0xFFB0B0B0)
                                                   : const Color(0xFF6B7280),
                                             ),
-                                            child: const Text('Ничего не найдено'),
+                                            child:   Text(S.of(context).vetg3rwce3f4),
                                           ),
                                         ],
                                       ),
@@ -123,7 +123,7 @@ class _SearchOfferListScreenState
                               }
 
                               return SliverPadding(
-                                padding: const EdgeInsets.only(top: 20, bottom: 120),
+                                padding: const EdgeInsets.only(top: 20, bottom: 20),
                                 sliver: SliverList(
                                   delegate: SliverChildBuilderDelegate(
                                         (context, groupIndex) {
@@ -145,6 +145,38 @@ class _SearchOfferListScreenState
                             return const SliverToBoxAdapter(child: SizedBox());
                           },
                         )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.only(left: 25, bottom: 8,top: 8),
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.arrow_back,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Text(S.of(context).searchbtrrevfdsc,style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                        ),),
+                        Spacer(),
+                        SizedBox(width: 70,)
                       ],
                     ),
                   ),

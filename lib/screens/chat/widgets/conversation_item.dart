@@ -166,7 +166,7 @@ class ConversationItem extends StatelessWidget {
                                           : WawatColors.textSecondary,
                                     ),
                                     child: Text(
-                                      conversation.lastMessage?.timeString ??
+                                      conversation.lastMessage?.timeString(context) ??
                                           '',
                                     ),
                                   ),
@@ -194,7 +194,7 @@ class ConversationItem extends StatelessWidget {
                                             ? (conversation.unreadCount > 99
                                                 ? '99+'
                                                 : '${conversation.unreadCount} ' + S.of(context).bgbgffbgfg4)
-                                            : conversation.lastMessagePreview,
+                                            : conversation.lastMessagePreview(context),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

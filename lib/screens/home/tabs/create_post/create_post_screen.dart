@@ -233,17 +233,15 @@ class _CreatePostScreenState
       isLoading: _isLoadingCities,
     );
 
-    if (selectedCity != null) {
-      setState(() {
-        if (isFromCity) {
-          _selectedFromCity = selectedCity;
-          fromController.text = selectedCity.name;
-        } else {
-          _selectedToCity = selectedCity;
-          toController.text = selectedCity.name;
-        }
-      });
-    }
+     setState(() {
+      if (isFromCity) {
+        _selectedFromCity = selectedCity;
+        fromController.text = selectedCity?.name ?? '';
+      } else {
+        _selectedToCity = selectedCity;
+        toController.text = selectedCity?.name ?? '';
+      }
+    });
   }
 
   Widget body() {
@@ -362,16 +360,14 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: maxWeightController,
                           hint: '0',
-                          keyboardType: TextInputType.numberWithOptions(decimal: true), // Клавиатура с точкой/запятой
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), // Разрешаем цифры, точку и запятую
+                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                             TextInputFormatter.withFunction((oldValue, newValue) {
-                              // Заменяем запятую на точку для единообразия
-                              final text = newValue.text.replaceAll(',', '.');
+                               final text = newValue.text.replaceAll(',', '.');
 
-                              // Проверяем, что только одна точка
-                              if (text.split('.').length > 2) {
-                                return oldValue; // Отклоняем ввод, если больше одной точки
+                               if (text.split('.').length > 2) {
+                                return oldValue;
                               }
 
                               return TextEditingValue(
@@ -580,8 +576,9 @@ class _CreatePostScreenState
         final date = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
-          firstDate: DateTime.now(), // Начиная с сегодняшнего дня
-          lastDate: DateTime.now().add(Duration(days: 365 * 10)), // На 10 лет вперед
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(Duration(days: 365 * 10)),
+          locale: Localizations.localeOf(context), // <-- Добавьте эту строку
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
@@ -607,6 +604,7 @@ class _CreatePostScreenState
     );
   }
 
+
   Widget _buildTimeField(TextEditingController controller, bool isDark) {
     return _buildTextField(
       controller: controller,
@@ -618,22 +616,26 @@ class _CreatePostScreenState
           context: context,
           initialTime: TimeOfDay.now(),
           builder: (context, child) {
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                alwaysUse24HourFormat: true,
-              ),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  colorScheme: ColorScheme.light(
-                    primary: const Color(0xFF5B51FF),
-                    onPrimary: Colors.white,
-                    surface: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    onSurface: isDark ? Colors.white : Colors.black,
-                  ),
-                  dialogBackgroundColor:
-                  isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            return Localizations.override( // <-- Оберните в Localizations.override
+              context: context,
+              locale: Localizations.localeOf(context), // <-- Добавьте локаль
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  alwaysUse24HourFormat: true,
                 ),
-                child: child!,
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: const Color(0xFF5B51FF),
+                      onPrimary: Colors.white,
+                      surface: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      onSurface: isDark ? Colors.white : Colors.black,
+                    ),
+                    dialogBackgroundColor:
+                    isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  ),
+                  child: child!,
+                ),
               ),
             );
           },
@@ -646,6 +648,7 @@ class _CreatePostScreenState
       isDark: isDark,
     );
   }
+
 
   Future<void> _submitOffer() async {
     if (!_isFormValid || _isSubmitting) return;

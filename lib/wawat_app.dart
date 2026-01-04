@@ -33,86 +33,86 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<AppBloc>(context);
-    // return StreamBuilder<Locale?>(
-    //     stream: bloc.locale,
-    //     builder: (context, snapshot) {
-    //       if (snapshot.connectionState == ConnectionState.waiting) {
-    //         return SizedBox();
-    //       }
-    //       return Consumer<ThemeManager>(
-    //         builder: (context, themeManager, child) {
-    //           final isDark = themeManager.isDarkMode;
-    //
-    //           // ВАЖНО для Android: устанавливаем цвета навигационной панели
-    //           SystemChrome.setSystemUIOverlayStyle(
-    //             SystemUiOverlayStyle(
-    //               statusBarColor: Colors.transparent,
-    //               statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-    //               statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
-    //               // ← КЛЮЧЕВОЕ для Android клавиатуры
-    //               systemNavigationBarColor: isDark ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
-    //               systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-    //               systemNavigationBarDividerColor: Colors.transparent,
-    //             ),
-    //           );
-    //
-    //           return MaterialApp(
-    //             color: AppColors.appBarbgColor,
-    //             debugShowCheckedModeBanner: false,
-    //             navigatorKey: navigatorKey,
-    //             navigatorObservers: [routeObserver],
-    //             theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
-    //             darkTheme: _buildDarkTheme(),
-    //             themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-    //             localizationsDelegates: [
-    //               S.delegate,
-    //               GlobalMaterialLocalizations.delegate,
-    //               GlobalCupertinoLocalizations.delegate,
-    //               GlobalWidgetsLocalizations.delegate,
-    //             ],
-    //             locale: snapshot.data ?? const Locale("en"),
-    //             localeResolutionCallback: (locale, supportedLocales) {
-    //               if (snapshot.hasData && snapshot.data != null) {
-    //                 return snapshot.data;
-    //               }
-    //               if (locale != null && supportedLocales.contains(locale)) {
-    //                 return locale;
-    //               }
-    //               return const Locale("en");
-    //             },
-    //             supportedLocales: S.delegate.supportedLocales,
-    //             home: SpleshScreen(),
-    //           );
-    //
-    //         },
-    //       );
-    //
-    //     });
+    return StreamBuilder<Locale?>(
+        stream: bloc.locale,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SizedBox();
+          }
+          return Consumer<ThemeManager>(
+            builder: (context, themeManager, child) {
+              final isDark = themeManager.isDarkMode;
 
-    return     MaterialApp(
-      color: AppColors.appBarbgColor,
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
+              // ВАЖНО для Android: устанавливаем цвета навигационной панели
+              SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                  statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
+                  // ← КЛЮЧЕВОЕ для Android клавиатуры
+                  systemNavigationBarColor: isDark ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
+                  systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                  systemNavigationBarDividerColor: Colors.transparent,
+                ),
+              );
 
-      navigatorObservers: [routeObserver],
-       darkTheme: _buildDarkTheme(),
+              return MaterialApp(
+                color: AppColors.appBarbgColor,
+                debugShowCheckedModeBanner: false,
+                navigatorKey: navigatorKey,
+                navigatorObservers: [routeObserver],
+                theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
+                darkTheme: _buildDarkTheme(),
+                themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                localizationsDelegates: [
+                  S.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                ],
+                locale: snapshot.data ?? const Locale("en"),
+                localeResolutionCallback: (locale, supportedLocales) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return snapshot.data;
+                  }
+                  if (locale != null && supportedLocales.contains(locale)) {
+                    return locale;
+                  }
+                  return const Locale("en");
+                },
+                supportedLocales: S.delegate.supportedLocales,
+                home: SpleshScreen(),
+              );
 
-       localizationsDelegates: [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-       localeResolutionCallback: (locale, supportedLocales) {
+            },
+          );
 
-        if (locale != null && supportedLocales.contains(locale)) {
-          return locale;
-        }
-        return const Locale("en");
-      },
-      supportedLocales: S.delegate.supportedLocales,
-      home: SpleshScreen(),
-    );
+        });
+    //
+    // return     MaterialApp(
+    //   color: AppColors.appBarbgColor,
+    //   debugShowCheckedModeBanner: false,
+    //   navigatorKey: navigatorKey,
+    //
+    //   navigatorObservers: [routeObserver],
+    //    darkTheme: _buildDarkTheme(),
+    //
+    //    localizationsDelegates: [
+    //     S.delegate,
+    //     GlobalMaterialLocalizations.delegate,
+    //     GlobalCupertinoLocalizations.delegate,
+    //     GlobalWidgetsLocalizations.delegate,
+    //   ],
+    //    localeResolutionCallback: (locale, supportedLocales) {
+    //
+    //     if (locale != null && supportedLocales.contains(locale)) {
+    //       return locale;
+    //     }
+    //     return const Locale("en");
+    //   },
+    //   supportedLocales: S.delegate.supportedLocales,
+    //   home: SpleshScreen(),
+    // );
   }
 
   ThemeData _buildLightTheme() {

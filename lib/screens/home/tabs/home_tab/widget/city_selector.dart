@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../data/network/response/city.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../services/theme_manager.dart';
 
 class CitySelector extends StatefulWidget {
   final List<City> initialCities;
   final City? selectedCity;
-  final Function(City) onCitySelected;
   final Future<List<City>> Function(String search) onSearch;
   final bool isLoading;
 
@@ -15,7 +15,6 @@ class CitySelector extends StatefulWidget {
     Key? key,
     required this.initialCities,
     required this.selectedCity,
-    required this.onCitySelected,
     required this.onSearch,
     this.isLoading = false,
   }) : super(key: key);
@@ -113,7 +112,7 @@ class _CitySelectorState extends State<CitySelector> {
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Выберите город'),
+                      child:   Text(S.of(context).tnhyj5brgbdfg),
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
@@ -144,7 +143,7 @@ class _CitySelectorState extends State<CitySelector> {
                       color: isDark ? Colors.white : Colors.black,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Поиск города...',
+                      hintText: S.of(context).nu6j5yhtge65h4tgre,
                       hintStyle: TextStyle(
                         fontSize: 15,
                         color: isDark ? const Color(0xFF6B7280) : const Color(0xFF8E8E93),
@@ -204,7 +203,7 @@ class _CitySelectorState extends State<CitySelector> {
                           fontSize: 16,
                           color: isDark ? const Color(0xFF9CA3AF) : Colors.grey.shade600,
                         ),
-                        child: const Text('Города не найдены'),
+                        child:   Text(S.of(context).nthybgtefr4terfd),
                       ),
                     ],
                   ),
@@ -224,7 +223,11 @@ class _CitySelectorState extends State<CitySelector> {
 
                     return InkWell(
                       onTap: () {
-                        widget.onCitySelected(city);
+                        if (isSelected) {
+                           Navigator.pop(context, null);
+                        } else {
+                           Navigator.pop(context, city);
+                        }
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
@@ -302,7 +305,6 @@ Future<City?> showCitySelector({
     builder: (context) => CitySelector(
       initialCities: initialCities,
       selectedCity: selectedCity,
-      onCitySelected: (city) => Navigator.pop(context, city),
       onSearch: onSearch,
       isLoading: isLoading,
     ),

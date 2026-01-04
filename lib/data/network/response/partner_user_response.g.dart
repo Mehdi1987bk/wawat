@@ -106,7 +106,7 @@ Map<String, dynamic> _$ProfileToJson(Profile instance) => <String, dynamic>{
     };
 
 Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
-      experienceYears: json['experience_years'] as int?,
+      experienceYears: json['experience_years'] as String?,
       maxWeightKg: json['max_weight_kg'] as int?,
       insuranceUsd: json['insurance_usd'] as int?,
       priceFrom: json['price_from'] as String?,

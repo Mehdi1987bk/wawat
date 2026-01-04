@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../../generated/l10n.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../widget/wawat_courier_card.dart';
 
@@ -38,7 +39,7 @@ class CourierOffersTab extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
                     ),
-                    child: const Text('Нет активных предложений'),
+                    child:   Text(S.of(context).ynbreg4t3gfwr3gf),
                   ),
                 ],
               ),

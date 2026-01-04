@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../../../data/network/api/chat_api.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../main.dart';
 import '../../../../../services/theme_manager.dart';
 import '../courier_screen/courier_screen.dart';
@@ -61,13 +62,12 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
       });
 
       widget.onFavoriteToggle?.call(isFavorite);
-
     } catch (e) {
       // Обрабатываем ошибку
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка: ${e.toString()}'),
+            content: Text(S.of(context).veferv3e4ver + ' ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -95,24 +95,22 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
       StartChatModal.show(
         context,
         userId: widget.courier.user?.id ?? 0,
-        userName: widget.courier.user?.fullname ?? 'Пользователь',
+        userName: widget.courier.user?.fullname ?? S.of(context).vfewrerewec,
         onSuccess: (message) async {
           try {
             // Создаем ChatApi
             final chatApi = ChatApi(sl.get<Dio>());
 
-
-
             chatApi.startChat({
               'user_id': widget.courier.user?.id,
               'body': message,
             });
-
           } catch (e) {
-             if (mounted) {
+            if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Ошибка отправки сообщения: ${e.toString()}'),
+                  content:
+                      Text(S.of(context).vreevrrvrrvrevre + ' ${e.toString()}'),
                   backgroundColor: Colors.red,
                   duration: Duration(seconds: 3),
                 ),
@@ -124,7 +122,61 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
     }
   }
 
+  String _getDateLabel() {
+    final offerType = widget.courier.offerType?.code;
 
+    if (offerType == 'courier') {
+      return S.of(context).bbrgtrewrg3v;
+    } else if (offerType == 'sender') {
+      return S.of(context).btegw4er4tgwr45g;
+    } else if (offerType == 'buyer') {
+      return S.of(context).ger4w53g3tgsg;
+    }
+    return S.of(context).te3g35grfgsg;
+  }
+
+  String _getDateValue() {
+    final offerType = widget.courier.offerType?.code;
+
+    if (offerType == 'courier') {
+      return widget.courier.flightDate != null
+          ? _formatDate(widget.courier.flightDate!)
+          : '-';
+    } else if (offerType == 'sender') {
+      if (widget.courier.deliveryDateFrom != null &&
+          widget.courier.deliveryDateTo != null) {
+        return '${_formatDate(widget.courier.deliveryDateFrom!)} - ${_formatDate(widget.courier.deliveryDateTo!)}';
+      } else if (widget.courier.deliveryDateFrom != null) {
+        return _formatDate(widget.courier.deliveryDateFrom!);
+      }
+      return '-';
+    } else if (offerType == 'buyer') {
+      if (widget.courier.purchaseDate != null &&
+          widget.courier.purchaseTime != null) {
+        return '${_formatDate(widget.courier.purchaseDate!)} - ${_formatDate(widget.courier.purchaseTime!)}';
+      } else if (widget.courier.purchaseDate != null) {
+        return _formatDate(widget.courier.purchaseDate!);
+      }
+      return '-';
+    }
+
+    // Fallback to main_date
+    return widget.courier.mainDate != null
+        ? _formatDate(widget.courier.mainDate!)
+        : '-';
+  }
+
+  String? _getTimeValue() {
+    final offerType = widget.courier.offerType?.code;
+
+    if (offerType == 'courier') {
+      return widget.courier.flightTime != null
+          ? _formatTime(widget.courier.flightTime)
+          : null;
+    }
+
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,27 +221,27 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         ),
                         child: widget.courier.user?.avatar != null
                             ? ClipOval(
-                          child: Image.network(
-                            widget.courier.user!.avatar!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Center(
+                                child: Image.network(
+                                  widget.courier.user!.avatar!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )
+                            : Center(
                                 child: Icon(
                                   Icons.person,
                                   color: Colors.white,
                                   size: 30,
                                 ),
-                              );
-                            },
-                          ),
-                        )
-                            : Center(
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),
+                              ),
                       ),
                       SizedBox(width: 16),
                       Expanded(
@@ -210,7 +262,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                           : const Color(0xFF1A1A1A),
                                     ),
                                     child: Text(
-                                      widget.courier.user?.fullname ?? 'Пользователь',
+                                      widget.courier.user?.fullname ??
+                                          S.of(context).gte34rte5rg5er,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -232,7 +285,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                         SizedBox(width: 6),
                                         AnimatedDefaultTextStyle(
                                           duration:
-                                          const Duration(milliseconds: 300),
+                                              const Duration(milliseconds: 300),
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
@@ -241,7 +294,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                                 : const Color(0xFF1A1A1A),
                                           ),
                                           child: Text(
-                                            (widget.courier.user?.ratingAvg ?? 0)
+                                            (widget.courier.user?.ratingAvg ??
+                                                    0)
                                                 .toStringAsFixed(1),
                                           ),
                                         ),
@@ -303,7 +357,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                         ),
                                         SizedBox(width: 3),
                                         Text(
-                                          'Проверен',
+                                          S.of(context).ge35e5g3gerg3,
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
@@ -327,9 +381,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        color: isDark
-                            ? const Color(0xFFB0B0B0)
-                            : Colors.black87,
+                        color:
+                            isDark ? const Color(0xFFB0B0B0) : Colors.black87,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
@@ -339,31 +392,30 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                   Column(
                     children: [
                       _buildDetailRow(
-                        'Маршрут:',
+                        S.of(context).getgrw35g3egeg3eg,
                         '${widget.courier.cityFrom?.name ?? '-'} → ${widget.courier.cityTo?.name ?? '-'}',
                         isDark,
                       ),
-                      if (widget.courier.mainDate != null)
+                      _buildDetailRow(
+                        _getDateLabel(),
+                        _getDateValue(),
+                        isDark,
+                      ),
+                      if (_getTimeValue() != null)
                         _buildDetailRow(
-                          'Дата:',
-                          _formatDate(widget.courier.mainDate!),
+                          S.of(context).gerg3g3ge,
+                          _getTimeValue()!,
                           isDark,
                         ),
                       if (widget.courier.maxWeightKg != null)
                         _buildDetailRow(
-                          'Вес:',
+                          S.of(context).gerg3g53grg,
                           '${widget.courier.maxWeightKg} кг',
-                          isDark,
-                        ),
-                      if (widget.courier.mainTime != null)
-                        _buildDetailRow(
-                          'Время:',
-                          _formatTime(widget.courier.mainTime!),
                           isDark,
                         ),
                       if (widget.courier.pricePerKg != null)
                         _buildDetailRow(
-                          'Цена:',
+                          S.of(context).rggre5egre,
                           '${widget.courier.pricePerKg} \$/кг',
                           isDark,
                         ),
@@ -396,7 +448,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                               child: InkWell(
                                 onTap: () async {
                                   final isLogged =
-                                  await sl.get<AuthRepository>().isLogged();
+                                      await sl.get<AuthRepository>().isLogged();
                                   if (!isLogged) {
                                     return AuthModalUtils.showAuthRequiredModal(
                                         context);
@@ -406,7 +458,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                       CupertinoPageRoute(
                                         builder: (BuildContext context) {
                                           return CourierDetailsScreen(
-                                            courierId: widget.courier.user?.id ?? 0,
+                                            courierId:
+                                                widget.courier.user?.id ?? 0,
                                           );
                                         },
                                       ),
@@ -416,7 +469,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                 borderRadius: BorderRadius.circular(16),
                                 child: Center(
                                   child: Text(
-                                    'Подробнее',
+                                    S.of(context).etg5g43gdg,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -451,7 +504,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                 borderRadius: BorderRadius.circular(16),
                                 child: Center(
                                   child: Text(
-                                    'Написать',
+                                    S.of(context).grt4g4gdeg354,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -495,7 +548,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         padding: const EdgeInsets.all(8.0),
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? Colors.red : const Color(0xFF5B5FFF),
+                          color:
+                              isFavorite ? Colors.red : const Color(0xFF5B5FFF),
                           size: 24,
                         ),
                       ),
@@ -544,7 +598,9 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                 ? const Color(0xFFB0B0B0)
                                 : Colors.black87,
                           ),
-                          child: Text(isVisible == true ? "Скрыть" : "Показать"),
+                          child: Text(isVisible == true
+                              ? S.of(context).gdreg53ge
+                              : S.of(context).grg34g54gdgdg),
                         ),
                       ],
                     ),
@@ -568,9 +624,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: isDark
-                  ? const Color(0xFF9CA3AF)
-                  : WawatColors.textPrimary,
+              color: isDark ? const Color(0xFF9CA3AF) : WawatColors.textPrimary,
             ),
             child: Text(label),
           ),
@@ -598,18 +652,18 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
     try {
       final DateTime parsedDate = DateTime.parse(date);
       final months = [
-        'янв',
-        'фев',
-        'мар',
-        'апр',
-        'май',
-        'июн',
-        'июл',
-        'авг',
-        'сен',
-        'окт',
-        'ноя',
-        'дек'
+        S.of(context).frg4543gr3gwgr3,
+        S.of(context).f434f3vgterf43,
+        S.of(context).f3f43fr34g345g54h,
+        S.of(context).d2edf3f34,
+        S.of(context).ff3rfr34f3erf3r,
+        S.of(context).f3rfr3vf3ref3d,
+        S.of(context).f34f34f3r4fr3,
+        S.of(context).f3f3r5gf34fr34,
+        S.of(context).f3rf3r4fder3,
+        S.of(context).frrf33frf34fr3,
+        S.of(context).frefr3rf2343fr4,
+        S.of(context).gregerrg33gr
       ];
       return '${parsedDate.day} ${months[parsedDate.month - 1]} ${parsedDate.year}';
     } catch (e) {

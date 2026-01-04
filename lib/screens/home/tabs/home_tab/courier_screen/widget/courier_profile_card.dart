@@ -6,6 +6,7 @@ import '../../../../../../data/network/api/chat_api.dart';
 import '../../../../../../data/network/request/create_review_request.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../../generated/l10n.dart';
 import '../../../../../../main.dart';
 import '../../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../../presentation/resourses/wawat_text_styles.dart';
@@ -58,7 +59,17 @@ class CourierProfileCard extends StatelessWidget {
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      Container(
+                      user.avatar != null && user.avatar!.isNotEmpty
+                          ? ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.network(
+                          user.avatar!,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                          : Container(
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
@@ -73,9 +84,9 @@ class CourierProfileCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                     ],
+                    ],
                   ),
-                  if (user.isVerified == true)
+                   if (user.isVerified == true)
                     Container(
                       margin: const EdgeInsets.only(top: 8),
                       padding: const EdgeInsets.symmetric(
@@ -90,8 +101,8 @@ class CourierProfileCard extends StatelessWidget {
                             width: 16,
                           ),
                           const SizedBox(width: 3),
-                          const Text(
-                            'Проверен',
+                          Text(
+                            S.of(context).hgterfvb4btgv,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -118,7 +129,7 @@ class CourierProfileCard extends StatelessWidget {
                       Row(
                         children: List.generate(
                           5,
-                              (index) => const Icon(
+                          (index) => const Icon(
                             Icons.star,
                             color: Colors.amber,
                             size: 16,
@@ -131,10 +142,11 @@ class CourierProfileCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           color:
-                          isDark ? const Color(0xFFE5E7EB) : Colors.black87,
+                              isDark ? const Color(0xFFE5E7EB) : Colors.black87,
                         ),
                         child: Text(
-                            '${stats.ratingAvg} (${stats.ratingCount} отзывов)'),
+                            '${stats.ratingAvg} (${stats.ratingCount} ' +
+                                S.of(context).y5rbtvfs4l53),
                       ),
                     ],
                   ),
@@ -143,14 +155,14 @@ class CourierProfileCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildStatItem(
-                        value: '${data.reviewsReceived?.length}',
-                        label: 'Доставок',
+                        value: '${data.reviewsReceived.length}',
+                        label: S.of(context).tbgverfsdclk345frwcs,
                         color: Colors.blue,
                         isDark: isDark,
                       ),
                       _buildStatItem(
                         value: '${(data.professional.onTimePercent ?? "0")}%',
-                        label: 'Успешно',
+                        label: S.of(context).mftdr4587vfg,
                         color: Colors.green,
                         isDark: isDark,
                       ),
@@ -162,7 +174,7 @@ class CourierProfileCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       color:
-                      isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+                          isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
                       height: 1.5,
                     ),
                     child: Text(
@@ -178,8 +190,8 @@ class CourierProfileCard extends StatelessWidget {
                         child: _buildMetricItem(
                           icon: Icons.schedule,
                           value: '${professional.responseTimeMinutes ?? 0}',
-                          label: 'минут',
-                          sublabel: 'Ответ',
+                          label: S.of(context).hrtegrg43gvb4hger,
+                          sublabel: S.of(context).brh45hg43g4tgve,
                           color: isDark
                               ? const Color(0xFF2A2A2A)
                               : const Color(0xFFF5F8FD),
@@ -191,8 +203,8 @@ class CourierProfileCard extends StatelessWidget {
                         child: _buildMetricItem(
                           icon: Icons.category,
                           value: '${professional.maxWeightKg ?? 0}',
-                          label: 'кг',
-                          sublabel: 'Макс. вес',
+                          label: S.of(context).hyrhh6g453grth4ge,
+                          sublabel: S.of(context).brthgteb4h5g4t35g,
                           color: isDark
                               ? const Color(0xFF2A2A2A)
                               : const Color(0xFFF4FDF8),
@@ -210,7 +222,7 @@ class CourierProfileCard extends StatelessWidget {
                           icon: Icons.shield,
                           value: '\$${professional.insuranceUsd ?? 0}',
                           label: '',
-                          sublabel: 'Страховка',
+                          sublabel: S.of(context).nrny5nrnrny5n5y454,
                           color: isDark
                               ? const Color(0xFF2A2A2A)
                               : const Color(0xFFFBF9FE),
@@ -223,7 +235,7 @@ class CourierProfileCard extends StatelessWidget {
                           icon: Icons.trending_up,
                           value: '${(professional.onTimePercent ?? 0)}%',
                           label: '',
-                          sublabel: 'Воремя',
+                          sublabel: S.of(context).ntnhnhry454,
                           color: isDark
                               ? const Color(0xFF2A2A2A)
                               : const Color(0xFFFBFBF1),
@@ -255,9 +267,9 @@ class CourierProfileCard extends StatelessWidget {
                       child: InkWell(
                         onTap: () => _handleStartChat(context),
                         borderRadius: BorderRadius.circular(16),
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            'Написать',
+                            S.of(context).nrhnnryhtnyr464,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -302,7 +314,6 @@ class CourierProfileCard extends StatelessWidget {
                 ),
               ),
             ),
-
             GestureDetector(
               onTap: () => Navigator.pop(context),
               child: AnimatedContainer(
@@ -341,7 +352,7 @@ class CourierProfileCard extends StatelessWidget {
         courierName: data.user.fullname ?? 'Курьер',
         isDark: isDark,
         onReviewSubmitted: (request) {
-           if (onReviewSubmitted != null) {
+          if (onReviewSubmitted != null) {
             onReviewSubmitted!(request);
           }
         },
@@ -449,6 +460,7 @@ class CourierProfileCard extends StatelessWidget {
     );
   }
 }
+
 class _CourierReviewBottomSheet extends StatefulWidget {
   final int courierId;
   final String courierName;
@@ -541,8 +553,8 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                       fontWeight: FontWeight.bold,
                       color: widget.isDark ? Colors.white : Colors.black,
                     ),
-                    child: const Text(
-                      'Оцените курьера',
+                    child: Text(
+                      S.of(context).ntnyyh4664bnrgn,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -581,9 +593,9 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                             color: _rating >= starNumber
                                 ? WawatColors.warning
                                 : (widget.isDark
-                                ? const Color(0xFF4A4A4A)
-                                : WawatColors.textSecondary)
-                                .withOpacity(0.3),
+                                        ? const Color(0xFF4A4A4A)
+                                        : WawatColors.textSecondary)
+                                    .withOpacity(0.3),
                           ),
                         ),
                       );
@@ -606,11 +618,11 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                         color: widget.isDark ? Colors.white : Colors.black,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Напишите ваш комментарий...',
+                        hintText: S.of(context).nhthnnhthnty554y54y,
                         hintStyle: WawatTextStyles.body.copyWith(
                           color: (widget.isDark
-                              ? const Color(0xFF6B7280)
-                              : WawatColors.textSecondary)
+                                  ? const Color(0xFF6B7280)
+                                  : WawatColors.textSecondary)
                               .withOpacity(0.5),
                         ),
                         border: InputBorder.none,
@@ -628,11 +640,11 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:
-                      _isSubmitting || _rating == 0 ? null : _submitReview,
+                          _isSubmitting || _rating == 0 ? null : _submitReview,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: WawatColors.primary,
                         disabledBackgroundColor:
-                        WawatColors.primary.withOpacity(0.5),
+                            WawatColors.primary.withOpacity(0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -640,20 +652,20 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                       ),
                       child: _isSubmitting
                           ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                          AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
                           : Text(
-                        'Отправить',
-                        style: WawatTextStyles.button.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                              S.of(context).nhtnhtnyth4465645,
+                              style: WawatTextStyles.button.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -671,7 +683,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Пожалуйста, выберите оценку'),
+            content: Text(S.of(context).rynryyrynrh444646),
             backgroundColor: WawatColors.error,
           ),
         );
@@ -702,7 +714,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
         Navigator.of(context).pop();
 
         // Показываем сообщение об успехе
-        showIOSStyleMessage(context, 'Спасибо за ваш отзыв!');
+        showIOSStyleMessage(context, S.of(context).gergergre335345);
 
         // Вызываем callback с объектом CreateReviewRequest
         widget.onReviewSubmitted(request);
@@ -715,7 +727,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка отправки отзыва: ${e.toString()}'),
+            content: Text(S.of(context).berbtebteg353434 + ' ${e.toString()}'),
             backgroundColor: WawatColors.error,
           ),
         );

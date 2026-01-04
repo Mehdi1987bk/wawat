@@ -305,7 +305,7 @@ class _ChatConversationScreenState
                           : WawatColors.textSecondary),
                     ),
                     child: Text(
-                      widget.conversation.user.getLastSeenText(),
+                      widget.conversation.user.getLastSeenText(context),
                     ),
                   ),
                 ],

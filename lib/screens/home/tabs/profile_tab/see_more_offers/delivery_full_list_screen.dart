@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../../presentation/resourses/wawat_text_styles.dart';
@@ -57,7 +58,7 @@ class _DeliveryFullListScreenState
               color: isDark ? Colors.white : Colors.white,
             ),
             title: Text(
-              'Истории обьявления',
+              S.of(context).bd3g345h57h4b,
               style: TextStyle(
                 color: isDark ? Colors.white : Colors.white,
               ),
@@ -93,7 +94,7 @@ class _DeliveryFullListScreenState
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                               ),
-                              child: const Text('Нет объявлений'),
+                              child:   Text(S.of(context).gbterg534g45v4),
                             ),
                             const SizedBox(height: 8),
                             AnimatedDefaultTextStyle(
@@ -104,8 +105,8 @@ class _DeliveryFullListScreenState
                                     ? const Color(0xFF9CA3AF)
                                     : const Color(0xFF6B7280),
                               ),
-                              child: const Text(
-                                'История ваших объявлений появится здесь',
+                              child:   Text(
+                                S.of(context).ger345g3,
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -128,8 +129,7 @@ class _DeliveryFullListScreenState
                           courier: offer,
                           onFavoriteToggle: (v) {},
                           onVisibilityToggle: (bool isVisible) {
-                            print('Видимость изменена: $isVisible');
-                            bloc
+                             bloc
                                 .editStatusOffer(
                               offer.id.toString(),
                               isVisible == true ? "active" : "archived",

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_response.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../services/theme_manager.dart';
 import '../settings/experience_tab/experience_tab_screen.dart';
 
@@ -109,7 +110,7 @@ class _VerificationScreenState
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : Colors.black,
                     ),
-                    child: const Text('Верификация'),
+                    child:   Text(S.of(context).bd3435fvd),
                   ),
                 ],
               ),
@@ -142,7 +143,7 @@ class _VerificationScreenState
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
-                        child: const Text('Вы верифицированы!'),
+                        child:   Text(S.of(context).vfdfv22434),
                       ),
                       const SizedBox(height: 16),
                       AnimatedDefaultTextStyle(
@@ -152,8 +153,8 @@ class _VerificationScreenState
                           color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                           height: 1.5,
                         ),
-                        child: const Text(
-                          'Ваш аккаунт успешно верифицирован.\nТеперь у вас есть статус "Проверенный пользователь"',
+                        child:   Text(
+                          S.of(context).vfdvfdvfvfdewr44,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -181,8 +182,8 @@ class _VerificationScreenState
                               icon: Icons.task_alt,
                               iconColor: const Color(0xFF4CAF50),
                               iconBgColor: const Color(0xFFE8F5E9),
-                              title: 'Документы одобрены',
-                              subtitle: 'Все проверки пройдены',
+                              title: S.of(context).vfdvfdr3r34,
+                              subtitle: S.of(context).vfvfd443r43,
                               isDark: isDark,
                             ),
                             const SizedBox(height: 16),
@@ -195,8 +196,8 @@ class _VerificationScreenState
                               icon: Icons.check_circle,
                               iconColor: const Color(0xFF4CAF50),
                               iconBgColor: const Color(0xFFE8F5E9),
-                              title: 'Проверка завершена',
-                              subtitle: 'Аккаунт верифицирован',
+                              title: S.of(context).gttbr42435t345,
+                              subtitle: S.of(context).bdfdw432534vfd,
                               isDark: isDark,
                             ),
                           ],
@@ -227,8 +228,8 @@ class _VerificationScreenState
                                   fontSize: 14,
                                   color: isDark ? const Color(0xFFB0B0B0) : Colors.grey[700],
                                 ),
-                                child: const Text(
-                                  'Вы можете пользоваться всеми функциями платформы',
+                                child:   Text(
+                                  S.of(context).dfbdf424fdv,
                                 ),
                               ),
                             ),
@@ -272,7 +273,7 @@ class _VerificationScreenState
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : Colors.black,
                     ),
-                    child: const Text('Верификация'),
+                    child:   Text(S.of(context).vfdgfdvfd42343),
                   ),
                 ],
               ),
@@ -305,7 +306,7 @@ class _VerificationScreenState
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
-                        child: const Text('Заявка на рассмотрении'),
+                        child:   Text(S.of(context).vdfvfd42422),
                       ),
                       const SizedBox(height: 16),
                       AnimatedDefaultTextStyle(
@@ -315,8 +316,8 @@ class _VerificationScreenState
                           color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                           height: 1.5,
                         ),
-                        child: const Text(
-                          'Ваша заявка на верификацию была успешно отправлена.\nМы проверим ваши документы в течение 1-3 рабочих дней.',
+                        child:   Text(
+                          S.of(context).n13vdf43,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -344,8 +345,8 @@ class _VerificationScreenState
                               icon: Icons.task_alt,
                               iconColor: const Color(0xFF4CAF50),
                               iconBgColor: const Color(0xFFE8F5E9),
-                              title: 'Документы отправлены',
-                              subtitle: 'Паспорт и селфи получены',
+                              title: S.of(context).vfdvfd22343,
+                              subtitle: S.of(context).vfd233424,
                               isDark: isDark,
                             ),
                             const SizedBox(height: 16),
@@ -358,8 +359,8 @@ class _VerificationScreenState
                               icon: Icons.schedule,
                               iconColor: const Color(0xFFF5A623),
                               iconBgColor: const Color(0xFFFFF3E0),
-                              title: 'На проверке',
-                              subtitle: 'Ожидайте результатов',
+                              title: S.of(context).juty4545,
+                              subtitle: S.of(context).hy4345,
                               isDark: isDark,
                             ),
                           ],
@@ -390,8 +391,8 @@ class _VerificationScreenState
                                   fontSize: 14,
                                   color: isDark ? const Color(0xFFB0B0B0) : Colors.grey[700],
                                 ),
-                                child: const Text(
-                                  'Мы уведомим вас о результатах проверки',
+                                child:   Text(
+                                  S.of(context).gtrgtr34343,
                                 ),
                               ),
                             ),
@@ -486,7 +487,7 @@ class _VerificationScreenState
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child: const Text('Верификация'),
+                      child:   Text(S.of(context).gregrere4334),
                     ),
                   ],
                 ),
@@ -513,7 +514,7 @@ class _VerificationScreenState
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black87,
                 ),
-                child: const Text('Верификация аккаунта'),
+                child:   Text(S.of(context).gre43fbd4t3),
               ),
               const SizedBox(height: 8),
               AnimatedDefaultTextStyle(
@@ -523,8 +524,8 @@ class _VerificationScreenState
                   color: isDark ? const Color(0xFF9CA3AF) : Colors.grey,
                   height: 1.4,
                 ),
-                child: const Text(
-                  'Подтвердите свою личность для повышения\nдоверия',
+                child:   Text(
+                  S.of(context).ngre24532vfds,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -556,7 +557,7 @@ class _VerificationScreenState
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black87,
                       ),
-                      child: const Text('Статус верификации'),
+                      child:   Text(S.of(context).gdfgdf4343gre),
                     ),
                     const SizedBox(height: 4),
                     AnimatedDefaultTextStyle(
@@ -565,7 +566,7 @@ class _VerificationScreenState
                         fontSize: 14,
                         color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                       ),
-                      child: const Text('Загрузите документы для проверки'),
+                      child:   Text(S.of(context).get42fvfdvs),
                     ),
                   ],
                 ),
@@ -575,11 +576,11 @@ class _VerificationScreenState
                 icon: Icons.description_outlined,
                 iconColor: const Color(0xFF4A90D9),
                 iconBgColor: const Color(0xFFE8F2FC),
-                title: 'Паспорт',
-                subtitle: 'Основной документ',
-                status: _passportImage != null ? 'Загружено' : 'Не загружено',
+                title: S.of(context).vfd43vfd,
+                subtitle: S.of(context).vdfvbfd34,
+                status: _passportImage != null ? S.of(context).gdf43gf : S.of(context).fbdbdf3434,
                 statusColor: _passportImage != null ? Colors.green : Colors.grey,
-                uploadText: 'Загрузить паспорт',
+                uploadText: S.of(context).bdf234rffd,
                 image: _passportImage,
                 onTap: _pickPassportImage,
                 isDark: isDark,
@@ -589,11 +590,11 @@ class _VerificationScreenState
                 icon: Icons.camera_alt_outlined,
                 iconColor: const Color(0xFF4CAF50),
                 iconBgColor: const Color(0xFFE8F5E9),
-                title: 'Селфи с паспортом',
-                subtitle: 'Подтверждение личности',
-                status: _selfieImage != null ? 'Загружено' : 'Не загружено',
+                title: S.of(context).gfdfd3434,
+                subtitle: S.of(context).bfxvdg34,
+                status: _selfieImage != null ? S.of(context).hrgrs434 : S.of(context).yghtrdf4343,
                 statusColor: _selfieImage != null ? Colors.green : Colors.grey,
-                uploadText: 'Загрузить селфи с паспортом',
+                uploadText: S.of(context).fdggg35tr34g,
                 image: _selfieImage,
                 onTap: _pickSelfieImage,
                 showUploadIcon: true,
@@ -607,9 +608,9 @@ class _VerificationScreenState
                     color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
                     height: 1.5,
                   ),
-                  children: const [
+                  children:   [
                     TextSpan(
-                      text: 'Важно: ',
+                      text: S.of(context).gbdgb3434 + " ",
                       style: TextStyle(
                         color: Color(0xFF4A90D9),
                         fontWeight: FontWeight.w600,
@@ -617,7 +618,7 @@ class _VerificationScreenState
                     ),
                     TextSpan(
                       text:
-                      'Проверка документов занимает 1-3 рабочих дня. После одобрения вы получите статус "Проверенный пользователь".',
+                      S.of(context).grgdfgdfg34t343t,
                     ),
                   ],
                 ),
@@ -646,8 +647,8 @@ class _VerificationScreenState
                       strokeWidth: 2.5,
                     ),
                   )
-                      : const Text(
-                    'Отправить на проверку',
+                      :   Text(
+                    S.of(context).bfdbffd24343vfd,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -689,8 +690,8 @@ class _VerificationScreenState
   Future<void> _submitVerification() async {
     if (_passportImage == null || _selfieImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Пожалуйста, загрузите оба документа'),
+          SnackBar(
+          content: Text(S.of(context).bgfbgd3ttgtebdsdf),
           backgroundColor: Colors.orange,
         ),
       );
@@ -709,7 +710,7 @@ class _VerificationScreenState
       );
 
       if (mounted) {
-        showIOSStyleMessage(context, 'Документы успешно отправлены на проверку');
+        showIOSStyleMessage(context, S.of(context).yhtjkuyil43);
 
         await _loadVerificationStatus();
       }
@@ -717,7 +718,7 @@ class _VerificationScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка: ${e.toString()}'),
+            content: Text(S.of(context).bgdfgre345gtt4evwf + " ${e.toString()}'"),
             backgroundColor: Colors.red,
           ),
         );

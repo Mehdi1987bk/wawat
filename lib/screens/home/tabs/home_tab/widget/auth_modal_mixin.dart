@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../../../../generated/l10n.dart';
 import '../../../../auth/auth_modal/auth_required_modal.dart';
 import '../../../../auth/login/login_modal.dart';
 import '../../../../auth/registration/registration_modal.dart';
@@ -34,7 +35,7 @@ class AnyScreen extends StatelessWidget with AuthModalMixin {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => showAuthRequiredModal(context),
-      child: Text('Login'),
+      child: Text(S.of(context).loginrbvgefrds),
     );
   }
 }

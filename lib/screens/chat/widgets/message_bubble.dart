@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/network/response/chat_response.dart';
@@ -6,6 +7,7 @@ import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../services/theme_manager.dart';
+import '../../home/tabs/home_tab/courier_screen/courier_screen.dart'; // Добавьте этот импорт
 
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
@@ -35,23 +37,37 @@ class MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (!isMyMessage && message.user != null) ...[
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: isDark
-                      ? WawatColors.primary.withOpacity(0.2)
-                      : WawatColors.primary.withOpacity(0.1),
-                  backgroundImage: message.user!.avatarUrl.isNotEmpty
-                      ? CachedNetworkImageProvider(message.user!.avatarUrl)
-                      : null,
-                  child: message.user!.avatarUrl.isEmpty
-                      ? Text(
-                    message.user!.fullname[0].toUpperCase(),
-                    style: WawatTextStyles.caption.copyWith(
-                      color: WawatColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                      : null,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (BuildContext context) {
+                          return CourierDetailsScreen(
+                            courierId: message.user!.id,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: isDark
+                        ? WawatColors.primary.withOpacity(0.2)
+                        : WawatColors.primary.withOpacity(0.1),
+                    backgroundImage: message.user!.avatarUrl.isNotEmpty
+                        ? CachedNetworkImageProvider(message.user!.avatarUrl)
+                        : null,
+                    child: message.user!.avatarUrl.isEmpty
+                        ? Text(
+                      message.user!.fullname[0].toUpperCase(),
+                      style: WawatTextStyles.caption.copyWith(
+                        color: WawatColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                        : null,
+                  ),
                 ),
                 SizedBox(width: WawatDimensions.spacingSm),
               ],
@@ -102,7 +118,7 @@ class MessageBubble extends StatelessWidget {
                           ),
                       const SizedBox(height: 4),
                       Text(
-                        message.timeString,
+                        message.timeString(context),
                         style: WawatTextStyles.caption.copyWith(
                           color: isMyMessage
                               ? Colors.white.withOpacity(0.8)

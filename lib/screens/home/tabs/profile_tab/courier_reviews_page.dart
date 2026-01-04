@@ -5,6 +5,7 @@ import '../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../data/network/response/reviews_response.dart';
+import '../../../../generated/l10n.dart';
 import '../home_tab/courier_screen/courier_details_bloc.dart';
 
 class MyRevievsScreen extends BaseScreen {
@@ -170,8 +171,8 @@ class _MyRevievsScreenState
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                   ),
-                  child: const Text(
-                    'Пользователь',
+                  child:   Text(
+                    S.of(context).hghfg4bhn,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -220,8 +221,8 @@ class _MyRevievsScreenState
       ),
       child: Row(
         children: [
-          _buildTabButton(index: 0, title: "Полученные", isDark: isDark),
-          _buildTabButton(index: 1, title: "Оставленные", isDark: isDark),
+          _buildTabButton(index: 0, title: S.of(context).hbfgh3, isDark: isDark),
+          _buildTabButton(index: 1, title: S.of(context).gert3tger, isDark: isDark),
         ],
       ),
     );
@@ -274,7 +275,7 @@ class _MyRevievsScreenState
       child: Column(
         children: [
           if (reviews.isEmpty)
-            _buildEmptyState('Оставленных отзывов нет', isDark)
+            _buildEmptyState(S.of(context).bvfdgb43, isDark)
           else
             ...reviews.map((review) {
               return _buildLeftReviewCard(review, isDark);
@@ -294,7 +295,7 @@ class _MyRevievsScreenState
       child: Column(
         children: [
           if (reviews.isEmpty)
-            _buildEmptyState('Оставленных отзывов нет', isDark)
+            _buildEmptyState(S.of(context).bfdtw4ew4, isDark)
           else
             ...reviews.map((review) {
               return _buildLeftReviewCard(review, isDark);

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/user.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../services/theme_manager.dart';
 import '../profile_tab_bloc.dart';
 import '../settings/change_password_tab/change_password_tab_screen.dart';
@@ -70,7 +71,7 @@ class _EditProfileScreenState
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white : Colors.black,
                               ),
-                              child: const Text('Редактировать профиль'),
+                              child:   Text(S.of(context).vfgbhyujkerg3),
                             ),
                           ],
                         ),

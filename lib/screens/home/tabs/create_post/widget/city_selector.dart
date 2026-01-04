@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:buking/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/city.dart';
 
@@ -89,7 +90,7 @@ class _CitySelectorState extends State<CitySelector> {
                     fontWeight: FontWeight.w600,
                     color: widget.isDark ? Colors.white : Colors.black,
                   ),
-                  child: const Text('Выберите город'),
+                  child:   Text(S.of(context).bgrhtrgrfr445),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -124,7 +125,7 @@ class _CitySelectorState extends State<CitySelector> {
                   color: widget.isDark ? Colors.white : Colors.black,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Поиск города...',
+                  hintText: S.of(context).hyrh5h4tgerwfs,
                   hintStyle: TextStyle(
                     fontSize: 15,
                     color: widget.isDark
@@ -207,8 +208,8 @@ class _CitySelectorState extends State<CitySelector> {
                     ),
                     child: Text(
                       _searchController.text.isEmpty
-                          ? 'Начните вводить название города'
-                          : 'Города не найдены',
+                          ? S.of(context).juu76j5yh4rtge
+                          : S.of(context).tyju65y4htge3rwfs,
                     ),
                   ),
                 ],

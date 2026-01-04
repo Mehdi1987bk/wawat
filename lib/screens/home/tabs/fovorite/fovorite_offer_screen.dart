@@ -4,6 +4,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../../../../generated/l10n.dart';
 import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../home_tab/home_tab_screen.dart';
@@ -95,7 +96,7 @@ class _FovoriteOfferListScreenState
                                           ? const Color(0xFFB0B0B0)
                                           : const Color(0xFF6B7280),
                                     ),
-                                    child: Text("Нет избранных"),
+                                    child: Text(S.of(context).bgrfn5ynjh4tbegrvfvsdcx),
                                   ),
                                 ),
                               ),

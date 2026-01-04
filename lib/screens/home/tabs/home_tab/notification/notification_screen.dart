@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../data/network/request/create_review_request.dart';
 import '../../../../../data/network/response/notification_response.dart';
+import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../../../services/theme_manager.dart';
@@ -127,7 +128,7 @@ class _NotificationScreenState
               style: WawatTextStyles.h2.copyWith(
                 color: isDark ? Colors.white : Colors.black,
               ),
-              child: const Text('Уведомления'),
+              child:   Text(S.of(context).gtregrfwd3rfewd35frwed),
             ),
           ),
         ],
@@ -357,7 +358,7 @@ class _NotificationScreenState
             style: WawatTextStyles.h2.copyWith(
               color: isDark ? Colors.white : Colors.black,
             ),
-            child: const Text('Нет уведомлений'),
+            child:   Text(S.of(context).vfev3r42e),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -369,8 +370,8 @@ class _NotificationScreenState
                     ? const Color(0xFF9CA3AF)
                     : WawatColors.textSecondary,
               ),
-              child: const Text(
-                'У вас пока нет новых уведомлений',
+              child:   Text(
+                S.of(context).fvedrwgt4rwfeqg453wrfs,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -396,7 +397,7 @@ class _NotificationScreenState
             style: WawatTextStyles.h2.copyWith(
               color: isDark ? Colors.white : Colors.black,
             ),
-            child: const Text('Ошибка загрузки'),
+            child:   Text(S.of(context).vbfedrgf4wvt4g3rwfsdv),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -428,7 +429,7 @@ class _NotificationScreenState
               ),
             ),
             child: Text(
-              'Попробовать снова',
+              S.of(context).vefgbrg35grwf45g3r,
               style: WawatTextStyles.button,
             ),
           ),
@@ -438,15 +439,10 @@ class _NotificationScreenState
   }
 
   void _handleNotificationTap(NotificationItem notification, bool isDark) {
-    // Принтуем при любом нажатии
-    print('нажался');
-    print('Notification tapped: ID=${notification.id}, Type=${notification.type}, Title=${notification.title}');
+ 
+     bloc.markAsRead(notification.id);
 
-    // Помечаем как прочитанную
-    bloc.markAsRead(notification.id);
-
-    // Показываем соответствующий bottom sheet
-    if (notification.type == "review_request") {
+     if (notification.type == "review_request") {
       _showReviewBottomSheet(notification, isDark);
     } else {
       _showNotificationDetailBottomSheet(notification, isDark);
@@ -463,8 +459,7 @@ class _NotificationScreenState
         isDark: isDark,
         bloc: bloc,
         onReviewSubmitted: () {
-          // Перезагружаем уведомления после отправки отзыва
-          bloc.loadNotifications();
+           bloc.loadNotifications();
         },
       ),
     );
@@ -491,15 +486,15 @@ class _NotificationScreenState
       if (difference.inDays == 0) {
         if (difference.inHours == 0) {
           if (difference.inMinutes == 0) {
-            return 'Только что';
+            return S.of(context).vfdevr3er3g3;
           }
-          return '${difference.inMinutes} мин назад';
+          return '${difference.inMinutes} ' + S.of(context).gegereg34543tvfe;
         }
-        return '${difference.inHours} ч назад';
+        return '${difference.inHours} ' + S.of(context).vefdbt4evgrr35rw3r5ewfe;
       } else if (difference.inDays == 1) {
-        return 'Вчера';
+        return S.of(context).btegrew35g4frsf4r3;
       } else if (difference.inDays < 7) {
-        return '${difference.inDays} дн назад';
+        return '${difference.inDays} ' + S.of(context).ebvfrgevf24fewrvgr3;
       } else {
         return DateFormat('dd.MM.yyyy').format(date);
       }
@@ -540,8 +535,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
   void initState() {
     super.initState();
 
-    // Слушаем ошибки из bloc
-    widget.bloc.errorStream.listen((error) {
+     widget.bloc.errorStream.listen((error) {
       if (error != null && mounted) {
 
         showTopSnackbar(error.toString(), false, context);
@@ -566,8 +560,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          // Закрываем клавиатуру при нажатии вне TextField
-          FocusScope.of(context).unfocus();
+           FocusScope.of(context).unfocus();
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -616,8 +609,8 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                       fontWeight: FontWeight.bold,
                       color: widget.isDark ? Colors.white : Colors.black,
                     ),
-                    child: const Text(
-                      'Оставьте отзыв',
+                    child:   Text(
+                      S.of(context).betg35rw355g3ref,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -629,8 +622,8 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                           ? const Color(0xFF9CA3AF)
                           : WawatColors.textSecondary,
                     ),
-                    child: const Text(
-                      'Ваше мнение очень важно для нас',
+                    child:   Text(
+                      S.of(context).betg465g3rwegt4,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -680,7 +673,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                         color: widget.isDark ? Colors.white : Colors.black,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Напишите ваш комментарий...',
+                        hintText: S.of(context).terg35t42r35t4rwefdsa,
                         hintStyle: WawatTextStyles.body.copyWith(
                           color: (widget.isDark
                               ? const Color(0xFF6B7280)
@@ -723,7 +716,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                         ),
                       )
                           : Text(
-                        'Отправить',
+                        S.of(context).h4g53t4fregt453rfwegg43ref,
                         style: WawatTextStyles.button.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -745,7 +738,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Пожалуйста, выберите оценку'),
+            content:   Text(S.of(context).ujik87j6hy5gt4rerfw54),
             backgroundColor: WawatColors.error,
           ),
         );
@@ -760,7 +753,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
-            const Text('Ошибка: отсутствуют данные для отправки отзыва'),
+              Text(S.of(context).cdswwcf4f3fgrwsdc),
             backgroundColor: WawatColors.error,
           ),
         );
@@ -792,7 +785,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
     if (success) {
       // ✅ Успешно
       Navigator.of(context).pop();
-      showIOSStyleMessage(context, 'Спасибо за ваш отзыв!');
+      showIOSStyleMessage(context, S.of(context).fewef243fewf3efwas);
       widget.onReviewSubmitted();
     } else {
 
@@ -888,7 +881,7 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
                             ? const Color(0xFF9CA3AF)
                             : WawatColors.textSecondary,
                       ),
-                      child: Text(_formatDate(notification.createdAt)),
+                      child: Text(_formatDate(notification.createdAt,context)),
                     ),
                   ],
                 ),
@@ -923,8 +916,7 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      print('Close button tapped for notification: ${notification.id}');
-                      Navigator.of(context).pop();
+                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: WawatColors.primary,
@@ -934,7 +926,7 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 18),
                     ),
                     child: Text(
-                      'Закрыть',
+                      S.of(context).gergt65h43t42335,
                       style: WawatTextStyles.button.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -997,7 +989,7 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  String _formatDate(String dateString) {
+  String _formatDate(String dateString, BuildContext context) {
     try {
       final date = DateTime.parse(dateString);
       final now = DateTime.now();
@@ -1006,15 +998,15 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
       if (difference.inDays == 0) {
         if (difference.inHours == 0) {
           if (difference.inMinutes == 0) {
-            return 'Только что';
+            return S.of(context).nytrh564y4y5gteg5tegr;
           }
-          return '${difference.inMinutes} мин назад';
+          return '${difference.inMinutes} ' + S.of(context).tehh6545ety4heg;
         }
-        return '${difference.inHours} ч назад';
+        return '${difference.inHours} ' + S.of(context).dbgre34vdvfs;
       } else if (difference.inDays == 1) {
-        return 'Вчера';
+        return S.of(context).bterhb46h35g4wre;
       } else if (difference.inDays < 7) {
-        return '${difference.inDays} дн назад';
+        return '${difference.inDays} ' + S.of(context).tbh453g4wresdv;
       } else {
         return DateFormat('dd.MM.yyyy').format(date);
       }

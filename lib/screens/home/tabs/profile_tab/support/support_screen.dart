@@ -7,6 +7,7 @@ import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:buking/services/theme_manager.dart';
 
 import '../../../../../data/network/request/support_request.dart';
+import '../../../../../generated/l10n.dart';
 
 class SupportScreen extends BaseScreen {
   SupportScreen({super.key});
@@ -76,7 +77,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Отправлено!',
+              S.of(context).bvetgh423rfc,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -85,7 +86,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Мы свяжемся с вами в ближайшее время',
+              S.of(context).bnmkuy43545g3,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -98,7 +99,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child:
-                const Text('OK', style: TextStyle(color: WawatColors.primary)),
+                  Text(S.of(context).ok, style: TextStyle(color: WawatColors.primary)),
           ),
         ],
       ),
@@ -131,7 +132,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
-                'Поддержка',
+                S.of(context).get3434gvrevef,
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
                   fontWeight: FontWeight.w600,
@@ -173,7 +174,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              'Как мы можем помочь?',
+                              S.of(context).bgrf4tb4dgfb,
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -182,7 +183,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Опишите вашу проблему, и мы\nответим как можно скорее',
+                              S.of(context).rtbrtb4t4t4tb4n,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14,
@@ -206,7 +207,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Описание проблемы',
+                            S.of(context).nrtn33ss,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -257,7 +258,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                           ),
                           decoration: InputDecoration(
                             hintText:
-                                'Расскажите подробнее о вашей проблеме...',
+                                S.of(context).bbddgbtgbbvb,
                             hintStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF6B7280)
@@ -269,10 +270,10 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Пожалуйста, опишите вашу проблему';
+                              return S.of(context).nntteev5eg;
                             }
                             if (value.trim().length < 10) {
-                              return 'Описание должно содержать минимум 10 символов';
+                              return S.of(context).bbddert42t54gdg;
                             }
                             return null;
                           },
@@ -291,7 +292,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Минимум 10 символов',
+                            S.of(context).gbrg533gds24rtegv,
                             style: TextStyle(
                               fontSize: 12,
                               color: isDark ? Colors.white38 : Colors.black38,
@@ -334,7 +335,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                           Colors.white),
                                     ),
                                   )
-                                : const Row(
+                                :   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
@@ -344,7 +345,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                       ),
                                       SizedBox(width: 10),
                                       Text(
-                                        'Отправить',
+                                        S.of(context).bed2245fvfsgd,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 17,
@@ -395,7 +396,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Время ответа',
+                                    S.of(context).dfg34fgdwrrew,
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -405,7 +406,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Обычно отвечаем в течение 24 часов',
+                                    S.of(context).gfdlek54jn3,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isDark

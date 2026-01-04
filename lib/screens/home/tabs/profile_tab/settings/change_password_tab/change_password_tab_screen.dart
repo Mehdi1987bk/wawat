@@ -2,6 +2,7 @@ import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
@@ -68,7 +69,7 @@ class _ChangePasswordTabState
     );
 
     if (success && mounted) {
-      showIOSStyleMessage(context, 'Пароль успешно изменён');
+      showIOSStyleMessage(context, S.of(context).vfegt4g3rvsfcfd);
       _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
@@ -132,11 +133,11 @@ class _ChangePasswordTabState
                                   fontWeight: FontWeight.w600,
                                   color: isDark ? Colors.white : Colors.black,
                                 ),
-                                child: const Text('Изменить пароль'),
+                                child:   Text(S.of(context).brttt4htg3rfwd),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Введите текущий и новый пароль',
+                                S.of(context).brtb5h6h453grbegr,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: isDark
@@ -154,7 +155,7 @@ class _ChangePasswordTabState
 
                     // Current password
                     _buildPasswordField(
-                      label: 'Текущий пароль',
+                      label: S.of(context).htrh64h5tger,
                       controller: _currentPasswordController,
                       obscureText: _obscureCurrentPassword,
                       onToggleObscure: () {
@@ -169,7 +170,7 @@ class _ChangePasswordTabState
 
                     // New password
                     _buildPasswordField(
-                      label: 'Новый пароль',
+                      label: S.of(context).htrh56h5656,
                       controller: _newPasswordController,
                       obscureText: _obscureNewPassword,
                       onToggleObscure: () {
@@ -178,14 +179,14 @@ class _ChangePasswordTabState
                         });
                       },
                       isDark: isDark,
-                      hint: 'Минимум 6 символов',
+                      hint: S.of(context).bgrtyhnyn5jh4g3,
                     ),
 
                     const SizedBox(height: 16),
 
                     // Confirm password
                     _buildPasswordField(
-                      label: 'Подтвердите новый пароль',
+                      label: S.of(context).jyrtj57jhrttyh4te,
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
                       onToggleObscure: () {
@@ -194,7 +195,7 @@ class _ChangePasswordTabState
                         });
                       },
                       isDark: isDark,
-                      hint: 'Повторите новый пароль',
+                      hint: S.of(context).jytuj56j56jj45,
                     ),
 
                     // Password hints
@@ -227,8 +228,8 @@ class _ChangePasswordTabState
                               height: 20,
 
                             )
-                                : const Text(
-                              'Сохранить новый пароль',
+                                :   Text(
+                              S.of(context).jt676676756jhr,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../../generated/l10n.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 
@@ -46,9 +47,15 @@ class CourierRatingsTab extends StatelessWidget {
                             duration: const Duration(milliseconds: 300),
                             style: TextStyle(
                               fontSize: 16,
-                              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                              color: isDark
+                                  ? const Color(0xFF9CA3AF)
+                                  : Colors.grey[600],
                             ),
-                            child: Center(child: const Text('Отзывов нет')),
+                            child: Center(
+                              child: Text(
+                                S.of(context).bgrfw3542rfsd,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -123,7 +130,7 @@ class CourierRatingsTab extends StatelessWidget {
           Row(
             children: List.generate(
               5,
-                  (index) => Icon(
+              (index) => Icon(
                 Icons.star,
                 size: 14,
                 color: index < review.rating
@@ -145,23 +152,5 @@ class CourierRatingsTab extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getDaysAgo(String createdAt) {
-    try {
-      DateTime dateTime = DateTime.parse(createdAt);
-      DateTime now = DateTime.now();
-      Duration difference = now.difference(dateTime);
-
-      if (difference.inDays > 0) {
-        return '${difference.inDays} янв ${dateTime.year}';
-      } else if (difference.inHours > 0) {
-        return 'Сегодня';
-      } else {
-        return 'Сейчас';
-      }
-    } catch (e) {
-      return 'недавно';
-    }
   }
 }
