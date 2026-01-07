@@ -37,6 +37,7 @@ class WawatCourierCard extends StatefulWidget {
 class _WawatCourierCardState extends State<WawatCourierCard> {
   late bool isFavorite;
   late bool isVisible;
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -183,6 +184,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
     return Consumer<ThemeManager>(
       builder: (context, themeManager, child) {
         final isDark = themeManager.isDarkMode;
+         final description = widget.courier.description ?? "";
+        final showButton = description.length > 120;
 
         return Stack(
           children: [
@@ -381,13 +384,31 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        color:
-                            isDark ? const Color(0xFFB0B0B0) : Colors.black87,
+                        color: isDark ? const Color(0xFFB0B0B0) : Colors.black87,
                       ),
-                      maxLines: 20,
-                      overflow: TextOverflow.ellipsis,
-                      child: Text(widget.courier.description!),
+                      maxLines: _isExpanded ? null : 3,
+                      overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                      child: Text(description),
                     ),
+                  if (showButton) ...[
+                    const SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isExpanded = !_isExpanded;
+                        });
+                      },
+                      child: Text(
+                        _isExpanded ? S.of(context).fgsdgsgdfs : S.of(context).bgfdbssdbd,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? const Color(0xFF6B9FFF) : Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+
                   SizedBox(height: 24),
                   Column(
                     children: [

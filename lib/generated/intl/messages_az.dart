@@ -198,6 +198,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Təklif növləri yüklənmə xətası:",
     ),
     "bgfdbgf345": MessageLookupByLibrary.simpleMessage("gg.aa.iiii"),
+    "bgfdbssdbd": MessageLookupByLibrary.simpleMessage("Daha çox göstər"),
     "bgfgbfbgf345": MessageLookupByLibrary.simpleMessage(
       "Çatdırılma tarixi son",
     ),
@@ -379,6 +380,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ff3rfr34f3erf3r": MessageLookupByLibrary.simpleMessage("may"),
     "ffr4": MessageLookupByLibrary.simpleMessage("Qeydiyyatdan keç"),
     "fggdf345": MessageLookupByLibrary.simpleMessage("Tema"),
+    "fgsdgsgdfs": MessageLookupByLibrary.simpleMessage("Gizlət"),
     "filial": MessageLookupByLibrary.simpleMessage("Filial"),
     "filialSein": MessageLookupByLibrary.simpleMessage("Filial seçin"),
     "filiallar": MessageLookupByLibrary.simpleMessage("Filiallar"),

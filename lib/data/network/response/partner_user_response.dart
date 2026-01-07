@@ -64,7 +64,7 @@ class UserResponse {
   final String? email;
   final String? phone;
   @JsonKey(name: 'last_seen_at')
-  final String? lastSeenAt;
+  final DateTime? lastSeenAt;
   @JsonKey(name: 'created_at')
   final String? createdAt;
   final List<Language> languages;

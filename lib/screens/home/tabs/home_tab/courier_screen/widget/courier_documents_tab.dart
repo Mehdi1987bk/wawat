@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../generated/l10n.dart';
@@ -72,7 +73,7 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.phone,
             title: S.of(context).tbergwf35grwfsvfg43,
-            value: data.user.phone != null ? ( data.user.fullname+data.user.phone!  ):'--',
+            value: data.user.phone  ??  '--',
             iconColor: Colors.green,
             isDark: isDark,
           ),
@@ -98,7 +99,7 @@ class CourierDocumentsTab extends StatelessWidget {
             title: S.of(context).btergwfe5g34rfecerv,
             value: data.user.lastSeenAt == null
                 ? '--'
-                : data.user.lastSeenAt.toString(),
+                : DateFormat('dd.MM.yyyy HH:mm').format(data.user.lastSeenAt!),
             iconColor: Colors.red,
             isDark: isDark,
           ),

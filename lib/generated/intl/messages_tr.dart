@@ -200,6 +200,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Teklif türleri yükleme hatası:",
     ),
     "bgfdbgf345": MessageLookupByLibrary.simpleMessage("gg.aa.yyyy"),
+    "bgfdbssdbd": MessageLookupByLibrary.simpleMessage("Daha fazla göster"),
     "bgfgbfbgf345": MessageLookupByLibrary.simpleMessage(
       "Teslimat tarihi bitiş",
     ),
@@ -385,6 +386,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ff3rfr34f3erf3r": MessageLookupByLibrary.simpleMessage("May"),
     "ffr4": MessageLookupByLibrary.simpleMessage("Kayıt ol"),
     "fggdf345": MessageLookupByLibrary.simpleMessage("Tema"),
+    "fgsdgsgdfs": MessageLookupByLibrary.simpleMessage("Gizle"),
     "filial": MessageLookupByLibrary.simpleMessage("Şube"),
     "filialSein": MessageLookupByLibrary.simpleMessage("Şube seçin"),
     "filiallar": MessageLookupByLibrary.simpleMessage("Şubeler"),

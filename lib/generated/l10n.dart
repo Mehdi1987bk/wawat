@@ -5239,6 +5239,16 @@ class S {
   String get bfdb3brwqgevds432 {
     return Intl.message('File', name: 'bfdb3brwqgevds432', desc: '', args: []);
   }
+
+  /// `Hide`
+  String get fgsdgsgdfs {
+    return Intl.message('Hide', name: 'fgsdgsgdfs', desc: '', args: []);
+  }
+
+  /// `Show more`
+  String get bgfdbssdbd {
+    return Intl.message('Show more', name: 'bgfdbssdbd', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
