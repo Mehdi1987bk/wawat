@@ -20,6 +20,9 @@ const _userKey = 'UserKey';
 const _firstOpen = 'FirstOpen';
 late final Box settingsBox;
 
+// Поддерживаемые языки приложения
+const _supportedLanguageCodes = ['ru', 'uk', 'az', 'en', 'tr'];
+
 class DataCacheManager implements CacheManager {
   final Future<Box> _authBox = Hive.openBox(_authCache);
   final Future<Box> _userBox = Hive.openBox(_userCache);
@@ -124,19 +127,42 @@ class DataCacheManager implements CacheManager {
   }
 
 
+  /// Определяет подходящий язык на основе системного языка устройства
+  Locale _getDeviceLocaleIfSupported() {
+    // Получаем системный язык устройства
+    final deviceLocale = PlatformDispatcher.instance.locale;
+    final deviceLanguageCode = deviceLocale.languageCode;
+
+    // Если системный язык поддерживается - используем его
+    if (_supportedLanguageCodes.contains(deviceLanguageCode)) {
+      return Locale(deviceLanguageCode);
+    }
+
+    // Иначе возвращаем английский по умолчанию
+    return const Locale('en');
+  }
+
   @override
   Stream<Locale?> get locale async* {
     final box = await _settingsBox;
+    final savedLocale = box.get(_localeKey);
+
+    // Если локаль не была сохранена ранее - определяем по системному языку
+    Locale initialLocale;
+    if (savedLocale == null) {
+      initialLocale = _getDeviceLocaleIfSupported();
+      // Сохраняем определённый язык для последующих запусков
+      await box.put(_localeKey, initialLocale.languageCode);
+    } else {
+      initialLocale = Locale(savedLocale);
+    }
+
     yield* box.watch(key: _localeKey).map((event) {
       final currentLanguageCode = event.value as String?;
-      return currentLanguageCode == null ? null : Locale((currentLanguageCode));
-    }).startWith(
-      box.get(_localeKey) == null
-          ? null
-          : Locale(
-        box.get(_localeKey),
-      ),
-    );
+      return currentLanguageCode == null
+          ? _getDeviceLocaleIfSupported()
+          : Locale(currentLanguageCode);
+    }).startWith(initialLocale);
   }
 
   @override
@@ -152,11 +178,14 @@ class DataCacheManager implements CacheManager {
     );
   }
 
-  // ДОБАВИТЬ ЭТОТ МЕТОД
   @override
   Future<Locale?> getLocaleAsync() async {
     final box = await _settingsBox;
     final languageCode = box.get(_localeKey);
-    return languageCode == null ? null : Locale(languageCode);
+    if (languageCode == null) {
+      // Если не сохранено - вернуть системный язык
+      return _getDeviceLocaleIfSupported();
+    }
+    return Locale(languageCode);
   }
 }

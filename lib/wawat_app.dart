@@ -68,14 +68,22 @@ class App extends StatelessWidget {
                   GlobalCupertinoLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                 ],
-                locale: snapshot.data ?? const Locale("en"),
+                // Локаль теперь всегда приходит из CacheManager (либо сохранённая, либо системная)
+                locale: snapshot.data,
                 localeResolutionCallback: (locale, supportedLocales) {
+                  // Если есть сохранённая локаль - используем её
                   if (snapshot.hasData && snapshot.data != null) {
                     return snapshot.data;
                   }
-                  if (locale != null && supportedLocales.contains(locale)) {
-                    return locale;
+                  // Проверяем системную локаль устройства
+                  if (locale != null) {
+                    for (var supportedLocale in supportedLocales) {
+                      if (supportedLocale.languageCode == locale.languageCode) {
+                        return supportedLocale;
+                      }
+                    }
                   }
+                  // Fallback на английский
                   return const Locale("en");
                 },
                 supportedLocales: S.delegate.supportedLocales,
