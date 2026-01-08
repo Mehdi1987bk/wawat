@@ -61,31 +61,41 @@ class CourierProfileCard extends StatelessWidget {
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      user.avatar != null && user.avatar!.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.network(
-                                user.avatar!,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Container(
+                      GestureDetector(
+                        onTap: () {
+                          if (user.avatar != null && user.avatar!.isNotEmpty) {
+                            _openFullScreenImage(context, user.avatar!);
+                          }
+                        },
+                        child: Hero(
+                          tag: 'courier_avatar_${user.id}',
+                          child: user.avatar != null && user.avatar!.isNotEmpty
+                              ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
+                              user.avatar!,
                               width: 80,
                               height: 80,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF5B5BFF),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.yellow[600],
-                                ),
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                              : Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF5B5BFF),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.yellow[600],
                               ),
                             ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   if (user.isVerified == true)
@@ -338,7 +348,17 @@ class CourierProfileCard extends StatelessWidget {
       },
     );
   }
-
+  void _openFullScreenImage(BuildContext context, String imageUrl) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _FullScreenImageViewer(
+          imageUrl: imageUrl,
+          heroTag: 'courier_avatar_${data.user.id}',
+        ),
+      ),
+    );
+  }
   void _handleReviewTap(BuildContext context, bool isDark) async {
     final isLogged = await sl.get<AuthRepository>().isLogged();
     if (!isLogged) {
@@ -725,3 +745,120 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
       }
     }
   }}
+
+
+
+
+class _FullScreenImageViewer extends StatefulWidget {
+  final String imageUrl;
+  final String heroTag;
+
+  const _FullScreenImageViewer({
+    required this.imageUrl,
+    required this.heroTag,
+  });
+
+  @override
+  State<_FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
+  final TransformationController _transformationController =
+  TransformationController();
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              transformationController: _transformationController,
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Hero(
+                tag: widget.heroTag,
+                child: Image.network(
+                  widget.imageUrl,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                            : null,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(
+                        Icons.error_outline,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _transformationController.value = Matrix4.identity();
+                      });
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.zoom_out_map,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

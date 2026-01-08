@@ -5249,6 +5249,16 @@ class S {
   String get bgfdbssdbd {
     return Intl.message('Show more', name: 'bgfdbssdbd', desc: '', args: []);
   }
+
+  /// `Ошибка`
+  String get bfdbsdbadfb {
+    return Intl.message('Ошибка', name: 'bfdbsdbadfb', desc: '', args: []);
+  }
+
+  /// `Успешно!`
+  String get bfdbdffbdsbf {
+    return Intl.message('Успешно!', name: 'bfdbdffbdsbf', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

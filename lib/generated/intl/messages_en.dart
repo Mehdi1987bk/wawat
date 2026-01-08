@@ -104,10 +104,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bfd4r53gfd": MessageLookupByLibrary.simpleMessage("Dark theme enabled"),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("File"),
+    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Успешно!"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Photo"),
     "bfdbffd24343vfd": MessageLookupByLibrary.simpleMessage(
       "Submit for review",
     ),
+    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Ошибка"),
     "bfdeberb3brtbfds": MessageLookupByLibrary.simpleMessage("hours ago"),
     "bfdebr3b3b33": MessageLookupByLibrary.simpleMessage("minutes ago"),
     "bfdgbebteb443": MessageLookupByLibrary.simpleMessage("offline"),

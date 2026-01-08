@@ -43,13 +43,11 @@ class App extends StatelessWidget {
             builder: (context, themeManager, child) {
               final isDark = themeManager.isDarkMode;
 
-              // ВАЖНО для Android: устанавливаем цвета навигационной панели
-              SystemChrome.setSystemUIOverlayStyle(
+               SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
                   statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
                   statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
-                  // ← КЛЮЧЕВОЕ для Android клавиатуры
                   systemNavigationBarColor: isDark ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
                   systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
                   systemNavigationBarDividerColor: Colors.transparent,

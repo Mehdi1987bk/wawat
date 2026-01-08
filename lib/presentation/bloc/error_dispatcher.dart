@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../generated/l10n.dart';
 import '../../services/theme_manager.dart';
 import 'base_bloc.dart';
 import 'base_screen.dart';
@@ -147,7 +148,7 @@ void showTopSnackbar(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isSuccess ? 'Успешно!' : 'Ошибка',
+                                  isSuccess ? S.of(context).bfdbdffbdsbf : S.of(context).bfdbsdbadfb,
                                   style: TextStyle(
                                     color: isDark
                                         ? Colors.white
