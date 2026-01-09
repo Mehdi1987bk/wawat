@@ -192,7 +192,7 @@ class _NotificationScreenState
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildNotificationIcon(notification),
+              _buildNotificationIcon(notification, isDark),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -287,7 +287,7 @@ class _NotificationScreenState
     );
   }
 
-  Widget _buildNotificationIcon(NotificationItem notification) {
+  Widget _buildNotificationIcon(NotificationItem notification, bool isDark) {
     Color bgColor;
     Color iconColor;
     IconData iconData;
@@ -324,6 +324,7 @@ class _NotificationScreenState
           child: Image.network(
             notification.icon!,
             fit: BoxFit.cover,
+            color: isDark == true ? Colors.white : Colors.black,
             errorBuilder: (context, error, stackTrace) {
               return Icon(iconData, color: iconColor, size: 24);
             },

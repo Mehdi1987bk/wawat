@@ -503,7 +503,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   onSurface: isDark ? Colors.white : const Color(0xFF1A1A1A),
                 ),
                 dialogBackgroundColor:
-                    isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                isDark ? const Color(0xFF1E1E1E) : Colors.white,
               ),
               child: child!,
             );
@@ -512,7 +512,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         if (date != null) {
           setState(() {
             controller.text =
-                '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+            '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
           });
         }
       },
@@ -522,7 +522,10 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8),
+            color: controller.text.isNotEmpty
+                ? const Color(0xFF7C6FFF)
+                : (isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8)),
+            width: controller.text.isNotEmpty ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
@@ -542,19 +545,42 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   fontSize: 16,
                   color: controller.text.isEmpty
                       ? (isDark
-                          ? const Color(0xFF6B7280)
-                          : const Color(0xFFB0B0B0))
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFB0B0B0))
                       : (isDark ? Colors.white : const Color(0xFF1A1A1A)),
-                  fontWeight: FontWeight.w400,
+                  fontWeight: controller.text.isEmpty
+                      ? FontWeight.w400
+                      : FontWeight.w600,
                 ),
                 child: Text(controller.text.isEmpty ? hint : controller.text),
               ),
             ),
-            Icon(
-              Icons.calendar_today_outlined,
-              color: isDark ? const Color(0xFF6B7280) : const Color(0xFFB0B0B0),
-              size: 20,
-            ),
+            if (controller.text.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    controller.clear();
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.clear,
+                    color: isDark
+                        ? const Color(0xFF9CA3AF)
+                        : const Color(0xFF6B7280),
+                    size: 18,
+                  ),
+                ),
+              )
+            else
+              Icon(
+                Icons.calendar_today_outlined,
+                color: isDark
+                    ? const Color(0xFF6B7280)
+                    : const Color(0xFFB0B0B0),
+                size: 20,
+              ),
           ],
         ),
       ),
