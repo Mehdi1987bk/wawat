@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
- import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_bloc.dart';
- import 'generated/l10n.dart';
+import 'generated/l10n.dart';
 import 'main.dart';
 import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';
@@ -43,7 +43,7 @@ class App extends StatelessWidget {
             builder: (context, themeManager, child) {
               final isDark = themeManager.isDarkMode;
 
-               SystemChrome.setSystemUIOverlayStyle(
+              SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
                   statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
@@ -68,14 +68,22 @@ class App extends StatelessWidget {
                   GlobalCupertinoLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                 ],
-                locale: snapshot.data ?? const Locale("en"),
+                // Локаль теперь всегда приходит из CacheManager (либо сохранённая, либо системная)
+                locale: snapshot.data,
                 localeResolutionCallback: (locale, supportedLocales) {
+                  // Если есть сохранённая локаль - используем её
                   if (snapshot.hasData && snapshot.data != null) {
                     return snapshot.data;
                   }
-                  if (locale != null && supportedLocales.contains(locale)) {
-                    return locale;
+                  // Проверяем системную локаль устройства
+                  if (locale != null) {
+                    for (var supportedLocale in supportedLocales) {
+                      if (supportedLocale.languageCode == locale.languageCode) {
+                        return supportedLocale;
+                      }
+                    }
                   }
+                  // Fallback на английский
                   return const Locale("en");
                 },
                 supportedLocales: S.delegate.supportedLocales,
@@ -86,31 +94,6 @@ class App extends StatelessWidget {
           );
 
         });
-    //
-    // return     MaterialApp(
-    //   color: AppColors.appBarbgColor,
-    //   debugShowCheckedModeBanner: false,
-    //   navigatorKey: navigatorKey,
-    //
-    //   navigatorObservers: [routeObserver],
-    //    darkTheme: _buildDarkTheme(),
-    //
-    //    localizationsDelegates: [
-    //     S.delegate,
-    //     GlobalMaterialLocalizations.delegate,
-    //     GlobalCupertinoLocalizations.delegate,
-    //     GlobalWidgetsLocalizations.delegate,
-    //   ],
-    //    localeResolutionCallback: (locale, supportedLocales) {
-    //
-    //     if (locale != null && supportedLocales.contains(locale)) {
-    //       return locale;
-    //     }
-    //     return const Locale("en");
-    //   },
-    //   supportedLocales: S.delegate.supportedLocales,
-    //   home: SpleshScreen(),
-    // );
   }
 
   ThemeData _buildLightTheme() {
@@ -124,7 +107,6 @@ class App extends StatelessWidget {
         background: Colors.white,
       ),
       useMaterial3: true,
-      // Эти настройки могут помочь
       inputDecorationTheme: InputDecorationTheme(
         fillColor: Colors.white,
       ),
@@ -142,7 +124,6 @@ class App extends StatelessWidget {
         background: const Color(0xFF121212),
       ),
       useMaterial3: true,
-      // Эти настройки могут помочь
       inputDecorationTheme: InputDecorationTheme(
         fillColor: const Color(0xFF1E1E1E),
       ),

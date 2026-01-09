@@ -442,7 +442,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         ), if (widget.courier.packageType != null)
                         _buildDetailRow(
                           S.of(context).nhgnhg4,
-                          '${widget.courier.packageType?.code}',
+                          '${widget.courier.packageType?.title}',
                           isDark,
                         ),
                     ],

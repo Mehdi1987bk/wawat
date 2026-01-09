@@ -706,24 +706,22 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Transform.translate(
-          offset: const Offset(-12, 0), // Сдвигаем влево на 12 пикселей
+          offset: const Offset(-12, 0),
           child: Transform.scale(
-            scaleX: 1.05, // Растягиваем немного по горизонтали
+            scaleX: 1.05,
             alignment: Alignment.centerLeft,
             child: Slider(
               value: _selectedExperience,
-              min: 0.5,
+              min: 1,
               max: 10,
-              divisions: 29,
-              label: _selectedExperience % 1 == 0
-                  ? '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
-                  : '${_selectedExperience.toStringAsFixed(1)} года',
+              divisions: 9,
+              label: '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
               activeColor: const Color(0xFF5B4FFF),
               inactiveColor:
-                  isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+              isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               onChanged: (value) {
                 setState(() {
-                  _selectedExperience = (value * 2).round() / 2;
+                  _selectedExperience = value.roundToDouble(); // Округляем до целого
                 });
               },
             ),
@@ -732,9 +730,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Text(
-            _selectedExperience % 1 == 0
-                ? S.of(context).bgdretr35grdf+' ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}'
-                : S.of(context).vfdbvg3grgr34g+' ${_selectedExperience.toStringAsFixed(1)} года',
+            S.of(context).bgdretr35grdf + ' ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -746,7 +742,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     );
   }
 
-  // Вспомогательный метод для правильного склонения
   String _getYearLabel(int years) {
     if (years % 10 == 1 && years % 100 != 11) {
       return S.of(context).fregt56hgte;
@@ -757,7 +752,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       return S.of(context).myijtyhg34ewfrv;
     }
   }
-
   @override
   ExperienceTabBloc provideBloc() {
     return ExperienceTabBloc();
