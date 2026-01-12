@@ -681,6 +681,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "njmuy5": MessageLookupByLibrary.simpleMessage(
       "Are you sure you want to delete the conversation with",
     ),
+    "nkmlregt4lk": MessageLookupByLibrary.simpleMessage(
+      "Не удалось загрузить города. Попробуйте позже.",
+    ),
     "nmrniGstr": MessageLookupByLibrary.simpleMessage("Show number"),
     "nmrniziDaxilEdin": MessageLookupByLibrary.simpleMessage(
       "Enter your number",
@@ -995,6 +998,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vfedrgev3r2g4": MessageLookupByLibrary.simpleMessage("Date to"),
     "vfedvfd": MessageLookupByLibrary.simpleMessage("vfedvfd"),
+    "vfegrbfdthgbr5j45ehrw": MessageLookupByLibrary.simpleMessage(
+      "Загрузка городов...",
+    ),
     "vfegt4g3rvsfcfd": MessageLookupByLibrary.simpleMessage(
       "Password successfully changed",
     ),

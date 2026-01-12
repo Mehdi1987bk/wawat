@@ -45,73 +45,67 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAllData();
-    });
+    // Загружаем данные в фоне без блокировки UI
+    _loadAllDataSilently();
   }
 
-  Future<void> _loadAllData() async {
-    setState(() {
-      _isLoadingCities = true;
-      _isLoadingOfferTypes = true;
-      _isLoadingPackageTypes = true;
-    });
-
-    await Future.wait([
-      _loadCities(),
-      _loadOfferTypes(),
-    ]);
+  Future<void> _loadAllDataSilently() async {
+    // Запускаем параллельно, не блокируя UI
+    _loadCitiesSilently();
+    _loadOfferTypesSilently();
   }
 
-  Future<void> _loadOfferTypes() async {
+  Future<void> _loadOfferTypesSilently() async {
     try {
       final offerTypes = await widget.bloc.getOfferTypes();
-
-      setState(() {
-        _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
-        _isLoadingOfferTypes = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingOfferTypes = false;
-        _allOfferTypes = [];
-      });
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).egreergreger + ' $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        setState(() {
+          _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
+          _isLoadingOfferTypes = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingOfferTypes = false;
+        });
+      }
+      // Тихо повторяем через 3 секунды
+      _retryLoadOfferTypes();
     }
   }
 
-  Future<void> _loadCities() async {
+  Future<void> _retryLoadOfferTypes() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted && _allOfferTypes.isEmpty) {
+      _loadOfferTypesSilently();
+    }
+  }
+
+  Future<void> _loadCitiesSilently() async {
     try {
       final cities = await widget.bloc.getCities('');
-
-      setState(() {
-        _allCities = List<City>.from(cities.data);
-        _isLoadingCities = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingCities = false;
-        _allCities = [];
-      });
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).vfevevreveve + ' $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        setState(() {
+          _allCities = List<City>.from(cities.data);
+          _isLoadingCities = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCities = false;
+        });
+      }
+      // Тихо повторяем через 3 секунды
+      _retryLoadCities();
+    }
+  }
+
+  Future<void> _retryLoadCities() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted && _allCities.isEmpty) {
+      _loadCitiesSilently();
     }
   }
 
@@ -125,6 +119,20 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   Future<void> _showCitySelector({required bool isFromCity}) async {
+    // Если города ещё не загружены, пробуем загрузить
+    if (_allCities.isEmpty && !_isLoadingCities) {
+      setState(() => _isLoadingCities = true);
+      await _loadCitiesSilently();
+    }
+
+    // Если всё ещё загружается, показываем диалог с индикатором
+    if (_isLoadingCities) {
+      _showLoadingCityDialog(isFromCity);
+      return;
+    }
+
+    if (!mounted) return;
+
     final selectedCity = await showCitySelector(
       context: context,
       initialCities: _allCities,
@@ -133,7 +141,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       isLoading: _isLoadingCities,
     );
 
-    // Обрабатываем как выбор, так и отмену выбора
     setState(() {
       if (isFromCity) {
         _selectedFromCity = selectedCity;
@@ -143,6 +150,116 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         _toController.text = selectedCity?.name ?? '';
       }
     });
+  }
+
+  void _showLoadingCityDialog(bool isFromCity) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        // Автоматически закрываем когда загрузится
+        _waitForCitiesAndOpen(dialogContext, isFromCity);
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2A2A2A)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor:
+                    AlwaysStoppedAnimation<Color>(Color(0xFF7C6FFF)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  S.of(context).vfegrbfdthgbr5j45ehrw,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white70
+                        : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _waitForCitiesAndOpen(
+      BuildContext dialogContext, bool isFromCity) async {
+    // Ждём максимум 10 секунд
+    for (int i = 0; i < 20; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      if (!_isLoadingCities && _allCities.isNotEmpty) {
+        // Закрываем диалог загрузки
+        if (Navigator.of(dialogContext).canPop()) {
+          Navigator.of(dialogContext).pop();
+        }
+
+        // Небольшая задержка для плавности
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Открываем селектор городов
+        if (mounted) {
+          final selectedCity = await showCitySelector(
+            context: context,
+            initialCities: _allCities,
+            selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
+            onSearch: _searchCities,
+            isLoading: false,
+          );
+
+          if (mounted) {
+            setState(() {
+              if (isFromCity) {
+                _selectedFromCity = selectedCity;
+                _fromController.text = selectedCity?.name ?? '';
+              } else {
+                _selectedToCity = selectedCity;
+                _toController.text = selectedCity?.name ?? '';
+              }
+            });
+          }
+        }
+        return;
+      }
+    }
+
+    // Таймаут - закрываем диалог
+    if (Navigator.of(dialogContext).canPop()) {
+      Navigator.of(dialogContext).pop();
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).nkmlregt4lk),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 
   void _performSearch() {
@@ -164,7 +281,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           offerType: _selectedOfferType,
           packageType: _selectedPackageType,
           cityFromId:
-              _selectedFromCity?.id != null ? _selectedFromCity!.id : null,
+          _selectedFromCity?.id != null ? _selectedFromCity!.id : null,
           cityToId: _selectedToCity?.id != null ? _selectedToCity!.id : null,
           dateFrom: dateFrom,
           dateTo: dateTo,
@@ -258,11 +375,13 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           SizedBox(height: 20),
           _buildFieldLabel(S.of(context).br45gre24, isDark),
           SizedBox(height: 10),
-          _buildDateField(_dateFromController, S.of(context).grereg3gr3g3r3gr, isDark),
+          _buildDateField(
+              _dateFromController, S.of(context).grereg3gr3g3r3gr, isDark),
           SizedBox(height: 20),
           _buildFieldLabel(S.of(context).vfedrgev3r2g4, isDark),
           SizedBox(height: 10),
-          _buildDateField(_dateToController, S.of(context).grereg3gr3g3r3gr, isDark),
+          _buildDateField(
+              _dateToController, S.of(context).grereg3gr3g3r3gr, isDark),
           SizedBox(height: 28),
           _buildSearchButton(),
         ],
@@ -308,11 +427,23 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                Icon(
-                  Icons.search,
-                  color: Color(0xFF7C6FFF),
-                  size: 20,
-                ),
+                // Показываем маленький индикатор пока загружается
+                if (_isLoadingOfferTypes && _allOfferTypes.isEmpty)
+                  SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor:
+                      AlwaysStoppedAnimation<Color>(Color(0xFF7C6FFF)),
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.search,
+                    color: Color(0xFF7C6FFF),
+                    size: 20,
+                  ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: AnimatedDefaultTextStyle(
@@ -325,14 +456,14 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                     child: Text(
                       _selectedOfferType != null
                           ? (_allOfferTypes
-                              .firstWhere(
-                                (type) => type.code == _selectedOfferType,
-                                orElse: () => OfferTypeModel(
-                                  code: '',
-                                  name: S.of(context).vfdefrwgerg,
-                                ),
-                              )
-                              .name)
+                          .firstWhere(
+                            (type) => type.code == _selectedOfferType,
+                        orElse: () => OfferTypeModel(
+                          code: '',
+                          name: S.of(context).vfdefrwgerg,
+                        ),
+                      )
+                          .name)
                           : S.of(context).vfdefrwgerg,
                     ),
                   ),
@@ -428,43 +559,43 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             Expanded(
               child: selectedCity != null
                   ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 300),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
-                          child: Text(selectedCity.name),
-                        ),
-                        const SizedBox(height: 2),
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 300),
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark
-                                ? const Color(0xFF9CA3AF)
-                                : const Color(0xFFB0B0B0),
-                          ),
-                          child: Text(
-                              '${selectedCity.countryName} (${selectedCity.countryCode})'),
-                        ),
-                      ],
-                    )
-                  : AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isDark
-                            ? const Color(0xFF6B7280)
-                            : const Color(0xFFB0B0B0),
-                        fontWeight: FontWeight.w400,
-                      ),
-                      child: Text(hint),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color:
+                      isDark ? Colors.white : const Color(0xFF1A1A1A),
                     ),
+                    child: Text(selectedCity.name),
+                  ),
+                  const SizedBox(height: 2),
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFFB0B0B0),
+                    ),
+                    child: Text(
+                        '${selectedCity.countryName} (${selectedCity.countryCode})'),
+                  ),
+                ],
+              )
+                  : AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFFB0B0B0),
+                  fontWeight: FontWeight.w400,
+                ),
+                child: Text(hint),
+              ),
             ),
             Icon(
               selectedCity != null
@@ -473,8 +604,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
               color: selectedCity != null
                   ? const Color(0xFF7C6FFF)
                   : (isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFB0B0B0)),
+                  ? const Color(0xFF6B7280)
+                  : const Color(0xFFB0B0B0)),
               size: 20,
             ),
           ],
@@ -576,9 +707,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             else
               Icon(
                 Icons.calendar_today_outlined,
-                color: isDark
-                    ? const Color(0xFF6B7280)
-                    : const Color(0xFFB0B0B0),
+                color:
+                isDark ? const Color(0xFF6B7280) : const Color(0xFFB0B0B0),
                 size: 20,
               ),
           ],

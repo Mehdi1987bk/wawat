@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'courier_offer_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull:false)
 class CourierOfferModel {
   @JsonKey(name: 'offer_type')
   final String offerType;
@@ -43,12 +43,14 @@ class CourierOfferModel {
   @JsonKey(name: 'description')
   final String description;
 
-
+  @JsonKey(name: 'flight_number')
+  final String? flightNumber;
 
   CourierOfferModel({
     required this.offerType,
     required this.cityFromId,
     required this.cityToId,
+    this.flightNumber,
     required this.flightDate,
     required this.flightTime,
     required this.deliveryDateFrom,
@@ -59,7 +61,7 @@ class CourierOfferModel {
     required this.maxWeightKg,
     required this.pricePerKg,
     required this.description,
-   });
+  });
 
   factory CourierOfferModel.fromJson(Map<String, dynamic> json) =>
       _$CourierOfferModelFromJson(json);

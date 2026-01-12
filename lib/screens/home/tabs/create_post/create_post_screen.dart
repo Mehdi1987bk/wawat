@@ -27,8 +27,7 @@ class CreatePostScreen extends BaseScreen {
 }
 
 class _CreatePostScreenState
-    extends BaseState<CreatePostScreen, CreatePostBloc>  with ErrorDispatcher{
-
+    extends BaseState<CreatePostScreen, CreatePostBloc> with ErrorDispatcher {
   @override
   bool get useSystemOverlay => false;
 
@@ -56,12 +55,15 @@ class _CreatePostScreenState
 
   final TextEditingController flightDateController = TextEditingController();
   final TextEditingController flightTimeController = TextEditingController();
+  final TextEditingController flightNumberController = TextEditingController();
   final TextEditingController deliveryDateFromController =
   TextEditingController();
   final TextEditingController deliveryDateToController =
   TextEditingController();
-  final TextEditingController purchaseDateFromController = TextEditingController();
-  final TextEditingController purchaseDateToController = TextEditingController();
+  final TextEditingController purchaseDateFromController =
+  TextEditingController();
+  final TextEditingController purchaseDateToController =
+  TextEditingController();
 
   final TextEditingController maxWeightController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -75,6 +77,7 @@ class _CreatePostScreenState
     toController.addListener(_updateButtonState);
     flightDateController.addListener(_updateButtonState);
     flightTimeController.addListener(_updateButtonState);
+    flightNumberController.addListener(_updateButtonState);
     deliveryDateFromController.addListener(_updateButtonState);
     deliveryDateToController.addListener(_updateButtonState);
     purchaseDateFromController.addListener(_updateButtonState);
@@ -84,7 +87,7 @@ class _CreatePostScreenState
     descriptionController.addListener(_updateButtonState);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAllData();
+      _loadAllDataSilently();
     });
   }
 
@@ -99,11 +102,12 @@ class _CreatePostScreenState
         _selectedFromCity != null &&
         _selectedToCity != null &&
         maxWeightController.text.isNotEmpty &&
-        double.tryParse(maxWeightController.text.replaceAll(',', '.')) != null &&  // Изменено на double
-        double.parse(maxWeightController.text.replaceAll(',', '.')) > 0 &&         // Изменено на double
+        double.tryParse(maxWeightController.text.replaceAll(',', '.')) !=
+            null &&
+        double.parse(maxWeightController.text.replaceAll(',', '.')) > 0 &&
         priceController.text.isNotEmpty &&
-        double.tryParse(priceController.text.replaceAll(',', '.')) != null &&      // Добавлен replaceAll
-        double.parse(priceController.text.replaceAll(',', '.')) > 0 &&             // Добавлен replaceAll
+        double.tryParse(priceController.text.replaceAll(',', '.')) != null &&
+        double.parse(priceController.text.replaceAll(',', '.')) > 0 &&
         descriptionController.text.trim().isNotEmpty;
 
     if (!baseValid) return false;
@@ -111,7 +115,8 @@ class _CreatePostScreenState
     switch (selectedOfferType) {
       case 'courier':
         return flightDateController.text.isNotEmpty &&
-            flightTimeController.text.isNotEmpty;
+            flightTimeController.text.isNotEmpty &&
+            flightNumberController.text.trim().isNotEmpty;
       case 'sender':
         return deliveryDateFromController.text.isNotEmpty &&
             deliveryDateToController.text.isNotEmpty;
@@ -123,95 +128,97 @@ class _CreatePostScreenState
     }
   }
 
-  Future<void> _loadAllData() async {
-    setState(() {
-      _isLoadingPackageTypes = true;
-      _isLoadingCities = true;
-      _isLoadingOfferTypes = true;
-    });
-
-    await Future.wait([
-      _loadPackageTypes(),
-      _loadCities(),
-      _loadOfferTypes(),
-    ]);
+  Future<void> _loadAllDataSilently() async {
+    // Запускаем параллельно, не блокируя UI
+    _loadPackageTypesSilently();
+    _loadCitiesSilently();
+    _loadOfferTypesSilently();
   }
 
-  Future<void> _loadOfferTypes() async {
+  Future<void> _loadOfferTypesSilently() async {
     try {
       final offerTypes = await bloc.getOfferTypes();
 
-      setState(() {
-        _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
-        _isLoadingOfferTypes = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingOfferTypes = false;
-        _allOfferTypes = [];
-      });
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).bgfdbf3+' $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+        setState(() {
+          _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
+          _isLoadingOfferTypes = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingOfferTypes = false;
+          _allOfferTypes = [];
+        });
+      }
+      // Тихо повторяем через 3 секунды
+      _retryLoadOfferTypes();
     }
   }
 
-  Future<void> _loadCities() async {
+  Future<void> _retryLoadOfferTypes() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted && _allOfferTypes.isEmpty) {
+      _loadOfferTypesSilently();
+    }
+  }
+
+  Future<void> _loadCitiesSilently() async {
     try {
       final cities = await bloc.getCities('');
 
-      setState(() {
-        _allCities = List<City>.from(cities.data);
-        _isLoadingCities = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingCities = false;
-        _allCities = [];
-      });
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).bgvrgrbgr3 + ' $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+        setState(() {
+          _allCities = List<City>.from(cities.data);
+          _isLoadingCities = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCities = false;
+          _allCities = [];
+        });
+      }
+      // Тихо повторяем через 3 секунды
+      _retryLoadCities();
     }
   }
 
-  Future<void> _loadPackageTypes() async {
+  Future<void> _retryLoadCities() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted && _allCities.isEmpty) {
+      _loadCitiesSilently();
+    }
+  }
+
+  Future<void> _loadPackageTypesSilently() async {
     try {
       final packageTypes = await bloc.getPackageTypes();
 
-      setState(() {
-        _allPackageTypes = List<PackageType>.from(packageTypes.data);
-        _isLoadingPackageTypes = false;
-      });
-    } catch (e, stackTrace) {
-      setState(() {
-        _isLoadingPackageTypes = false;
-        _allPackageTypes = [];
-      });
-
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).vfdvfdvfdv3+' $e'),
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+        setState(() {
+          _allPackageTypes = List<PackageType>.from(packageTypes.data);
+          _isLoadingPackageTypes = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingPackageTypes = false;
+          _allPackageTypes = [];
+        });
+      }
+      // Тихо повторяем через 3 секунды
+      _retryLoadPackageTypes();
+    }
+  }
+
+  Future<void> _retryLoadPackageTypes() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted && _allPackageTypes.isEmpty) {
+      _loadPackageTypesSilently();
     }
   }
 
@@ -225,6 +232,20 @@ class _CreatePostScreenState
   }
 
   Future<void> _showCitySelector({required bool isFromCity}) async {
+    // Если города ещё не загружены, пробуем загрузить
+    if (_allCities.isEmpty && !_isLoadingCities) {
+      setState(() => _isLoadingCities = true);
+      _loadCitiesSilently();
+    }
+
+    // Если всё ещё загружается или пусто, показываем диалог с индикатором
+    if (_isLoadingCities || _allCities.isEmpty) {
+      _showLoadingCityDialog(isFromCity);
+      return;
+    }
+
+    if (!mounted) return;
+
     final selectedCity = await showCitySelector(
       context: context,
       initialCities: _allCities,
@@ -233,7 +254,7 @@ class _CreatePostScreenState
       isLoading: _isLoadingCities,
     );
 
-     setState(() {
+    setState(() {
       if (isFromCity) {
         _selectedFromCity = selectedCity;
         fromController.text = selectedCity?.name ?? '';
@@ -242,6 +263,117 @@ class _CreatePostScreenState
         toController.text = selectedCity?.name ?? '';
       }
     });
+  }
+
+  void _showLoadingCityDialog(bool isFromCity) {
+    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        // Автоматически закрываем когда загрузится
+        _waitForCitiesAndOpen(dialogContext, isFromCity);
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor:
+                    AlwaysStoppedAnimation<Color>(Color(0xFF5B51FF)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  S.of(context).vfegrbfdthgbr5j45ehrw,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _waitForCitiesAndOpen(
+      BuildContext dialogContext, bool isFromCity) async {
+    // Ждём максимум 15 секунд (30 итераций по 500мс)
+    for (int i = 0; i < 30; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      // Проверяем, закрыт ли диалог пользователем
+      if (!Navigator.of(dialogContext).canPop()) return;
+
+      if (!_isLoadingCities && _allCities.isNotEmpty) {
+        // Закрываем диалог загрузки
+        if (Navigator.of(dialogContext).canPop()) {
+          Navigator.of(dialogContext).pop();
+        }
+
+        // Небольшая задержка для плавности
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Открываем селектор городов
+        if (mounted) {
+          final selectedCity = await showCitySelector(
+            context: context,
+            initialCities: _allCities,
+            selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
+            onSearch: _searchCities,
+            isLoading: false,
+          );
+
+          if (mounted) {
+            setState(() {
+              if (isFromCity) {
+                _selectedFromCity = selectedCity;
+                fromController.text = selectedCity?.name ?? '';
+              } else {
+                _selectedToCity = selectedCity;
+                toController.text = selectedCity?.name ?? '';
+              }
+            });
+          }
+        }
+        return;
+      }
+    }
+
+    // Таймаут - закрываем диалог
+    if (Navigator.of(dialogContext).canPop()) {
+      Navigator.of(dialogContext).pop();
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).nkmlregt4lk),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 
   Widget body() {
@@ -296,7 +428,7 @@ class _CreatePostScreenState
                             fontWeight: FontWeight.w600,
                             color: isDark ? Colors.white : Colors.black,
                           ),
-                          child:   Text(S.of(context).bvfv2r),
+                          child: Text(S.of(context).bvfv2r),
                         ),
                         const SizedBox(height: 8),
                         AnimatedDefaultTextStyle(
@@ -309,7 +441,7 @@ class _CreatePostScreenState
                             height: 1.4,
                           ),
                           textAlign: TextAlign.center,
-                          child:   Text(
+                          child: Text(
                             S.of(context).bgfbgbgfbgf,
                           ),
                         ),
@@ -333,23 +465,37 @@ class _CreatePostScreenState
                           isLoading: _isLoadingPackageTypes,
                         ),
                         const SizedBox(height: 20),
-                        _buildLabel(S.of(context).hythyt4, isRequired: true, isDark: isDark),
+                        _buildLabel(S.of(context).hythyt4,
+                            isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildCityField(
                           controller: fromController,
                           hint: S.of(context).kiukiuku6,
                           selectedCity: _selectedFromCity,
                           onTap: () => _showCitySelector(isFromCity: true),
+                          onClear: () {
+                            setState(() {
+                              _selectedFromCity = null;
+                              fromController.clear();
+                            });
+                          },
                           isDark: isDark,
                         ),
                         const SizedBox(height: 20),
-                        _buildLabel(S.of(context).kiuykiu67, isRequired: true, isDark: isDark),
+                        _buildLabel(S.of(context).kiuykiu67,
+                            isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildCityField(
                           controller: toController,
                           hint: S.of(context).lkiuliuu6,
                           selectedCity: _selectedToCity,
                           onTap: () => _showCitySelector(isFromCity: false),
+                          onClear: () {
+                            setState(() {
+                              _selectedToCity = null;
+                              toController.clear();
+                            });
+                          },
                           isDark: isDark,
                         ),
                         const SizedBox(height: 20),
@@ -360,21 +506,25 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: maxWeightController,
                           hint: '0',
-                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                            TextInputFormatter.withFunction((oldValue, newValue) {
-                               final text = newValue.text.replaceAll(',', '.');
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9.,]')),
+                            TextInputFormatter.withFunction(
+                                    (oldValue, newValue) {
+                                  final text = newValue.text.replaceAll(',', '.');
 
-                               if (text.split('.').length > 2) {
-                                return oldValue;
-                              }
+                                  if (text.split('.').length > 2) {
+                                    return oldValue;
+                                  }
 
-                              return TextEditingValue(
-                                text: text,
-                                selection: TextSelection.collapsed(offset: text.length),
-                              );
-                            }),
+                                  return TextEditingValue(
+                                    text: text,
+                                    selection: TextSelection.collapsed(
+                                        offset: text.length),
+                                  );
+                                }),
                           ],
                           isDark: isDark,
                         ),
@@ -385,23 +535,25 @@ class _CreatePostScreenState
                         _buildTextField(
                           controller: priceController,
                           hint: '0',
-                          keyboardType: TextInputType.numberWithOptions(decimal: true), // Клавиатура с точкой/запятой
+                          keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), // Разрешаем цифры, точку и запятую
-                            TextInputFormatter.withFunction((oldValue, newValue) {
-                              // Заменяем запятую на точку для единообразия
-                              final text = newValue.text.replaceAll(',', '.');
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9.,]')),
+                            TextInputFormatter.withFunction(
+                                    (oldValue, newValue) {
+                                  final text = newValue.text.replaceAll(',', '.');
 
-                              // Проверяем, что только одна точка
-                              if (text.split('.').length > 2) {
-                                return oldValue; // Отклоняем ввод, если больше одной точки
-                              }
+                                  if (text.split('.').length > 2) {
+                                    return oldValue;
+                                  }
 
-                              return TextEditingValue(
-                                text: text,
-                                selection: TextSelection.collapsed(offset: text.length),
-                              );
-                            }),
+                                  return TextEditingValue(
+                                    text: text,
+                                    selection: TextSelection.collapsed(
+                                        offset: text.length),
+                                  );
+                                }),
                           ],
                           isDark: isDark,
                         ),
@@ -506,6 +658,7 @@ class _CreatePostScreenState
           selectedOfferType = value;
           flightDateController.clear();
           flightTimeController.clear();
+          flightNumberController.clear();
           deliveryDateFromController.clear();
           deliveryDateToController.clear();
           purchaseDateFromController.clear();
@@ -528,23 +681,38 @@ class _CreatePostScreenState
         return [
           _buildLabel(S.of(context).bgfbgf3, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(flightDateController, S.of(context).bgbgfg334, isDark),
+          _buildDateField(
+              flightDateController, S.of(context).bgbgfg334, isDark),
           const SizedBox(height: 20),
-          _buildLabel(S.of(context).bgfbgf3434, isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgfbgf3434,
+              isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
           _buildTimeField(flightTimeController, isDark),
+          const SizedBox(height: 20),
+          _buildLabel("Номер рейса",
+              isRequired: true, isDark: isDark),
+          const SizedBox(height: 8),
+          _buildTextField(
+            controller: flightNumberController,
+            hint: "Введите номер рейса",
+            isDark: isDark,
+          ),
           const SizedBox(height: 20),
         ];
 
       case 'sender':
         return [
-          _buildLabel(S.of(context).bgdfbg345, isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgdfbg345,
+              isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(deliveryDateFromController, S.of(context).bgfbgf4554, isDark),
+          _buildDateField(
+              deliveryDateFromController, S.of(context).bgfbgf4554, isDark),
           const SizedBox(height: 20),
-          _buildLabel(S.of(context).bgfgbfbgf345, isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).bgfgbfbgf345,
+              isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(deliveryDateToController, S.of(context).bgfdbgf345, isDark),
+          _buildDateField(
+              deliveryDateToController, S.of(context).bgfdbgf345, isDark),
           const SizedBox(height: 20),
         ];
 
@@ -552,11 +720,13 @@ class _CreatePostScreenState
         return [
           _buildLabel(S.of(context).bgfb3, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(purchaseDateFromController, S.of(context).bgfbggfbgf34, isDark),
+          _buildDateField(
+              purchaseDateFromController, S.of(context).bgfbggfbgf34, isDark),
           const SizedBox(height: 20),
           _buildLabel(S.of(context).vfdv34, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
-          _buildDateField(purchaseDateToController, S.of(context).bgfbggfbgf34, isDark),
+          _buildDateField(
+              purchaseDateToController, S.of(context).bgfbggfbgf34, isDark),
           const SizedBox(height: 20),
         ];
 
@@ -578,7 +748,7 @@ class _CreatePostScreenState
           initialDate: DateTime.now(),
           firstDate: DateTime.now(),
           lastDate: DateTime.now().add(Duration(days: 365 * 10)),
-          locale: Localizations.localeOf(context), // <-- Добавьте эту строку
+          locale: Localizations.localeOf(context),
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
@@ -604,7 +774,6 @@ class _CreatePostScreenState
     );
   }
 
-
   Widget _buildTimeField(TextEditingController controller, bool isDark) {
     return _buildTextField(
       controller: controller,
@@ -616,9 +785,9 @@ class _CreatePostScreenState
           context: context,
           initialTime: TimeOfDay.now(),
           builder: (context, child) {
-            return Localizations.override( // <-- Оберните в Localizations.override
+            return Localizations.override(
               context: context,
-              locale: Localizations.localeOf(context), // <-- Добавьте локаль
+              locale: Localizations.localeOf(context),
               child: MediaQuery(
                 data: MediaQuery.of(context).copyWith(
                   alwaysUse24HourFormat: true,
@@ -649,7 +818,6 @@ class _CreatePostScreenState
     );
   }
 
-
   Future<void> _submitOffer() async {
     if (!_isFormValid || _isSubmitting) return;
 
@@ -660,8 +828,8 @@ class _CreatePostScreenState
     try {
       final packageType = _selectedPackageTypeCodes.first;
 
-      // Парсим значения, заменяя запятую на точку
-      final maxWeight = double.parse(maxWeightController.text.replaceAll(',', '.'));
+      final maxWeight =
+      double.parse(maxWeightController.text.replaceAll(',', '.'));
       final price = double.parse(priceController.text.replaceAll(',', '.'));
 
       final request = CourierOfferModel(
@@ -672,6 +840,8 @@ class _CreatePostScreenState
         selectedOfferType == 'courier' ? flightDateController.text : '',
         flightTime:
         selectedOfferType == 'courier' ? flightTimeController.text : '',
+        flightNumber:
+        selectedOfferType == 'courier' ? flightNumberController.text.trim() : null,
         deliveryDateFrom: selectedOfferType == 'sender'
             ? deliveryDateFromController.text
             : '',
@@ -682,7 +852,7 @@ class _CreatePostScreenState
         purchaseTime:
         selectedOfferType == 'buyer' ? purchaseDateToController.text : '',
         packageType: packageType,
-        maxWeightKg: maxWeight.round(),  // Если API ожидает int, округляем. Если double, используйте maxWeight
+        maxWeightKg: maxWeight.round(),
         pricePerKg: price,
         description: descriptionController.text.trim(),
       );
@@ -700,14 +870,7 @@ class _CreatePostScreenState
         _clearAllFields();
       }
     } catch (e, stackTrace) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).vfdvf423+' $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+
     } finally {
       if (mounted) {
         setState(() {
@@ -723,6 +886,7 @@ class _CreatePostScreenState
       toController.clear();
       flightDateController.clear();
       flightTimeController.clear();
+      flightNumberController.clear();
       deliveryDateFromController.clear();
       deliveryDateToController.clear();
       purchaseDateFromController.clear();
@@ -751,7 +915,7 @@ class _CreatePostScreenState
           ),
           children: [
             if (isRequired)
-                TextSpan(
+              TextSpan(
                 text: ' *',
                 style: TextStyle(
                   color: Colors.red,
@@ -769,6 +933,7 @@ class _CreatePostScreenState
     required String hint,
     required City? selectedCity,
     required VoidCallback onTap,
+    required VoidCallback onClear,
     required bool isDark,
   }) {
     return InkWell(
@@ -831,20 +996,33 @@ class _CreatePostScreenState
                 child: Text(hint),
               ),
             ),
-            Icon(
-              selectedCity != null
-                  ? Icons.check_circle
-                  : Icons.location_on_outlined,
-              color: selectedCity != null
-                  ? const Color(0xFF5B51FF)
-                  : (isDark ? const Color(0xFF6B7280) : const Color(0xFFC7C7CC)),
-              size: 22,
-            ),
+            if (selectedCity != null)
+              GestureDetector(
+                onTap: onClear,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.clear,
+                    color: isDark
+                        ? const Color(0xFF9CA3AF)
+                        : const Color(0xFF6B7280),
+                    size: 20,
+                  ),
+                ),
+              )
+            else
+              Icon(
+                Icons.location_on_outlined,
+                color:
+                isDark ? const Color(0xFF6B7280) : const Color(0xFFC7C7CC),
+                size: 22,
+              ),
           ],
         ),
       ),
     );
   }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,

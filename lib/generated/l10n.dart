@@ -5259,6 +5259,26 @@ class S {
   String get bfdbdffbdsbf {
     return Intl.message('Успешно!', name: 'bfdbdffbdsbf', desc: '', args: []);
   }
+
+  /// `Загрузка городов...`
+  String get vfegrbfdthgbr5j45ehrw {
+    return Intl.message(
+      'Загрузка городов...',
+      name: 'vfegrbfdthgbr5j45ehrw',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Не удалось загрузить города. Попробуйте позже.`
+  String get nkmlregt4lk {
+    return Intl.message(
+      'Не удалось загрузить города. Попробуйте позже.',
+      name: 'nkmlregt4lk',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

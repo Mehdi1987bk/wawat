@@ -11,6 +11,7 @@ CourierOfferModel _$CourierOfferModelFromJson(Map<String, dynamic> json) =>
       offerType: json['offer_type'] as String,
       cityFromId: json['city_from_id'] as int,
       cityToId: json['city_to_id'] as int,
+      flightNumber: json['flight_number'] as String?,
       flightDate: json['flight_date'] as String,
       flightTime: json['flight_time'] as String,
       deliveryDateFrom: json['delivery_date_from'] as String,
@@ -23,19 +24,29 @@ CourierOfferModel _$CourierOfferModelFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String,
     );
 
-Map<String, dynamic> _$CourierOfferModelToJson(CourierOfferModel instance) =>
-    <String, dynamic>{
-      'offer_type': instance.offerType,
-      'city_from_id': instance.cityFromId,
-      'city_to_id': instance.cityToId,
-      'flight_date': instance.flightDate,
-      'flight_time': instance.flightTime,
-      'delivery_date_from': instance.deliveryDateFrom,
-      'delivery_date_to': instance.deliveryDateTo,
-      'purchase_date': instance.purchaseDate,
-      'purchase_time': instance.purchaseTime,
-      'package_type': instance.packageType,
-      'max_weight_kg': instance.maxWeightKg,
-      'price_per_kg': instance.pricePerKg,
-      'description': instance.description,
-    };
+Map<String, dynamic> _$CourierOfferModelToJson(CourierOfferModel instance) {
+  final val = <String, dynamic>{
+    'offer_type': instance.offerType,
+    'city_from_id': instance.cityFromId,
+    'city_to_id': instance.cityToId,
+    'flight_date': instance.flightDate,
+    'flight_time': instance.flightTime,
+    'delivery_date_from': instance.deliveryDateFrom,
+    'delivery_date_to': instance.deliveryDateTo,
+    'purchase_date': instance.purchaseDate,
+    'purchase_time': instance.purchaseTime,
+    'package_type': instance.packageType,
+    'max_weight_kg': instance.maxWeightKg,
+    'price_per_kg': instance.pricePerKg,
+    'description': instance.description,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('flight_number', instance.flightNumber);
+  return val;
+}

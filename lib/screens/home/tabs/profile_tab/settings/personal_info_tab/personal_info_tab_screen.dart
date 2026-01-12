@@ -6,6 +6,7 @@ import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/
 import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/widget/profile_image_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -355,16 +356,22 @@ class _PersonalInfoTabState
     return PersonalInfoTabBloc();
   }
 
+
   Future<void> _selectImage() async {
     final source = await showSelectImageSourceAlert(context);
     if (source != null) {
-      final image =
-          await ImagePicker().pickImage(source: source, imageQuality: 80);
+      final image = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 80,
+        preferredCameraDevice: CameraDevice.front,
+      );
+
       if (image != null) {
-        final file = File(image.path);
+         final rotatedImage = await FlutterExifRotation.rotateImage(path: image.path);
+        final file = File(rotatedImage.path);
 
         if (!file.existsSync()) {
-           return;
+          return;
         }
 
         setState(() {
