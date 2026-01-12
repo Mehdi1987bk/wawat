@@ -686,8 +686,8 @@
   "bfdb3brwqgevds432": "File",
   "fgsdgsgdfs": "Hide",
   "bgfdbssdbd": "Show more",
-  "bfdbsdbadfb": "Ошибка",
-  "bfdbdffbdsbf": "Успешно!",
-  "vfegrbfdthgbr5j45ehrw": "Загрузка городов...",
-  "nkmlregt4lk": "Не удалось загрузить города. Попробуйте позже."
+  "bfdbsdbadfb": "Error",
+  "bfdbdffbdsbf": "Success!",
+  "vfegrbfdthgbr5j45ehrw": "Loading cities...",
+  "nkmlregt4lk": "Failed to load cities. Please try again later."
 }

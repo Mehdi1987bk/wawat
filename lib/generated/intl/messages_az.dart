@@ -108,8 +108,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Qaranlıq modu aktivdir",
     ),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("Fayl"),
+    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Uğurlu!"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Şəkil"),
     "bfdbffd24343vfd": MessageLookupByLibrary.simpleMessage("Yoxlamaya göndər"),
+    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Xəta"),
     "bfdeberb3brtbfds": MessageLookupByLibrary.simpleMessage("saat əvvəl"),
     "bfdebr3b3b33": MessageLookupByLibrary.simpleMessage("dəqiqə əvvəl"),
     "bfdgbebteb443": MessageLookupByLibrary.simpleMessage("oflayn"),
@@ -695,6 +697,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "njmuy5": MessageLookupByLibrary.simpleMessage(
       "Bu yazışmanı silmək istədiyinizə əminsiniz",
     ),
+    "nkmlregt4lk": MessageLookupByLibrary.simpleMessage(
+      "Şəhərləri yükləmək alınmadı. Sonra yenidən cəhd edin.",
+    ),
     "nmrniGstr": MessageLookupByLibrary.simpleMessage("Nömrəni göstər"),
     "nmrniziDaxilEdin": MessageLookupByLibrary.simpleMessage(
       "Nömrənizi daxil edin",
@@ -1021,6 +1026,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Hesabınız uğurla verifikasiya olundu.\nİndi sizin statusunuz ",
     ),
     "vfedrgev3r2g4": MessageLookupByLibrary.simpleMessage("Tarixə qədər"),
+    "vfegrbfdthgbr5j45ehrw": MessageLookupByLibrary.simpleMessage(
+      "Şəhərlər yüklənir...",
+    ),
     "vfegt4g3rvsfcfd": MessageLookupByLibrary.simpleMessage(
       "Şifrə uğurla dəyişdirildi",
     ),

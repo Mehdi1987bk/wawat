@@ -104,10 +104,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bfd4r53gfd": MessageLookupByLibrary.simpleMessage("Karanlık tema aktif"),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("Dosya"),
+    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Başarılı!"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Fotoğraf"),
     "bfdbffd24343vfd": MessageLookupByLibrary.simpleMessage(
       "İncelemeye gönder",
     ),
+    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Hata"),
     "bfdeberb3brtbfds": MessageLookupByLibrary.simpleMessage("saat önce"),
     "bfdebr3b3b33": MessageLookupByLibrary.simpleMessage("dakika önce"),
     "bfdgbebteb443": MessageLookupByLibrary.simpleMessage("çevrimdışı"),
@@ -697,6 +699,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "njmuy5": MessageLookupByLibrary.simpleMessage(
       "Bu yazışmayı silmek istediğinizden emin misiniz",
     ),
+    "nkmlregt4lk": MessageLookupByLibrary.simpleMessage(
+      "Şehirler yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+    ),
     "nmrniGstr": MessageLookupByLibrary.simpleMessage("Numarayı göster"),
     "nmrniziDaxilEdin": MessageLookupByLibrary.simpleMessage(
       "Numaranızı girin",
@@ -1001,6 +1006,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Hesabınız başarıyla doğrulandı.\nArtık statünüz ",
     ),
     "vfedrgev3r2g4": MessageLookupByLibrary.simpleMessage("Tarihe kadar"),
+    "vfegrbfdthgbr5j45ehrw": MessageLookupByLibrary.simpleMessage(
+      "Şehirler yükleniyor...",
+    ),
     "vfegt4g3rvsfcfd": MessageLookupByLibrary.simpleMessage(
       "Şifre başarıyla değiştirildi",
     ),

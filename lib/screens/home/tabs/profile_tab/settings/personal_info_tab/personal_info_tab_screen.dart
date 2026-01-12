@@ -6,19 +6,19 @@ import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/
 import 'package:buking/screens/home/tabs/profile_tab/settings/personal_info_tab/widget/profile_image_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../../../data/network/response/country.dart';
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../generated/l10n.dart';
-import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/common/image_selector.dart';
-import '../../../../../../presentation/resourses/app_colors.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
+
 
 class PersonalInfoTab extends BaseScreen {
   final User user;
@@ -357,6 +357,7 @@ class _PersonalInfoTabState
   }
 
 
+
   Future<void> _selectImage() async {
     final source = await showSelectImageSourceAlert(context);
     if (source != null) {
@@ -367,24 +368,62 @@ class _PersonalInfoTabState
       );
 
       if (image != null) {
-         final rotatedImage = await FlutterExifRotation.rotateImage(path: image.path);
-        final file = File(rotatedImage.path);
+        try {
+          // Читаем оригинальное изображение
+          final bytes = await image.readAsBytes();
+          final originalImage = img.decodeImage(bytes);
 
-        if (!file.existsSync()) {
-          return;
+          if (originalImage == null) {
+            if (mounted) {
+              showIOSStyleMessage(context, "Failed to process image");
+            }
+            return;
+          }
+
+          // 🔥 Применяем EXIF ориентацию (исправляет поворот селфи)
+          final fixedImage = img.bakeOrientation(originalImage);
+
+          // Сжимаем если нужно (максимум 1024px по большей стороне)
+          final resizedImage = fixedImage.width > 1024 || fixedImage.height > 1024
+              ? img.copyResize(
+            fixedImage,
+            width: fixedImage.width > fixedImage.height ? 1024 : null,
+            height: fixedImage.height > fixedImage.width ? 1024 : null,
+          )
+              : fixedImage;
+
+          // Сохраняем в temp директорию
+          final tempDir = await getTemporaryDirectory();
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final file = File('${tempDir.path}/profile_$timestamp.jpg');
+
+          // Кодируем в JPG с хорошим качеством
+          await file.writeAsBytes(img.encodeJpg(resizedImage, quality: 85));
+
+          if (!file.existsSync()) {
+            return;
+          }
+
+          setState(() {
+            _selectedImage = file;
+          });
+
+          await bloc.onImageSelected(file);
+          if (mounted) {
+            showIOSStyleMessage(context, S.of(context).gregre3rg);
+            Future.delayed(const Duration(seconds: 2))
+                .then((onValue) => bloc.customersMe());
+          }
+        } catch (e) {
+          print('Error processing image: $e');
+          if (mounted) {
+            showIOSStyleMessage(context, "Failed to process image");
+          }
         }
-
-        setState(() {
-          _selectedImage = file;
-        });
-
-        await bloc.onImageSelected(file);
-        showIOSStyleMessage(context, S.of(context).gregre3rg);
-        Future.delayed(Duration(seconds: 2))
-            .then((onValue) => bloc.customersMe());
       }
     }
   }
+
 
   Widget _buildTextField(
       String label, TextEditingController controller, bool isDark) {

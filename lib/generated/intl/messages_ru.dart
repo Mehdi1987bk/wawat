@@ -108,10 +108,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bfd4r53gfd": MessageLookupByLibrary.simpleMessage("Тёмная тема включена"),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("Файл"),
+    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Успешно!"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Фото"),
     "bfdbffd24343vfd": MessageLookupByLibrary.simpleMessage(
       "Отправить на проверку",
     ),
+    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Ошибка"),
     "bfdeberb3brtbfds": MessageLookupByLibrary.simpleMessage("часов назад"),
     "bfdebr3b3b33": MessageLookupByLibrary.simpleMessage("минут назад"),
     "bfdgbebteb443": MessageLookupByLibrary.simpleMessage("не в сети"),
@@ -713,6 +715,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "njmuy5": MessageLookupByLibrary.simpleMessage(
       "Вы уверены, что хотите удалить переписку с",
     ),
+    "nkmlregt4lk": MessageLookupByLibrary.simpleMessage(
+      "Не удалось загрузить города. Попробуйте позже.",
+    ),
     "nmrniGstr": MessageLookupByLibrary.simpleMessage("Показать номер"),
     "nmrniziDaxilEdin": MessageLookupByLibrary.simpleMessage(
       "Введите ваш номер",
@@ -1028,6 +1033,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Ваш аккаунт успешно верифицирован.\nТеперь у вас есть статус ",
     ),
     "vfedrgev3r2g4": MessageLookupByLibrary.simpleMessage("Дата по"),
+    "vfegrbfdthgbr5j45ehrw": MessageLookupByLibrary.simpleMessage(
+      "Загрузка городов...",
+    ),
     "vfegt4g3rvsfcfd": MessageLookupByLibrary.simpleMessage(
       "Пароль успешно изменён",
     ),

@@ -110,10 +110,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bfd4r53gfd": MessageLookupByLibrary.simpleMessage("Темну тему увімкнено"),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("Файл"),
+    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Успішно!"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Фото"),
     "bfdbffd24343vfd": MessageLookupByLibrary.simpleMessage(
       "Надіслати на перевірку",
     ),
+    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Помилка"),
     "bfdeberb3brtbfds": MessageLookupByLibrary.simpleMessage("годин тому"),
     "bfdebr3b3b33": MessageLookupByLibrary.simpleMessage("хвилин тому"),
     "bfdgbebteb443": MessageLookupByLibrary.simpleMessage("не в мережі"),
@@ -721,6 +723,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "njmuy5": MessageLookupByLibrary.simpleMessage(
       "Ви впевнені, що хочете видалити листування з",
     ),
+    "nkmlregt4lk": MessageLookupByLibrary.simpleMessage(
+      "Не вдалося завантажити міста. Спробуйте пізніше.",
+    ),
     "nmrniGstr": MessageLookupByLibrary.simpleMessage("Показати номер"),
     "nmrniziDaxilEdin": MessageLookupByLibrary.simpleMessage(
       "Введіть ваш номер",
@@ -1029,6 +1034,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Ваш акаунт успішно верифіковано.\nТепер у вас є статус ",
     ),
     "vfedrgev3r2g4": MessageLookupByLibrary.simpleMessage("Дата до"),
+    "vfegrbfdthgbr5j45ehrw": MessageLookupByLibrary.simpleMessage(
+      "Завантаження міст...",
+    ),
     "vfegt4g3rvsfcfd": MessageLookupByLibrary.simpleMessage(
       "Пароль успішно змінено",
     ),

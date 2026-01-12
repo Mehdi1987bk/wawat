@@ -104,12 +104,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bfd4r53gfd": MessageLookupByLibrary.simpleMessage("Dark theme enabled"),
     "bfdb3brwqgevds432": MessageLookupByLibrary.simpleMessage("File"),
-    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Успешно!"),
+    "bfdbdffbdsbf": MessageLookupByLibrary.simpleMessage("Success!"),
     "bfdbfbrewgq34": MessageLookupByLibrary.simpleMessage("Photo"),
     "bfdbffd24343vfd": MessageLookupByLibrary.simpleMessage(
       "Submit for review",
     ),
-    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Ошибка"),
+    "bfdbsdbadfb": MessageLookupByLibrary.simpleMessage("Error"),
     "bfdeberb3brtbfds": MessageLookupByLibrary.simpleMessage("hours ago"),
     "bfdebr3b3b33": MessageLookupByLibrary.simpleMessage("minutes ago"),
     "bfdgbebteb443": MessageLookupByLibrary.simpleMessage("offline"),
@@ -682,7 +682,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Are you sure you want to delete the conversation with",
     ),
     "nkmlregt4lk": MessageLookupByLibrary.simpleMessage(
-      "Не удалось загрузить города. Попробуйте позже.",
+      "Failed to load cities. Please try again later.",
     ),
     "nmrniGstr": MessageLookupByLibrary.simpleMessage("Show number"),
     "nmrniziDaxilEdin": MessageLookupByLibrary.simpleMessage(
@@ -999,7 +999,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vfedrgev3r2g4": MessageLookupByLibrary.simpleMessage("Date to"),
     "vfedvfd": MessageLookupByLibrary.simpleMessage("vfedvfd"),
     "vfegrbfdthgbr5j45ehrw": MessageLookupByLibrary.simpleMessage(
-      "Загрузка городов...",
+      "Loading cities...",
     ),
     "vfegt4g3rvsfcfd": MessageLookupByLibrary.simpleMessage(
       "Password successfully changed",

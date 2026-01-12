@@ -5250,30 +5250,30 @@ class S {
     return Intl.message('Show more', name: 'bgfdbssdbd', desc: '', args: []);
   }
 
-  /// `Ошибка`
+  /// `Error`
   String get bfdbsdbadfb {
-    return Intl.message('Ошибка', name: 'bfdbsdbadfb', desc: '', args: []);
+    return Intl.message('Error', name: 'bfdbsdbadfb', desc: '', args: []);
   }
 
-  /// `Успешно!`
+  /// `Success!`
   String get bfdbdffbdsbf {
-    return Intl.message('Успешно!', name: 'bfdbdffbdsbf', desc: '', args: []);
+    return Intl.message('Success!', name: 'bfdbdffbdsbf', desc: '', args: []);
   }
 
-  /// `Загрузка городов...`
+  /// `Loading cities...`
   String get vfegrbfdthgbr5j45ehrw {
     return Intl.message(
-      'Загрузка городов...',
+      'Loading cities...',
       name: 'vfegrbfdthgbr5j45ehrw',
       desc: '',
       args: [],
     );
   }
 
-  /// `Не удалось загрузить города. Попробуйте позже.`
+  /// `Failed to load cities. Please try again later.`
   String get nkmlregt4lk {
     return Intl.message(
-      'Не удалось загрузить города. Попробуйте позже.',
+      'Failed to load cities. Please try again later.',
       name: 'nkmlregt4lk',
       desc: '',
       args: [],
