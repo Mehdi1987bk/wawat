@@ -45,6 +45,7 @@ OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
       pricePerKg: json['price_per_kg'] as String?,
       description: json['description'] as String?,
       status: json['status'] as String?,
+      flightNumber: json['flight_number'] as String?,
       publishedAt: json['published_at'] as String?,
       languages: (json['languages'] as List<dynamic>?)
           ?.map((e) => LanguageModel.fromJson(e as Map<String, dynamic>))
@@ -75,6 +76,7 @@ Map<String, dynamic> _$OfferModelToJson(OfferModel instance) {
     'description': instance.description,
     'status': instance.status,
     'published_at': instance.publishedAt,
+    'flight_number': instance.flightNumber,
   };
 
   void writeNotNull(String key, dynamic value) {

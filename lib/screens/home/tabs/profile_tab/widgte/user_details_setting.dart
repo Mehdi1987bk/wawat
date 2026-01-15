@@ -173,7 +173,6 @@ class _EditProfileScreenState
                             ExperienceTab(
                               user: snapshot.requireData,
                             ),
-                            // 🔥 Новая вкладка
                             ChangePasswordTab(),
                           ],
                         ),

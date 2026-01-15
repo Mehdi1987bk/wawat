@@ -74,6 +74,9 @@ class OfferModel {
   @JsonKey(name: 'published_at')
   final String? publishedAt;
 
+  @JsonKey(name: 'flight_number')
+  final String? flightNumber;
+
   @JsonKey(name: 'languages', includeIfNull: false)
   final List<LanguageModel>? languages;
 
@@ -101,6 +104,7 @@ class OfferModel {
     this.pricePerKg,
     this.description,
     this.status,
+    this.flightNumber,
     this.publishedAt,
     this.languages,
     this.user,

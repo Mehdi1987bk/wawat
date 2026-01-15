@@ -445,6 +445,11 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                           '${widget.courier.packageType?.title}',
                           isDark,
                         ),
+                      _buildDetailRow(
+                          S.of(context).nhgnhg4,
+                          '${widget.courier.flightNumber}',
+                          isDark,
+                        ),
                     ],
                   ),
                   SizedBox(height: 10),
