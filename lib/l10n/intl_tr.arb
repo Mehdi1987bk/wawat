@@ -373,7 +373,7 @@
   "mjjhmjjmj5": "Kurye veya müşteri bulmak için\nilan oluşturun",
   "bgfbgbgfbgf": "Kurye veya müşteri bulmak için\nilan oluşturun",
   "bgfbgfbgf": "Teklif türü",
-  "nhgnhg4": "Paket türü",
+  "nhgnhg4": "Paket türü:",
   "hythyt4": "Nereden",
   "kiukiuku6": "Kalkış şehri",
   "kiuykiu67": "Nereye",
@@ -565,8 +565,8 @@
   "nthybgtefr4terfd": "Şehir bulunamadı",
   "by5htg4refg4tr3few": "Lütfen bir mesaj girin",
   "ybrfsg4t34gtgrvfedvfd": "Mesaj gönderildi!",
-  "rth435gtre": "Bağlantıdasınız",
-  "brtevrfg45rfs": "İletişimin doğrudan kullanıcılar arasında gerçekleştiğini ve sitenin mesaj içeriğinden sorumlu olmadığını hatırlatırız.",
+  "rth435gtre": "",
+  "brtevrfg45rfs": "kullanıcısıyla doğrudan iletişim kuruyorsunuz. İletişim doğrudan kullanıcılar arasında gerçekleşir ve site yazışmanın içeriğinden sorumlu değildir.",
   "hrt4h5hte43h454": "Mesaj yazın",
   "rthh4ger34f34": "Mesajınızı girin...",
   "brg353gffvw34fr3": "Gönder",
@@ -687,5 +687,8 @@
   "bfdbsdbadfb": "Hata",
   "bfdbdffbdsbf": "Başarılı!",
   "vfegrbfdthgbr5j45ehrw": "Şehirler yükleniyor...",
-  "nkmlregt4lk": "Şehirler yüklenemedi. Lütfen daha sonra tekrar deneyin."
+  "nkmlregt4lk": "Şehirler yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+  "listingHistory": "İlan geçmişi",
+  "enterTheFlightNumber": "Uçuş numarasını girin",
+  "flightNumber": "Uçuş numarası"
 }

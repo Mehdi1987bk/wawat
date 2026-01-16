@@ -360,6 +360,12 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             hint: S.of(context).htrh5hetsgft42,
             selectedCity: _selectedFromCity,
             onTap: () => _showCitySelector(isFromCity: true),
+            onClear: () {
+              setState(() {
+                _selectedFromCity = null;
+                _fromController.clear();
+              });
+            },
             isDark: isDark,
           ),
           SizedBox(height: 20),
@@ -370,6 +376,12 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             hint: S.of(context).ryh53gr45h3,
             selectedCity: _selectedToCity,
             onTap: () => _showCitySelector(isFromCity: false),
+            onClear: () {
+              setState(() {
+                _selectedToCity = null;
+                _toController.clear();
+              });
+            },
             isDark: isDark,
           ),
           SizedBox(height: 20),
@@ -530,6 +542,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     required String hint,
     required City? selectedCity,
     required VoidCallback onTap,
+    required VoidCallback onClear, // Добавляем параметр для очистки
     required bool isDark,
   }) {
     return InkWell(
@@ -566,8 +579,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color:
-                      isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                     ),
                     child: Text(selectedCity.name),
                   ),
@@ -597,17 +609,26 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                 child: Text(hint),
               ),
             ),
-            Icon(
-              selectedCity != null
-                  ? Icons.check_circle
-                  : Icons.location_on_outlined,
-              color: selectedCity != null
-                  ? const Color(0xFF7C6FFF)
-                  : (isDark
-                  ? const Color(0xFF6B7280)
-                  : const Color(0xFFB0B0B0)),
-              size: 20,
-            ),
+            if (selectedCity != null)
+              GestureDetector(
+                onTap: onClear,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.close,
+                    color: const Color(0xFF7C6FFF),
+                    size: 20,
+                  ),
+                ),
+              )
+            else
+              Icon(
+                Icons.location_on_outlined,
+                color: isDark
+                    ? const Color(0xFF6B7280)
+                    : const Color(0xFFB0B0B0),
+                size: 20,
+              ),
           ],
         ),
       ),

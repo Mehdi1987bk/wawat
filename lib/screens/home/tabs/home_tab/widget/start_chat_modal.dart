@@ -144,7 +144,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                                   fontWeight: FontWeight.w500,
                                 ),
                                 child: Text(
-                                S.of(context).rth435gtre+  ' ${widget.userName}.' + S.of(context).brtevrfg45rfs,
+                                S.of(context).rth435gtre+  ' ${widget.userName} ' + S.of(context).brtevrfg45rfs,
                                 ),
                               ),
                             ),
@@ -153,7 +153,6 @@ class _StartChatContentState extends State<_StartChatContent> {
                       ),
 
                       const SizedBox(height: 24),
-
                       // Title
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),

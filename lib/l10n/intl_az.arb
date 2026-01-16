@@ -373,7 +373,7 @@
   "mjjhmjjmj5": "Kuryer və ya müştəri tapmaq üçün\nelan yaradın",
   "bgfbgbgfbgf": "Kuryer və ya müştəri tapmaq üçün\nelan yaradın",
   "bgfbgfbgf": "Təklif növü",
-  "nhgnhg4": "Paket növü",
+  "nhgnhg4": "Paket növü:",
   "hythyt4": "Haradan",
   "kiukiuku6": "Çıxış şəhəri",
   "kiuykiu67": "Haraya",
@@ -565,8 +565,8 @@
   "nthybgtefr4terfd": "Şəhərlər tapılmadı",
   "by5htg4refg4tr3few": "Zəhmət olmasa mesaj daxil edin",
   "ybrfsg4t34gtgrvfedvfd": "Mesaj göndərildi!",
-  "rth435gtre": "Siz əlaqədəsiniz",
-  "brtevrfg45rfs": "Xatırladırıq ki, ünsiyyət birbaşa istifadəçilər arasında aparılır və sayt yazışmaların məzmununa görə məsuliyyət daşımır.",
+  "rth435gtre": "Siz",
+  "brtevrfg45rfs": "istifadəçisi ilə birbaşa ünsiyyət qurursunuz. Ünsiyyət birbaşa istifadəçilər arasında baş verir və sayt yazışmanın məzmununa görə məsuliyyət daşımır.",
   "hrt4h5hte43h454": "Mesaj yazın",
   "rthh4ger34f34": "Mesajınızı daxil edin...",
   "brg353gffvw34fr3": "Göndər",
@@ -687,5 +687,8 @@
   "bfdbsdbadfb": "Xəta",
   "bfdbdffbdsbf": "Uğurlu!",
   "vfegrbfdthgbr5j45ehrw": "Şəhərlər yüklənir...",
-  "nkmlregt4lk": "Şəhərləri yükləmək alınmadı. Sonra yenidən cəhd edin."
+  "nkmlregt4lk": "Şəhərləri yükləmək alınmadı. Sonra yenidən cəhd edin.",
+  "listingHistory": "Elanın tarixçəsi",
+  "enterTheFlightNumber": "Uçuş nömrəsini daxil edin",
+  "flightNumber": "Uçuş nömrəsi"
 }

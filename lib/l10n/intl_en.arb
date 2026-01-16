@@ -373,7 +373,7 @@
   "mjjhmjjmj5": "Create a listing to find a courier or\nclient",
   "bgfbgbgfbgf": "Create a listing to find a courier or\nclient",
   "bgfbgfbgf": "Offer type",
-  "nhgnhg4": "Package type",
+  "nhgnhg4": "Package type:",
   "hythyt4": "From",
   "kiukiuku6": "Departure city",
   "kiuykiu67": "To",
@@ -565,8 +565,8 @@
   "nthybgtefr4terfd": "Cities not found",
   "by5htg4refg4tr3few": "Please enter a message",
   "ybrfsg4t34gtgrvfedvfd": "Message sent!",
-  "rth435gtre": "You are connected with",
-  "brtevrfg45rfs": "Please note that communication is directly between users, and the site is not responsible for the content of messages.",
+  "rth435gtre": "You are communicating directly with the user",
+  "brtevrfg45rfs": ". The communication takes place directly between users, and the site is not responsible for the content of the correspondence.",
   "hrt4h5hte43h454": "Write a message",
   "rthh4ger34f34": "Enter your message...",
   "brg353gffvw34fr3": "Send",
@@ -689,5 +689,8 @@
   "bfdbsdbadfb": "Error",
   "bfdbdffbdsbf": "Success!",
   "vfegrbfdthgbr5j45ehrw": "Loading cities...",
-  "nkmlregt4lk": "Failed to load cities. Please try again later."
-}
+  "nkmlregt4lk": "Failed to load cities. Please try again later.",
+  "listingHistory": "Listing history",
+  "enterTheFlightNumber": "Enter the flight number",
+  "flightNumber": "Flight number"
+ }

@@ -248,7 +248,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Mevcut ve yeni şifreyi girin",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      "İletişimin doğrudan kullanıcılar arasında gerçekleştiğini ve sitenin mesaj içeriğinden sorumlu olmadığını hatırlatırız.",
+      "kullanıcısıyla doğrudan iletişim kuruyorsunuz. İletişim doğrudan kullanıcılar arasında gerçekleşir ve site yazışmanın içeriğinden sorumlu değildir.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Sigorta"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Maks. ağırlık"),
@@ -356,6 +356,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "endirin": MessageLookupByLibrary.simpleMessage("İndir"),
     "english": MessageLookupByLibrary.simpleMessage("İngilizce"),
+    "enterTheFlightNumber": MessageLookupByLibrary.simpleMessage(
+      "Uçuş numarasını girin",
+    ),
     "etg5g43gdg": MessageLookupByLibrary.simpleMessage("Detaylar"),
     "etghrwf3fr3": MessageLookupByLibrary.simpleMessage("gün"),
     "ethgr46htgbevgte": MessageLookupByLibrary.simpleMessage("kg"),
@@ -393,6 +396,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "filialSein": MessageLookupByLibrary.simpleMessage("Şube seçin"),
     "filiallar": MessageLookupByLibrary.simpleMessage("Şubeler"),
     "filiallarmz": MessageLookupByLibrary.simpleMessage("Şubelerimiz"),
+    "flightNumber": MessageLookupByLibrary.simpleMessage("Uçuş numarası"),
     "fr43": MessageLookupByLibrary.simpleMessage("Giriş yap"),
     "fre45": MessageLookupByLibrary.simpleMessage("İptal"),
     "frefd": MessageLookupByLibrary.simpleMessage("kurye"),
@@ -594,6 +598,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Ek hizmetlerin ödemesi sipariş teslimatında yapılır.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("İlçe"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("İlan geçmişi"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "lke": MessageLookupByLibrary.simpleMessage("Ülke"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Varış şehri"),
@@ -686,7 +691,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Güveni artırmak için kimliğinizi\ndoğrulayın",
     ),
     "nhgngn5": MessageLookupByLibrary.simpleMessage("Seçim"),
-    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Paket türü"),
+    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Paket türü:"),
     "nhhfge4": MessageLookupByLibrary.simpleMessage("Ara"),
     "nhnnh5": MessageLookupByLibrary.simpleMessage("İlan ver"),
     "nhtf34": MessageLookupByLibrary.simpleMessage("Kod tekrar gönderildi"),
@@ -792,7 +797,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "rtbrtb4t4t4tb4n": MessageLookupByLibrary.simpleMessage(
       "Sorununuzu açıklayın, en kısa\nzamanda yanıt vereceğiz",
     ),
-    "rth435gtre": MessageLookupByLibrary.simpleMessage("Bağlantıdasınız"),
+    "rth435gtre": MessageLookupByLibrary.simpleMessage(""),
     "rthh4ger34f34": MessageLookupByLibrary.simpleMessage(
       "Mesajınızı girin...",
     ),

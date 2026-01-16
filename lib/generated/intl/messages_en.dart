@@ -236,7 +236,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Enter current and new password",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      "Please note that communication is directly between users, and the site is not responsible for the content of messages.",
+      ". The communication takes place directly between users, and the site is not responsible for the content of the correspondence.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Insurance"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Max weight"),
@@ -342,6 +342,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "endirin": MessageLookupByLibrary.simpleMessage("Download"),
     "english": MessageLookupByLibrary.simpleMessage("English"),
+    "enterTheFlightNumber": MessageLookupByLibrary.simpleMessage(
+      "Enter the flight number",
+    ),
     "etg5g43gdg": MessageLookupByLibrary.simpleMessage("Details"),
     "etghrwf3fr3": MessageLookupByLibrary.simpleMessage("days"),
     "ethgr46htgbevgte": MessageLookupByLibrary.simpleMessage("kg"),
@@ -377,6 +380,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "filialSein": MessageLookupByLibrary.simpleMessage("Select branch"),
     "filiallar": MessageLookupByLibrary.simpleMessage("Branches"),
     "filiallarmz": MessageLookupByLibrary.simpleMessage("Our branches"),
+    "flightNumber": MessageLookupByLibrary.simpleMessage("Flight number"),
     "fr43": MessageLookupByLibrary.simpleMessage("Log in"),
     "fre45": MessageLookupByLibrary.simpleMessage("Cancel"),
     "frefd": MessageLookupByLibrary.simpleMessage("courier"),
@@ -574,6 +578,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Payment for additional services is made upon order delivery.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("District"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("Listing history"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Completed"),
     "lke": MessageLookupByLibrary.simpleMessage("Country"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Destination city"),
@@ -668,7 +673,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Verify your identity to increase\ntrust",
     ),
     "nhgngn5": MessageLookupByLibrary.simpleMessage("Select"),
-    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Package type"),
+    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Package type:"),
     "nhhfge4": MessageLookupByLibrary.simpleMessage("Search"),
     "nhnnh5": MessageLookupByLibrary.simpleMessage("Post"),
     "nhtf34": MessageLookupByLibrary.simpleMessage("Code resent"),
@@ -781,7 +786,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Describe your problem and we will\nrespond as soon as possible",
     ),
     "rth435gtre": MessageLookupByLibrary.simpleMessage(
-      "You are connected with",
+      "You are communicating directly with the user",
     ),
     "rthh4ger34f34": MessageLookupByLibrary.simpleMessage(
       "Enter your message...",

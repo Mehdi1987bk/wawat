@@ -252,7 +252,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Введіть поточний та новий пароль",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      "Нагадуємо, що спілкування відбувається напряму між користувачами, і сайт не відповідає за зміст листування.",
+      ".Спілкування відбувається між користувачами, і сайт не несе відповідальності за зміст листування.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Страхування"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Макс. вага"),
@@ -368,6 +368,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "endirin": MessageLookupByLibrary.simpleMessage("Завантажити"),
     "english": MessageLookupByLibrary.simpleMessage("Англійська"),
+    "enterTheFlightNumber": MessageLookupByLibrary.simpleMessage(
+      "Введіть номер рейсу",
+    ),
     "etg5g43gdg": MessageLookupByLibrary.simpleMessage("Детальніше"),
     "etghrwf3fr3": MessageLookupByLibrary.simpleMessage("днів"),
     "ethgr46htgbevgte": MessageLookupByLibrary.simpleMessage("кг"),
@@ -411,6 +414,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "filialSein": MessageLookupByLibrary.simpleMessage("Виберіть філію"),
     "filiallar": MessageLookupByLibrary.simpleMessage("Філії"),
     "filiallarmz": MessageLookupByLibrary.simpleMessage("Наші філії"),
+    "flightNumber": MessageLookupByLibrary.simpleMessage("Номер рейсу"),
     "fr43": MessageLookupByLibrary.simpleMessage("Увійти"),
     "fre45": MessageLookupByLibrary.simpleMessage("Скасувати"),
     "frefd": MessageLookupByLibrary.simpleMessage("кур\'єр"),
@@ -616,6 +620,9 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Оплата додаткових послуг здійснюється при отриманні замовлення.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("Район"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage(
+      "Історія оголошення",
+    ),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Завершено"),
     "lke": MessageLookupByLibrary.simpleMessage("Країна"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Місто призначення"),
@@ -710,7 +717,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Підтвердіть свою особу для підвищення\nдовіри",
     ),
     "nhgngn5": MessageLookupByLibrary.simpleMessage("Вибір"),
-    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Тип посилки"),
+    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Тип посилки:"),
     "nhhfge4": MessageLookupByLibrary.simpleMessage("Пошук"),
     "nhnnh5": MessageLookupByLibrary.simpleMessage("Подати"),
     "nhtf34": MessageLookupByLibrary.simpleMessage("Код надіслано повторно"),
@@ -820,7 +827,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "rtbrtb4t4t4tb4n": MessageLookupByLibrary.simpleMessage(
       "Опишіть вашу проблему, і ми\nвідповімо якнайшвидше",
     ),
-    "rth435gtre": MessageLookupByLibrary.simpleMessage("Ви на зв\'язку з"),
+    "rth435gtre": MessageLookupByLibrary.simpleMessage(
+      "Ви спілкуєтеся безпосередньо з користувачем",
+    ),
     "rthh4ger34f34": MessageLookupByLibrary.simpleMessage(
       "Введіть ваше повідомлення...",
     ),

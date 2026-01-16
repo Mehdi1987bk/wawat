@@ -2805,9 +2805,9 @@ class S {
     return Intl.message('Offer type', name: 'bgfbgfbgf', desc: '', args: []);
   }
 
-  /// `Package type`
+  /// `Package type:`
   String get nhgnhg4 {
-    return Intl.message('Package type', name: 'nhgnhg4', desc: '', args: []);
+    return Intl.message('Package type:', name: 'nhgnhg4', desc: '', args: []);
   }
 
   /// `From`
@@ -4330,20 +4330,20 @@ class S {
     );
   }
 
-  /// `You are connected with`
+  /// `You are communicating directly with the user`
   String get rth435gtre {
     return Intl.message(
-      'You are connected with',
+      'You are communicating directly with the user',
       name: 'rth435gtre',
       desc: '',
       args: [],
     );
   }
 
-  /// `Please note that communication is directly between users, and the site is not responsible for the content of messages.`
+  /// `. The communication takes place directly between users, and the site is not responsible for the content of the correspondence.`
   String get brtevrfg45rfs {
     return Intl.message(
-      'Please note that communication is directly between users, and the site is not responsible for the content of messages.',
+      '. The communication takes place directly between users, and the site is not responsible for the content of the correspondence.',
       name: 'brtevrfg45rfs',
       desc: '',
       args: [],
@@ -5275,6 +5275,36 @@ class S {
     return Intl.message(
       'Failed to load cities. Please try again later.',
       name: 'nkmlregt4lk',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Listing history`
+  String get listingHistory {
+    return Intl.message(
+      'Listing history',
+      name: 'listingHistory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the flight number`
+  String get enterTheFlightNumber {
+    return Intl.message(
+      'Enter the flight number',
+      name: 'enterTheFlightNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Flight number`
+  String get flightNumber {
+    return Intl.message(
+      'Flight number',
+      name: 'flightNumber',
       desc: '',
       args: [],
     );

@@ -252,7 +252,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Введите текущий и новый пароль",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      "Напоминаем, что общение происходит напрямую между пользователями, и сайт не отвечает за содержание переписки.",
+      ".Общение происходит непосредственно между пользователями, и сайт не несёт ответственности за содержание переписки.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Страхование"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Макс. вес"),
@@ -362,6 +362,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "endirin": MessageLookupByLibrary.simpleMessage("Скачать"),
     "english": MessageLookupByLibrary.simpleMessage("Английский"),
+    "enterTheFlightNumber": MessageLookupByLibrary.simpleMessage(
+      "Введите номер рейса",
+    ),
     "etg5g43gdg": MessageLookupByLibrary.simpleMessage("Подробнее"),
     "etghrwf3fr3": MessageLookupByLibrary.simpleMessage("дней"),
     "ethgr46htgbevgte": MessageLookupByLibrary.simpleMessage("кг"),
@@ -405,6 +408,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "filialSein": MessageLookupByLibrary.simpleMessage("Выберите филиал"),
     "filiallar": MessageLookupByLibrary.simpleMessage("Филиалы"),
     "filiallarmz": MessageLookupByLibrary.simpleMessage("Наши филиалы"),
+    "flightNumber": MessageLookupByLibrary.simpleMessage("Номер рейса"),
     "fr43": MessageLookupByLibrary.simpleMessage("Войти"),
     "fre45": MessageLookupByLibrary.simpleMessage("Отмена"),
     "frefd": MessageLookupByLibrary.simpleMessage("курьер"),
@@ -506,7 +510,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "heir": MessageLookupByLibrary.simpleMessage("Нет"),
     "hgg4235gb": MessageLookupByLibrary.simpleMessage("Рейтинг"),
     "hghfg4bhn": MessageLookupByLibrary.simpleMessage("Пользователь"),
-    "hgterfvb4btgv": MessageLookupByLibrary.simpleMessage("Проверен"),
+    "hgterfvb4btgv": MessageLookupByLibrary.simpleMessage("Подтверждено"),
     "hrgrs434": MessageLookupByLibrary.simpleMessage("Загружено"),
     "hrmtliMtriBildirmkIstyirikKiSizHesabiSilmekleHesabnzaBal":
         MessageLookupByLibrary.simpleMessage(
@@ -608,6 +612,9 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Оплата дополнительных услуг производится при получении заказа.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("Район"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage(
+      "История объявления",
+    ),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Завершено"),
     "lke": MessageLookupByLibrary.simpleMessage("Страна"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Город назначения"),
@@ -702,7 +709,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Подтвердите свою личность для повышения\nдоверия",
     ),
     "nhgngn5": MessageLookupByLibrary.simpleMessage("Выбор"),
-    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Тип посылки"),
+    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Тип посылки:"),
     "nhhfge4": MessageLookupByLibrary.simpleMessage("Поиск"),
     "nhnnh5": MessageLookupByLibrary.simpleMessage("Подать"),
     "nhtf34": MessageLookupByLibrary.simpleMessage("Код отправлен повторно"),
@@ -814,7 +821,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "rtbrtb4t4t4tb4n": MessageLookupByLibrary.simpleMessage(
       "Опишите вашу проблему, и мы\nответим как можно скорее",
     ),
-    "rth435gtre": MessageLookupByLibrary.simpleMessage("Вы на связи с"),
+    "rth435gtre": MessageLookupByLibrary.simpleMessage(
+      "Вы общаетесь напрямую с пользователем",
+    ),
     "rthh4ger34f34": MessageLookupByLibrary.simpleMessage(
       "Введите ваше сообщение...",
     ),

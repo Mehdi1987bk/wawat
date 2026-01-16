@@ -172,7 +172,7 @@ class _MyRevievsScreenState
                     color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                   ),
                   child:   Text(
-                    S.of(context).hghfg4bhn,
+                    S.of(context).listingHistory,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
