@@ -110,6 +110,8 @@ class ChatMessage {
   final ChatUser? user;
   @JsonKey(name: 'created_at')
   final String createdAt;
+  @JsonKey(name: 'is_read', defaultValue: false)
+  final bool isRead;
 
   ChatMessage({
     required this.id,
@@ -118,6 +120,7 @@ class ChatMessage {
     this.file,
     this.user,
     required this.createdAt,
+    this.isRead = false,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>

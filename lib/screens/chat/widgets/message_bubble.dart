@@ -269,14 +269,35 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildTime(BuildContext context, bool isDark) {
-    return Text(
-      message.timeString(context),
-      style: WawatTextStyles.caption.copyWith(
-        fontSize: 10,
-        color: isDark
-            ? const Color(0xFF9CA3AF)
-            : WawatColors.textSecondary,
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          message.timeString(context),
+          style: WawatTextStyles.caption.copyWith(
+            fontSize: 10,
+            color: isDark
+                ? const Color(0xFF9CA3AF)
+                : WawatColors.textSecondary,
+          ),
+        ),
+        if (isMyMessage) ...[
+          const SizedBox(width: 4),
+          _buildReadStatus(isDark),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildReadStatus(bool isDark) {
+    final color = isMyMessage
+        ? Colors.white.withOpacity(0.9)
+        : (isDark ? const Color(0xFF9CA3AF) : WawatColors.textSecondary);
+
+    return Icon(
+      message.isRead ? Icons.done_all : Icons.done,
+      size: 14,
+      color: color,
     );
   }
 
