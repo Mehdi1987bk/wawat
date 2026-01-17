@@ -47,6 +47,7 @@ ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
           ? null
           : ChatUser.fromJson(json['user'] as Map<String, dynamic>),
       createdAt: json['created_at'] as String,
+      isRead: json['is_read'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
@@ -57,6 +58,7 @@ Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
       'file': instance.file,
       'user': instance.user,
       'created_at': instance.createdAt,
+      'is_read': instance.isRead,
     };
 
 Conversation _$ConversationFromJson(Map<String, dynamic> json) => Conversation(
