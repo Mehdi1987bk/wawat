@@ -95,6 +95,7 @@ class ChatFile {
   Map<String, dynamic> toJson() => _$ChatFileToJson(this);
 
   bool get isImage => mime.startsWith('image/');
+  bool get isPdf => mime == 'application/pdf';  // 🆕 ДОБАВЛЕНО ДЛЯ PDF
 }
 
 // ============================================================================
@@ -115,7 +116,7 @@ class ChatMessage {
     required this.type,
     this.body,
     this.file,
-     this.user,
+    this.user,
     required this.createdAt,
   });
 
@@ -132,7 +133,7 @@ class ChatMessage {
     }
   }
 
-   String timeString(BuildContext context) {
+  String timeString(BuildContext context) {
     try {
       final dateTime = createdAtDateTime;
       final now = DateTime.now();
@@ -182,7 +183,7 @@ class Conversation {
 
   Map<String, dynamic> toJson() => _$ConversationToJson(this);
 
-   String lastMessagePreview(BuildContext context) {
+  String lastMessagePreview(BuildContext context) {
     if (lastMessage == null) return '';
     if (lastMessage!.type == 'image') return '📷 ' + S.of(context).bfdbfbrewgq34;
     if (lastMessage!.type == 'file') return '📎 ' + S.of(context).bfdb3brwqgevds432;

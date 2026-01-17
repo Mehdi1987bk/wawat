@@ -306,7 +306,7 @@ class _ChatConversationScreenState
         ),
       ),
       actions: [
-         IconButton(
+        IconButton(
           onPressed: () => _showSendRequestFromRewiew(isDark),
           icon: Container(
             width: 36,
@@ -340,7 +340,14 @@ class _ChatConversationScreenState
     );
   }
 
+  // 🆕 ОБНОВЛЕНО: Добавлена проверка для PDF файлов
   Widget _buildFilePreview(bool isDark) {
+    final fileName = _selectedFile!.path.split('/').last.toLowerCase();
+    final isPdf = fileName.endsWith('.pdf');
+    final isImage = fileName.endsWith('.jpg') ||
+        fileName.endsWith('.png') ||
+        fileName.endsWith('.jpeg');
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: EdgeInsets.all(WawatDimensions.spacingSm),
@@ -356,9 +363,13 @@ class _ChatConversationScreenState
                   : WawatColors.inputBackground,
               borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
             ),
-            child: _selectedFile!.path.toLowerCase().endsWith('.jpg') ||
-                _selectedFile!.path.toLowerCase().endsWith('.png') ||
-                _selectedFile!.path.toLowerCase().endsWith('.jpeg')
+            child: isPdf
+                ? Icon(
+              Icons.picture_as_pdf,  // 🆕 PDF иконка
+              color: Colors.red,
+              size: 28,
+            )
+                : isImage
                 ? ClipRRect(
               borderRadius:
               BorderRadius.circular(WawatDimensions.radiusSmall),
@@ -405,7 +416,7 @@ class _ChatConversationScreenState
 
 
   void _showSendRequestFromRewiew(bool isDark) {
-    final screenContext = context;  
+    final screenContext = context;
 
     showDialog(
       context: context,
@@ -442,10 +453,10 @@ class _ChatConversationScreenState
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(dialogContext); // Закрываем диалог
+              Navigator.pop(dialogContext);
               final success = await bloc.sendReviews(widget.conversation.user.id);
               if (success && mounted) {
-                showIOSStyleMessage(screenContext, S.of(context).bgfbfg3);  
+                showIOSStyleMessage(screenContext, S.of(context).bgfbfg3);
               }
             },
             child: Text(

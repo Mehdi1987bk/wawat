@@ -2,12 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';  // 🆕 ДОБАВЛЕНО ДЛЯ ОТКРЫТИЯ PDF
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../services/theme_manager.dart';
-import '../../home/tabs/home_tab/courier_screen/courier_screen.dart'; // Добавьте этот импорт
+import '../../home/tabs/home_tab/courier_screen/courier_screen.dart';
 
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
@@ -103,10 +104,14 @@ class MessageBubble extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // 🆕 ОБНОВЛЕНО: ОТДЕЛЬНАЯ ОБРАБОТКА ДЛЯ ИЗОБРАЖЕНИЙ И PDF
                       if (message.type == 'image' && message.file != null)
                         _buildImageContent(context, isDark)
                       else if (message.type == 'file' && message.file != null)
-                        _buildImageContent(context, isDark)
+                      // Проверяем, является ли файл PDF
+                        message.file!.isPdf
+                            ? _buildPdfContent(context, isDark)  // 🆕 PDF превью
+                            : _buildImageContent(context, isDark)  // Для остальных файлов
                       else if (message.body != null)
                           Text(
                             message.body!,
@@ -171,6 +176,82 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
+  // 🆕 НОВЫЙ МЕТОД: Превью для PDF файлов
+  Widget _buildPdfContent(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        _openPdfFile();
+      },
+      child: Container(
+        padding: EdgeInsets.all(WawatDimensions.spacingMd),
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xFF1E1E1E)
+              : WawatColors.inputBackground,
+          borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // PDF иконка
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.picture_as_pdf,
+                color: Colors.red,
+                size: 28,
+              ),
+            ),
+            SizedBox(width: WawatDimensions.spacingSm),
+            // Название файла
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message.file!.name,
+                    style: WawatTextStyles.bodyBold.copyWith(
+                      color: isMyMessage
+                          ? Colors.white
+                          : (isDark ? Colors.white : WawatColors.textPrimary),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'PDF Document',
+                    style: WawatTextStyles.caption.copyWith(
+                      color: isMyMessage
+                          ? Colors.white.withOpacity(0.7)
+                          : (isDark
+                          ? const Color(0xFF9CA3AF)
+                          : WawatColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: WawatDimensions.spacingSm),
+            // Иконка "открыть"
+            Icon(
+              Icons.open_in_new,
+              color: isMyMessage
+                  ? Colors.white
+                  : (isDark ? Colors.white : WawatColors.primary),
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showImageFullScreen(BuildContext context) {
     final themeManager = Provider.of<ThemeManager>(context, listen: false);
     final isDark = themeManager.isDarkMode;
@@ -195,5 +276,20 @@ class MessageBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // 🆕 НОВЫЙ МЕТОД: Открытие PDF в системном приложении
+  Future<void> _openPdfFile() async {
+    try {
+      final uri = Uri.parse(message.file!.url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,  // Открыть в системном приложении
+        );
+      }
+    } catch (e) {
+      print('Ошибка открытия PDF: $e');
+    }
   }
 }
