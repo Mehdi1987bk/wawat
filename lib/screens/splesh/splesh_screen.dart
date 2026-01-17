@@ -25,6 +25,8 @@ class _SpleshScreenState extends State<SpleshScreen> {
       ),
       sl.get<AuthRepository>().firstOpen(),
     ]).then((value) {
+      if (!mounted) return; // Проверяем, смонтирован ли еще виджет
+
       final isFirstOpen = value.last as bool;
 
       if (isFirstOpen) {
