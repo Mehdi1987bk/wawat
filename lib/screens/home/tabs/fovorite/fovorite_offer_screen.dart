@@ -8,6 +8,7 @@ import '../../../../generated/l10n.dart';
 import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../home_tab/home_tab_screen.dart';
+import '../home_tab/notification/unread_notif_bloc.dart';
 import '../home_tab/widget/wawat_courier_card.dart';
 import 'fovorite_offer_bloc.dart';
 
@@ -41,10 +42,13 @@ class _FovoriteOfferListScreenState
   final ScrollController _scrollController = ScrollController();
   @override
   bool get useSystemOverlay => false;
+  late final UnreadNotificationBloc _notificationBloc;
 
   @override
   void initState() {
     super.initState();
+    _notificationBloc = UnreadNotificationBloc();
+    _notificationBloc.init();
 
     bloc.load();
     _scrollController.addListener(() {
@@ -69,8 +73,13 @@ class _FovoriteOfferListScreenState
           },
           child: Stack(
             children: [
-              BuildHeader(context, isDark),
-              Padding(
+              StreamBuilder<int>(
+                stream: _notificationBloc.unreadCountStream,
+                initialData: 0,
+                builder: (context, snapshot) {
+                  return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                },
+              ),              Padding(
                 padding: const EdgeInsets.only(top: 70),
                 child: CustomScrollView(
                   controller: _scrollController,
@@ -135,6 +144,11 @@ class _FovoriteOfferListScreenState
     );
   }
 
+  @override
+  void dispose() {
+    _notificationBloc.dispose();
+    super.dispose();
+  }
   @override
   FovoriteOfferBloc provideBloc() {
     return FovoriteOfferBloc(onPacketsAdded);

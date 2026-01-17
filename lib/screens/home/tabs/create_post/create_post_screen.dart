@@ -15,6 +15,7 @@ import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../auth/registration/widget/package_types_selector.dart';
 import '../home_tab/home_tab_screen.dart';
+import '../home_tab/notification/unread_notif_bloc.dart';
 import '../home_tab/widget/city_selector.dart';
 import '../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import 'create_post_bloc.dart';
@@ -68,6 +69,7 @@ class _CreatePostScreenState
   final TextEditingController maxWeightController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  late final UnreadNotificationBloc _notificationBloc;
 
   @override
   void initState() {
@@ -85,7 +87,8 @@ class _CreatePostScreenState
     maxWeightController.addListener(_updateButtonState);
     priceController.addListener(_updateButtonState);
     descriptionController.addListener(_updateButtonState);
-
+    _notificationBloc = UnreadNotificationBloc();
+    _notificationBloc.init();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAllDataSilently();
     });
@@ -387,8 +390,13 @@ class _CreatePostScreenState
         child: SafeArea(
           child: Column(
             children: [
-              BuildHeader(context, isDark),
-              Expanded(
+              StreamBuilder<int>(
+                stream: _notificationBloc.unreadCountStream,
+                initialData: 0,
+                builder: (context, snapshot) {
+                  return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                },
+              ),              Expanded(
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(20),

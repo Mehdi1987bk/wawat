@@ -20,6 +20,7 @@ import '../../../../generated/l10n.dart';
 import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
+import '../home_tab/notification/unread_notif_bloc.dart';
 import 'courier_reviews_page.dart';
 import 'faq/faq_screen.dart';
 
@@ -34,6 +35,20 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   bool get useSystemOverlay => false;
+  late final UnreadNotificationBloc _notificationBloc;  // <- ДОБАВИТЬ
+
+  @override
+  void initState() {  // <- ДОБАВИТЬ весь метод
+    super.initState();
+    _notificationBloc = UnreadNotificationBloc();
+    _notificationBloc.init();
+  }
+
+  @override
+  void dispose() {  // <- ДОБАВИТЬ весь метод
+    _notificationBloc.dispose();
+    super.dispose();
+  }
 
   @override
   Widget body() {
@@ -129,8 +144,13 @@ class _ProfileTabScreenState
                       ),
                     ),
                   ),
-                  BuildHeader(context, isDark),
-                ],
+                  StreamBuilder<int>(
+                    stream: _notificationBloc.unreadCountStream,
+                    initialData: 0,
+                    builder: (context, snapshot) {
+                      return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                    },
+                  ),                ],
               ),
             );
           },

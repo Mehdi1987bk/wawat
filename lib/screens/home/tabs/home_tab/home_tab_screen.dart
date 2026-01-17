@@ -15,7 +15,9 @@ import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../../services/theme_manager.dart';
 import 'home_tab_bloc.dart';
+import 'notification/notification_bloc.dart';
 import 'notification/notification_screen.dart';
+import 'notification/unread_notif_bloc.dart';
 
 class HomeTabScreen extends BaseScreen {
   @override
@@ -31,6 +33,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   final _dateFromController = TextEditingController();
   final _dateToController = TextEditingController();
   final _categoryController = TextEditingController();
+  late final UnreadNotificationBloc _notificationBloc;  // <- ДОБАВИТЬ
 
   @override
   bool get showProgressIndicator => false;
@@ -51,7 +54,13 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   //   });
   // }
 
-  int _selectedTab = 0;
+
+  @override
+  void initState() {  // <- ДОБАВИТЬ весь метод
+    super.initState();
+    _notificationBloc = UnreadNotificationBloc();
+    _notificationBloc.init();
+  }
 
   @override
   Widget body() {
@@ -75,8 +84,13 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                   ),
                 ),
               ),
-              BuildHeader(context, isDark),
-            ],
+              StreamBuilder<int>(
+                stream: _notificationBloc.unreadCountStream,
+                initialData: 0,
+                builder: (context, snapshot) {
+                  return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                },
+              ),            ],
           ),
         );
       },
@@ -155,6 +169,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     _dateToController.dispose();
     _categoryController.dispose();
     _scrollController.dispose();
+    _notificationBloc.dispose();
     super.dispose();
   }
 
@@ -164,7 +179,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   }
 }
 
-Widget BuildHeader(BuildContext context, bool isDark) {
+Widget BuildHeader(BuildContext context, {bool isDark = false, int unreadCount = 0}) {
   return AnimatedContainer(
     duration: const Duration(milliseconds: 300),
     decoration: BoxDecoration(
@@ -196,23 +211,58 @@ Widget BuildHeader(BuildContext context, bool isDark) {
             } else {
               Navigator.push(context,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                    return NotificationScreen();
+                    return Container();
                   }));
             }
           },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Image.asset(
-              'asset/notif_aa.png',
-              fit: BoxFit.fitWidth,
-              height: 35,
-              color: isDark ? Colors.white : null,
-              colorBlendMode: isDark ? BlendMode.modulate : null,
-            ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Image.asset(
+                  'asset/notif_aa.png',
+                  fit: BoxFit.fitWidth,
+                  height: 35,
+                  color: isDark ? Colors.white : null,
+                  colorBlendMode: isDark ? BlendMode.modulate : null,
+                ),
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  right: -2,
+                  top: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    child: Center(
+                      child: Text(
+                        unreadCount > 9 ? '9+' : '$unreadCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],
