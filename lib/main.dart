@@ -72,6 +72,10 @@ void _registerDependency() {
   sl.registerLazySingleton<ChatApi>(() => ChatApi(dio));
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
   sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
+
+  // Загружаем offer-types ПЕРВЫМ (fire-and-forget)
+  sl.get<AuthRepository>().getOfferTypes();
+
   sl.registerLazySingleton<UnreadChatBloc>(() {
     final bloc = UnreadChatBloc();
     bloc.init();
