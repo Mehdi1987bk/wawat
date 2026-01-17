@@ -19,37 +19,51 @@ class _SpleshScreenState extends State<SpleshScreen> {
   @override
   void initState() {
     super.initState();
-    Future.wait([
-      Future.delayed(
-        const Duration(seconds: 4),
-      ),
-      sl.get<AuthRepository>().firstOpen(),
-    ]).then((value) {
-      if (!mounted) return; // Проверяем, смонтирован ли еще виджет
+    _initialize();
+  }
 
-      final isFirstOpen = value.last as bool;
+  Future<void> _initialize() async {
+    try {
+      // Запускаем параллельно задержку и проверку первого открытия
+      final results = await Future.wait([
+        Future.delayed(const Duration(seconds: 4)),
+        sl.get<AuthRepository>().firstOpen(),
+      ]);
+
+      if (!mounted) return;
+
+      final isFirstOpen = results[1] as bool;
+      print('🔍 isFirstOpen: $isFirstOpen'); // Для отладки
 
       if (isFirstOpen) {
-        sl.get<AuthRepository>().setIsFirstOpen();
+        await sl.get<AuthRepository>().setIsFirstOpen();
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) {
-              return IntroPage();
-            },
+            builder: (BuildContext context) => IntroPage(),
           ),
         );
       } else {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) {
-              return HomeScreen();
-            },
+            builder: (BuildContext context) => HomeScreen(),
           ),
         );
       }
-    });
+    } catch (e) {
+      print('❌ Error in splash: $e');
+      // При ошибке переходим на HomeScreen
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => HomeScreen(),
+          ),
+        );
+      }
+    }
   }
 
   @override
