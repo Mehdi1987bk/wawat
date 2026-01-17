@@ -1,15 +1,21 @@
 import 'package:buking/screens/auth/registration/registration_bloc.dart';
+import 'package:buking/screens/auth/registration/widget/country_code_selector.dart';
 import 'package:buking/screens/auth/registration/widget/language_selector.dart';
+import 'package:buking/screens/auth/registration/widget/privacy_policy_screen.dart';
 import 'package:buking/screens/home/home_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/network/response/country.dart';
 import '../../../data/network/response/language.dart';
-import '../../../data/network/response/language_response.dart';
-import '../../../data/network/response/user.dart';
 import '../../../domain/entities/patterns.dart';
+import '../../../generated/l10n.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../presentation/bloc/error_dispatcher.dart';
+import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
 
@@ -25,9 +31,9 @@ class RegistrationModal extends StatefulWidget {
   State<RegistrationModal> createState() => _RegistrationModalState();
 
   static Future<void> show(
-    BuildContext context, {
-    required VoidCallback onLogin,
-  }) {
+      BuildContext context, {
+        required VoidCallback onLogin,
+      }) {
     return showDialog(
       context: context,
       builder: (context) => RegistrationModal(
@@ -49,17 +55,20 @@ class _RegistrationModalState extends State<RegistrationModal> {
   List<Language> _allLanguages = [];
   bool _isLoadingLanguages = false;
 
+  // Countries
+  List<Country> _allCountries = [];
+  Country? _selectedCountry;
+  bool _isLoadingCountries = false;
+
   final _bloc = RegistrationBloc();
   bool _isLoading = false;
 
-  // Один ValueNotifier для валидации всей формы
   final ValueNotifier<bool> _isFormValidNotifier = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
 
-    // Слушаем изменения всех полей
     _nameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
@@ -67,343 +76,401 @@ class _RegistrationModalState extends State<RegistrationModal> {
     _confirmPasswordController.addListener(_validateForm);
 
     _loadLanguages();
+    _loadCountries();
 
     _bloc.loadingStream.listen((isLoading) {
-      if (mounted) {
-        setState(() => _isLoading = isLoading);
-      }
+      if (mounted) setState(() => _isLoading = isLoading);
     });
 
     _bloc.errorStream.listen((error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка регистрации: ${error.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      showTopSnackbar(error.toString(), false, context);
     });
   }
 
   void _validateForm() {
-    final name = _nameController.text.trim();
-    final email = _emailController.text.trim();
-    final phone = _phoneController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
-
-    var isValid = Patterns.textField.hasMatch(name) &&
-        Patterns.email.hasMatch(email) &&
-        Patterns.textField.hasMatch(phone) &&
-        Patterns.textField.hasMatch(password) &&
-        password == confirmPassword &&
-        _agreedToTerms &&
-        _selectedLanguageCodes.isNotEmpty;
+    final isValid =
+        Patterns.textField.hasMatch(_nameController.text.trim()) &&
+            Patterns.email.hasMatch(_emailController.text.trim()) &&
+            Patterns.textField.hasMatch(_phoneController.text.trim()) &&
+            Patterns.textField.hasMatch(_passwordController.text.trim()) &&
+            _agreedToTerms &&
+            _selectedLanguageCodes.isNotEmpty &&
+            _selectedCountry != null;
 
     _isFormValidNotifier.value = isValid;
   }
 
   Future<void> _loadLanguages() async {
     try {
-      setState(() {
-        _isLoadingLanguages = true;
-      });
-
+      setState(() => _isLoadingLanguages = true);
       final response = await _bloc.getLanguages;
       if (mounted) {
         setState(() {
           _allLanguages = response.data;
           _isLoadingLanguages = false;
         });
-        _validateForm(); // Валидируем после загрузки языков
+        _validateForm();
       }
-    } catch (e) {
+    } catch (_) {
+      setState(() => _isLoadingLanguages = false);
+    }
+  }
+
+  Future<void> _loadCountries() async {
+    try {
+      setState(() => _isLoadingCountries = true);
+      final response = await _bloc.getCountries();
       if (mounted) {
         setState(() {
-          _isLoadingLanguages = false;
+          _allCountries = response.data;
+          // По умолчанию выбираем Азербайджан (AZ)
+          _selectedCountry = _allCountries.firstWhere(
+                (c) => c.code == 'AZ',
+            orElse: () => _allCountries.first,
+          );
+          _isLoadingCountries = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка загрузки языков: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _validateForm();
       }
+    } catch (_) {
+      setState(() => _isLoadingCountries = false);
     }
   }
 
   void _handleRegister() async {
-    try {
-      await _bloc.register(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        phone: _phoneController.text.trim(),
-        password: _passwordController.text.trim(),
-        passwordConfirmation: _confirmPasswordController.text.trim(),
-        acceptedTerms: _agreedToTerms,
-        communicationLanguageCodes: _selectedLanguageCodes.toList(),
-      );
+    final success = await _bloc.register(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      password: _passwordController.text.trim(),
+      passwordConfirmation: _confirmPasswordController.text.trim(),
+      acceptedTerms: _agreedToTerms,
+      communicationLanguageCodes: _selectedLanguageCodes.toList(),
+      callingCode: _selectedCountry?.callingCode,
+    );
 
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => HomeScreen(),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Registration error: $e');
-    }
+    if (!success) return;
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => HomeScreen()),
+    );
+  }
+
+  void _openPrivacyPolicy() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const PrivacyPolicyScreen(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: WawatDimensions.spacingLg,
-      ),
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: WawatDimensions.modalMaxWidth,
-          maxHeight: MediaQuery.of(context).size.height * 0.95,
-        ),
-        decoration: BoxDecoration(
-          color: WawatColors.backgroundWhite,
-          borderRadius:
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding:
+          EdgeInsets.symmetric(horizontal: WawatDimensions.spacingLg),
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: WawatDimensions.modalMaxWidth,
+              maxHeight: MediaQuery.of(context).size.height * 0.95,
+            ),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF1E1E1E)
+                  : WawatColors.backgroundWhite,
+              borderRadius:
               BorderRadius.circular(WawatDimensions.modalBorderRadius),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // HEADER
-            Container(
-              padding: EdgeInsets.all(WawatDimensions.spacingMd),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: WawatColors.inputBorder,
-                    width: 1,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // HEADER
+                Padding(
+                  padding: EdgeInsets.all(WawatDimensions.spacingMd),
+                  child: Row(
+                    children: [
+                      Image.asset("asset/mini_logo.png", width: 35),
+
+                      SizedBox(width: WawatDimensions.spacingSm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              S.of(context).nyt7,
+                              style: WawatTextStyles.h3.copyWith(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            Text(
+                              S.of(context).nty3,
+                              style: WawatTextStyles.caption.copyWith(
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : WawatColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.flight,
-                      color: WawatColors.primary,
-                      size: WawatDimensions.iconLarge),
-                  SizedBox(width: WawatDimensions.spacingSm),
-                  Expanded(
+
+                // FORM
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(WawatDimensions.spacingLg),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Регистрация', style: WawatTextStyles.h3),
-                        Text('Присоединяйтесь к нам',
-                            style: WawatTextStyles.caption),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // FORM
-            Flexible(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(WawatDimensions.spacingLg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // NAME
-                    WawatInputField(
-                      label: 'ПОЛНОЕ ИМЯ',
-                      placeholder: 'Введите ваше имя',
-                      prefixIcon:
-                          Icon(Icons.person, size: WawatDimensions.iconMedium),
-                      controller: _nameController,
-                      isModal: true,
-                    ),
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // EMAIL
-                    WawatInputField(
-                      label: 'EMAIL',
-                      placeholder: 'example@mail.com',
-                      prefixIcon:
-                          Icon(Icons.email, size: WawatDimensions.iconMedium),
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      isModal: true,
-                    ),
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // PHONE
-                    WawatInputField(
-                      label: 'ТЕЛЕФОН',
-                      placeholder: '+7 (999) 123-45-67',
-                      prefixIcon:
-                          Icon(Icons.phone, size: WawatDimensions.iconMedium),
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      isModal: true,
-                    ),
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // PASSWORD
-                    WawatInputField(
-                      label: 'ПАРОЛЬ',
-                      placeholder: 'Минимум 6 символов',
-                      prefixIcon:
-                          Icon(Icons.lock, size: WawatDimensions.iconMedium),
-                      controller: _passwordController,
-                      obscureText: true,
-                      isModal: true,
-                    ),
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // CONFIRM PASSWORD
-                    WawatInputField(
-                      label: 'ПОДТВЕРДИТЕ ПАРОЛЬ',
-                      placeholder: 'Повторите пароль',
-                      prefixIcon:
-                          Icon(Icons.lock, size: WawatDimensions.iconMedium),
-                      controller: _confirmPasswordController,
-                      obscureText: true,
-                      isModal: true,
-                    ),
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // ✅ LANGUAGES - используем новый компонент LanguageSelector
-                    Padding(
-                      padding:
-                          EdgeInsets.only(bottom: WawatDimensions.spacingSm),
-                      child: Text(
-                        'ЯЗЫКИ ОБЩЕНИЯ',
-                        style: WawatTextStyles.label,
-                      ),
-                    ),
-                    LanguageSelector(
-                      languages: _allLanguages,
-                      selectedLanguageCodes: _selectedLanguageCodes,
-                      onSelectionChanged: (newSelection) {
-                        setState(() {
-                          _selectedLanguageCodes = newSelection;
-                          _validateForm();
-                        });
-                      },
-                      isLoading: _isLoadingLanguages,
-                    ),
-
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // TERMS CHECKBOX
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Checkbox(
-                          value: _agreedToTerms,
-                          onChanged: (value) {
-                            setState(() {
-                              _agreedToTerms = value ?? false;
-                              _validateForm();
-                            });
-                          },
-                          activeColor: WawatColors.primary,
+                        WawatInputField(
+                          label: S.of(context).btr3,
+                          placeholder: S.of(context).nbgf3,
+                          controller: _nameController,
+                          isModal: true,
                         ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _agreedToTerms = !_agreedToTerms;
+                        SizedBox(height: WawatDimensions.spacingMd),
+                        WawatInputField(
+                          label: S.of(context).emailbgf,
+                          placeholder: 'example@mail.com',
+                          controller: _emailController,
+                          isModal: true,
+                          isEmail: true,
+                        ),
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                         Text(
+                          S.of(context).bgf34,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white70 : Colors.grey.shade600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                             CountryCodeSelector(
+                              selectedCountry: _selectedCountry,
+                              countries: _allCountries,
+                              isLoading: _isLoadingCountries,
+                              onChanged: (country) {
+                                setState(() => _selectedCountry = country);
                                 _validateForm();
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                             Expanded(
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF2A2A2A)
+                                      : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? Colors.white12
+                                        : Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: '123 45 67',
+                                    hintStyle: TextStyle(
+                                      color: isDark
+                                          ? Colors.white38
+                                          : Colors.grey,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                     ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+                        WawatInputField(
+                          label: S.of(context).bgf35,
+                          placeholder: S.of(context).bgfbvgfd3,
+                          controller: _passwordController,
+                          obscureText: true,
+                          isModal: true,
+                        ),
+                        SizedBox(height: WawatDimensions.spacingMd),
+                        WawatInputField(
+                          label: S.of(context).bg334,
+                          placeholder: S.of(context).vbrgf2,
+                          controller: _confirmPasswordController,
+                          obscureText: true,
+                          isModal: true,
+                        ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        // 🔹 Языки
+                        if (_allLanguages.isNotEmpty)
+                          LanguageSelector(
+                            languages: _allLanguages,
+                            selectedLanguageCodes: _selectedLanguageCodes,
+                            onSelectionChanged: (selected) {
+                              setState(() {
+                                _selectedLanguageCodes = selected;
                               });
+                              _validateForm();
                             },
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: WawatDimensions.spacingSm),
+                          ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        // Privacy Policy Checkbox
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Checkbox(
+                                value: _agreedToTerms,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _agreedToTerms = value ?? false;
+                                  });
+                                  _validateForm();
+                                },
+                                activeColor: isDark
+                                    ? const Color(0xFF6366F1)
+                                    : WawatColors.primary,
+                                checkColor: Colors.white,
+                                side: BorderSide(
+                                  color: isDark
+                                      ? Colors.white38
+                                      : Colors.grey.shade400,
+                                  width: 1.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: WawatDimensions.spacingSm),
+                            Expanded(
                               child: RichText(
                                 text: TextSpan(
-                                  style: WawatTextStyles.caption,
+                                  style: WawatTextStyles.caption.copyWith(
+                                    color: isDark
+                                        ? const Color(0xFF9CA3AF)
+                                        : WawatColors.textSecondary,
+                                    height: 1.4,
+                                  ),
                                   children: [
-                                    const TextSpan(
-                                        text:
-                                            'Регистрируясь, вы соглашаетесь с '),
+                                    const TextSpan(text: 'Я принимаю '),
                                     TextSpan(
-                                      text: 'Условиями использования',
-                                      style: WawatTextStyles.link
-                                          .copyWith(fontSize: 12),
-                                    ),
-                                    const TextSpan(text: ' и '),
-                                    TextSpan(
-                                      text: 'Политикой конфиденциальности',
-                                      style: WawatTextStyles.link
-                                          .copyWith(fontSize: 12),
+                                      text: 'Privacy Policy',
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? const Color(0xFF6366F1)
+                                            : WawatColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = _openPrivacyPolicy,
                                     ),
                                   ],
                                 ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: WawatDimensions.spacingLg),
+
+                        ValueListenableBuilder<bool>(
+                          valueListenable: _isFormValidNotifier,
+                          builder: (_, isValid, __) {
+                            return WawatButton(
+                              text: _isLoading
+                                  ? S.of(context).bgfd3
+                                  : S.of(context).bgd2,
+                              onPressed: (isValid && !_isLoading)
+                                  ? _handleRegister
+                                  : null,
+                              width: double.infinity,
+                            );
+                          },
+                        ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              widget.onLogin();
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                style: WawatTextStyles.body,
+                                children: [
+                                  TextSpan(
+                                    text: S.of(context).muj56,
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? const Color(0xFF9CA3AF)
+                                          : WawatColors.textSecondary,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: S.of(context).ujt4,
+                                    style: WawatTextStyles.link.copyWith(
+                                      color: isDark
+                                          ? const Color(0xFF6366F1)
+                                          : WawatColors.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
-
-                    SizedBox(height: WawatDimensions.spacingLg),
-
-                    // REGISTER BUTTON - отключена до валидации
-                    ValueListenableBuilder<bool>(
-                      valueListenable: _isFormValidNotifier,
-                      builder: (_, isValid, __) {
-                        return WawatButton(
-                          text:
-                              _isLoading ? 'Регистрация...' : 'Создать аккаунт',
-                          onPressed:
-                              (isValid && !_isLoading) ? _handleRegister : null,
-                          width: double.infinity,
-                        );
-                      },
-                    ),
-
-                    SizedBox(height: WawatDimensions.spacingMd),
-
-                    // LOGIN LINK
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          widget.onLogin();
-                        },
-                        child: RichText(
-                          text: TextSpan(
-                            style: WawatTextStyles.body,
-                            children: [
-                              TextSpan(
-                                text: 'Уже есть аккаунт? ',
-                                style:
-                                    TextStyle(color: WawatColors.textSecondary),
-                              ),
-                              TextSpan(
-                                text: 'Войти',
-                                style: WawatTextStyles.link,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
