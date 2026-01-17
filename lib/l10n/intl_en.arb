@@ -692,5 +692,6 @@
   "nkmlregt4lk": "Failed to load cities. Please try again later.",
   "listingHistory": "Listing history",
   "enterTheFlightNumber": "Enter the flight number",
-  "flightNumber": "Flight number"
- }
+  "flightNumber": "Flight number",
+  "privacyPolicy": "Privacy policy"
+}

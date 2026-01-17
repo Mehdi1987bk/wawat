@@ -756,6 +756,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Please grant accessing storage permission to continue",
         ),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage("Privacy policy"),
     "problemliBaglama": MessageLookupByLibrary.simpleMessage("Problem package"),
     "profiliSilmk": MessageLookupByLibrary.simpleMessage("Delete profile"),
     "qadn": MessageLookupByLibrary.simpleMessage("Female"),

@@ -24,6 +24,7 @@ import '../../data/network/response/offer_types_response.dart';
 import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/partner_user_response.dart';
+import '../../data/network/response/privacy_policy_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/reviews_response.dart';
 import '../../data/network/response/user.dart';
@@ -47,21 +48,19 @@ abstract class AuthRepository {
 
   Future<void> registration(RegistrationRequest request);
 
-  Future<RegistrationResponse> otpVerify(
-      OtpVerifyRequest request, String token);
+  Future<RegistrationResponse> otpVerify(OtpVerifyRequest request,
+      String token);
 
   Future<RegistrationResponse> otpSend(String token);
 
   Future<LanguageResponse> getLanguages();
 
-  Future<void> profileEdit(
-      String name,
+  Future<void> profileEdit(String name,
       String email,
       String phone,
       String location,
       String about,
-      String? callingCode,
-      );
+      String? callingCode,);
 
 
   Future<void> forgotPassword(ForgotPasswordrRequest request);
@@ -81,6 +80,8 @@ abstract class AuthRepository {
   Future<void> createProfessional(CourierProfile request);
 
   Future<OfferTypeResponse> getOfferTypes();
+
+  Future<PrivacyPolicyResponse> privacyPolicy();
 
   Stream<AllrequestData> allRequest(String data);
 

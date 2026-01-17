@@ -1,6 +1,7 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:buking/screens/home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/support/support_screen.dart';
@@ -592,6 +593,24 @@ class _ProfileTabScreenState
             child: _buildMenuItem(
               icon: Icons.settings_outlined,
               title: S.of(context).bgfbgf34gvfd,
+              subtitle: S.of(context).nfngret4,
+              bgColor: const Color(0xFFEFF6FF),
+              iconColor: const Color(0xFF3B82F6),
+              isDark: isDark,
+            ),
+          ),    const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return PrivacyPolicyScreen( );
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.privacy_tip,
+              title: S.of(context).privacyPolicy,
               subtitle: S.of(context).nfngret4,
               bgColor: const Color(0xFFEFF6FF),
               iconColor: const Color(0xFF3B82F6),

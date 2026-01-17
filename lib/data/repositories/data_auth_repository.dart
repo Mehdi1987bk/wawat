@@ -33,6 +33,7 @@ import '../network/response/offer_types_response.dart';
 import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/partner_user_response.dart';
+import '../network/response/privacy_policy_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/reviews_response.dart';
 import '../network/response/user.dart';
@@ -191,6 +192,11 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<OfferTypeResponse> getOfferTypes() {
     return _authApi.getOfferTypes();
+  }
+
+  @override
+  Future<PrivacyPolicyResponse> privacyPolicy(){
+    return _authApi.privacyPolicy();
   }
 
   @override

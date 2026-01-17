@@ -38,6 +38,7 @@ import '../response/offer_types_response.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
 import '../response/partner_user_response.dart';
+import '../response/privacy_policy_response.dart';
 import '../response/registration_response.dart';
 import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
@@ -202,19 +203,18 @@ abstract class AuthApi {
 
   @POST('/api/v1/auth/forgot-password/request')
   Future<ForgotPasswordResponse> forgotPasswordRequest(
-      @Body() ForgotPasswordRequestEmail request,
-      );
+    @Body() ForgotPasswordRequestEmail request,
+  );
 
   @POST('/api/v1/auth/forgot-password/verify')
   Future<void> forgotPasswordVerify(
-      @Body() ForgotPasswordVerifyRequest request,
-      );
+    @Body() ForgotPasswordVerifyRequest request,
+  );
 
   @POST('/api/v1/auth/forgot-password/reset')
   Future<void> forgotPasswordReset(
-      @Body() ForgotPasswordResetRequest request,
-      );
-
+    @Body() ForgotPasswordResetRequest request,
+  );
 
   @GET('/api/v1/geo/countries')
   Future<CountriesResponse> getCountries();
@@ -222,4 +222,6 @@ abstract class AuthApi {
   @POST('/api/v1/auth/change-password')
   Future<void> changePassword(@Body() ChangePasswordRequest request);
 
+  @GET('/api/v1/privacy-policy')
+  Future<PrivacyPolicyResponse> privacyPolicy();
 }
