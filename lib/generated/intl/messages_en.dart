@@ -98,6 +98,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "berbtebteg353434": MessageLookupByLibrary.simpleMessage(
       "Error submitting review:",
     ),
+    "betb4b3retb3r": MessageLookupByLibrary.simpleMessage("Я принимаю"),
     "betg35rw355g3ref": MessageLookupByLibrary.simpleMessage("Leave a review"),
     "betg465g3rwegt4": MessageLookupByLibrary.simpleMessage(
       "Your opinion is very important to us",
@@ -363,6 +364,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fakturaLavEt": MessageLookupByLibrary.simpleMessage("Invoice"),
     "fakturaLavEtcsa": MessageLookupByLibrary.simpleMessage("Add invoice"),
     "fakturaQiymti": MessageLookupByLibrary.simpleMessage("Invoice amount"),
+    "faq": MessageLookupByLibrary.simpleMessage("Faq"),
     "fbdbdf3434": MessageLookupByLibrary.simpleMessage("Not uploaded"),
     "fdbdfbweg4g323g": MessageLookupByLibrary.simpleMessage("online"),
     "fdggg35tr34g": MessageLookupByLibrary.simpleMessage(
@@ -757,6 +759,9 @@ class MessageLookup extends MessageLookupByLibrary {
           "Please grant accessing storage permission to continue",
         ),
     "privacyPolicy": MessageLookupByLibrary.simpleMessage("Privacy policy"),
+    "privacyPolicyvfev": MessageLookupByLibrary.simpleMessage(
+      "Посмотреть Privacy policy",
+    ),
     "problemliBaglama": MessageLookupByLibrary.simpleMessage("Problem package"),
     "profiliSilmk": MessageLookupByLibrary.simpleMessage("Delete profile"),
     "qadn": MessageLookupByLibrary.simpleMessage("Female"),
@@ -1023,6 +1028,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vfvfd443r43": MessageLookupByLibrary.simpleMessage("All checks passed"),
     "vgfb35": MessageLookupByLibrary.simpleMessage("Select language"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Start a conversation"),
+    "viewFaq": MessageLookupByLibrary.simpleMessage("View Faq"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Full name"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Error sending message:",

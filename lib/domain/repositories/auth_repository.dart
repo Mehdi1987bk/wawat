@@ -15,6 +15,7 @@ import '../../data/network/request/registration_request.dart';
 import '../../data/network/request/support_request.dart';
 import '../../data/network/response/all_request_data.dart';
 import '../../data/network/response/cities_response.dart';
+import '../../data/network/response/faq_response.dart';
 import '../../data/network/response/language_response.dart';
 import '../../data/network/response/login_response.dart';
 import '../../data/network/response/notification_response.dart';
@@ -27,6 +28,7 @@ import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/privacy_policy_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/reviews_response.dart';
+import '../../data/network/response/unread_count_response.dart';
 import '../../data/network/response/user.dart';
 import '../../data/network/response/verification_response.dart';
 import '../entities/pagination.dart';
@@ -48,20 +50,21 @@ abstract class AuthRepository {
 
   Future<void> registration(RegistrationRequest request);
 
-  Future<RegistrationResponse> otpVerify(OtpVerifyRequest request,
-      String token);
+  Future<RegistrationResponse> otpVerify(
+      OtpVerifyRequest request, String token);
 
   Future<RegistrationResponse> otpSend(String token);
 
   Future<LanguageResponse> getLanguages();
 
-  Future<void> profileEdit(String name,
-      String email,
-      String phone,
-      String location,
-      String about,
-      String? callingCode,);
-
+  Future<void> profileEdit(
+    String name,
+    String email,
+    String phone,
+    String location,
+    String about,
+    String? callingCode,
+  );
 
   Future<void> forgotPassword(ForgotPasswordrRequest request);
 
@@ -82,6 +85,10 @@ abstract class AuthRepository {
   Future<OfferTypeResponse> getOfferTypes();
 
   Future<PrivacyPolicyResponse> privacyPolicy();
+
+  Future<UnreadCountResponse> notifUnread();
+
+  Future<FaqResponse> faqs();
 
   Stream<AllrequestData> allRequest(String data);
 

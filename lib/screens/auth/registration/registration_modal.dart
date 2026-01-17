@@ -1,8 +1,9 @@
 import 'package:buking/screens/auth/registration/registration_bloc.dart';
 import 'package:buking/screens/auth/registration/widget/country_code_selector.dart';
 import 'package:buking/screens/auth/registration/widget/language_selector.dart';
-import 'package:buking/screens/home/home_screen.dart';
+ import 'package:buking/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/network/response/country.dart';
@@ -16,6 +17,7 @@ import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../services/theme_manager.dart';
 import '../../../wawat/widgets/wawat_button.dart';
 import '../../../wawat/widgets/wawat_input_field.dart';
+import '../../home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
 
 class RegistrationModal extends StatefulWidget {
   final VoidCallback onLogin;
@@ -48,7 +50,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  bool _agreedToTerms = true;
+  bool _agreedToTerms = false;
   Set<String> _selectedLanguageCodes = {};
   List<Language> _allLanguages = [];
   bool _isLoadingLanguages = false;
@@ -158,6 +160,14 @@ class _RegistrationModalState extends State<RegistrationModal> {
     );
   }
 
+  void _openPrivacyPolicy() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>   PrivacyPolicyScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeManager>(
@@ -246,7 +256,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         ),
                         SizedBox(height: WawatDimensions.spacingMd),
 
-                         Text(
+                        Text(
                           S.of(context).bgf34,
                           style: TextStyle(
                             fontSize: 12,
@@ -259,7 +269,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                             CountryCodeSelector(
+                            CountryCodeSelector(
                               selectedCountry: _selectedCountry,
                               countries: _allCountries,
                               isLoading: _isLoadingCountries,
@@ -269,7 +279,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                               },
                             ),
                             const SizedBox(width: 8),
-                             Expanded(
+                            Expanded(
                               child: Container(
                                 height: 48,
                                 decoration: BoxDecoration(
@@ -299,7 +309,7 @@ class _RegistrationModalState extends State<RegistrationModal> {
                                     border: InputBorder.none,
                                     contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 12,
-                                     ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -338,6 +348,72 @@ class _RegistrationModalState extends State<RegistrationModal> {
                               _validateForm();
                             },
                           ),
+
+                        SizedBox(height: WawatDimensions.spacingMd),
+
+                        // Privacy Policy Checkbox
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Checkbox(
+                                value: _agreedToTerms,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _agreedToTerms = value ?? false;
+                                  });
+                                  _validateForm();
+                                },
+                                activeColor: isDark
+                                    ? const Color(0xFF6366F1)
+                                    : WawatColors.primary,
+                                checkColor: Colors.white,
+                                side: BorderSide(
+                                  color: isDark
+                                      ? Colors.white38
+                                      : Colors.grey.shade400,
+                                  width: 1.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: WawatDimensions.spacingSm),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: WawatTextStyles.caption.copyWith(
+                                      color: isDark
+                                          ? const Color(0xFF9CA3AF)
+                                          : WawatColors.textSecondary,
+                                      height: 1.4,
+                                    ),
+                                    children: [
+                                        TextSpan(text:S.of(context).betb4b3retb3r),
+                                      TextSpan(
+                                        text:  " "+  S.of(context).privacyPolicy,
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? const Color(0xFF6366F1)
+                                              : WawatColors.primary,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = _openPrivacyPolicy,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
 
                         SizedBox(height: WawatDimensions.spacingLg),
 

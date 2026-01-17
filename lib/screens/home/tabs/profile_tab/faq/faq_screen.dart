@@ -1,0 +1,437 @@
+import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../../data/network/response/faq_response.dart';
+import '../../../../../presentation/resourses/wawat_colors.dart';
+import '../../../../../services/theme_manager.dart';
+import 'faq_bloc.dart';
+
+class FaqScreen extends BaseScreen {
+  FaqScreen({super.key});
+
+  @override
+  State<FaqScreen> createState() => _FaqScreenState();
+}
+
+class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
+  // Для отслеживания раскрытых элементов
+  final Set<int> _expandedItems = {};
+
+  @override
+  PreferredSizeWidget? appBar() {
+    final themeManager = Provider.of<ThemeManager>(context, listen: false);
+    final isDark = themeManager.isDarkMode;
+
+    return AppBar(
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      title: Text(
+        'FAQ',
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      centerTitle: false,
+    );
+  }
+
+  @override
+  Widget body() {
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, _) {
+        final isDark = themeManager.isDarkMode;
+
+        return Container(
+          color: isDark
+              ? const Color(0xFF121212)
+              : const Color(0xFFF5F5F7),
+          child: CustomScrollView(
+            slivers: [
+              // Красивый header
+              SliverToBoxAdapter(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(
+                          Icons.help_outline_rounded,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Часто задаваемые вопросы',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Найдите ответы на популярные вопросы',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : const Color(0xFF8E8E93),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // FAQ список
+              FutureBuilder<FaqResponse>(
+                future: bloc.faqs,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            isDark
+                                ? const Color(0xFF6366F1)
+                                : WawatColors.primary,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: isDark
+                                  ? Colors.white38
+                                  : Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Ошибка загрузки FAQ',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: isDark
+                                    ? Colors.white70
+                                    : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.data.isEmpty) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.quiz_outlined,
+                              size: 64,
+                              color: isDark
+                                  ? Colors.white38
+                                  : Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Пока нет вопросов',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: isDark
+                                    ? Colors.white70
+                                    : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  final faqs = snapshot.data!.data;
+
+                  return SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                          final faq = faqs[index];
+                          final isExpanded = _expandedItems.contains(index);
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildFaqItem(
+                              isDark: isDark,
+                              question: faq.question,
+                              answer: faq.answer,
+                              isExpanded: isExpanded,
+                              onTap: () {
+                                setState(() {
+                                  if (isExpanded) {
+                                    _expandedItems.remove(index);
+                                  } else {
+                                    _expandedItems.add(index);
+                                  }
+                                });
+                              },
+                            ),
+                          );
+                        },
+                        childCount: faqs.length,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              // Нижний отступ
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 20),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFaqItem({
+    required bool isDark,
+    required String question,
+    required String answer,
+    required bool isExpanded,
+    required VoidCallback onTap,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isExpanded
+              ? (isDark ? const Color(0xFF6366F1) : WawatColors.primary)
+              : (isDark ? Colors.white12 : Colors.grey.shade200),
+          width: isExpanded ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isExpanded ? 0.1 : 0.05),
+            blurRadius: isExpanded ? 12 : 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Вопрос
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          question,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      AnimatedRotation(
+                        turns: isExpanded ? 0.5 : 0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: isExpanded
+                                ? (isDark
+                                ? const Color(0xFF6366F1)
+                                : WawatColors.primary)
+                                : (isDark
+                                ? Colors.white12
+                                : Colors.grey.shade100),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: isExpanded
+                                ? Colors.white
+                                : (isDark
+                                ? Colors.white70
+                                : Colors.grey.shade600),
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Ответ (анимированный)
+                  AnimatedCrossFade(
+                    firstChild: const SizedBox.shrink(),
+                    secondChild: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          height: 1,
+                          color: isDark
+                              ? Colors.white12
+                              : Colors.grey.shade200,
+                        ),
+                        const SizedBox(height: 12),
+                        HtmlWidget(
+                          answer,
+                          textStyle: TextStyle(
+                            fontSize: 14,
+                            height: 1.6,
+                            color: isDark
+                                ? const Color(0xFFD1D5DB)
+                                : const Color(0xFF4B5563),
+                          ),
+                          customStylesBuilder: (element) {
+                            // Стили для разных HTML элементов
+                            if (element.localName == 'a') {
+                              return {
+                                'color': isDark
+                                    ? '#6366F1'
+                                    : '#${WawatColors.primary.value.toRadixString(16).substring(2)}',
+                                'text-decoration': 'underline',
+                              };
+                            }
+                            if (element.localName == 'strong' ||
+                                element.localName == 'b') {
+                              return {
+                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'font-weight': '600',
+                              };
+                            }
+                            if (element.localName == 'h1') {
+                              return {
+                                'font-size': '20px',
+                                'font-weight': 'bold',
+                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'margin': '8px 0 12px 0',
+                              };
+                            }
+                            if (element.localName == 'h2') {
+                              return {
+                                'font-size': '18px',
+                                'font-weight': 'bold',
+                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'margin': '8px 0 10px 0',
+                              };
+                            }
+                            if (element.localName == 'h3') {
+                              return {
+                                'font-size': '16px',
+                                'font-weight': '600',
+                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'margin': '6px 0 8px 0',
+                              };
+                            }
+                            if (element.localName == 'p') {
+                              return {
+                                'margin': '0 0 8px 0',
+                              };
+                            }
+                            if (element.localName == 'ul' ||
+                                element.localName == 'ol') {
+                              return {
+                                'margin': '0 0 8px 8px',
+                              };
+                            }
+                            if (element.localName == 'li') {
+                              return {
+                                'margin': '0 0 4px 0',
+                              };
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                    crossFadeState: isExpanded
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  FaqBloc provideBloc() {
+    return FaqBloc();
+  }
+}

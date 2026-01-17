@@ -21,6 +21,7 @@ import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
 import 'courier_reviews_page.dart';
+import 'faq/faq_screen.dart';
 
 class ProfileTabScreen extends BaseScreen {
   ProfileTabScreen({Key? key}) : super(key: key);
@@ -611,7 +612,26 @@ class _ProfileTabScreenState
             child: _buildMenuItem(
               icon: Icons.privacy_tip,
               title: S.of(context).privacyPolicy,
-              subtitle: S.of(context).nfngret4,
+              subtitle: S.of(context).privacyPolicyvfev,
+              bgColor: const Color(0xFFEFF6FF),
+              iconColor: const Color(0xFF3B82F6),
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return FaqScreen();
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.question_answer_outlined,
+              title: S.of(context).faq,
+              subtitle: S.of(context).viewFaq,
               bgColor: const Color(0xFFEFF6FF),
               iconColor: const Color(0xFF3B82F6),
               isDark: isDark,

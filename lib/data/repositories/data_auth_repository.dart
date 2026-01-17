@@ -24,6 +24,7 @@ import '../network/request/support_request.dart';
 import '../network/request/user_request.dart';
 import '../network/response/all_request_data.dart';
 import '../network/response/cities_response.dart';
+import '../network/response/faq_response.dart';
 import '../network/response/language_response.dart';
 import '../network/response/login_response.dart';
 import '../network/response/notification_response.dart';
@@ -36,6 +37,7 @@ import '../network/response/partner_user_response.dart';
 import '../network/response/privacy_policy_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/reviews_response.dart';
+import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
 import '../network/response/verification_response.dart';
 
@@ -197,6 +199,16 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<PrivacyPolicyResponse> privacyPolicy(){
     return _authApi.privacyPolicy();
+  }
+
+  @override
+  Future<UnreadCountResponse> notifUnread(){
+    return _authApi.notifUnread();
+  }
+
+  @override
+  Future<FaqResponse> faqs(){
+    return _authApi.faqs();
   }
 
   @override

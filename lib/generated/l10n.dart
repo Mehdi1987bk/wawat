@@ -5319,6 +5319,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Я принимаю`
+  String get betb4b3retb3r {
+    return Intl.message(
+      'Я принимаю',
+      name: 'betb4b3retb3r',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Посмотреть Privacy policy`
+  String get privacyPolicyvfev {
+    return Intl.message(
+      'Посмотреть Privacy policy',
+      name: 'privacyPolicyvfev',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Faq`
+  String get faq {
+    return Intl.message('Faq', name: 'faq', desc: '', args: []);
+  }
+
+  /// `View Faq`
+  String get viewFaq {
+    return Intl.message('View Faq', name: 'viewFaq', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -27,6 +27,7 @@ import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/cities_response.dart';
 import '../response/countries_response.dart';
+import '../response/faq_response.dart';
 import '../response/forgot_password_response.dart';
 import '../response/language_response.dart';
 import '../response/login_response.dart';
@@ -42,6 +43,7 @@ import '../response/privacy_policy_response.dart';
 import '../response/registration_response.dart';
 import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
+import '../response/unread_count_response.dart';
 import '../response/user.dart';
 import '../response/verification_response.dart';
 
@@ -224,4 +226,10 @@ abstract class AuthApi {
 
   @GET('/api/v1/privacy-policy')
   Future<PrivacyPolicyResponse> privacyPolicy();
+
+  @GET('/api/v1/faqs')
+  Future<FaqResponse> faqs();
+
+  @GET('/api/v1/notifications/unread-count')
+  Future<UnreadCountResponse> notifUnread();
 }
