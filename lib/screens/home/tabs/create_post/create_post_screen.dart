@@ -87,16 +87,12 @@ class _CreatePostScreenState
     purchaseDateToController.addListener(_updateButtonState);
     maxWeightController.addListener(_updateButtonState);
     priceController.addListener(_updateButtonState);
-    descriptionController.addListener(_updateButtonState);
+    // descriptionController.addListener(_updateButtonState); // <-- УБРАТЬ ЭТУ СТРОКУ
     _notificationBloc = UnreadNotificationBloc();
     _notificationBloc.init();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAllDataSilently();
     });
-  }
-
-  void _updateButtonState() {
-    setState(() {});
   }
 
   bool get _isFormValid {
@@ -106,13 +102,12 @@ class _CreatePostScreenState
         _selectedFromCity != null &&
         _selectedToCity != null &&
         maxWeightController.text.isNotEmpty &&
-        double.tryParse(maxWeightController.text.replaceAll(',', '.')) !=
-            null &&
+        double.tryParse(maxWeightController.text.replaceAll(',', '.')) != null &&
         double.parse(maxWeightController.text.replaceAll(',', '.')) > 0 &&
         priceController.text.isNotEmpty &&
         double.tryParse(priceController.text.replaceAll(',', '.')) != null &&
-        double.parse(priceController.text.replaceAll(',', '.')) > 0 &&
-        descriptionController.text.trim().isNotEmpty;
+        double.parse(priceController.text.replaceAll(',', '.')) > 0;
+    // descriptionController.text.trim().isNotEmpty; // <-- УБРАТЬ ЭТУ СТРОКУ
 
     if (!baseValid) return false;
 
@@ -131,6 +126,11 @@ class _CreatePostScreenState
         return false;
     }
   }
+
+  void _updateButtonState() {
+    setState(() {});
+  }
+
 
   Future<void> _loadAllDataSilently() async {
     // Запускаем параллельно, не блокируя UI
