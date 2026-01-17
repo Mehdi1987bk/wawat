@@ -100,6 +100,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "berbtebteg353434": MessageLookupByLibrary.simpleMessage(
       "Rəy göndərmə xətası:",
     ),
+    "betb4b3retb3r": MessageLookupByLibrary.simpleMessage("Qəbul edirəm"),
     "betg35rw355g3ref": MessageLookupByLibrary.simpleMessage("Rəy yazın"),
     "betg465g3rwegt4": MessageLookupByLibrary.simpleMessage(
       "Fikriniz bizim üçün çox vacibdir",
@@ -373,6 +374,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fakturaLavEt": MessageLookupByLibrary.simpleMessage("Faktura"),
     "fakturaLavEtcsa": MessageLookupByLibrary.simpleMessage("Faktura əlavə et"),
     "fakturaQiymti": MessageLookupByLibrary.simpleMessage("Faktura qiyməti"),
+    "faq": MessageLookupByLibrary.simpleMessage("Tez-tez verilən suallar"),
     "fbdbdf3434": MessageLookupByLibrary.simpleMessage("Yüklənməyib"),
     "fdbdfbweg4g323g": MessageLookupByLibrary.simpleMessage("onlayn"),
     "fdggg35tr34g": MessageLookupByLibrary.simpleMessage(
@@ -772,6 +774,10 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Davam etmək üçün yaddaş icazəsi verin",
         ),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage("Məxfilik siyasəti"),
+    "privacyPolicyvfev": MessageLookupByLibrary.simpleMessage(
+      "Məxfilik siyasətinə bax",
+    ),
     "problemliBaglama": MessageLookupByLibrary.simpleMessage(
       "Problemli bağlama",
     ),
@@ -1052,6 +1058,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vgfb35": MessageLookupByLibrary.simpleMessage("Dil seçin"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Söhbətə başlayın"),
+    "viewFaq": MessageLookupByLibrary.simpleMessage("FAQ-a bax"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Tam ad"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Mesaj göndərilməsində xəta:",

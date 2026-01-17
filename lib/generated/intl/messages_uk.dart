@@ -104,6 +104,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "berbtebteg353434": MessageLookupByLibrary.simpleMessage(
       "Помилка надсилання відгуку:",
     ),
+    "betb4b3retb3r": MessageLookupByLibrary.simpleMessage("Я приймаю"),
     "betg35rw355g3ref": MessageLookupByLibrary.simpleMessage("Залиште відгук"),
     "betg465g3rwegt4": MessageLookupByLibrary.simpleMessage(
       "Ваша думка дуже важлива для нас",
@@ -397,6 +398,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fakturaQiymti": MessageLookupByLibrary.simpleMessage(
       "Сума рахунку-фактури",
     ),
+    "faq": MessageLookupByLibrary.simpleMessage("Питання та відповіді"),
     "fbdbdf3434": MessageLookupByLibrary.simpleMessage("Не завантажено"),
     "fdbdfbweg4g323g": MessageLookupByLibrary.simpleMessage("онлайн"),
     "fdggg35tr34g": MessageLookupByLibrary.simpleMessage(
@@ -798,6 +800,12 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Будь ласка, надайте доступ до сховища для продовження",
         ),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage(
+      "Політика конфіденційності",
+    ),
+    "privacyPolicyvfev": MessageLookupByLibrary.simpleMessage(
+      "Переглянути політику конфіденційності",
+    ),
     "problemliBaglama": MessageLookupByLibrary.simpleMessage(
       "Проблемна посилка",
     ),
@@ -1064,6 +1072,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vgfb35": MessageLookupByLibrary.simpleMessage("Виберіть мову"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Почніть листування"),
+    "viewFaq": MessageLookupByLibrary.simpleMessage("Переглянути FAQ"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Повне ім\'я"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Помилка надсилання повідомлення:",

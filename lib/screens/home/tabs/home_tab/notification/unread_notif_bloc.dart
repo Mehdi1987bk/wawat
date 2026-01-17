@@ -4,7 +4,6 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
 
-
 class UnreadNotificationBloc extends BaseBloc {
   final userRepository = sl.get<AuthRepository>();
 
@@ -27,7 +26,6 @@ class UnreadNotificationBloc extends BaseBloc {
         _unreadCountSubject.add(response.data.unreadCount);
       }
     } catch (e) {
-      print('Error fetching unread count: $e');
       dispatchError(e);
     }
   }

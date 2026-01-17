@@ -14,7 +14,6 @@ class IntroPage extends StatelessWidget {
     return Consumer<ThemeManager>(
       builder: (context, themeManager, child) {
         final isDark = themeManager.isDarkMode;
-
         return Scaffold(
           backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
           body: ThemeAwareScreen(
@@ -89,7 +88,7 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection(BuildContext context, bool isDark) { // Добавлен BuildContext context
+  Widget _buildHeroSection(BuildContext context, bool isDark) {
     return Column(
       children: [
         Padding(

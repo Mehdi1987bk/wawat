@@ -35,7 +35,7 @@ class _PersonalInfoTabState
   late TextEditingController _fullNameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  late TextEditingController _locationController;
+  // late TextEditingController _locationController;
   late TextEditingController _aboutController;
   File? _selectedImage;
 
@@ -66,13 +66,13 @@ class _PersonalInfoTabState
     _fullNameController = TextEditingController(text: _initialFullname);
     _emailController = TextEditingController(text: _initialEmail);
     _phoneController = TextEditingController(text: _initialPhone);
-    _locationController = TextEditingController(text: _initialLocation);
+    // _locationController = TextEditingController(text: _initialLocation);
     _aboutController = TextEditingController(text: _initialAbout);
 
     _fullNameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
-    _locationController.addListener(_validateForm);
+    // _locationController.addListener(_validateForm);
     _aboutController.addListener(_validateForm);
 
     _loadCountries();
@@ -159,9 +159,9 @@ class _PersonalInfoTabState
                     // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ (РЕДАКТИРУЕМЫЙ)
                     _buildPhoneFieldWithCountry(isDark),
 
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        S.of(context).bebfdb34g3vs, _locationController, isDark),
+                    // const SizedBox(height: 16),
+                    // _buildTextField(
+                    //     S.of(context).bebfdb34g3vs, _locationController, isDark),
                     const SizedBox(height: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,7 +546,7 @@ class _PersonalInfoTabState
     final currentFullname = _fullNameController.text.trim();
     final currentEmail = _emailController.text.trim();
     final currentPhone = _phoneController.text.trim();
-    final currentLocation = _locationController.text.trim();
+    // final currentLocation = _locationController.text.trim();
     final currentAbout = _aboutController.text.trim();
 
     final isRequiredFieldsFilled = currentFullname.isNotEmpty &&
@@ -559,7 +559,7 @@ class _PersonalInfoTabState
     final isAnythingChanged = currentFullname != _initialFullname ||
         currentEmail != _initialEmail ||
         currentPhone != _initialPhone ||
-        currentLocation != _initialLocation ||
+        // currentLocation != _initialLocation ||
         currentAbout != _initialAbout ||
         isCountryChanged;
 
@@ -570,7 +570,7 @@ class _PersonalInfoTabState
     final String name = _fullNameController.text.trim();
     final String email = _emailController.text.trim();
     final String phone = _phoneController.text.trim();
-    final String location = _locationController.text.trim();
+    // final String location = _locationController.text.trim();
     final String about = _aboutController.text.trim();
 
     bloc
@@ -578,7 +578,7 @@ class _PersonalInfoTabState
       name: name,
       email: email,
       phone: phone,
-      location: location,
+      location: /*location*/ "",
       about: about,
       callingCode: _selectedCountry?.callingCode,
     )
@@ -598,7 +598,7 @@ class _PersonalInfoTabState
     _fullNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _locationController.dispose();
+    // _locationController.dispose();
     _aboutController.dispose();
     super.dispose();
   }

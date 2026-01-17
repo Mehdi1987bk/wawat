@@ -98,6 +98,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "berbtebteg353434": MessageLookupByLibrary.simpleMessage(
       "Yorum gönderme hatası:",
     ),
+    "betb4b3retb3r": MessageLookupByLibrary.simpleMessage("Kabul ediyorum"),
     "betg35rw355g3ref": MessageLookupByLibrary.simpleMessage("Yorum yazın"),
     "betg465g3rwegt4": MessageLookupByLibrary.simpleMessage(
       "Görüşünüz bizim için çok önemli",
@@ -379,6 +380,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fakturaLavEt": MessageLookupByLibrary.simpleMessage("Fatura"),
     "fakturaLavEtcsa": MessageLookupByLibrary.simpleMessage("Fatura ekle"),
     "fakturaQiymti": MessageLookupByLibrary.simpleMessage("Fatura tutarı"),
+    "faq": MessageLookupByLibrary.simpleMessage("SSS"),
     "fbdbdf3434": MessageLookupByLibrary.simpleMessage("Yüklenmedi"),
     "fdbdfbweg4g323g": MessageLookupByLibrary.simpleMessage("çevrimiçi"),
     "fdggg35tr34g": MessageLookupByLibrary.simpleMessage(
@@ -768,6 +770,12 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Devam etmek için depolama izni verin",
         ),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage(
+      "Gizlilik politikası",
+    ),
+    "privacyPolicyvfev": MessageLookupByLibrary.simpleMessage(
+      "Gizlilik politikasını görüntüle",
+    ),
     "problemliBaglama": MessageLookupByLibrary.simpleMessage("Sorunlu paket"),
     "profiliSilmk": MessageLookupByLibrary.simpleMessage("Profili sil"),
     "qadn": MessageLookupByLibrary.simpleMessage("Kadın"),
@@ -1030,6 +1038,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vfvfd443r43": MessageLookupByLibrary.simpleMessage("Tüm kontroller geçti"),
     "vgfb35": MessageLookupByLibrary.simpleMessage("Dil seçin"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Sohbet başlatın"),
+    "viewFaq": MessageLookupByLibrary.simpleMessage("SSS\'yi görüntüle"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Tam ad"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Mesaj gönderilirken hata:",

@@ -694,8 +694,8 @@
   "enterTheFlightNumber": "Enter the flight number",
   "flightNumber": "Flight number",
   "privacyPolicy": "Privacy policy",
-  "betb4b3retb3r": "Я принимаю",
-  "privacyPolicyvfev": "Посмотреть Privacy policy",
-  "faq": "Faq",
-  "viewFaq": "View Faq"
+  "betb4b3retb3r": "I accept",
+  "privacyPolicyvfev": "View privacy policy",
+  "faq": "FAQ",
+  "viewFaq": "View FAQ"
 }

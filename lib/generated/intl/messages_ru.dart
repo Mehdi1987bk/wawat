@@ -102,6 +102,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "berbtebteg353434": MessageLookupByLibrary.simpleMessage(
       "Ошибка отправки отзыва:",
     ),
+    "betb4b3retb3r": MessageLookupByLibrary.simpleMessage("Я принимаю"),
     "betg35rw355g3ref": MessageLookupByLibrary.simpleMessage("Оставьте отзыв"),
     "betg465g3rwegt4": MessageLookupByLibrary.simpleMessage(
       "Ваше мнение очень важно для нас",
@@ -391,6 +392,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fakturaQiymti": MessageLookupByLibrary.simpleMessage(
       "Сумма счёта-фактуры",
     ),
+    "faq": MessageLookupByLibrary.simpleMessage("Вопросы и ответы"),
     "fbdbdf3434": MessageLookupByLibrary.simpleMessage("Не загружено"),
     "fdbdfbweg4g323g": MessageLookupByLibrary.simpleMessage("онлайн"),
     "fdggg35tr34g": MessageLookupByLibrary.simpleMessage(
@@ -790,6 +792,12 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Пожалуйста, предоставьте доступ к хранилищу для продолжения",
         ),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage(
+      "Политика конфиденциальности",
+    ),
+    "privacyPolicyvfev": MessageLookupByLibrary.simpleMessage(
+      "Посмотреть политику конфиденциальности",
+    ),
     "problemliBaglama": MessageLookupByLibrary.simpleMessage(
       "Проблемная посылка",
     ),
@@ -1065,6 +1073,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vgfb35": MessageLookupByLibrary.simpleMessage("Выберите язык"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Начните переписку"),
+    "viewFaq": MessageLookupByLibrary.simpleMessage("Посмотреть FAQ"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Полное имя"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Ошибка отправки сообщения:",

@@ -16,6 +16,7 @@ import '../../../../services/theme_manager.dart';
 import '../../../auth/registration/widget/package_types_selector.dart';
 import '../home_tab/home_tab_screen.dart';
 import '../home_tab/notification/unread_notif_bloc.dart';
+import '../home_tab/widget/build_header.dart';
 import '../home_tab/widget/city_selector.dart';
 import '../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import 'create_post_bloc.dart';
@@ -394,9 +395,16 @@ class _CreatePostScreenState
                 stream: _notificationBloc.unreadCountStream,
                 initialData: 0,
                 builder: (context, snapshot) {
-                  return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                  return BuildHeader(
+                    context,
+                    isDark: isDark,
+                    unreadCount: snapshot.data ?? 0,
+                    onNotificationsReturned: () {
+                      _notificationBloc.fetchUnreadCount();
+                    },
+                  );
                 },
-              ),              Expanded(
+              ),           Expanded(
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(20),

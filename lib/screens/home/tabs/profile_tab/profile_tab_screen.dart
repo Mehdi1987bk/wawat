@@ -21,6 +21,7 @@ import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
 import '../home_tab/home_tab_screen.dart';
 import '../home_tab/notification/unread_notif_bloc.dart';
+import '../home_tab/widget/build_header.dart';
 import 'courier_reviews_page.dart';
 import 'faq/faq_screen.dart';
 
@@ -35,17 +36,19 @@ class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
   @override
   bool get useSystemOverlay => false;
-  late final UnreadNotificationBloc _notificationBloc;  // <- ДОБАВИТЬ
+  late final UnreadNotificationBloc _notificationBloc; // <- ДОБАВИТЬ
 
   @override
-  void initState() {  // <- ДОБАВИТЬ весь метод
+  void initState() {
+    // <- ДОБАВИТЬ весь метод
     super.initState();
     _notificationBloc = UnreadNotificationBloc();
     _notificationBloc.init();
   }
 
   @override
-  void dispose() {  // <- ДОБАВИТЬ весь метод
+  void dispose() {
+    // <- ДОБАВИТЬ весь метод
     _notificationBloc.dispose();
     super.dispose();
   }
@@ -58,7 +61,7 @@ class _ProfileTabScreenState
         return StreamBuilder<User>(
           stream: bloc.userDetails,
           builder: (context, snapshot) {
-             if (snapshot.hasError) {
+            if (snapshot.hasError) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -81,14 +84,14 @@ class _ProfileTabScreenState
                       onPressed: () {
                         setState(() {});
                       },
-                      child:   Text(S.of(context).fds),
+                      child: Text(S.of(context).fds),
                     ),
                   ],
                 ),
               );
             }
 
-             if (snapshot.connectionState == ConnectionState.waiting ||
+            if (snapshot.connectionState == ConnectionState.waiting ||
                 !snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(
@@ -97,7 +100,7 @@ class _ProfileTabScreenState
               );
             }
 
-             return SafeArea(
+            return SafeArea(
               child: Stack(
                 children: [
                   SingleChildScrollView(
@@ -148,9 +151,17 @@ class _ProfileTabScreenState
                     stream: _notificationBloc.unreadCountStream,
                     initialData: 0,
                     builder: (context, snapshot) {
-                      return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                      return BuildHeader(
+                        context,
+                        isDark: isDark,
+                        unreadCount: snapshot.data ?? 0,
+                        onNotificationsReturned: () {
+                          _notificationBloc.fetchUnreadCount();
+                        },
+                      );
                     },
-                  ),                ],
+                  ),
+                ],
               ),
             );
           },
@@ -230,7 +241,7 @@ class _ProfileTabScreenState
               ],
             ),
           ),
-           Container(
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -333,7 +344,7 @@ class _ProfileTabScreenState
                     ),
                     const SizedBox(width: 4),
                     Container(
-                      child:   Text(
+                      child: Text(
                         S.of(context).h46h46,
                         style: TextStyle(
                           fontSize: 12,
@@ -364,7 +375,8 @@ class _ProfileTabScreenState
                       ? const Color(0xFFB0B0B0)
                       : const Color(0xFF6B7280),
                 ),
-                child: Text((user.country?.callingCode ?? "") + (user.phone ?? "")),
+                child: Text(
+                    (user.country?.callingCode ?? "") + (user.phone ?? "")),
               ),
             ],
           ),
@@ -410,7 +422,9 @@ class _ProfileTabScreenState
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_4.png",
-                value:(user.stats?.yearsOnPlatform?.toStringAsFixed(0) ?? "") + ' ' + S.of(context).bgfbg33,
+                value: (user.stats?.yearsOnPlatform?.toStringAsFixed(0) ?? "") +
+                    ' ' +
+                    S.of(context).bgfbg33,
                 label: S.of(context).htr345gfd,
                 context: context,
                 isDark: isDark,
@@ -482,7 +496,7 @@ class _ProfileTabScreenState
           StreamBuilder<Locale?>(
               stream: bloc.locale,
               builder: (context, snapshot) {
-                 final currentLocale = snapshot.data ?? const Locale("en");
+                final currentLocale = snapshot.data ?? const Locale("en");
 
                 return GestureDetector(
                   onTap: () => _showMenu(snapshot.data),
@@ -607,7 +621,7 @@ class _ProfileTabScreenState
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return EditProfileScreen( );
+                  return EditProfileScreen();
                 },
               ),
             ),
@@ -619,13 +633,14 @@ class _ProfileTabScreenState
               iconColor: const Color(0xFF3B82F6),
               isDark: isDark,
             ),
-          ),    const SizedBox(height: 12),
+          ),
+          const SizedBox(height: 12),
           GestureDetector(
             onTap: () => Navigator.push(
               context,
               CupertinoPageRoute(
                 builder: (BuildContext context) {
-                  return PrivacyPolicyScreen( );
+                  return PrivacyPolicyScreen();
                 },
               ),
             ),

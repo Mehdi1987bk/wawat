@@ -11,6 +11,7 @@ import '../../../services/theme_aware_screen.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/tabs/home_tab/home_tab_screen.dart';
 import '../../home/tabs/home_tab/notification/unread_notif_bloc.dart';
+import '../../home/tabs/home_tab/widget/build_header.dart';
 import '../bloc/chat_list_bloc.dart';
 import '../widgets/conversation_item.dart';
 import 'chat_conversation_screen.dart';
@@ -48,7 +49,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _notificationBloc.dispose();  // <- ДОБАВИТЬ
+    _notificationBloc.dispose(); // <- ДОБАВИТЬ
 
     super.dispose();
   }
@@ -287,9 +288,17 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 stream: _notificationBloc.unreadCountStream,
                 initialData: 0,
                 builder: (context, snapshot) {
-                  return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                  return BuildHeader(
+                    context,
+                    isDark: isDark,
+                    unreadCount: snapshot.data ?? 0,
+                    onNotificationsReturned: () {
+                      _notificationBloc.fetchUnreadCount();
+                    },
+                  );
                 },
-              ),            ],
+              ),
+            ],
           ),
         ),
       ),

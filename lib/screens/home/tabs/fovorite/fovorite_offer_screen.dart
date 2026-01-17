@@ -9,6 +9,7 @@ import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../home_tab/home_tab_screen.dart';
 import '../home_tab/notification/unread_notif_bloc.dart';
+import '../home_tab/widget/build_header.dart';
 import '../home_tab/widget/wawat_courier_card.dart';
 import 'fovorite_offer_bloc.dart';
 
@@ -77,9 +78,16 @@ class _FovoriteOfferListScreenState
                 stream: _notificationBloc.unreadCountStream,
                 initialData: 0,
                 builder: (context, snapshot) {
-                  return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                  return BuildHeader(
+                    context,
+                    isDark: isDark,
+                    unreadCount: snapshot.data ?? 0,
+                    onNotificationsReturned: () {
+                      _notificationBloc.fetchUnreadCount();
+                    },
+                  );
                 },
-              ),              Padding(
+              ),             Padding(
                 padding: const EdgeInsets.only(top: 70),
                 child: CustomScrollView(
                   controller: _scrollController,

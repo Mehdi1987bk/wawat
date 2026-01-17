@@ -5320,34 +5320,29 @@ class S {
     );
   }
 
-  /// `Я принимаю`
+  /// `I accept`
   String get betb4b3retb3r {
-    return Intl.message(
-      'Я принимаю',
-      name: 'betb4b3retb3r',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('I accept', name: 'betb4b3retb3r', desc: '', args: []);
   }
 
-  /// `Посмотреть Privacy policy`
+  /// `View privacy policy`
   String get privacyPolicyvfev {
     return Intl.message(
-      'Посмотреть Privacy policy',
+      'View privacy policy',
       name: 'privacyPolicyvfev',
       desc: '',
       args: [],
     );
   }
 
-  /// `Faq`
+  /// `FAQ`
   String get faq {
-    return Intl.message('Faq', name: 'faq', desc: '', args: []);
+    return Intl.message('FAQ', name: 'faq', desc: '', args: []);
   }
 
-  /// `View Faq`
+  /// `View FAQ`
   String get viewFaq {
-    return Intl.message('View Faq', name: 'viewFaq', desc: '', args: []);
+    return Intl.message('View FAQ', name: 'viewFaq', desc: '', args: []);
   }
 }
 
