@@ -28,6 +28,7 @@ import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/privacy_policy_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/reviews_response.dart';
+import '../../data/network/response/unread_chat_count_response.dart';
 import '../../data/network/response/unread_count_response.dart';
 import '../../data/network/response/user.dart';
 import '../../data/network/response/verification_response.dart';
@@ -87,6 +88,8 @@ abstract class AuthRepository {
   Future<PrivacyPolicyResponse> privacyPolicy();
 
   Future<UnreadCountResponse> notifUnread();
+
+  Future<UnreadChatCountResponse> chatUnread();
 
   Future<FaqResponse> faqs();
 

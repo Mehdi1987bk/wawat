@@ -43,6 +43,7 @@ import '../response/privacy_policy_response.dart';
 import '../response/registration_response.dart';
 import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
+import '../response/unread_chat_count_response.dart';
 import '../response/unread_count_response.dart';
 import '../response/user.dart';
 import '../response/verification_response.dart';
@@ -232,4 +233,7 @@ abstract class AuthApi {
 
   @GET('/api/v1/notifications/unread-count')
   Future<UnreadCountResponse> notifUnread();
+
+  @GET('/api/v1/chats/unread-count')
+  Future<UnreadChatCountResponse> chatUnread();
 }

@@ -37,6 +37,7 @@ import '../network/response/partner_user_response.dart';
 import '../network/response/privacy_policy_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/reviews_response.dart';
+import '../network/response/unread_chat_count_response.dart';
 import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
 import '../network/response/verification_response.dart';
@@ -204,6 +205,11 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<UnreadCountResponse> notifUnread(){
     return _authApi.notifUnread();
+  }
+
+  @override
+  Future<UnreadChatCountResponse> chatUnread(){
+    return _authApi.chatUnread();
   }
 
   @override
