@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/notification_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
@@ -19,6 +20,21 @@ class ProfileTabScreen extends BaseScreen {
 
 class _ProfileTabScreenState
     extends BaseState<ProfileTabScreen, ProfileTabBloc> {
+  late final NotificationBloc _notificationBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationBloc = NotificationBloc();
+    _notificationBloc.init();
+  }
+
+  @override
+  void dispose() {
+    _notificationBloc.dispose();
+    super.dispose();
+  }
+
   @override
   Widget body() {
     return StreamBuilder<User>(
@@ -78,7 +94,13 @@ class _ProfileTabScreenState
                     ),
                   ),
                 ),
-                BuildHeader(context),
+                StreamBuilder<int>(
+                  stream: _notificationBloc.unreadCountStream,
+                  initialData: 0,
+                  builder: (context, snapshot) {
+                    return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                  },
+                ),
               ],
             ),
           );

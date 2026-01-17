@@ -19,6 +19,7 @@ import '../../data/network/response/offer_types_response.dart';
 import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/registration_response.dart';
+import '../../data/network/response/unread_count_response.dart';
 import '../../data/network/response/user.dart';
 
 abstract class AuthRepository {
@@ -78,4 +79,6 @@ abstract class AuthRepository {
   Future<bool> firstOpen();
 
   Future<void> setIsFirstOpen();
+
+  Future<UnreadCountResponse> notifUnread();
 }

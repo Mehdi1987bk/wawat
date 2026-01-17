@@ -7,6 +7,7 @@ import '../../../../data/network/response/offer_models.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
+import '../../../../presentation/bloc/notification_bloc.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dimensions.dart';
 import '../../../../presentation/resourses/wawat_text_styles.dart';
@@ -27,7 +28,16 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   final _dateToController = TextEditingController();
   final _categoryController = TextEditingController();
 
+  late final NotificationBloc _notificationBloc;
+
   int _selectedTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationBloc = NotificationBloc();
+    _notificationBloc.init();
+  }
 
   @override
   Widget body() {
@@ -41,7 +51,13 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    BuildHeader(context),
+                    StreamBuilder<int>(
+                      stream: _notificationBloc.unreadCountStream,
+                      initialData: 0,
+                      builder: (context, snapshot) {
+                        return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+                      },
+                    ),
                     _buildHeroSection(),
                     SearchFormWidget(bloc: bloc,),
                     SizedBox(height: WawatDimensions.spacingLg),
@@ -239,6 +255,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     _dateFromController.dispose();
     _dateToController.dispose();
     _categoryController.dispose();
+    _notificationBloc.dispose();
     super.dispose();
   }
 
@@ -248,17 +265,29 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   }
 }
 
-Widget BuildHeader(BuildContext context) {
-  return Container(
-    color: Colors.white,
+Widget BuildHeader(BuildContext context, {bool isDark = false, int unreadCount = 0}) {
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    decoration: BoxDecoration(
+      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
     padding: EdgeInsets.all(WawatDimensions.spacingMd),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Image.asset(
-          'asset/logo.png',
+          'asset/mini_logo.png',
           fit: BoxFit.fitWidth,
-          height: 40,
+          height: 35,
+          color: isDark ? Colors.white : null,
+          colorBlendMode: isDark ? BlendMode.modulate : null,
         ),
         GestureDetector(
           onTap: () async {
@@ -272,10 +301,54 @@ Widget BuildHeader(BuildContext context) {
               }));
             }
           },
-          child: Image.asset(
-            'asset/notif_aa.png',
-            fit: BoxFit.fitWidth,
-            height: 40,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Image.asset(
+                  'asset/notif_aa.png',
+                  fit: BoxFit.fitWidth,
+                  height: 35,
+                  color: isDark ? Colors.white : null,
+                  colorBlendMode: isDark ? BlendMode.modulate : null,
+                ),
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  right: -2,
+                  top: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    child: Center(
+                      child: Text(
+                        unreadCount > 9 ? '9+' : '$unreadCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],

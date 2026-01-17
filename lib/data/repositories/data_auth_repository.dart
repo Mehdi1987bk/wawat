@@ -26,6 +26,7 @@ import '../network/response/offer_types_response.dart';
 import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/registration_response.dart';
+import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
 
 const tokenRefreshTimeOut = 60 * 60 * 1000;
@@ -183,5 +184,10 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> setIsFirstOpen() {
     return _cacheManager.setIsFirstOpen();
+  }
+
+  @override
+  Future<UnreadCountResponse> notifUnread() {
+    return _authApi.notifUnread();
   }
 }

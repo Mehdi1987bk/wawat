@@ -27,6 +27,7 @@ import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
 import '../response/registration_response.dart';
 import '../response/send_otp_response.dart';
+import '../response/unread_count_response.dart';
 import '../response/user.dart';
 
 part 'auth_api.g.dart';
@@ -110,4 +111,7 @@ abstract class AuthApi {
 
   @GET('/api/v1/offers/my')
   Future<OfferListResponse> myOffers();
+
+  @GET('/api/v1/notifications/unread-count')
+  Future<UnreadCountResponse> notifUnread();
 }

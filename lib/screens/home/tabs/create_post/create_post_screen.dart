@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/notification_bloc.dart';
 import 'package:buking/screens/home/tabs/create_post/widget/city_selector.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,8 @@ class _CreatePostScreenState
 
   bool _isSubmitting = false;
 
+  late final NotificationBloc _notificationBloc;
+
   final ScrollController _scrollController = ScrollController();
 
   final TextEditingController fromController = TextEditingController();
@@ -66,6 +69,9 @@ class _CreatePostScreenState
   @override
   void initState() {
     super.initState();
+
+    _notificationBloc = NotificationBloc();
+    _notificationBloc.init();
 
     fromController.addListener(_updateButtonState);
     toController.addListener(_updateButtonState);
@@ -266,7 +272,13 @@ class _CreatePostScreenState
     return SafeArea(
       child: Column(
         children: [
-          BuildHeader(context),
+          StreamBuilder<int>(
+            stream: _notificationBloc.unreadCountStream,
+            initialData: 0,
+            builder: (context, snapshot) {
+              return BuildHeader(context, unreadCount: snapshot.data ?? 0);
+            },
+          ),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -1000,6 +1012,7 @@ class _CreatePostScreenState
     descriptionController.dispose();
 
     _scrollController.dispose();
+    _notificationBloc.dispose();
 
     super.dispose();
   }
