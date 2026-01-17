@@ -83,9 +83,7 @@ class MessageBubble extends StatelessWidget {
       return Text(
         message.body!,
         style: WawatTextStyles.body.copyWith(
-          color: isMyMessage
-              ? Colors.white
-              : (isDark ? Colors.white : WawatColors.textPrimary),
+          color: Colors.black, // Всегда чёрный текст на белом фоне
         ),
       );
     }
@@ -139,10 +137,9 @@ class MessageBubble extends StatelessWidget {
   // ================= PDF =================
 
   Widget _buildPdfContent(BuildContext context, bool isDark) {
-    final textColor = isDark ? Colors.white : Colors.black;
-    final subTextColor =
-    isDark ? Colors.white.withOpacity(0.7) : Colors.black54;
-    final iconColor = textColor;
+    final textColor = Colors.black;
+    final subTextColor = Colors.black54;
+    final iconColor = Colors.black;
 
     return GestureDetector(
       onTap: _openFile,
@@ -150,14 +147,9 @@ class MessageBubble extends StatelessWidget {
         padding: EdgeInsets.all(WawatDimensions.spacingMd),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isDark
-                ? [
-              const Color(0xFF1E1E1E),
-              const Color(0xFF2A2A2A),
-            ]
-                : [
+            colors: [
               const Color(0xFFFFFFFF),
-              const Color(0xFFF4F4F4),
+              const Color(0xFFF9F9F9),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -165,15 +157,13 @@ class MessageBubble extends StatelessWidget {
           borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.4 : 0.15),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.08)
-                : Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.08),
           ),
         ),
         child: Row(
@@ -183,12 +173,10 @@ class MessageBubble extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.black.withOpacity(0.06),
+                color: Colors.black.withOpacity(0.04),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.picture_as_pdf,
                 color: Colors.redAccent,
                 size: 30,
@@ -269,28 +257,49 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildTime(BuildContext context, bool isDark) {
-    return Text(
-      message.timeString(context),
-      style: WawatTextStyles.caption.copyWith(
-        fontSize: 10,
-        color: isDark
-            ? const Color(0xFF9CA3AF)
-            : WawatColors.textSecondary,
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          message.timeString(context),
+          style: WawatTextStyles.caption.copyWith(
+            fontSize: 10,
+            color: Colors.black54, // Серый цвет на белом фоне
+          ),
+        ),
+        if (isMyMessage) ...[
+          const SizedBox(width: 4),
+          _buildReadStatus(isDark),
+        ],
+      ],
     );
+  }
+
+  Widget _buildReadStatus(bool isDark) {
+    if (message.isRead!) {
+      // Двойная галочка - зелёного цвета
+      return const Icon(
+        Icons.done_all,
+        size: 14,
+        color: Colors.green,
+      );
+    } else {
+      // Одна галочка - серого цвета
+      return const Icon(
+        Icons.done_all,
+        size: 14,
+        color: Colors.black54,
+      );
+    }
   }
 
   BoxDecoration _bubbleDecoration(bool isDark) {
     return BoxDecoration(
-      gradient: isMyMessage ? WawatColors.primaryGradient : null,
-      color: isMyMessage
-          ? null
-          : (isDark ? const Color(0xFF2A2A2A) : Colors.white),
+      color: Colors.white, // Белый фон для всех сообщений
       borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
       boxShadow: [
         BoxShadow(
-          color:
-          isDark ? Colors.black.withOpacity(0.3) : WawatColors.shadowLight,
+          color: Colors.black.withOpacity(0.1),
           blurRadius: 4,
           offset: const Offset(0, 2),
         ),
@@ -301,14 +310,14 @@ class MessageBubble extends StatelessWidget {
   Widget _imagePlaceholder(bool isDark) => Container(
     width: 200,
     height: 200,
-    color: isDark ? const Color(0xFF1E1E1E) : WawatColors.inputBackground,
+    color: const Color(0xFFf5f5f5),
     child: const Center(child: CircularProgressIndicator()),
   );
 
   Widget _imageError(bool isDark) => Container(
     width: 200,
     height: 200,
-    color: isDark ? const Color(0xFF1E1E1E) : WawatColors.inputBackground,
+    color: const Color(0xFFf5f5f5),
     child: const Icon(Icons.error, color: WawatColors.error),
   );
 }

@@ -589,7 +589,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                   ),
                 ),
               ),
-            if (widget.sendMessageActiv == false)
+            if (widget.sendMessageActiv == false && widget.courier.status != "expired")
               Positioned(
                 top: 15,
                 right: 35,

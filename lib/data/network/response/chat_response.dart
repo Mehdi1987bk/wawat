@@ -110,10 +110,13 @@ class ChatMessage {
   final ChatUser? user;
   @JsonKey(name: 'created_at')
   final String createdAt;
+  @JsonKey(name: 'is_read')
+  final bool? isRead;
 
   ChatMessage({
     required this.id,
     required this.type,
+      this.isRead,
     this.body,
     this.file,
     this.user,

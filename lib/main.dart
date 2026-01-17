@@ -1,4 +1,5 @@
 import 'package:buking/data/network/response/type_option.dart';
+import 'package:buking/screens/home/tabs/profile_tab/unread_chat_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -12,7 +13,7 @@ import 'call_interceptor.dart';
 import 'data/cache/cache_manager.dart';
 import 'data/cache/data_cache_manager.dart';
 import 'data/network/api/auth_api.dart';
-import 'data/network/api/chat_api.dart'; // ← ДОБАВЛЕНО
+import 'data/network/api/chat_api.dart';
 import 'data/network/response/language.dart';
 import 'data/network/response/notifications.dart';
 import 'data/network/response/packet_type_resp.dart';
@@ -24,7 +25,7 @@ import 'data/network/response/stats.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
-import 'wawat_app.dart';
+ import 'wawat_app.dart';
 import 'services/theme_manager.dart';
 import 'wawat/wawat_app.dart';
 
@@ -34,7 +35,7 @@ final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
 const baseUrl = 'http://62.84.176.158';
 final RouteObserver<ModalRoute<void>> routeObserver =
-    RouteObserver<ModalRoute<void>>();
+RouteObserver<ModalRoute<void>>();
 
 late ThemeManager themeManager;
 
@@ -68,9 +69,14 @@ void main() async {
 void _registerDependency() {
   final dio = _initDio();
   sl.registerLazySingleton<AuthApi>(() => AuthApi(dio));
-  sl.registerLazySingleton<ChatApi>(() => ChatApi(dio)); // ← ДОБАВЛЕНО
+  sl.registerLazySingleton<ChatApi>(() => ChatApi(dio));
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
   sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
+  sl.registerLazySingleton<UnreadChatBloc>(() {
+    final bloc = UnreadChatBloc();
+    bloc.init();
+    return bloc;
+  });
 }
 
 Dio _initDio() {
@@ -84,10 +90,6 @@ Dio _initDio() {
   dio.interceptors.add(CallInterceptor());
   dio.interceptors.add(LogInterceptor(
       requestBody: true, responseBody: true, logPrint: logger.d));
-  // dio.interceptors
-  //     .add(DioCacheManager(CacheConfig(baseUrl: baseUrl)).interceptor);
-  // dio.interceptors.add(InterceptorsWrapper(
-  //     onError: (DioError dioError) => _errorInterceptor(dioError)));
   sl.registerLazySingleton<Dio>(() => dio);
 
   return dio;

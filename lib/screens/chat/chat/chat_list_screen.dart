@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../data/network/response/chat_response.dart';
 import '../../../generated/l10n.dart';
+import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
@@ -12,6 +13,7 @@ import '../../../services/theme_manager.dart';
 import '../../home/tabs/home_tab/home_tab_screen.dart';
 import '../../home/tabs/home_tab/notification/unread_notif_bloc.dart';
 import '../../home/tabs/home_tab/widget/build_header.dart';
+import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 import '../bloc/chat_list_bloc.dart';
 import '../widgets/conversation_item.dart';
 import 'chat_conversation_screen.dart';
@@ -270,6 +272,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                           ),
                                         ).then((_) {
                                           bloc.loadConversations();
+                                           sl.get<UnreadChatBloc>().fetchUnreadCount();
                                         });
                                       },
                                       onTapMenu: () => _showConversationMenu(

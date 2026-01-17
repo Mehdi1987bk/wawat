@@ -39,6 +39,7 @@ Map<String, dynamic> _$ChatFileToJson(ChatFile instance) => <String, dynamic>{
 ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
       id: json['id'] as int,
       type: json['type'] as String,
+      isRead: json['is_read'] as bool?,
       body: json['body'] as String?,
       file: json['file'] == null
           ? null
@@ -57,6 +58,7 @@ Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
       'file': instance.file,
       'user': instance.user,
       'created_at': instance.createdAt,
+      'is_read': instance.isRead,
     };
 
 Conversation _$ConversationFromJson(Map<String, dynamic> json) => Conversation(

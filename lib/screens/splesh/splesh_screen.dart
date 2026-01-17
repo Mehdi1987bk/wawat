@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../home/home_screen.dart';
- import 'Intro_page.dart';
+import 'Intro_page.dart';
 
 bool cartNumberFocus = false;
 bool finKodNumberFocus = false;
@@ -25,10 +25,12 @@ class _SpleshScreenState extends State<SpleshScreen> {
       ),
       sl.get<AuthRepository>().firstOpen(),
     ]).then((value) {
+      if (!mounted) return; // Проверяем, смонтирован ли еще виджет
+
       final isFirstOpen = value.last as bool;
 
       if (isFirstOpen) {
-         sl.get<AuthRepository>().setIsFirstOpen();
+        sl.get<AuthRepository>().setIsFirstOpen();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -38,7 +40,7 @@ class _SpleshScreenState extends State<SpleshScreen> {
           ),
         );
       } else {
-         Navigator.pushReplacement(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) {
@@ -69,7 +71,7 @@ class _SpleshScreenState extends State<SpleshScreen> {
           child: Image.asset(
             'asset/icon.jpeg',
             fit: BoxFit.fitWidth,
-             width: 200,
+            width: 200,
           ),
         ),
       ),

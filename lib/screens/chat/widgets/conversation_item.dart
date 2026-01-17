@@ -58,18 +58,18 @@ class ConversationItem extends StatelessWidget {
                                   ? WawatColors.primary.withOpacity(0.2)
                                   : WawatColors.primary.withOpacity(0.1),
                               backgroundImage:
-                                  conversation.user.avatarUrl.isNotEmpty
-                                      ? CachedNetworkImageProvider(
-                                          conversation.user.avatarUrl)
-                                      : null,
+                              conversation.user.avatarUrl.isNotEmpty
+                                  ? CachedNetworkImageProvider(
+                                  conversation.user.avatarUrl)
+                                  : null,
                               child: conversation.user.avatarUrl.isEmpty
                                   ? Text(
-                                      conversation.user.fullname[0]
-                                          .toUpperCase(),
-                                      style: WawatTextStyles.h2.copyWith(
-                                        color: WawatColors.primary,
-                                      ),
-                                    )
+                                conversation.user.fullname[0]
+                                    .toUpperCase(),
+                                style: WawatTextStyles.h2.copyWith(
+                                  color: WawatColors.primary,
+                                ),
+                              )
                                   : null,
                             ),
                             if (conversation.user.isOnline)
@@ -170,13 +170,13 @@ class ConversationItem extends StatelessWidget {
                                   Expanded(
                                     child: AnimatedDefaultTextStyle(
                                       duration:
-                                          const Duration(milliseconds: 300),
+                                      const Duration(milliseconds: 300),
                                       style: WawatTextStyles.body.copyWith(
                                         color: conversation.unreadCount > 0
                                             ? WawatColors.primary
                                             : (isDark
-                                                ? const Color(0xFF9CA3AF)
-                                                : WawatColors.textSecondary),
+                                            ? const Color(0xFF9CA3AF)
+                                            : WawatColors.textSecondary),
                                         fontWeight: conversation.unreadCount > 0
                                             ? FontWeight.w600
                                             : FontWeight.normal,
@@ -184,8 +184,8 @@ class ConversationItem extends StatelessWidget {
                                       child: Text(
                                         conversation.unreadCount > 0
                                             ? (conversation.unreadCount > 99
-                                                ? '99+'
-                                                : '${conversation.unreadCount} ' + S.of(context).bgbgffbgfg4)
+                                            ? '99+'
+                                            : '${conversation.unreadCount} ' + S.of(context).bgbgffbgfg4)
                                             : conversation.lastMessagePreview(context),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -216,7 +216,7 @@ class ConversationItem extends StatelessWidget {
                         child: Icon(
                           Icons.more_horiz,
                           color:
-                              isDark ? const Color(0xFF9CA3AF) : Colors.black54,
+                          isDark ? const Color(0xFF9CA3AF) : Colors.black54,
                         ),
                       ),
                     ),
