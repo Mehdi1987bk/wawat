@@ -50,9 +50,10 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   Future<void> _loadAllDataSilently() async {
-    // Запускаем параллельно, не блокируя UI
+    // Сначала загружаем offer types
+    await _loadOfferTypesSilently();
+    // Потом загружаем города
     _loadCitiesSilently();
-    _loadOfferTypesSilently();
   }
 
   Future<void> _loadOfferTypesSilently() async {
