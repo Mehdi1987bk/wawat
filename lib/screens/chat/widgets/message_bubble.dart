@@ -2,7 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';  // 🆕 ДОБАВЛЕНО ДЛЯ ОТКРЫТИЯ PDF
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
@@ -23,7 +24,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
+      builder: (context, themeManager, _) {
         final isDark = themeManager.isDarkMode;
 
         return Padding(
@@ -38,101 +39,20 @@ class MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (!isMyMessage && message.user != null) ...[
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (BuildContext context) {
-                          return CourierDetailsScreen(
-                            courierId: message.user!.id,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: isDark
-                        ? WawatColors.primary.withOpacity(0.2)
-                        : WawatColors.primary.withOpacity(0.1),
-                    backgroundImage: message.user!.avatarUrl.isNotEmpty
-                        ? CachedNetworkImageProvider(message.user!.avatarUrl)
-                        : null,
-                    child: message.user!.avatarUrl.isEmpty
-                        ? Text(
-                      message.user!.fullname[0].toUpperCase(),
-                      style: WawatTextStyles.caption.copyWith(
-                        color: WawatColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                        : null,
-                  ),
-                ),
+                _buildAvatar(context, isDark),
                 SizedBox(width: WawatDimensions.spacingSm),
               ],
               Flexible(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    gradient: isMyMessage ? WawatColors.primaryGradient : null,
-                    color: isMyMessage
-                        ? null
-                        : (isDark ? const Color(0xFF2A2A2A) : Colors.white),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(WawatDimensions.radiusMedium),
-                      topRight: Radius.circular(WawatDimensions.radiusMedium),
-                      bottomLeft: Radius.circular(
-                        isMyMessage ? WawatDimensions.radiusMedium : 4,
-                      ),
-                      bottomRight: Radius.circular(
-                        isMyMessage ? 4 : WawatDimensions.radiusMedium,
-                      ),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isDark
-                            ? Colors.black.withOpacity(0.3)
-                            : WawatColors.shadowLight,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                  decoration: _bubbleDecoration(isDark),
                   padding: EdgeInsets.all(WawatDimensions.spacingMd),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 🆕 ОБНОВЛЕНО: ОТДЕЛЬНАЯ ОБРАБОТКА ДЛЯ ИЗОБРАЖЕНИЙ И PDF
-                      if (message.type == 'image' && message.file != null)
-                        _buildImageContent(context, isDark)
-                      else if (message.type == 'file' && message.file != null)
-                      // Проверяем, является ли файл PDF
-                        message.file!.isPdf
-                            ? _buildPdfContent(context, isDark)  // 🆕 PDF превью
-                            : _buildImageContent(context, isDark)  // Для остальных файлов
-                      else if (message.body != null)
-                          Text(
-                            message.body!,
-                            style: WawatTextStyles.body.copyWith(
-                              color: isMyMessage
-                                  ? Colors.white
-                                  : (isDark ? Colors.white : WawatColors.textPrimary),
-                            ),
-                          ),
+                      _buildContent(context, isDark),
                       const SizedBox(height: 4),
-                      Text(
-                        message.timeString(context),
-                        style: WawatTextStyles.caption.copyWith(
-                          color: isMyMessage
-                              ? Colors.white.withOpacity(0.8)
-                              : (isDark
-                              ? const Color(0xFF9CA3AF)
-                              : WawatColors.textSecondary),
-                          fontSize: 10,
-                        ),
-                      ),
+                      _buildTime(context, isDark),
                     ],
                   ),
                 ),
@@ -144,125 +64,63 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
+  // ================= CONTENT =================
+
+  Widget _buildContent(BuildContext context, bool isDark) {
+    final file = message.file;
+
+    if (file != null && file.url.isNotEmpty) {
+      final isPdf = _isPdf(file.url);
+
+      if (isPdf) {
+        return _buildPdfContent(context, isDark);
+      } else {
+        return _buildImageContent(context, isDark);
+      }
+    }
+
+    if (message.body != null) {
+      return Text(
+        message.body!,
+        style: WawatTextStyles.body.copyWith(
+          color: isMyMessage
+              ? Colors.white
+              : (isDark ? Colors.white : WawatColors.textPrimary),
+        ),
+      );
+    }
+
+    return const SizedBox();
+  }
+
+  // ================= IMAGE =================
+
   Widget _buildImageContent(BuildContext context, bool isDark) {
     return GestureDetector(
-      onTap: () {
-        _showImageFullScreen(context);
-      },
+      onTap: () => _showImageFullScreen(context),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
         child: CachedNetworkImage(
           imageUrl: message.file!.url,
           width: 200,
           fit: BoxFit.cover,
-          placeholder: (context, url) => Container(
-            width: 200,
-            height: 200,
-            color: isDark ? const Color(0xFF1E1E1E) : WawatColors.inputBackground,
-            child: const Center(
-              child: CircularProgressIndicator(
-                color: WawatColors.primary,
-              ),
-            ),
-          ),
-          errorWidget: (context, url, error) => Container(
-            width: 200,
-            height: 200,
-            color: isDark ? const Color(0xFF1E1E1E) : WawatColors.inputBackground,
-            child: const Icon(Icons.error, color: WawatColors.error),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // 🆕 НОВЫЙ МЕТОД: Превью для PDF файлов
-  Widget _buildPdfContent(BuildContext context, bool isDark) {
-    return GestureDetector(
-      onTap: () {
-        _openPdfFile();
-      },
-      child: Container(
-        padding: EdgeInsets.all(WawatDimensions.spacingMd),
-        decoration: BoxDecoration(
-          color: isDark
-              ? const Color(0xFF1E1E1E)
-              : WawatColors.inputBackground,
-          borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // PDF иконка
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.picture_as_pdf,
-                color: Colors.red,
-                size: 28,
-              ),
-            ),
-            SizedBox(width: WawatDimensions.spacingSm),
-            // Название файла
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message.file!.name,
-                    style: WawatTextStyles.bodyBold.copyWith(
-                      color: isMyMessage
-                          ? Colors.white
-                          : (isDark ? Colors.white : WawatColors.textPrimary),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'PDF Document',
-                    style: WawatTextStyles.caption.copyWith(
-                      color: isMyMessage
-                          ? Colors.white.withOpacity(0.7)
-                          : (isDark
-                          ? const Color(0xFF9CA3AF)
-                          : WawatColors.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: WawatDimensions.spacingSm),
-            // Иконка "открыть"
-            Icon(
-              Icons.open_in_new,
-              color: isMyMessage
-                  ? Colors.white
-                  : (isDark ? Colors.white : WawatColors.primary),
-              size: 20,
-            ),
-          ],
+          placeholder: (_, __) => _imagePlaceholder(isDark),
+          errorWidget: (_, __, ___) => _imageError(isDark),
         ),
       ),
     );
   }
 
   void _showImageFullScreen(BuildContext context) {
-    final themeManager = Provider.of<ThemeManager>(context, listen: false);
-    final isDark = themeManager.isDarkMode;
+    final isDark = context.read<ThemeManager>().isDarkMode;
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Scaffold(
+        builder: (_) => Scaffold(
           backgroundColor: isDark ? const Color(0xFF121212) : Colors.black,
           appBar: AppBar(
-            backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.black,
+            backgroundColor: Colors.black,
             iconTheme: const IconThemeData(color: Colors.white),
           ),
           body: Center(
@@ -278,18 +136,179 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  // 🆕 НОВЫЙ МЕТОД: Открытие PDF в системном приложении
-  Future<void> _openPdfFile() async {
-    try {
-      final uri = Uri.parse(message.file!.url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,  // Открыть в системном приложении
-        );
-      }
-    } catch (e) {
-      print('Ошибка открытия PDF: $e');
+  // ================= PDF =================
+
+  Widget _buildPdfContent(BuildContext context, bool isDark) {
+    final textColor = isDark ? Colors.white : Colors.black;
+    final subTextColor =
+    isDark ? Colors.white.withOpacity(0.7) : Colors.black54;
+    final iconColor = textColor;
+
+    return GestureDetector(
+      onTap: _openFile,
+      child: Container(
+        padding: EdgeInsets.all(WawatDimensions.spacingMd),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [
+              const Color(0xFF1E1E1E),
+              const Color(0xFF2A2A2A),
+            ]
+                : [
+              const Color(0xFFFFFFFF),
+              const Color(0xFFF4F4F4),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.4 : 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withOpacity(0.08)
+                : Colors.black.withOpacity(0.08),
+          ),
+        ),
+        child: Row(
+          children: [
+            // PDF ICON
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.black.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.picture_as_pdf,
+                color: Colors.redAccent,
+                size: 30,
+              ),
+            ),
+            SizedBox(width: WawatDimensions.spacingMd),
+
+            // TEXT
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message.file!.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: WawatTextStyles.bodyBold.copyWith(
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'PDF document',
+                    style: WawatTextStyles.caption.copyWith(
+                      color: subTextColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // NAVIGATION ICON
+            Icon(
+              Icons.open_in_new,
+              size: 20,
+              color: iconColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ================= HELPERS =================
+
+  bool _isPdf(String url) {
+    return url.toLowerCase().trim().endsWith('.pdf');
+  }
+
+  void _openFile() async {
+    final uri = Uri.parse(message.file!.url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
+
+  Widget _buildAvatar(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (_) =>
+                CourierDetailsScreen(courierId: message.user!.id),
+          ),
+        );
+      },
+      child: CircleAvatar(
+        radius: 16,
+        backgroundImage: message.user!.avatarUrl.isNotEmpty
+            ? CachedNetworkImageProvider(message.user!.avatarUrl)
+            : null,
+        child: message.user!.avatarUrl.isEmpty
+            ? Text(message.user!.fullname[0].toUpperCase())
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildTime(BuildContext context, bool isDark) {
+    return Text(
+      message.timeString(context),
+      style: WawatTextStyles.caption.copyWith(
+        fontSize: 10,
+        color: isDark
+            ? const Color(0xFF9CA3AF)
+            : WawatColors.textSecondary,
+      ),
+    );
+  }
+
+  BoxDecoration _bubbleDecoration(bool isDark) {
+    return BoxDecoration(
+      gradient: isMyMessage ? WawatColors.primaryGradient : null,
+      color: isMyMessage
+          ? null
+          : (isDark ? const Color(0xFF2A2A2A) : Colors.white),
+      borderRadius: BorderRadius.circular(WawatDimensions.radiusMedium),
+      boxShadow: [
+        BoxShadow(
+          color:
+          isDark ? Colors.black.withOpacity(0.3) : WawatColors.shadowLight,
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    );
+  }
+
+  Widget _imagePlaceholder(bool isDark) => Container(
+    width: 200,
+    height: 200,
+    color: isDark ? const Color(0xFF1E1E1E) : WawatColors.inputBackground,
+    child: const Center(child: CircularProgressIndicator()),
+  );
+
+  Widget _imageError(bool isDark) => Container(
+    width: 200,
+    height: 200,
+    color: isDark ? const Color(0xFF1E1E1E) : WawatColors.inputBackground,
+    child: const Icon(Icons.error, color: WawatColors.error),
+  );
 }

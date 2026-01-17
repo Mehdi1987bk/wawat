@@ -340,14 +340,7 @@ class _ChatConversationScreenState
     );
   }
 
-  // 🆕 ОБНОВЛЕНО: Добавлена проверка для PDF файлов
   Widget _buildFilePreview(bool isDark) {
-    final fileName = _selectedFile!.path.split('/').last.toLowerCase();
-    final isPdf = fileName.endsWith('.pdf');
-    final isImage = fileName.endsWith('.jpg') ||
-        fileName.endsWith('.png') ||
-        fileName.endsWith('.jpeg');
-
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: EdgeInsets.all(WawatDimensions.spacingSm),
@@ -363,13 +356,11 @@ class _ChatConversationScreenState
                   : WawatColors.inputBackground,
               borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
             ),
-            child: isPdf
-                ? Icon(
-              Icons.picture_as_pdf,  // 🆕 PDF иконка
-              color: Colors.red,
-              size: 28,
-            )
-                : isImage
+            child: _selectedFile!.path.toLowerCase().endsWith('.pdf')
+                ? Icon(Icons.picture_as_pdf, color: Colors.red, size: 32)
+                : (_selectedFile!.path.toLowerCase().endsWith('.jpg') ||
+                _selectedFile!.path.toLowerCase().endsWith('.png') ||
+                _selectedFile!.path.toLowerCase().endsWith('.jpeg')
                 ? ClipRRect(
               borderRadius:
               BorderRadius.circular(WawatDimensions.radiusSmall),
@@ -378,7 +369,7 @@ class _ChatConversationScreenState
                 fit: BoxFit.cover,
               ),
             )
-                : Icon(Icons.insert_drive_file, color: WawatColors.primary),
+                : Icon(Icons.insert_drive_file, color: WawatColors.primary)),
           ),
           SizedBox(width: WawatDimensions.spacingSm),
           Expanded(

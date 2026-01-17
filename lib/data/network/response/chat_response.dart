@@ -95,7 +95,7 @@ class ChatFile {
   Map<String, dynamic> toJson() => _$ChatFileToJson(this);
 
   bool get isImage => mime.startsWith('image/');
-  bool get isPdf => mime == 'application/pdf';  // 🆕 ДОБАВЛЕНО ДЛЯ PDF
+  bool get isPdf => mime == 'application/pdf';
 }
 
 // ============================================================================
