@@ -3,8 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../generated/l10n.dart';
 import '../../services/theme_manager.dart';
+import 'tabs/home_tab/notification/unread_chat_bloc.dart';
 
-class BottomBar extends StatelessWidget {
+class BottomBar extends StatefulWidget {
   final ValueChanged<int> onChanged;
   final int selectedIndex;
 
@@ -15,76 +16,118 @@ class BottomBar extends StatelessWidget {
   });
 
   @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  late final UnreadChatBloc _chatBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _chatBloc = UnreadChatBloc();
+    _chatBloc.init();
+  }
+
+  @override
+  void didUpdateWidget(BottomBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Обновляем счетчик при переходе на другую вкладку (когда пользователь выходит из чата)
+    if (oldWidget.selectedIndex == 1 && widget.selectedIndex != 1) {
+      _chatBloc.fetchUnreadCount();
+    }
+    // Также обновляем при переходе на вкладку чатов
+    if (oldWidget.selectedIndex != 1 && widget.selectedIndex == 1) {
+      _chatBloc.fetchUnreadCount();
+    }
+  }
+
+  @override
+  void dispose() {
+    _chatBloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              BottomNavigationItem(
-                index: 0,
-                selectedIndex: selectedIndex,
-                label: S.of(context).nhhfge4,
-                svgIcon: 'asset/tab1.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 1,
-                selectedIndex: selectedIndex,
-                label: S.of(context).mjhmhjmj5,
-                svgIcon: 'asset/tab2.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 2,
-                selectedIndex: selectedIndex,
-                label: S.of(context).nhnnh5,
-                svgIcon: 'asset/tab3.svg',
-                onChanged: onChanged,
-                isCentral: true,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 3,
-                selectedIndex: selectedIndex,
-                label: S.of(context).gbfbgfgb,
-                svgIcon: 'asset/tab4.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
-              ),
-              BottomNavigationItem(
-                index: 4,
-                selectedIndex: selectedIndex,
-                label: S.of(context).vfdvfdvfd,
-                svgIcon: 'asset/tab5.svg',
-                onChanged: onChanged,
-                isCentral: false,
-                isDark: isDark,
+    return StreamBuilder<int>(
+      stream: _chatBloc.unreadCountStream,
+      initialData: 0,
+      builder: (context, snapshot) {
+        final unreadChatCount = snapshot.data ?? 0;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
               ),
             ],
           ),
-        ),
-      ),
+          child: SafeArea(
+            top: false,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  BottomNavigationItem(
+                    index: 0,
+                    selectedIndex: widget.selectedIndex,
+                    label: S.of(context).nhhfge4,
+                    svgIcon: 'asset/tab1.svg',
+                    onChanged: widget.onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 1,
+                    selectedIndex: widget.selectedIndex,
+                    label: S.of(context).mjhmhjmj5,
+                    svgIcon: 'asset/tab2.svg',
+                    onChanged: widget.onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                    badgeCount: unreadChatCount,
+                  ),
+                  BottomNavigationItem(
+                    index: 2,
+                    selectedIndex: widget.selectedIndex,
+                    label: S.of(context).nhnnh5,
+                    svgIcon: 'asset/tab3.svg',
+                    onChanged: widget.onChanged,
+                    isCentral: true,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 3,
+                    selectedIndex: widget.selectedIndex,
+                    label: S.of(context).gbfbgfgb,
+                    svgIcon: 'asset/tab4.svg',
+                    onChanged: widget.onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                  BottomNavigationItem(
+                    index: 4,
+                    selectedIndex: widget.selectedIndex,
+                    label: S.of(context).vfdvfdvfd,
+                    svgIcon: 'asset/tab5.svg',
+                    onChanged: widget.onChanged,
+                    isCentral: false,
+                    isDark: isDark,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -97,6 +140,7 @@ class BottomNavigationItem extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final bool isCentral;
   final bool isDark;
+  final int badgeCount;
 
   const BottomNavigationItem({
     Key? key,
@@ -107,6 +151,7 @@ class BottomNavigationItem extends StatelessWidget {
     required this.onChanged,
     this.isCentral = false,
     required this.isDark,
+    this.badgeCount = 0,
   }) : super(key: key);
 
   @override
@@ -170,20 +215,64 @@ class BottomNavigationItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Color.lerp(Colors.transparent, iconBgColor, value),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: SvgPicture.asset(
-                      svgIcon,
-                      width: 18,
-                      height: 18,
-                      colorFilter: ColorFilter.mode(
-                          Color.lerp(inactiveColor, iconColor, value)!,
-                          BlendMode.srcIn),
-                    ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color.lerp(Colors.transparent, iconBgColor, value),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SvgPicture.asset(
+                          svgIcon,
+                          width: 18,
+                          height: 18,
+                          colorFilter: ColorFilter.mode(
+                              Color.lerp(inactiveColor, iconColor, value)!,
+                              BlendMode.srcIn),
+                        ),
+                      ),
+                      if (badgeCount > 0)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: badgeCount > 9 ? 5 : 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFFFF6B6B), Color(0xFFFF5252)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xFFFF5252).withOpacity(0.4),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              badgeCount > 99 ? '99+' : badgeCount.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   SizedBox(height: 6),
                   Text(
