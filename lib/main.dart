@@ -24,6 +24,7 @@ import 'data/network/response/stats.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
+import 'screens/home/tabs/home_tab/notification/unread_chat_bloc.dart';
 import 'wawat_app.dart';
 import 'services/theme_manager.dart';
 import 'wawat/wawat_app.dart';
@@ -71,6 +72,11 @@ void _registerDependency() {
   sl.registerLazySingleton<ChatApi>(() => ChatApi(dio)); // ← ДОБАВЛЕНО
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
   sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
+  sl.registerLazySingleton<UnreadChatBloc>(() {
+    final bloc = UnreadChatBloc();
+    bloc.init();
+    return bloc;
+  });
 }
 
 Dio _initDio() {

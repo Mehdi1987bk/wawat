@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../generated/l10n.dart';
+import '../../main.dart';
 import '../../services/theme_manager.dart';
 import 'tabs/home_tab/notification/unread_chat_bloc.dart';
 
@@ -25,8 +26,7 @@ class _BottomBarState extends State<BottomBar> {
   @override
   void initState() {
     super.initState();
-    _chatBloc = UnreadChatBloc();
-    _chatBloc.init();
+    _chatBloc = sl.get<UnreadChatBloc>();
   }
 
   @override
@@ -36,12 +36,6 @@ class _BottomBarState extends State<BottomBar> {
     if (oldWidget.selectedIndex != widget.selectedIndex) {
       _chatBloc.fetchUnreadCount();
     }
-  }
-
-  @override
-  void dispose() {
-    _chatBloc.dispose();
-    super.dispose();
   }
 
   @override

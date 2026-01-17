@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../data/network/response/chat_response.dart';
 import '../../../generated/l10n.dart';
+import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/resourses/wawat_colors.dart';
 import '../../../presentation/resourses/wawat_dimensions.dart';
@@ -10,6 +11,7 @@ import '../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../services/theme_aware_screen.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/tabs/home_tab/home_tab_screen.dart';
+import '../../home/tabs/home_tab/notification/unread_chat_bloc.dart';
 import '../../home/tabs/home_tab/notification/unread_notif_bloc.dart';
 import '../../home/tabs/home_tab/widget/build_header.dart';
 import '../bloc/chat_list_bloc.dart';
@@ -270,6 +272,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                           ),
                                         ).then((_) {
                                           bloc.loadConversations();
+                                          // Обновляем счетчик непрочитанных чатов в BottomBar
+                                          sl.get<UnreadChatBloc>().fetchUnreadCount();
                                         });
                                       },
                                       onTapMenu: () => _showConversationMenu(
