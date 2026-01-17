@@ -32,12 +32,8 @@ class _BottomBarState extends State<BottomBar> {
   @override
   void didUpdateWidget(BottomBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Обновляем счетчик при переходе на другую вкладку (когда пользователь выходит из чата)
-    if (oldWidget.selectedIndex == 1 && widget.selectedIndex != 1) {
-      _chatBloc.fetchUnreadCount();
-    }
-    // Также обновляем при переходе на вкладку чатов
-    if (oldWidget.selectedIndex != 1 && widget.selectedIndex == 1) {
+    // Обновляем счетчик при любой смене табов
+    if (oldWidget.selectedIndex != widget.selectedIndex) {
       _chatBloc.fetchUnreadCount();
     }
   }
