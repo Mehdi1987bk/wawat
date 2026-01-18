@@ -154,10 +154,11 @@ class _RegistrationModalState extends State<RegistrationModal> {
 
     if (!mounted) return;
 
-    Navigator.pushReplacement(
-      context,
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => HomeScreen()),
+          (route) => false,
     );
+
   }
 
   void _openPrivacyPolicy() {

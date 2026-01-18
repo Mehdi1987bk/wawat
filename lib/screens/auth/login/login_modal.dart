@@ -70,10 +70,11 @@ class _LoginModalState extends State<LoginModal> {
 
     if (!mounted) return;
 
-    Navigator.pushReplacement(
-      context,
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => HomeScreen()),
+          (route) => false,
     );
+
   }
 
   @override
