@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,38 +28,48 @@ class MessageBubble extends StatelessWidget {
       builder: (context, themeManager, _) {
         final isDark = themeManager.isDarkMode;
 
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: WawatDimensions.spacingSm,
-            left: isMyMessage ? 60 : 0,
-            right: isMyMessage ? 0 : 60,
-          ),
-          child: Row(
-            mainAxisAlignment:
-            isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (!isMyMessage && message.user != null) ...[
-                _buildAvatar(context, isDark),
-                SizedBox(width: WawatDimensions.spacingSm),
-              ],
-              Flexible(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  decoration: _bubbleDecoration(isDark),
-                  padding: EdgeInsets.all(WawatDimensions.spacingMd),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildContent(context, isDark),
-                      const SizedBox(height: 4),
-                      _buildTime(context, isDark),
-                    ],
-                  ),
-                ),
+        return Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: WawatDimensions.spacingSm,
+                left: isMyMessage ? 60 : 0,
+                right: isMyMessage ? 0 : 60,
               ),
+              child: Row(
+                mainAxisAlignment:
+                isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (!isMyMessage && message.user != null) ...[
+                    _buildAvatar(context, isDark),
+                    SizedBox(width: WawatDimensions.spacingSm),
+                  ],
+                  Flexible(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      decoration: _bubbleDecoration(isDark),
+                      padding: EdgeInsets.all(WawatDimensions.spacingMd),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildContent(context, isDark),
+                          const SizedBox(height: 4),
+                          _buildTime(context, isDark),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isMyMessage) ...[
+              Positioned(bottom: 0,right: 0, child: Padding(
+                padding: const EdgeInsets.only(right: 5,bottom: 25),
+                child: _buildReadStatus(isDark),
+              )),
             ],
-          ),
+          ],
         );
       },
     );
@@ -257,21 +268,15 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildTime(BuildContext context, bool isDark) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          message.timeString(context),
-          style: WawatTextStyles.caption.copyWith(
-            fontSize: 10,
-            color: Colors.black54, // Серый цвет на белом фоне
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(right: 15),
+      child: Text(
+        message.timeString(context),
+        style: WawatTextStyles.caption.copyWith(
+          fontSize: 10,
+          color: Colors.black54, // Серый цвет на белом фоне
         ),
-        if (isMyMessage) ...[
-          const SizedBox(width: 4),
-          _buildReadStatus(isDark),
-        ],
-      ],
+      ),
     );
   }
 

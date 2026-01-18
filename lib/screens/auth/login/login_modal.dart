@@ -60,14 +60,13 @@ class _LoginModalState extends State<LoginModal> {
     super.dispose();
   }
 
-  /// 🔥 Главное изменение: проверяем success
   void _handleLogin() async {
     final success = await _bloc.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
 
-    if (!success) return; // ⛔ Не навигируем, если ошибка
+    if (!success) return;
 
     if (!mounted) return;
 

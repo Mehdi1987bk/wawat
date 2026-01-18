@@ -72,27 +72,90 @@ class _CreatePostScreenState
   final TextEditingController descriptionController = TextEditingController();
   late final UnreadNotificationBloc _notificationBloc;
 
+
   @override
   void initState() {
     super.initState();
 
-    fromController.addListener(_updateButtonState);
-    toController.addListener(_updateButtonState);
-    flightDateController.addListener(_updateButtonState);
-    flightTimeController.addListener(_updateButtonState);
-    flightNumberController.addListener(_updateButtonState);
-    deliveryDateFromController.addListener(_updateButtonState);
-    deliveryDateToController.addListener(_updateButtonState);
-    purchaseDateFromController.addListener(_updateButtonState);
-    purchaseDateToController.addListener(_updateButtonState);
-    maxWeightController.addListener(_updateButtonState);
-    priceController.addListener(_updateButtonState);
-    // descriptionController.addListener(_updateButtonState); // <-- УБРАТЬ ЭТУ СТРОКУ
+    // УБИРАЕМ ВСЕ LISTENERS
+    // fromController.addListener(_updateButtonState);
+    // toController.addListener(_updateButtonState);
+    // ... и т.д.
+
     _notificationBloc = UnreadNotificationBloc();
     _notificationBloc.init();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAllDataSilently();
     });
+  }
+
+  // УБИРАЕМ ГЕТТЕР _isFormValid
+  // bool get _isFormValid { ... }
+
+  // УБИРАЕМ МЕТОД _updateButtonState
+  // void _updateButtonState() { ... }
+
+  Future<void> _submitOffer() async {
+    // УБИРАЕМ ПРОВЕРКУ ВАЛИДАЦИИ
+    if (_isSubmitting) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      // Берем первый тип посылки или пустую строку если ничего не выбрано
+      final packageType = _selectedPackageTypeCodes.isNotEmpty
+          ? _selectedPackageTypeCodes.first
+          : '';
+
+      // Парсим числа с дефолтными значениями если пусто
+      final maxWeight = maxWeightController.text.isEmpty
+          ? 0.0
+          : double.tryParse(maxWeightController.text.replaceAll(',', '.')) ?? 0.0;
+
+      final price = priceController.text.isEmpty
+          ? 0.0
+          : double.tryParse(priceController.text.replaceAll(',', '.')) ?? 0.0;
+
+      final request = CourierOfferModel(
+        offerType: selectedOfferType ?? '',
+        cityFromId: _selectedFromCity?.id ?? 0,
+        cityToId: _selectedToCity?.id ?? 0,
+        flightDate: selectedOfferType == 'courier' ? flightDateController.text : '',
+        flightTime: selectedOfferType == 'courier' ? flightTimeController.text : '',
+        flightNumber: selectedOfferType == 'courier' ? flightNumberController.text.trim() : null,
+        deliveryDateFrom: selectedOfferType == 'sender' ? deliveryDateFromController.text : '',
+        deliveryDateTo: selectedOfferType == 'sender' ? deliveryDateToController.text : '',
+        purchaseDate: selectedOfferType == 'buyer' ? purchaseDateFromController.text : '',
+        purchaseTime: selectedOfferType == 'buyer' ? purchaseDateToController.text : '',
+        packageType: packageType,
+        maxWeightKg: maxWeight.round(),
+        pricePerKg: price,
+        description: descriptionController.text.trim(),
+      );
+
+      await bloc.createOffers(request);
+
+      if (mounted) {
+        FocusManager.instance.primaryFocus?.unfocus();
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+        showIOSStyleMessage(context, S.of(context).vfdvfd24);
+        _clearAllFields();
+      }
+    } catch (e, stackTrace) {
+      // Обработка ошибки
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   bool get _isFormValid {
@@ -585,74 +648,73 @@ class _CreatePostScreenState
                         ),
                         const SizedBox(height: 20),
                         Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: SizedBox(
+                          padding: const EdgeInsets.only(top: 0),
+                          child: Container(
                             width: double.infinity,
                             height: 56,
-                            child: ElevatedButton(
-                              onPressed: (_isFormValid && !_isSubmitting)
-                                  ? _submitOffer
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isFormValid
-                                    ? const Color(0xFF5B51FF)
-                                    : (isDark
-                                    ? const Color(0xFF2A2A2A)
-                                    : const Color(0xFFE5E5EA)),
-                                foregroundColor: _isFormValid
-                                    ? Colors.white
-                                    : (isDark
-                                    ? const Color(0xFF6B7280)
-                                    : const Color(0xFF8E8E93)),
-                                elevation: 0,
-                                disabledBackgroundColor: isDark
-                                    ? const Color(0xFF2A2A2A)
-                                    : const Color(0xFFE5E5EA),
-                                disabledForegroundColor: isDark
-                                    ? const Color(0xFF6B7280)
-                                    : const Color(0xFF8E8E93),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: _isSubmitting
-                                  ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor:
-                                  AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
-                                ),
+                            decoration: BoxDecoration(
+                              gradient: !_isSubmitting
+                                  ? LinearGradient(
+                                colors: [Color(0xFF4A5FFF), Color(0xFFB74CFF)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
                               )
-                                  : Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    "asset/micro.png",
-                                    color: _isFormValid
-                                        ? Colors.white
-                                        : (isDark
-                                        ? const Color(0xFF6B7280)
-                                        : Colors.grey),
+                                  : null,
+                              color: _isSubmitting
+                                  ? (isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5EA))
+                                  : null,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: !_isSubmitting
+                                  ? [
+                                BoxShadow(
+                                  color: Color(0x334A5FFF),
+                                  blurRadius: 16,
+                                  offset: Offset(0, 4),
+                                ),
+                              ]
+                                  : null,
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: !_isSubmitting ? _submitOffer : null,
+                                borderRadius: BorderRadius.circular(16),
+                                child: _isSubmitting
+                                    ? Center(
+                                  child: SizedBox(
                                     width: 20,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    S.of(context).bgfbgf3,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        isDark ? Color(0xFF6B7280) : Color(0xFF8E8E93),
+                                      ),
                                     ),
                                   ),
-                                ],
+                                )
+                                    : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      "asset/micro.png",
+                                      color: Colors.white,
+                                      width: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      S.of(context).bgfbgf3,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ),            ],
                     ),
                   ),
                 ),
@@ -834,67 +896,6 @@ class _CreatePostScreenState
     );
   }
 
-  Future<void> _submitOffer() async {
-    if (!_isFormValid || _isSubmitting) return;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    try {
-      final packageType = _selectedPackageTypeCodes.first;
-
-      final maxWeight =
-      double.parse(maxWeightController.text.replaceAll(',', '.'));
-      final price = double.parse(priceController.text.replaceAll(',', '.'));
-
-      final request = CourierOfferModel(
-        offerType: selectedOfferType!,
-        cityFromId: _selectedFromCity!.id,
-        cityToId: _selectedToCity!.id,
-        flightDate:
-        selectedOfferType == 'courier' ? flightDateController.text : '',
-        flightTime:
-        selectedOfferType == 'courier' ? flightTimeController.text : '',
-        flightNumber:
-        selectedOfferType == 'courier' ? flightNumberController.text.trim() : null,
-        deliveryDateFrom: selectedOfferType == 'sender'
-            ? deliveryDateFromController.text
-            : '',
-        deliveryDateTo:
-        selectedOfferType == 'sender' ? deliveryDateToController.text : '',
-        purchaseDate:
-        selectedOfferType == 'buyer' ? purchaseDateFromController.text : '',
-        purchaseTime:
-        selectedOfferType == 'buyer' ? purchaseDateToController.text : '',
-        packageType: packageType,
-        maxWeightKg: maxWeight.round(),
-        pricePerKg: price,
-        description: descriptionController.text.trim(),
-      );
-
-      await bloc.createOffers(request);
-
-      if (mounted) {
-        FocusManager.instance.primaryFocus?.unfocus();
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-        showIOSStyleMessage(context, S.of(context).vfdvfd24);
-        _clearAllFields();
-      }
-    } catch (e, stackTrace) {
-
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
-  }
 
   void _clearAllFields() {
     setState(() {
