@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../generated/l10n.dart';
+import '../../presentation/resourses/wawat_colors.dart';
 
 class IntroPage extends StatelessWidget {
   const IntroPage({Key? key}) : super(key: key);
@@ -24,7 +25,10 @@ class IntroPage extends StatelessWidget {
                   Expanded(
                     child: Center(
                       child: SingleChildScrollView(
-                        child: _buildHeroSection(context, isDark), 
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 15),
+                          child: buildHeroSection(context, isDark),
+                        ),
                       ),
                     ),
                   ),
@@ -88,55 +92,53 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection(BuildContext context, bool isDark) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Image.asset(
-            "asset/home_back.png",
-            color: isDark ? Colors.white.withOpacity(0.9) : null,
-            colorBlendMode: isDark ? BlendMode.modulate : null,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : WawatColors.textPrimary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-            child: Text(
-              S.of(context).vvvvvf,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-              color: isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-            child: Text(
-              S.of(context).r43,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
-class WawatColors {
-  static const Color textPrimary = Color(0xFF333333);
-  static const Color textSecondary = Color(0xFF666666);
+Widget buildHeroSection(BuildContext context, bool isDark) {
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Image.asset(
+          "asset/home_back.png",
+          color: isDark ? Colors.white.withOpacity(0.9) : null,
+          colorBlendMode: isDark ? BlendMode.modulate : null,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : WawatColors.textPrimary,
+            height: 1.4,
+          ),
+          textAlign: TextAlign.center,
+          child: Text(
+            S.of(context).vvvvvf,
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(left: 30, right: 30, bottom: 15),
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            color: isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
+            height: 1.4,
+          ),
+          textAlign: TextAlign.center,
+          child: Text(
+            S.of(context).r43,
+          ),
+        ),
+      ),
+    ],
+  );
 }
+
+

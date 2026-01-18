@@ -49,6 +49,27 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     _loadAllDataSilently();
   }
 
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        final isDark = themeManager.isDarkMode;
+
+        return Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(left: 20,right: 20,bottom: 20),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _buildSearchForm(isDark),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   Future<void> _loadAllDataSilently() async {
     _loadOfferTypesSilently();
     _loadCitiesSilently();
@@ -308,25 +329,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     _dateFromController.dispose();
     _dateToController.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
-
-        return Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: _buildSearchForm(isDark),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   Widget _buildSearchForm(bool isDark) {

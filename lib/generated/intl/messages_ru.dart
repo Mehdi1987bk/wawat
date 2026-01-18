@@ -185,11 +185,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "bgfbgf4": MessageLookupByLibrary.simpleMessage("Проверен"),
     "bgfbgf4554": MessageLookupByLibrary.simpleMessage("дд.мм.гггг"),
     "bgfbgf534tg534g": MessageLookupByLibrary.simpleMessage("От"),
-    "bgfbgfb3": MessageLookupByLibrary.simpleMessage("Выберите тип"),
+    "bgfbgfb3": MessageLookupByLibrary.simpleMessage("Все"),
     "bgfbgfb4": MessageLookupByLibrary.simpleMessage("Загрузка..."),
     "bgfbgfbg33344343": MessageLookupByLibrary.simpleMessage("Выберите язык"),
     "bgfbgfbg4": MessageLookupByLibrary.simpleMessage("Фото"),
-    "bgfbgfbgf": MessageLookupByLibrary.simpleMessage("Тип предложения"),
+    "bgfbgfbgf": MessageLookupByLibrary.simpleMessage("Кого вы ищете?"),
     "bgfbgfbgf4": MessageLookupByLibrary.simpleMessage(
       "Типы упаковки не загружены. Попробуйте позже.",
     ),
@@ -293,7 +293,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Нажмите для изменения фото",
     ),
     "bvfdgb43": MessageLookupByLibrary.simpleMessage("Оставленных отзывов нет"),
-    "bvfv2r": MessageLookupByLibrary.simpleMessage("Подать"),
+    "bvfv2r": MessageLookupByLibrary.simpleMessage("Создать объявление"),
     "bvgf2": MessageLookupByLibrary.simpleMessage("Код отправлен на"),
     "bvgfbf4": MessageLookupByLibrary.simpleMessage("Отмена"),
     "by5htg4refg4tr3few": MessageLookupByLibrary.simpleMessage(
@@ -522,7 +522,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Напишите сообщение",
     ),
     "hrtegrg43gvb4hger": MessageLookupByLibrary.simpleMessage("минут"),
-    "hth453gwsf": MessageLookupByLibrary.simpleMessage("Тип предложения"),
+    "hth453gwsf": MessageLookupByLibrary.simpleMessage("Тип объявления"),
     "htr345gfd": MessageLookupByLibrary.simpleMessage("На сайте"),
     "htrh4hedh4th4": MessageLookupByLibrary.simpleMessage(
       "Сохранить изменения",
@@ -663,9 +663,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Активно"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Поиск страны..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чаты"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Максимальный вес (кг)"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизительный вес"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Создайте объявление для поиска курьера или\nклиента",
+      "Создайте объявление для поиска курьера, отправителя или покупателя",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Архивировать"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Операции"),

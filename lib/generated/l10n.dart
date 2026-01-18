@@ -2775,21 +2775,6 @@ class S {
     );
   }
 
-  /// `Post`
-  String get bvfv2r {
-    return Intl.message('Post', name: 'bvfv2r', desc: '', args: []);
-  }
-
-  /// `Create a listing to find a courier or\nclient`
-  String get mjjhmjjmj5 {
-    return Intl.message(
-      'Create a listing to find a courier or\nclient',
-      name: 'mjjhmjjmj5',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Create a listing to find a courier or\nclient`
   String get bgfbgbgfbgf {
     return Intl.message(
@@ -2798,11 +2783,6 @@ class S {
       desc: '',
       args: [],
     );
-  }
-
-  /// `Offer type`
-  String get bgfbgfbgf {
-    return Intl.message('Offer type', name: 'bgfbgfbgf', desc: '', args: []);
   }
 
   /// `Package type:`
@@ -2840,16 +2820,6 @@ class S {
     );
   }
 
-  /// `Maximum weight (kg)`
-  String get mjjhm6 {
-    return Intl.message(
-      'Maximum weight (kg)',
-      name: 'mjjhm6',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Price per kg`
   String get bgfbgf34 {
     return Intl.message('Price per kg', name: 'bgfbgf34', desc: '', args: []);
@@ -2873,11 +2843,6 @@ class S {
   /// `Publish listing`
   String get bgfbgf3 {
     return Intl.message('Publish listing', name: 'bgfbgf3', desc: '', args: []);
-  }
-
-  /// `Select type`
-  String get bgfbgfb3 {
-    return Intl.message('Select type', name: 'bgfbgfb3', desc: '', args: []);
   }
 
   /// `dd.mm.yyyy`
@@ -4950,11 +4915,6 @@ class S {
     );
   }
 
-  /// `Offer type`
-  String get hth453gwsf {
-    return Intl.message('Offer type', name: 'hth453gwsf', desc: '', args: []);
-  }
-
   /// `From`
   String get gtrh53ygr43g {
     return Intl.message('From', name: 'gtrh53ygr43g', desc: '', args: []);
@@ -5343,6 +5303,51 @@ class S {
   /// `View FAQ`
   String get viewFaq {
     return Intl.message('View FAQ', name: 'viewFaq', desc: '', args: []);
+  }
+
+  /// `Who are you looking for?`
+  String get bgfbgfbgf {
+    return Intl.message(
+      'Who are you looking for?',
+      name: 'bgfbgfbgf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get bgfbgfb3 {
+    return Intl.message('All', name: 'bgfbgfb3', desc: '', args: []);
+  }
+
+  /// `Listing type`
+  String get hth453gwsf {
+    return Intl.message('Listing type', name: 'hth453gwsf', desc: '', args: []);
+  }
+
+  /// `Create listing`
+  String get bvfv2r {
+    return Intl.message('Create listing', name: 'bvfv2r', desc: '', args: []);
+  }
+
+  /// `Create a listing to find a courier, sender, or buyer`
+  String get mjjhmjjmj5 {
+    return Intl.message(
+      'Create a listing to find a courier, sender, or buyer',
+      name: 'mjjhmjjmj5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Approximate weight`
+  String get mjjhm6 {
+    return Intl.message(
+      'Approximate weight',
+      name: 'mjjhm6',
+      desc: '',
+      args: [],
+    );
   }
 }
 

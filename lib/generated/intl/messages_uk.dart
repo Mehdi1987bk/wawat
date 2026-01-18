@@ -185,11 +185,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "bgfbgf4": MessageLookupByLibrary.simpleMessage("Підтверджено"),
     "bgfbgf4554": MessageLookupByLibrary.simpleMessage("дд.мм.рррр"),
     "bgfbgf534tg534g": MessageLookupByLibrary.simpleMessage("Від"),
-    "bgfbgfb3": MessageLookupByLibrary.simpleMessage("Виберіть тип"),
+    "bgfbgfb3": MessageLookupByLibrary.simpleMessage("Усі"),
     "bgfbgfb4": MessageLookupByLibrary.simpleMessage("Завантаження..."),
     "bgfbgfbg33344343": MessageLookupByLibrary.simpleMessage("Виберіть мову"),
     "bgfbgfbg4": MessageLookupByLibrary.simpleMessage("Фото"),
-    "bgfbgfbgf": MessageLookupByLibrary.simpleMessage("Тип пропозиції"),
+    "bgfbgfbgf": MessageLookupByLibrary.simpleMessage("Кого ви шукаєте?"),
     "bgfbgfbgf4": MessageLookupByLibrary.simpleMessage(
       "Типи упаковки не завантажено. Спробуйте пізніше.",
     ),
@@ -297,7 +297,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "bvfdgb43": MessageLookupByLibrary.simpleMessage(
       "Залишених відгуків немає",
     ),
-    "bvfv2r": MessageLookupByLibrary.simpleMessage("Подати"),
+    "bvfv2r": MessageLookupByLibrary.simpleMessage("Створити оголошення"),
     "bvgf2": MessageLookupByLibrary.simpleMessage("Код надіслано на"),
     "bvgfbf4": MessageLookupByLibrary.simpleMessage("Скасувати"),
     "by5htg4refg4tr3few": MessageLookupByLibrary.simpleMessage(
@@ -528,7 +528,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Напишіть повідомлення",
     ),
     "hrtegrg43gvb4hger": MessageLookupByLibrary.simpleMessage("хвилин"),
-    "hth453gwsf": MessageLookupByLibrary.simpleMessage("Тип пропозиції"),
+    "hth453gwsf": MessageLookupByLibrary.simpleMessage("Тип оголошення"),
     "htr345gfd": MessageLookupByLibrary.simpleMessage("На сайті"),
     "htrh4hedh4th4": MessageLookupByLibrary.simpleMessage("Зберегти зміни"),
     "htrh56h5656": MessageLookupByLibrary.simpleMessage("Новий пароль"),
@@ -671,9 +671,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Активно"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Пошук країни..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чати"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Максимальна вага (кг)"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизна вага"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Створіть оголошення для пошуку кур\'єра або\nклієнта",
+      "Створіть оголошення для пошуку кур\'єра, відправника або покупця",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Архівувати"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Операції"),

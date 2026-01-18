@@ -177,11 +177,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "bgfbgf4": MessageLookupByLibrary.simpleMessage("Təsdiqlənib"),
     "bgfbgf4554": MessageLookupByLibrary.simpleMessage("gg.aa.iiii"),
     "bgfbgf534tg534g": MessageLookupByLibrary.simpleMessage("Dan"),
-    "bgfbgfb3": MessageLookupByLibrary.simpleMessage("Növ seçin"),
+    "bgfbgfb3": MessageLookupByLibrary.simpleMessage("Hamısı"),
     "bgfbgfb4": MessageLookupByLibrary.simpleMessage("Yüklənir..."),
     "bgfbgfbg33344343": MessageLookupByLibrary.simpleMessage("Dil seçin"),
     "bgfbgfbg4": MessageLookupByLibrary.simpleMessage("Foto"),
-    "bgfbgfbgf": MessageLookupByLibrary.simpleMessage("Təklif növü"),
+    "bgfbgfbgf": MessageLookupByLibrary.simpleMessage("Kimi axtarırsınız?"),
     "bgfbgfbgf4": MessageLookupByLibrary.simpleMessage(
       "Paket növləri yüklənmədi. Sonra yenidən cəhd edin.",
     ),
@@ -281,7 +281,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Foto dəyişmək üçün toxunun",
     ),
     "bvfdgb43": MessageLookupByLibrary.simpleMessage("Verilmiş rəy yoxdur"),
-    "bvfv2r": MessageLookupByLibrary.simpleMessage("Yerləşdir"),
+    "bvfv2r": MessageLookupByLibrary.simpleMessage("Elan yaradın"),
     "bvgf2": MessageLookupByLibrary.simpleMessage("Kod göndərildi"),
     "bvgfbf4": MessageLookupByLibrary.simpleMessage("Ləğv et"),
     "by5htg4refg4tr3few": MessageLookupByLibrary.simpleMessage(
@@ -506,7 +506,7 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
     "hrt4h5hte43h454": MessageLookupByLibrary.simpleMessage("Mesaj yazın"),
     "hrtegrg43gvb4hger": MessageLookupByLibrary.simpleMessage("dəqiqə"),
-    "hth453gwsf": MessageLookupByLibrary.simpleMessage("Təklif növü"),
+    "hth453gwsf": MessageLookupByLibrary.simpleMessage("Elan növü"),
     "htr345gfd": MessageLookupByLibrary.simpleMessage("Saytda"),
     "htrh4hedh4th4": MessageLookupByLibrary.simpleMessage(
       "Dəyişiklikləri saxla",
@@ -645,9 +645,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Aktiv"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Ölkə axtar..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Söhbətlər"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Maksimum çəki (kq)"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Təxmini çəki"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Kuryer və ya müştəri tapmaq üçün\nelan yaradın",
+      "Kuryer, göndərən və ya alıcı tapmaq üçün elan yaradın",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Arxivlə"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Əməliyyatlar"),
