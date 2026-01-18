@@ -521,7 +521,7 @@ class _CreatePostScreenState
                           ),
                           textAlign: TextAlign.center,
                           child: Text(
-                            S.of(context).bgfbgbgfbgf,
+                            S.of(context).mjjhmjjmj5,
                           ),
                         ),
                         const SizedBox(height: 32),

@@ -67,11 +67,12 @@ class IntroPage extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
+          onTap: () =>
+              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => HomeScreen(),
+              builder: (_) => HomeScreen(),
             ),
+            (route) => false,
           ),
           borderRadius: BorderRadius.circular(16),
           child: Row(
@@ -91,7 +92,6 @@ class IntroPage extends StatelessWidget {
       ),
     );
   }
-
 }
 
 Widget buildHeroSection(BuildContext context, bool isDark) {
@@ -140,5 +140,3 @@ Widget buildHeroSection(BuildContext context, bool isDark) {
     ],
   );
 }
-
-
