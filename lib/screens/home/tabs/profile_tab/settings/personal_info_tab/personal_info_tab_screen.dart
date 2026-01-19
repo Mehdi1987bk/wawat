@@ -88,7 +88,7 @@ class _PersonalInfoTabState
           // Если у пользователя уже есть код - находим его в списке
           if (widget.user.country != null) {
             _selectedCountry = _allCountries.firstWhere(
-              (c) => c.id == widget.user.country!.id,
+                  (c) => c.id == widget.user.country!.id,
               orElse: () => widget.user.country!,
             );
             _initialCountry = _selectedCountry;
@@ -97,7 +97,10 @@ class _PersonalInfoTabState
         });
       }
     } catch (_) {
-      setState(() => _isLoadingCountries = false);
+      // 🔥 Проверяем mounted перед setState
+      if (mounted) {
+        setState(() => _isLoadingCountries = false);
+      }
     }
   }
 
@@ -180,7 +183,7 @@ class _PersonalInfoTabState
                           controller: _aboutController,
                           maxLines: 4,
                           keyboardAppearance:
-                              isDark ? Brightness.dark : Brightness.light,
+                          isDark ? Brightness.dark : Brightness.light,
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark ? Colors.white : Colors.black,
@@ -188,7 +191,7 @@ class _PersonalInfoTabState
                           decoration: InputDecoration(
                             filled: true,
                             fillColor:
-                                isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                            isDark ? const Color(0xFF2A2A2A) : Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
@@ -234,7 +237,7 @@ class _PersonalInfoTabState
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                                  const Color(0xFF5B4FFF).withOpacity(0.3),
+                              const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -310,7 +313,7 @@ class _PersonalInfoTabState
                     decoration: InputDecoration(
                       filled: true,
                       fillColor:
-                          isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                      isDark ? const Color(0xFF2A2A2A) : Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
@@ -410,11 +413,16 @@ class _PersonalInfoTabState
           });
 
           await bloc.onImageSelected(file);
-          if (mounted) {
-            showIOSStyleMessage(context, S.of(context).gregre3rg);
-            Future.delayed(const Duration(seconds: 2))
-                .then((onValue) => bloc.customersMe());
-          }
+
+          // 🔥 Проверяем mounted после async операции
+          if (!mounted) return;
+
+          showIOSStyleMessage(context, S.of(context).gregre3rg);
+          Future.delayed(const Duration(seconds: 2)).then((onValue) {
+            if (mounted) {
+              bloc.customersMe();
+            }
+          });
         } catch (e) {
           print('Error processing image: $e');
           if (mounted) {
@@ -455,14 +463,14 @@ class _PersonalInfoTabState
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color:
-                    isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color:
-                    isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -568,6 +576,9 @@ class _PersonalInfoTabState
   }
 
   void _addEmployer() {
+    // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
+    FocusScope.of(context).unfocus();
+
     final String name = _fullNameController.text.trim();
     final String email = _emailController.text.trim();
     final String phone = _phoneController.text.trim();
@@ -584,14 +595,26 @@ class _PersonalInfoTabState
       callingCode: _selectedCountry?.callingCode,
     )
         .then(
-      (onValue) {
+          (onValue) {
+        // 🔥 Проверяем что виджет еще существует
+        if (!mounted) return;
+
         // Обновляем initial значение после сохранения
         _initialCountry = _selectedCountry;
         bloc.customersMe();
-        showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
+
+        // 🔥 Показываем алерт только если виджет еще mounted
+        if (mounted) {
+          showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
+        }
         _validateForm(); // Пересчитываем валидацию
       },
-    );
+    ).catchError((error) {
+      // 🔥 Обрабатываем ошибки
+      if (mounted) {
+        showIOSStyleMessage(context, "Error: $error");
+      }
+    });
   }
 
   @override

@@ -62,18 +62,35 @@ class _ChangePasswordTabState
   }
 
   Future<void> _handleChangePassword() async {
-    final success = await bloc.changePassword(
-      currentPassword: _currentPasswordController.text.trim(),
-      newPassword: _newPasswordController.text.trim(),
-      confirmPassword: _confirmPasswordController.text.trim(),
-    );
+    // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
+    FocusScope.of(context).unfocus();
 
-    if (success && mounted) {
-      showIOSStyleMessage(context, S.of(context).vfegt4g3rvsfcfd);
-      _currentPasswordController.clear();
-      _newPasswordController.clear();
-      _confirmPasswordController.clear();
-      _validateForm();
+    try {
+      final success = await bloc.changePassword(
+        currentPassword: _currentPasswordController.text.trim(),
+        newPassword: _newPasswordController.text.trim(),
+        confirmPassword: _confirmPasswordController.text.trim(),
+      );
+
+      // 🔥 Проверяем что виджет еще существует
+      if (!mounted) return;
+
+      if (success) {
+        showIOSStyleMessage(context, S.of(context).vfegt4g3rvsfcfd);
+        _currentPasswordController.clear();
+        _newPasswordController.clear();
+        _confirmPasswordController.clear();
+        _validateForm();
+      }
+    } catch (e) {
+      // 🔥 Обрабатываем ошибки
+      if (mounted) {
+        showIOSStyleMessage(
+          context,
+          "Error: $e",
+          isSuccess: false,
+        );
+      }
     }
   }
 
