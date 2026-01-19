@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_bloc.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class VerificationScreen extends BaseScreen {
 }
 
 class _VerificationScreenState
-    extends BaseState<VerificationScreen, VerificationBloc> {
+    extends BaseState<VerificationScreen, VerificationBloc> with ErrorDispatcher{
   File? _passportImage;
   File? _selfieImage;
   bool _isLoading = false;
@@ -715,14 +716,7 @@ class _VerificationScreenState
         await _loadVerificationStatus();
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).bgdfgre345gtt4evwf + " ${e.toString()}'"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+
     } finally {
       if (mounted) {
         setState(() {

@@ -16,10 +16,10 @@ class VerificationBloc extends BaseBloc {
     required File selfie,
   }) async {
     try {
-      await authRepository.submitVerification(
+      await run(authRepository.submitVerification(
         passport: passport,
         selfie: selfie,
-      );
+      ));
     } catch (e) {
       rethrow;
     }

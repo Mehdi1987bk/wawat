@@ -124,7 +124,7 @@ class ConversationItem extends StatelessWidget {
                                             true)
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
+                                              horizontal: 2,
                                               vertical: 2,
                                             ),
                                             child: Row(
@@ -134,13 +134,23 @@ class ConversationItem extends StatelessWidget {
                                                   "asset/prof_3.png",
                                                   width: 16,
                                                 ),
-
                                               ],
                                             ),
                                           ),
+                                        if (conversation.user.isBlocked == true)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 2,
+                                              vertical: 2,
+                                            ),
+                                            child: Icon(
+                                              Icons.block,
+                                              size: 16,
+                                              color: WawatColors.error,
+                                            ),
+                                          ),
                                         if (conversation.isPinned) ...[
-                                          const SizedBox(width: 4),
-                                          const Icon(
+                                           const Icon(
                                             Icons.push_pin,
                                             size: 14,
                                             color: WawatColors.warning,

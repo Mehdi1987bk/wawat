@@ -38,12 +38,14 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   late bool isFavorite;
   late bool isVisible;
   bool _isExpanded = false;
+  bool _isPackageTypeExpanded = false;
 
   @override
   void initState() {
     super.initState();
     isFavorite = widget.courier.isFavourite ?? false;
     isVisible = widget.courier.status == "active" ? true : false;
+    _isPackageTypeExpanded = false;
   }
 
   void _toggleFavorite() async {
@@ -111,7 +113,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content:
-                      Text(S.of(context).vreevrrvrrvrevre + ' ${e.toString()}'),
+                  Text(S.of(context).vreevrrvrrvrevre + ' ${e.toString()}'),
                   backgroundColor: Colors.red,
                   duration: Duration(seconds: 3),
                 ),
@@ -184,7 +186,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
     return Consumer<ThemeManager>(
       builder: (context, themeManager, child) {
         final isDark = themeManager.isDarkMode;
-         final description = widget.courier.description ?? "";
+        final description = widget.courier.description ?? "";
         final showButton = description.length > 120;
 
         return Stack(
@@ -224,27 +226,27 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         ),
                         child: widget.courier.user?.avatar != null
                             ? ClipOval(
-                                child: Image.network(
-                                  widget.courier.user!.avatar!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Center(
-                                      child: Icon(
-                                        Icons.person,
-                                        color: Colors.white,
-                                        size: 30,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              )
-                            : Center(
+                          child: Image.network(
+                            widget.courier.user!.avatar!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
                                 child: Icon(
                                   Icons.person,
                                   color: Colors.white,
                                   size: 30,
                                 ),
-                              ),
+                              );
+                            },
+                          ),
+                        )
+                            : Center(
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
                       ),
                       SizedBox(width: 16),
                       Expanded(
@@ -288,7 +290,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                         SizedBox(width: 6),
                                         AnimatedDefaultTextStyle(
                                           duration:
-                                              const Duration(milliseconds: 300),
+                                          const Duration(milliseconds: 300),
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
@@ -298,7 +300,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                           ),
                                           child: Text(
                                             (widget.courier.user?.ratingAvg ??
-                                                    0)
+                                                0)
                                                 .toStringAsFixed(1),
                                           ),
                                         ),
@@ -439,18 +441,70 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                           S.of(context).rggre5egre,
                           '${widget.courier.pricePerKg} \$/'+ S.of(context).kq,
                           isDark,
-                        ), if (widget.courier.packageType != null)
-                        _buildDetailRow(
-                          S.of(context).nhgnhg4,
-                          '${widget.courier.packageType?.map((value) => value.title).join(', ') ?? 'N/A'}',
-                          isDark,
                         ),
                       if (widget.courier.flightNumber != null)
-                      _buildDetailRow(
+                        _buildDetailRow(
                           S.of(context).flightNumber + ":",
                           '${widget.courier.flightNumber}',
                           isDark,
                         ),
+                      if (widget.courier.packageType != null) ...[
+                        SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 300),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: isDark ? const Color(0xFF9CA3AF) : WawatColors.textPrimary,
+                                ),
+                                child: Text(S.of(context).nhgnhg4),
+                              ),
+                              Flexible(
+                                child: AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                  ),
+                                  textAlign: TextAlign.right,
+                                  maxLines: _isPackageTypeExpanded ? null : 1,
+                                  overflow: _isPackageTypeExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                                  child: Text(
+                                    '${widget.courier.packageType?.map((value) => value.title).join(', ') ?? 'N/A'}',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if ((widget.courier.packageType?.map((value) => value.title).join(', ') ?? '').length > 40) ...[
+                           Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isPackageTypeExpanded = !_isPackageTypeExpanded;
+                                });
+                              },
+                              child:  Text(
+                                _isPackageTypeExpanded ? S.of(context).fgsdgsgdfs : S.of(context).bgfdbssdbd,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? const Color(0xFF6B9FFF) : Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ],
                   ),
                   SizedBox(height: 10),
@@ -480,7 +534,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                               child: InkWell(
                                 onTap: () async {
                                   final isLogged =
-                                      await sl.get<AuthRepository>().isLogged();
+                                  await sl.get<AuthRepository>().isLogged();
                                   if (!isLogged) {
                                     return AuthModalUtils.showAuthRequiredModal(
                                         context);
@@ -491,7 +545,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                         builder: (BuildContext context) {
                                           return CourierDetailsScreen(
                                             courierId:
-                                                widget.courier.user?.id ?? 0,
+                                            widget.courier.user?.id ?? 0,
                                           );
                                         },
                                       ),
@@ -581,7 +635,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
                           color:
-                              isFavorite ? Colors.red : const Color(0xFF5B5FFF),
+                          isFavorite ? Colors.red : const Color(0xFF5B5FFF),
                           size: 24,
                         ),
                       ),
@@ -668,7 +722,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                 fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white : const Color(0xFF1A1A1A),
               ),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.justify,
               child: Text(
                 value,
                 overflow: TextOverflow.ellipsis,
