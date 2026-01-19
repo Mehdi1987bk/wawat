@@ -97,7 +97,10 @@ class _PersonalInfoTabState
         });
       }
     } catch (_) {
-      setState(() => _isLoadingCountries = false);
+      // 🔥 Проверяем mounted перед setState
+      if (mounted) {
+        setState(() => _isLoadingCountries = false);
+      }
     }
   }
 
@@ -410,11 +413,16 @@ class _PersonalInfoTabState
           });
 
           await bloc.onImageSelected(file);
-          if (mounted) {
-            showIOSStyleMessage(context, S.of(context).gregre3rg);
-            Future.delayed(const Duration(seconds: 2))
-                .then((onValue) => bloc.customersMe());
-          }
+
+          // 🔥 Проверяем mounted после async операции
+          if (!mounted) return;
+
+          showIOSStyleMessage(context, S.of(context).gregre3rg);
+          Future.delayed(const Duration(seconds: 2)).then((onValue) {
+            if (mounted) {
+              bloc.customersMe();
+            }
+          });
         } catch (e) {
           print('Error processing image: $e');
           if (mounted) {
@@ -568,6 +576,9 @@ class _PersonalInfoTabState
   }
 
   void _addEmployer() {
+    // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
+    FocusScope.of(context).unfocus();
+
     final String name = _fullNameController.text.trim();
     final String email = _emailController.text.trim();
     final String phone = _phoneController.text.trim();
@@ -585,13 +596,25 @@ class _PersonalInfoTabState
     )
         .then(
       (onValue) {
+        // 🔥 Проверяем что виджет еще существует
+        if (!mounted) return;
+
         // Обновляем initial значение после сохранения
         _initialCountry = _selectedCountry;
         bloc.customersMe();
-        showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
+
+        // 🔥 Показываем алерт только если виджет еще mounted
+        if (mounted) {
+          showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
+        }
         _validateForm(); // Пересчитываем валидацию
       },
-    );
+    ).catchError((error) {
+      // 🔥 Обрабатываем ошибки
+      if (mounted) {
+        showIOSStyleMessage(context, "Error: $error");
+      }
+    });
   }
 
   @override
