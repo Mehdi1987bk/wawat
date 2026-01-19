@@ -394,7 +394,7 @@ class _ProfileTabScreenState
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatItem(
-                icon: "asset/prof_ic_1.png",
+                icon: Icons.airplanemode_active_rounded,
                 value: user.stats?.deliveriesCount.toString() ?? "",
                 label: S.of(context).gbgrbyhe435,
                 context: context,
@@ -437,7 +437,7 @@ class _ProfileTabScreenState
   }
 
   Widget _buildStatItem({
-    required String icon,
+    required dynamic icon, // ✅ Изменено на dynamic - теперь можно передать String или IconData
     required String value,
     required String label,
     required BuildContext context,
@@ -460,9 +460,17 @@ class _ProfileTabScreenState
       ),
       child: Column(
         children: [
-          Image.asset(
+          // ✅ Условный рендеринг - проверяем тип
+          icon is IconData
+              ? Icon(
             icon,
+            size: 24,
+            color: const Color(0xFF3B82F6),
+          )
+              : Image.asset(
+            icon as String,
             width: 24,
+            height: 24, // ✅ Добавлена высота для симметрии
             color: const Color(0xFF3B82F6),
           ),
           const SizedBox(height: 12),

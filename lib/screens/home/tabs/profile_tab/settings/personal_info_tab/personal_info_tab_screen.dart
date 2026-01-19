@@ -285,6 +285,7 @@ class _PersonalInfoTabState
           children: [
             // Country code selector (editable)
             CountryCodeSelector(
+              enabled: false,
               selectedCountry: _selectedCountry,
               countries: _allCountries,
               isLoading: _isLoadingCountries,

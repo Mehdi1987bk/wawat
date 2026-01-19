@@ -103,7 +103,7 @@ class _CourierDetailsScreenState
           _buildTabButton(index: 0, icon: Icons.description, isDark: isDark),
           _buildTabButton(index: 1, icon: Icons.star_outline, isDark: isDark),
           _buildTabButton(
-              index: 2, icon: Icons.location_on_outlined, isDark: isDark),
+              index: 2, icon: Icons.airplanemode_active_rounded, isDark: isDark),
         ],
       ),
     );

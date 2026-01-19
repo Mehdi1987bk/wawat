@@ -11,6 +11,7 @@ class CountryCodeSelector extends StatelessWidget {
   final List<Country> countries;
   final ValueChanged<Country> onChanged;
   final bool isLoading;
+  final bool enabled; // ✅ Добавлен параметр
 
   const CountryCodeSelector({
     Key? key,
@@ -18,6 +19,7 @@ class CountryCodeSelector extends StatelessWidget {
     required this.countries,
     required this.onChanged,
     this.isLoading = false,
+    this.enabled = true, // ✅ По умолчанию true
   }) : super(key: key);
 
   @override
@@ -27,7 +29,7 @@ class CountryCodeSelector extends StatelessWidget {
         final isDark = themeManager.isDarkMode;
 
         return GestureDetector(
-          onTap: isLoading ? null : () => _showCountryPicker(context, isDark),
+          onTap: (isLoading || !enabled) ? null : () => _showCountryPicker(context, isDark), // ✅ Проверка enabled
           child: Container(
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -38,47 +40,50 @@ class CountryCodeSelector extends StatelessWidget {
                 color: isDark ? Colors.white12 : Colors.grey.shade300,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isLoading)
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: isDark ? Colors.white54 : Colors.grey,
+            child: Opacity( // ✅ Визуальная индикация disabled состояния
+              opacity: enabled ? 1.0 : 0.5,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLoading)
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: isDark ? Colors.white54 : Colors.grey,
+                      ),
+                    )
+                  else if (selectedCountry != null) ...[
+                    Text(
+                      selectedCountry!.flagEmoji,
+                      style: const TextStyle(fontSize: 20),
                     ),
-                  )
-                else if (selectedCountry != null) ...[
-                  Text(
-                    selectedCountry!.flagEmoji,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    selectedCountry!.callingCode ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
+                    const SizedBox(width: 6),
+                    Text(
+                      selectedCountry!.callingCode ?? '',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
-                  ),
-                ] else
-                  Text(
-                    '+...',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.white54 : Colors.grey,
+                  ] else
+                    Text(
+                      '+...',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.white54 : Colors.grey,
+                      ),
                     ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 18,
+                    color: isDark ? Colors.white54 : Colors.grey,
                   ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: isDark ? Colors.white54 : Colors.grey,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

@@ -431,13 +431,13 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       if (widget.courier.maxWeightKg != null)
                         _buildDetailRow(
                           S.of(context).gerg3g53grg,
-                          '${widget.courier.maxWeightKg} кг',
+                          '${widget.courier.maxWeightKg} ' + S.of(context).kq,
                           isDark,
                         ),
                       if (widget.courier.pricePerKg != null)
                         _buildDetailRow(
                           S.of(context).rggre5egre,
-                          '${widget.courier.pricePerKg} \$/кг',
+                          '${widget.courier.pricePerKg} \$/'+ S.of(context).kq,
                           isDark,
                         ), if (widget.courier.packageType != null)
                         _buildDetailRow(

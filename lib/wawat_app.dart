@@ -55,6 +55,12 @@ class App extends StatelessWidget {
               );
 
               return MaterialApp(
+                builder: (context, child) {
+                  return MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    child: child!,
+                  );
+                },
                 color: AppColors.appBarbgColor,
                 debugShowCheckedModeBanner: false,
                 navigatorKey: navigatorKey,
