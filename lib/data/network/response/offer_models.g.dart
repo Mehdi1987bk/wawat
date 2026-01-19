@@ -37,10 +37,9 @@ OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
       purchaseTime: json['purchase_time'] as String?,
       mainDate: json['main_date'] as String?,
       mainTime: json['main_time'] as String?,
-      packageType: json['package_type'] == null
-          ? null
-          : PackageTypeModel.fromJson(
-              json['package_type'] as Map<String, dynamic>),
+      packageType: (json['package_types'] as List<dynamic>?)
+          ?.map((e) => PackageTypeModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       maxWeightKg: json['max_weight_kg'] as int?,
       pricePerKg: json['price_per_kg'] as String?,
       description: json['description'] as String?,
@@ -70,7 +69,7 @@ Map<String, dynamic> _$OfferModelToJson(OfferModel instance) {
     'purchase_time': instance.purchaseTime,
     'main_date': instance.mainDate,
     'main_time': instance.mainTime,
-    'package_type': instance.packageType,
+    'package_types': instance.packageType,
     'max_weight_kg': instance.maxWeightKg,
     'price_per_kg': instance.pricePerKg,
     'description': instance.description,

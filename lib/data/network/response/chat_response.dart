@@ -116,7 +116,7 @@ class ChatMessage {
   ChatMessage({
     required this.id,
     required this.type,
-      this.isRead,
+    this.isRead,
     this.body,
     this.file,
     this.user,
@@ -128,14 +128,16 @@ class ChatMessage {
 
   Map<String, dynamic> toJson() => _$ChatMessageToJson(this);
 
+  /// Getter для преобразования createdAt в DateTime с локальным временем
   DateTime get createdAtDateTime {
     try {
-      return DateTime.parse(createdAt);
+      return DateTime.parse(createdAt).toLocal();
     } catch (e) {
       return DateTime.now();
     }
   }
 
+  /// Метод для форматирования времени в UI
   String timeString(BuildContext context) {
     try {
       final dateTime = createdAtDateTime;
@@ -144,10 +146,13 @@ class ChatMessage {
       final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
 
       if (messageDate == today) {
+        // Сегодня - показываем время
         return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-      } else if (messageDate == today.subtract(Duration(days: 1))) {
+      } else if (messageDate == today.subtract(const Duration(days: 1))) {
+        // Вчера - показываем локализованный текст
         return S.of(context).bfvdg34g43g34;
       } else {
+        // Другие дни - показываем дату
         return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
       }
     } catch (e) {

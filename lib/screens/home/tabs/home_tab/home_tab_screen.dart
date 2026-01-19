@@ -101,7 +101,7 @@ class _HomeTabScreenState
                               return SliverToBoxAdapter(
                                 child: Padding(
                                   padding: EdgeInsets.only(
-                                    top: MediaQuery.of(context).size.height / 4,
+                                    top: MediaQuery.of(context).size.height / 5,
                                   ),
                                   child: Center(
                                     child: Column(
@@ -125,7 +125,8 @@ class _HomeTabScreenState
                                                 : const Color(0xFF6B7280),
                                           ),
                                         ),
-                                      ],
+                                        SizedBox(height: 100,)
+,                                      ],
                                     ),
                                   ),
                                 ),

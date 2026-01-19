@@ -473,11 +473,11 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                             (type) => type.code == _selectedOfferType,
                         orElse: () => OfferTypeModel(
                           code: '',
-                          name: S.of(context).vfdefrwgerg,
+                          name: S.of(context).bgfbgfb3,
                         ),
                       )
                           .name)
-                          : S.of(context).vfdefrwgerg,
+                          : S.of(context).bgfbgfb3,
                     ),
                   ),
                 ),
@@ -495,7 +495,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             DropdownMenuItem<String>(
               value: null,
               child: Text(
-                S.of(context).vfdefrwgerg,
+                S.of(context).bgfbgfb3,
                 style: TextStyle(
                   fontSize: 16,
                   color: isDark ? Colors.white : const Color(0xFF1A1A1A),

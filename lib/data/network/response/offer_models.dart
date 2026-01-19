@@ -56,8 +56,8 @@ class OfferModel {
   @JsonKey(name: 'main_time')
   final String? mainTime;
 
-  @JsonKey(name: 'package_type')
-  final PackageTypeModel? packageType;
+  @JsonKey(name: 'package_types')
+  final List<PackageTypeModel>? packageType;
 
   @JsonKey(name: 'max_weight_kg')
   final int? maxWeightKg;

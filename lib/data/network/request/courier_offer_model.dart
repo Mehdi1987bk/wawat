@@ -31,8 +31,8 @@ class CourierOfferModel {
   @JsonKey(name: 'purchase_time')
   final String purchaseTime;
 
-  @JsonKey(name: 'package_type')
-  final String packageType;
+  @JsonKey(name: 'package_types')
+  final List<String> packageType;
 
   @JsonKey(name: 'max_weight_kg')
   final int maxWeightKg;

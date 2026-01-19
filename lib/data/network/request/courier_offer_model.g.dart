@@ -18,7 +18,9 @@ CourierOfferModel _$CourierOfferModelFromJson(Map<String, dynamic> json) =>
       deliveryDateTo: json['delivery_date_to'] as String,
       purchaseDate: json['purchase_date'] as String,
       purchaseTime: json['purchase_time'] as String,
-      packageType: json['package_type'] as String,
+      packageType: (json['package_types'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
       maxWeightKg: json['max_weight_kg'] as int,
       pricePerKg: (json['price_per_kg'] as num).toDouble(),
       description: json['description'] as String,
@@ -35,7 +37,7 @@ Map<String, dynamic> _$CourierOfferModelToJson(CourierOfferModel instance) {
     'delivery_date_to': instance.deliveryDateTo,
     'purchase_date': instance.purchaseDate,
     'purchase_time': instance.purchaseTime,
-    'package_type': instance.packageType,
+    'package_types': instance.packageType,
     'max_weight_kg': instance.maxWeightKg,
     'price_per_kg': instance.pricePerKg,
     'description': instance.description,

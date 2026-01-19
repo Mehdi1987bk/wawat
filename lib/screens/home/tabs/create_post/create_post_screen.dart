@@ -104,10 +104,8 @@ class _CreatePostScreenState
     });
 
     try {
-      // Берем первый тип посылки или пустую строку если ничего не выбрано
-      final packageType = _selectedPackageTypeCodes.isNotEmpty
-          ? _selectedPackageTypeCodes.first
-          : '';
+      final packageType = _selectedPackageTypeCodes.toList();
+
 
       // Парсим числа с дефолтными значениями если пусто
       final maxWeight = maxWeightController.text.isEmpty
@@ -728,7 +726,7 @@ class _CreatePostScreenState
 
   Widget _buildOfferTypeDropdown(bool isDark) {
     return _buildDropdownField(
-      hint: S.of(context).bgfbgfb3,
+      hint: S.of(context).gbfbgfbfg4,
       value: selectedOfferType,
       icon: "asset/search.png",
       onChanged: (value) {
