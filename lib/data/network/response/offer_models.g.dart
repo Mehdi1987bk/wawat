@@ -143,15 +143,17 @@ Map<String, dynamic> _$LanguageModelToJson(LanguageModel instance) =>
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       id: json['id'] as int,
       fullname: json['fullname'] as String,
+      avatarPath: json['avatar_path'] as String?,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
-      ratingAvg: json['rating_avg'] as int,
+      ratingAvg: (json['rating_avg'] as num).toDouble(),
       ratingCount: json['rating_count'] as int,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'id': instance.id,
       'fullname': instance.fullname,
+      'avatar_path': instance.avatarPath,
       'avatar': instance.avatar,
       'is_verified': instance.isVerified,
       'rating_avg': instance.ratingAvg,

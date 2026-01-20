@@ -51,6 +51,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
 UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
       id: json['id'] as int,
       fullname: json['fullname'] as String,
+      avatarPath: json['avatar_path'] as String?,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
       preferredLocale: json['preferred_locale'] as String,
@@ -69,6 +70,7 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'fullname': instance.fullname,
+      'avatar_path': instance.avatarPath,
       'avatar': instance.avatar,
       'is_verified': instance.isVerified,
       'preferred_locale': instance.preferredLocale,
@@ -160,6 +162,9 @@ Stats _$StatsFromJson(Map<String, dynamic> json) => Stats(
       ratingCount: json['rating_count'] as int,
       reviewsReceivedCount: json['reviews_received_count'] as int,
       positivePercent: (json['positive_percent'] as num).toDouble(),
+      deliveriesCount: json['deliveries_count'] as int,
+      failedDeliveriesCount: json['failed_deliveries_count'] as int,
+      successRate: (json['success_rate'] as num).toDouble(),
       yearsOnPlatform: json['years_on_platform'] as int,
     );
 
@@ -170,6 +175,9 @@ Map<String, dynamic> _$StatsToJson(Stats instance) => <String, dynamic>{
       'rating_count': instance.ratingCount,
       'reviews_received_count': instance.reviewsReceivedCount,
       'positive_percent': instance.positivePercent,
+      'deliveries_count': instance.deliveriesCount,
+      'failed_deliveries_count': instance.failedDeliveriesCount,
+      'success_rate': instance.successRate,
       'years_on_platform': instance.yearsOnPlatform,
     };
 

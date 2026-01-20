@@ -214,6 +214,9 @@ class UserModel {
   @JsonKey(name: 'fullname')
   final String fullname;
 
+  @JsonKey(name: 'avatar_path')
+  final String? avatarPath;
+
   @JsonKey(name: 'avatar')
   final String? avatar;
 
@@ -221,7 +224,7 @@ class UserModel {
   final bool isVerified;
 
   @JsonKey(name: 'rating_avg')
-  final int ratingAvg;
+  final double ratingAvg;
 
   @JsonKey(name: 'rating_count')
   final int ratingCount;
@@ -229,6 +232,7 @@ class UserModel {
   UserModel({
     required this.id,
     required this.fullname,
+    this.avatarPath,
     this.avatar,
     required this.isVerified,
     required this.ratingAvg,

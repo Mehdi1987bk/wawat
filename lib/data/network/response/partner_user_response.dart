@@ -56,6 +56,8 @@ class Data {
 class UserResponse {
   final int id;
   final String fullname;
+  @JsonKey(name: 'avatar_path')
+  final String? avatarPath;
   final String? avatar;
   @JsonKey(name: 'is_verified')
   final bool isVerified;
@@ -72,6 +74,7 @@ class UserResponse {
   UserResponse({
     required this.id,
     required this.fullname,
+    this.avatarPath,
     this.avatar,
     required this.isVerified,
     required this.preferredLocale,
@@ -209,6 +212,12 @@ class Stats {
   final int reviewsReceivedCount;
   @JsonKey(name: 'positive_percent')
   final double positivePercent;
+  @JsonKey(name: 'deliveries_count')
+  final int deliveriesCount;
+  @JsonKey(name: 'failed_deliveries_count')
+  final int failedDeliveriesCount;
+  @JsonKey(name: 'success_rate')
+  final double successRate;
   @JsonKey(name: 'years_on_platform')
   final int yearsOnPlatform;
 
@@ -219,6 +228,9 @@ class Stats {
     required this.ratingCount,
     required this.reviewsReceivedCount,
     required this.positivePercent,
+    required this.deliveriesCount,
+    required this.failedDeliveriesCount,
+    required this.successRate,
     required this.yearsOnPlatform,
   });
 
