@@ -523,7 +523,7 @@ class _CreatePostScreenState
                           ),
                         ),
                         const SizedBox(height: 32),
-                        _buildLabel(S.of(context).bgfbgfbgf,
+                        _buildLabel(S.of(context).hth453gwsf,
                             isRequired: true, isDark: isDark),
                         const SizedBox(height: 8),
                         _buildOfferTypeDropdown(isDark),
