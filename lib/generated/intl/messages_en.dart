@@ -899,6 +899,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Packages with a total of three sides (width, length, height) exceeding 1 meter are calculated as volumetric weight. Volumetric weight = Width x Length x Height / 6000. Currently volumetric weight is not calculated.",
         ),
+    "trh34tgvrt4h3g4rwev": MessageLookupByLibrary.simpleMessage("h"),
     "trh35hteh354heh": MessageLookupByLibrary.simpleMessage(
       "Package types unavailable on server",
     ),
@@ -1031,6 +1032,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vgfb35": MessageLookupByLibrary.simpleMessage("Select language"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Start a conversation"),
     "viewFaq": MessageLookupByLibrary.simpleMessage("View FAQ"),
+    "vre3gg43gv3r3v3rv": MessageLookupByLibrary.simpleMessage("min"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Full name"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Error sending message:",

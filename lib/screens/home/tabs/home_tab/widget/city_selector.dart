@@ -25,6 +25,7 @@ class CitySelector extends StatefulWidget {
 
 class _CitySelectorState extends State<CitySelector> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   List<City> _cities = [];
   List<City> _cachedCities = []; // Кэш для плавности
   bool _isSearching = false;
@@ -42,6 +43,7 @@ class _CitySelectorState extends State<CitySelector> {
   void dispose() {
     _debounceTimer?.cancel();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -56,6 +58,7 @@ class _CitySelectorState extends State<CitySelector> {
         _errorMessage = null;
         _isSearching = false;
       });
+      _scrollToTop();
       return;
     }
 
@@ -87,6 +90,7 @@ class _CitySelectorState extends State<CitySelector> {
           _cachedCities = results;
           _isSearching = false;
         });
+        _scrollToTop();
       }
     } catch (e) {
       if (mounted) {
@@ -134,6 +138,20 @@ class _CitySelectorState extends State<CitySelector> {
       _cachedCities = widget.initialCities;
       _errorMessage = null;
       _isSearching = false;
+    });
+    _scrollToTop();
+  }
+
+  void _scrollToTop() {
+    // Прокручиваем список вверх после обновления UI
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
@@ -333,6 +351,7 @@ class _CitySelectorState extends State<CitySelector> {
       duration: const Duration(milliseconds: 200),
       opacity: _isSearching ? 0.6 : 1.0,
       child: ListView.separated(
+        controller: _scrollController,
         padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: _cities.length,
         separatorBuilder: (context, index) => Divider(

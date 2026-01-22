@@ -909,6 +909,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Üç tarafının (en, uzunluk, yükseklik) toplamı 1 metreyi aşan paketler hacimsel ağırlık olarak hesaplanır. Hacimsel ağırlık = En x Uzunluk x Yükseklik / 6000. Şu anda hacimsel ağırlık hesaplanmamaktadır.",
         ),
+    "trh34tgvrt4h3g4rwev": MessageLookupByLibrary.simpleMessage("sa"),
     "trh35hteh354heh": MessageLookupByLibrary.simpleMessage(
       "Paket türleri sunucuda mevcut değil",
     ),
@@ -1039,6 +1040,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vgfb35": MessageLookupByLibrary.simpleMessage("Dil seçin"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Sohbet başlatın"),
     "viewFaq": MessageLookupByLibrary.simpleMessage("SSS\'yi görüntüle"),
+    "vre3gg43gv3r3v3rv": MessageLookupByLibrary.simpleMessage("dk"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Tam ad"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Mesaj gönderilirken hata:",

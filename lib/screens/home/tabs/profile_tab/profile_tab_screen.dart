@@ -402,7 +402,7 @@ class _ProfileTabScreenState
               ),
               _buildStatItem(
                 icon: "asset/prof_ic_2.png",
-                value: user.stats?.ratingAvg.toString() ?? "",
+                value: user.stats?.ratingAvg.toString().substring(0, 3) ?? "",
                 label: S.of(context).hgg4235gb,
                 context: context,
                 isDark: isDark,

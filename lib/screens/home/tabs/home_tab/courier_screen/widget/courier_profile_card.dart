@@ -201,9 +201,9 @@ class CourierProfileCard extends StatelessWidget {
                       Expanded(
                         child: _buildMetricItem(
                           icon: Icons.schedule,
-                          value: '${professional.responseTimeMinutes ?? 0}',
-                          label: S.of(context).hrtegrg43gvb4hger,
-                          sublabel: S.of(context).brh45hg43g4tgve,
+                          value: _formatResponseTime(professional.responseTimeMinutes, context),
+                          label: /*S.of(context).brh45hg43g4tgve*/ "",
+                          sublabel: '',
                           color: isDark
                               ? const Color(0xFF2A2A2A)
                               : const Color(0xFFF5F8FD),
@@ -359,6 +359,23 @@ class CourierProfileCard extends StatelessWidget {
       ),
     );
   }
+
+
+  String _formatResponseTime(String? minutes, BuildContext context) {
+    final minutesInt = int.tryParse(minutes ?? '0') ?? 0;
+
+    if (minutesInt == 0) return '0 ' + S.of(context).vre3gg43gv3r3v3rv;
+
+    if (minutesInt < 60) {
+      return '$minutesInt ' +  S.of(context).vre3gg43gv3r3v3rv;
+    }
+
+    final hours = minutesInt ~/ 60;
+    final mins = minutesInt % 60;
+    return mins == 0 ? '$hours ' + S.of(context).trh34tgvrt4h3g4rwev : '$hours '+ S.of(context).trh34tgvrt4h3g4rwev +' $mins '  + S.of(context).vre3gg43gv3r3v3rv;
+  }
+
+
   void _handleReviewTap(BuildContext context, bool isDark) async {
     final isLogged = await sl.get<AuthRepository>().isLogged();
     if (!isLogged) {

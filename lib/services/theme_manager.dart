@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeManager extends ChangeNotifier {
@@ -11,7 +12,7 @@ class ThemeManager extends ChangeNotifier {
 
   ThemeManager();
 
-   static Future<ThemeManager> create() async {
+  static Future<ThemeManager> create() async {
     final manager = ThemeManager();
     await manager._loadTheme();
     manager._isInitialized = true;
@@ -20,7 +21,13 @@ class ThemeManager extends ChangeNotifier {
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    _isDarkMode = prefs.getBool(_themeKey) ?? false;
+    _isDarkMode = prefs.getBool(_themeKey) ?? _getSystemTheme();
+  }
+
+  /// Определяет системную тему устройства
+  bool _getSystemTheme() {
+    final brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    return brightness == Brightness.dark;
   }
 
   Future<void> toggleTheme() async {

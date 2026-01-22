@@ -937,6 +937,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Посилки, сума трьох сторін (ширина, довжина, висота) яких перевищує 1 метр, розраховуються як об\'ємна вага. Об\'ємна вага = Ширина x Довжина x Висота / 6000. Наразі об\'ємна вага не розраховується.",
         ),
+    "trh34tgvrt4h3g4rwev": MessageLookupByLibrary.simpleMessage("год"),
     "trh35hteh354heh": MessageLookupByLibrary.simpleMessage(
       "Типи упаковки недоступні на сервері",
     ),
@@ -1073,6 +1074,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vgfb35": MessageLookupByLibrary.simpleMessage("Виберіть мову"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Почніть листування"),
     "viewFaq": MessageLookupByLibrary.simpleMessage("Переглянути FAQ"),
+    "vre3gg43gv3r3v3rv": MessageLookupByLibrary.simpleMessage("хв"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Повне ім\'я"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Помилка надсилання повідомлення:",

@@ -933,6 +933,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Посылки, сумма трёх сторон (ширина, длина, высота) которых превышает 1 метр, рассчитываются как объёмный вес. Объёмный вес = Ширина x Длина x Высота / 6000. В настоящее время объёмный вес не рассчитывается.",
         ),
+    "trh34tgvrt4h3g4rwev": MessageLookupByLibrary.simpleMessage("ч"),
     "trh35hteh354heh": MessageLookupByLibrary.simpleMessage(
       "Типы упаковки недоступны на сервере",
     ),
@@ -1074,6 +1075,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vgfb35": MessageLookupByLibrary.simpleMessage("Выберите язык"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Начните переписку"),
     "viewFaq": MessageLookupByLibrary.simpleMessage("Посмотреть FAQ"),
+    "vre3gg43gv3r3v3rv": MessageLookupByLibrary.simpleMessage("мин"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Полное имя"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Ошибка отправки сообщения:",

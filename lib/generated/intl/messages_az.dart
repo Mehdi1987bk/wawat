@@ -919,6 +919,7 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Üç tərəfinin (en, uzunluq, hündürlük) cəmi 1 metrdən çox olan bağlamalar həcmsəl çəki kimi hesablanır. Həcmsəl çəki = En x Uzunluq x Hündürlük / 6000. Hazırda həcmsəl çəki hesablanmır.",
         ),
+    "trh34tgvrt4h3g4rwev": MessageLookupByLibrary.simpleMessage("saat"),
     "trh35hteh354heh": MessageLookupByLibrary.simpleMessage(
       "Paket növləri serverdə mövcud deyil",
     ),
@@ -1059,6 +1060,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vgfb35": MessageLookupByLibrary.simpleMessage("Dil seçin"),
     "vgfbgf4": MessageLookupByLibrary.simpleMessage("Söhbətə başlayın"),
     "viewFaq": MessageLookupByLibrary.simpleMessage("FAQ-a bax"),
+    "vre3gg43gv3r3v3rv": MessageLookupByLibrary.simpleMessage("dəq"),
     "vrebveg34g3sd": MessageLookupByLibrary.simpleMessage("Tam ad"),
     "vreevrrvrrvrevre": MessageLookupByLibrary.simpleMessage(
       "Mesaj göndərilməsində xəta:",

@@ -5349,6 +5349,16 @@ class S {
       args: [],
     );
   }
+
+  /// `min`
+  String get vre3gg43gv3r3v3rv {
+    return Intl.message('min', name: 'vre3gg43gv3r3v3rv', desc: '', args: []);
+  }
+
+  /// `h`
+  String get trh34tgvrt4h3g4rwev {
+    return Intl.message('h', name: 'trh34tgvrt4h3g4rwev', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
