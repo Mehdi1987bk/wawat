@@ -167,7 +167,7 @@ class CourierProfileCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildStatItem(
-                        value: '${data.reviewsReceived.length}',
+                        value: '${data.stats.deliveriesCount}',
                         label: S.of(context).tbgverfsdclk345frwcs,
                         color: Colors.blue,
                         isDark: isDark,

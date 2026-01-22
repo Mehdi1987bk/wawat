@@ -221,7 +221,7 @@ class UserModel {
   final bool isVerified;
 
   @JsonKey(name: 'rating_avg')
-  final int ratingAvg;
+  final double ratingAvg;
 
   @JsonKey(name: 'rating_count')
   final int ratingCount;

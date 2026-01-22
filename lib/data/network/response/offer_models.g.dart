@@ -145,7 +145,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
-      ratingAvg: json['rating_avg'] as int,
+      ratingAvg: (json['rating_avg'] as num).toDouble(),
       ratingCount: json['rating_count'] as int,
     );
 

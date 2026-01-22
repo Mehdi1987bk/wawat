@@ -465,6 +465,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                 ),
                                 child: Text(S.of(context).nhgnhg4),
                               ),
+                              SizedBox(width: MediaQuery.of(context).size.width * 0.28,),
                               Flexible(
                                 child: AnimatedDefaultTextStyle(
                                   duration: const Duration(milliseconds: 300),

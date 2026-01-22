@@ -158,6 +158,7 @@ Stats _$StatsFromJson(Map<String, dynamic> json) => Stats(
       offersActive: json['offers_active'] as int,
       ratingAvg: (json['rating_avg'] as num).toDouble(),
       ratingCount: json['rating_count'] as int,
+      deliveriesCount: json['deliveries_count'] as int?,
       reviewsReceivedCount: json['reviews_received_count'] as int,
       positivePercent: (json['positive_percent'] as num).toDouble(),
       yearsOnPlatform: json['years_on_platform'] as int,
@@ -171,6 +172,7 @@ Map<String, dynamic> _$StatsToJson(Stats instance) => <String, dynamic>{
       'reviews_received_count': instance.reviewsReceivedCount,
       'positive_percent': instance.positivePercent,
       'years_on_platform': instance.yearsOnPlatform,
+      'deliveries_count': instance.deliveriesCount,
     };
 
 Settings _$SettingsFromJson(Map<String, dynamic> json) => Settings(

@@ -211,12 +211,15 @@ class Stats {
   final double positivePercent;
   @JsonKey(name: 'years_on_platform')
   final int yearsOnPlatform;
+  @JsonKey(name: 'deliveries_count')
+  final int? deliveriesCount;
 
   Stats({
     required this.offersTotal,
     required this.offersActive,
     required this.ratingAvg,
     required this.ratingCount,
+    this.deliveriesCount,
     required this.reviewsReceivedCount,
     required this.positivePercent,
     required this.yearsOnPlatform,
@@ -322,7 +325,6 @@ class Offers {
 
   Map<String, dynamic> toJson() => _$OffersToJson(this);
 }
-
 
 @JsonSerializable()
 class OfferType {
