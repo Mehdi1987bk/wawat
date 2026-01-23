@@ -90,139 +90,141 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
           topRight: Radius.circular(16),
         ),
       ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateBottomSheet) => Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
+      builder: (context) => SafeArea(
+        child: StatefulBuilder(
+          builder: (context, setStateBottomSheet) => Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
             ),
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          ),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      S.of(context).bfgbgfb3,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        S.of(context).bfgbgfb3,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Icon(
+                          Icons.close,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: widget.packageTypes.isEmpty
+                      ? Center(
+                    child: Text(
+                      S.of(context).bgbffgb3,
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark
+                            ? const Color(0xFFB0B0B0)
+                            : Colors.black87,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(
-                        Icons.close,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: widget.packageTypes.isEmpty
-                    ? Center(
-                  child: Text(
-                    S.of(context).bgbffgb3,
-                    style: TextStyle(
-                      color: isDark
-                          ? const Color(0xFFB0B0B0)
-                          : Colors.black87,
-                    ),
-                  ),
-                )
-                    : ListView.builder(
-                  itemCount: widget.packageTypes.length,
-                  itemBuilder: (context, index) {
-                    final packageType = widget.packageTypes[index];
-                    final isSelected =
-                    localSelectedCodes.contains(packageType.code);
+                  )
+                      : ListView.builder(
+                    itemCount: widget.packageTypes.length,
+                    itemBuilder: (context, index) {
+                      final packageType = widget.packageTypes[index];
+                      final isSelected =
+                      localSelectedCodes.contains(packageType.code);
 
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? (isDark
-                            ? const Color(0xFF2A2A2A)
-                            : const Color(0xFFF0EDFF))
-                            : Colors.transparent,
-                      ),
-                      child: ListTile(
-                        leading: Text(
-                          packageType.icon,
-                          style: const TextStyle(fontSize: 28),
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? (isDark
+                              ? const Color(0xFF2A2A2A)
+                              : const Color(0xFFF0EDFF))
+                              : Colors.transparent,
                         ),
-                        title: Text(
-                          packageType.name,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: isDark ? Colors.white : Colors.black,
+                        child: ListTile(
+                          leading: Text(
+                            packageType.icon,
+                            style: const TextStyle(fontSize: 28),
                           ),
+                          title: Text(
+                            packageType.name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          trailing: isSelected
+                              ? const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF5B51FF),
+                            size: 28,
+                          )
+                              : Icon(
+                            Icons.circle_outlined,
+                            color: isDark
+                                ? const Color(0xFF6B7280)
+                                : Colors.grey,
+                            size: 28,
+                          ),
+                          onTap: () {
+                            setStateBottomSheet(() {
+                              if (isSelected) {
+                                localSelectedCodes.remove(packageType.code);
+                              } else {
+                                localSelectedCodes.add(packageType.code);
+                              }
+                            });
+                          },
                         ),
-                        trailing: isSelected
-                            ? const Icon(
-                          Icons.check_circle,
-                          color: Color(0xFF5B51FF),
-                          size: 28,
-                        )
-                            : Icon(
-                          Icons.circle_outlined,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : Colors.grey,
-                          size: 28,
-                        ),
-                        onTap: () {
-                          setStateBottomSheet(() {
-                            if (isSelected) {
-                              localSelectedCodes.remove(packageType.code);
-                            } else {
-                              localSelectedCodes.add(packageType.code);
-                            }
-                          });
-                        },
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      widget.onSelectionChanged(localSelectedCodes);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5B51FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    widget.onSelectionChanged(localSelectedCodes);
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B51FF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      minimumSize: const Size(double.infinity, 50),
+                      elevation: 0,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    minimumSize: const Size(double.infinity, 50),
-                    elevation: 0,
-                  ),
-                  child:   Text(
-                    S.of(context).bgfbggfbfg3,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    child:   Text(
+                      S.of(context).bgfbggfbfg3,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

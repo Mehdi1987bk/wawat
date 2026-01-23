@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../data/network/response/partner_user_response.dart';
@@ -7,6 +8,7 @@ import '../../../../../services/theme_manager.dart';
 import '../../../../data/network/response/reviews_response.dart';
 import '../../../../generated/l10n.dart';
 import '../home_tab/courier_screen/courier_details_bloc.dart';
+import '../home_tab/courier_screen/courier_screen.dart';
 
 class MyRevievsScreen extends BaseScreen {
   final int courierId;
@@ -278,7 +280,7 @@ class _MyRevievsScreenState
             _buildEmptyState(S.of(context).bvfdgb43, isDark)
           else
             ...reviews.map((review) {
-              return _buildLeftReviewCard(review, isDark);
+              return _buildLeftReviewCard(review,review.author?.id ?? 0, isDark);
             }).toList(),
         ],
       ),
@@ -298,7 +300,7 @@ class _MyRevievsScreenState
             _buildEmptyState(S.of(context).bfdtw4ew4, isDark)
           else
             ...reviews.map((review) {
-              return _buildLeftReviewCard(review, isDark);
+              return _buildLeftReviewCard(review,review.target?.id ?? 0, isDark);
             }).toList(),
         ],
       ),
@@ -405,7 +407,7 @@ class _MyRevievsScreenState
   }
 
   // Карточка для оставленных отзывов (ReviewModel)
-  Widget _buildLeftReviewCard(ReviewModel review, bool isDark) {
+  Widget _buildLeftReviewCard(ReviewModel review, int id , bool isDark) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 16),
@@ -425,43 +427,58 @@ class _MyRevievsScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF5B5BFF),
-                  shape: BoxShape.circle,
+          GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return CourierDetailsScreen(
+                      courierId:
+                       id,
+                    );
+                  },
                 ),
-                child: Center(
-                  child: Text(
-                    ((review.author?.fullname ?? review.target?.fullname) ??
-                            "")[0]
-                        .toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              );
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF5B5BFF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      ((review.author?.fullname ?? review.target?.fullname) ??
+                              "")[0]
+                          .toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 300),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    child: Text(
+                        (review.author?.fullname ?? review.target?.fullname) ??
+                            ""),
                   ),
-                  child: Text(
-                      (review.author?.fullname ?? review.target?.fullname) ??
-                          ""),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Row(

@@ -471,9 +471,11 @@ class _NotificationScreenState
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _NotificationDetailBottomSheet(
-        notification: notification,
-        isDark: isDark,
+      builder: (context) => SafeArea(
+        child: _NotificationDetailBottomSheet(
+          notification: notification,
+          isDark: isDark,
+        ),
       ),
     );
   }

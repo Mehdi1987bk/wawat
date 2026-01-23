@@ -10,22 +10,25 @@ class StartChatModal {
       BuildContext context, {
         required int userId,
         required String userName,
-        Function(String message)? onSuccess, // ← Изменено: теперь принимает String
+        Function(String message)? onSuccess,
       }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return _StartChatContent(
-          userId: userId,
-          userName: userName,
-          onSuccess: onSuccess,
+        return SafeArea(
+          child: _StartChatContent(
+            userId: userId,
+            userName: userName,
+            onSuccess: onSuccess,
+          ),
         );
       },
     );
   }
 }
+
 
 class _StartChatContent extends StatefulWidget {
   final int userId;

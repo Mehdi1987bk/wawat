@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
+import '../courier_screen.dart';
 
 class CourierRatingsTab extends StatelessWidget {
   final Data data;
@@ -65,7 +67,7 @@ class CourierRatingsTab extends StatelessWidget {
                   ...data.reviewsReceived.asMap().entries.map((entry) {
                     int index = entry.key;
                     Review review = entry.value;
-                    return _buildReviewCard(review, isDark);
+                    return _buildReviewCard(review,context, isDark);
                   }).toList(),
               ],
             ),
@@ -75,7 +77,7 @@ class CourierRatingsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewCard(Review review, bool isDark) {
+  Widget _buildReviewCard(Review review, BuildContext context, bool isDark) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 20),
@@ -87,44 +89,59 @@ class CourierRatingsTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF5B5BFF),
-                  shape: BoxShape.circle,
+          GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (BuildContext context) {
+                    return CourierDetailsScreen(
+                      courierId:
+                      review.author.id ?? 0,
+                    );
+                  },
                 ),
-                child: Center(
-                  child: Text(
-                    review.author.fullname[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              );
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF5B5BFF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      review.author.fullname[0].toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 300),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        child: Text(review.author.fullname),
                       ),
-                      child: Text(review.author.fullname),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Row(

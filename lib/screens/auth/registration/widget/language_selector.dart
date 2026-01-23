@@ -94,145 +94,147 @@ class _LanguageSelectorState extends State<LanguageSelector> {
           topRight: Radius.circular(16),
         ),
       ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateBottomSheet) => AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          ),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      child:   Text(S.of(context).bgvfd3),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(
-                        Icons.close,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
+      builder: (context) => SafeArea(
+        child: StatefulBuilder(
+          builder: (context, setStateBottomSheet) => AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: widget.languages.isEmpty
-                    ? Center(
-                  child: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      color: isDark
-                          ? const Color(0xFF9CA3AF)
-                          : Colors.grey,
-                    ),
-                    child:   Text(S.of(context).bdg3),
-                  ),
-                )
-                    : ListView.builder(
-                  itemCount: widget.languages.length,
-                  itemBuilder: (context, index) {
-                    final language = widget.languages[index];
-                    final isSelected =
-                    localSelectedCodes.contains(language.code);
-
-                    print(
-                        'ListTile $index: ${language.name} (code=${language.code}, selected=$isSelected)');
-
-                    return ListTile(
-                      title: AnimatedDefaultTextStyle(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            ),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.black,
                         ),
-                        child: Text(language.name ?? S.of(context).nhtg5),
+                        child:   Text(S.of(context).bgvfd3),
                       ),
-                      subtitle: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 300),
-                        style: TextStyle(
-                          fontSize: 12,
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Icon(
+                          Icons.close,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: widget.languages.isEmpty
+                      ? Center(
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        color: isDark
+                            ? const Color(0xFF9CA3AF)
+                            : Colors.grey,
+                      ),
+                      child:   Text(S.of(context).bdg3),
+                    ),
+                  )
+                      : ListView.builder(
+                    itemCount: widget.languages.length,
+                    itemBuilder: (context, index) {
+                      final language = widget.languages[index];
+                      final isSelected =
+                      localSelectedCodes.contains(language.code);
+
+                      print(
+                          'ListTile $index: ${language.name} (code=${language.code}, selected=$isSelected)');
+
+                      return ListTile(
+                        title: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                          child: Text(language.name ?? S.of(context).nhtg5),
+                        ),
+                        subtitle: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 300),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? const Color(0xFF6B7280)
+                                : Colors.grey,
+                          ),
+                          child: Text(S.of(context).bmy5+' ${language.code}'),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(
+                          Icons.check_circle,
+                          color: Color(0xFF5B51FF),
+                          size: 28,
+                        )
+                            : Icon(
+                          Icons.circle_outlined,
                           color: isDark
                               ? const Color(0xFF6B7280)
                               : Colors.grey,
+                          size: 28,
                         ),
-                        child: Text(S.of(context).bmy5+' ${language.code}'),
-                      ),
-                      trailing: isSelected
-                          ? const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF5B51FF),
-                        size: 28,
-                      )
-                          : Icon(
-                        Icons.circle_outlined,
-                        color: isDark
-                            ? const Color(0xFF6B7280)
-                            : Colors.grey,
-                        size: 28,
-                      ),
-                      onTap: () {
-                        setStateBottomSheet(() {
-                          if (isSelected) {
-                            localSelectedCodes.remove(language.code);
-                         
-                          } else {
-                            localSelectedCodes.add(language.code);
-                            
-                          }
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    widget.onSelectionChanged(localSelectedCodes); 
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B51FF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    minimumSize: const Size(double.infinity, 50),
-                    elevation: 0,
+                        onTap: () {
+                          setStateBottomSheet(() {
+                            if (isSelected) {
+                              localSelectedCodes.remove(language.code);
+
+                            } else {
+                              localSelectedCodes.add(language.code);
+
+                            }
+                          });
+                        },
+                      );
+                    },
                   ),
-                  child:   Text(
-                    S.of(context).bnht,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      widget.onSelectionChanged(localSelectedCodes);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5B51FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      minimumSize: const Size(double.infinity, 50),
+                      elevation: 0,
+                    ),
+                    child:   Text(
+                      S.of(context).bnht,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

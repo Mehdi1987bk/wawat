@@ -759,12 +759,14 @@ class _ProfileTabScreenState
       ),
       backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       isScrollControlled: true,
-      builder: (_) => LogoutDialogContent(
-        onConfirmLogout: onConfirmLogout,
-        no: no,
-        yes: yes,
-        title: title,
-        description: description,
+      builder: (_) => SafeArea(
+        child: LogoutDialogContent(
+          onConfirmLogout: onConfirmLogout,
+          no: no,
+          yes: yes,
+          title: title,
+          description: description,
+        ),
       ),
     );
   }

@@ -386,15 +386,17 @@ class CourierProfileCard extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _CourierReviewBottomSheet(
-        courierId: data.user.id ?? 0,
-        courierName: data.user.fullname ?? 'Курьер',
-        isDark: isDark,
-        onReviewSubmitted: (request) {
-          if (onReviewSubmitted != null) {
-            onReviewSubmitted!(request);
-          }
-        },
+      builder: (context) => SafeArea(
+        child: _CourierReviewBottomSheet(
+          courierId: data.user.id ?? 0,
+          courierName: data.user.fullname ?? 'Курьер',
+          isDark: isDark,
+          onReviewSubmitted: (request) {
+            if (onReviewSubmitted != null) {
+              onReviewSubmitted!(request);
+            }
+          },
+        ),
       ),
     );
   }
