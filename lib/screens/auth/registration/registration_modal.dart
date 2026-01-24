@@ -297,6 +297,8 @@ class _RegistrationModalState extends State<RegistrationModal> {
                                 child: TextField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
+                                  maxLength: 11,
+                                  buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
                                   style: TextStyle(
                                     color: isDark ? Colors.white : Colors.black,
                                   ),

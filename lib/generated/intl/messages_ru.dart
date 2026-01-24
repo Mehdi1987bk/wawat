@@ -253,7 +253,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Введите текущий и новый пароль",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      ".Общение происходит непосредственно между пользователями, и сайт не несёт ответственности за содержание переписки.",
+      ".Общение происходит непосредственно между пользователями и сайт не несёт ответственности за содержание переписки.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Страхование"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Макс. вес"),
@@ -663,7 +663,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Активно"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Поиск страны..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чаты"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизительный вес"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизительный вес (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
       "Создайте объявление для поиска курьера, отправителя или покупателя",
     ),

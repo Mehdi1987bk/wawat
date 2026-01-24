@@ -173,7 +173,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Lütfen her iki belgeyi de yükleyin",
     ),
     "bgfbgf3": MessageLookupByLibrary.simpleMessage("İlanı yayınla"),
-    "bgfbgf34": MessageLookupByLibrary.simpleMessage("Kg başına fiyat"),
+    "bgfbgf34": MessageLookupByLibrary.simpleMessage("Her kilogram için fiyat"),
     "bgfbgf3434": MessageLookupByLibrary.simpleMessage("Kalkış zamanı"),
     "bgfbgf34gvfd": MessageLookupByLibrary.simpleMessage("Ayarlar"),
     "bgfbgf4": MessageLookupByLibrary.simpleMessage("Onaylı"),
@@ -647,7 +647,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Aktif"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Ülke ara..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Sohbetler"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Yaklaşık ağırlık"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Yaklaşık ağırlık (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
       "Kurye, gönderen veya alıcı bulmak için ilan oluşturun",
     ),
@@ -942,6 +942,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ujt3": MessageLookupByLibrary.simpleMessage("Şifreyi tekrarla"),
     "ujt4": MessageLookupByLibrary.simpleMessage("Giriş yap"),
     "ukj3": MessageLookupByLibrary.simpleMessage("Şifreyi kaydet"),
+    "ukrainskiy": MessageLookupByLibrary.simpleMessage("Ukrayna"),
     "umt645": MessageLookupByLibrary.simpleMessage("Giriş"),
     "uy3": MessageLookupByLibrary.simpleMessage("Yeni şifre oluşturun"),
     "vNinSeriyaNmrsi": MessageLookupByLibrary.simpleMessage(

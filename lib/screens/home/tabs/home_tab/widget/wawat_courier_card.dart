@@ -450,61 +450,88 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         ),
                       if (widget.courier.packageType != null) ...[
                         SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AnimatedDefaultTextStyle(
-                                duration: const Duration(milliseconds: 300),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: isDark ? const Color(0xFF9CA3AF) : WawatColors.textPrimary,
-                                ),
-                                child: Text(S.of(context).nhgnhg4),
-                              ),
-                              SizedBox(width: MediaQuery.of(context).size.width * 0.28,),
-                              Flexible(
-                                child: AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 300),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final packageTypeText = widget.courier.packageType?.map((value) => value.title).join(', ') ?? 'N/A';
+
+                            // Вычисляем доступную ширину для текста значения
+                            final labelText = S.of(context).nhgnhg4;
+                            final labelStyle = TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: isDark ? const Color(0xFF9CA3AF) : WawatColors.textPrimary,
+                            );
+                            final labelPainter = TextPainter(
+                              text: TextSpan(text: labelText, style: labelStyle),
+                              maxLines: 1,
+                              textDirection: TextDirection.ltr,
+                            )..layout();
+
+                            final spacerWidth = MediaQuery.of(context).size.width * 0.2;
+                            final availableWidth = constraints.maxWidth - labelPainter.width - spacerWidth - 16; // 16 для отступов
+
+                            // Проверяем, переполняется ли текст
+                            final valueStyle = TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                            );
+                            final valuePainter = TextPainter(
+                              text: TextSpan(text: packageTypeText, style: valueStyle),
+                              maxLines: 1,
+                              textDirection: TextDirection.ltr,
+                            )..layout();
+
+                            final isOverflowing = valuePainter.width > availableWidth;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AnimatedDefaultTextStyle(
+                                        duration: const Duration(milliseconds: 300),
+                                        style: labelStyle,
+                                        child: Text(labelText),
+                                      ),
+                                      SizedBox(width: spacerWidth),
+                                      Flexible(
+                                        child: AnimatedDefaultTextStyle(
+                                          duration: const Duration(milliseconds: 300),
+                                          style: valueStyle,
+                                          textAlign: TextAlign.right,
+                                          maxLines: _isPackageTypeExpanded ? null : 1,
+                                          overflow: _isPackageTypeExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                                          child: Text(packageTypeText),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  textAlign: TextAlign.right,
-                                  maxLines: _isPackageTypeExpanded ? null : 1,
-                                  overflow: _isPackageTypeExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                                  child: Text(
-                                    '${widget.courier.packageType?.map((value) => value.title).join(', ') ?? 'N/A'}',
-                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                                if (isOverflowing)
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _isPackageTypeExpanded = !_isPackageTypeExpanded;
+                                      });
+                                    },
+                                    child: Text(
+                                      _isPackageTypeExpanded ? S.of(context).fgsdgsgdfs : S.of(context).bgfdbssdbd,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: isDark ? const Color(0xFF6B9FFF) : Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                         ),
-                        if ((widget.courier.packageType?.map((value) => value.title).join(', ') ?? '').length > 40) ...[
-                           Align(
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isPackageTypeExpanded = !_isPackageTypeExpanded;
-                                });
-                              },
-                              child:  Text(
-                                _isPackageTypeExpanded ? S.of(context).fgsdgsgdfs : S.of(context).bgfdbssdbd,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  color: isDark ? const Color(0xFF6B9FFF) : Colors.blue,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ],
                   ),

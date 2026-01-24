@@ -239,7 +239,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Enter current and new password",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      ". The communication takes place directly between users, and the site is not responsible for the content of the correspondence.",
+      ". The communication takes place directly between users and the site is not responsible for the content of the correspondence.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Insurance"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Max weight"),
@@ -631,9 +631,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Active"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Search country..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Chats"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Approximate weight"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Approximate weight (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Create a listing to find a courier, sender, or buyer",
+      "Create a listing to find a courier, sender or buyer",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Archive"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Operations"),

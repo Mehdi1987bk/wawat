@@ -4305,10 +4305,10 @@ class S {
     );
   }
 
-  /// `. The communication takes place directly between users, and the site is not responsible for the content of the correspondence.`
+  /// `. The communication takes place directly between users and the site is not responsible for the content of the correspondence.`
   String get brtevrfg45rfs {
     return Intl.message(
-      '. The communication takes place directly between users, and the site is not responsible for the content of the correspondence.',
+      '. The communication takes place directly between users and the site is not responsible for the content of the correspondence.',
       name: 'brtevrfg45rfs',
       desc: '',
       args: [],
@@ -5330,20 +5330,20 @@ class S {
     return Intl.message('Create listing', name: 'bvfv2r', desc: '', args: []);
   }
 
-  /// `Create a listing to find a courier, sender, or buyer`
+  /// `Create a listing to find a courier, sender or buyer`
   String get mjjhmjjmj5 {
     return Intl.message(
-      'Create a listing to find a courier, sender, or buyer',
+      'Create a listing to find a courier, sender or buyer',
       name: 'mjjhmjjmj5',
       desc: '',
       args: [],
     );
   }
 
-  /// `Approximate weight`
+  /// `Approximate weight (kg)`
   String get mjjhm6 {
     return Intl.message(
-      'Approximate weight',
+      'Approximate weight (kg)',
       name: 'mjjhm6',
       desc: '',
       args: [],

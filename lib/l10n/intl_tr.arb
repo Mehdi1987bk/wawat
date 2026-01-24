@@ -375,7 +375,7 @@
   "kiukiuku6": "Kalkış şehri",
   "kiuykiu67": "Nereye",
   "lkiuliuu6": "Varış şehri",
-  "bgfbgf34": "Kg başına fiyat",
+  "bgfbgf34": "Her kilogram için fiyat",
   "vfdbg2r3": "Açıklama",
   "bdfbd2w": "Teslimat hizmetleriniz hakkında bilgi verin...",
   "bgfbgf3": "İlanı yayınla",
@@ -695,7 +695,9 @@
   "hth453gwsf": "İlan türü",
   "bvfv2r": "İlan oluştur",
   "mjjhmjjmj5": "Kurye, gönderen veya alıcı bulmak için ilan oluşturun",
-  "mjjhm6": "Yaklaşık ağırlık",
+  "mjjhm6": "Yaklaşık ağırlık (kg)",
   "vre3gg43gv3r3v3rv": "dk",
-  "trh34tgvrt4h3g4rwev": "sa"
+  "trh34tgvrt4h3g4rwev": "sa",
+  "ukrainskiy": "Ukrayna"
+
 }

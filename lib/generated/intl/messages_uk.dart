@@ -253,7 +253,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Введіть поточний та новий пароль",
     ),
     "brtevrfg45rfs": MessageLookupByLibrary.simpleMessage(
-      ".Спілкування відбувається між користувачами, і сайт не несе відповідальності за зміст листування.",
+      ".Спілкування відбувається між користувачами і сайт не несе відповідальності за зміст листування.",
     ),
     "brtg3rtvebt4rgvbfd": MessageLookupByLibrary.simpleMessage("Страхування"),
     "brthgteb4h5g4t35g": MessageLookupByLibrary.simpleMessage("Макс. вага"),
@@ -671,7 +671,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Активно"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Пошук країни..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чати"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизна вага"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизна вага (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
       "Створіть оголошення для пошуку кур\'єра, відправника або покупця",
     ),
@@ -970,6 +970,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ujt3": MessageLookupByLibrary.simpleMessage("Повторіть пароль"),
     "ujt4": MessageLookupByLibrary.simpleMessage("Увійти"),
     "ukj3": MessageLookupByLibrary.simpleMessage("Зберегти пароль"),
+    "ukrainskiy": MessageLookupByLibrary.simpleMessage("Українська"),
     "umt645": MessageLookupByLibrary.simpleMessage("Вхід"),
     "uy3": MessageLookupByLibrary.simpleMessage("Придумайте новий пароль"),
     "vNinSeriyaNmrsi": MessageLookupByLibrary.simpleMessage(

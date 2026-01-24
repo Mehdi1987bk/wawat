@@ -171,7 +171,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Zəhmət olmasa hər iki sənədi yükləyin",
     ),
     "bgfbgf3": MessageLookupByLibrary.simpleMessage("Elanı dərc et"),
-    "bgfbgf34": MessageLookupByLibrary.simpleMessage("Kq başına qiymət"),
+    "bgfbgf34": MessageLookupByLibrary.simpleMessage(
+      "Hər kiloqram üçün qiymət",
+    ),
     "bgfbgf3434": MessageLookupByLibrary.simpleMessage("Uçuş vaxtı"),
     "bgfbgf34gvfd": MessageLookupByLibrary.simpleMessage("Parametrlər"),
     "bgfbgf4": MessageLookupByLibrary.simpleMessage("Təsdiqlənib"),
@@ -447,7 +449,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "get42fvfdvs": MessageLookupByLibrary.simpleMessage(
       "Yoxlama üçün sənədləri yükləyin",
     ),
-    "getgrw35g3egeg3eg": MessageLookupByLibrary.simpleMessage("Marşrut:"),
+    "getgrw35g3egeg3eg": MessageLookupByLibrary.simpleMessage("İstiqamət:"),
     "gfdfd3434": MessageLookupByLibrary.simpleMessage("Pasportla selfi"),
     "gfdlek54jn3": MessageLookupByLibrary.simpleMessage(
       "Adətən 24 saat ərzində cavab veririk",
@@ -645,7 +647,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Aktiv"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Ölkə axtar..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Söhbətlər"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Təxmini çəki"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Təxmini çəki (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
       "Kuryer, göndərən və ya alıcı tapmaq üçün elan yaradın",
     ),
@@ -691,7 +693,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Etibarı artırmaq üçün şəxsiyyətinizi\ntəsdiqləyin",
     ),
     "nhgngn5": MessageLookupByLibrary.simpleMessage("Seçim"),
-    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Paket növü:"),
+    "nhgnhg4": MessageLookupByLibrary.simpleMessage("Bağlamanın növü:"),
     "nhhfge4": MessageLookupByLibrary.simpleMessage("Axtar"),
     "nhnnh5": MessageLookupByLibrary.simpleMessage("Yerləşdir"),
     "nhtf34": MessageLookupByLibrary.simpleMessage("Kod yenidən göndərildi"),
@@ -952,6 +954,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ujt3": MessageLookupByLibrary.simpleMessage("Şifrəni təkrarla"),
     "ujt4": MessageLookupByLibrary.simpleMessage("Daxil ol"),
     "ukj3": MessageLookupByLibrary.simpleMessage("Şifrəni saxla"),
+    "ukrainskiy": MessageLookupByLibrary.simpleMessage("Ukrayna"),
     "umt645": MessageLookupByLibrary.simpleMessage("Giriş"),
     "uy3": MessageLookupByLibrary.simpleMessage("Yeni şifrə yaradın"),
     "vNinSeriyaNmrsi": MessageLookupByLibrary.simpleMessage(
