@@ -582,7 +582,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Payment for additional services is made upon order delivery.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("District"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage("Listing history"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("Review History"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Completed"),
     "lke": MessageLookupByLibrary.simpleMessage("Country"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Destination city"),

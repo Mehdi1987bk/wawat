@@ -598,7 +598,9 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Əlavə xidmətlərin ödənişi sifarişin təhvili zamanı edilir.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("İlçe"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage("Elanın tarixçəsi"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage(
+      "Rəylərin tarixçəsi",
+    ),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "lke": MessageLookupByLibrary.simpleMessage("Ölkə"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Təyinat şəhəri"),

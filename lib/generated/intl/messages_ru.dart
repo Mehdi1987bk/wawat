@@ -614,9 +614,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Оплата дополнительных услуг производится при получении заказа.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("Район"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage(
-      "История объявления",
-    ),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("История отзывов"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Завершено"),
     "lke": MessageLookupByLibrary.simpleMessage("Страна"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Город назначения"),
@@ -663,7 +661,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Активно"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Поиск страны..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чаты"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизительный вес (kg)"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизительный вес (кг)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
       "Создайте объявление для поиска курьера, отправителя или покупателя",
     ),

@@ -600,7 +600,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Ek hizmetlerin ödemesi sipariş teslimatında yapılır.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("İlçe"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage("İlan geçmişi"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("Yorum Geçmişi"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "lke": MessageLookupByLibrary.simpleMessage("Ülke"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Varış şehri"),

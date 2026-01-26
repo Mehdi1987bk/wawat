@@ -5240,10 +5240,10 @@ class S {
     );
   }
 
-  /// `Listing history`
+  /// `Review History`
   String get listingHistory {
     return Intl.message(
-      'Listing history',
+      'Review History',
       name: 'listingHistory',
       desc: '',
       args: [],
