@@ -51,8 +51,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _notificationBloc.dispose(); // <- ДОБАВИТЬ
-
+    _notificationBloc.dispose();
     super.dispose();
   }
 
@@ -65,12 +64,53 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
       child: SafeArea(
         child: Scaffold(
           backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-          body: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 80),
+          body: StreamBuilder<List<Conversation>>(
+            stream: bloc.conversationsStream,
+            builder: (context, conversationSnapshot) {
+              if (!conversationSnapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: WawatColors.primary,
+                  ),
+                );
+              }
+
+              final conversations = conversationSnapshot.data!;
+              final sortedConversations = [...conversations];
+              sortedConversations.sort((a, b) {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+
+                if (a.lastMessage == null && b.lastMessage == null) return 0;
+                if (a.lastMessage == null) return 1;
+                if (b.lastMessage == null) return -1;
+
+                final aTime = DateTime.parse(a.lastMessage!.createdAt);
+                final bTime = DateTime.parse(b.lastMessage!.createdAt);
+                return bTime.compareTo(aTime);
+              });
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 100),
                 child: Column(
                   children: [
+                    // Header (фиксированный)
+                    StreamBuilder<int>(
+                      stream: _notificationBloc.unreadCountStream,
+                      initialData: 0,
+                      builder: (context, snapshot) {
+                        return BuildHeader(
+                          context,
+                          isDark: isDark,
+                          unreadCount: snapshot.data ?? 0,
+                          onNotificationsReturned: () {
+                            _notificationBloc.fetchUnreadCount();
+                          },
+                        );
+                      },
+                    ),
+
+                    // Кнопка архива (фиксированная)
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -78,230 +118,175 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                         horizontal: WawatDimensions.spacingMd,
                         vertical: 8,
                       ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _showArchived = !_showArchived;
-                            });
-                            if (_showArchived) {
-                              bloc.loadArchivedConversations();
-                            } else {
-                              bloc.loadConversations();
-                            }
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 14),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFF5B7FFF), Color(0xFFAB5FE8)],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showArchived = !_showArchived;
+                          });
+                          if (_showArchived) {
+                            bloc.loadArchivedConversations();
+                          } else {
+                            bloc.loadConversations();
+                          }
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF5B7FFF), Color(0xFFAB5FE8)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF5B7FFF)
+                                    .withOpacity(isDark ? 0.3 : 0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0xFF5B7FFF)
-                                      .withOpacity(isDark ? 0.3 : 0.2),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      _showArchived
-                                          ? Icons.inbox
-                                          : Icons.archive,
-                                      color: Color(0xFF5B7FFF),
-                                      size: 18,
-                                    ),
+                                child: Center(
+                                  child: Icon(
+                                    _showArchived
+                                        ? Icons.inbox
+                                        : Icons.archive,
+                                    color: Color(0xFF5B7FFF),
+                                    size: 18,
                                   ),
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  _showArchived
-                                      ? S.of(context).vfdvfd3
-                                      : S.of(context).vfdvfdvf3,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                _showArchived
+                                    ? S.of(context).vfdvfd3
+                                    : S.of(context).vfdvfdvf3,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                SizedBox(width: 4),
-                              ],
-                            ),
+                              ),
+                              SizedBox(width: 4),
+                            ],
                           ),
                         ),
                       ),
                     ),
+
+                    // Список чатов (скроллится)
+                // Список чатов (скроллится)
                     Expanded(
-                      child: StreamBuilder<List<Conversation>>(
-                        stream: bloc.conversationsStream,
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: WawatColors.primary,
+                      child: conversations.isEmpty
+                          ? Container(
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat_bubble_outline,
+                                size: 64,
+                                color: isDark
+                                    ? const Color(0xFF6B7280)
+                                    : WawatColors.textSecondary,
                               ),
-                            );
-                          }
-
-                          final conversations = snapshot.data!;
-
-                          if (conversations.isEmpty) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : Colors.white,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.chat_bubble_outline,
-                                      size: 64,
-                                      color: isDark
-                                          ? const Color(0xFF6B7280)
-                                          : WawatColors.textSecondary,
-                                    ),
-                                    SizedBox(height: WawatDimensions.spacingMd),
-                                    AnimatedDefaultTextStyle(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      style: WawatTextStyles.body.copyWith(
-                                        color: isDark
-                                            ? const Color(0xFFB0B0B0)
-                                            : WawatColors.textSecondary,
-                                      ),
-                                      child: Text(S.of(context).vfgdvfd3),
-                                    ),
-                                  ],
+                              SizedBox(height: WawatDimensions.spacingMd),
+                              Text(
+                                S.of(context).vfgdvfd3,
+                                style: WawatTextStyles.body.copyWith(
+                                  color: isDark
+                                      ? const Color(0xFFB0B0B0)
+                                      : WawatColors.textSecondary,
                                 ),
                               ),
-                            );
+                            ],
+                          ),
+                        ),
+                      )
+                          : RefreshIndicator(
+                        onRefresh: () async {
+                          if (_showArchived) {
+                            await bloc.loadArchivedConversations();
+                          } else {
+                            await bloc.loadConversations();
                           }
-
-                          final sortedConversations = [...conversations];
-                          sortedConversations.sort((a, b) {
-                            if (a.isPinned && !b.isPinned) return -1;
-                            if (!a.isPinned && b.isPinned) return 1;
-
-                            if (a.lastMessage == null && b.lastMessage == null)
-                              return 0;
-                            if (a.lastMessage == null) return 1;
-                            if (b.lastMessage == null) return -1;
-
-                            final aTime =
-                                DateTime.parse(a.lastMessage!.createdAt);
-                            final bTime =
-                                DateTime.parse(b.lastMessage!.createdAt);
-                            return bTime.compareTo(aTime);
-                          });
-
-                          return RefreshIndicator(
-                            onRefresh: () async {
-                              if (_showArchived) {
-                                await bloc.loadArchivedConversations();
-                              } else {
-                                await bloc.loadConversations();
-                              }
-                            },
-                            color: WawatColors.primary,
-                            backgroundColor:
-                                isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : Colors.white,
-                              child: ListView.builder(
-                                controller: _scrollController,
-                                physics: AlwaysScrollableScrollPhysics(),
-                                itemCount: sortedConversations.length + 1,
-                                itemBuilder: (context, index) {
-                                  if (index == sortedConversations.length) {
-                                    return StreamBuilder<bool>(
-                                      stream: bloc.isLoadingMoreStream,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.data == true) {
-                                          return Padding(
-                                            padding: EdgeInsets.all(
-                                                WawatDimensions.spacingMd),
-                                            child: Center(
-                                              child: CircularProgressIndicator(
-                                                color: WawatColors.primary,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        return SizedBox.shrink();
-                                      },
+                        },
+                        color: WawatColors.primary,
+                        backgroundColor:
+                        isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.only(bottom: 12), // ← ДОБАВИЛ ОТСТУП
+                          itemCount: sortedConversations.length + 1,
+                          itemBuilder: (context, index) {
+                            // Индикатор загрузки
+                            if (index == sortedConversations.length) {
+                              return StreamBuilder<bool>(
+                                stream: bloc.isLoadingMoreStream,
+                                builder: (context, snapshot) {
+                                  if (snapshot.data == true) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          top: 16,
+                                          bottom: 200),
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: WawatColors.primary,
+                                        ),
+                                      ),
                                     );
                                   }
-
-                                  final conversation =
-                                      sortedConversations[index];
-
-                                  return ConversationItem(
-                                      conversation: conversation,
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChatConversationScreen(
-                                              conversation: conversation,
-                                            ),
-                                          ),
-                                        ).then((_) {
-                                          bloc.loadConversations();
-                                           sl.get<UnreadChatBloc>().fetchUnreadCount();
-                                        });
-                                      },
-                                      onTapMenu: () => _showConversationMenu(
-                                          conversation, isDark));
+                                  return SizedBox.shrink();
                                 },
-                              ),
-                            ),
-                          );
-                        },
+                              );
+                            }
+
+                            // Элемент чата
+                            final conversation = sortedConversations[index];
+                            return ConversationItem(
+                              conversation: conversation,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ChatConversationScreen(
+                                          conversation: conversation,
+                                        ),
+                                  ),
+                                ).then((_) {
+                                  bloc.loadConversations();
+                                  sl.get<UnreadChatBloc>().fetchUnreadCount();
+                                });
+                              },
+                              onTapMenu: () =>
+                                  _showConversationMenu(conversation, isDark),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ),                ],
                 ),
-              ),
-              StreamBuilder<int>(
-                stream: _notificationBloc.unreadCountStream,
-                initialData: 0,
-                builder: (context, snapshot) {
-                  return BuildHeader(
-                    context,
-                    isDark: isDark,
-                    unreadCount: snapshot.data ?? 0,
-                    onNotificationsReturned: () {
-                      _notificationBloc.fetchUnreadCount();
-                    },
-                  );
-                },
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -535,7 +520,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             child: Text(
               S.of(context).nhtntt5,
               style:
-                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+              WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
             ),
           ),
         ],
@@ -581,7 +566,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             child: Text(
               S.of(context).bghfgbg4,
               style:
-                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
+              WawatTextStyles.bodyBold.copyWith(color: WawatColors.error),
             ),
           ),
         ],
@@ -627,7 +612,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
             child: Text(
               S.of(context).hythy4,
               style:
-                  WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
+              WawatTextStyles.bodyBold.copyWith(color: WawatColors.success),
             ),
           ),
         ],
