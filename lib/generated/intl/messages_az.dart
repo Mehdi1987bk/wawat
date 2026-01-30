@@ -1055,6 +1055,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vfewrerewec": MessageLookupByLibrary.simpleMessage("İstifadəçi"),
     "vfgbhyujkerg3": MessageLookupByLibrary.simpleMessage("Profili redaktə et"),
+    "vfgdbkjnergiu3hiutbe33": MessageLookupByLibrary.simpleMessage(
+      "Verilmə tarixi",
+    ),
     "vfgdvfd3": MessageLookupByLibrary.simpleMessage("Söhbət yoxdur"),
     "vfsvf33fr": MessageLookupByLibrary.simpleMessage(
       "Məlumat görünürlüyünü idarə edin",

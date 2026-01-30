@@ -1024,6 +1024,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vfewrerewec": MessageLookupByLibrary.simpleMessage("User"),
     "vfgbhyujkerg3": MessageLookupByLibrary.simpleMessage("Edit profile"),
+    "vfgdbkjnergiu3hiutbe33": MessageLookupByLibrary.simpleMessage(
+      "Issue date",
+    ),
     "vfgdvfd3": MessageLookupByLibrary.simpleMessage("No chats"),
     "vfsvf33fr": MessageLookupByLibrary.simpleMessage(
       "Manage information visibility",

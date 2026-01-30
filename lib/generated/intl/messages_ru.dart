@@ -1063,6 +1063,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vfgbhyujkerg3": MessageLookupByLibrary.simpleMessage(
       "Редактировать профиль",
     ),
+    "vfgdbkjnergiu3hiutbe33": MessageLookupByLibrary.simpleMessage(
+      "Дата выдета",
+    ),
     "vfgdvfd3": MessageLookupByLibrary.simpleMessage("Нет чатов"),
     "vfsvf33fr": MessageLookupByLibrary.simpleMessage(
       "Управляйте видимостью информации",
