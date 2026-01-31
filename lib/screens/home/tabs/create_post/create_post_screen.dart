@@ -754,7 +754,7 @@ class _CreatePostScreenState
     switch (selectedOfferType) {
       case 'courier':
         return [
-          _buildLabel(S.of(context).bgfbgf3, isRequired: true, isDark: isDark),
+          _buildLabel(S.of(context).vfgdbkjnergiu3hiutbe33, isRequired: true, isDark: isDark),
           const SizedBox(height: 8),
           _buildDateField(
               flightDateController, S.of(context).bgbgfg334, isDark),

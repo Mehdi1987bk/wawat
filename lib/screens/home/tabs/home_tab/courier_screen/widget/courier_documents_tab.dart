@@ -22,11 +22,11 @@ class CourierDocumentsTab extends StatelessWidget {
 
         return Column(
           children: [
-            _buildContactInfo(isDark,context),
+            _buildContactInfo(isDark, context),
             const SizedBox(height: 16),
-            _buildProfessionalInfo(isDark,context),
+            _buildProfessionalInfo(isDark, context),
             const SizedBox(height: 16),
-            _buildLanguages(isDark,context),
+            _buildLanguages(isDark, context),
             const SizedBox(height: 20),
           ],
         );
@@ -34,7 +34,7 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildContactInfo(bool isDark , BuildContext context) {
+  Widget _buildContactInfo(bool isDark, BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -59,13 +59,13 @@ class CourierDocumentsTab extends StatelessWidget {
               const Icon(Icons.person, color: Color(0xFF5B5BFF), size: 20),
               const SizedBox(width: 8),
               AnimatedDefaultTextStyle(
-                duration:   Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child:   Text(S.of(context).bteg4r5344wfvsfdg34wf),
+                child: Text(S.of(context).bteg4r5344wfvsfdg34wf),
               ),
             ],
           ),
@@ -73,7 +73,7 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.phone,
             title: S.of(context).tbergwf35grwfsvfg43,
-            value: data.user.phone  ??  '--',
+            value: data.user.phone ?? '--',
             iconColor: Colors.green,
             isDark: isDark,
           ),
@@ -89,7 +89,9 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.calendar_today,
             title: S.of(context).btegr4tfwrg3frwv,
-            value: data.stats.yearsOnPlatform.toString() + " " + S.of(context).etghrwf3fr3,
+            value: data.stats.yearsOnPlatform.toString() +
+                " " +
+                S.of(context).etghrwf3fr3,
             iconColor: Colors.purple,
             isDark: isDark,
           ),
@@ -97,9 +99,8 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.access_time,
             title: S.of(context).btergwfe5g34rfecerv,
-            value: data.user.lastSeenAt == null
-                ? '--'
-                : DateFormat('dd.MM.yyyy HH:mm').format(data.user.lastSeenAt!),
+            value: _formatResponseTime(
+                data.user.lastSeenAt, context),
             iconColor: Colors.red,
             isDark: isDark,
           ),
@@ -108,7 +109,26 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildProfessionalInfo(bool isDark,BuildContext context) {
+  String _formatResponseTime(String? minutes, BuildContext context) {
+    final minutesInt = int.tryParse(minutes ?? '0') ?? 0;
+
+    if (minutesInt == 0) return '0 ' + S.of(context).vre3gg43gv3r3v3rv;
+
+    if (minutesInt < 60) {
+      return '$minutesInt ' + S.of(context).vre3gg43gv3r3v3rv;
+    }
+
+    final hours = minutesInt ~/ 60;
+    final mins = minutesInt % 60;
+    return mins == 0
+        ? '$hours ' + S.of(context).trh34tgvrt4h3g4rwev
+        : '$hours ' +
+            S.of(context).trh34tgvrt4h3g4rwev +
+            ' $mins ' +
+            S.of(context).vre3gg43gv3r3v3rv;
+  }
+
+  Widget _buildProfessionalInfo(bool isDark, BuildContext context) {
     final professional = data.professional;
 
     return AnimatedContainer(
@@ -141,7 +161,7 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child:   Text(S.of(context).bterv4gg353r5r35),
+                child: Text(S.of(context).bterv4gg353r5r35),
               ),
             ],
           ),
@@ -150,7 +170,8 @@ class CourierDocumentsTab extends StatelessWidget {
             icon: Icons.stars,
             title: S.of(context).bteettgr3gt4g3t4tg3,
             value: professional.experienceYears != null
-                ? '${professional.experienceYears} ' + S.of(context).tebh4gterw4htgerwf
+                ? '${professional.experienceYears} ' +
+                    S.of(context).tebh4gterw4htgerwf
                 : '--',
             iconColor: Colors.orange,
             isDark: isDark,
@@ -160,7 +181,8 @@ class CourierDocumentsTab extends StatelessWidget {
             icon: Icons.fitness_center,
             title: S.of(context).evr4g653twgrv43gr,
             value: professional.maxWeightKg != null
-                ? '${professional.maxWeightKg} ' +S.of(context).ethgr46htgbevgte
+                ? '${professional.maxWeightKg} ' +
+                    S.of(context).ethgr46htgbevgte
                 : '--',
             iconColor: Colors.blue,
             isDark: isDark,
@@ -179,9 +201,10 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.attach_money,
             title: S.of(context).vervrefg3gr45t3t4fwr34,
-            value: professional.priceFrom != null && professional.priceTo != null
-                ? '\$${professional.priceFrom} - \$${professional.priceTo}'
-                : '--',
+            value:
+                professional.priceFrom != null && professional.priceTo != null
+                    ? '\$${professional.priceFrom} - \$${professional.priceTo}'
+                    : '--',
             iconColor: Colors.teal,
             isDark: isDark,
           ),
@@ -189,7 +212,8 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.schedule,
             title: S.of(context).beg53gt342feg35g2fw,
-            value: professional.workTimeFrom != null && professional.workTimeTo != null
+            value: professional.workTimeFrom != null &&
+                    professional.workTimeTo != null
                 ? '${professional.workTimeFrom} - ${professional.workTimeTo}'
                 : '--',
             iconColor: Colors.indigo,
@@ -199,9 +223,8 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.timer,
             title: S.of(context).btrg3243g5vfed34ft,
-            value: professional.responseTimeMinutes != null
-                ? '${professional.responseTimeMinutes} ' +S.of(context).btegr435tt24fwg34wf
-                : '--',
+            value: _formatResponseTime(
+                data.professional.responseTimeMinutes, context),
             iconColor: Colors.deepOrange,
             isDark: isDark,
           ),
@@ -260,8 +283,6 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
- 
-
   Widget _buildLanguages(bool isDark, BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -293,7 +314,7 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black,
                 ),
-                child:   Text(S.of(context).ki7ju6h5ytg4erf53fw),
+                child: Text(S.of(context).ki7ju6h5ytg4erf53fw),
               ),
             ],
           ),
@@ -303,23 +324,24 @@ class CourierDocumentsTab extends StatelessWidget {
             runSpacing: 8,
             children: data.user.languages
                 .map((lang) => AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                lang.name,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-              ),
-            ))
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        lang.name,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ))
                 .toList(),
           ),
         ],

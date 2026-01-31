@@ -57,9 +57,7 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
       email: json['email'] as String?,
       phone: json['phone'] as String?,
       createdAt: json['created_at'] as String?,
-      lastSeenAt: json['last_seen_at'] == null
-          ? null
-          : DateTime.parse(json['last_seen_at'] as String),
+      lastSeenAt: json['last_seen_at'] as String?,
       languages: (json['languages'] as List<dynamic>)
           .map((e) => Language.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -74,7 +72,7 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'preferred_locale': instance.preferredLocale,
       'email': instance.email,
       'phone': instance.phone,
-      'last_seen_at': instance.lastSeenAt?.toIso8601String(),
+      'last_seen_at': instance.lastSeenAt,
       'created_at': instance.createdAt,
       'languages': instance.languages,
     };

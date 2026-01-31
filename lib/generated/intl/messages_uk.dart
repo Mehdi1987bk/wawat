@@ -622,9 +622,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Оплата додаткових послуг здійснюється при отриманні замовлення.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("Район"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage(
-      "Історія оголошення",
-    ),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("Історія відгуків"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Завершено"),
     "lke": MessageLookupByLibrary.simpleMessage("Країна"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Місто призначення"),
@@ -671,7 +669,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjghmjtr446": MessageLookupByLibrary.simpleMessage("Активно"),
     "mjh5y": MessageLookupByLibrary.simpleMessage("Пошук країни..."),
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чати"),
-    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизна вага (kg)"),
+    "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизна вага (кг)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
       "Створіть оголошення для пошуку кур\'єра, відправника або покупця",
     ),
@@ -1065,6 +1063,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vfewrerewec": MessageLookupByLibrary.simpleMessage("Користувач"),
     "vfgbhyujkerg3": MessageLookupByLibrary.simpleMessage("Редагувати профіль"),
+    "vfgdbkjnergiu3hiutbe33": MessageLookupByLibrary.simpleMessage(
+      "Дата видачі",
+    ),
     "vfgdvfd3": MessageLookupByLibrary.simpleMessage("Немає чатів"),
     "vfsvf33fr": MessageLookupByLibrary.simpleMessage(
       "Керуйте видимістю інформації",

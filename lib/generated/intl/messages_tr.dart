@@ -600,7 +600,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Ek hizmetlerin ödemesi sipariş teslimatında yapılır.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("İlçe"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage("İlan geçmişi"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("Yorum Geçmişi"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Tamamlandı"),
     "lke": MessageLookupByLibrary.simpleMessage("Ülke"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Varış şehri"),
@@ -1033,6 +1033,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vfewrerewec": MessageLookupByLibrary.simpleMessage("Kullanıcı"),
     "vfgbhyujkerg3": MessageLookupByLibrary.simpleMessage("Profili düzenle"),
+    "vfgdbkjnergiu3hiutbe33": MessageLookupByLibrary.simpleMessage(
+      "Verilme tarihi",
+    ),
     "vfgdvfd3": MessageLookupByLibrary.simpleMessage("Sohbet yok"),
     "vfsvf33fr": MessageLookupByLibrary.simpleMessage(
       "Bilgi görünürlüğünü yönetin",

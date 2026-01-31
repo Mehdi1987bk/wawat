@@ -582,7 +582,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "* Payment for additional services is made upon order delivery.",
         ),
     "le": MessageLookupByLibrary.simpleMessage("District"),
-    "listingHistory": MessageLookupByLibrary.simpleMessage("Listing history"),
+    "listingHistory": MessageLookupByLibrary.simpleMessage("Review History"),
     "ljkl73": MessageLookupByLibrary.simpleMessage("Completed"),
     "lke": MessageLookupByLibrary.simpleMessage("Country"),
     "lkiuliuu6": MessageLookupByLibrary.simpleMessage("Destination city"),
@@ -1024,6 +1024,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "vfewrerewec": MessageLookupByLibrary.simpleMessage("User"),
     "vfgbhyujkerg3": MessageLookupByLibrary.simpleMessage("Edit profile"),
+    "vfgdbkjnergiu3hiutbe33": MessageLookupByLibrary.simpleMessage(
+      "Issue date",
+    ),
     "vfgdvfd3": MessageLookupByLibrary.simpleMessage("No chats"),
     "vfsvf33fr": MessageLookupByLibrary.simpleMessage(
       "Manage information visibility",

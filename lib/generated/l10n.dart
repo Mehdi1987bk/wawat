@@ -5240,10 +5240,10 @@ class S {
     );
   }
 
-  /// `Listing history`
+  /// `Review History`
   String get listingHistory {
     return Intl.message(
-      'Listing history',
+      'Review History',
       name: 'listingHistory',
       desc: '',
       args: [],
@@ -5358,6 +5358,16 @@ class S {
   /// `h`
   String get trh34tgvrt4h3g4rwev {
     return Intl.message('h', name: 'trh34tgvrt4h3g4rwev', desc: '', args: []);
+  }
+
+  /// `Issue date`
+  String get vfgdbkjnergiu3hiutbe33 {
+    return Intl.message(
+      'Issue date',
+      name: 'vfgdbkjnergiu3hiutbe33',
+      desc: '',
+      args: [],
+    );
   }
 }
 
