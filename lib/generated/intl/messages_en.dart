@@ -1041,7 +1041,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Phone"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Privacy"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Find travelers — and send packages reliably and quickly",
+      "Find a courier who’s flying — send your parcel quickly and safely.\nFlying yourself? Carry parcels and earn money.",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Are you sure you want to log out?",

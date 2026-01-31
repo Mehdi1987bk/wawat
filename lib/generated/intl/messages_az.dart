@@ -1072,7 +1072,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Telefon"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Məxfilik"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Uçanları tap — və bağlamaları etibarlı və sürətli göndər",
+      "Uçan kuryeri tap — bağlamanı tez və etibarlı şəkildə göndər.\nÖzün uçursan? Bağlamalar daşı və pul qazan.",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Çıxış etmək istədiyinizə əminsiniz?",

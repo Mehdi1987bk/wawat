@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -37,8 +36,9 @@ class MessageBubble extends StatelessWidget {
                 right: isMyMessage ? 0 : 60,
               ),
               child: Row(
-                mainAxisAlignment:
-                isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+                mainAxisAlignment: isMyMessage
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   if (!isMyMessage && message.user != null) ...[
@@ -64,10 +64,13 @@ class MessageBubble extends StatelessWidget {
               ),
             ),
             if (isMyMessage) ...[
-              Positioned(bottom: 0,right: 0, child: Padding(
-                padding: const EdgeInsets.only(right: 5,bottom: 25),
-                child: _buildReadStatus(isDark),
-              )),
+              Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 5, bottom: 25),
+                    child: _buildReadStatus(isDark),
+                  )),
             ],
           ],
         );
@@ -250,8 +253,7 @@ class MessageBubble extends StatelessWidget {
         Navigator.push(
           context,
           CupertinoPageRoute(
-            builder: (_) =>
-                CourierDetailsScreen(courierId: message.user!.id),
+            builder: (_) => CourierDetailsScreen(courierId: message.user!.id),
           ),
         );
       },
@@ -313,16 +315,16 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _imagePlaceholder(bool isDark) => Container(
-    width: 200,
-    height: 200,
-    color: const Color(0xFFf5f5f5),
-    child: const Center(child: CircularProgressIndicator()),
-  );
+        width: 200,
+        height: 200,
+        color: const Color(0xFFf5f5f5),
+        child: const Center(child: CircularProgressIndicator()),
+      );
 
   Widget _imageError(bool isDark) => Container(
-    width: 200,
-    height: 200,
-    color: const Color(0xFFf5f5f5),
-    child: const Icon(Icons.error, color: WawatColors.error),
-  );
+        width: 200,
+        height: 200,
+        color: const Color(0xFFf5f5f5),
+        child: const Icon(Icons.error, color: WawatColors.error),
+      );
 }

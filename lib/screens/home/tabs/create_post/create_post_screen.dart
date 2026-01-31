@@ -497,8 +497,7 @@ class _CreatePostScreenState
                             colorBlendMode: isDark ? BlendMode.modulate : null,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        AnimatedDefaultTextStyle(
+                         AnimatedDefaultTextStyle(
                           duration: const Duration(milliseconds: 300),
                           style: TextStyle(
                             fontSize: 18,

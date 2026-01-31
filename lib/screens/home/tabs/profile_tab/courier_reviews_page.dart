@@ -444,22 +444,37 @@ class _MyRevievsScreenState
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF5B5BFF),
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                   ),
-                  child: Center(
-                    child: Text(
-                      ((review.author?.fullname ?? review.target?.fullname) ??
-                              "")[0]
-                          .toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                  child: review.author?.avatar != null
+                      ? ClipOval(
+                    child: Image.network(
+                      review.author!.avatar!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                      : Center(
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 30,
                     ),
                   ),
                 ),

@@ -1084,7 +1084,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Телефон"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Приватність"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Шукай тих, хто летить — і передавай посилки надійно та швидко",
+      "Знайди кур’єра, який летить — передай свою посилку швидко та надійно.\nЛетиш сам? Перевозь посилки та заробляй.",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Ви впевнені, що хочете вийти?",

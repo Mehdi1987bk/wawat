@@ -110,7 +110,7 @@ Widget buildHeroSection(BuildContext context, bool isDark) {
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.w700,
             color: isDark ? Colors.white : WawatColors.textPrimary,
             height: 1.4,
@@ -126,7 +126,7 @@ Widget buildHeroSection(BuildContext context, bool isDark) {
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: FontWeight.w400,
             color: isDark ? const Color(0xFFB0B0B0) : WawatColors.textSecondary,
             height: 1.4,

@@ -2035,10 +2035,10 @@ class S {
     return Intl.message('Continue', name: 'vfdvd', desc: '', args: []);
   }
 
-  /// `Find travelers — and send packages reliably and quickly`
+  /// `Find a courier who’s flying — send your parcel quickly and safely.\nFlying yourself? Carry parcels and earn money.`
   String get vvvvvf {
     return Intl.message(
-      'Find travelers — and send packages reliably and quickly',
+      'Find a courier who’s flying — send your parcel quickly and safely.\nFlying yourself? Carry parcels and earn money.',
       name: 'vvvvvf',
       desc: '',
       args: [],
