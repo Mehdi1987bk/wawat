@@ -39,20 +39,36 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   late bool isVisible;
   bool _isExpanded = false;
   bool _isPackageTypeExpanded = false;
+  bool _isUpdating = false; // Флаг для предотвращения повторных нажатий
 
   @override
   void initState() {
     super.initState();
+    _syncStateFromWidget();
+  }
+
+  @override
+  void didUpdateWidget(covariant WawatCourierCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Синхронизируем состояние при обновлении виджета
+    if (oldWidget.courier.id != widget.courier.id ||
+        oldWidget.courier.status != widget.courier.status ||
+        oldWidget.courier.isFavourite != widget.courier.isFavourite) {
+      _syncStateFromWidget();
+    }
+  }
+
+  void _syncStateFromWidget() {
     isFavorite = widget.courier.isFavourite ?? false;
-    isVisible = widget.courier.status == "active" ? true : false;
+    isVisible = widget.courier.status == "active";
     _isPackageTypeExpanded = false;
+    _isUpdating = false;
   }
 
   void _toggleFavorite() async {
     try {
       final isLogged = await sl.get<AuthRepository>().isLogged();
 
-      // Проверяем, что виджет все еще в дереве
       if (!mounted) return;
 
       if (!isLogged) {
@@ -66,7 +82,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
 
       widget.onFavoriteToggle?.call(isFavorite);
     } catch (e) {
-      // Обрабатываем ошибку
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -79,15 +94,22 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   }
 
   void _toggleVisibility() async {
+    // Предотвращаем повторные нажатия пока идёт обновление
+    if (_isUpdating) return;
+
     final isLogged = await sl.get<AuthRepository>().isLogged();
     if (!isLogged) {
       return AuthModalUtils.showAuthRequiredModal(context);
-    } else {
-      setState(() {
-        isVisible = !isVisible;
-      });
-      widget.onVisibilityToggle?.call(isVisible);
     }
+
+    setState(() {
+      _isUpdating = true;
+    });
+
+    // Вызываем callback, НЕ меняя локальное состояние
+    // Состояние обновится автоматически через didUpdateWidget после обновления списка
+    final newVisibility = !isVisible;
+    widget.onVisibilityToggle?.call(newVisibility);
   }
 
   void _handleStartChat() async {
@@ -101,7 +123,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
         userName: widget.courier.user?.fullname ?? S.of(context).vfewrerewec,
         onSuccess: (message) async {
           try {
-            // Создаем ChatApi
             final chatApi = ChatApi(sl.get<Dio>());
 
             chatApi.startChat({
@@ -163,7 +184,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
       return '-';
     }
 
-    // Fallback to main_date
     return widget.courier.mainDate != null
         ? _formatDate(widget.courier.mainDate!)
         : '-';
@@ -386,10 +406,13 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        color: isDark ? const Color(0xFFB0B0B0) : Colors.black87,
+                        color:
+                        isDark ? const Color(0xFFB0B0B0) : Colors.black87,
                       ),
                       maxLines: _isExpanded ? null : 3,
-                      overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                      overflow: _isExpanded
+                          ? TextOverflow.visible
+                          : TextOverflow.ellipsis,
                       child: Text(description),
                     ),
                   if (showButton) ...[
@@ -401,16 +424,18 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         });
                       },
                       child: Text(
-                        _isExpanded ? S.of(context).fgsdgsgdfs : S.of(context).bgfdbssdbd,
+                        _isExpanded
+                            ? S.of(context).fgsdgsgdfs
+                            : S.of(context).bgfdbssdbd,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? const Color(0xFF6B9FFF) : Colors.blue,
+                          color:
+                          isDark ? const Color(0xFF6B9FFF) : Colors.blue,
                         ),
                       ),
                     ),
                   ],
-
                   SizedBox(height: 24),
                   Column(
                     children: [
@@ -439,7 +464,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                       if (widget.courier.pricePerKg != null)
                         _buildDetailRow(
                           S.of(context).rggre5egre,
-                          '${widget.courier.pricePerKg} \$/'+ S.of(context).kq,
+                          '${widget.courier.pricePerKg} \$/' + S.of(context).kq,
                           isDark,
                         ),
                       if (widget.courier.flightNumber != null)
@@ -452,14 +477,18 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         SizedBox(height: 8),
                         LayoutBuilder(
                           builder: (context, constraints) {
-                            final packageTypeText = widget.courier.packageType?.map((value) => value.title).join(', ') ?? 'N/A';
+                            final packageTypeText = widget.courier.packageType
+                                ?.map((value) => value.title)
+                                .join(', ') ??
+                                'N/A';
 
-                            // Вычисляем доступную ширину для текста значения
                             final labelText = S.of(context).nhgnhg4;
                             final labelStyle = TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
-                              color: isDark ? const Color(0xFF9CA3AF) : WawatColors.textPrimary,
+                              color: isDark
+                                  ? const Color(0xFF9CA3AF)
+                                  : WawatColors.textPrimary,
                             );
                             final labelPainter = TextPainter(
                               text: TextSpan(text: labelText, style: labelStyle),
@@ -467,22 +496,29 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                               textDirection: TextDirection.ltr,
                             )..layout();
 
-                            final spacerWidth = MediaQuery.of(context).size.width * 0.2;
-                            final availableWidth = constraints.maxWidth - labelPainter.width - spacerWidth - 16; // 16 для отступов
+                            final spacerWidth =
+                                MediaQuery.of(context).size.width * 0.2;
+                            final availableWidth = constraints.maxWidth -
+                                labelPainter.width -
+                                spacerWidth -
+                                16;
 
-                            // Проверяем, переполняется ли текст
                             final valueStyle = TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF1A1A1A),
                             );
                             final valuePainter = TextPainter(
-                              text: TextSpan(text: packageTypeText, style: valueStyle),
+                              text: TextSpan(
+                                  text: packageTypeText, style: valueStyle),
                               maxLines: 1,
                               textDirection: TextDirection.ltr,
                             )..layout();
 
-                            final isOverflowing = valuePainter.width > availableWidth;
+                            final isOverflowing =
+                                valuePainter.width > availableWidth;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -490,22 +526,28 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 4),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       AnimatedDefaultTextStyle(
-                                        duration: const Duration(milliseconds: 300),
+                                        duration:
+                                        const Duration(milliseconds: 300),
                                         style: labelStyle,
                                         child: Text(labelText),
                                       ),
                                       SizedBox(width: spacerWidth),
                                       Flexible(
                                         child: AnimatedDefaultTextStyle(
-                                          duration: const Duration(milliseconds: 300),
+                                          duration:
+                                          const Duration(milliseconds: 300),
                                           style: valueStyle,
                                           textAlign: TextAlign.right,
-                                          maxLines: _isPackageTypeExpanded ? null : 1,
-                                          overflow: _isPackageTypeExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                                          maxLines:
+                                          _isPackageTypeExpanded ? null : 1,
+                                          overflow: _isPackageTypeExpanded
+                                              ? TextOverflow.visible
+                                              : TextOverflow.ellipsis,
                                           child: Text(packageTypeText),
                                         ),
                                       ),
@@ -516,15 +558,20 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                   GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        _isPackageTypeExpanded = !_isPackageTypeExpanded;
+                                        _isPackageTypeExpanded =
+                                        !_isPackageTypeExpanded;
                                       });
                                     },
                                     child: Text(
-                                      _isPackageTypeExpanded ? S.of(context).fgsdgsgdfs : S.of(context).bgfdbssdbd,
+                                      _isPackageTypeExpanded
+                                          ? S.of(context).fgsdgsgdfs
+                                          : S.of(context).bgfdbssdbd,
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w500,
-                                        color: isDark ? const Color(0xFF6B9FFF) : Colors.blue,
+                                        color: isDark
+                                            ? const Color(0xFF6B9FFF)
+                                            : Colors.blue,
                                       ),
                                     ),
                                   ),
@@ -671,7 +718,8 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                   ),
                 ),
               ),
-            if (widget.sendMessageActiv == false && widget.courier.status != "expired")
+            if (widget.sendMessageActiv == false &&
+                widget.courier.status != "expired")
               Positioned(
                 top: 15,
                 right: 35,
@@ -691,14 +739,16 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                   padding: EdgeInsets.all(8),
                   child: Material(
                     color: Colors.transparent,
-                    child: Column(
+                    child:   Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         InkWell(
                           onTap: _toggleVisibility,
                           borderRadius: BorderRadius.circular(28),
                           child: Icon(
-                            isVisible ? Icons.visibility : Icons.visibility_off,
+                            isVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                             color: WawatColors.primary,
                             size: 24,
                           ),
@@ -712,7 +762,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                 ? const Color(0xFFB0B0B0)
                                 : Colors.black87,
                           ),
-                          child: Text(isVisible == true
+                          child: Text(isVisible
                               ? S.of(context).gdreg53ge
                               : S.of(context).grg34g54gdgdg),
                         ),

@@ -63,90 +63,110 @@ class _DeliveryFullListScreenState
                 color: isDark ? Colors.white : Colors.white,
               ),
             ),
-            backgroundColor: isDark ? const Color(0xFF1E1E1E) : WawatColors.primary,
+            backgroundColor:
+            isDark ? const Color(0xFF1E1E1E) : WawatColors.primary,
           ),
-          body: SingleChildScrollView(
-            controller: _scrollController,
-            child: StreamBuilder<List<OfferModel>>(
-              stream: bloc.paginableList,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final groups = snapshot.requireData;
-                  if (groups.isEmpty) {
-                    return Container(
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.inbox_outlined,
-                              size: 80,
-                              color: isDark
-                                  ? const Color(0xFF4A4A4A)
-                                  : const Color(0xFFD1D5DB),
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: StreamBuilder<List<OfferModel>>(
+                  stream: bloc.paginableList,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final groups = snapshot.requireData;
+                      if (groups.isEmpty) {
+                        return Container(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.inbox_outlined,
+                                  size: 80,
+                                  color: isDark
+                                      ? const Color(0xFF4A4A4A)
+                                      : const Color(0xFFD1D5DB),
+                                ),
+                                const SizedBox(height: 24),
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF1A1A1A),
+                                  ),
+                                  child: Text(S.of(context).gbterg534g45v4),
+                                ),
+                                const SizedBox(height: 8),
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isDark
+                                        ? const Color(0xFF9CA3AF)
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                  child: Text(
+                                    S.of(context).ger345g3,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 24),
-                            AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 300),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                              ),
-                              child:   Text(S.of(context).gbterg534g45v4),
-                            ),
-                            const SizedBox(height: 8),
-                            AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 300),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? const Color(0xFF9CA3AF)
-                                    : const Color(0xFF6B7280),
-                              ),
-                              child:   Text(
-                                S.of(context).ger345g3,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 40),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: groups.length,
-                      itemBuilder: (context, index) {
-                        final offer = groups[index];
-
-                        return WawatCourierCard(
-                          courier: offer,
-                          onFavoriteToggle: (v) {},
-                          onVisibilityToggle: (bool isVisible) {
-                             bloc
-                                .editStatusOffer(
-                              offer.id.toString(),
-                              isVisible == true ? "active" : "archived",
-                            )
-                                .then((onValue) => bloc.loadList());
-                          },
-                          detailsActiv: false,
-                          sendMessageActiv: false,
+                          ),
                         );
-                      },
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 40),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: groups.length,
+                          itemBuilder: (context, index) {
+                            final offer = groups[index];
+
+                            return WawatCourierCard(
+                              courier: offer,
+                              onFavoriteToggle: (v) {},
+                              onVisibilityToggle: (bool isVisible) {
+                                bloc.editStatusOffer(
+                                  offer.id.toString(),
+                                  isVisible == true ? "active" : "archived",
+                                );
+                              },
+                              detailsActiv: false,
+                              sendMessageActiv: false,
+                            );
+                          },
+                        ),
+                      );
+                    }
+
+                    return const SizedBox();
+                  },
+                ),
+              ),
+              // Индикатор загрузки при обновлении статуса
+              StreamBuilder<bool>(
+                stream: bloc.isUpdating,
+                builder: (context, snapshot) {
+                  final isUpdating = snapshot.data ?? false;
+                  if (!isUpdating) return const SizedBox();
+
+                  return Container(
+                    color: Colors.black.withOpacity(0.3),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
                     ),
                   );
-                }
-
-                return const SizedBox();
-              },
-            ),
+                },
+              ),
+            ],
           ),
         );
       },

@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -173,7 +174,7 @@ class _MyRevievsScreenState
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                   ),
-                  child:   Text(
+                  child: Text(
                     S.of(context).listingHistory,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -223,8 +224,10 @@ class _MyRevievsScreenState
       ),
       child: Row(
         children: [
-          _buildTabButton(index: 0, title: S.of(context).hbfgh3, isDark: isDark),
-          _buildTabButton(index: 1, title: S.of(context).gert3tger, isDark: isDark),
+          _buildTabButton(
+              index: 0, title: S.of(context).hbfgh3, isDark: isDark),
+          _buildTabButton(
+              index: 1, title: S.of(context).gert3tger, isDark: isDark),
         ],
       ),
     );
@@ -280,7 +283,8 @@ class _MyRevievsScreenState
             _buildEmptyState(S.of(context).bvfdgb43, isDark)
           else
             ...reviews.map((review) {
-              return _buildLeftReviewCard(review,review.author?.id ?? 0, isDark);
+              return _buildLeftReviewCard(review, review.author?.id ?? 0,
+                  review.author?.avatar, isDark);
             }).toList(),
         ],
       ),
@@ -300,7 +304,8 @@ class _MyRevievsScreenState
             _buildEmptyState(S.of(context).bfdtw4ew4, isDark)
           else
             ...reviews.map((review) {
-              return _buildLeftReviewCard(review,review.target?.id ?? 0, isDark);
+              return _buildLeftReviewCard(review, review.target?.id ?? 0,
+                  review.target?.avatar, isDark);
             }).toList(),
         ],
       ),
@@ -406,8 +411,8 @@ class _MyRevievsScreenState
     );
   }
 
-  // Карточка для оставленных отзывов (ReviewModel)
-  Widget _buildLeftReviewCard(ReviewModel review, int id , bool isDark) {
+  Widget _buildLeftReviewCard(
+      ReviewModel review, int id, String? url, bool isDark) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 16),
@@ -428,14 +433,13 @@ class _MyRevievsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
                   builder: (BuildContext context) {
                     return CourierDetailsScreen(
-                      courierId:
-                       id,
+                      courierId: id,
                     );
                   },
                 ),
@@ -454,29 +458,20 @@ class _MyRevievsScreenState
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: review.author?.avatar != null
+                  child: url != null
                       ? ClipOval(
-                    child: Image.network(
-                      review.author!.avatar!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
+                          child: CachedNetworkImage(
+                            imageUrl: url,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Center(
                           child: Icon(
                             Icons.person,
                             color: Colors.white,
                             size: 30,
                           ),
-                        );
-                      },
-                    ),
-                  )
-                      : Center(
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
