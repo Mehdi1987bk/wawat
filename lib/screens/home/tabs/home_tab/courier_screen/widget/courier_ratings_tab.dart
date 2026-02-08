@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -106,20 +107,28 @@ class CourierRatingsTab extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF5B5BFF),
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF5B5FFF), Color(0xFFB74CFF)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                   ),
-                  child: Center(
-                    child: Text(
-                      review.author.fullname[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                  child: review.author.avatar != null
+                      ? ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: review.author.avatar ?? "",
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                      : Center(
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 30,
                     ),
                   ),
                 ),
