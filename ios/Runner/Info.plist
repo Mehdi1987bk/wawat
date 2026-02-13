@@ -4,8 +4,8 @@
 <dict>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
-       <string>com.kaktus.app.refresh</string>
-       <string>com.kaktus.app.cleanup</string>
+       <string>wawat.app.refresh</string>
+       <string>wawat.app.cleanup</string>
     </array>
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
@@ -24,7 +24,7 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.0.20</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleVersion</key>
@@ -94,5 +94,20 @@
     <true/>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <true/>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>62.84.176.158</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
 </dict>
 </plist>
