@@ -7,11 +7,11 @@ part of 'package.dart';
 // **************************************************************************
 
 Package _$PackageFromJson(Map<String, dynamic> json) => Package(
-      id: json['id'] as int,
-      creditAmount: json['credit_amount'] as int,
-      creditDay: json['credit_day'] as int,
-      payment: json['payment'] as int,
-      status: json['status'] as int,
+      id: (json['id'] as num).toInt(),
+      creditAmount: (json['credit_amount'] as num).toInt(),
+      creditDay: (json['credit_day'] as num).toInt(),
+      payment: (json['payment'] as num).toInt(),
+      status: (json['status'] as num).toInt(),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );

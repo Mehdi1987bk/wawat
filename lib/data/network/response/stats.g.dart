@@ -63,12 +63,12 @@ class StatsAdapter extends TypeAdapter<Stats> {
 // **************************************************************************
 
 Stats _$StatsFromJson(Map<String, dynamic> json) => Stats(
-      offersTotal: json['offers_total'] as int?,
-      offersActive: json['offers_active'] as int?,
+      offersTotal: (json['offers_total'] as num?)?.toInt(),
+      offersActive: (json['offers_active'] as num?)?.toInt(),
       ratingAvg: (json['rating_avg'] as num?)?.toDouble(),
-      ratingCount: json['rating_count'] as int?,
-      reviewsReceivedCount: json['reviews_received_count'] as int?,
-      deliveriesCount: json['deliveries_count'] as int?,
+      ratingCount: (json['rating_count'] as num?)?.toInt(),
+      reviewsReceivedCount: (json['reviews_received_count'] as num?)?.toInt(),
+      deliveriesCount: (json['deliveries_count'] as num?)?.toInt(),
       yearsOnPlatform: (json['years_on_platform'] as num?)?.toDouble(),
     );
 

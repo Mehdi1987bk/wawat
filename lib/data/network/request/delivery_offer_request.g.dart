@@ -9,14 +9,14 @@ part of 'delivery_offer_request.dart';
 DeliveryOfferRequest _$DeliveryOfferRequestFromJson(
         Map<String, dynamic> json) =>
     DeliveryOfferRequest(
-      offerTypeId: json['offer_type_id'] as int,
-      packageTypeId: json['package_type_id'] as int,
-      fromCityId: json['from_city_id'] as int,
-      toCityId: json['to_city_id'] as int,
+      offerTypeId: (json['offer_type_id'] as num).toInt(),
+      packageTypeId: (json['package_type_id'] as num).toInt(),
+      fromCityId: (json['from_city_id'] as num).toInt(),
+      toCityId: (json['to_city_id'] as num).toInt(),
       dateFrom: json['date_from'] as String,
       dateTo: json['date_to'] as String,
       timeFrom: json['time_from'] as String,
-      maxWeightKg: json['max_weight_kg'] as int,
+      maxWeightKg: (json['max_weight_kg'] as num).toInt(),
       pricePerKg: (json['price_per_kg'] as num).toDouble(),
       description: json['description'] as String,
       isActive: json['is_active'] as bool,

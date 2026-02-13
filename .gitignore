@@ -44,3 +44,7 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+
+# Firebase service account (secret)
+**/service_account*.json
+scripts/*-key.json

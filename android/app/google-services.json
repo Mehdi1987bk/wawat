@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "774660161251",
+    "project_id": "wawatair-b212f",
+    "storage_bucket": "wawatair-b212f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774660161251:android:5dce3f8026152b53c54fd6",
+        "android_client_info": {
+          "package_name": "az.buking.buking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuGKfTTMBfXBhQahHH_iOaUrKM2QH8-Pc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

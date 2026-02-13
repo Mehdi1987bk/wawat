@@ -73,6 +73,8 @@ abstract class AuthRepository {
 
   Future<void> notificationsProfile(NotificationSettings request);
 
+  Future<void> registerFcmToken(String fcmToken);
+
   Future<PackagesResponse> packages();
 
   Future<PackageTypesResponse> getPackageType();

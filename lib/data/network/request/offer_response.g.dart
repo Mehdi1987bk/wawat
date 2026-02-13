@@ -8,7 +8,7 @@ part of 'offer_response.dart';
 
 OfferResponse _$OfferResponseFromJson(Map<String, dynamic> json) =>
     OfferResponse(
-      offerId: json['offer_id'] as int,
+      offerId: (json['offer_id'] as num).toInt(),
     );
 
 Map<String, dynamic> _$OfferResponseToJson(OfferResponse instance) =>

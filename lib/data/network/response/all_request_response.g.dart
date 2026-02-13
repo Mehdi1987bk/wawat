@@ -8,16 +8,16 @@ part of 'all_request_response.dart';
 
 AllRequestResponse _$AllRequestResponseFromJson(Map<String, dynamic> json) =>
     AllRequestResponse(
-      id: json['id'] as int,
-      customerId: json['customer_id'] as int,
-      packageId: json['package_id'] as int,
+      id: (json['id'] as num).toInt(),
+      customerId: (json['customer_id'] as num).toInt(),
+      packageId: (json['package_id'] as num).toInt(),
       frontIdImg: json['front_id_img'] as String,
       backIdImg: json['back_id_img'] as String,
       faceImg: json['face_img'] as String,
       contactFile: json['contact_file'] as String,
       cardNumber: json['card_number'] as String,
       lastPaymentDay: json['last_payment_day'] as String,
-      paidAmount: json['paid_amount'] as int,
+      paidAmount: (json['paid_amount'] as num).toInt(),
       status: json['status'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),

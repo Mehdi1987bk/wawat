@@ -19,7 +19,7 @@ Map<String, dynamic> _$UnreadCountResponseToJson(
 
 UnreadCountData _$UnreadCountDataFromJson(Map<String, dynamic> json) =>
     UnreadCountData(
-      unreadCount: json['unread_count'] as int,
+      unreadCount: (json['unread_count'] as num).toInt(),
     );
 
 Map<String, dynamic> _$UnreadCountDataToJson(UnreadCountData instance) =>

@@ -19,19 +19,19 @@ Map<String, dynamic> _$ReviewsResponseToJson(ReviewsResponse instance) =>
     };
 
 ReviewModel _$ReviewModelFromJson(Map<String, dynamic> json) => ReviewModel(
-      id: json['id'] as int,
-      rating: json['rating'] as int,
+      id: (json['id'] as num).toInt(),
+      rating: (json['rating'] as num).toInt(),
       comment: json['comment'] as String?,
       isPublic: json['is_public'] as bool,
-      offerId: json['offer_id'] as int?,
+      offerId: (json['offer_id'] as num?)?.toInt(),
       author: json['author'] == null
           ? null
           : AuthorModel.fromJson(json['author'] as Map<String, dynamic>),
       target: json['target'] == null
           ? null
           : AuthorModel.fromJson(json['target'] as Map<String, dynamic>),
-      likesCount: json['likes_count'] as int,
-      dislikesCount: json['dislikes_count'] as int,
+      likesCount: (json['likes_count'] as num).toInt(),
+      dislikesCount: (json['dislikes_count'] as num).toInt(),
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
     );
@@ -52,7 +52,7 @@ Map<String, dynamic> _$ReviewModelToJson(ReviewModel instance) =>
     };
 
 AuthorModel _$AuthorModelFromJson(Map<String, dynamic> json) => AuthorModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       cityName: json['city_name'] as String?,

@@ -31,6 +31,10 @@ import 'wawat/wawat_app.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'services/push_notification_service.dart';
+
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
 const baseUrl = 'http://62.84.176.158';
@@ -41,6 +45,13 @@ late ThemeManager themeManager;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Firebase и пуши требуют Google Play Services. На устройствах без них или с отключённым Play — не падаем, работаем без пушей.
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e, st) {
+    logger.w('Firebase init failed (device may lack Google Play Services): $e');
+  }
 
   final dir = await getApplicationDocumentsDirectory();
 
@@ -62,6 +73,23 @@ void main() async {
   _registerDependency();
 
   themeManager = await ThemeManager.create();
+
+  try {
+    await PushNotificationService().initialize();
+    PushNotificationService().setOnTokenUpdated((token) {
+      sl.get<AuthRepository>().registerFcmToken(token).catchError((e, st) {
+        logger.d('FCM token send to backend failed: $e');
+      });
+    });
+    final fcmToken = await PushNotificationService().refreshToken();
+    if (fcmToken != null) {
+      sl.get<AuthRepository>().registerFcmToken(fcmToken).catchError((e, st) {
+        logger.d('FCM mock send to backend failed: $e');
+      });
+    }
+  } catch (e, st) {
+    logger.w('Push notifications init failed (Google Play Services may be missing): $e');
+  }
 
   runApp(WawatApp());
 }

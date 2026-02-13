@@ -8,7 +8,7 @@ part of 'otp_verify_request.dart';
 
 OtpVerifyRequest _$OtpVerifyRequestFromJson(Map<String, dynamic> json) =>
     OtpVerifyRequest(
-      code: json['code'] as int,
+      code: (json['code'] as num).toInt(),
     );
 
 Map<String, dynamic> _$OtpVerifyRequestToJson(OtpVerifyRequest instance) =>

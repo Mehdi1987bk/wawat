@@ -22,7 +22,7 @@ Map<String, dynamic> _$NotificationResponseToJson(
 
 NotificationItem _$NotificationItemFromJson(Map<String, dynamic> json) =>
     NotificationItem(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       type: json['type'] as String?,
       icon: json['icon'] as String?,
       title: json['title'] as String?,
@@ -48,12 +48,12 @@ Map<String, dynamic> _$NotificationItemToJson(NotificationItem instance) =>
 
 NotificationData _$NotificationDataFromJson(Map<String, dynamic> json) =>
     NotificationData(
-      requesterId: json['requester_id'] as int?,
+      requesterId: (json['requester_id'] as num?)?.toInt(),
       requesterName: json['requester_name'] as String?,
-      senderId: json['sender_id'] as int?,
+      senderId: (json['sender_id'] as num?)?.toInt(),
       senderName: json['sender_name'] as String?,
-      conversationId: json['conversation_id'] as int?,
-      reviewRequestId: json['review_request_id'] as int?,
+      conversationId: (json['conversation_id'] as num?)?.toInt(),
+      reviewRequestId: (json['review_request_id'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$NotificationDataToJson(NotificationData instance) =>

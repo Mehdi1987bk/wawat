@@ -8,7 +8,7 @@ part of 'target_user_request.dart';
 
 TargetUserRequest _$TargetUserRequestFromJson(Map<String, dynamic> json) =>
     TargetUserRequest(
-      targetUserId: json['target_user_id'] as int,
+      targetUserId: (json['target_user_id'] as num).toInt(),
     );
 
 Map<String, dynamic> _$TargetUserRequestToJson(TargetUserRequest instance) =>

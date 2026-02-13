@@ -7,7 +7,7 @@ part of 'chat_response.dart';
 // **************************************************************************
 
 ChatUser _$ChatUserFromJson(Map<String, dynamic> json) => ChatUser(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool? ?? false,
@@ -37,7 +37,7 @@ Map<String, dynamic> _$ChatFileToJson(ChatFile instance) => <String, dynamic>{
     };
 
 ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) => ChatMessage(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       type: json['type'] as String,
       isRead: json['is_read'] as bool?,
       body: json['body'] as String?,
@@ -62,12 +62,12 @@ Map<String, dynamic> _$ChatMessageToJson(ChatMessage instance) =>
     };
 
 Conversation _$ConversationFromJson(Map<String, dynamic> json) => Conversation(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       user: ChatUser.fromJson(json['user'] as Map<String, dynamic>),
       lastMessage: json['last_message'] == null
           ? null
           : ChatMessage.fromJson(json['last_message'] as Map<String, dynamic>),
-      unreadCount: json['unread_count'] as int,
+      unreadCount: (json['unread_count'] as num).toInt(),
       isPinned: json['is_pinned'] as bool,
       isArchived: json['is_archived'] as bool,
     );
@@ -123,10 +123,10 @@ Map<String, dynamic> _$MessageResponseToJson(MessageResponse instance) =>
     };
 
 MetaData _$MetaDataFromJson(Map<String, dynamic> json) => MetaData(
-      page: json['page'] as int,
-      perPage: json['per_page'] as int,
-      total: json['total'] as int,
-      lastPage: json['last_page'] as int,
+      page: (json['page'] as num).toInt(),
+      perPage: (json['per_page'] as num).toInt(),
+      total: (json['total'] as num).toInt(),
+      lastPage: (json['last_page'] as num).toInt(),
       locale: json['locale'] as String?,
     );
 
@@ -195,8 +195,8 @@ Map<String, dynamic> _$BlockResponseToJson(BlockResponse instance) =>
     };
 
 BlockData _$BlockDataFromJson(Map<String, dynamic> json) => BlockData(
-      blockedUserId: json['blocked_user_id'] as int?,
-      unblockedUserId: json['unblocked_user_id'] as int?,
+      blockedUserId: (json['blocked_user_id'] as num?)?.toInt(),
+      unblockedUserId: (json['unblocked_user_id'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$BlockDataToJson(BlockData instance) => <String, dynamic>{
@@ -226,7 +226,7 @@ Map<String, dynamic> _$ConversationResponseToJson(
 
 ConversationData _$ConversationDataFromJson(Map<String, dynamic> json) =>
     ConversationData(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       user: json['user'] == null
           ? null
           : User.fromJson(json['user'] as Map<String, dynamic>),

@@ -19,7 +19,7 @@ Map<String, dynamic> _$OfferListResponseToJson(OfferListResponse instance) =>
     };
 
 OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       offerType: json['offer_type'] == null
           ? null
           : OfferTypeModel.fromJson(json['offer_type'] as Map<String, dynamic>),
@@ -40,7 +40,7 @@ OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
       packageType: (json['package_types'] as List<dynamic>?)
           ?.map((e) => PackageTypeModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      maxWeightKg: json['max_weight_kg'] as int?,
+      maxWeightKg: (json['max_weight_kg'] as num?)?.toInt(),
       pricePerKg: json['price_per_kg'] as String?,
       description: json['description'] as String?,
       status: json['status'] as String?,
@@ -55,40 +55,31 @@ OfferModel _$OfferModelFromJson(Map<String, dynamic> json) => OfferModel(
       isFavourite: json['is_favourite'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$OfferModelToJson(OfferModel instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'offer_type': instance.offerType,
-    'city_from': instance.cityFrom,
-    'city_to': instance.cityTo,
-    'flight_date': instance.flightDate,
-    'flight_time': instance.flightTime,
-    'delivery_date_from': instance.deliveryDateFrom,
-    'delivery_date_to': instance.deliveryDateTo,
-    'purchase_date': instance.purchaseDate,
-    'purchase_time': instance.purchaseTime,
-    'main_date': instance.mainDate,
-    'main_time': instance.mainTime,
-    'package_types': instance.packageType,
-    'max_weight_kg': instance.maxWeightKg,
-    'price_per_kg': instance.pricePerKg,
-    'description': instance.description,
-    'status': instance.status,
-    'published_at': instance.publishedAt,
-    'flight_number': instance.flightNumber,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('languages', instance.languages);
-  val['user'] = instance.user;
-  writeNotNull('is_favourite', instance.isFavourite);
-  return val;
-}
+Map<String, dynamic> _$OfferModelToJson(OfferModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'offer_type': instance.offerType,
+      'city_from': instance.cityFrom,
+      'city_to': instance.cityTo,
+      'flight_date': instance.flightDate,
+      'flight_time': instance.flightTime,
+      'delivery_date_from': instance.deliveryDateFrom,
+      'delivery_date_to': instance.deliveryDateTo,
+      'purchase_date': instance.purchaseDate,
+      'purchase_time': instance.purchaseTime,
+      'main_date': instance.mainDate,
+      'main_time': instance.mainTime,
+      'package_types': instance.packageType,
+      'max_weight_kg': instance.maxWeightKg,
+      'price_per_kg': instance.pricePerKg,
+      'description': instance.description,
+      'status': instance.status,
+      'published_at': instance.publishedAt,
+      'flight_number': instance.flightNumber,
+      if (instance.languages case final value?) 'languages': value,
+      'user': instance.user,
+      if (instance.isFavourite case final value?) 'is_favourite': value,
+    };
 
 OfferTypeModel _$OfferTypeModelFromJson(Map<String, dynamic> json) =>
     OfferTypeModel(
@@ -103,7 +94,7 @@ Map<String, dynamic> _$OfferTypeModelToJson(OfferTypeModel instance) =>
     };
 
 CityModel _$CityModelFromJson(Map<String, dynamic> json) => CityModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       country: json['country'] as String,
     );
@@ -141,12 +132,12 @@ Map<String, dynamic> _$LanguageModelToJson(LanguageModel instance) =>
     };
 
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
       ratingAvg: (json['rating_avg'] as num).toDouble(),
-      ratingCount: json['rating_count'] as int,
+      ratingCount: (json['rating_count'] as num).toInt(),
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{

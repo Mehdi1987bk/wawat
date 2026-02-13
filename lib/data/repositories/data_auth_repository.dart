@@ -15,6 +15,7 @@ import '../network/request/delivery_offer_request.dart';
 import '../network/request/edit_status_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
+import '../network/request/fcm_token_request.dart';
 import '../network/request/notification_settings.dart';
 import '../network/request/offer_response.dart';
 import '../network/request/otp_verify_request.dart';
@@ -165,6 +166,11 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> notificationsProfile(NotificationSettings request) {
     return _authApi.notificationsProfile(request);
+  }
+
+  @override
+  Future<void> registerFcmToken(String fcmToken) {
+    return _authApi.registerFcmToken(FcmTokenRequest(fcmToken: fcmToken));
   }
 
   @override

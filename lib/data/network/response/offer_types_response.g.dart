@@ -19,7 +19,7 @@ Map<String, dynamic> _$OfferTypesResponseToJson(OfferTypesResponse instance) =>
     };
 
 OfferType _$OfferTypeFromJson(Map<String, dynamic> json) => OfferType(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       key: json['key'] as String,
       icon: json['icon'] as String,
       isActive: json['is_active'] as bool,

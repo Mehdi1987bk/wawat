@@ -70,8 +70,8 @@ class ProfessionalAdapter extends TypeAdapter<Professional> {
 
 Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
       workExperienceYears: json['experience_years'] as String?,
-      maxWeightKg: json['max_weight_kg'] as int?,
-      insuranceAmount: json['insurance_usd'] as int?,
+      maxWeightKg: (json['max_weight_kg'] as num?)?.toInt(),
+      insuranceAmount: (json['insurance_usd'] as num?)?.toInt(),
       pricePerKgMin: json['price_from'] as String?,
       pricePerKgMax: json['price_to'] as String?,
       workTimeFrom: json['work_time_from'] as String?,

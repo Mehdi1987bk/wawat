@@ -8,9 +8,9 @@ part of 'courier_profile.dart';
 
 CourierProfile _$CourierProfileFromJson(Map<String, dynamic> json) =>
     CourierProfile(
-      experienceYears: json['experience_years'] as int,
-      maxWeightKg: json['max_weight_kg'] as int,
-      insuranceUsd: json['insurance_usd'] as int,
+      experienceYears: (json['experience_years'] as num).toInt(),
+      maxWeightKg: (json['max_weight_kg'] as num).toInt(),
+      insuranceUsd: (json['insurance_usd'] as num).toInt(),
       priceFrom: (json['price_from'] as num).toDouble(),
       priceTo: (json['price_to'] as num).toDouble(),
       workTimeFrom: json['work_time_from'] as String,

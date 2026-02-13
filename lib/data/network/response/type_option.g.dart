@@ -48,7 +48,7 @@ class TypeOptionAdapter extends TypeAdapter<TypeOption> {
 // **************************************************************************
 
 TypeOption _$TypeOptionFromJson(Map<String, dynamic> json) => TypeOption(
-      json['id'] as int,
+      (json['id'] as num).toInt(),
       json['name'] as String,
     );
 

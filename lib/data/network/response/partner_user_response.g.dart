@@ -49,7 +49,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
     };
 
 UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
@@ -88,7 +88,7 @@ Map<String, dynamic> _$LanguageToJson(Language instance) => <String, dynamic>{
     };
 
 Profile _$ProfileFromJson(Map<String, dynamic> json) => Profile(
-      locationCityId: json['location_city_id'] as int?,
+      locationCityId: (json['location_city_id'] as num?)?.toInt(),
       locationCityName: json['location_city_name'] as String?,
       locationCountryName: json['location_country_name'] as String?,
       locationText: json['location_text'] as String?,
@@ -107,8 +107,8 @@ Map<String, dynamic> _$ProfileToJson(Profile instance) => <String, dynamic>{
 
 Professional _$ProfessionalFromJson(Map<String, dynamic> json) => Professional(
       experienceYears: json['experience_years'] as String?,
-      maxWeightKg: json['max_weight_kg'] as int?,
-      insuranceUsd: json['insurance_usd'] as int?,
+      maxWeightKg: (json['max_weight_kg'] as num?)?.toInt(),
+      insuranceUsd: (json['insurance_usd'] as num?)?.toInt(),
       priceFrom: json['price_from'] as String?,
       priceTo: json['price_to'] as String?,
       workTimeFrom: json['work_time_from'] as String?,
@@ -152,14 +152,14 @@ Map<String, dynamic> _$PackageTypeToJson(PackageType instance) =>
     };
 
 Stats _$StatsFromJson(Map<String, dynamic> json) => Stats(
-      offersTotal: json['offers_total'] as int,
-      offersActive: json['offers_active'] as int,
+      offersTotal: (json['offers_total'] as num).toInt(),
+      offersActive: (json['offers_active'] as num).toInt(),
       ratingAvg: (json['rating_avg'] as num).toDouble(),
-      ratingCount: json['rating_count'] as int,
-      deliveriesCount: json['deliveries_count'] as int?,
-      reviewsReceivedCount: json['reviews_received_count'] as int,
+      ratingCount: (json['rating_count'] as num).toInt(),
+      deliveriesCount: (json['deliveries_count'] as num?)?.toInt(),
+      reviewsReceivedCount: (json['reviews_received_count'] as num).toInt(),
       positivePercent: (json['positive_percent'] as num).toDouble(),
-      yearsOnPlatform: json['years_on_platform'] as int,
+      yearsOnPlatform: (json['years_on_platform'] as num).toInt(),
     );
 
 Map<String, dynamic> _$StatsToJson(Stats instance) => <String, dynamic>{
@@ -185,8 +185,8 @@ Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
     };
 
 Privacy _$PrivacyFromJson(Map<String, dynamic> json) => Privacy(
-      id: json['id'] as int,
-      userId: json['user_id'] as int,
+      id: (json['id'] as num).toInt(),
+      userId: (json['user_id'] as num).toInt(),
       showPhone: json['show_phone'] as bool,
       showEmail: json['show_email'] as bool,
       showActivityTime: json['show_activity_time'] as bool,
@@ -207,8 +207,8 @@ Map<String, dynamic> _$PrivacyToJson(Privacy instance) => <String, dynamic>{
 NotificationSettingsaa _$NotificationSettingsaaFromJson(
         Map<String, dynamic> json) =>
     NotificationSettingsaa(
-      id: json['id'] as int,
-      userId: json['user_id'] as int,
+      id: (json['id'] as num).toInt(),
+      userId: (json['user_id'] as num).toInt(),
       notifyNewMessages: json['notify_new_messages'] as bool,
       notifyNewReviews: json['notify_new_reviews'] as bool,
       notifyMarketing: json['notify_marketing'] as bool,
@@ -253,7 +253,7 @@ Map<String, dynamic> _$OfferTypeToJson(OfferType instance) => <String, dynamic>{
     };
 
 City _$CityFromJson(Map<String, dynamic> json) => City(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       country: json['country'] as String,
     );
@@ -265,12 +265,12 @@ Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
     };
 
 OfferUser _$OfferUserFromJson(Map<String, dynamic> json) => OfferUser(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       isVerified: json['is_verified'] as bool,
       ratingAvg: (json['rating_avg'] as num).toDouble(),
-      ratingCount: json['rating_count'] as int,
+      ratingCount: (json['rating_count'] as num).toInt(),
     );
 
 Map<String, dynamic> _$OfferUserToJson(OfferUser instance) => <String, dynamic>{
@@ -283,14 +283,14 @@ Map<String, dynamic> _$OfferUserToJson(OfferUser instance) => <String, dynamic>{
     };
 
 Review _$ReviewFromJson(Map<String, dynamic> json) => Review(
-      id: json['id'] as int,
-      rating: json['rating'] as int,
+      id: (json['id'] as num).toInt(),
+      rating: (json['rating'] as num).toInt(),
       comment: json['comment'] as String?,
       isPublic: json['is_public'] as bool,
       isVerifiedDelivery: json['is_verified_delivery'] as String?,
       author: ReviewAuthor.fromJson(json['author'] as Map<String, dynamic>),
-      upvotes: json['upvotes'] as int,
-      downvotes: json['downvotes'] as int,
+      upvotes: (json['upvotes'] as num).toInt(),
+      downvotes: (json['downvotes'] as num).toInt(),
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
     );
@@ -309,7 +309,7 @@ Map<String, dynamic> _$ReviewToJson(Review instance) => <String, dynamic>{
     };
 
 ReviewAuthor _$ReviewAuthorFromJson(Map<String, dynamic> json) => ReviewAuthor(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
       cityName: json['city_name'] as String?,

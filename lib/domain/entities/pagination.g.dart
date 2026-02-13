@@ -11,7 +11,7 @@ Pagination<T> _$PaginationFromJson<T>(Map<String, dynamic> json) =>
       data: (json['data'] as List<dynamic>)
           .map((e) => _Converter<T>().fromJson(e as Object))
           .toList(),
-      lastPage: _lastPageFromJson(json, 'last_page') as int,
+      lastPage: (_lastPageFromJson(json, 'last_page') as num).toInt(),
     );
 
 Map<String, dynamic> _$PaginationToJson<T>(Pagination<T> instance) =>

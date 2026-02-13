@@ -20,7 +20,7 @@ Map<String, dynamic> _$UnreadChatCountResponseToJson(
 
 UnreadChatCountData _$UnreadChatCountDataFromJson(Map<String, dynamic> json) =>
     UnreadChatCountData(
-      unreadCount: json['unread_conversations_count'] as int,
+      unreadCount: (json['unread_conversations_count'] as num).toInt(),
     );
 
 Map<String, dynamic> _$UnreadChatCountDataToJson(

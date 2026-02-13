@@ -17,6 +17,7 @@ import '../request/forgot_password_request_email.dart';
 import '../request/forgot_password_reset_request.dart';
 import '../request/forgot_password_verify_request.dart';
 import '../request/login_request.dart';
+import '../request/fcm_token_request.dart';
 import '../request/notification_settings.dart';
 import '../request/offer_response.dart';
 import '../request/otp_verify_request.dart';
@@ -108,6 +109,9 @@ abstract class AuthApi {
 
   @PUT('/api/v1/profile/notifications')
   Future<void> notificationsProfile(@Body() NotificationSettings request);
+
+  @POST('/api/v1/profile/fcm-token')
+  Future<void> registerFcmToken(@Body() FcmTokenRequest request);
 
   @POST('/api/v1/offers')
   Future<void> createOffers(@Body() CourierOfferModel request);

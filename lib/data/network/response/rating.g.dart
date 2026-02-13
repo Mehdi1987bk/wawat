@@ -49,7 +49,7 @@ class RatingAdapter extends TypeAdapter<Rating> {
 
 Rating _$RatingFromJson(Map<String, dynamic> json) => Rating(
       average: (json['average'] as num?)?.toDouble(),
-      count: json['count'] as int?,
+      count: (json['count'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RatingToJson(Rating instance) => <String, dynamic>{

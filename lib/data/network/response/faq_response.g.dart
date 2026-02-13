@@ -22,7 +22,7 @@ Map<String, dynamic> _$FaqResponseToJson(FaqResponse instance) =>
     };
 
 FaqItem _$FaqItemFromJson(Map<String, dynamic> json) => FaqItem(
-      id: json['id'] as int,
+      id: (json['id'] as num).toInt(),
       question: json['question'] as String,
       answer: json['answer'] as String,
     );
