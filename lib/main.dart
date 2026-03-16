@@ -53,6 +53,7 @@ void main() async {
     logger.w('Firebase init failed (device may lack Google Play Services): $e');
   }
 
+
   final dir = await getApplicationDocumentsDirectory();
 
   await Hive.initFlutter(dir.path);
