@@ -37,7 +37,7 @@ import 'services/push_notification_service.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
-const baseUrl = 'http://62.84.176.158';
+const baseUrl = 'https://wawatair.com';
 final RouteObserver<ModalRoute<void>> routeObserver =
 RouteObserver<ModalRoute<void>>();
 

@@ -92,11 +92,9 @@ class _RegistrationModalState extends State<RegistrationModal> {
     final isValid =
         Patterns.textField.hasMatch(_nameController.text.trim()) &&
             Patterns.email.hasMatch(_emailController.text.trim()) &&
-            Patterns.textField.hasMatch(_phoneController.text.trim()) &&
             Patterns.textField.hasMatch(_passwordController.text.trim()) &&
             _agreedToTerms &&
-            _selectedLanguageCodes.isNotEmpty &&
-            _selectedCountry != null;
+            _selectedLanguageCodes.isNotEmpty;
 
     _isFormValidNotifier.value = isValid;
   }
@@ -124,11 +122,6 @@ class _RegistrationModalState extends State<RegistrationModal> {
       if (mounted) {
         setState(() {
           _allCountries = response.data;
-          // По умолчанию выбираем Азербайджан (AZ)
-          _selectedCountry = _allCountries.firstWhere(
-                (c) => c.code == 'AZ',
-            orElse: () => _allCountries.first,
-          );
           _isLoadingCountries = false;
         });
         _validateForm();

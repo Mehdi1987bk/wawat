@@ -683,6 +683,36 @@ class _ProfileTabScreenState
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () => showLogoutBottomSheet(
+                title: S.of(context).profiliSilmk,
+                description: S.of(context).silmkIstdiyinizMinsiniz,
+                yes: S.of(context).nhtntt5,
+                no: S.of(context).bnbv3h,
+                context: context,
+                onConfirmLogout: () {
+                  bloc.logout().then(
+                    (value) {
+                      return Navigator.pushAndRemoveUntil(context,
+                          MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return HomeScreen();
+                        },
+                      ), (route) => false);
+                    },
+                  );
+                }),
+            child: _buildMenuItem(
+              icon: Icons.delete_outline,
+              title: S.of(context).profiliSilmk,
+              subtitle: null,
+              bgColor: const Color(0xFFFEE2E2),
+              iconColor: const Color(0xFFFCA5A5),
+              isLogout: true,
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => showLogoutBottomSheet(
                 title: S.of(context).ngfngfn44,
                 description: S.of(context).vxer3,
                 yes: S.of(context).bg33a,
@@ -774,7 +804,7 @@ class _ProfileTabScreenState
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
-    required String subtitle,
+    String? subtitle,
     required Color bgColor,
     required Color iconColor,
     required bool isDark,
@@ -825,14 +855,16 @@ class _ProfileTabScreenState
                   ),
                   child: Text(title),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9CA3AF),
+                if (subtitle != null && subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF9CA3AF),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
