@@ -5,6 +5,7 @@ import '../../../data/network/request/login_request.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
+import '../../../services/push_notification_service.dart';
 
 class LoginBloc extends BaseBloc {
   final AuthRepository _authRepository = sl.get<AuthRepository>();
@@ -20,6 +21,7 @@ class LoginBloc extends BaseBloc {
 
     try {
       await _authRepository.login(request);
+      await _syncFcmTokenAfterAuth();
       return true; // ✅ Успех
     } on DioException catch (e) {
       final message = _parseDioError(e);
@@ -50,5 +52,19 @@ class LoginBloc extends BaseBloc {
     }
 
     return 'Ошибка запроса';
+  }
+
+  Future<void> _syncFcmTokenAfterAuth() async {
+    try {
+      final token = await PushNotificationService().refreshToken();
+      if (token == null || token.isEmpty) {
+        logger.d('FCM token is null/empty right after login');
+        return;
+      }
+      await _authRepository.registerFcmToken(token);
+      logger.d('FCM token sent to backend right after login');
+    } catch (e) {
+      logger.d('FCM token send after login failed: $e');
+    }
   }
 }

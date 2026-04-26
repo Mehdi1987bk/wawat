@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 
-/// Background FCM handler (top-level, runs in separate isolate — no main.dart import).
+/// Background FCM handler — MUST be a top-level function, registered in main()
+/// via FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler).
+/// Runs in a separate isolate; do NOT import main.dart state here.
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('FCM background: ${message.messageId}');
 }
 
@@ -34,7 +36,7 @@ class PushNotificationService {
     await _initLocalNotifications();
     await _createAndroidChannel();
     _setForegroundPresentationOptions();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    // onBackgroundMessage is registered in main() before runApp() — do not register again here.
 
     _messaging.getInitialMessage().then((message) {
       if (message != null) _handleMessageOpened(message);
@@ -118,8 +120,13 @@ class PushNotificationService {
   void _onForegroundMessage(RemoteMessage message) {
     _logger.d('FCM foreground: ${message.messageId}');
     final notification = message.notification;
-    final android = message.notification?.android;
-    if (notification != null) {
+    if (notification == null) return;
+
+    // On iOS, setForegroundNotificationPresentationOptions already handles
+    // displaying the notification natively — using flutter_local_notifications
+    // on top would cause duplicates. Only show local notification on Android.
+    if (Platform.isAndroid) {
+      final android = message.notification?.android;
       _showLocalNotification(
         id: message.hashCode,
         title: notification.title ?? '',
@@ -183,11 +190,27 @@ class PushNotificationService {
 
   Future<void> _refreshToken() async {
     try {
+      if (Platform.isIOS) {
+        await _waitForApnsToken();
+      }
       _fcmToken = await _messaging.getToken();
       _logger.d('FCM token: ${_fcmToken != null ? "ok" : "null"}');
       if (_fcmToken != null) _onTokenUpdated?.call(_fcmToken!);
     } catch (e, st) {
       _logger.e('FCM getToken error', e, st);
     }
+  }
+
+  Future<void> _waitForApnsToken() async {
+    const retries = 8;
+    for (var i = 0; i < retries; i++) {
+      final apnsToken = await _messaging.getAPNSToken();
+      if (apnsToken != null && apnsToken.isNotEmpty) {
+        _logger.d('APNs token: ok');
+        return;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+    _logger.w('APNs token: null (FCM token may be unavailable on iOS)');
   }
 }

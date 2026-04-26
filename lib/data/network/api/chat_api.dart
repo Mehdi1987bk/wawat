@@ -6,7 +6,7 @@ import '../response/target_user_request.dart';
 
 part 'chat_api.g.dart';
 
-@RestApi(baseUrl: 'http://62.84.176.158/api/v1')
+@RestApi(baseUrl: 'https://wawatair.com/api/v1')
 abstract class ChatApi {
   factory ChatApi(Dio dio, {String baseUrl}) = _ChatApi;
 
