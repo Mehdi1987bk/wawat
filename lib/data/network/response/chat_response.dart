@@ -38,7 +38,7 @@ class ChatUser {
   String get avatarUrl {
     if (avatar == null || avatar!.isEmpty) return '';
     if (avatar!.startsWith('http')) return avatar!;
-    return 'http://62.84.176.158/storage/$avatar';
+    return 'https://wawatair.com/storage/$avatar';
   }
 
   bool get isOnline {

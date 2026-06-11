@@ -173,7 +173,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bgfbg33": MessageLookupByLibrary.simpleMessage("дней"),
     "bgfbgbgfbgf": MessageLookupByLibrary.simpleMessage(
-      "Создайте объявление для поиска курьера или\nклиента",
+      "Создайте объявление, чтобы найти путешественника,\nотправителя или покупателя",
     ),
     "bgfbgd3ttgtebdsdf": MessageLookupByLibrary.simpleMessage(
       "Пожалуйста, загрузите оба документа",
@@ -663,7 +663,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Чаты"),
     "mjjhm6": MessageLookupByLibrary.simpleMessage("Приблизительный вес (кг)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Создайте объявление для поиска курьера, отправителя или покупателя",
+      "Создайте объявление, чтобы найти путешественника,\nотправителя или покупателя",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Архивировать"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Операции"),
@@ -1085,7 +1085,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Телефон"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Приватность"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Найди курьера, который летит — передай свою посылку быстро и надёжно. \nЛетишь сам? Перевози посылки и зарабатывай",
+      "Найди путешественника, который уже летит, отправь посылку быстро и надёжно\n\nЛетишь сам? Возьми посылку и получи вознаграждение",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Вы уверены, что хотите выйти?",

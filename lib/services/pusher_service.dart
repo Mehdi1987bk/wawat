@@ -79,7 +79,7 @@ class PusherService {
     print('🔐 Auth for: $channelName');
 
     final response = await http.post(
-      Uri.parse('http://62.84.176.158/api/v1/broadcasting/auth'),
+      Uri.parse('https://wawatair.com/api/v1/broadcasting/auth'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Content-Type': 'application/x-www-form-urlencoded',

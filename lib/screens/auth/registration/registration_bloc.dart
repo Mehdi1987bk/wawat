@@ -8,19 +8,20 @@ import '../../../data/network/response/language_response.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
+import '../../../services/push_notification_service.dart';
 
 class RegistrationBloc extends BaseBloc {
   final AuthRepository _authRepository = sl.get<AuthRepository>();
   final AuthApi _authApi = sl.get<AuthApi>();
 
   late final Future<LanguageResponse> getLanguages =
-  _authRepository.getLanguages();
+      _authRepository.getLanguages();
 
-   Future<CountriesResponse> getCountries() {
+  Future<CountriesResponse> getCountries() {
     return _authApi.getCountries();
   }
 
-   Future<bool> register({
+  Future<bool> register({
     required String name,
     required String email,
     required String phone,
@@ -45,19 +46,20 @@ class RegistrationBloc extends BaseBloc {
 
     try {
       await _authRepository.registration(request);
+      await _syncFcmTokenAfterAuth();
       return true;
     } on DioException catch (e) {
       final message = _parseDioError(e);
       errorSink.add(message);
       return false;
     } catch (_) {
-       return false;
+      return false;
     } finally {
       loadingSink.add(false);
     }
   }
 
-   String _parseDioError(DioException e) {
+  String _parseDioError(DioException e) {
     final data = e.response?.data;
 
     if (data is Map<String, dynamic>) {
@@ -77,5 +79,19 @@ class RegistrationBloc extends BaseBloc {
     }
 
     return 'Ошибка запроса';
+  }
+
+  Future<void> _syncFcmTokenAfterAuth() async {
+    try {
+      final token = await PushNotificationService().refreshToken();
+      if (token == null || token.isEmpty) {
+        logger.d('FCM token is null/empty right after registration');
+        return;
+      }
+      await _authRepository.registerFcmToken(token);
+      logger.d('FCM token sent to backend right after registration');
+    } catch (e) {
+      logger.d('FCM token send after registration failed: $e');
+    }
   }
 }

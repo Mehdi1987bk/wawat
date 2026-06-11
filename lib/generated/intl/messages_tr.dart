@@ -167,7 +167,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bgfbg33": MessageLookupByLibrary.simpleMessage("gün"),
     "bgfbgbgfbgf": MessageLookupByLibrary.simpleMessage(
-      "Kurye veya müşteri bulmak için\nilan oluşturun",
+      "Yolcu, gönderici veya alıcı bulmak için\nilan oluşturun",
     ),
     "bgfbgd3ttgtebdsdf": MessageLookupByLibrary.simpleMessage(
       "Lütfen her iki belgeyi de yükleyin",
@@ -649,7 +649,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Sohbetler"),
     "mjjhm6": MessageLookupByLibrary.simpleMessage("Yaklaşık ağırlık (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Kurye, gönderen veya alıcı bulmak için ilan oluşturun",
+      "Yolcu, gönderici veya alıcı bulmak için\nilan oluşturun",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Arşivle"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("İşlemler"),
@@ -1053,7 +1053,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Telefon"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Gizlilik"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Uçan bir kuryer bul — gönderini hızlı ve güvenli şekilde ilet.\nSen de uçuyor musun? Gönderi taşı ve para kazan.",
+      "Uçan bir yolcuyu bul, paketini hızlı ve güvenli şekilde gönder\n\nKendin mi uçuyorsun? Paket taşıyarak ek gelir elde et",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Çıkış yapmak istediğinizden emin misiniz?",

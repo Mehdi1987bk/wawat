@@ -161,7 +161,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bgfbg33": MessageLookupByLibrary.simpleMessage("days"),
     "bgfbgbgfbgf": MessageLookupByLibrary.simpleMessage(
-      "Create a listing to find a courier or\nclient",
+      "Create an ad to find a traveler, sender or buyer",
     ),
     "bgfbgd3ttgtebdsdf": MessageLookupByLibrary.simpleMessage(
       "Please upload both documents",
@@ -633,7 +633,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Chats"),
     "mjjhm6": MessageLookupByLibrary.simpleMessage("Approximate weight (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Create a listing to find a courier, sender or buyer",
+      "Create an ad to find a traveler, sender or buyer",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Archive"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Operations"),
@@ -1044,7 +1044,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Phone"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Privacy"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Find a courier who’s flying — send your parcel quickly and safely.\nFlying yourself? Carry parcels and earn money.",
+      "Find a traveler already flying, send your package quickly and reliably\n\nAre you flying yourself? Carry a package and earn a reward",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Are you sure you want to log out?",

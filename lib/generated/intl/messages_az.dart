@@ -165,7 +165,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "bgfbg33": MessageLookupByLibrary.simpleMessage("gün"),
     "bgfbgbgfbgf": MessageLookupByLibrary.simpleMessage(
-      "Kuryer və ya müştəri tapmaq üçün\nelan yaradın",
+      "Səyahətçi, göndərən və ya alıcı tapmaq üçün\nelan yaradın",
     ),
     "bgfbgd3ttgtebdsdf": MessageLookupByLibrary.simpleMessage(
       "Zəhmət olmasa hər iki sənədi yükləyin",
@@ -651,7 +651,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mjhmhjmj5": MessageLookupByLibrary.simpleMessage("Söhbətlər"),
     "mjjhm6": MessageLookupByLibrary.simpleMessage("Təxmini çəki (kg)"),
     "mjjhmjjmj5": MessageLookupByLibrary.simpleMessage(
-      "Kuryer, göndərən və ya alıcı tapmaq üçün elan yaradın",
+      "Səyahətçi, göndərən və ya alıcı tapmaq üçün\nelan yaradın",
     ),
     "mkuuj7": MessageLookupByLibrary.simpleMessage("Arxivlə"),
     "mliyyatlar": MessageLookupByLibrary.simpleMessage("Əməliyyatlar"),
@@ -1077,7 +1077,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vsf3grevsf43": MessageLookupByLibrary.simpleMessage("Telefon"),
     "vsf3r4gh57j6hnbd": MessageLookupByLibrary.simpleMessage("Məxfilik"),
     "vvvvvf": MessageLookupByLibrary.simpleMessage(
-      "Uçan kuryeri tap — bağlamanı tez və etibarlı şəkildə göndər.\nÖzün uçursan? Bağlamalar daşı və pul qazan.",
+      "Uçan səyahətçini tap, bağlamanı tez və etibarlı şəkildə göndər\n\nÖzün uçursan? Bağlama apar və gəlir əldə et",
     ),
     "vxer3": MessageLookupByLibrary.simpleMessage(
       "Çıxış etmək istədiyinizə əminsiniz?",

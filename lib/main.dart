@@ -33,6 +33,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
 
 final GetIt sl = GetIt.instance;
@@ -49,6 +50,9 @@ void main() async {
   // Firebase и пуши требуют Google Play Services. На устройствах без них или с отключённым Play — не падаем, работаем без пушей.
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    // Must be registered immediately after Firebase.initializeApp(), before runApp().
+    // Must be a top-level function — see push_notification_service.dart.
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   } catch (e, st) {
     logger.w('Firebase init failed (device may lack Google Play Services): $e');
   }

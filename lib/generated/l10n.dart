@@ -2035,10 +2035,10 @@ class S {
     return Intl.message('Continue', name: 'vfdvd', desc: '', args: []);
   }
 
-  /// `Find a courier who’s flying — send your parcel quickly and safely.\nFlying yourself? Carry parcels and earn money.`
+  /// `Find a traveler already flying, send your package quickly and reliably\n\nAre you flying yourself? Carry a package and earn a reward`
   String get vvvvvf {
     return Intl.message(
-      'Find a courier who’s flying — send your parcel quickly and safely.\nFlying yourself? Carry parcels and earn money.',
+      'Find a traveler already flying, send your package quickly and reliably\n\nAre you flying yourself? Carry a package and earn a reward',
       name: 'vvvvvf',
       desc: '',
       args: [],
@@ -2775,10 +2775,10 @@ class S {
     );
   }
 
-  /// `Create a listing to find a courier or\nclient`
+  /// `Create an ad to find a traveler, sender or buyer`
   String get bgfbgbgfbgf {
     return Intl.message(
-      'Create a listing to find a courier or\nclient',
+      'Create an ad to find a traveler, sender or buyer',
       name: 'bgfbgbgfbgf',
       desc: '',
       args: [],
@@ -5330,10 +5330,10 @@ class S {
     return Intl.message('Create listing', name: 'bvfv2r', desc: '', args: []);
   }
 
-  /// `Create a listing to find a courier, sender or buyer`
+  /// `Create an ad to find a traveler, sender or buyer`
   String get mjjhmjjmj5 {
     return Intl.message(
-      'Create a listing to find a courier, sender or buyer',
+      'Create an ad to find a traveler, sender or buyer',
       name: 'mjjhmjjmj5',
       desc: '',
       args: [],
