@@ -90,8 +90,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
