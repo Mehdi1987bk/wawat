@@ -131,6 +131,11 @@ flutter:
     - asset/tab3.svg
     - asset/tab4.svg
     - asset/tab5.svg
+    - asset/ph_compass_fill.svg
+    - asset/ph_magnifying_glass.svg
+    - asset/ph_chat_circle.svg
+    - asset/ph_user.svg
+    - asset/ph_plus_bold.svg
     - asset/mini_logo.png
     - asset/prof_1.png
     - asset/prof_2.png

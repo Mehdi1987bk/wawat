@@ -1,5 +1,5 @@
 import 'package:buking/screens/home/tabs/create_post/create_post_screen.dart';
-import 'package:buking/screens/home/tabs/fovorite/fovorite_offer_screen.dart';
+import 'package:buking/screens/home/tabs/home_tab/search/search_offer_list_screen.dart';
 import 'package:buking/screens/home/tabs/home_tab/home_tab_screen.dart';
 import 'package:buking/screens/home/tabs/home_tab/widget/auth_modal_utils.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_screen.dart';
@@ -11,7 +11,6 @@ import '../../presentation/bloc/base_screen.dart';
 import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
-
 
 class HomeScreen extends BaseScreen {
   final int? orderId;
@@ -37,7 +36,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) {
+      (timeStamp) {
         // if (widget.purchasedProduct != null) {
         //   showDialog(
         //     context: context,
@@ -79,8 +78,17 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
             child: BottomBar(
               onChanged: (index) async {
                 final isLogged = await sl.get<AuthRepository>().isLogged();
-                if ((index != 0) && !isLogged) {
+                if ((index != 0 && index != 1) && !isLogged) {
                   return AuthModalUtils.showAuthRequiredModal(context);
+                }
+                if (index == 2) {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      fullscreenDialog: true,
+                      builder: (_) => CreatePostScreen(),
+                    ),
+                  );
+                  return;
                 }
                 setState(() {
                   _selectedIndex = index;
@@ -95,7 +103,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   }
 
   @override
-  bool get resizeToAvoidBottomInset => false;  // ← ДОБАВЛЕНА ЭТА СТРОКА
+  bool get resizeToAvoidBottomInset => false; // ← ДОБАВЛЕНА ЭТА СТРОКА
 
   @override
   HomeBloc provideBloc() {
@@ -120,10 +128,10 @@ class __TabsState extends State<_Tabs> {
     super.initState();
 
     _tabs = <Widget>[
-      HomeTabScreen( ),
+      HomeTabScreen(),
+      SearchOfferListScreen(showBackButton: false),
+      const SizedBox.shrink(),
       ChatListScreen(),
-      CreatePostScreen(),
-      FovoriteOfferListScreen(),
       ProfileTabScreen(),
     ];
   }

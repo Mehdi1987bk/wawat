@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../network/response/user.dart';
 import 'cache_manager.dart';
@@ -73,7 +72,6 @@ class DataCacheManager implements CacheManager {
     await userBox.clear();
   }
 
-
   @override
   Future<void> saveUser(User userDetails) async {
     final box = await _userBox;
@@ -87,7 +85,6 @@ class DataCacheManager implements CacheManager {
       return event.value as User?;
     }).startWith(box.get(_userKey));
   }
-
 
   @override
   Future<bool> isFirstOpen() async {
@@ -107,7 +104,8 @@ class DataCacheManager implements CacheManager {
       final box = await _userBox;
       final user = box.get(_userKey);
       if (user != null && user is User) {
-        return user.id;
+        final id = user.id;
+        return id is int ? id : null;
       }
       return null;
     } catch (e) {
@@ -125,7 +123,6 @@ class DataCacheManager implements CacheManager {
       return null;
     }
   }
-
 
   /// Определяет подходящий язык на основе системного языка устройства
   Locale _getDeviceLocaleIfSupported() {

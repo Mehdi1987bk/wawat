@@ -22,7 +22,7 @@ Map<String, dynamic> _$ForgotPasswordResponseToJson(
 
 ForgotPasswordData _$ForgotPasswordDataFromJson(Map<String, dynamic> json) =>
     ForgotPasswordData(
-      verificationToken: json['verification_token'] as String,
+      verificationToken: json['verification_token'] as String?,
       expiresInSeconds: (json['expires_in_seconds'] as num).toInt(),
     );
 

@@ -1,39 +1,40 @@
-import '../../../../../data/network/request/offer_response.dart';
+import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../data/network/response/package_types_response.dart';
+import '../../../../../domain/entities/pagination.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/paginable_bloc.dart';
-import '../../../../../data/network/response/offer_models.dart';
-import '../../../../../domain/entities/pagination.dart';
 
-class FovoriteOfferBloc extends PaginableBloc<OfferModel> {
+class FovoriteOfferBloc extends PaginableBloc<Listing> {
   final authRepository = sl.get<AuthRepository>();
-  final Stream onReflash;
-
-  FovoriteOfferBloc(
-    this.onReflash,
-  );
-
-  @override
-  void init() {
-    super.init();
-    onReflash.listen((event) {
-      load(refresh: true);
-    });
-  }
+  PackageTypesResponse? _packageTypes;
 
   Future<void> loadList() async {
-    load(refresh: true);
+    return load(refresh: true, cancelable: true);
+  }
+
+  Future<PackageTypesResponse> loadPackageTypes() async {
+    if (_packageTypes != null) return _packageTypes!;
+    _packageTypes = await authRepository.getListingPackageTypes();
+    return _packageTypes!;
+  }
+
+  Map<String, String> get packageNamesByCode {
+    final data = _packageTypes?.data ?? const [];
+    return {for (final item in data) item.code: item.name};
   }
 
   @override
-  Future<Pagination<OfferModel>> provideSource(int page) {
-    return run(authRepository.getFavorites(
-      page,
-    ));
+  Future<Pagination<Listing>> provideSource(int page) {
+    return run(authRepository.getListingFavorites(page: page, perPage: 20));
   }
 
-  Future<void> setFavorites(int offerId) async {
-    await authRepository.setFavorites(OfferResponse(offerId: offerId));
-    load(refresh: true); // Обновляем список
+  Future<void> setFavorite(Listing listing, bool nextValue) async {
+    if (nextValue) {
+      await authRepository.addListingFavorite(listing.id);
+    } else {
+      await authRepository.removeListingFavorite(listing.id);
+      deletedItem(listing);
+    }
   }
 }

@@ -4,10 +4,14 @@ part 'fcm_token_request.g.dart';
 
 @JsonSerializable()
 class FcmTokenRequest {
-  @JsonKey(name: 'fcm_token')
-  final String fcmToken;
+  final String token;
+  @JsonKey(name: 'device_type')
+  final String? deviceType;
 
-  FcmTokenRequest({required this.fcmToken});
+  FcmTokenRequest({
+    required this.token,
+    this.deviceType,
+  });
 
   factory FcmTokenRequest.fromJson(Map<String, dynamic> json) =>
       _$FcmTokenRequestFromJson(json);

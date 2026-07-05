@@ -1,50 +1,112 @@
-import 'package:buking/presentation/bloc/base_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../../../../data/network/request/edit_status_offer_request.dart';
-import '../../../../../data/network/response/offer_models.dart';
+import '../../../../../data/network/request/create_listing_request.dart';
+import '../../../../../data/network/request/delete_listing_request.dart';
+import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../data/network/response/package_types_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/paginable_bloc.dart';
 
-class DeliveryFullListBloc extends PaginableBloc<OfferModel> {
+class DeliveryFullListBloc extends PaginableBloc<Listing> {
   final userRepository = sl.get<AuthRepository>();
-  final Stream onReflash;
-
   final BehaviorSubject<bool> _isUpdating = BehaviorSubject.seeded(false);
+
+  PackageTypesResponse? _packageTypes;
+
   Stream<bool> get isUpdating => _isUpdating.stream;
 
-  DeliveryFullListBloc(this.onReflash);
+  Future<void> loadList() {
+    return load(refresh: true, cancelable: true);
+  }
+
+  Future<PackageTypesResponse> loadPackageTypes() async {
+    if (_packageTypes != null) return _packageTypes!;
+    _packageTypes = await userRepository.getListingPackageTypes();
+    return _packageTypes!;
+  }
+
+  Map<String, String> get packageNamesByCode {
+    final data = _packageTypes?.data ?? const [];
+    return {for (final item in data) item.code: item.name};
+  }
 
   @override
-  void init() {
-    super.init();
-    onReflash.listen((event) {
-      load(refresh: true);
-    });
+  Future<Pagination<Listing>> provideSource(int page) {
+    return userRepository.getMyListings(page: page, perPage: 20);
   }
 
-  Future<void> loadList() async {
-    load(refresh: true);
+  Future<void> pauseListing(Listing listing) async {
+    await _mutate(() => userRepository.pauseListing(listing.id));
   }
 
-  @override
-  Future<Pagination<OfferModel>> provideSource(int page) {
-    return userRepository.myOffers(page);
+  Future<void> resumeListing(Listing listing) async {
+    await _mutate(() => userRepository.resumeListing(listing.id));
   }
 
-  Future<void> editStatusOffer(String id, String status) async {
+  Future<void> repostListing(Listing listing) async {
+    await _mutate(
+      () => userRepository.repostListing(
+        listing.id,
+        _requestFromListing(listing),
+        'repost-${listing.id}-${DateTime.now().microsecondsSinceEpoch}',
+      ),
+    );
+  }
+
+  Future<void> deleteListing(
+    Listing listing, {
+    required String reasonCode,
+    String? reasonNote,
+  }) async {
+    await _mutate(
+      () => userRepository.deleteListing(
+        listing.id,
+        DeleteListingRequest(
+          reasonCode: reasonCode,
+          reasonNote: reasonNote,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _mutate(Future<void> Function() action) async {
     _isUpdating.add(true);
     try {
-      await userRepository.editStatusOffer(id, EditStatusOfferRequest(status));
-      await Future.delayed(const Duration(milliseconds: 300));
-      load(refresh: true);
-    } catch (e) {
-      print('Error editing status: $e');
+      await action();
+      await loadList();
     } finally {
       _isUpdating.add(false);
     }
+  }
+
+  CreateListingRequest _requestFromListing(Listing listing) {
+    if (listing.isTrip) {
+      return CreateListingRequest(
+        type: listing.type,
+        cityFromId: listing.cityFromId ?? 0,
+        cityToId: listing.cityToId ?? 0,
+        packageTypeCodes: listing.packageTypeCodes,
+        description: listing.description,
+        allowPriceNegotiation: listing.allowPriceNegotiation,
+        flightDate: listing.flightDate,
+        flightTime: listing.flightTime,
+        flightNumber: listing.flightNumber,
+        maxWeightKg: listing.maxWeightKg,
+        pricePerKg: listing.pricePerKg,
+      );
+    }
+    return CreateListingRequest(
+      type: listing.type,
+      cityFromId: listing.cityFromId ?? 0,
+      cityToId: listing.cityToId ?? 0,
+      packageTypeCodes: listing.packageTypeCodes,
+      description: listing.description,
+      deliveryDateFrom: listing.deliveryDateFrom,
+      deliveryDateTo: listing.deliveryDateTo,
+      weightKg: listing.weightKg,
+    );
   }
 
   @override

@@ -1,12 +1,11 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
-import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:buking/screens/home/tabs/fovorite/fovorite_offer_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/support/support_screen.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
-import 'package:buking/screens/home/tabs/profile_tab/widgte/delivery_history_widget.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/localization_pop_up.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/logout_dialog_content.dart';
 import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
@@ -14,12 +13,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../data/network/response/offer_models.dart';
 import '../../../../data/network/response/user.dart';
 import '../../../../generated/l10n.dart';
 import '../../../../services/theme_manager.dart';
 import '../../home_screen.dart';
-import '../home_tab/home_tab_screen.dart';
 import '../home_tab/notification/unread_notif_bloc.dart';
 import '../home_tab/widget/build_header.dart';
 import 'courier_reviews_page.dart';
@@ -390,111 +387,12 @@ class _ProfileTabScreenState
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem(
-                icon: Icons.airplanemode_active_rounded,
-                value: user.stats?.deliveriesCount.toString() ?? "",
-                label: S.of(context).gbgrbyhe435,
-                context: context,
-                isDark: isDark,
-              ),
-              _buildStatItem(
-                icon: "asset/prof_ic_2.png",
-                value: user.stats?.ratingAvg.toString().substring(0, 3) ?? "",
-                label: S.of(context).hgg4235gb,
-                context: context,
-                isDark: isDark,
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem(
-                icon: "asset/prof_ic_3.png",
-                value: user.stats?.reviewsReceivedCount.toString() ?? "",
-                label: S.of(context).bgfh364,
-                context: context,
-                isDark: isDark,
-              ),
-              _buildStatItem(
-                icon: "asset/prof_ic_4.png",
-                value: (user.stats?.yearsOnPlatform?.toStringAsFixed(0) ?? "") +
-                    ' ' +
-                    S.of(context).bgfbg33,
-                label: S.of(context).htr345gfd,
-                context: context,
-                isDark: isDark,
-              ),
-            ],
-          ),
+
         ],
       ),
     );
   }
 
-  Widget _buildStatItem({
-    required dynamic icon, // ✅ Изменено на dynamic - теперь можно передать String или IconData
-    required String value,
-    required String label,
-    required BuildContext context,
-    required bool isDark,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 20),
-      width: MediaQuery.of(context).size.width * 0.4,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFAFBFD),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // ✅ Условный рендеринг - проверяем тип
-          icon is IconData
-              ? Icon(
-            icon,
-            size: 24,
-            color: const Color(0xFF3B82F6),
-          )
-              : Image.asset(
-            icon as String,
-            width: 24,
-            height: 24, // ✅ Добавлена высота для симметрии
-            color: const Color(0xFF3B82F6),
-          ),
-          const SizedBox(height: 12),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF000000),
-            ),
-            child: Text(value),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF9CA3AF),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMenuSection(User user, bool isDark) {
     return Padding(
@@ -580,6 +478,25 @@ class _ProfileTabScreenState
               subtitle: S.of(context).bdfbertgfvdre,
               bgColor: WawatColors.primary.withOpacity(0.1),
               iconColor: WawatColors.primary,
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) {
+                  return FovoriteOfferListScreen();
+                },
+              ),
+            ),
+            child: _buildMenuItem(
+              icon: Icons.favorite_border_rounded,
+              title: S.of(context).gbfbgfgb,
+              subtitle: 'Sevimlilərə əlavə etdiyin elanlar',
+              bgColor: const Color(0xFFFCE7F3),
+              iconColor: const Color(0xFFDB2777),
               isDark: isDark,
             ),
           ),

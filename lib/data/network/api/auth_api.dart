@@ -7,10 +7,11 @@ import 'package:retrofit/retrofit.dart';
 import '../../../domain/entities/pagination.dart';
 import '../../../main.dart';
 import '../request/change_password_request.dart';
+import '../request/create_listing_request.dart';
 import '../request/courier_offer_model.dart';
 import '../request/courier_profile.dart';
 import '../request/create_review_request.dart';
-import '../request/delivery_offer_request.dart';
+import '../request/delete_listing_request.dart';
 import '../request/edit_status_offer_request.dart';
 import '../request/forgot_password_request.dart';
 import '../request/forgot_password_request_email.dart';
@@ -31,12 +32,11 @@ import '../response/countries_response.dart';
 import '../response/faq_response.dart';
 import '../response/forgot_password_response.dart';
 import '../response/language_response.dart';
-import '../response/login_response.dart';
+import '../response/listing_response.dart';
 import '../response/login_response_data.dart';
 import '../response/notification_response.dart';
 import '../response/offer_models.dart';
 import '../response/offer_type_model.dart';
-import '../response/offer_types_response.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
 import '../response/partner_user_response.dart';
@@ -44,9 +44,9 @@ import '../response/privacy_policy_response.dart';
 import '../response/registration_response.dart';
 import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
+import '../response/trending_routes_response.dart';
 import '../response/unread_chat_count_response.dart';
 import '../response/unread_count_response.dart';
-import '../response/user.dart';
 import '../response/verification_response.dart';
 
 part 'auth_api.g.dart';
@@ -55,7 +55,7 @@ part 'auth_api.g.dart';
 abstract class AuthApi {
   factory AuthApi(Dio dio, {String? baseUrl}) = _AuthApi;
 
-  @POST('/api/v1/auth/login')
+  @POST('/auth/login')
   Future<LoginResponseData> login(
     @Body() LoginRequest request,
   );
@@ -71,7 +71,7 @@ abstract class AuthApi {
   Future<SendOtpResponse> sendOtpLogin(
       @Query("phoneNumber") int number, @Query("otpCode") int otpCode);
 
-  @POST('/api/v1/auth/register')
+  @POST('/auth/register')
   Future<LoginResponseData> register(
     @Body() RegistrationRequest request,
   );
@@ -95,10 +95,10 @@ abstract class AuthApi {
     @Path() String date,
   );
 
-  @GET('/api/v1/auth/me')
+  @GET('/auth/me')
   Future<LoginResponseData> customersMe();
 
-  @GET('/api/v1/dictionaries/languages')
+  @GET('/languages')
   Future<LanguageResponse> getLanguages();
 
   @PUT('/api/v1/profile/personal')
@@ -110,7 +110,7 @@ abstract class AuthApi {
   @PUT('/api/v1/profile/notifications')
   Future<void> notificationsProfile(@Body() NotificationSettings request);
 
-  @POST('/api/v1/profile/fcm-token')
+  @POST('/fcm-tokens')
   Future<void> registerFcmToken(@Body() FcmTokenRequest request);
 
   @POST('/api/v1/offers')
@@ -162,6 +162,96 @@ abstract class AuthApi {
     @Query('page') int page,
   );
 
+  @GET('/listings')
+  Future<Pagination<Listing>> getListings(
+    @Query('type') String? type,
+    @Query('city_from_id') int? cityFromId,
+    @Query('city_to_id') int? cityToId,
+    @Query('verified_only') bool? verifiedOnly,
+    @Query('following') bool? following,
+    @Query('package_types[]') List<String>? packageTypes,
+    @Query('date_from') String? dateFrom,
+    @Query('date_to') String? dateTo,
+    @Query('weight_min') double? weightMin,
+    @Query('weight_max') double? weightMax,
+    @Query('price_min') double? priceMin,
+    @Query('price_max') double? priceMax,
+    @Query('rating_min') double? ratingMin,
+    @Query('tier_min') String? tierMin,
+    @Query('sort') String? sort,
+    @Query('seed') int? seed,
+    @Query('page') int page,
+    @Query('per_page') int? perPage,
+  );
+
+  @GET('/listings/{id}')
+  Future<ListingResponse> getListingDetails(@Path() String id);
+
+  @GET('/listings/my')
+  Future<Pagination<Listing>> getMyListings(
+    @Query('page') int page,
+    @Query('per_page') int? perPage,
+  );
+
+  @GET('/listings/favorites')
+  Future<Pagination<Listing>> getListingFavorites(
+    @Query('page') int page,
+    @Query('per_page') int? perPage,
+  );
+
+  @POST('/listings')
+  Future<ListingResponse> createListing(
+    @Body() CreateListingRequest request,
+    @Header('Idempotency-Key') String idempotencyKey,
+  );
+
+  @PATCH('/listings/{id}')
+  Future<ListingResponse> updateListing(
+    @Path() String id,
+    @Body() CreateListingRequest request,
+    @Header('Idempotency-Key') String idempotencyKey,
+  );
+
+  @POST('/listings/{id}/pause')
+  Future<ListingResponse> pauseListing(@Path() String id);
+
+  @POST('/listings/{id}/resume')
+  Future<ListingResponse> resumeListing(@Path() String id);
+
+  @POST('/listings/{id}/repost')
+  Future<ListingResponse> repostListing(
+    @Path() String id,
+    @Body() CreateListingRequest request,
+    @Header('Idempotency-Key') String idempotencyKey,
+  );
+
+  @DELETE('/listings/{id}')
+  Future<ListingMessageResponse> deleteListing(
+    @Path() String id,
+    @Body() DeleteListingRequest request,
+  );
+
+  @POST('/listings/{id}/favorite')
+  Future<ListingMessageResponse> addListingFavorite(@Path() String id);
+
+  @DELETE('/listings/{id}/favorite')
+  Future<ListingMessageResponse> removeListingFavorite(@Path() String id);
+
+  @GET('/package-types')
+  Future<PackageTypesResponse> getListingPackageTypes();
+
+  @GET('/cities')
+  Future<CitiesResponse> getListingCities(
+    @Query("q") String? search,
+    @Query("limit") int limit,
+  );
+
+  @GET('/cities/popular')
+  Future<CitiesResponse> getPopularCities();
+
+  @GET('/search/trending-routes')
+  Future<TrendingRoutesResponse> getTrendingRoutes();
+
   @POST('/api/v1/support')
   Future<void> support(
     @Body() SupportRequest request,
@@ -208,20 +298,23 @@ abstract class AuthApi {
   @GET('/api/v1/reviews/left')
   Future<ReviewsResponse> myAboutLeft();
 
-  @POST('/api/v1/auth/forgot-password/request')
+  @POST('/auth/forgot-password/request')
   Future<ForgotPasswordResponse> forgotPasswordRequest(
     @Body() ForgotPasswordRequestEmail request,
   );
 
-  @POST('/api/v1/auth/forgot-password/verify')
+  @POST('/auth/forgot-password/verify')
   Future<void> forgotPasswordVerify(
     @Body() ForgotPasswordVerifyRequest request,
   );
 
-  @POST('/api/v1/auth/forgot-password/reset')
+  @POST('/auth/forgot-password/reset')
   Future<void> forgotPasswordReset(
     @Body() ForgotPasswordResetRequest request,
   );
+
+  @POST('/auth/email/resend')
+  Future<void> resendEmailVerification();
 
   @GET('/api/v1/geo/countries')
   Future<CountriesResponse> getCountries();

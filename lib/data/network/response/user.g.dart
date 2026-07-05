@@ -17,7 +17,7 @@ class UserAdapter extends TypeAdapter<User> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return User(
-      id: fields[0] as int?,
+      id: fields[0] as dynamic,
       fullname: fields[1] as String,
       email: fields[2] as String?,
       phone: fields[3] as String?,
@@ -87,11 +87,11 @@ class UserAdapter extends TypeAdapter<User> {
 // **************************************************************************
 
 User _$UserFromJson(Map<String, dynamic> json) => User(
-      id: (json['id'] as num?)?.toInt(),
-      fullname: json['fullname'] as String,
+      id: json['id'],
+      fullname: _readFullName(json, 'fullname') as String,
       email: json['email'] as String?,
       phone: json['phone'] as String?,
-      avatar: json['avatar'] as String?,
+      avatar: _readAvatar(json, 'avatar') as String?,
       location: json['location'] as String?,
       about: json['about'] as String?,
       professional: json['professional'] == null
@@ -117,6 +117,12 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       stats: json['stats'] == null
           ? null
           : Stats.fromJson(json['stats'] as Map<String, dynamic>),
+      username: json['username'] as String?,
+      firstName: json['first_name'] as String?,
+      lastName: json['last_name'] as String?,
+      emailVerified: json['email_verified'] as bool?,
+      preferredLocale: json['preferred_locale'] as String?,
+      avatarThumbUrl: json['avatar_thumb_url'] as String?,
       country: json['country'] == null
           ? null
           : Country.fromJson(json['country'] as Map<String, dynamic>),
@@ -138,5 +144,11 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'profile': instance.profile,
       'is_verified': instance.isVerified,
       'stats': instance.stats,
+      'username': instance.username,
+      'first_name': instance.firstName,
+      'last_name': instance.lastName,
+      'email_verified': instance.emailVerified,
+      'preferred_locale': instance.preferredLocale,
+      'avatar_thumb_url': instance.avatarThumbUrl,
       'country': instance.country,
     };

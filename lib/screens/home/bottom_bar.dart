@@ -1,10 +1,17 @@
+import 'dart:ui';
+
 import 'package:buking/screens/home/tabs/profile_tab/unread_chat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+
 import '../../generated/l10n.dart';
 import '../../main.dart';
 import '../../services/theme_manager.dart';
+
+const _brand = Color(0xFF0271EB);
+const _ink900 = Color(0xFF0F172A);
+const _ink400 = Color(0xFF94A3B8);
 
 class BottomBar extends StatefulWidget {
   final ValueChanged<int> onChanged;
@@ -40,7 +47,7 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
+    final isDark = Provider.of<ThemeManager>(context).isDarkMode;
 
     return StreamBuilder<int>(
       stream: _chatBloc.unreadCountStream,
@@ -48,71 +55,69 @@ class _BottomBarState extends State<BottomBar> {
       builder: (context, snapshot) {
         final unreadChatCount = snapshot.data ?? 0;
 
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            top: false,
+        final bottomInset = MediaQuery.of(context).padding.bottom;
+        return ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  BottomNavigationItem(
-                    index: 0,
-                    selectedIndex: widget.selectedIndex,
-                    label: S.of(context).nhhfge4,
-                    svgIcon: 'asset/tab1.svg',
-                    onChanged: widget.onChanged,
-                    isCentral: false,
-                    isDark: isDark,
+              height: 64 + bottomInset,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xF21E1E1E)
+                    : Colors.white.withValues(alpha: 0.95),
+                border: Border(
+                  top: BorderSide(
+                    color: (isDark ? Colors.white : _ink900)
+                        .withValues(alpha: 0.06),
                   ),
-                  BottomNavigationItem(
-                    index: 1,
-                    selectedIndex: widget.selectedIndex,
-                    label: S.of(context).mjhmhjmj5,
-                    svgIcon: 'asset/tab2.svg',
-                    onChanged: widget.onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                    badgeCount: unreadChatCount,
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 5),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      BottomNavigationItem(
+                        index: 0,
+                        selectedIndex: widget.selectedIndex,
+                        label: 'Kəşf',
+                        iconAsset: 'asset/ph_compass_fill.svg',
+                        onChanged: widget.onChanged,
+                        isDark: isDark,
+                      ),
+                      BottomNavigationItem(
+                        index: 1,
+                        selectedIndex: widget.selectedIndex,
+                        label: S.of(context).searchbtrrevfdsc,
+                        iconAsset: 'asset/ph_magnifying_glass.svg',
+                        onChanged: widget.onChanged,
+                        isDark: isDark,
+                      ),
+                      _CenterPostButton(
+                        onTap: () => widget.onChanged(2),
+                      ),
+                      BottomNavigationItem(
+                        index: 3,
+                        selectedIndex: widget.selectedIndex,
+                        label: S.of(context).mjhmhjmj5,
+                        iconAsset: 'asset/ph_chat_circle.svg',
+                        onChanged: widget.onChanged,
+                        isDark: isDark,
+                        badgeCount: unreadChatCount,
+                      ),
+                      BottomNavigationItem(
+                        index: 4,
+                        selectedIndex: widget.selectedIndex,
+                        label: S.of(context).vfdvfdvfd,
+                        iconAsset: 'asset/ph_user.svg',
+                        onChanged: widget.onChanged,
+                        isDark: isDark,
+                      ),
+                    ],
                   ),
-                  BottomNavigationItem(
-                    index: 2,
-                    selectedIndex: widget.selectedIndex,
-                    label: S.of(context).nhnnh5,
-                    svgIcon: 'asset/tab3.svg',
-                    onChanged: widget.onChanged,
-                    isCentral: true,
-                    isDark: isDark,
-                  ),
-                  BottomNavigationItem(
-                    index: 3,
-                    selectedIndex: widget.selectedIndex,
-                    label: S.of(context).gbfbgfgb,
-                    svgIcon: 'asset/tab4.svg',
-                    onChanged: widget.onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                  ),
-                  BottomNavigationItem(
-                    index: 4,
-                    selectedIndex: widget.selectedIndex,
-                    label: S.of(context).vfdvfdvfd,
-                    svgIcon: 'asset/tab5.svg',
-                    onChanged: widget.onChanged,
-                    isCentral: false,
-                    isDark: isDark,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -126,9 +131,8 @@ class BottomNavigationItem extends StatelessWidget {
   final int index;
   final int selectedIndex;
   final String label;
-  final String svgIcon;
+  final String iconAsset;
   final ValueChanged<int> onChanged;
-  final bool isCentral;
   final bool isDark;
   final int badgeCount;
 
@@ -137,9 +141,8 @@ class BottomNavigationItem extends StatelessWidget {
     required this.index,
     required this.selectedIndex,
     required this.label,
-    required this.svgIcon,
+    required this.iconAsset,
     required this.onChanged,
-    this.isCentral = false,
     required this.isDark,
     this.badgeCount = 0,
   }) : super(key: key);
@@ -147,137 +150,101 @@ class BottomNavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedIndex == index;
-    final Color activeColor = isDark ? Colors.white : const Color(0xFF2857DA);
-    final Color inactiveColor =
-    isDark ? const Color(0xFF6B7280) : Color(0xFF9E9E9E);
+    final Color activeColor = isDark ? Colors.white : _brand;
+    final Color inactiveColor = isDark ? const Color(0xFF6B7280) : _ink400;
+    final Color iconColor = isSelected ? activeColor : inactiveColor;
 
-    final Color bgColor = isCentral && isSelected
-        ? Colors.transparent
-        : (isSelected
-        ? (isDark ? const Color(0xFF2A2A2A) : Color(0xFFEFF6FF))
-        : Colors.transparent);
-
-    final Color iconBgColor = isCentral && isSelected
-        ? Colors.white.withOpacity(0.3)
-        : (isSelected
-        ? (isDark ? const Color(0xFF3A3A3A) : Color(0xFFFFFFFF))
-        : Colors.transparent);
-
-    final Color iconColor = isCentral && isSelected
-        ? Colors.white
-        : (isSelected ? activeColor : inactiveColor);
-
-    final gradient = LinearGradient(
-      colors: [Color(0xFF2662EA), Color(0xFF9333EA)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onChanged(index),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.17,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: isSelected ? 1.0 : 0.0),
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, child) {
-            return Container(
-              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-              decoration: BoxDecoration(
-                gradient: isCentral && isSelected ? gradient : null,
-                color: isCentral && isSelected
-                    ? null
-                    : Color.lerp(Colors.transparent, bgColor, value),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: isCentral && isSelected
-                    ? [
-                  BoxShadow(
-                    color: Color(0xFF2662EA).withOpacity(0.3 * value),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-                    : null,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Color.lerp(Colors.transparent, iconBgColor, value),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: SvgPicture.asset(
-                          svgIcon,
-                          width: 18,
-                          height: 18,
-                          colorFilter: ColorFilter.mode(
-                              Color.lerp(inactiveColor, iconColor, value)!,
-                              BlendMode.srcIn),
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onChanged(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                SvgPicture.asset(
+                  iconAsset,
+                  width: 22,
+                  height: 22,
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    top: 1,
+                    right: -5,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _brand,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color:
+                              isDark ? const Color(0xF21E1E1E) : Colors.white,
+                          width: 1,
                         ),
                       ),
-                      if (badgeCount > 0)
-                        Positioned(
-                          top: -2,
-                          right: -2,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: badgeCount > 9 ? 5 : 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFFFF6B6B), Color(0xFFFF5252)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0xFFFF5252).withOpacity(0.4),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              badgeCount > 99 ? '99+' : badgeCount.toString(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                height: 1.2,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: Color.lerp(inactiveColor, iconColor, value),
                     ),
                   ),
-                ],
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10,
+                height: 1.1,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: iconColor,
               ),
-            );
-          },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CenterPostButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _CenterPostButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: SizedBox(
+        width: 64,
+        child: Center(
+          child: Container(
+            width: 46,
+            height: 46,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _brand,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: _brand.withValues(alpha: 0.28),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: SvgPicture.asset(
+              'asset/ph_plus_bold.svg',
+              width: 25,
+              height: 25,
+              colorFilter:
+                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
+          ),
         ),
       ),
     );

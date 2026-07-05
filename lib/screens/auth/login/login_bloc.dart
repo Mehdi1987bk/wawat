@@ -6,52 +6,71 @@ import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
 import '../../../services/push_notification_service.dart';
+import '../auth_action_result.dart';
 
 class LoginBloc extends BaseBloc {
   final AuthRepository _authRepository = sl.get<AuthRepository>();
 
-  /// 🔥 Теперь возвращает bool
-  Future<bool> login(String email, String password) async {
+  Future<AuthActionResult> login(
+    String email,
+    String password, {
+    bool remember = true,
+  }) async {
     loadingSink.add(true);
 
     final request = LoginRequest(
-      login: email,
+      email: email,
       password: password,
+      remember: remember,
+      deviceName: _deviceName,
     );
 
     try {
       await _authRepository.login(request);
       await _syncFcmTokenAfterAuth();
-      return true; // ✅ Успех
+      return const AuthActionResult.success();
     } on DioException catch (e) {
-      final message = _parseDioError(e);
-      errorSink.add(message);
-      return false; // ❌ Ошибка
+      final result = _parseDioError(e);
+      errorSink.add(result.message ?? 'Ошибка запроса');
+      return result;
     } catch (_) {
       errorSink.add('Ошибка входа');
-      return false;
+      return const AuthActionResult.failure(message: 'Ошибка входа');
     } finally {
       loadingSink.add(false);
     }
   }
 
-  /// 🔧 Парсер ошибок API
-  String _parseDioError(DioException e) {
+  String get _deviceName => 'Wawatair mobile';
+
+  AuthActionResult _parseDioError(DioException e) {
     final data = e.response?.data;
 
     if (data is Map<String, dynamic>) {
-      if (data['message'] != null) return data['message'].toString();
+      final fieldErrors = <String, String>{};
 
       if (data['errors'] is Map) {
         final errors = data['errors'] as Map;
-        if (errors.isNotEmpty) {
-          final first = errors.values.first;
-          if (first is List && first.isNotEmpty) return first.first.toString();
+        for (final entry in errors.entries) {
+          final value = entry.value;
+          if (value is List && value.isNotEmpty) {
+            fieldErrors[entry.key.toString()] = value.first.toString();
+          } else if (value != null) {
+            fieldErrors[entry.key.toString()] = value.toString();
+          }
         }
       }
+
+      final message = data['message']?.toString() ??
+          (fieldErrors.isNotEmpty ? fieldErrors.values.first : null);
+
+      return AuthActionResult.failure(
+        message: message,
+        fieldErrors: fieldErrors,
+      );
     }
 
-    return 'Ошибка запроса';
+    return const AuthActionResult.failure(message: 'Ошибка запроса');
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {

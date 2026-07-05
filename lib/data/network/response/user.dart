@@ -2,7 +2,6 @@ import 'package:buking/data/network/response/privacy.dart';
 import 'package:buking/data/network/response/professional.dart';
 import 'package:buking/data/network/response/profile_info.dart';
 import 'package:buking/data/network/response/rating.dart';
-import 'package:buking/data/network/response/type_option.dart';
 import 'package:buking/data/network/response/stats.dart';
 import 'package:buking/data/network/response/country.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,9 +15,10 @@ part 'user.g.dart';
 @HiveType(typeId: 0)
 class User extends HiveObject {
   @HiveField(0)
-  final int? id;
+  final dynamic id;
 
   @HiveField(1)
+  @JsonKey(readValue: _readFullName)
   final String fullname;
 
   @HiveField(2)
@@ -28,6 +28,7 @@ class User extends HiveObject {
   final String? phone;
 
   @HiveField(4)
+  @JsonKey(readValue: _readAvatar)
   final String? avatar;
 
   @HiveField(5)
@@ -60,7 +61,25 @@ class User extends HiveObject {
   @HiveField(14)
   final Stats? stats;
 
-   final Country? country;
+  @JsonKey(name: 'username')
+  final String? username;
+
+  @JsonKey(name: 'first_name')
+  final String? firstName;
+
+  @JsonKey(name: 'last_name')
+  final String? lastName;
+
+  @JsonKey(name: 'email_verified')
+  final bool? emailVerified;
+
+  @JsonKey(name: 'preferred_locale')
+  final String? preferredLocale;
+
+  @JsonKey(name: 'avatar_thumb_url')
+  final String? avatarThumbUrl;
+
+  final Country? country;
 
   User({
     required this.id,
@@ -78,10 +97,24 @@ class User extends HiveObject {
     this.isVerified,
     this.profile,
     this.stats,
+    this.username,
+    this.firstName,
+    this.lastName,
+    this.emailVerified,
+    this.preferredLocale,
+    this.avatarThumbUrl,
     this.country,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
+}
+
+Object? _readFullName(Map json, String key) {
+  return json['full_name'] ?? json['fullname'] ?? '';
+}
+
+Object? _readAvatar(Map json, String key) {
+  return json['avatar_url'] ?? json['avatar'];
 }

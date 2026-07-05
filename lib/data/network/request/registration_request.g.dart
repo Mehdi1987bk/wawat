@@ -8,26 +8,29 @@ part of 'registration_request.dart';
 
 RegistrationRequest _$RegistrationRequestFromJson(Map<String, dynamic> json) =>
     RegistrationRequest(
-      fullname: json['fullname'] as String,
+      firstName: json['first_name'] as String,
+      lastName: json['last_name'] as String,
       email: json['email'] as String,
       password: json['password'] as String,
-      phone: json['phone'] as String,
       passwordConfirmation: json['password_confirmation'] as String,
-      languages:
-          (json['languages'] as List<dynamic>).map((e) => e as String).toList(),
-      acceptedTerms: json['accepted_terms'] as bool,
-      callingCode: json['calling_code'] as String?,
+      languages: (json['languages'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      preferredLocale: json['preferred_locale'] as String?,
+      termsAccepted: json['terms_accepted'] as bool,
+      deviceName: json['device_name'] as String?,
     );
 
 Map<String, dynamic> _$RegistrationRequestToJson(
         RegistrationRequest instance) =>
     <String, dynamic>{
-      'fullname': instance.fullname,
+      'first_name': instance.firstName,
+      'last_name': instance.lastName,
       'email': instance.email,
-      'phone': instance.phone,
       'password': instance.password,
       'password_confirmation': instance.passwordConfirmation,
       'languages': instance.languages,
-      'accepted_terms': instance.acceptedTerms,
-      'calling_code': instance.callingCode,
+      'preferred_locale': instance.preferredLocale,
+      'terms_accepted': instance.termsAccepted,
+      'device_name': instance.deviceName,
     };

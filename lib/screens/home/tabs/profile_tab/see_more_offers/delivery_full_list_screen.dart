@@ -1,23 +1,22 @@
-import 'package:buking/presentation/bloc/base_screen.dart';
-import 'package:buking/presentation/resourses/app_colors.dart';
-import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
-import '../../../../../data/network/response/offer_models.dart';
-import '../../../../../generated/l10n.dart';
+
+import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
-import '../../../../../presentation/resourses/wawat_dimensions.dart';
-import '../../../../../presentation/resourses/wawat_text_styles.dart';
+import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
-import '../../home_tab/widget/wawat_courier_card.dart';
-import '../widgte/delivery_history_widget.dart';
+import '../../listings/details/listing_details_screen.dart';
+import '../../listings/widgets/listing_card.dart';
 import 'delivery_full_list_bloc.dart';
 
-class DeliveryFullListScreen extends BaseScreen {
-  DeliveryFullListScreen({
-    Key? key,
-  }) : super(key: key);
+const _brand = Color(0xFF0271EB);
+const _ink900Local = Color(0xFF0F172A);
+const _ink500 = Color(0xFF64748B);
+const _ink400 = Color(0xFF94A3B8);
+
+class DeliveryFullListScreen extends BaseScreen<DeliveryFullListBloc> {
+  DeliveryFullListScreen({super.key});
 
   @override
   State<DeliveryFullListScreen> createState() => _DeliveryFullListScreenState();
@@ -25,7 +24,6 @@ class DeliveryFullListScreen extends BaseScreen {
 
 class _DeliveryFullListScreenState
     extends BaseState<DeliveryFullListScreen, DeliveryFullListBloc> {
-  final PublishSubject<void> onPacketsAdded = PublishSubject();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -34,7 +32,7 @@ class _DeliveryFullListScreenState
   @override
   void initState() {
     super.initState();
-
+    bloc.loadPackageTypes();
     bloc.load();
     _scrollController.addListener(() {
       hideKeyboardOnScroll(context, _scrollController);
@@ -51,130 +49,291 @@ class _DeliveryFullListScreenState
       builder: (context, themeManager, child) {
         final isDark = themeManager.isDarkMode;
 
-        return Scaffold(
-          backgroundColor: isDark ? const Color(0xFF121212) : AppColors.bgColor,
-          appBar: AppBar(
-            iconTheme: IconThemeData(
-              color: isDark ? Colors.white : Colors.white,
-            ),
-            title: Text(
-              S.of(context).bd3g345h57h4b,
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.white,
-              ),
-            ),
-            backgroundColor:
-            isDark ? const Color(0xFF1E1E1E) : WawatColors.primary,
-          ),
-          body: Stack(
-            children: [
-              SingleChildScrollView(
-                controller: _scrollController,
-                child: StreamBuilder<List<OfferModel>>(
-                  stream: bloc.paginableList,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final groups = snapshot.requireData;
-                      if (groups.isEmpty) {
-                        return Container(
-                          height: MediaQuery.of(context).size.height * 0.7,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.inbox_outlined,
-                                  size: 80,
-                                  color: isDark
-                                      ? const Color(0xFF4A4A4A)
-                                      : const Color(0xFFD1D5DB),
-                                ),
-                                const SizedBox(height: 24),
-                                AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 300),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF1A1A1A),
-                                  ),
-                                  child: Text(S.of(context).gbterg534g45v4),
-                                ),
-                                const SizedBox(height: 8),
-                                AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 300),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: isDark
-                                        ? const Color(0xFF9CA3AF)
-                                        : const Color(0xFF6B7280),
-                                  ),
-                                  child: Text(
-                                    S.of(context).ger345g3,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 20, bottom: 40),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: groups.length,
-                          itemBuilder: (context, index) {
-                            final offer = groups[index];
-
-                            return WawatCourierCard(
-                              courier: offer,
-                              onFavoriteToggle: (v) {},
-                              onVisibilityToggle: (bool isVisible) {
-                                bloc.editStatusOffer(
-                                  offer.id.toString(),
-                                  isVisible == true ? "active" : "archived",
-                                );
-                              },
-                              detailsActiv: false,
-                              sendMessageActiv: false,
+        return ThemeAwareScreen(
+          isDark: isDark,
+          lightBackgroundColor: const Color(0xFFEEF1F6),
+          darkBackgroundColor: const Color(0xFF101010),
+          child: SafeArea(
+            child: Stack(
+              children: [
+                RefreshIndicator(
+                  color: _brand,
+                  onRefresh: bloc.loadList,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(child: _Header(isDark: isDark)),
+                      StreamBuilder<List<Listing>>(
+                        stream: bloc.paginableList,
+                        builder: (context, snapshot) {
+                          final listings = snapshot.data;
+                          if (listings == null) {
+                            return const SliverToBoxAdapter(
+                              child: _MyListingsSkeleton(),
                             );
-                          },
-                        ),
-                      );
-                    }
-
-                    return const SizedBox();
+                          }
+                          if (listings.isEmpty) {
+                            return const SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: _EmptyMine(),
+                            );
+                          }
+                          return SliverList.builder(
+                            itemCount: listings.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == listings.length) {
+                                return const SizedBox(height: 32);
+                              }
+                              final listing = listings[index];
+                              return ListingCard(
+                                listing: listing,
+                                packageNamesByCode: bloc.packageNamesByCode,
+                                isOwner: true,
+                                isCompact: true,
+                                onDetailsTap: _openDetails,
+                                onPauseTap: (item) => bloc.pauseListing(item),
+                                onResumeTap: (item) => bloc.resumeListing(item),
+                                onRepostTap: (item) => bloc.repostListing(item),
+                                onDeleteTap: _confirmDelete,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                StreamBuilder<bool>(
+                  stream: bloc.isUpdating,
+                  initialData: false,
+                  builder: (context, snapshot) {
+                    if (snapshot.data != true) return const SizedBox.shrink();
+                    return Container(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      child: const Center(
+                        child: CircularProgressIndicator(color: _brand),
+                      ),
+                    );
                   },
                 ),
-              ),
-              // Индикатор загрузки при обновлении статуса
-              StreamBuilder<bool>(
-                stream: bloc.isUpdating,
-                builder: (context, snapshot) {
-                  final isUpdating = snapshot.data ?? false;
-                  if (!isUpdating) return const SizedBox();
-
-                  return Container(
-                    color: Colors.black.withOpacity(0.3),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
   }
 
+  void _openDetails(Listing listing) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ListingDetailsScreen(listingId: listing.id),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(Listing listing) async {
+    final reason = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _DeleteReasonSheet(),
+    );
+    if (reason == null) return;
+    await bloc.deleteListing(listing, reasonCode: reason);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   DeliveryFullListBloc provideBloc() {
-    return DeliveryFullListBloc(onPacketsAdded);
+    return DeliveryFullListBloc();
+  }
+}
+
+class _Header extends StatelessWidget {
+  final bool isDark;
+
+  const _Header({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final titleColor = isDark ? Colors.white : _ink900Local;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
+      child: Row(
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: Icon(Icons.arrow_back, color: titleColor),
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Mənim elanlarım',
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const Text(
+                  'Status, baxış və idarəetmə',
+                  style: TextStyle(
+                    color: _ink400,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DeleteReasonSheet extends StatelessWidget {
+  const _DeleteReasonSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final reasons = const {
+      'plans_changed': 'Planlarım dəyişdi',
+      'found_another': 'Başqa variant tapdım',
+      'no_longer_needed': 'Artıq lazım deyil',
+      'created_by_mistake': 'Səhvən yaratdım',
+      'other': 'Digər',
+    };
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 26),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 6,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Silinmə səbəbi',
+            style: TextStyle(
+              color: isDark ? Colors.white : _ink900Local,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...reasons.entries.map(
+            (entry) => GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => Navigator.pop(context, entry.key),
+              child: Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : _ink900Local,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyListingsSkeleton extends StatelessWidget {
+  const _MyListingsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: List.generate(
+          3,
+          (index) => Container(
+            height: 220,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE7EBF1),
+              borderRadius: BorderRadius.circular(26),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyMine extends StatelessWidget {
+  const _EmptyMine();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.inbox_outlined, color: _brand, size: 64),
+            const SizedBox(height: 14),
+            Text(
+              'Hələ elan yoxdur',
+              style: TextStyle(
+                color: isDark ? Colors.white : _ink900Local,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Yeni səfər və ya göndəriş elanı yaratmaq üçün ortadakı + tabına keç.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isDark ? Colors.white70 : _ink500,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

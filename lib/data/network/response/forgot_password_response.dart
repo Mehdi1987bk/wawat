@@ -17,7 +17,7 @@ class ForgotPasswordResponse {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ForgotPasswordData {
-  final String verificationToken;
+  final String? verificationToken;
   final int expiresInSeconds;
 
   ForgotPasswordData({

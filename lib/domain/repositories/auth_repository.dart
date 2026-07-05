@@ -2,8 +2,9 @@ import 'dart:io';
 
 import '../../data/network/request/courier_offer_model.dart';
 import '../../data/network/request/courier_profile.dart';
+import '../../data/network/request/create_listing_request.dart';
 import '../../data/network/request/create_review_request.dart';
-import '../../data/network/request/delivery_offer_request.dart';
+import '../../data/network/request/delete_listing_request.dart';
 import '../../data/network/request/edit_status_offer_request.dart';
 import '../../data/network/request/forgot_password_request.dart';
 import '../../data/network/request/login_request.dart';
@@ -17,17 +18,17 @@ import '../../data/network/response/all_request_data.dart';
 import '../../data/network/response/cities_response.dart';
 import '../../data/network/response/faq_response.dart';
 import '../../data/network/response/language_response.dart';
-import '../../data/network/response/login_response.dart';
+import '../../data/network/response/listing_response.dart';
 import '../../data/network/response/notification_response.dart';
 import '../../data/network/response/offer_models.dart';
 import '../../data/network/response/offer_type_model.dart';
-import '../../data/network/response/offer_types_response.dart';
 import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/privacy_policy_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/reviews_response.dart';
+import '../../data/network/response/trending_routes_response.dart';
 import '../../data/network/response/unread_chat_count_response.dart';
 import '../../data/network/response/unread_count_response.dart';
 import '../../data/network/response/user.dart';
@@ -74,6 +75,8 @@ abstract class AuthRepository {
   Future<void> notificationsProfile(NotificationSettings request);
 
   Future<void> registerFcmToken(String fcmToken);
+
+  Future<void> resendEmailVerification();
 
   Future<PackagesResponse> packages();
 
@@ -140,6 +143,77 @@ abstract class AuthRepository {
     String? sort,
     required int page,
   });
+
+  Future<Pagination<Listing>> getListings({
+    String? type,
+    int? cityFromId,
+    int? cityToId,
+    bool? verifiedOnly,
+    bool? following,
+    List<String>? packageTypes,
+    String? dateFrom,
+    String? dateTo,
+    double? weightMin,
+    double? weightMax,
+    double? priceMin,
+    double? priceMax,
+    double? ratingMin,
+    String? tierMin,
+    String? sort,
+    int? seed,
+    required int page,
+    int? perPage,
+  });
+
+  Future<ListingResponse> getListingDetails(String id);
+
+  Future<Pagination<Listing>> getMyListings({
+    required int page,
+    int? perPage,
+  });
+
+  Future<Pagination<Listing>> getListingFavorites({
+    required int page,
+    int? perPage,
+  });
+
+  Future<ListingResponse> createListing(
+    CreateListingRequest request,
+    String idempotencyKey,
+  );
+
+  Future<ListingResponse> updateListing(
+    String id,
+    CreateListingRequest request,
+    String idempotencyKey,
+  );
+
+  Future<ListingResponse> pauseListing(String id);
+
+  Future<ListingResponse> resumeListing(String id);
+
+  Future<ListingResponse> repostListing(
+    String id,
+    CreateListingRequest request,
+    String idempotencyKey,
+  );
+
+  Future<ListingMessageResponse> deleteListing(
+    String id,
+    DeleteListingRequest request,
+  );
+
+  Future<ListingMessageResponse> addListingFavorite(String id);
+
+  Future<ListingMessageResponse> removeListingFavorite(String id);
+
+  Future<PackageTypesResponse> getListingPackageTypes();
+
+  Future<CitiesResponse> getListingCities(String? search, {int limit = 20});
+
+  Future<CitiesResponse> getPopularCities();
+
+  Future<TrendingRoutesResponse> getTrendingRoutes();
 
   Future<void> logout();
 }

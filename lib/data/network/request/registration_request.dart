@@ -4,28 +4,31 @@ part 'registration_request.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RegistrationRequest {
-  final String fullname;
+  final String firstName;
+  final String lastName;
   final String email;
-  final String phone;
   final String password;
   @JsonKey(name: 'password_confirmation')
   final String passwordConfirmation;
   @JsonKey(name: 'languages')
-  final List<String> languages;
-  @JsonKey(name: 'accepted_terms')
-  final bool acceptedTerms;
-  @JsonKey(name: 'calling_code')
-  final String? callingCode;
+  final List<String>? languages;
+  @JsonKey(name: 'preferred_locale')
+  final String? preferredLocale;
+  @JsonKey(name: 'terms_accepted')
+  final bool termsAccepted;
+  @JsonKey(name: 'device_name')
+  final String? deviceName;
 
   RegistrationRequest({
-    required this.fullname,
+    required this.firstName,
+    required this.lastName,
     required this.email,
     required this.password,
-    required this.phone,
     required this.passwordConfirmation,
-    required this.languages,
-    required this.acceptedTerms,
-    this.callingCode,
+    this.languages,
+    this.preferredLocale,
+    required this.termsAccepted,
+    this.deviceName,
   });
 
   factory RegistrationRequest.fromJson(Map<String, dynamic> json) =>

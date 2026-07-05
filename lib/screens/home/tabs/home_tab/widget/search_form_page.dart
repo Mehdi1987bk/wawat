@@ -1,782 +1,924 @@
-import 'package:buking/screens/home/tabs/create_post/widget/city_selector.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../data/network/response/city.dart';
-import '../../../../../data/network/response/offer_type_model.dart';
 import '../../../../../data/network/response/package_types_response.dart';
-import '../../../../../generated/l10n.dart';
-import '../../../../../services/theme_manager.dart';
-import '../home_tab_bloc.dart';
+import '../../listings/listing_feed_bloc.dart';
 import '../search/search_offer_list_screen.dart';
 import 'city_selector.dart';
 
-class SearchFormWidget extends StatefulWidget {
-  final HomeTabBloc bloc;
+const _brand = Color(0xFF0271EB);
+const _brand50 = Color(0xFFEAF3FE);
+const _ink900 = Color(0xFF0F172A);
+const _ink500 = Color(0xFF64748B);
+const _ink400 = Color(0xFF94A3B8);
 
-  const SearchFormWidget({Key? key, required this.bloc}) : super(key: key);
+class SearchFormWidget extends StatefulWidget {
+  final ListingFeedBloc bloc;
+  final bool compact;
+
+  const SearchFormWidget({
+    super.key,
+    required this.bloc,
+    this.compact = false,
+  });
 
   @override
   State<SearchFormWidget> createState() => _SearchFormWidgetState();
 }
 
 class _SearchFormWidgetState extends State<SearchFormWidget> {
-  String? _selectedOfferType;
-  String? _selectedPackageType;
-  City? _selectedFromCity;
-  City? _selectedToCity;
+  City? _fromCity;
+  City? _toCity;
+  String? _type;
 
-  List<City> _allCities = [];
+  List<City> _initialCities = [];
   bool _isLoadingCities = true;
-
-  List<OfferTypeModel> _allOfferTypes = [];
-  bool _isLoadingOfferTypes = true;
-
-  List<PackageType> _allPackageTypes = [];
-  bool _isLoadingPackageTypes = true;
-
-  final TextEditingController _fromController = TextEditingController();
-  final TextEditingController _toController = TextEditingController();
-  final TextEditingController _dateFromController = TextEditingController();
-  final TextEditingController _dateToController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Загружаем данные в фоне без блокировки UI
-    _loadAllDataSilently();
+    _fromCity = widget.bloc.filters.cityFrom;
+    _toCity = widget.bloc.filters.cityTo;
+    _type = widget.bloc.filters.type;
+    _loadInitialCities();
   }
 
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
-
-        return Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(left: 20,right: 20,bottom: 20),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: _buildSearchForm(isDark),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-
-  Future<void> _loadAllDataSilently() async {
-    _loadOfferTypesSilently();
-    _loadCitiesSilently();
-  }
-
-  Future<void> _loadOfferTypesSilently() async {
+  Future<void> _loadInitialCities() async {
     try {
-      final offerTypes = await widget.bloc.getOfferTypes();
+      final response = await widget.bloc.getCities('');
+      if (!mounted) return;
+      final defaultFromCity = _fromCity ?? _findDefaultFromCity(response.data);
+      setState(() {
+        _initialCities = response.data;
+        _fromCity = defaultFromCity;
+        _isLoadingCities = false;
+      });
+    } catch (_) {
       if (mounted) {
-        setState(() {
-          _allOfferTypes = List<OfferTypeModel>.from(offerTypes.data);
-          _isLoadingOfferTypes = false;
-        });
+        setState(() => _isLoadingCities = false);
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingOfferTypes = false;
-        });
-      }
-      // Тихо повторяем через 3 секунды
-      _retryLoadOfferTypes();
     }
   }
 
-  Future<void> _retryLoadOfferTypes() async {
-    await Future.delayed(const Duration(seconds: 3));
-    if (mounted && _allOfferTypes.isEmpty) {
-      _loadOfferTypesSilently();
-    }
-  }
-
-  Future<void> _loadCitiesSilently() async {
-    try {
-      final cities = await widget.bloc.getCities('');
-      if (mounted) {
-        setState(() {
-          _allCities = List<City>.from(cities.data);
-          _isLoadingCities = false;
-        });
+  City? _findDefaultFromCity(List<City> cities) {
+    for (final city in cities) {
+      final name = city.name.trim().toLowerCase();
+      if (name == 'bakı' || name == 'baki' || name == 'baku') {
+        return city;
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingCities = false;
-        });
-      }
-      // Тихо повторяем через 3 секунды
-      _retryLoadCities();
     }
-  }
-
-  Future<void> _retryLoadCities() async {
-    await Future.delayed(const Duration(seconds: 3));
-    if (mounted && _allCities.isEmpty) {
-      _loadCitiesSilently();
-    }
+    return null;
   }
 
   Future<List<City>> _searchCities(String search) async {
     try {
-      final result = await widget.bloc.getCities(search);
-      return result.data;
-    } catch (e) {
+      final response = await widget.bloc.getCities(search);
+      return response.data;
+    } catch (_) {
       return [];
     }
   }
 
-  Future<void> _showCitySelector({required bool isFromCity}) async {
-    // Если города ещё не загружены, пробуем загрузить
-    if (_allCities.isEmpty && !_isLoadingCities) {
+  Future<void> _pickCity({required bool isFrom}) async {
+    if (_initialCities.isEmpty && !_isLoadingCities) {
       setState(() => _isLoadingCities = true);
-      await _loadCitiesSilently();
-    }
-
-    // Если всё ещё загружается, показываем диалог с индикатором
-    if (_isLoadingCities) {
-      _showLoadingCityDialog(isFromCity);
-      return;
+      await _loadInitialCities();
     }
 
     if (!mounted) return;
-
-    final selectedCity = await showCitySelector(
+    final selected = await showCitySelector(
       context: context,
-      initialCities: _allCities,
-      selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
+      initialCities: _initialCities,
+      selectedCity: isFrom ? _fromCity : _toCity,
       onSearch: _searchCities,
       isLoading: _isLoadingCities,
     );
 
+    if (!mounted) return;
     setState(() {
-      if (isFromCity) {
-        _selectedFromCity = selectedCity;
-        _fromController.text = selectedCity?.name ?? '';
+      if (isFrom) {
+        _fromCity = selected;
       } else {
-        _selectedToCity = selectedCity;
-        _toController.text = selectedCity?.name ?? '';
+        _toCity = selected;
       }
     });
   }
 
-  void _showLoadingCityDialog(bool isFromCity) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) {
-        // Автоматически закрываем когда загрузится
-        _waitForCitiesAndOpen(dialogContext, isFromCity);
+  void _swapCities() {
+    setState(() {
+      final from = _fromCity;
+      _fromCity = _toCity;
+      _toCity = from;
+    });
+  }
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor:
-                    AlwaysStoppedAnimation<Color>(Color(0xFF7C6FFF)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  S.of(context).vfegrbfdthgbr5j45ehrw,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white70
-                        : Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  ListingFilterState _filters() {
+    return ListingFilterState(
+      type: _type,
+      cityFrom: _fromCity,
+      cityTo: _toCity,
+      sort: 'relevance',
     );
   }
 
-  Future<void> _waitForCitiesAndOpen(
-      BuildContext dialogContext, bool isFromCity) async {
-    // Ждём максимум 10 секунд
-    for (int i = 0; i < 20; i++) {
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      if (!mounted) return;
-
-      if (!_isLoadingCities && _allCities.isNotEmpty) {
-        // Закрываем диалог загрузки
-        if (Navigator.of(dialogContext).canPop()) {
-          Navigator.of(dialogContext).pop();
-        }
-
-        // Небольшая задержка для плавности
-        await Future.delayed(const Duration(milliseconds: 100));
-
-        // Открываем селектор городов
-        if (mounted) {
-          final selectedCity = await showCitySelector(
-            context: context,
-            initialCities: _allCities,
-            selectedCity: isFromCity ? _selectedFromCity : _selectedToCity,
-            onSearch: _searchCities,
-            isLoading: false,
-          );
-
-          if (mounted) {
-            setState(() {
-              if (isFromCity) {
-                _selectedFromCity = selectedCity;
-                _fromController.text = selectedCity?.name ?? '';
-              } else {
-                _selectedToCity = selectedCity;
-                _toController.text = selectedCity?.name ?? '';
-              }
-            });
-          }
-        }
-        return;
-      }
-    }
-
-    // Таймаут - закрываем диалог
-    if (Navigator.of(dialogContext).canPop()) {
-      Navigator.of(dialogContext).pop();
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).nkmlregt4lk),
-          backgroundColor: Colors.orange,
-          behavior: SnackBarBehavior.floating,
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-    }
-  }
-
   void _performSearch() {
-    String? dateFrom;
-    String? dateTo;
-
-    if (_dateFromController.text.isNotEmpty) {
-      dateFrom = _convertDateToApiFormat(_dateFromController.text);
-    }
-
-    if (_dateToController.text.isNotEmpty) {
-      dateTo = _convertDateToApiFormat(_dateToController.text);
+    final filters = _filters();
+    if (widget.compact) {
+      widget.bloc.setFilters(filters);
+      widget.bloc.refreshList();
+      return;
     }
 
     Navigator.push(
       context,
       CupertinoPageRoute(
-        builder: (context) => SearchOfferListScreen(
-          offerType: _selectedOfferType,
-          packageType: _selectedPackageType,
-          cityFromId:
-          _selectedFromCity?.id != null ? _selectedFromCity!.id : null,
-          cityToId: _selectedToCity?.id != null ? _selectedToCity!.id : null,
-          dateFrom: dateFrom,
-          dateTo: dateTo,
-        ),
+        builder: (_) => SearchOfferListScreen(filters: filters),
       ),
     );
   }
 
-  String? _convertDateToApiFormat(String dateString) {
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, widget.compact ? 8 : 0, 24, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [
+            BoxShadow(
+              color: _brand.withValues(alpha: isDark ? 0.10 : 0.14),
+              blurRadius: 34,
+              offset: const Offset(0, 18),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                Column(
+                  children: [
+                    _CityField(
+                      icon: Icons.circle,
+                      iconSize: 9,
+                      label: _fromCity?.name ?? 'Bakı',
+                      country: _fromCity?.countryName,
+                      isSelected: true,
+                      onTap: () => _pickCity(isFrom: true),
+                      onClear: _fromCity == null
+                          ? null
+                          : () => setState(() => _fromCity = null),
+                    ),
+                    const SizedBox(height: 10),
+                    _CityField(
+                      icon: Icons.location_on,
+                      iconSize: 18,
+                      label: _toCity?.name ?? 'Hara',
+                      country: _toCity?.countryName,
+                      isSelected: _toCity != null,
+                      onTap: () => _pickCity(isFrom: false),
+                      onClear: _toCity == null
+                          ? null
+                          : () => setState(() => _toCity = null),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  right: 14,
+                  top: 35,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: _swapCities,
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color:
+                              isDark ? Colors.white10 : const Color(0x0F0F172A),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.14),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.swap_vert,
+                        color: _brand,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 11),
+            _TypeSegment(
+              value: _type,
+              onChanged: (value) => setState(() => _type = value),
+            ),
+            const SizedBox(height: 11),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _performSearch,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: _brand,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _brand.withValues(alpha: 0.35),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search, color: Colors.white, size: 19),
+                    SizedBox(width: 8),
+                    Text(
+                      'Axtar',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ListingFilterSheet extends StatefulWidget {
+  final ListingFeedBloc bloc;
+  final ListingFilterState initialFilters;
+
+  const ListingFilterSheet({
+    super.key,
+    required this.bloc,
+    required this.initialFilters,
+  });
+
+  @override
+  State<ListingFilterSheet> createState() => _ListingFilterSheetState();
+}
+
+class _ListingFilterSheetState extends State<ListingFilterSheet> {
+  late ListingFilterState _filters;
+  List<PackageType> _packages = [];
+  final _weightMin = TextEditingController();
+  final _weightMax = TextEditingController();
+  final _priceMin = TextEditingController();
+  final _priceMax = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _filters = widget.initialFilters;
+    _weightMin.text = _filters.weightMin?.toString() ?? '';
+    _weightMax.text = _filters.weightMax?.toString() ?? '';
+    _priceMin.text = _filters.priceMin?.toString() ?? '';
+    _priceMax.text = _filters.priceMax?.toString() ?? '';
+    _loadPackages();
+  }
+
+  Future<void> _loadPackages() async {
     try {
-      final parts = dateString.split('.');
-      if (parts.length == 3) {
-        return '${parts[2]}-${parts[1]}-${parts[0]}';
-      }
-    } catch (e) {
-      print('Ошибка конвертации даты: $e');
-    }
-    return null;
+      final response = await widget.bloc.loadPackageTypes();
+      if (!mounted) return;
+      setState(() => _packages = response.data);
+    } catch (_) {}
   }
 
   @override
   void dispose() {
-    _fromController.dispose();
-    _toController.dispose();
-    _dateFromController.dispose();
-    _dateToController.dispose();
+    _weightMin.dispose();
+    _weightMax.dispose();
+    _priceMin.dispose();
+    _priceMax.dispose();
     super.dispose();
   }
 
-  Widget _buildSearchForm(bool isDark) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFAFAFA),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.all(28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildFieldLabel(S.of(context).bgfbgfbgf, isDark),
-          SizedBox(height: 10),
-          _buildOfferTypeDropdown(isDark),
-          SizedBox(height: 20),
-          _buildFieldLabel(S.of(context).gtrh53ygr43g, isDark),
-          SizedBox(height: 10),
-          _buildCityField(
-            controller: _fromController,
-            hint: S.of(context).htrh5hetsgft42,
-            selectedCity: _selectedFromCity,
-            onTap: () => _showCitySelector(isFromCity: true),
-            onClear: () {
-              setState(() {
-                _selectedFromCity = null;
-                _fromController.clear();
-              });
-            },
-            isDark: isDark,
-          ),
-          SizedBox(height: 20),
-          _buildFieldLabel(S.of(context).htrhey34tgesft, isDark),
-          SizedBox(height: 10),
-          _buildCityField(
-            controller: _toController,
-            hint: S.of(context).ryh53gr45h3,
-            selectedCity: _selectedToCity,
-            onTap: () => _showCitySelector(isFromCity: false),
-            onClear: () {
-              setState(() {
-                _selectedToCity = null;
-                _toController.clear();
-              });
-            },
-            isDark: isDark,
-          ),
-          SizedBox(height: 20),
-          _buildFieldLabel(S.of(context).br45gre24, isDark),
-          SizedBox(height: 10),
-          _buildDateField(
-              _dateFromController, S.of(context).grereg3gr3g3r3gr, isDark),
-          SizedBox(height: 20),
-          _buildFieldLabel(S.of(context).vfedrgev3r2g4, isDark),
-          SizedBox(height: 10),
-          _buildDateField(
-              _dateToController, S.of(context).grereg3gr3g3r3gr, isDark),
-          SizedBox(height: 28),
-          _buildSearchButton(),
-        ],
-      ),
-    );
-  }
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final title = isDark ? Colors.white : _ink900;
 
-  Widget _buildFieldLabel(String text, bool isDark) {
-    return AnimatedDefaultTextStyle(
-      duration: const Duration(milliseconds: 300),
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-        height: 1.2,
-      ),
-      child: Text(text),
-    );
-  }
-
-  Widget _buildOfferTypeDropdown(bool isDark) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      height: 56,
+    return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          isExpanded: true,
-          customButton: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 10,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 22,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCBD5E1),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
               children: [
-                // Показываем маленький индикатор пока загружается
-                if (_isLoadingOfferTypes && _allOfferTypes.isEmpty)
-                  SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor:
-                      AlwaysStoppedAnimation<Color>(Color(0xFF7C6FFF)),
-                    ),
-                  )
-                else
-                  Icon(
-                    Icons.search,
-                    color: Color(0xFF7C6FFF),
-                    size: 20,
-                  ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                      fontWeight: FontWeight.w400,
-                    ),
-                    child: Text(
-                      _selectedOfferType != null
-                          ? (_allOfferTypes
-                          .firstWhere(
-                            (type) => type.code == _selectedOfferType,
-                        orElse: () => OfferTypeModel(
-                          code: '',
-                          name: S.of(context).bgfbgfb3,
-                        ),
-                      )
-                          .name)
-                          : S.of(context).bgfbgfb3,
-                    ),
+                Text(
+                  'Filtrlər',
+                  style: TextStyle(
+                    color: title,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  color: isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFB0B0B0),
+                const Spacer(),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => Navigator.pop(context),
+                  child: Icon(Icons.close, color: title, size: 26),
                 ),
               ],
             ),
-          ),
-          value: _selectedOfferType,
-          items: [
-            DropdownMenuItem<String>(
-              value: null,
-              child: Text(
-                S.of(context).bgfbgfb3,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+            const SizedBox(height: 18),
+            _SectionTitle('Növ'),
+            _TypeSegment(
+              value: _filters.type,
+              onChanged: (value) => setState(
+                () => _filters = _filters.copyWith(
+                  type: value,
+                  clearType: value == null,
                 ),
               ),
             ),
-            ..._allOfferTypes.map((type) {
-              return DropdownMenuItem<String>(
-                value: type.code,
-                child: Text(
-                  type.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+            const SizedBox(height: 18),
+            _SectionTitle('Sıralama'),
+            _ChoiceWrap(
+              selected: _filters.sort,
+              values: const {
+                'relevance': 'Uyğunluq',
+                'date_asc': 'Tarix ↑',
+                'date_desc': 'Tarix ↓',
+                'price_asc': 'Qiymət ↑',
+                'price_desc': 'Qiymət ↓',
+                'weight_desc': 'Çəki ↓',
+                'rating_desc': 'Reytinq',
+              },
+              onChanged: (value) => setState(
+                () => _filters = _filters.copyWith(sort: value),
+              ),
+            ),
+            const SizedBox(height: 18),
+            _SectionTitle('Bağlama növləri'),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _packages.map((package) {
+                final selected = _filters.packageTypes.contains(package.code);
+                return _FilterChip(
+                  label: package.name,
+                  selected: selected,
+                  onTap: () {
+                    final next = [..._filters.packageTypes];
+                    selected
+                        ? next.remove(package.code)
+                        : next.add(package.code);
+                    setState(
+                        () => _filters = _filters.copyWith(packageTypes: next));
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 18),
+            _SectionTitle('Tarix'),
+            Row(
+              children: [
+                Expanded(
+                  child: _DateBox(
+                    label: 'Başlanğıc',
+                    value: _filters.dateFrom,
+                    onChanged: (value) => setState(
+                      () => _filters = _filters.copyWith(
+                        dateFrom: value,
+                        clearDateFrom: value == null,
+                      ),
+                    ),
                   ),
                 ),
-              );
-            }).toList(),
-          ],
-          onChanged: (value) {
-            setState(() {
-              _selectedOfferType = value;
-            });
-          },
-          dropdownStyleData: DropdownStyleData(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _DateBox(
+                    label: 'Son',
+                    value: _filters.dateTo,
+                    onChanged: (value) => setState(
+                      () => _filters = _filters.copyWith(
+                        dateTo: value,
+                        clearDateTo: value == null,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            elevation: 3,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            offset: const Offset(0, -6),
-            maxHeight: 300,
-          ),
-          menuItemStyleData: const MenuItemStyleData(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          ),
+            const SizedBox(height: 18),
+            _SectionTitle('Çəki və qiymət'),
+            Row(
+              children: [
+                Expanded(
+                    child: _NumberBox(controller: _weightMin, label: 'Min kq')),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: _NumberBox(controller: _weightMax, label: 'Max kq')),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                    child: _NumberBox(controller: _priceMin, label: 'Min ₼')),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: _NumberBox(controller: _priceMax, label: 'Max ₼')),
+              ],
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: _SecondaryButton(
+                    label: 'Sıfırla',
+                    onTap: () => setState(() {
+                      _filters = ListingFilterState(
+                        cityFrom: widget.initialFilters.cityFrom,
+                        cityTo: widget.initialFilters.cityTo,
+                      );
+                      _weightMin.clear();
+                      _weightMax.clear();
+                      _priceMin.clear();
+                      _priceMax.clear();
+                    }),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: _PrimaryButton(
+                    label: 'Nəticələri göstər',
+                    onTap: () {
+                      Navigator.pop(
+                        context,
+                        _filters.copyWith(
+                          weightMin: _parse(_weightMin.text),
+                          weightMax: _parse(_weightMax.text),
+                          priceMin: _parse(_priceMin.text),
+                          priceMax: _parse(_priceMax.text),
+                          clearWeightMin: _weightMin.text.trim().isEmpty,
+                          clearWeightMax: _weightMax.text.trim().isEmpty,
+                          clearPriceMin: _priceMin.text.trim().isEmpty,
+                          clearPriceMax: _priceMax.text.trim().isEmpty,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildCityField({
-    required TextEditingController controller,
-    required String hint,
-    required City? selectedCity,
-    required VoidCallback onTap,
-    required VoidCallback onClear, // Добавляем параметр для очистки
-    required bool isDark,
-  }) {
-    return InkWell(
+  double? _parse(String value) {
+    if (value.trim().isEmpty) return null;
+    return double.tryParse(value.replaceAll(',', '.'));
+  }
+}
+
+class _CityField extends StatelessWidget {
+  final IconData icon;
+  final double iconSize;
+  final String label;
+  final String? country;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final VoidCallback? onClear;
+
+  const _CityField({
+    required this.icon,
+    required this.iconSize,
+    required this.label,
+    this.country,
+    required this.isSelected,
+    required this.onTap,
+    this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.only(left: 14, right: 52),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selectedCity != null
-                ? const Color(0xFF7C6FFF)
-                : (isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8)),
-            width: selectedCity != null ? 1.5 : 1,
+            color: isDark ? Colors.white10 : const Color(0x120F172A),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
+            Icon(icon, color: isSelected ? _brand : _ink400, size: iconSize),
+            const SizedBox(width: 12),
             Expanded(
-              child: selectedCity != null
-                  ? Column(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      color: isSelected
+                          ? (isDark ? Colors.white : _ink900)
+                          : _ink400,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      fontWeight:
+                          isSelected ? FontWeight.w800 : FontWeight.w600,
                     ),
-                    child: Text(selectedCity.name),
                   ),
-                  const SizedBox(height: 2),
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? const Color(0xFF9CA3AF)
-                          : const Color(0xFFB0B0B0),
+                  if (country != null && country!.isNotEmpty)
+                    Text(
+                      country!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: _ink400,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    child: Text(
-                        '${selectedCity.countryName} (${selectedCity.countryCode})'),
-                  ),
                 ],
-              )
-                  : AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFB0B0B0),
-                  fontWeight: FontWeight.w400,
-                ),
-                child: Text(hint),
               ),
             ),
-            if (selectedCity != null)
+            if (onClear != null)
               GestureDetector(
+                behavior: HitTestBehavior.translucent,
                 onTap: onClear,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.close,
-                    color: const Color(0xFF7C6FFF),
-                    size: 20,
-                  ),
-                ),
-              )
-            else
-              Icon(
-                Icons.location_on_outlined,
-                color: isDark
-                    ? const Color(0xFF6B7280)
-                    : const Color(0xFFB0B0B0),
-                size: 20,
+                child: const Icon(Icons.close, color: _ink400, size: 18),
               ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildDateField(
-      TextEditingController controller, String hint, bool isDark) {
-    return InkWell(
+class _TypeSegment extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _TypeSegment({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white10 : const Color(0x0D0F172A),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          _segment('Hamısı', null),
+          _segment('Səfər', 'trip'),
+          _segment('Göndəriş', 'shipment_post'),
+        ],
+      ),
+    );
+  }
+
+  Widget _segment(String label, String? itemValue) {
+    final selected = value == itemValue;
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => onChanged(itemValue),
+        child: Container(
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? _brand : _ink500,
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String text;
+
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 9),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : _ink900,
+          fontSize: 14,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _ChoiceWrap extends StatelessWidget {
+  final String selected;
+  final Map<String, String> values;
+  final ValueChanged<String> onChanged;
+
+  const _ChoiceWrap({
+    required this.selected,
+    required this.values,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: values.entries.map((entry) {
+        return _FilterChip(
+          label: entry.value,
+          selected: selected == entry.key,
+          onTap: () => onChanged(entry.key),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected ? _brand50 : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border:
+              Border.all(color: selected ? _brand : const Color(0x120F172A)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? _brand : _ink500,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DateBox extends StatelessWidget {
+  final String label;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const _DateBox({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () async {
         final date = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
           firstDate: DateTime.now(),
-          lastDate: DateTime.now().add(Duration(days: 365 * 10)),
-          locale: Localizations.localeOf(context),
-          builder: (context, child) {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Color(0xFF7C6FFF),
-                  onPrimary: Colors.white,
-                  surface: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  onSurface: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                ),
-                dialogBackgroundColor:
-                isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              ),
-              child: child!,
-            );
-          },
+          lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
         );
         if (date != null) {
-          setState(() {
-            controller.text =
-            '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
-          });
+          onChanged(DateFormat('yyyy-MM-dd').format(date));
         }
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: controller.text.isNotEmpty
-                ? const Color(0xFF7C6FFF)
-                : (isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE8E8E8)),
-            width: controller.text.isNotEmpty ? 1.5 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0x120F172A)),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
             Expanded(
-              child: AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
+              child: Text(
+                value ?? label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 16,
-                  color: controller.text.isEmpty
-                      ? (isDark
-                      ? const Color(0xFF6B7280)
-                      : const Color(0xFFB0B0B0))
-                      : (isDark ? Colors.white : const Color(0xFF1A1A1A)),
-                  fontWeight: controller.text.isEmpty
-                      ? FontWeight.w400
-                      : FontWeight.w600,
+                  color: value == null ? _ink400 : _ink900,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
                 ),
-                child: Text(controller.text.isEmpty ? hint : controller.text),
               ),
             ),
-            if (controller.text.isNotEmpty)
+            if (value != null)
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    controller.clear();
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.clear,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
-                    size: 18,
-                  ),
-                ),
+                behavior: HitTestBehavior.translucent,
+                onTap: () => onChanged(null),
+                child: const Icon(Icons.close, color: _ink400, size: 17),
               )
             else
-              Icon(
-                Icons.calendar_today_outlined,
-                color:
-                isDark ? const Color(0xFF6B7280) : const Color(0xFFB0B0B0),
-                size: 20,
-              ),
+              const Icon(Icons.calendar_month, color: _ink400, size: 17),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildSearchButton() {
-    return Container(
-      width: double.infinity,
-      height: 48,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF4A5FFF), Color(0xFFB74CFF)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+class _NumberBox extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+
+  const _NumberBox({
+    required this.controller,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        hintText: label,
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0x120F172A)),
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x334A5FFF),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          ),
-        ],
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0x120F172A)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _brand),
+        ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _performSearch,
-          borderRadius: BorderRadius.circular(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.search, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Text(
-                S.of(context).reg23rdwerf32w,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _PrimaryButton({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: _brand,
+          borderRadius: BorderRadius.circular(17),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _SecondaryButton({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: _brand50,
+          borderRadius: BorderRadius.circular(17),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: _brand,
+            fontWeight: FontWeight.w900,
+            fontSize: 14,
           ),
         ),
       ),

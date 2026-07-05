@@ -8,10 +8,11 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../cache/cache_manager.dart';
 import '../network/api/auth_api.dart';
+import '../network/request/create_listing_request.dart';
 import '../network/request/courier_offer_model.dart';
 import '../network/request/courier_profile.dart';
 import '../network/request/create_review_request.dart';
-import '../network/request/delivery_offer_request.dart';
+import '../network/request/delete_listing_request.dart';
 import '../network/request/edit_status_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
@@ -27,17 +28,17 @@ import '../network/response/all_request_data.dart';
 import '../network/response/cities_response.dart';
 import '../network/response/faq_response.dart';
 import '../network/response/language_response.dart';
-import '../network/response/login_response.dart';
+import '../network/response/listing_response.dart';
 import '../network/response/notification_response.dart';
 import '../network/response/offer_models.dart';
 import '../network/response/offer_type_model.dart';
-import '../network/response/offer_types_response.dart';
 import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/partner_user_response.dart';
 import '../network/response/privacy_policy_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/reviews_response.dart';
+import '../network/response/trending_routes_response.dart';
 import '../network/response/unread_chat_count_response.dart';
 import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
@@ -52,9 +53,7 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> login(LoginRequest request) async {
     final response = await _authApi.login(request);
-    if (response != null) {
-      await _cacheManager.saveUser(response.data.user);
-    }
+    await _cacheManager.saveUser(response.data.user);
     return _cacheManager.saveAccessToken(response.data.token ?? "");
   }
 
@@ -95,9 +94,7 @@ class DataAuthRepository implements AuthRepository {
   Future<void> customersMe() async {
     try {
       final response = await _authApi.customersMe();
-      if (response != null) {
-        await _cacheManager.saveUser(response.data.user);
-      }
+      await _cacheManager.saveUser(response.data.user);
     } catch (e) {
       // Если 401 - очищаем токен
       if (e is DioException && e.response?.statusCode == 401) {
@@ -111,9 +108,7 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> registration(RegistrationRequest request) async {
     final response = await _authApi.register(request);
-    if (response != null) {
-      await _cacheManager.saveUser(response.data.user);
-    }
+    await _cacheManager.saveUser(response.data.user);
     return _cacheManager.saveAccessToken(response.data.token ?? "");
   }
 
@@ -135,13 +130,13 @@ class DataAuthRepository implements AuthRepository {
 
   @override
   Future<void> profileEdit(
-      String name,
-      String email,
-      String phone,
-      String location,
-      String about,
-      String? callingCode,
-      ) {
+    String name,
+    String email,
+    String phone,
+    String location,
+    String about,
+    String? callingCode,
+  ) {
     return _authApi.profileEdit(UserRequest(
       fullname: name,
       email: email,
@@ -151,7 +146,6 @@ class DataAuthRepository implements AuthRepository {
       callingCode: callingCode,
     ));
   }
-
 
   @override
   Future<void> forgotPassword(ForgotPasswordrRequest request) {
@@ -170,7 +164,15 @@ class DataAuthRepository implements AuthRepository {
 
   @override
   Future<void> registerFcmToken(String fcmToken) {
-    return _authApi.registerFcmToken(FcmTokenRequest(fcmToken: fcmToken));
+    final deviceType = Platform.isIOS ? 'ios' : 'android';
+    return _authApi.registerFcmToken(
+      FcmTokenRequest(token: fcmToken, deviceType: deviceType),
+    );
+  }
+
+  @override
+  Future<void> resendEmailVerification() {
+    return _authApi.resendEmailVerification();
   }
 
   @override
@@ -204,22 +206,22 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<PrivacyPolicyResponse> privacyPolicy(){
+  Future<PrivacyPolicyResponse> privacyPolicy() {
     return _authApi.privacyPolicy();
   }
 
   @override
-  Future<UnreadCountResponse> notifUnread(){
+  Future<UnreadCountResponse> notifUnread() {
     return _authApi.notifUnread();
   }
 
   @override
-  Future<UnreadChatCountResponse> chatUnread(){
+  Future<UnreadChatCountResponse> chatUnread() {
     return _authApi.chatUnread();
   }
 
   @override
-  Future<FaqResponse> faqs(){
+  Future<FaqResponse> faqs() {
     return _authApi.faqs();
   }
 
@@ -333,5 +335,143 @@ class DataAuthRepository implements AuthRepository {
     } catch (e) {
       return Pagination<OfferModel>(data: [], lastPage: 1);
     }
+  }
+
+  @override
+  Future<Pagination<Listing>> getListings({
+    String? type,
+    int? cityFromId,
+    int? cityToId,
+    bool? verifiedOnly,
+    bool? following,
+    List<String>? packageTypes,
+    String? dateFrom,
+    String? dateTo,
+    double? weightMin,
+    double? weightMax,
+    double? priceMin,
+    double? priceMax,
+    double? ratingMin,
+    String? tierMin,
+    String? sort,
+    int? seed,
+    required int page,
+    int? perPage,
+  }) {
+    return _authApi.getListings(
+      type,
+      cityFromId,
+      cityToId,
+      verifiedOnly,
+      following,
+      packageTypes,
+      dateFrom,
+      dateTo,
+      weightMin,
+      weightMax,
+      priceMin,
+      priceMax,
+      ratingMin,
+      tierMin,
+      sort,
+      seed,
+      page,
+      perPage,
+    );
+  }
+
+  @override
+  Future<ListingResponse> getListingDetails(String id) {
+    return _authApi.getListingDetails(id);
+  }
+
+  @override
+  Future<Pagination<Listing>> getMyListings({
+    required int page,
+    int? perPage,
+  }) {
+    return _authApi.getMyListings(page, perPage);
+  }
+
+  @override
+  Future<Pagination<Listing>> getListingFavorites({
+    required int page,
+    int? perPage,
+  }) {
+    return _authApi.getListingFavorites(page, perPage);
+  }
+
+  @override
+  Future<ListingResponse> createListing(
+    CreateListingRequest request,
+    String idempotencyKey,
+  ) {
+    return _authApi.createListing(request, idempotencyKey);
+  }
+
+  @override
+  Future<ListingResponse> updateListing(
+    String id,
+    CreateListingRequest request,
+    String idempotencyKey,
+  ) {
+    return _authApi.updateListing(id, request, idempotencyKey);
+  }
+
+  @override
+  Future<ListingResponse> pauseListing(String id) {
+    return _authApi.pauseListing(id);
+  }
+
+  @override
+  Future<ListingResponse> resumeListing(String id) {
+    return _authApi.resumeListing(id);
+  }
+
+  @override
+  Future<ListingResponse> repostListing(
+    String id,
+    CreateListingRequest request,
+    String idempotencyKey,
+  ) {
+    return _authApi.repostListing(id, request, idempotencyKey);
+  }
+
+  @override
+  Future<ListingMessageResponse> deleteListing(
+    String id,
+    DeleteListingRequest request,
+  ) {
+    return _authApi.deleteListing(id, request);
+  }
+
+  @override
+  Future<ListingMessageResponse> addListingFavorite(String id) {
+    return _authApi.addListingFavorite(id);
+  }
+
+  @override
+  Future<ListingMessageResponse> removeListingFavorite(String id) {
+    return _authApi.removeListingFavorite(id);
+  }
+
+  @override
+  Future<PackageTypesResponse> getListingPackageTypes() {
+    return _authApi.getListingPackageTypes();
+  }
+
+  @override
+  Future<CitiesResponse> getListingCities(String? search, {int limit = 20}) {
+    return _authApi.getListingCities(search, limit);
+  }
+
+  @override
+  Future<CitiesResponse> getPopularCities() {
+    return _authApi.getPopularCities();
+  }
+
+  @override
+  Future<TrendingRoutesResponse> getTrendingRoutes() {
+    return _authApi.getTrendingRoutes();
   }
 }
