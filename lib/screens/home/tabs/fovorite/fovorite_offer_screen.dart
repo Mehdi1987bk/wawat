@@ -195,43 +195,7 @@ class _FavoritesHeader extends StatelessWidget {
               ],
             ),
           ),
-          StreamBuilder<int>(
-            stream: bloc.unreadCountStream,
-            initialData: 0,
-            builder: (context, snapshot) {
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color:
-                            isDark ? Colors.white10 : const Color(0x0F0F172A),
-                      ),
-                    ),
-                    child: const Icon(Icons.notifications_none, color: _brand),
-                  ),
-                  if ((snapshot.data ?? 0) > 0)
-                    Positioned(
-                      right: 2,
-                      top: 2,
-                      child: Container(
-                        width: 9,
-                        height: 9,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
+
         ],
       ),
     );

@@ -1,262 +1,339 @@
-import 'package:buking/data/network/response/user.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/material.dart';
 
-import '../../../generated/l10n.dart';
-
-part 'chat_response.g.dart';
-
-// ============================================================================
-// Chat User Model
-// ============================================================================
-@JsonSerializable()
 class ChatUser {
   final int id;
+  final String? username;
   final String fullname;
   final String? avatar;
-  @JsonKey(name: 'is_verified', defaultValue: false)
   final bool isVerified;
-  @JsonKey(name: 'last_seen_at')
-  final String? lastSeenAt;
-  @JsonKey(name: 'is_blocked', defaultValue: false)
-  final bool? isBlocked;
+  final String? lastActiveAt;
+  final bool isBlocked;
 
-  ChatUser({
+  const ChatUser({
     required this.id,
+    this.username,
     required this.fullname,
     this.avatar,
     this.isVerified = false,
-    this.lastSeenAt,
+    this.lastActiveAt,
     this.isBlocked = false,
   });
 
-  factory ChatUser.fromJson(Map<String, dynamic> json) =>
-      _$ChatUserFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ChatUserToJson(this);
+  factory ChatUser.fromJson(Map<String, dynamic> json) {
+    final name = _string(json['fullname']) ??
+        _string(json['name']) ??
+        _string(json['username']) ??
+        '';
+    return ChatUser(
+      id: _int(json['id']) ?? 0,
+      username: _string(json['username']),
+      fullname: name,
+      avatar: _string(json['avatar']),
+      isVerified: _bool(json['is_verified']),
+      lastActiveAt:
+          _string(json['last_active_at']) ?? _string(json['last_seen_at']),
+      isBlocked: _bool(json['is_blocked']),
+    );
+  }
 
   String get avatarUrl {
     if (avatar == null || avatar!.isEmpty) return '';
     if (avatar!.startsWith('http')) return avatar!;
-    return 'https://wawatair.com/storage/$avatar';
+    return 'https://api.wawatair.com/storage/$avatar';
+  }
+
+  String get initials {
+    final parts = fullname.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
+    return (parts.first.characters.first + parts.last.characters.first)
+        .toUpperCase();
   }
 
   bool get isOnline {
-    if (lastSeenAt == null) return false;
-    try {
-      final lastSeen = DateTime.parse(lastSeenAt!);
-      final now = DateTime.now();
-      return now.difference(lastSeen).inMinutes < 5;
-    } catch (e) {
-      return false;
-    }
+    if (lastActiveAt == null) return false;
+    final lastSeen = DateTime.tryParse(lastActiveAt!)?.toLocal();
+    if (lastSeen == null) return false;
+    return DateTime.now().difference(lastSeen).inMinutes < 2;
   }
 
   String getLastSeenText(BuildContext context) {
-    if (isOnline) return S.of(context).fdbdfbweg4g323g;
-    if (lastSeenAt == null) return S.of(context).bfdgbebteb443;
-
-    try {
-      final lastSeen = DateTime.parse(lastSeenAt!);
-      final now = DateTime.now();
-      final difference = now.difference(lastSeen);
-
-      if (difference.inMinutes < 60) {
-        return '${difference.inMinutes} ' + S.of(context).bfdebr3b3b33;
-      } else if (difference.inHours < 24) {
-        return '${difference.inHours} ' + S.of(context).bfdeberb3brtbfds;
-      } else {
-        return '${difference.inDays} ' + S.of(context).bebe233btsdvs;
-      }
-    } catch (e) {
-      return S.of(context).bef43g4g343fbsd;
-    }
+    if (isOnline) return 'onlayn';
+    final lastSeen = lastActiveAt == null
+        ? null
+        : DateTime.tryParse(lastActiveAt!)?.toLocal();
+    if (lastSeen == null) return '';
+    final diff = DateTime.now().difference(lastSeen);
+    if (diff.inMinutes < 60) return '${diff.inMinutes} dəq əvvəl aktiv';
+    if (diff.inHours < 24) return '${diff.inHours} saat əvvəl aktiv';
+    return '${diff.inDays} gün əvvəl aktiv';
   }
 }
 
-// ============================================================================
-// Chat File Model
-// ============================================================================
-@JsonSerializable()
+class ChatImage {
+  final String url;
+  final String? mimeType;
+  final int? size;
+
+  const ChatImage({required this.url, this.mimeType, this.size});
+
+  factory ChatImage.fromJson(Map<String, dynamic> json) {
+    return ChatImage(
+      url: _string(json['url']) ?? '',
+      mimeType: _string(json['mime_type']) ?? _string(json['mime']),
+      size: _int(json['size']),
+    );
+  }
+}
+
 class ChatFile {
   final String url;
   final String name;
   final String mime;
 
-  ChatFile({
+  const ChatFile({
     required this.url,
     required this.name,
     required this.mime,
   });
 
-  factory ChatFile.fromJson(Map<String, dynamic> json) =>
-      _$ChatFileFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ChatFileToJson(this);
+  factory ChatFile.fromJson(Map<String, dynamic> json) {
+    final url = _string(json['url']) ?? '';
+    return ChatFile(
+      url: url,
+      name: _string(json['name']) ?? url.split('/').last,
+      mime: _string(json['mime']) ?? _string(json['mime_type']) ?? '',
+    );
+  }
 
   bool get isImage => mime.startsWith('image/');
   bool get isPdf => mime == 'application/pdf';
 }
 
-// ============================================================================
-// Chat Message Model
-// ============================================================================
-@JsonSerializable()
-class ChatMessage {
-  final int id;
+class ChatCard {
   final String type;
-  final String? body;
-  final ChatFile? file;
-  final ChatUser? user;
-  @JsonKey(name: 'created_at')
-  final String createdAt;
-  @JsonKey(name: 'is_read')
-  final bool? isRead;
+  final String label;
+  final bool isInteractive;
+  final String? shipmentId;
+  final Map<String, dynamic> payload;
 
-  ChatMessage({
-    required this.id,
+  const ChatCard({
     required this.type,
-    this.isRead,
-    this.body,
-    this.file,
-    this.user,
-    required this.createdAt,
+    required this.label,
+    required this.isInteractive,
+    this.shipmentId,
+    required this.payload,
   });
 
-  factory ChatMessage.fromJson(Map<String, dynamic> json) =>
-      _$ChatMessageFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ChatMessageToJson(this);
-
-  /// Getter для преобразования createdAt в DateTime с локальным временем
-  DateTime get createdAtDateTime {
-    try {
-      return DateTime.parse(createdAt).toLocal();
-    } catch (e) {
-      return DateTime.now();
-    }
-  }
-
-  /// Метод для форматирования времени в UI
-  String timeString(BuildContext context) {
-    try {
-      final dateTime = createdAtDateTime;
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-
-      if (messageDate == today) {
-        // Сегодня - показываем время
-        return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-      } else if (messageDate == today.subtract(const Duration(days: 1))) {
-        // Вчера - показываем локализованный текст
-        return S.of(context).bfvdg34g43g34;
-      } else {
-        // Другие дни - показываем дату
-        return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
-      }
-    } catch (e) {
-      return '';
-    }
+  factory ChatCard.fromJson(Map<String, dynamic> json) {
+    return ChatCard(
+      type: _string(json['type']) ?? '',
+      label: _string(json['label']) ?? '',
+      isInteractive: _bool(json['is_interactive']),
+      shipmentId: _string(json['shipment_id']),
+      payload: _map(json['payload']) ?? const {},
+    );
   }
 }
 
-// ============================================================================
-// Conversation Model
-// ============================================================================
-@JsonSerializable()
-class Conversation {
-  final int id;
-  final ChatUser user;
-  @JsonKey(name: 'last_message')
-  final ChatMessage? lastMessage;
-  @JsonKey(name: 'unread_count')
-  final int unreadCount;
-  @JsonKey(name: 'is_pinned')
-  final bool isPinned;
-  @JsonKey(name: 'is_archived')
-  final bool isArchived;
+class ChatMessage {
+  final String id;
+  final String type;
+  final String? body;
+  final ChatFile? file;
+  final ChatImage? image;
+  final ChatUser? user;
+  final ChatCard? card;
+  final String createdAt;
+  final String? editedAt;
+  final bool isMine;
+  final bool? isRead;
 
-  Conversation({
+  const ChatMessage({
+    required this.id,
+    required this.type,
+    this.body,
+    this.file,
+    this.image,
+    this.user,
+    this.card,
+    required this.createdAt,
+    this.editedAt,
+    this.isMine = false,
+    this.isRead,
+  });
+
+  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    final senderJson = _map(json['sender']) ?? _map(json['user']);
+    final imageJson = _map(json['image']);
+    final fileJson = _map(json['file']);
+    final cardJson = _map(json['card']);
+    return ChatMessage(
+      id: _string(json['id']) ?? '${json['id'] ?? ''}',
+      type: _string(json['type']) ?? 'text',
+      body: _string(json['body']),
+      file: fileJson == null ? null : ChatFile.fromJson(fileJson),
+      image: imageJson == null ? null : ChatImage.fromJson(imageJson),
+      user: senderJson == null ? null : ChatUser.fromJson(senderJson),
+      card: cardJson == null ? null : ChatCard.fromJson(cardJson),
+      createdAt:
+          _string(json['created_at']) ?? DateTime.now().toIso8601String(),
+      editedAt: _string(json['edited_at']),
+      isMine: _bool(json['is_mine']),
+      isRead: json.containsKey('is_read') ? _bool(json['is_read']) : null,
+    );
+  }
+
+  DateTime get createdAtDateTime {
+    return DateTime.tryParse(createdAt)?.toLocal() ?? DateTime.now();
+  }
+
+  String timeString(BuildContext context) {
+    final dateTime = createdAtDateTime;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (messageDate == today) {
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    }
+    if (messageDate == today.subtract(const Duration(days: 1))) {
+      return 'Dünən';
+    }
+    return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
+  }
+}
+
+class Conversation {
+  final String id;
+  final ChatUser user;
+  final ChatMessage? lastMessage;
+  final int unreadCount;
+  final bool isPinned;
+  final bool isArchived;
+  final bool isBlocked;
+  final bool isBlockedByOther;
+  final String? lastMessageAt;
+
+  const Conversation({
     required this.id,
     required this.user,
     this.lastMessage,
     required this.unreadCount,
     required this.isPinned,
     required this.isArchived,
+    this.isBlocked = false,
+    this.isBlockedByOther = false,
+    this.lastMessageAt,
   });
 
-  factory Conversation.fromJson(Map<String, dynamic> json) =>
-      _$ConversationFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ConversationToJson(this);
+  factory Conversation.fromJson(Map<String, dynamic> json) {
+    final userJson = _map(json['other_user']) ?? _map(json['user']) ?? {};
+    final lastMessageJson = _map(json['last_message']);
+    return Conversation(
+      id: _string(json['id']) ?? '${json['id'] ?? ''}',
+      user: ChatUser.fromJson(userJson),
+      lastMessage: lastMessageJson == null
+          ? null
+          : ChatMessage.fromJson(lastMessageJson),
+      unreadCount: _int(json['unread_count']) ?? 0,
+      isPinned: _bool(json['is_pinned']),
+      isArchived: _bool(json['is_archived']),
+      isBlocked: _bool(json['is_blocked']),
+      isBlockedByOther: _bool(json['is_blocked_by_other']),
+      lastMessageAt: _string(json['last_message_at']),
+    );
+  }
 
   String lastMessagePreview(BuildContext context) {
     if (lastMessage == null) return '';
-    if (lastMessage!.type == 'image') return '📷 ' + S.of(context).bfdbfbrewgq34;
-    if (lastMessage!.type == 'file') return '📎 ' + S.of(context).bfdb3brwqgevds432;
+    if (lastMessage!.type == 'image') return 'Şəkil';
+    if (lastMessage!.type == 'system_card') {
+      return lastMessage!.card?.label ?? 'Təklif';
+    }
     return lastMessage!.body ?? '';
+  }
+
+  DateTime? get sortTime {
+    final raw = lastMessageAt ?? lastMessage?.createdAt;
+    return raw == null ? null : DateTime.tryParse(raw)?.toLocal();
   }
 }
 
-// ============================================================================
-// API Response Wrappers
-// ============================================================================
-@JsonSerializable()
 class ConversationsResponse {
   final List<Conversation> data;
   final MetaData meta;
 
-  ConversationsResponse({
-    required this.data,
-    required this.meta,
-  });
+  const ConversationsResponse({required this.data, required this.meta});
 
-  factory ConversationsResponse.fromJson(Map<String, dynamic> json) =>
-      _$ConversationsResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ConversationsResponseToJson(this);
+  factory ConversationsResponse.fromJson(Map<String, dynamic> json) {
+    final list = (json['data'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(Conversation.fromJson)
+        .toList();
+    return ConversationsResponse(
+      data: list,
+      meta: MetaData.fromJson(_map(json['meta']) ?? const {}),
+    );
+  }
 }
 
-@JsonSerializable()
 class MessagesResponse {
   final List<ChatMessage> data;
   final MetaData meta;
 
-  MessagesResponse({
-    required this.data,
-    required this.meta,
-  });
+  const MessagesResponse({required this.data, required this.meta});
 
-  factory MessagesResponse.fromJson(Map<String, dynamic> json) =>
-      _$MessagesResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MessagesResponseToJson(this);
+  factory MessagesResponse.fromJson(Map<String, dynamic> json) {
+    final list = (json['data'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(ChatMessage.fromJson)
+        .toList();
+    return MessagesResponse(
+      data: list,
+      meta: MetaData.fromJson(_map(json['meta']) ?? const {}),
+    );
+  }
 }
 
-@JsonSerializable()
 class MessageResponse {
   final ChatMessage data;
 
-  MessageResponse({required this.data});
+  const MessageResponse({required this.data});
 
-  factory MessageResponse.fromJson(Map<String, dynamic> json) =>
-      _$MessageResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MessageResponseToJson(this);
+  factory MessageResponse.fromJson(Map<String, dynamic> json) {
+    return MessageResponse(
+        data: ChatMessage.fromJson(_map(json['data']) ?? {}));
+  }
 }
 
-@JsonSerializable()
+class ConversationResponse {
+  final Conversation? data;
+  final MetaData? meta;
+  final String? message;
+
+  const ConversationResponse({this.data, this.meta, this.message});
+
+  factory ConversationResponse.fromJson(Map<String, dynamic> json) {
+    final dataJson = _map(json['data']);
+    return ConversationResponse(
+      data: dataJson == null ? null : Conversation.fromJson(dataJson),
+      meta: _map(json['meta']) == null
+          ? null
+          : MetaData.fromJson(_map(json['meta'])!),
+      message: _string(json['message']),
+    );
+  }
+}
+
 class MetaData {
   final int page;
-  @JsonKey(name: 'per_page')
   final int perPage;
   final int total;
-  @JsonKey(name: 'last_page')
   final int lastPage;
   final String? locale;
 
-  MetaData({
+  const MetaData({
     required this.page,
     required this.perPage,
     required this.total,
@@ -264,161 +341,79 @@ class MetaData {
     this.locale,
   });
 
-  factory MetaData.fromJson(Map<String, dynamic> json) =>
-      _$MetaDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MetaDataToJson(this);
+  factory MetaData.fromJson(Map<String, dynamic> json) {
+    final currentPage = _int(json['current_page']) ?? _int(json['page']) ?? 1;
+    final perPage = _int(json['per_page']) ?? 20;
+    final total = _int(json['total']) ?? 0;
+    return MetaData(
+      page: currentPage,
+      perPage: perPage,
+      total: total,
+      lastPage: _int(json['last_page']) ?? currentPage,
+      locale: _string(json['locale']),
+    );
+  }
 }
 
-// ============================================================================
-// Simple Action Responses
-// ============================================================================
-@JsonSerializable()
-class PinResponse {
-  final PinData data;
+class ShipmentResponse {
+  final ShipmentData? data;
 
-  PinResponse({required this.data});
+  const ShipmentResponse({this.data});
 
-  factory PinResponse.fromJson(Map<String, dynamic> json) =>
-      _$PinResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$PinResponseToJson(this);
-
-  bool get isPinned => data.isPinned;
+  factory ShipmentResponse.fromJson(Map<String, dynamic> json) {
+    final dataJson = _map(json['data']);
+    return ShipmentResponse(
+      data: dataJson == null ? null : ShipmentData.fromJson(dataJson),
+    );
+  }
 }
 
-@JsonSerializable()
-class PinData {
-  @JsonKey(name: 'is_pinned')
-  final bool isPinned;
+class ShipmentData {
+  final String id;
+  final String status;
+  final String statusLabel;
+  final bool isAwaitingMe;
+  final List<String> availableActions;
 
-  PinData({required this.isPinned});
-
-  factory PinData.fromJson(Map<String, dynamic> json) =>
-      _$PinDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$PinDataToJson(this);
-}
-
-@JsonSerializable()
-class ArchiveResponse {
-  final ArchiveData data;
-
-  ArchiveResponse({required this.data});
-
-  factory ArchiveResponse.fromJson(Map<String, dynamic> json) =>
-      _$ArchiveResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ArchiveResponseToJson(this);
-
-  bool get isArchived => data.isArchived;
-}
-
-@JsonSerializable()
-class ArchiveData {
-  @JsonKey(name: 'is_archived')
-  final bool isArchived;
-
-  ArchiveData({required this.isArchived});
-
-  factory ArchiveData.fromJson(Map<String, dynamic> json) =>
-      _$ArchiveDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ArchiveDataToJson(this);
-}
-
-@JsonSerializable()
-class DeleteResponse {
-  final String? message;
-
-  DeleteResponse({this.message});
-
-  factory DeleteResponse.fromJson(Map<String, dynamic> json) =>
-      _$DeleteResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$DeleteResponseToJson(this);
-}
-
-@JsonSerializable()
-class BlockResponse {
-  final BlockData data;
-
-  BlockResponse({required this.data});
-
-  factory BlockResponse.fromJson(Map<String, dynamic> json) =>
-      _$BlockResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$BlockResponseToJson(this);
-
-  int? get blockedUserId => data.blockedUserId;
-
-  int? get unblockedUserId => data.unblockedUserId;
-}
-
-@JsonSerializable()
-class BlockData {
-  @JsonKey(name: 'blocked_user_id')
-  final int? blockedUserId;
-  @JsonKey(name: 'unblocked_user_id')
-  final int? unblockedUserId;
-
-  BlockData({this.blockedUserId, this.unblockedUserId});
-
-  factory BlockData.fromJson(Map<String, dynamic> json) =>
-      _$BlockDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$BlockDataToJson(this);
-}
-
-@JsonSerializable()
-class ConversationResponse {
-  final ConversationData? data;
-  final Meta? meta;
-  final String? message;
-
-  ConversationResponse({
-    this.data,
-    this.meta,
-    this.message,
+  const ShipmentData({
+    required this.id,
+    required this.status,
+    required this.statusLabel,
+    required this.isAwaitingMe,
+    required this.availableActions,
   });
 
-  factory ConversationResponse.fromJson(Map<String, dynamic> json) =>
-      _$ConversationResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ConversationResponseToJson(this);
+  factory ShipmentData.fromJson(Map<String, dynamic> json) {
+    return ShipmentData(
+      id: _string(json['id']) ?? '',
+      status: _string(json['status']) ?? '',
+      statusLabel: _string(json['status_label']) ?? '',
+      isAwaitingMe: _bool(json['is_awaiting_me']),
+      availableActions:
+          (json['available_actions'] as List<dynamic>? ?? const [])
+              .map((e) => e.toString())
+              .toList(),
+    );
+  }
 }
 
-@JsonSerializable()
-class ConversationData {
-  final int? id;
-  final User? user;
-  @JsonKey(name: 'is_pinned')
-  final bool? isPinned;
-  @JsonKey(name: 'is_archived')
-  final bool? isArchived;
-
-  ConversationData({
-    this.id,
-    this.user,
-    this.isPinned,
-    this.isArchived,
-  });
-
-  factory ConversationData.fromJson(Map<String, dynamic> json) =>
-      _$ConversationDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ConversationDataToJson(this);
+Map<String, dynamic>? _map(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) return value.map((key, value) => MapEntry('$key', value));
+  return null;
 }
 
-@JsonSerializable()
-class Meta {
-  final String? locale;
+String? _string(dynamic value) => value == null ? null : value.toString();
 
-  Meta({
-    this.locale,
-  });
+int? _int(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
+}
 
-  factory Meta.fromJson(Map<String, dynamic> json) => _$MetaFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MetaToJson(this);
+bool _bool(dynamic value) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final text = value?.toString().toLowerCase();
+  return text == 'true' || text == '1' || text == 'yes';
 }

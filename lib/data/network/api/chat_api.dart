@@ -1,96 +1,158 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:retrofit/retrofit.dart';
+
 import '../response/chat_response.dart';
 import '../response/target_user_request.dart';
 
-part 'chat_api.g.dart';
+class ChatApi {
+  ChatApi(this._dio, {String baseUrl = 'https://api.wawatair.com/api/v1'})
+      : _baseUrl = baseUrl;
 
-@RestApi(baseUrl: 'https://wawatair.com/api/v1')
-abstract class ChatApi {
-  factory ChatApi(Dio dio, {String baseUrl}) = _ChatApi;
+  final Dio _dio;
+  final String _baseUrl;
 
-  // Start chat
-  @POST('/chats/start')
-  Future<ConversationResponse> startChat(@Body() Map<String, dynamic> body);
+  Future<ConversationResponse> startChat(Map<String, dynamic> body) async {
+    final userId = body['user_id'] ?? body['target_user_id'] ?? body['id'];
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_baseUrl/users/$userId/conversation',
+    );
+    final result = ConversationResponse.fromJson(response.data ?? {});
+    final text = body['body']?.toString().trim();
+    if (result.data != null && text != null && text.isNotEmpty) {
+      await sendTextMessage(result.data!.id, {'body': text});
+    }
+    return result;
+  }
 
-  // Get conversations
-  @GET('/chats')
   Future<ConversationsResponse> getConversations(
-    @Query('per_page') int perPage,
-    @Query('page') int page,
-  );
+    int perPage,
+    int page, {
+    bool archived = false,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_baseUrl/conversations',
+      queryParameters: {
+        'per_page': perPage,
+        'page': page,
+        if (archived) 'archived': true,
+      },
+    );
+    return ConversationsResponse.fromJson(response.data ?? {});
+  }
 
-  // Get archived conversations
-  @GET('/chats/archived')
   Future<ConversationsResponse> getArchivedConversations(
-    @Query('per_page') int perPage,
-    @Query('page') int page,
-  );
+    int perPage,
+    int page,
+  ) {
+    return getConversations(perPage, page, archived: true);
+  }
 
-  // Get messages
-  @GET('/chats/{conversation_id}/messages')
   Future<MessagesResponse> getMessages(
-    @Path('conversation_id') int conversationId,
-    @Query('per_page') int perPage,
-    @Query('page') int page,
-  );
+    String conversationId,
+    int perPage,
+    int page,
+  ) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_baseUrl/conversations/$conversationId/messages',
+      queryParameters: {
+        'per_page': perPage,
+        'page': page,
+      },
+    );
+    return MessagesResponse.fromJson(response.data ?? {});
+  }
 
-  // Send text message only
-  @POST('/chats/{conversation_id}/messages')
   Future<MessageResponse> sendTextMessage(
-    @Path('conversation_id') int conversationId,
-    @Body() Map<String, dynamic> body,
-  );
+    String conversationId,
+    Map<String, dynamic> body,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_baseUrl/conversations/$conversationId/messages',
+      data: body,
+    );
+    return MessageResponse.fromJson(response.data ?? {});
+  }
 
-  // Send message with file
-  @POST('/chats/{conversation_id}/messages')
-  @MultiPart()
   Future<MessageResponse> sendMessageWithFile(
-    @Path('conversation_id') int conversationId,
-    @Part(name: 'file') File file,
-    @Part(name: 'body') String? body,
-  );
+    String conversationId,
+    File file,
+    String? body,
+  ) async {
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(file.path),
+      if (body != null && body.trim().isNotEmpty) 'body': body.trim(),
+    });
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_baseUrl/conversations/$conversationId/images',
+      data: formData,
+    );
+    return MessageResponse.fromJson(response.data ?? {});
+  }
 
-  // Pin conversation
-  @POST('/chats/{conversation_id}/pin')
-  Future<PinResponse> pinConversation(
-    @Path('conversation_id') int conversationId,
-  );
+  Future<void> updateConversation(
+    String conversationId,
+    Map<String, dynamic> body,
+  ) async {
+    await _dio.patch<void>(
+      '$_baseUrl/conversations/$conversationId',
+      data: body,
+    );
+  }
 
-  // Unpin conversation
-  @POST('/chats/{conversation_id}/unpin')
-  Future<PinResponse> unpinConversation(
-    @Path('conversation_id') int conversationId,
-  );
+  Future<void> pinConversation(String conversationId) {
+    return updateConversation(conversationId, {'is_pinned': true});
+  }
 
-  // Archive conversation
-  @POST('/chats/{conversation_id}/archive')
-  Future<ArchiveResponse> archiveConversation(
-    @Path('conversation_id') int conversationId,
-  );
+  Future<void> unpinConversation(String conversationId) {
+    return updateConversation(conversationId, {'is_pinned': false});
+  }
 
-  // Unarchive conversation
-  @POST('/chats/{conversation_id}/unarchive')
-  Future<ArchiveResponse> unarchiveConversation(
-    @Path('conversation_id') int conversationId,
-  );
+  Future<void> archiveConversation(String conversationId) {
+    return updateConversation(conversationId, {'is_archived': true});
+  }
 
-  // Delete conversation
-  @DELETE('/chats/{conversation_id}')
-  Future<DeleteResponse> deleteConversation(
-    @Path('conversation_id') int conversationId,
-  );
+  Future<void> unarchiveConversation(String conversationId) {
+    return updateConversation(conversationId, {'is_archived': false});
+  }
 
-  // Block user
-  @POST('/chats/block')
-  Future<BlockResponse> blockUser(@Body() Map<String, dynamic> body);
+  Future<void> deleteConversation(String conversationId) async {
+    await _dio.delete<void>('$_baseUrl/conversations/$conversationId');
+  }
 
-  // Unblock user
-  @POST('/chats/unblock')
-  Future<BlockResponse> unblockUser(@Body() Map<String, dynamic> body);
+  Future<void> blockUser(Map<String, dynamic> body) async {
+    final userId = body['user_id'] ?? body['target_user_id'] ?? body['id'];
+    await _dio.post<void>('$_baseUrl/users/$userId/block');
+  }
 
-  // Unblock user
-  @POST('/reviews/request')
-  Future<void> sendReviews(@Body() TargetUserRequest request);
+  Future<void> unblockUser(Map<String, dynamic> body) async {
+    final userId = body['user_id'] ?? body['target_user_id'] ?? body['id'];
+    await _dio.delete<void>('$_baseUrl/users/$userId/block');
+  }
+
+  Future<void> sendReviews(TargetUserRequest request) async {
+    await _dio.post<void>('$_baseUrl/reviews/request', data: request.toJson());
+  }
+
+  Future<ShipmentResponse> getShipment(String shipmentId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_baseUrl/shipments/$shipmentId',
+    );
+    return ShipmentResponse.fromJson(response.data ?? {});
+  }
+
+  Future<void> shipmentAction(
+    String shipmentId,
+    String action, {
+    Map<String, dynamic>? body,
+  }) async {
+    await _dio.post<void>(
+      '$_baseUrl/shipments/$shipmentId/$action',
+      data: body,
+      options: Options(headers: {
+        'Idempotency-Key':
+            'chat-${DateTime.now().microsecondsSinceEpoch}-$shipmentId-$action',
+      }),
+    );
+  }
 }

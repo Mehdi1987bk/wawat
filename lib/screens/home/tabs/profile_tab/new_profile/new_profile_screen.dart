@@ -1,0 +1,4554 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../data/network/response/language_response.dart';
+import '../../../../../data/network/response/package_types_response.dart';
+import '../../../../../domain/entities/pagination.dart';
+import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../main.dart';
+import '../../home_tab/widget/auth_modal_utils.dart';
+import '../../listings/details/listing_details_screen.dart';
+import '../faq/faq_screen.dart';
+import '../privacy_policy/privacy_policy_screen.dart';
+import '../settings/notification_settings/notification_settings_screen.dart';
+import '../support/support_screen.dart';
+import '../verification/verification_screen.dart';
+import 'profile_api.dart';
+import 'profile_models.dart';
+
+const _brand = Color(0xFF017BFE);
+const _brand50 = Color(0xFFEAF3FE);
+const _ink900 = Color(0xFF0F172A);
+const _ink800 = Color(0xFF1E293B);
+const _ink700 = Color(0xFF334155);
+const _ink600 = Color(0xFF475569);
+const _ink500 = Color(0xFF64748B);
+const _ink400 = Color(0xFF94A3B8);
+const _ink300 = Color(0xFFCBD5E1);
+const _ink200 = Color(0xFFE2E8F0);
+const _screen = Color(0xFFF6F8FB);
+const _amber = Color(0xFFE8A400);
+const _amber50 = Color(0xFFFEF6E7);
+const _emerald = Color(0xFF10B981);
+
+String _tx(Map<String, String> content, String key, String fallback) {
+  final value = content[key];
+  if (value == null || value.trim().isEmpty) return fallback;
+  return value;
+}
+
+class WawatProfileScreen extends StatefulWidget {
+  final String? userId;
+  final ListingOwner? initialOwner;
+  final bool isSelf;
+
+  const WawatProfileScreen({
+    super.key,
+    this.userId,
+    this.initialOwner,
+    this.isSelf = false,
+  });
+
+  @override
+  State<WawatProfileScreen> createState() => _WawatProfileScreenState();
+}
+
+class PublicProfileScreen extends WawatProfileScreen {
+  const PublicProfileScreen({
+    super.key,
+    required String userId,
+    ListingOwner? initialOwner,
+  }) : super(userId: userId, initialOwner: initialOwner, isSelf: false);
+}
+
+class WawatSettingsScreen extends StatelessWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final VoidCallback? onProfileUpdated;
+
+  const WawatSettingsScreen({
+    super.key,
+    required this.api,
+    required this.user,
+    required this.content,
+    this.onProfileUpdated,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsHubScreen(
+      api: api,
+      user: user,
+      content: content,
+      onProfileUpdated: onProfileUpdated ?? () {},
+      onVerification: () async {
+        try {
+          final authUser = await sl.get<AuthRepository>().userDetails.first;
+          if (!context.mounted) return;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => VerificationScreen(user: authUser),
+            ),
+          );
+        } catch (_) {
+          if (!context.mounted) return;
+          _showSnack(
+            context,
+            _tx(content, 'profile.load_failed', 'Məlumat yüklənmədi.'),
+            error: true,
+          );
+        }
+      },
+    );
+  }
+}
+
+class WawatEditProfileScreen extends StatelessWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+
+  const WawatEditProfileScreen({
+    super.key,
+    required this.api,
+    required this.user,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _EditProfileScreen(api: api, user: user, content: content);
+  }
+}
+
+class WawatPrivacySettingsScreen extends StatelessWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+
+  const WawatPrivacySettingsScreen({
+    super.key,
+    required this.api,
+    required this.user,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _PrivacySettingsScreen(
+      api: api,
+      initial: user.settings.privacy,
+      content: content,
+    );
+  }
+}
+
+class WawatChangePasswordScreen extends StatelessWidget {
+  final WawatProfileApi api;
+  final Map<String, String> content;
+
+  const WawatChangePasswordScreen({
+    super.key,
+    required this.api,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ChangePasswordScreen(api: api, content: content);
+  }
+}
+
+class WawatDeleteAccountSheet extends StatelessWidget {
+  final WawatProfileApi api;
+  final Map<String, String> content;
+
+  const WawatDeleteAccountSheet({
+    super.key,
+    required this.api,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _DeleteAccountSheet(api: api, content: content);
+  }
+}
+
+class WawatFollowListScreen extends StatelessWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final bool following;
+
+  const WawatFollowListScreen({
+    super.key,
+    required this.api,
+    required this.user,
+    required this.content,
+    required this.following,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _FollowListScreen(
+      api: api,
+      user: user,
+      content: content,
+      following: following,
+    );
+  }
+}
+
+class WawatReviewsScreen extends StatefulWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final bool left;
+  final bool canReply;
+
+  const WawatReviewsScreen({
+    super.key,
+    required this.api,
+    required this.user,
+    required this.content,
+    this.left = false,
+    this.canReply = false,
+  });
+
+  @override
+  State<WawatReviewsScreen> createState() => _WawatReviewsScreenState();
+}
+
+class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
+  late Future<WawatReviewResponse> _future = _load();
+  final Set<String> _pendingReplyIds = <String>{};
+
+  Future<WawatReviewResponse> _load() {
+    return widget.left
+        ? widget.api.reviewsLeft()
+        : widget.api.reviews(widget.user.id);
+  }
+
+  Future<void> _openReplySheet(WawatReview review) async {
+    final sent = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ReplyReviewSheet(
+        api: widget.api,
+        review: review,
+        content: widget.content,
+      ),
+    );
+    if (sent == true && mounted) {
+      setState(() => _pendingReplyIds.add(review.id));
+      _showSnack(
+        context,
+        _tx(widget.content, 'review.reply_sent', 'Cavab göndərildi.'),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final titleKey =
+        widget.left ? 'menu.reviews_left' : 'menu.reviews_received';
+    final fallback = widget.left ? 'Yazdığım rəylər' : 'Aldığım rəylər';
+    return Scaffold(
+      backgroundColor: _screen,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _ProfileTopBar(title: _tx(widget.content, titleKey, fallback)),
+            Expanded(
+              child: FutureBuilder<WawatReviewResponse>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: _brand),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return _ProfileNotFound(
+                      onRetry: () => setState(() => _future = _load()),
+                    );
+                  }
+                  return ListView(
+                    children: [
+                      _ReviewsSection(
+                        reviews: snapshot.data ??
+                            const WawatReviewResponse(
+                              data: [],
+                              distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+                            ),
+                        user: widget.user,
+                        content: widget.content,
+                        canReply: widget.canReply && !widget.left,
+                        pendingReplyIds: _pendingReplyIds,
+                        onReply: _openReplySheet,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WawatProfileScreenState extends State<WawatProfileScreen> {
+  final WawatProfileApi _api = WawatProfileApi();
+  late Future<WawatProfileBundle> _future;
+  int _tab = 0;
+  WawatProfileUser? _userOverride;
+  Map<String, String> _content = const {};
+  final Set<String> _pendingReplyIds = <String>{};
+
+  bool get _isSelf => widget.isSelf || widget.userId == null;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _load();
+  }
+
+  Future<WawatProfileBundle> _load() async {
+    final contentFuture = _api.content();
+    final Future<PackageTypesResponse?> packageFuture = _api
+        .packageTypes()
+        .then<PackageTypesResponse?>((value) => value)
+        .catchError((_) => null);
+    final user = _isSelf ? await _api.me() : await _api.user(widget.userId!);
+    final listingsFuture =
+        _isSelf ? _api.myListings() : _api.userListings(user.id);
+    final reviewsFuture = _api.reviews(user.id).catchError(
+          (_) => const WawatReviewResponse(
+            data: [],
+            distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+          ),
+        );
+    final results = await Future.wait<dynamic>([
+      contentFuture,
+      packageFuture,
+      listingsFuture,
+      reviewsFuture,
+    ]);
+    final packageResponse = results[1];
+    final content = results[0] as Map<String, String>;
+    _content = content;
+    return WawatProfileBundle(
+      user: _userOverride ?? user,
+      content: content,
+      packageNames: packageResponse == null
+          ? const {}
+          : {
+              for (final item in packageResponse.data) item.code: item.name,
+            },
+      listings: results[2] as Pagination<Listing>,
+      reviews: results[3] as WawatReviewResponse,
+    );
+  }
+
+  void _reload() {
+    setState(() => _future = _load());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _isSelf ? _screen : Colors.white,
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<WawatProfileBundle>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _ProfileSkeleton(showBack: !_isSelf);
+            }
+            if (snapshot.hasError) {
+              if (_isSelf && _isUnauthorized(snapshot.error)) {
+                return _ProfileAuthRequired(onRetry: _reload);
+              }
+              return _ProfileNotFound(onRetry: _reload);
+            }
+            final bundle = snapshot.requireData;
+            final user = _userOverride ?? bundle.user;
+            return Stack(
+              children: [
+                Column(
+                  children: [
+                    _ProfileTopBar(
+                      title: _isSelf ? 'Profil' : user.safeFullName,
+                      showBack: !_isSelf,
+                      trailingIcon: _isSelf
+                          ? PhosphorIconsRegular.gearSix
+                          : PhosphorIconsBold.dotsThreeVertical,
+                      onTrailing: _isSelf
+                          ? () => _openSettings(bundle)
+                          : () => _showUserMenu(user, bundle.content),
+                    ),
+                    Expanded(
+                      child: RefreshIndicator(
+                        color: _brand,
+                        onRefresh: () async {
+                          _reload();
+                          await _future;
+                        },
+                        child: ListView(
+                          padding: EdgeInsets.only(
+                            bottom: _isSelf
+                                ? 110 + MediaQuery.of(context).padding.bottom
+                                : 96 + MediaQuery.of(context).padding.bottom,
+                          ),
+                          children: [
+                            _ProfileHeader(user: user, content: bundle.content),
+                            if (_isSelf && !user.isVerified)
+                              _VerificationBanner(
+                                content: bundle.content,
+                                onTap: _openVerification,
+                              ),
+                            _StatsRow(user: user, content: bundle.content),
+                            _FollowCounters(
+                              user: user,
+                              content: bundle.content,
+                              onFollowers: () => _openFollowList(
+                                user,
+                                bundle.content,
+                                following: false,
+                              ),
+                              onFollowing: () => _openFollowList(
+                                user,
+                                bundle.content,
+                                following: true,
+                              ),
+                            ),
+                            if (_isSelf)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                                child: _SoftButton(
+                                  label: _tx(
+                                    bundle.content,
+                                    'profile.edit',
+                                    'Profili redaktə et',
+                                  ),
+                                  icon: PhosphorIconsRegular.pencilSimple,
+                                  onTap: () => _openEditProfile(user, bundle),
+                                ),
+                              ),
+                            _ProfileTabs(
+                              selected: _tab,
+                              isSelf: _isSelf,
+                              content: bundle.content,
+                              listingsCount: bundle.listings.total ??
+                                  bundle.listings.data.length,
+                              reviewsCount: user.trust.ratingCount ??
+                                  user.stats.reviewsReceivedCount ??
+                                  bundle.reviews.total,
+                              onChanged: (value) =>
+                                  setState(() => _tab = value),
+                            ),
+                            if (_tab == 0)
+                              _ListingsSection(
+                                listings: bundle.listings.data,
+                                packageNames: bundle.packageNames,
+                                isSelf: _isSelf,
+                                content: bundle.content,
+                              )
+                            else
+                              _ReviewsSection(
+                                reviews: bundle.reviews,
+                                user: user,
+                                content: bundle.content,
+                                canReply: _isSelf,
+                                pendingReplyIds: _pendingReplyIds,
+                                onReply: (review) =>
+                                    _openReplySheet(review, bundle.content),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (!_isSelf)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: _PublicActionBar(
+                      user: user,
+                      content: bundle.content,
+                      onFollow: () => _toggleFollow(user, bundle.content),
+                      onMessage: () => _requireAuthThen(() async {
+                        _toast('Mesaj növbəti mərhələdə qoşulacaq.');
+                      }),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleFollow(
+    WawatProfileUser user,
+    Map<String, String> content,
+  ) async {
+    await _requireAuthThen(() async {
+      final next = !user.isFollowing;
+      setState(() {
+        _userOverride = user.copyWith(
+          isFollowing: next,
+          followersCount:
+              (user.followersCount + (next ? 1 : -1)).clamp(0, 1 << 31),
+        );
+      });
+      try {
+        final message =
+            next ? await _api.follow(user.id) : await _api.unfollow(user.id);
+        _toast(message);
+      } catch (_) {
+        setState(() => _userOverride = user);
+        _toast('Əməliyyat alınmadı.', error: true);
+      }
+    });
+  }
+
+  Future<void> _requireAuthThen(Future<void> Function() action) async {
+    final isLogged = await sl.get<AuthRepository>().isLogged();
+    if (!mounted) return;
+    if (!isLogged) {
+      AuthModalUtils.showAuthRequiredModal(context);
+      return;
+    }
+    await action();
+  }
+
+  Future<void> _openVerification() async {
+    try {
+      final user = await sl
+          .get<AuthRepository>()
+          .userDetails
+          .first
+          .timeout(const Duration(seconds: 2));
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => VerificationScreen(user: user)),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      _toast(
+        _tx(
+          _content,
+          'profile.verification_unavailable',
+          'Təsdiqləmə məlumatı yüklənmədi.',
+        ),
+        error: true,
+      );
+    }
+  }
+
+  Future<void> _openFollowList(
+    WawatProfileUser user,
+    Map<String, String> content, {
+    required bool following,
+  }) async {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _FollowListScreen(
+          api: _api,
+          user: user,
+          content: content,
+          following: following,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openSettings(WawatProfileBundle bundle) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _SettingsHubScreen(
+          api: _api,
+          user: bundle.user,
+          content: bundle.content,
+          onVerification: _openVerification,
+          onProfileUpdated: () {
+            _userOverride = null;
+            _reload();
+          },
+        ),
+      ),
+    );
+    _reload();
+  }
+
+  Future<void> _openEditProfile(
+    WawatProfileUser user,
+    WawatProfileBundle bundle,
+  ) async {
+    final updated = await Navigator.of(context).push<WawatProfileUser>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => _EditProfileScreen(
+          api: _api,
+          user: user,
+          content: bundle.content,
+        ),
+      ),
+    );
+    if (updated != null) {
+      setState(() => _userOverride = updated);
+      _toast(_tx(bundle.content, 'profile.updated', 'Profil yeniləndi.'));
+      _reload();
+    }
+  }
+
+  Future<void> _openReplySheet(
+    WawatReview review,
+    Map<String, String> content,
+  ) async {
+    final sent = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) =>
+          _ReplyReviewSheet(api: _api, review: review, content: content),
+    );
+    if (sent == true) {
+      setState(() => _pendingReplyIds.add(review.id));
+      _toast(_tx(
+        content,
+        'review.reply_submitted',
+        'Cavabınız moderasiyaya göndərildi.',
+      ));
+      _reload();
+    }
+  }
+
+  Future<void> _showUserMenu(
+    WawatProfileUser user,
+    Map<String, String> content,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _UserActionSheet(
+        onBlock: () async {
+          Navigator.pop(context);
+          await _requireAuthThen(() async {
+            try {
+              _toast(await _api.block(user.id));
+            } catch (_) {
+              _toast('Əməliyyat alınmadı.', error: true);
+            }
+          });
+        },
+        onReport: () {
+          Navigator.pop(context);
+          _showReportSheet(user, content);
+        },
+      ),
+    );
+  }
+
+  Future<void> _showReportSheet(
+    WawatProfileUser user,
+    Map<String, String> content,
+  ) async {
+    final sent = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ReportUserSheet(api: _api, user: user, content: content),
+    );
+    if (sent == true) _toast('Şikayət göndərildi.');
+  }
+
+  void _toast(String message, {bool error = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: error ? const Color(0xFFEF4444) : _ink900,
+        duration: const Duration(milliseconds: 1500),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    );
+  }
+}
+
+class _ProfileTopBar extends StatelessWidget {
+  final String title;
+  final bool showBack;
+  final IconData? trailingIcon;
+  final VoidCallback? onTrailing;
+
+  const _ProfileTopBar({
+    required this.title,
+    this.showBack = true,
+    this.trailingIcon,
+    this.onTrailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+        ),
+      ),
+      child: Row(
+        children: [
+          if (showBack)
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => Navigator.of(context).maybePop(),
+              child: const Icon(PhosphorIconsBold.arrowLeft, color: _ink700),
+            )
+          else
+            const SizedBox(width: 24),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: _ink900,
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          if (trailingIcon != null)
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: onTrailing,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(trailingIcon, color: _ink700, size: 22),
+              ),
+            )
+          else
+            const SizedBox(width: 36),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  final WawatProfileUser user;
+  final Map<String, String> content;
+
+  const _ProfileHeader({required this.user, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _ProfileAvatar(user: user, size: 68),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            user.safeFullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _ink900,
+                              fontSize: 19,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        if (user.isVerified) ...[
+                          const SizedBox(width: 6),
+                          const Icon(
+                            PhosphorIconsFill.sealCheck,
+                            color: _brand,
+                            size: 18,
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (user.username != null)
+                      Text(
+                        '@${user.username}',
+                        style: const TextStyle(
+                          color: _ink400,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        if (user.tier != null && user.tier != 'standard')
+                          _TierBadge(tier: user.tier!, content: content),
+                        if (user.memberSince != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            '${user.memberSince!.year}-dən üzv',
+                            style: const TextStyle(
+                              color: _ink400,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if ((user.bio ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 13),
+            Text(
+              user.bio!.trim(),
+              style: const TextStyle(
+                color: _ink600,
+                fontSize: 13.5,
+                height: 1.45,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (user.languages.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final language in user.languages)
+                  _Chip(
+                      label: language.name,
+                      icon: PhosphorIconsRegular.translate),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _VerificationBanner extends StatelessWidget {
+  final Map<String, String> content;
+  final VoidCallback onTap;
+
+  const _VerificationBanner({
+    required this.content,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: _amber50,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _amber.withValues(alpha: 0.18)),
+        ),
+        child: Row(
+          children: [
+            const Icon(PhosphorIconsFill.sealCheck, color: _amber),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _tx(content, 'profile.verify_account',
+                    'Hesabınızı təsdiqləyin'),
+                style: const TextStyle(
+                  color: _ink900,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            const Icon(PhosphorIconsRegular.caretRight, color: _ink400),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  final WawatProfileUser user;
+  final Map<String, String> content;
+
+  const _StatsRow({required this.user, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _StatTile(
+              value: user.trust.ratingAvg == null
+                  ? '—'
+                  : user.trust.ratingAvg!.toStringAsFixed(1),
+              label: _tx(content, 'profile.rating', 'Reytinq'),
+              icon: PhosphorIconsFill.star,
+              iconColor: _amber,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _StatTile(
+              value:
+                  '${user.stats.deliveriesCount ?? user.trust.completedShipmentsCount ?? 0}',
+              label: _tx(content, 'profile.deliveries', 'Çatdırılma'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _StatTile(
+              value: user.trust.avgResponseMinutes == null
+                  ? '—'
+                  : '~${user.trust.avgResponseMinutes}dq',
+              label: _tx(content, 'profile.response', 'Cavab'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  final String value;
+  final String label;
+  final IconData? icon;
+  final Color? iconColor;
+
+  const _StatTile({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _ink900.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  color: _ink900,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              if (icon != null) ...[
+                const SizedBox(width: 3),
+                Icon(icon, color: iconColor, size: 13),
+              ],
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              color: _ink400,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FollowCounters extends StatelessWidget {
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final VoidCallback onFollowers;
+  final VoidCallback onFollowing;
+
+  const _FollowCounters({
+    required this.user,
+    required this.content,
+    required this.onFollowers,
+    required this.onFollowing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        children: [
+          Expanded(
+            child: _FollowCounterButton(
+              value: _compact(user.followersCount),
+              label: _tx(content, 'profile.followers', 'İzləyici'),
+              onTap: onFollowers,
+            ),
+          ),
+          Container(
+              width: 1, height: 44, color: _ink900.withValues(alpha: 0.06)),
+          Expanded(
+            child: _FollowCounterButton(
+              value: _compact(user.followingCount),
+              label: _tx(content, 'profile.following', 'İzləyir'),
+              onTap: onFollowing,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FollowCounterButton extends StatelessWidget {
+  final String value;
+  final String label;
+  final VoidCallback onTap;
+
+  const _FollowCounterButton({
+    required this.value,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                color: _ink900,
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: _ink400,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileTabs extends StatelessWidget {
+  final int selected;
+  final bool isSelf;
+  final Map<String, String> content;
+  final int listingsCount;
+  final int reviewsCount;
+  final ValueChanged<int> onChanged;
+
+  const _ProfileTabs({
+    required this.selected,
+    required this.isSelf,
+    required this.content,
+    required this.listingsCount,
+    required this.reviewsCount,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: _ink900.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          _Segment(
+            selected: selected == 0,
+            label: isSelf
+                ? _tx(content, 'profile.my_listings', 'Elanlarım')
+                : _tx(content, 'profile.listings', 'Elanlar'),
+            count: listingsCount,
+            onTap: () => onChanged(0),
+          ),
+          _Segment(
+            selected: selected == 1,
+            label: _tx(content, 'review.tab', 'Rəylər'),
+            count: reviewsCount,
+            onTap: () => onChanged(1),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Segment extends StatelessWidget {
+  final bool selected;
+  final String label;
+  final int count;
+  final VoidCallback onTap;
+
+  const _Segment({
+    required this.selected,
+    required this.label,
+    required this.count,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _ink900.withValues(alpha: 0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : const [],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: selected ? _brand : _ink500,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              if (count > 0) ...[
+                const SizedBox(width: 5),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? _brand.withValues(alpha: 0.12)
+                        : _ink900.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: TextStyle(
+                      color: selected ? _brand : _ink500,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ListingsSection extends StatelessWidget {
+  final List<Listing> listings;
+  final Map<String, String> packageNames;
+  final bool isSelf;
+  final Map<String, String> content;
+
+  const _ListingsSection({
+    required this.listings,
+    required this.packageNames,
+    required this.isSelf,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (listings.isEmpty) {
+      return _EmptyState(
+        icon: PhosphorIconsRegular.airplaneTilt,
+        title: _tx(content, 'profile.empty_listings_title', 'Hələ elan yoxdur'),
+        subtitle: _tx(
+          content,
+          'profile.empty_listings_subtitle',
+          'Yeni elan yaratdıqdan sonra burada görünəcək.',
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        children: [
+          for (final listing in listings)
+            _ProfileListingRow(
+              listing: listing,
+              packageNames: packageNames,
+              isSelf: isSelf,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileListingRow extends StatelessWidget {
+  final Listing listing;
+  final Map<String, String> packageNames;
+  final bool isSelf;
+
+  const _ProfileListingRow({
+    required this.listing,
+    required this.packageNames,
+    required this.isSelf,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = listing.isTrip ? _brand : _amber;
+    final accent50 = listing.isTrip ? _brand50 : _amber50;
+    final subtitle = listing.isTrip
+        ? [
+            _formatDate(listing.flightDate),
+            if (listing.freeWeightKg != null)
+              '${_num(listing.freeWeightKg)} kq boş',
+            if (listing.allowPriceNegotiation == true)
+              'Razılaşma'
+            else if (listing.pricePerKg != null)
+              '${_num(listing.pricePerKg)} ₼/kq',
+          ].where((e) => e.isNotEmpty).join(' · ')
+        : [
+            _dateRange(listing.deliveryDateFrom, listing.deliveryDateTo),
+            if (listing.weightKg != null) '${_num(listing.weightKg)} kq',
+          ].where((e) => e.isNotEmpty).join(' · ');
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (_) => ListingDetailsScreen(listingId: listing.id)),
+      ),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+          boxShadow: [
+            BoxShadow(
+              color: _ink900.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: accent50,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                listing.isTrip
+                    ? PhosphorIconsFill.airplaneTilt
+                    : PhosphorIconsFill.package,
+                color: accent,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${listing.cityFrom ?? '-'} → ${listing.cityTo ?? '-'}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: _ink900,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      if (isSelf && listing.statusLabel != null) ...[
+                        const SizedBox(width: 8),
+                        _TinyStatus(label: listing.statusLabel!),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle.isEmpty ? '—' : subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _ink500,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(PhosphorIconsRegular.caretRight, color: _ink300),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewsSection extends StatelessWidget {
+  final WawatReviewResponse reviews;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final bool canReply;
+  final Set<String> pendingReplyIds;
+  final ValueChanged<WawatReview> onReply;
+
+  const _ReviewsSection({
+    required this.reviews,
+    required this.user,
+    required this.content,
+    required this.canReply,
+    required this.pendingReplyIds,
+    required this.onReply,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (reviews.data.isEmpty) {
+      return _EmptyState(
+        icon: PhosphorIconsRegular.star,
+        title: _tx(content, 'review.empty_title', 'Hələ rəy yoxdur'),
+        subtitle: _tx(
+          content,
+          'review.empty_subtitle',
+          'Tamamlanmış sifarişlərdən sonra rəylər burada görünəcək.',
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ReviewSummary(user: user, reviews: reviews, content: content),
+          const SizedBox(height: 12),
+          Text(
+            _tx(content, 'review.moderation_note',
+                'Rəylər dərc olunmadan öncə yoxlanılır.'),
+            style: const TextStyle(
+              color: _ink400,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (final review in reviews.data)
+            _ReviewCard(
+              review: review,
+              content: content,
+              canReply: canReply,
+              isReplyPending: pendingReplyIds.contains(review.id),
+              onReply: () => onReply(review),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewSummary extends StatelessWidget {
+  final WawatProfileUser user;
+  final WawatReviewResponse reviews;
+  final Map<String, String> content;
+
+  const _ReviewSummary({
+    required this.user,
+    required this.reviews,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final total = user.trust.ratingCount ?? reviews.total;
+    final avg = user.trust.ratingAvg;
+    final maxCount =
+        reviews.distribution.values.fold<int>(0, (a, b) => a > b ? a : b);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(),
+      child: Row(
+        children: [
+          Column(
+            children: [
+              Text(
+                avg == null ? '—' : avg.toStringAsFixed(1),
+                style: const TextStyle(
+                  color: _ink900,
+                  fontSize: 38,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: List.generate(
+                  5,
+                  (_) => const Icon(
+                    PhosphorIconsFill.star,
+                    color: Color(0xFFF5B301),
+                    size: 13,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _tx(content, 'review.count', '{count} rəy')
+                    .replaceAll('{count}', '$total'),
+                style: const TextStyle(
+                  color: _ink400,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              children: [
+                for (final star in [5, 4, 3, 2, 1])
+                  _DistributionRow(
+                    star: star,
+                    count: reviews.distribution[star] ?? 0,
+                    max: maxCount,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DistributionRow extends StatelessWidget {
+  final int star;
+  final int count;
+  final int max;
+
+  const _DistributionRow({
+    required this.star,
+    required this.count,
+    required this.max,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final value = max == 0 ? 0.0 : count / max;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 12,
+            child: Text(
+              '$star',
+              style: const TextStyle(
+                color: _ink500,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                minHeight: 6,
+                value: value,
+                color: const Color(0xFFF5B301),
+                backgroundColor: _ink900.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 32,
+            child: Text(
+              '$count',
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: _ink400,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final WawatReview review;
+  final Map<String, String> content;
+  final bool canReply;
+  final bool isReplyPending;
+  final VoidCallback onReply;
+
+  const _ReviewCard({
+    required this.review,
+    required this.content,
+    required this.canReply,
+    required this.isReplyPending,
+    required this.onReply,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final author = review.author;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _ReviewAvatar(author: author),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            author?.displayName ?? '@user',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _ink900,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        if (author?.isVerified == true) ...[
+                          const SizedBox(width: 4),
+                          const Icon(
+                            PhosphorIconsFill.sealCheck,
+                            color: _brand,
+                            size: 14,
+                          ),
+                        ],
+                      ],
+                    ),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (index) => Icon(
+                          index < review.rating
+                              ? PhosphorIconsFill.star
+                              : PhosphorIconsRegular.star,
+                          color: index < review.rating
+                              ? const Color(0xFFF5B301)
+                              : _ink300,
+                          size: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                _relativeDate(review.createdAt),
+                style: const TextStyle(
+                  color: _ink400,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          if ((review.comment ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              review.comment!.trim(),
+              style: const TextStyle(
+                color: _ink600,
+                fontSize: 13,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          const SizedBox(height: 9),
+          _VerifiedReviewBadge(content: content),
+          if ((review.reply ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: _ink900.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        PhosphorIconsFill.arrowBendUpRight,
+                        color: _ink500,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        _tx(content, 'review.your_reply', 'Sizin cavabınız'),
+                        style: const TextStyle(
+                          color: _ink500,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    review.reply!.trim(),
+                    style: const TextStyle(
+                      color: _ink600,
+                      fontSize: 12.5,
+                      height: 1.3,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (isReplyPending) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              decoration: BoxDecoration(
+                color: _amber50,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    PhosphorIconsFill.hourglass,
+                    color: _amber,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    _tx(content, 'review.reply_pending',
+                        'Cavabınız yoxlanılır'),
+                    style: const TextStyle(
+                      color: _amber,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (canReply) ...[
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: onReply,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    PhosphorIconsRegular.arrowBendUpLeft,
+                    color: _brand,
+                    size: 15,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    _tx(content, 'review.reply_button', 'Cavab yaz'),
+                    style: const TextStyle(
+                      color: _brand,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _VerifiedReviewBadge extends StatelessWidget {
+  final Map<String, String> content;
+
+  const _VerifiedReviewBadge({required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFECFDF5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            PhosphorIconsFill.checkCircle,
+            color: Color(0xFF059669),
+            size: 13,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            _tx(content, 'review.verified_shipment', 'Təsdiqlənmiş sifariş'),
+            style: const TextStyle(
+              color: Color(0xFF059669),
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PublicActionBar extends StatelessWidget {
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final VoidCallback onFollow;
+  final VoidCallback onMessage;
+
+  const _PublicActionBar({
+    required this.user,
+    required this.content,
+    required this.onFollow,
+    required this.onMessage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        10 + MediaQuery.of(context).padding.bottom,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: _ink900.withValues(alpha: 0.05))),
+        boxShadow: [
+          BoxShadow(
+            color: _ink900.withValues(alpha: 0.16),
+            blurRadius: 24,
+            offset: const Offset(0, -8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 16,
+            child: user.isFollowing
+                ? _GhostButton(
+                    label: 'İzlənilir',
+                    icon: PhosphorIconsFill.check,
+                    onTap: onFollow,
+                  )
+                : _PrimaryButton(
+                    label: 'İzlə',
+                    icon: PhosphorIconsBold.plus,
+                    onTap: onFollow,
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 10,
+            child: _SoftButton(
+              label: 'Mesaj',
+              icon: PhosphorIconsFill.chatCircle,
+              onTap: onMessage,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FollowListScreen extends StatefulWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final bool following;
+
+  const _FollowListScreen({
+    required this.api,
+    required this.user,
+    required this.content,
+    required this.following,
+  });
+
+  @override
+  State<_FollowListScreen> createState() => _FollowListScreenState();
+}
+
+class _FollowListScreenState extends State<_FollowListScreen> {
+  late bool _followingTab = widget.following;
+  late Future<List<WawatProfileUser>> _future = _load();
+
+  Future<List<WawatProfileUser>> _load() {
+    return widget.api.followers(widget.user.id, following: _followingTab);
+  }
+
+  void _switch(bool following) {
+    setState(() {
+      _followingTab = following;
+      _future = _load();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _ProfileTopBar(title: widget.user.safeFullName),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: _ink900.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    _Segment(
+                      selected: !_followingTab,
+                      label: 'İzləyicilər',
+                      count: widget.user.followersCount,
+                      onTap: () => _switch(false),
+                    ),
+                    _Segment(
+                      selected: _followingTab,
+                      label: 'İzləyir',
+                      count: widget.user.followingCount,
+                      onTap: () => _switch(true),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<List<WawatProfileUser>>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: _brand),
+                    );
+                  }
+                  final items = snapshot.data ?? const [];
+                  if (items.isEmpty) {
+                    return const _EmptyState(
+                      icon: PhosphorIconsRegular.user,
+                      title: 'Siyahı boşdur',
+                      subtitle: 'Burada istifadəçilər görünəcək.',
+                    );
+                  }
+                  return ListView.separated(
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => Divider(
+                        height: 1, color: _ink900.withValues(alpha: 0.05)),
+                    itemBuilder: (context, index) {
+                      return _UserRow(
+                        user: items[index],
+                        onOpen: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                PublicProfileScreen(userId: items[index].id),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UserRow extends StatelessWidget {
+  final WawatProfileUser user;
+  final VoidCallback onOpen;
+
+  const _UserRow({required this.user, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onOpen,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            _ProfileAvatar(user: user, size: 44),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          user.safeFullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: _ink900,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      if (user.isVerified) ...[
+                        const SizedBox(width: 5),
+                        const Icon(
+                          PhosphorIconsFill.sealCheck,
+                          color: _brand,
+                          size: 14,
+                        ),
+                      ],
+                    ],
+                  ),
+                  Text(
+                    [
+                      if (user.username != null) '@${user.username}',
+                      if (user.trust.ratingAvg != null)
+                        '★ ${user.trust.ratingAvg!.toStringAsFixed(1)}',
+                    ].join(' · '),
+                    style: const TextStyle(
+                      color: _ink400,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(PhosphorIconsRegular.caretRight, color: _ink300),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsHubScreen extends StatelessWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final VoidCallback onVerification;
+  final VoidCallback onProfileUpdated;
+
+  const _SettingsHubScreen({
+    required this.api,
+    required this.user,
+    required this.content,
+    required this.onVerification,
+    required this.onProfileUpdated,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _screen,
+      body: SafeArea(
+        child: ListView(
+          children: [
+            const _ProfileTopBar(title: 'Ayarlar'),
+            _GroupHead(_tx(content, 'profile.settings.account', 'Hesab')),
+            _SettingsGroup(
+              children: [
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.user,
+                  label: _tx(content, 'profile.edit', 'Profili redaktə et'),
+                  onTap: () async {
+                    final updated =
+                        await Navigator.of(context).push<WawatProfileUser>(
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (_) => _EditProfileScreen(
+                          api: api,
+                          user: user,
+                          content: content,
+                        ),
+                      ),
+                    );
+                    if (updated != null) onProfileUpdated();
+                  },
+                ),
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.sealCheck,
+                  label:
+                      _tx(content, 'profile.verify_account', 'Hesabı təsdiqlə'),
+                  trailing: user.isVerified
+                      ? _TinyStatus(
+                          label:
+                              _tx(content, 'profile.verified', 'Təsdiqlənib'),
+                        )
+                      : _TinyStatus(
+                          label: _tx(
+                            content,
+                            'profile.not_verified',
+                            'Təsdiqlənməyib',
+                          ),
+                          amber: true,
+                        ),
+                  onTap: onVerification,
+                ),
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.lockKey,
+                  label:
+                      _tx(content, 'profile.change_password', 'Parolu dəyiş'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => _ChangePasswordScreen(
+                        api: api,
+                        content: content,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            _GroupHead(
+                _tx(content, 'profile.settings.preferences', 'Tərcihlər')),
+            _SettingsGroup(
+              children: [
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.bell,
+                  label: _tx(
+                    content,
+                    'profile.notification_settings',
+                    'Bildiriş ayarları',
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationSettingsScreen(),
+                    ),
+                  ),
+                ),
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.lockSimple,
+                  label: _tx(content, 'profile.privacy', 'Məxfilik'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => _PrivacySettingsScreen(
+                        api: api,
+                        initial: user.settings.privacy,
+                        content: content,
+                      ),
+                    ),
+                  ),
+                ),
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.translate,
+                  label: _tx(content, 'profile.language', 'Dil'),
+                  trailingText: user.preferredLocale ?? 'az',
+                  onTap: () {},
+                ),
+              ],
+            ),
+            _GroupHead(_tx(content, 'profile.settings.support', 'Dəstək')),
+            _SettingsGroup(
+              children: [
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.question,
+                  label: _tx(content, 'profile.help_faq', 'Kömək & FAQ'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => FaqScreen()),
+                  ),
+                ),
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.fileText,
+                  label: _tx(
+                    content,
+                    'profile.terms_privacy',
+                    'Qaydalar & məxfilik siyasəti',
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => PrivacyPolicyScreen()),
+                  ),
+                ),
+                _SettingsRow(
+                  icon: PhosphorIconsRegular.chatCircle,
+                  label: _tx(content, 'profile.support', 'Dəstək'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => SupportScreen()),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+              child: _GhostButton(
+                label: _tx(content, 'profile.logout', 'Çıxış'),
+                icon: PhosphorIconsRegular.signOut,
+                onTap: () async {
+                  await api.logout();
+                  await sl.get<AuthRepository>().logout();
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+              ),
+            ),
+            GestureDetector(
+              onTap: () => showModalBottomSheet<void>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => _DeleteAccountSheet(api: api, content: content),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                child: Text(
+                  _tx(content, 'profile.delete_account', 'Hesabı sil'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFEF4444),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 24),
+              child: Text(
+                'Wawatair · v1.0.0',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: _ink400,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EditProfileScreen extends StatefulWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+
+  const _EditProfileScreen({
+    required this.api,
+    required this.user,
+    required this.content,
+  });
+
+  @override
+  State<_EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<_EditProfileScreen> {
+  late final TextEditingController _firstName =
+      TextEditingController(text: widget.user.firstName ?? '');
+  late final TextEditingController _lastName =
+      TextEditingController(text: widget.user.lastName ?? '');
+  late final TextEditingController _bio =
+      TextEditingController(text: widget.user.bio ?? '');
+  late String _locale = widget.user.preferredLocale ?? 'az';
+  late final Set<String> _languages =
+      widget.user.languages.map((language) => language.code).toSet();
+  late Future<LanguageResponse> _languageFuture = widget.api.languages();
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _firstName.dispose();
+    _lastName.dispose();
+    _bio.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final user = await widget.api.updateProfile({
+        'first_name': _firstName.text.trim(),
+        'last_name': _lastName.text.trim(),
+        'bio': _bio.text.trim(),
+        'preferred_locale': _locale,
+        'languages': _languages.toList(),
+      });
+      if (!mounted) return;
+      Navigator.of(context).pop(user);
+    } catch (_) {
+      if (mounted) {
+        _showSnack(
+          context,
+          _tx(widget.content, 'profile.update_failed', 'Profil yenilənmədi.'),
+          error: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _pickAvatar(ImageSource source) async {
+    final picker = ImagePicker();
+    final file = await picker.pickImage(source: source, imageQuality: 88);
+    if (file == null) return;
+    try {
+      await widget.api.uploadAvatar(File(file.path));
+      if (mounted) {
+        _showSnack(
+          context,
+          _tx(widget.content, 'profile.avatar_updated', 'Avatar yeniləndi.'),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        _showSnack(
+          context,
+          _tx(widget.content, 'profile.avatar_update_failed',
+              'Avatar yenilənmədi.'),
+          error: true,
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _ProfileTopBar(
+              title: _tx(widget.content, 'profile.edit', 'Profili redaktə et'),
+              trailingIcon: PhosphorIconsBold.x,
+              onTrailing: () => Navigator.of(context).maybePop(),
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.only(
+                  bottom: 96 + MediaQuery.of(context).padding.bottom,
+                ),
+                children: [
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            _ProfileAvatar(user: widget.user, size: 88),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: GestureDetector(
+                                onTap: _showAvatarSheet,
+                                child: Container(
+                                  width: 34,
+                                  height: 34,
+                                  decoration: BoxDecoration(
+                                    color: _brand,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Colors.white, width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: _brand.withValues(alpha: 0.35),
+                                        blurRadius: 12,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    PhosphorIconsFill.camera,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          onPressed: _showAvatarSheet,
+                          child: Text(
+                            _tx(widget.content, 'profile.change_photo',
+                                'Şəkli dəyiş'),
+                            style: const TextStyle(fontWeight: FontWeight.w900),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _Field(
+                                label: _tx(
+                                    widget.content, 'profile.first_name', 'Ad'),
+                                controller: _firstName,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _Field(
+                                label: _tx(widget.content, 'profile.last_name',
+                                    'Soyad'),
+                                controller: _lastName,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        _Field(
+                          label: _tx(widget.content, 'profile.bio', 'Bio'),
+                          controller: _bio,
+                          maxLines: 4,
+                          maxLength: 200,
+                        ),
+                        const SizedBox(height: 14),
+                        _SelectLocale(
+                          value: _locale,
+                          onChanged: (value) => setState(() => _locale = value),
+                        ),
+                        const SizedBox(height: 14),
+                        FutureBuilder<LanguageResponse>(
+                          future: _languageFuture,
+                          builder: (context, snapshot) {
+                            final languages = snapshot.data?.data ?? const [];
+                            return _LanguageSelector(
+                              languages: languages,
+                              selected: _languages,
+                              onToggle: (code) {
+                                setState(() {
+                                  if (_languages.contains(code)) {
+                                    _languages.remove(code);
+                                  } else {
+                                    _languages.add(code);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _BottomCta(
+              child: _PrimaryButton(
+                label: _busy
+                    ? '...'
+                    : _tx(widget.content, 'common.save', 'Yadda saxla'),
+                icon: PhosphorIconsFill.check,
+                onTap: _busy ? null : _save,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAvatarSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _AvatarSheet(
+        onCamera: () {
+          Navigator.pop(context);
+          _pickAvatar(ImageSource.camera);
+        },
+        onGallery: () {
+          Navigator.pop(context);
+          _pickAvatar(ImageSource.gallery);
+        },
+        onDelete: () async {
+          Navigator.pop(context);
+          try {
+            await widget.api.deleteAvatar();
+            if (mounted) {
+              _showSnack(
+                context,
+                _tx(widget.content, 'profile.avatar_deleted',
+                    'Avatar silindi.'),
+              );
+            }
+          } catch (_) {
+            if (mounted) {
+              _showSnack(
+                context,
+                _tx(widget.content, 'profile.avatar_delete_failed',
+                    'Avatar silinmədi.'),
+                error: true,
+              );
+            }
+          }
+        },
+        content: widget.content,
+      ),
+    );
+  }
+}
+
+class _PrivacySettingsScreen extends StatefulWidget {
+  final WawatProfileApi api;
+  final WawatPrivacySettings initial;
+  final Map<String, String> content;
+
+  const _PrivacySettingsScreen({
+    required this.api,
+    required this.initial,
+    required this.content,
+  });
+
+  @override
+  State<_PrivacySettingsScreen> createState() => _PrivacySettingsScreenState();
+}
+
+class _PrivacySettingsScreenState extends State<_PrivacySettingsScreen> {
+  late WawatPrivacySettings _settings = widget.initial;
+
+  Future<void> _update(WawatPrivacySettings next) async {
+    final previous = _settings;
+    setState(() => _settings = next);
+    try {
+      final message = await widget.api.updatePrivacy(next);
+      if (mounted) _showSnack(context, message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _settings = previous);
+      _showSnack(context, 'Məxfilik yenilənmədi.', error: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _screen,
+      body: SafeArea(
+        child: ListView(
+          children: [
+            _ProfileTopBar(
+              title: _tx(widget.content, 'profile.privacy', 'Məxfilik'),
+            ),
+            _GroupHead(
+              _tx(widget.content, 'profile.privacy_show', 'Profildə göstər'),
+            ),
+            _SettingsGroup(
+              children: [
+                _SwitchRow(
+                  icon: PhosphorIconsRegular.phone,
+                  label: _tx(widget.content, 'profile.privacy_phone',
+                      'Telefon nömrəsi'),
+                  subtitle: _tx(
+                    widget.content,
+                    'profile.privacy_visible_to_others',
+                    'Başqaları görə bilsin',
+                  ),
+                  value: _settings.showPhone,
+                  onChanged: (value) =>
+                      _update(_settings.copyWith(showPhone: value)),
+                ),
+                _SwitchRow(
+                  icon: PhosphorIconsRegular.envelopeSimple,
+                  label: _tx(widget.content, 'profile.privacy_email', 'E-poçt'),
+                  subtitle: _tx(
+                    widget.content,
+                    'profile.privacy_visible_to_others',
+                    'Başqaları görə bilsin',
+                  ),
+                  value: _settings.showEmail,
+                  onChanged: (value) =>
+                      _update(_settings.copyWith(showEmail: value)),
+                ),
+                _SwitchRow(
+                  icon: PhosphorIconsRegular.clock,
+                  label: _tx(widget.content, 'profile.privacy_activity',
+                      'Aktivlik vaxtı'),
+                  subtitle: _tx(
+                    widget.content,
+                    'profile.privacy_activity_hint',
+                    'Son giriş görünsün',
+                  ),
+                  value: _settings.showActivityTime,
+                  onChanged: (value) =>
+                      _update(_settings.copyWith(showActivityTime: value)),
+                ),
+                _SwitchRow(
+                  icon: PhosphorIconsRegular.translate,
+                  label: _tx(widget.content, 'profile.privacy_languages',
+                      'Bildiyim dillər'),
+                  subtitle: _tx(
+                    widget.content,
+                    'profile.privacy_profile_visible',
+                    'Profildə görünsün',
+                  ),
+                  value: _settings.showLanguages,
+                  onChanged: (value) =>
+                      _update(_settings.copyWith(showLanguages: value)),
+                ),
+              ],
+            ),
+            Container(
+              margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(PhosphorIconsFill.info, color: _ink400, size: 17),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _tx(
+                        widget.content,
+                        'profile.privacy_note',
+                        'Əlaqə həmişə söhbət (chat) vasitəsilə mümkündür — nömrənizi gizli saxlasanız belə.',
+                      ),
+                      style: const TextStyle(
+                        color: _ink500,
+                        fontSize: 12.5,
+                        height: 1.35,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChangePasswordScreen extends StatefulWidget {
+  final WawatProfileApi api;
+  final Map<String, String> content;
+
+  const _ChangePasswordScreen({required this.api, required this.content});
+
+  @override
+  State<_ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+}
+
+class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
+  final _current = TextEditingController();
+  final _password = TextEditingController();
+  bool _busy = false;
+  bool _showCurrent = false;
+  bool _showPassword = false;
+
+  @override
+  void dispose() {
+    _current.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_password.text.length < 8) {
+      _showSnack(
+        context,
+        _tx(widget.content, 'profile.password_min',
+            'Ən az 8 simvol olmalıdır.'),
+        error: true,
+      );
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final message = await widget.api.changePassword(
+        currentPassword: _current.text,
+        password: _password.text,
+      );
+      if (!mounted) return;
+      _showSnack(context, message);
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) _showSnack(context, _errorMessage(e), error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _ProfileTopBar(
+              title: _tx(
+                  widget.content, 'profile.change_password', 'Parolu dəyiş'),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _PasswordField(
+                    label: _tx(widget.content, 'profile.current_password',
+                        'Cari parol'),
+                    controller: _current,
+                    visible: _showCurrent,
+                    onToggle: () =>
+                        setState(() => _showCurrent = !_showCurrent),
+                    icon: PhosphorIconsRegular.lockKey,
+                  ),
+                  const SizedBox(height: 16),
+                  _PasswordField(
+                    label: _tx(
+                        widget.content, 'profile.new_password', 'Yeni parol'),
+                    controller: _password,
+                    visible: _showPassword,
+                    onToggle: () =>
+                        setState(() => _showPassword = !_showPassword),
+                    icon: PhosphorIconsRegular.lockSimple,
+                  ),
+                  const SizedBox(height: 8),
+                  _PasswordStrength(length: _password.text.length),
+                  const SizedBox(height: 6),
+                  Text(
+                    _tx(
+                      widget.content,
+                      'profile.password_hint',
+                      'Ən az 8 simvol, cari paroldan fərqli',
+                    ),
+                    style: const TextStyle(
+                      color: _ink400,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _BottomCta(
+              child: _PrimaryButton(
+                label: _busy
+                    ? '...'
+                    : _tx(
+                        widget.content,
+                        'profile.password_update',
+                        'Parolu yenilə',
+                      ),
+                icon: PhosphorIconsFill.check,
+                onTap: _busy ? null : _submit,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DeleteAccountSheet extends StatefulWidget {
+  final WawatProfileApi api;
+  final Map<String, String> content;
+
+  const _DeleteAccountSheet({required this.api, required this.content});
+
+  @override
+  State<_DeleteAccountSheet> createState() => _DeleteAccountSheetState();
+}
+
+class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
+  bool _confirmed = false;
+  bool _busy = false;
+
+  Future<void> _delete() async {
+    if (!_confirmed || _busy) return;
+    setState(() => _busy = true);
+    try {
+      final message = await widget.api.deleteAccount();
+      await sl.get<AuthRepository>().logout();
+      if (!mounted) return;
+      Navigator.pop(context);
+      _showSnack(context, message);
+    } catch (e) {
+      if (mounted) _showSnack(context, _errorMessage(e), error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF2F2),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              PhosphorIconsFill.warning,
+              color: Color(0xFFEF4444),
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _tx(widget.content, 'profile.delete_title', 'Hesabı silmək?'),
+            style: const TextStyle(
+              color: _ink900,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            _tx(
+              widget.content,
+              'profile.delete_subtitle',
+              'Elanlarınız, söhbətləriniz və rəyləriniz gizlədiləcək. Bu əməli geri qaytarmaq mümkün deyil.',
+            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: _ink500,
+              fontSize: 13,
+              height: 1.35,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 14),
+          GestureDetector(
+            onTap: () => setState(() => _confirmed = !_confirmed),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: _ink900.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _confirmed
+                        ? PhosphorIconsFill.checkSquare
+                        : PhosphorIconsRegular.square,
+                    color: _confirmed ? _brand : _ink300,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _tx(
+                        widget.content,
+                        'profile.delete_confirm_understand',
+                        'Nəticələri başa düşürəm',
+                      ),
+                      style: const TextStyle(
+                        color: _ink700,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _DangerButton(
+            label: _busy
+                ? '...'
+                : _tx(widget.content, 'profile.delete_account', 'Hesabı sil'),
+            icon: PhosphorIconsFill.trash,
+            onTap: _confirmed && !_busy ? _delete : null,
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(_tx(widget.content, 'common.cancel', 'İmtina et')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportUserSheet extends StatefulWidget {
+  final WawatProfileApi api;
+  final WawatProfileUser user;
+  final Map<String, String> content;
+
+  const _ReportUserSheet({
+    required this.api,
+    required this.user,
+    required this.content,
+  });
+
+  @override
+  State<_ReportUserSheet> createState() => _ReportUserSheetState();
+}
+
+class _ReportUserSheetState extends State<_ReportUserSheet> {
+  final _note = TextEditingController();
+  String _reason = 'spam';
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.api.reportUser(
+        userId: widget.user.id,
+        reasonCode: _reason,
+        note: _note.text,
+      );
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) _showSnack(context, _errorMessage(e), error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reasons = {
+      'spam': _tx(widget.content, 'profile.report_spam', 'Spam'),
+      'fraud': _tx(widget.content, 'profile.report_fraud', 'Fırıldaq'),
+      'abuse': _tx(widget.content, 'profile.report_abuse', 'Təhqir'),
+      'fake': _tx(widget.content, 'profile.report_fake', 'Saxta'),
+      'inappropriate':
+          _tx(widget.content, 'profile.report_inappropriate', 'Uyğunsuz'),
+      'other': _tx(widget.content, 'profile.report_other', 'Digər'),
+    };
+    return _SheetShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _tx(
+              widget.content,
+              'profile.report_user_title',
+              'İstifadəçini şikayət et',
+            ),
+            style: const TextStyle(
+              color: _ink900,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _tx(
+              widget.content,
+              'profile.report_user_subtitle',
+              'Səbəbi seçin. Şikayət anonimdir.',
+            ),
+            style: const TextStyle(
+              color: _ink500,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final entry in reasons.entries)
+                _ReasonChip(
+                  label: entry.value,
+                  selected: _reason == entry.key,
+                  onTap: () => setState(() => _reason = entry.key),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _Field(
+            label: _tx(widget.content, 'profile.report_details', 'Ətraflı'),
+            controller: _note,
+            maxLines: 3,
+            hint: _tx(widget.content, 'common.optional', 'İstəyə bağlı'),
+          ),
+          const SizedBox(height: 12),
+          _PrimaryButton(
+            label: _busy ? '...' : 'Şikayəti göndər',
+            icon: PhosphorIconsFill.flag,
+            onTap: _busy ? null : _submit,
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(_tx(widget.content, 'common.cancel', 'İmtina et')),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReplyReviewSheet extends StatefulWidget {
+  final WawatProfileApi api;
+  final WawatReview review;
+  final Map<String, String> content;
+
+  const _ReplyReviewSheet({
+    required this.api,
+    required this.review,
+    required this.content,
+  });
+
+  @override
+  State<_ReplyReviewSheet> createState() => _ReplyReviewSheetState();
+}
+
+class _ReplyReviewSheetState extends State<_ReplyReviewSheet> {
+  final _reply = TextEditingController();
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _reply.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_reply.text.trim().isEmpty || _busy) return;
+    setState(() => _busy = true);
+    try {
+      await widget.api.replyReview(
+        reviewId: widget.review.id,
+        reply: _reply.text.trim(),
+      );
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) _showSnack(context, _errorMessage(e), error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _tx(widget.content, 'review.reply_title', 'Cavab yaz'),
+            style: const TextStyle(
+              color: _ink900,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _ink900.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              widget.review.comment ?? widget.review.author?.displayName ?? '',
+              style: const TextStyle(
+                color: _ink600,
+                fontSize: 13,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _Field(
+            label: 'Cavabınız',
+            controller: _reply,
+            maxLines: 4,
+            maxLength: 2000,
+            hint: _tx(widget.content, 'review.reply_hint', 'Cavabını yaz…'),
+          ),
+          const SizedBox(height: 10),
+          _PrimaryButton(
+            label: _busy
+                ? '...'
+                : _tx(widget.content, 'review.reply_submit', 'Cavabı göndər'),
+            icon: PhosphorIconsFill.arrowBendUpLeft,
+            onTap: _busy ? null : _submit,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UserActionSheet extends StatelessWidget {
+  final VoidCallback onBlock;
+  final VoidCallback onReport;
+
+  const _UserActionSheet({
+    required this.onBlock,
+    required this.onReport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _SheetAction(
+            icon: PhosphorIconsRegular.prohibit,
+            label: 'İstifadəçini blokla',
+            onTap: onBlock,
+          ),
+          _SheetAction(
+            icon: PhosphorIconsRegular.flag,
+            label: 'Şikayət et',
+            color: const Color(0xFFEF4444),
+            onTap: onReport,
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Bağla'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileAvatar extends StatelessWidget {
+  final WawatProfileUser user;
+  final double size;
+
+  const _ProfileAvatar({required this.user, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final avatar = user.avatarThumbUrl ?? user.avatarUrl;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: avatar == null || avatar.isEmpty
+            ? const LinearGradient(
+                colors: [_brand, Color(0xFF024FA3)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: avatar != null && avatar.isNotEmpty
+          ? CachedNetworkImage(imageUrl: avatar, fit: BoxFit.cover)
+          : Center(
+              child: Text(
+                user.initials,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: size * 0.32,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+    );
+  }
+}
+
+class _ReviewAvatar extends StatelessWidget {
+  final WawatReviewUser? author;
+
+  const _ReviewAvatar({this.author});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: const BoxDecoration(
+        color: _brand,
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        author?.initials ?? 'U',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _TierBadge extends StatelessWidget {
+  final String tier;
+  final Map<String, String> content;
+
+  const _TierBadge({required this.tier, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = switch (tier) {
+      'bronze' => (const Color(0xFFEFE1D0), const Color(0xFF9A5B2A)),
+      'silver' => (const Color(0xFFF1F5F9), _ink600),
+      'gold' => (const Color(0xFFFDECC8), const Color(0xFFB67C00)),
+      'platinum' => (const Color(0xFFE0E7FF), const Color(0xFF3730A3)),
+      _ => (const Color(0xFFDCFCE7), const Color(0xFF15803D)),
+    };
+    final label = _tx(content, 'enum.user_tier.$tier', _tierLabel(tier));
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: palette.$1,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: palette.$2,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+
+  const _Chip({required this.label, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(99),
+        border: Border.all(color: _ink900.withValues(alpha: 0.08)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, color: _ink400, size: 14),
+            const SizedBox(width: 5),
+          ],
+          Text(
+            label,
+            style: const TextStyle(
+              color: _ink700,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TinyStatus extends StatelessWidget {
+  final String label;
+  final bool amber;
+
+  const _TinyStatus({required this.label, this.amber = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: amber ? _amber50 : const Color(0xFFECFDF5),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: amber ? _amber : const Color(0xFF059669),
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  const _PrimaryButton({
+    required this.label,
+    this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ButtonBase(
+      label: label,
+      icon: icon,
+      onTap: onTap,
+      background: _brand,
+      foreground: Colors.white,
+      shadow: true,
+    );
+  }
+}
+
+class _SoftButton extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  const _SoftButton({
+    required this.label,
+    this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ButtonBase(
+      label: label,
+      icon: icon,
+      onTap: onTap,
+      background: _brand50,
+      foreground: _brand,
+    );
+  }
+}
+
+class _GhostButton extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  const _GhostButton({
+    required this.label,
+    this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ButtonBase(
+      label: label,
+      icon: icon,
+      onTap: onTap,
+      background: _ink900.withValues(alpha: 0.05),
+      foreground: _ink600,
+    );
+  }
+}
+
+class _DangerButton extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  const _DangerButton({
+    required this.label,
+    this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ButtonBase(
+      label: label,
+      icon: icon,
+      onTap: onTap,
+      background: const Color(0xFFEF4444),
+      foreground: Colors.white,
+    );
+  }
+}
+
+class _ButtonBase extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final VoidCallback? onTap;
+  final Color background;
+  final Color foreground;
+  final bool shadow;
+
+  const _ButtonBase({
+    required this.label,
+    required this.onTap,
+    required this.background,
+    required this.foreground,
+    this.icon,
+    this.shadow = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Opacity(
+        opacity: onTap == null ? 0.55 : 1,
+        child: Container(
+          height: 50,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: shadow
+                ? [
+                    BoxShadow(
+                      color: _brand.withValues(alpha: 0.36),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: foreground, size: 20),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomCta extends StatelessWidget {
+  final Widget child;
+
+  const _BottomCta({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        10 + MediaQuery.of(context).padding.bottom,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: _ink900.withValues(alpha: 0.05))),
+        boxShadow: [
+          BoxShadow(
+            color: _ink900.withValues(alpha: 0.18),
+            blurRadius: 24,
+            offset: const Offset(0, -8),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+}
+
+class _Field extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final int maxLines;
+  final int? maxLength;
+  final String? hint;
+
+  const _Field({
+    required this.label,
+    required this.controller,
+    this.maxLines = 1,
+    this.maxLength,
+    this.hint,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: _ink900,
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 7),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          decoration: InputDecoration(
+            hintText: hint,
+            counterStyle: const TextStyle(
+              color: _ink400,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+            filled: true,
+            fillColor: _ink900.withValues(alpha: 0.02),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: const BorderSide(color: _brand),
+            ),
+          ),
+          style: const TextStyle(
+            color: _ink900,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PasswordField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final bool visible;
+  final VoidCallback onToggle;
+  final IconData icon;
+
+  const _PasswordField({
+    required this.label,
+    required this.controller,
+    required this.visible,
+    required this.onToggle,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: _ink900,
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 7),
+        TextField(
+          controller: controller,
+          obscureText: !visible,
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: _ink400),
+            suffixIcon: GestureDetector(
+              onTap: onToggle,
+              child: Icon(
+                visible
+                    ? PhosphorIconsRegular.eyeSlash
+                    : PhosphorIconsRegular.eye,
+                color: _ink400,
+              ),
+            ),
+            filled: true,
+            fillColor: _ink900.withValues(alpha: 0.02),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: const BorderSide(color: _brand),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PasswordStrength extends StatelessWidget {
+  final int length;
+
+  const _PasswordStrength({required this.length});
+
+  @override
+  Widget build(BuildContext context) {
+    final active = length >= 8 ? 3 : (length >= 4 ? 2 : (length > 0 ? 1 : 0));
+    return Row(
+      children: [
+        for (var i = 0; i < 4; i++) ...[
+          Expanded(
+            child: Container(
+              height: 4,
+              decoration: BoxDecoration(
+                color: i < active ? _emerald : _ink200,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          ),
+          if (i != 3) const SizedBox(width: 4),
+        ],
+        const SizedBox(width: 8),
+        Text(
+          active >= 3 ? 'Güclü' : 'Zəif',
+          style: TextStyle(
+            color: active >= 3 ? _emerald : _ink400,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SelectLocale extends StatelessWidget {
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  const _SelectLocale({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Tətbiq dili',
+          style: TextStyle(
+            color: _ink900,
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: _ink900.withValues(alpha: 0.02),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: _ink900.withValues(alpha: 0.07)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              isExpanded: true,
+              icon: const Icon(PhosphorIconsRegular.caretDown, color: _ink400),
+              items: const [
+                DropdownMenuItem(value: 'az', child: Text('Azərbaycanca')),
+                DropdownMenuItem(value: 'en', child: Text('English')),
+                DropdownMenuItem(value: 'ru', child: Text('Русский')),
+                DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
+                DropdownMenuItem(value: 'ua', child: Text('Українська')),
+              ],
+              onChanged: (value) {
+                if (value != null) onChanged(value);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LanguageSelector extends StatelessWidget {
+  final List<dynamic> languages;
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+
+  const _LanguageSelector({
+    required this.languages,
+    required this.selected,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Bildiyiniz dillər',
+          style: TextStyle(
+            color: _ink900,
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 7,
+          runSpacing: 7,
+          children: [
+            for (final language in languages)
+              GestureDetector(
+                onTap: () => onToggle(language.code),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: selected.contains(language.code)
+                        ? _brand50
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(99),
+                    border: Border.all(
+                      color:
+                          selected.contains(language.code) ? _brand : _ink200,
+                    ),
+                  ),
+                  child: Text(
+                    language.name ?? language.code,
+                    style: TextStyle(
+                      color:
+                          selected.contains(language.code) ? _brand : _ink700,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _SettingsGroup extends StatelessWidget {
+  final List<Widget> children;
+
+  const _SettingsGroup({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: _ink900.withValues(alpha: 0.07),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: children),
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final Widget? trailing;
+  final String? trailingText;
+
+  const _SettingsRow({
+    required this.icon,
+    required this.label,
+    this.onTap,
+    this.trailing,
+    this.trailingText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        child: Row(
+          children: [
+            _SettingsIcon(icon: icon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  color: _ink900,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            if (trailing != null)
+              trailing!
+            else if (trailingText != null)
+              Text(
+                trailingText!,
+                style: const TextStyle(
+                  color: _ink400,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            const SizedBox(width: 6),
+            const Icon(PhosphorIconsRegular.caretRight, color: _ink300),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SwitchRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SwitchRow({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      child: Row(
+        children: [
+          _SettingsIcon(icon: icon),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: _ink900,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: _ink400,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            activeColor: Colors.white,
+            activeTrackColor: _brand,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: _ink900.withValues(alpha: 0.12),
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsIcon extends StatelessWidget {
+  final IconData icon;
+
+  const _SettingsIcon({required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: _brand50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: _brand, size: 18),
+    );
+  }
+}
+
+class _GroupHead extends StatelessWidget {
+  final String label;
+
+  const _GroupHead(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          color: _ink400,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetShell extends StatelessWidget {
+  final Widget child;
+
+  const _SheetShell({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        18,
+        12,
+        18,
+        18 + MediaQuery.of(context).padding.bottom,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 38,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 14),
+            decoration: BoxDecoration(
+              color: _ink200,
+              borderRadius: BorderRadius.circular(99),
+            ),
+          ),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _SheetAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SheetAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.color = _ink800,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarSheet extends StatelessWidget {
+  final VoidCallback onCamera;
+  final VoidCallback onGallery;
+  final VoidCallback onDelete;
+  final Map<String, String> content;
+
+  const _AvatarSheet({
+    required this.onCamera,
+    required this.onGallery,
+    required this.onDelete,
+    required this.content,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 4),
+            child: Text(
+              _tx(content, 'profile.avatar_title', 'Profil şəkli'),
+              style: const TextStyle(
+                color: _ink900,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          _SheetAction(
+            icon: PhosphorIconsRegular.camera,
+            label: _tx(content, 'profile.avatar_camera', 'Kameradan çək'),
+            color: _brand,
+            onTap: onCamera,
+          ),
+          _SheetAction(
+            icon: PhosphorIconsRegular.image,
+            label: _tx(content, 'profile.avatar_gallery', 'Qalereyadan seç'),
+            color: _brand,
+            onTap: onGallery,
+          ),
+          _SheetAction(
+            icon: PhosphorIconsRegular.trash,
+            label: _tx(content, 'profile.avatar_delete', 'Şəkli sil'),
+            color: const Color(0xFFEF4444),
+            onTap: onDelete,
+          ),
+          Text(
+            _tx(content, 'profile.avatar_hint', 'JPG/PNG/WEBP · maks 10 MB'),
+            style: const TextStyle(
+              color: _ink400,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReasonChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ReasonChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? _brand50 : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: selected ? _brand : _ink200),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? _brand : _ink700,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 360,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              color: _brand50,
+              borderRadius: BorderRadius.circular(26),
+            ),
+            child: Icon(icon, color: _brand, size: 38),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: _ink900,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 36),
+            child: Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: _ink500,
+                fontSize: 13.5,
+                height: 1.35,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileSkeleton extends StatelessWidget {
+  final bool showBack;
+
+  const _ProfileSkeleton({required this.showBack});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ProfileTopBar(title: 'Profil', showBack: showBack),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Row(
+                children: [
+                  const _SkeletonBox(width: 68, height: 68, circle: true),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        _SkeletonBox(width: 160, height: 18),
+                        SizedBox(height: 8),
+                        _SkeletonBox(width: 90, height: 12),
+                        SizedBox(height: 8),
+                        _SkeletonBox(width: 80, height: 16),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              const _SkeletonBox(width: double.infinity, height: 42),
+              const SizedBox(height: 14),
+              Row(
+                children: const [
+                  Expanded(
+                      child: _SkeletonBox(width: double.infinity, height: 64)),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: _SkeletonBox(width: double.infinity, height: 64)),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: _SkeletonBox(width: double.infinity, height: 64)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const _SkeletonBox(width: double.infinity, height: 52),
+              const SizedBox(height: 14),
+              const _SkeletonBox(width: double.infinity, height: 88),
+              const SizedBox(height: 10),
+              const _SkeletonBox(width: double.infinity, height: 88),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  final double width;
+  final double height;
+  final bool circle;
+
+  const _SkeletonBox({
+    required this.width,
+    required this.height,
+    this.circle = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: _ink200,
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(18),
+      ),
+    );
+  }
+}
+
+class _ProfileNotFound extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _ProfileNotFound({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const _ProfileTopBar(title: 'Profil'),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: _ink900.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: const Icon(
+                      PhosphorIconsRegular.userMinus,
+                      color: _ink300,
+                      size: 40,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'İstifadəçi tapılmadı',
+                    style: TextStyle(
+                      color: _ink900,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  const Text(
+                    'Bu hesab mövcud deyil, dayandırılıb və ya silinib.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _ink500,
+                      fontSize: 13.5,
+                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: 180,
+                    child: _PrimaryButton(label: 'Yenilə', onTap: onRetry),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileAuthRequired extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _ProfileAuthRequired({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const _ProfileTopBar(title: 'Profil'),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 88,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: _brand50,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Icon(
+                      PhosphorIconsFill.userCirclePlus,
+                      color: _brand,
+                      size: 44,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  const Text(
+                    'Profil üçün daxil ol',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _ink900,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Elanlarını, rəylərini və ayarlarını idarə etmək üçün hesabına daxil ol.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _ink500,
+                      fontSize: 13.5,
+                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  _PrimaryButton(
+                    label: 'Daxil ol / Qeydiyyat',
+                    onTap: () => AuthModalUtils.showAuthRequiredModal(context),
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: onRetry,
+                    behavior: HitTestBehavior.translucent,
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'Yenilə',
+                        style: TextStyle(
+                          color: _brand,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+BoxDecoration _cardDecoration() {
+  return BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+    border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+    boxShadow: [
+      BoxShadow(
+        color: _ink900.withValues(alpha: 0.08),
+        blurRadius: 22,
+        offset: const Offset(0, 8),
+      ),
+    ],
+  );
+}
+
+String _compact(int value) {
+  if (value >= 1000) {
+    final result = value / 1000;
+    return '${result.toStringAsFixed(result >= 10 ? 0 : 1)}K';
+  }
+  return '$value';
+}
+
+String _num(double? value) {
+  if (value == null) return '';
+  if (value == value.roundToDouble()) return value.toInt().toString();
+  return value.toStringAsFixed(1);
+}
+
+String _formatDate(String? value) {
+  if (value == null || value.isEmpty) return '';
+  final date = DateTime.tryParse(value);
+  if (date == null) return value;
+  return '${date.day} ${_month(date.month)}';
+}
+
+String _dateRange(String? from, String? to) {
+  final a = _formatDate(from);
+  final b = _formatDate(to);
+  if (a.isEmpty) return b;
+  if (b.isEmpty || b == a) return a;
+  return '$a – $b';
+}
+
+String _month(int month) {
+  const months = [
+    '',
+    'Yan',
+    'Fev',
+    'Mar',
+    'Apr',
+    'May',
+    'İyun',
+    'İyul',
+    'Avq',
+    'Sen',
+    'Okt',
+    'Noy',
+    'Dek',
+  ];
+  return months[month];
+}
+
+String _relativeDate(DateTime? date) {
+  if (date == null) return '';
+  final diff = DateTime.now().difference(date);
+  if (diff.inDays >= 7) return '${diff.inDays ~/ 7} həftə';
+  if (diff.inDays > 0) return '${diff.inDays} gün';
+  if (diff.inHours > 0) return '${diff.inHours} saat';
+  return 'indi';
+}
+
+String _tierLabel(String tier) {
+  return switch (tier) {
+    'bronze' => 'Bürünc',
+    'silver' => 'Gümüş',
+    'gold' => 'Qızıl',
+    'platinum' => 'Platin',
+    'new' => 'Yeni',
+    _ => tier,
+  };
+}
+
+String _errorMessage(Object error) {
+  if (error is DioException) {
+    final data = error.response?.data;
+    if (data is Map && data['message'] != null)
+      return data['message'].toString();
+  }
+  return 'Əməliyyat alınmadı.';
+}
+
+void _showSnack(BuildContext context, String message, {bool error = false}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: error ? const Color(0xFFEF4444) : _ink900,
+      duration: const Duration(milliseconds: 1500),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    ),
+  );
+}
+
+bool _isUnauthorized(Object? error) {
+  if (error is DioException) {
+    return error.response?.statusCode == 401;
+  }
+  return false;
+}

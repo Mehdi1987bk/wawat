@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/listing_response.dart';
@@ -22,6 +23,13 @@ const _brand50 = Color(0xFFEAF3FE);
 const _ink900 = Color(0xFF0F172A);
 const _ink500 = Color(0xFF64748B);
 const _ink400 = Color(0xFF94A3B8);
+
+String _contentText(Map<String, String> content, String key,
+    [String? fallback]) {
+  final value = content[key];
+  if (value == null || value.trim().isEmpty) return fallback ?? key;
+  return value;
+}
 
 class HomeTabScreen extends BaseScreen {
   @override
@@ -60,95 +68,114 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     return Consumer<ThemeManager>(
       builder: (context, themeManager, _) {
         final isDark = themeManager.isDarkMode;
-        return Container(
-          color: isDark ? const Color(0xFF101010) : const Color(0xFFEEF1F6),
-          child: RefreshIndicator(
-            color: _brand,
-            onRefresh: _listingBloc.refreshList,
-            child: CustomScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _HeroSearchSection(
-                    notificationBloc: _notificationBloc,
-                    listingBloc: _listingBloc,
-                  ),
-                ),
-                SliverToBoxAdapter(child: _CommunityStats(isDark: isDark)),
-                SliverToBoxAdapter(child: _PopularRoutes(bloc: _listingBloc)),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 16, 14),
-                    child: Text(
-                      'Seçilmiş elanlar',
-                      style: TextStyle(
-                        color: isDark ? Colors.white : _ink900,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
+        return StreamBuilder<Map<String, String>>(
+          stream: _listingBloc.listingContent,
+          initialData: const {},
+          builder: (context, contentSnapshot) {
+            final content = contentSnapshot.data ?? const {};
+            return Container(
+              color: isDark ? const Color(0xFF101010) : const Color(0xFFEEF1F6),
+              child: RefreshIndicator(
+                color: _brand,
+                onRefresh: _listingBloc.refreshList,
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: _HeroSearchSection(
+                        notificationBloc: _notificationBloc,
+                        listingBloc: _listingBloc,
+                        content: content,
                       ),
                     ),
-                  ),
-                ),
-                StreamBuilder<List<Listing>>(
-                  stream: _listingBloc.paginableList,
-                  builder: (context, snapshot) {
-                    final listings = snapshot.data;
-                    if (listings == null) {
-                      return const SliverToBoxAdapter(
-                          child: _ListingSkeleton());
-                    }
-
-                    if (listings.isEmpty) {
-                      return SliverToBoxAdapter(
-                        child: StreamBuilder(
-                          stream: _listingBloc.suggestions,
-                          initialData: const [],
-                          builder: (context, suggestionsSnapshot) {
-                            return _EmptyState(
-                              suggestions: suggestionsSnapshot.data ?? const [],
-                            );
-                          },
+                    SliverToBoxAdapter(
+                        child:
+                            _CommunityStats(isDark: isDark, content: content)),
+                    SliverToBoxAdapter(
+                        child: _PopularRoutes(
+                            bloc: _listingBloc, content: content)),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 16, 14),
+                        child: Text(
+                          _contentText(content, 'home.featured_listings'),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : _ink900,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
-                      );
-                    }
+                      ),
+                    ),
+                    StreamBuilder<List<Listing>>(
+                      stream: _listingBloc.paginableList,
+                      builder: (context, snapshot) {
+                        final listings = snapshot.data;
+                        if (listings == null) {
+                          return const SliverToBoxAdapter(
+                              child: _ListingSkeleton());
+                        }
 
-                    return StreamBuilder<Map<String, String>>(
-                      stream: _listingBloc.packageNamesByCode,
-                      initialData: const {},
-                      builder: (context, packagesSnapshot) {
-                        final packageNames = packagesSnapshot.data ?? const {};
-                        return SliverList.builder(
-                          itemCount: listings.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == listings.length) {
-                              return _FeedEnd(
-                                isEnd: _listingBloc.lastPagination != null &&
-                                    (_listingBloc.lastPagination!.currentPage ??
-                                            1) >=
-                                        _listingBloc.lastPagination!.lastPage,
-                              );
-                            }
-                            final listing = listings[index];
-                            return ListingCard(
-                              listing: listing,
-                              packageNamesByCode: packageNames,
-                              isCompact: true,
-                              onDetailsTap: _openDetails,
-                              onFavoriteChanged: _onFavoriteChanged,
-                              onOfferTap: _requireAuth,
-                              onMessageTap: _requireAuth,
+                        if (listings.isEmpty) {
+                          return SliverToBoxAdapter(
+                            child: StreamBuilder(
+                              stream: _listingBloc.suggestions,
+                              initialData: const [],
+                              builder: (context, suggestionsSnapshot) {
+                                return _EmptyState(
+                                  suggestions:
+                                      suggestionsSnapshot.data ?? const [],
+                                  content: content,
+                                );
+                              },
+                            ),
+                          );
+                        }
+
+                        return StreamBuilder<Map<String, String>>(
+                          stream: _listingBloc.packageNamesByCode,
+                          initialData: const {},
+                          builder: (context, packagesSnapshot) {
+                            final packageNames =
+                                packagesSnapshot.data ?? const {};
+                            return SliverList.builder(
+                              itemCount: listings.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index == listings.length) {
+                                  return _FeedEnd(
+                                    isEnd:
+                                        _listingBloc.lastPagination != null &&
+                                            (_listingBloc.lastPagination!
+                                                        .currentPage ??
+                                                    1) >=
+                                                _listingBloc
+                                                    .lastPagination!.lastPage,
+                                    content: content,
+                                  );
+                                }
+                                final listing = listings[index];
+                                return ListingCard(
+                                  listing: listing,
+                                  packageNamesByCode: packageNames,
+                                  isCompact: true,
+                                  onDetailsTap: _openDetails,
+                                  onFavoriteChanged: _onFavoriteChanged,
+                                  onOfferTap: _requireAuth,
+                                  onMessageTap: _requireAuth,
+                                );
+                              },
                             );
                           },
                         );
                       },
-                    );
-                  },
+                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 108)),
+                  ],
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 108)),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -206,10 +233,12 @@ class _HeroSearchSection extends StatelessWidget {
 
   final UnreadNotificationBloc notificationBloc;
   final ListingFeedBloc listingBloc;
+  final Map<String, String> content;
 
   const _HeroSearchSection({
     required this.notificationBloc,
     required this.listingBloc,
+    required this.content,
   });
 
   @override
@@ -226,6 +255,7 @@ class _HeroSearchSection extends StatelessWidget {
             child: _HeroHeader(
               bloc: notificationBloc,
               height: _heroHeight,
+              content: content,
             ),
           ),
           Positioned(
@@ -243,10 +273,12 @@ class _HeroSearchSection extends StatelessWidget {
 class _HeroHeader extends StatelessWidget {
   final UnreadNotificationBloc bloc;
   final double height;
+  final Map<String, String> content;
 
   const _HeroHeader({
     required this.bloc,
     required this.height,
+    required this.content,
   });
 
   @override
@@ -332,7 +364,7 @@ class _HeroHeader extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
-                                    Icons.notifications_none,
+                                    PhosphorIconsRegular.bell,
                                     color: Colors.white,
                                     size: 22,
                                   ),
@@ -358,9 +390,12 @@ class _HeroHeader extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Səyahət edəni\ngöndərənlə birləşdir',
-                    style: TextStyle(
+                  Text(
+                    _contentText(
+                      content,
+                      'home.hero_title',
+                    ),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       height: 1.13,
@@ -369,7 +404,10 @@ class _HeroHeader extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Etibarlı crowdshipping icması',
+                    _contentText(
+                      content,
+                      'home.hero_subtitle',
+                    ),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.78),
                       fontSize: 14,
@@ -412,13 +450,17 @@ class _HeroPathPainter extends CustomPainter {
 
 class _CommunityStats extends StatelessWidget {
   final bool isDark;
+  final Map<String, String> content;
 
-  const _CommunityStats({required this.isDark});
+  const _CommunityStats({
+    required this.isDark,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 24,right: 24,top: 20),
+      margin: const EdgeInsets.only(left: 24, right: 24, top: 20),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -433,7 +475,7 @@ class _CommunityStats extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(
-                text: 'Bu həftə ',
+                text: _contentText(content, 'home.stats_prefix'),
                 children: const [
                   TextSpan(
                     text: '1,240',
@@ -480,8 +522,12 @@ class _OnlineDot extends StatelessWidget {
 
 class _PopularRoutes extends StatefulWidget {
   final ListingFeedBloc bloc;
+  final Map<String, String> content;
 
-  const _PopularRoutes({required this.bloc});
+  const _PopularRoutes({
+    required this.bloc,
+    required this.content,
+  });
 
   @override
   State<_PopularRoutes> createState() => _PopularRoutesState();
@@ -528,7 +574,10 @@ class _PopularRoutesState extends State<_PopularRoutes> {
           Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: Text(
-              'Populyar marşrutlar',
+              _contentText(
+                widget.content,
+                'home.popular_routes',
+              ),
               style: TextStyle(
                 color: isDark ? Colors.white : _ink900,
                 fontSize: 15,
@@ -658,8 +707,12 @@ class _ListingSkeleton extends StatelessWidget {
 
 class _EmptyState extends StatelessWidget {
   final List suggestions;
+  final Map<String, String> content;
 
-  const _EmptyState({required this.suggestions});
+  const _EmptyState({
+    required this.suggestions,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -667,21 +720,25 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
       child: Column(
         children: [
-          const Icon(Icons.travel_explore, color: _brand, size: 54),
+          const Icon(PhosphorIconsRegular.magnifyingGlass,
+              color: _brand, size: 54),
           const SizedBox(height: 14),
-          const Text(
-            'Nəticə tapılmadı',
-            style: TextStyle(
+          Text(
+            _contentText(content, 'search.empty_title'),
+            style: const TextStyle(
               color: _ink900,
               fontSize: 20,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Axtarışı genişləndir və ya başqa marşrut yoxla.',
+          Text(
+            _contentText(
+              content,
+              'search.empty_subtitle',
+            ),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: _ink500,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -715,8 +772,12 @@ class _EmptyState extends StatelessWidget {
 
 class _FeedEnd extends StatelessWidget {
   final bool isEnd;
+  final Map<String, String> content;
 
-  const _FeedEnd({required this.isEnd});
+  const _FeedEnd({
+    required this.isEnd,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -726,12 +787,12 @@ class _FeedEnd extends StatelessWidget {
         child: Center(child: CircularProgressIndicator(color: _brand)),
       );
     }
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, 20),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       child: Text(
-        'Hamısı yükləndi',
+        _contentText(content, 'feed.end'),
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
           color: _ink400,
           fontWeight: FontWeight.w800,
           fontSize: 13,

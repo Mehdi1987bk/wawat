@@ -1,919 +1,1075 @@
-import 'package:buking/presentation/bloc/base_screen.dart';
-import 'package:buking/presentation/resourses/wawat_colors.dart';
-import 'package:buking/screens/home/tabs/fovorite/fovorite_offer_screen.dart';
-import 'package:buking/screens/home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
-import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
-import 'package:buking/screens/home/tabs/profile_tab/see_more_offers/delivery_full_list_screen.dart';
-import 'package:buking/screens/home/tabs/profile_tab/support/support_screen.dart';
-import 'package:buking/screens/home/tabs/profile_tab/verification/verification_screen.dart';
-import 'package:buking/screens/home/tabs/profile_tab/widgte/localization_pop_up.dart';
-import 'package:buking/screens/home/tabs/profile_tab/widgte/logout_dialog_content.dart';
-import 'package:buking/screens/home/tabs/profile_tab/widgte/user_details_setting.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../../../../data/network/response/user.dart';
-import '../../../../generated/l10n.dart';
-import '../../../../services/theme_manager.dart';
-import '../../home_screen.dart';
-import '../home_tab/notification/unread_notif_bloc.dart';
-import '../home_tab/widget/build_header.dart';
-import 'courier_reviews_page.dart';
+import '../../../../data/network/response/listing_response.dart';
+import '../../../../domain/entities/pagination.dart';
+import '../../../../domain/repositories/auth_repository.dart';
+import '../../../../main.dart';
+import '../../../chat/chat/chat_list_screen.dart';
+import '../fovorite/fovorite_offer_screen.dart';
+import '../home_tab/search/search_offer_list_screen.dart';
 import 'faq/faq_screen.dart';
+import 'new_profile/new_profile_screen.dart';
+import 'new_profile/profile_api.dart';
+import 'new_profile/profile_models.dart';
+import 'privacy_policy/privacy_policy_screen.dart';
+import 'see_more_offers/delivery_full_list_screen.dart';
+import 'settings/notification_settings/notification_settings_screen.dart';
+import 'support/support_screen.dart';
+import 'verification/verification_screen.dart';
 
-class ProfileTabScreen extends BaseScreen {
-  ProfileTabScreen({Key? key}) : super(key: key);
+const _brand = Color(0xFF017BFE);
+const _brand50 = Color(0xFFEAF3FE);
+const _ink900 = Color(0xFF0F172A);
+const _ink700 = Color(0xFF334155);
+const _ink600 = Color(0xFF475569);
+const _ink500 = Color(0xFF64748B);
+const _ink400 = Color(0xFF94A3B8);
+const _ink300 = Color(0xFFCBD5E1);
+const _ink100 = Color(0xFFF1F5F9);
+const _screen = Color(0xFFF4F6F9);
+
+String _text(Map<String, String> content, String key, String fallback) {
+  final value = content[key];
+  if (value == null || value.trim().isEmpty || value == key) return fallback;
+  return value;
+}
+
+class ProfileTabScreen extends StatefulWidget {
+  const ProfileTabScreen({super.key});
 
   @override
   State<ProfileTabScreen> createState() => _ProfileTabScreenState();
 }
 
-class _ProfileTabScreenState
-    extends BaseState<ProfileTabScreen, ProfileTabBloc> {
-  @override
-  bool get useSystemOverlay => false;
-  late final UnreadNotificationBloc _notificationBloc; // <- ДОБАВИТЬ
+class _ProfileTabScreenState extends State<ProfileTabScreen> {
+  final WawatProfileApi _api = WawatProfileApi();
+  late Future<WawatProfileBundle> _future;
 
   @override
   void initState() {
-    // <- ДОБАВИТЬ весь метод
     super.initState();
-    _notificationBloc = UnreadNotificationBloc();
-    _notificationBloc.init();
+    _future = _load();
   }
 
-  @override
-  void dispose() {
-    // <- ДОБАВИТЬ весь метод
-    _notificationBloc.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget body() {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, _) {
-        final isDark = themeManager.isDarkMode;
-        return StreamBuilder<User>(
-          stream: bloc.userDetails,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: isDark ? Colors.white54 : Colors.black54,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      S.of(context).dsvfsd,
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {});
-                      },
-                      child: Text(S.of(context).fds),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting ||
-                !snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: isDark ? Colors.white : WawatColors.primary,
-                ),
-              );
-            }
-
-            return SafeArea(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 80),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            margin:
-                                EdgeInsets.only(left: 16, right: 16, top: 20),
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black
-                                      .withOpacity(isDark ? 0.3 : 0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 12),
-                                const SizedBox(height: 20),
-                                _buildProfileHeader(
-                                    snapshot.requireData, isDark),
-                                const SizedBox(height: 16),
-                                _buildStatsCard(
-                                    context, snapshot.requireData, isDark),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          _buildMenuSection(snapshot.requireData, isDark),
-                          const SizedBox(height: 120),
-                        ],
-                      ),
-                    ),
-                  ),
-                  StreamBuilder<int>(
-                    stream: _notificationBloc.unreadCountStream,
-                    initialData: 0,
-                    builder: (context, snapshot) {
-                      return BuildHeader(
-                        context,
-                        isDark: isDark,
-                        unreadCount: snapshot.data ?? 0,
-                        onNotificationsReturned: () {
-                          _notificationBloc.fetchUnreadCount();
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
+  Future<WawatProfileBundle> _load() async {
+    final contentFuture = _api.content();
+    final user = await _api.me();
+    final listingsFuture = _api.myListings().catchError(
+          (_) => Pagination<Listing>(data: const [], lastPage: 1),
         );
-      },
+    final reviewsFuture = _api.reviews(user.id).catchError(
+          (_) => const WawatReviewResponse(
+            data: [],
+            distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+          ),
+        );
+    final results = await Future.wait<dynamic>([
+      contentFuture,
+      listingsFuture,
+      reviewsFuture,
+    ]);
+
+    return WawatProfileBundle(
+      user: user,
+      content: results[0] as Map<String, String>,
+      listings: results[1] ?? Pagination<Listing>(data: const [], lastPage: 1),
+      reviews: results[2] as WawatReviewResponse,
+      packageNames: const {},
     );
   }
 
-  @override
-  ProfileTabBloc provideBloc() {
-    return ProfileTabBloc();
+  void _reload() {
+    setState(() => _future = _load());
   }
 
-  Widget _buildLanguageItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color bgColor,
-    required Color iconColor,
-    required bool isDarkMode,
-    required String currentLanguage,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+  void _push(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
+  void _openUnavailable(Map<String, String> content, String label) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: _ink900,
+        content: Text(
+          _text(content, 'common.coming_soon', '$label tezliklə aktiv olacaq.'),
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
       ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(12),
+    );
+  }
+
+  Future<void> _openEditProfile(WawatProfileBundle bundle) async {
+    final updated = await Navigator.of(context).push<WawatProfileUser>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => WawatEditProfileScreen(
+          api: _api,
+          user: bundle.user,
+          content: bundle.content,
+        ),
+      ),
+    );
+    if (updated != null) _reload();
+  }
+
+  Future<void> _openVerification(Map<String, String> content) async {
+    try {
+      final user = await sl.get<AuthRepository>().userDetails.first;
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => VerificationScreen(user: user)),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      _openUnavailable(
+        content,
+        _text(content, 'menu.verify_account', 'Hesabı təsdiqlə'),
+      );
+    }
+  }
+
+  Future<void> _openDeleteAccount(WawatProfileBundle bundle) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => WawatDeleteAccountSheet(
+        api: _api,
+        content: bundle.content,
+      ),
+    );
+  }
+
+  Future<void> _openLanguageSheet(WawatProfileBundle bundle) async {
+    final content = bundle.content;
+    final current = bundle.user.preferredLocale ?? 'az';
+    final fallback = const [
+      _LanguageOption('az', 'Azərbaycanca', '🇦🇿'),
+      _LanguageOption('en', 'English', '🇬🇧'),
+      _LanguageOption('ru', 'Русский', '🇷🇺'),
+      _LanguageOption('tr', 'Türkçe', '🇹🇷'),
+      _LanguageOption('ua', 'Українська', '🇺🇦'),
+    ];
+
+    List<_LanguageOption> options = fallback;
+    try {
+      final response = await _api.languages();
+      if (response.data.isNotEmpty) {
+        options = response.data
+            .map(
+              (item) => _LanguageOption(
+                item.code == 'uk' ? 'ua' : item.code,
+                item.name ?? item.code.toUpperCase(),
+                _flagForLocale(item.code),
+              ),
+            )
+            .toList();
+      }
+    } catch (_) {}
+
+    if (!mounted) return;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Container(
+            margin: const EdgeInsets.only(top: 64),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: iconColor,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 300),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isDarkMode
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: _ink300,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
-                  child: Text(title),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 18),
                 Text(
-                  subtitle,
+                  _text(content, 'menu.language', 'Dil'),
                   style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9CA3AF),
+                    color: _ink900,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _text(
+                    content,
+                    'menu.language_subtitle',
+                    'Tətbiq dilini seçin.',
+                  ),
+                  style: const TextStyle(
+                    color: _ink400,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                ...options.map(
+                  (item) => _LanguageRow(
+                    option: item,
+                    selected: item.code == current,
+                    onTap: () async {
+                      Navigator.of(sheetContext).pop();
+                      try {
+                        await _api.updateProfile(
+                          {'preferred_locale': item.code},
+                        );
+                        _reload();
+                      } catch (_) {
+                        if (!mounted) return;
+                        _openUnavailable(content, item.name);
+                      }
+                    },
                   ),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  iconColor.withOpacity(0.2),
-                  iconColor.withOpacity(0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: iconColor.withOpacity(0.3),
-                width: 1,
-              ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmLogout(Map<String, String> content) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 22),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
-            child: Row(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  currentLanguage,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: iconColor,
+                Container(
+                  width: 40,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: _ink300,
+                    borderRadius: BorderRadius.circular(99),
                   ),
                 ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: iconColor,
+                const SizedBox(height: 18),
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: _ink100,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(PhosphorIconsRegular.signOut,
+                      color: _ink600, size: 28),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  _text(
+                    content,
+                    'menu.logout_confirm_title',
+                    'Çıxış etmək?',
+                  ),
+                  style: const TextStyle(
+                    color: _ink900,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _text(
+                    content,
+                    'menu.logout_confirm_message',
+                    'Yenidən daxil olmaq üçün e-poçt və parolunuz lazım olacaq.',
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: _ink500,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(sheetContext).pop(true),
+                    child: Text(
+                      _text(content, 'menu.logout', 'Çıxış'),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(sheetContext).pop(false),
+                  child: const Text(
+                    'İmtina et',
+                    style: TextStyle(
+                      color: _ink400,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
+
+    if (confirmed != true) return;
+    await _api.logout();
+    await sl.get<AuthRepository>().logout();
   }
 
-  Widget _buildProfileHeader(User user, bool isDark) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (user.avatar != null)
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: NetworkImage(user.avatar ?? ""),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        if (user.avatar == null)
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [Color(0xFF5B5BFF), Color(0xFFB847FF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: const Icon(
-              Icons.person,
-              color: Colors.white,
-              size: 40,
-            ),
-          ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<WawatProfileBundle>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const _MenuSkeleton();
+        }
+        if (!snapshot.hasData) {
+          return _MenuError(onRetry: _reload);
+        }
+        final bundle = snapshot.data!;
+        final content = bundle.content;
+        final user = bundle.user;
+        final activeListings =
+            user.stats.listingsActive ?? bundle.listings.data.length;
+        final reviewsCount =
+            user.stats.reviewsReceivedCount ?? bundle.reviews.data.length;
+
+        return Scaffold(
+          backgroundColor: _screen,
+          body: SafeArea(
+            bottom: false,
+            child: RefreshIndicator(
+              color: _brand,
+              onRefresh: () async => _reload(),
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 112),
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF000000),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                    child: Text(
+                      _text(content, 'menu.title', 'Menyu'),
+                      style: const TextStyle(
+                        color: _ink900,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                    child: Text(user.fullname),
+                  ),
+                  _ProfileHeaderCard(
+                    user: user,
+                    content: content,
+                    onTap: () => _push(PublicProfileScreen(userId: user.id)),
+                  ),
+                  _MenuSectionTitle(
+                    _text(content, 'menu.section_activity', 'Fəaliyyətim'),
+                  ),
+                  _MenuGroup(
+                    children: [
+                      _MenuRow(
+                        icon: PhosphorIconsFill.note,
+                        label: _text(content, 'menu.my_listings', 'Elanlarım'),
+                        badge: activeListings > 0 ? '$activeListings' : null,
+                        onTap: () => _push(DeliveryFullListScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.handshake,
+                        label: _text(content, 'menu.deals', 'Sövdələşmələrim'),
+                        onTap: () => _push(ChatListScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.heart,
+                        label: _text(content, 'menu.favorites', 'Seçilmişlər'),
+                        onTap: () => _push(FovoriteOfferListScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.bookmarkSimple,
+                        label: _text(
+                          content,
+                          'menu.saved_searches',
+                          'Saxlanan axtarışlar',
+                        ),
+                        onTap: () => _push(
+                          SearchOfferListScreen(openSavedOnStart: true),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.users,
+                        label: _text(content, 'menu.followers', 'İzləyicilər'),
+                        trailingText: '${user.followersCount}',
+                        onTap: () => _push(
+                          WawatFollowListScreen(
+                            api: _api,
+                            user: user,
+                            content: content,
+                            following: false,
+                          ),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.userCheck,
+                        label: _text(content, 'menu.following', 'İzlədiklərim'),
+                        trailingText: '${user.followingCount}',
+                        isLast: true,
+                        onTap: () => _push(
+                          WawatFollowListScreen(
+                            api: _api,
+                            user: user,
+                            content: content,
+                            following: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _MenuSectionTitle(
+                    _text(content, 'menu.section_reviews', 'Rəylər'),
+                  ),
+                  _MenuGroup(
+                    children: [
+                      _MenuRow(
+                        icon: PhosphorIconsFill.star,
+                        label: _text(
+                          content,
+                          'menu.reviews_received',
+                          'Aldığım rəylər',
+                        ),
+                        badge: reviewsCount > 0 ? '$reviewsCount' : null,
+                        onTap: () => _push(
+                          WawatReviewsScreen(
+                            api: _api,
+                            user: user,
+                            content: content,
+                            canReply: true,
+                          ),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.chatText,
+                        label: _text(
+                          content,
+                          'menu.reviews_left',
+                          'Yazdığım rəylər',
+                        ),
+                        isLast: true,
+                        onTap: () => _push(
+                          WawatReviewsScreen(
+                            api: _api,
+                            user: user,
+                            content: content,
+                            left: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _MenuSectionTitle(
+                    _text(content, 'menu.section_account', 'Hesab'),
+                  ),
+                  _MenuGroup(
+                    children: [
+                      _MenuRow(
+                        icon: PhosphorIconsFill.user,
+                        label: _text(
+                          content,
+                          'menu.edit_profile',
+                          'Profili redaktə et',
+                        ),
+                        onTap: () => _openEditProfile(bundle),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.sealCheck,
+                        label: _text(
+                          content,
+                          'menu.verify_account',
+                          'Hesabı təsdiqlə',
+                        ),
+                        badge: user.isVerified
+                            ? null
+                            : _text(
+                                content,
+                                'menu.not_verified_badge',
+                                'Təsdiqlənməyib',
+                              ),
+                        amberBadge: !user.isVerified,
+                        onTap: () => _openVerification(content),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.lockKey,
+                        label: _text(
+                          content,
+                          'menu.change_password',
+                          'Parolu dəyiş',
+                        ),
+                        onTap: () => _push(
+                          WawatChangePasswordScreen(
+                            api: _api,
+                            content: content,
+                          ),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.envelopeSimple,
+                        label: _text(content, 'menu.email', 'E-poçt'),
+                        trailingText: _shortEmail(user.email),
+                        isLast: true,
+                        onTap: () => _openUnavailable(
+                          content,
+                          _text(content, 'menu.email', 'E-poçt'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _MenuSectionTitle(
+                    _text(content, 'menu.section_preferences', 'Tərcihlər'),
+                  ),
+                  _MenuGroup(
+                    children: [
+                      _MenuRow(
+                        icon: PhosphorIconsFill.bell,
+                        label: _text(
+                          content,
+                          'menu.notifications',
+                          'Bildiriş ayarları',
+                        ),
+                        onTap: () => _push(const NotificationSettingsScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.lockSimple,
+                        label: _text(content, 'menu.privacy', 'Məxfilik'),
+                        onTap: () => _push(
+                          WawatPrivacySettingsScreen(
+                            api: _api,
+                            user: user,
+                            content: content,
+                          ),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.translate,
+                        label: _text(content, 'menu.language', 'Dil'),
+                        trailingText: _localeName(user.preferredLocale),
+                        onTap: () => _openLanguageSheet(bundle),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.prohibit,
+                        label: _text(
+                          content,
+                          'menu.blocked_users',
+                          'Bloklanmış istifadəçilər',
+                        ),
+                        isLast: true,
+                        onTap: () => _openUnavailable(
+                          content,
+                          _text(
+                            content,
+                            'menu.blocked_users',
+                            'Bloklanmış istifadəçilər',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _MenuSectionTitle(
+                    _text(
+                      content,
+                      'menu.section_support',
+                      'Dəstək & haqqında',
+                    ),
+                  ),
+                  _MenuGroup(
+                    children: [
+                      _MenuRow(
+                        icon: PhosphorIconsFill.question,
+                        label: _text(content, 'menu.help', 'Kömək & FAQ'),
+                        onTap: () => _push(FaqScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.flag,
+                        label:
+                            _text(content, 'menu.my_reports', 'Şikayətlərim'),
+                        onTap: () => _openUnavailable(
+                          content,
+                          _text(
+                            content,
+                            'menu.my_reports',
+                            'Şikayətlərim',
+                          ),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.headset,
+                        label: _text(
+                            content, 'menu.contact_support', 'Dəstəyə yaz'),
+                        onTap: () => _push(SupportScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.fileText,
+                        label: _text(
+                          content,
+                          'menu.rules',
+                          'Qaydalar & şərtlər',
+                        ),
+                        onTap: () => _push(PrivacyPolicyScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.shieldCheck,
+                        label: _text(
+                          content,
+                          'menu.privacy_policy',
+                          'Məxfilik siyasəti',
+                        ),
+                        onTap: () => _push(PrivacyPolicyScreen()),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.heartStraight,
+                        label: _text(
+                          content,
+                          'menu.rate_app',
+                          'Tətbiqi qiymətləndir',
+                        ),
+                        onTap: () => _openUnavailable(
+                          content,
+                          _text(
+                            content,
+                            'menu.rate_app',
+                            'Tətbiqi qiymətləndir',
+                          ),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.gift,
+                        label:
+                            _text(content, 'menu.invite', 'Dostunu dəvət et'),
+                        onTap: () => _openUnavailable(
+                          content,
+                          _text(content, 'menu.invite', 'Dostunu dəvət et'),
+                        ),
+                      ),
+                      _MenuRow(
+                        icon: PhosphorIconsFill.info,
+                        label: _text(content, 'menu.about', 'Tətbiq haqqında'),
+                        trailingText: 'v1.0.0',
+                        isLast: true,
+                        onTap: () => _openUnavailable(
+                          content,
+                          _text(
+                            content,
+                            'menu.about',
+                            'Tətbiq haqqında',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+                    child: _MenuActionButton(
+                      icon: PhosphorIconsRegular.signOut,
+                      label: _text(content, 'menu.logout', 'Çıxış'),
+                      onTap: () => _confirmLogout(content),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                    child: _MenuActionButton(
+                      icon: PhosphorIconsRegular.trash,
+                      label: _text(
+                        content,
+                        'menu.delete_account',
+                        'Hesabı sil',
+                      ),
+                      danger: true,
+                      onTap: () => _openDeleteAccount(bundle),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Wawatair · v1.0.0',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: _ink400,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              if (user.isVerified == true)
-                Row(
-                  children: [
-                    Image.asset(
-                      "asset/prof_3.png",
-                      width: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Container(
-                      child: Text(
-                        S.of(context).h46h46,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF22C55E),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 8),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark
-                      ? const Color(0xFFB0B0B0)
-                      : const Color(0xFF6B7280),
-                ),
-                child: Text(user.email ?? ""),
-              ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark
-                      ? const Color(0xFFB0B0B0)
-                      : const Color(0xFF6B7280),
-                ),
-                child: Text(
-                    (user.country?.callingCode ?? "") + (user.phone ?? "")),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsCard(BuildContext context, User user, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Column(
-        children: [
-
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildMenuSection(User user, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20),
-      child: Column(
-        children: [
-          StreamBuilder<Locale?>(
-              stream: bloc.locale,
-              builder: (context, snapshot) {
-                final currentLocale = snapshot.data ?? const Locale("en");
-
-                return GestureDetector(
-                  onTap: () => _showMenu(snapshot.data),
-                  child: _buildLanguageItem(
-                    icon: Icons.language,
-                    title: S.of(context).languandff,
-                    subtitle: S.of(context).vgfb35,
-                    bgColor: isDark
-                        ? const Color(0xFF1E3A2F)
-                        : const Color(0xFFDCFCE7),
-                    iconColor: isDark
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFF059669),
-                    isDarkMode: isDark,
-                    currentLanguage: currentLocale.languageCode,
-                  ),
-                );
-              }),
-          const SizedBox(height: 12),
-          Consumer<ThemeManager>(
-            builder: (context, themeManager, child) {
-              return GestureDetector(
-                onTap: () {
-                  themeManager.toggleTheme();
-                },
-                child: _buildThemeToggleItem(
-                  icon: themeManager.isDarkMode
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                  title: S.of(context).fggdf345,
-                  subtitle: themeManager.isDarkMode
-                      ? S.of(context).bfd4r53gfd
-                      : S.of(context).bgfb453,
-                  bgColor: themeManager.isDarkMode
-                      ? const Color(0xFF1E1E3F)
-                      : const Color(0xFFFEF3C7),
-                  iconColor: themeManager.isDarkMode
-                      ? const Color(0xFF6366F1)
-                      : const Color(0xFFFCD34D),
-                  isDarkMode: themeManager.isDarkMode,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(context,
-                CupertinoPageRoute(builder: (BuildContext context) {
-              return VerificationScreen(user: user);
-            })),
-            child: _buildMenuItem(
-              icon: Icons.shield_outlined,
-              title: S.of(context).bdb4w5gfd,
-              subtitle: S.of(context).bdfgt43refg,
-              bgColor: const Color(0xFFECFDF5),
-              iconColor: const Color(0xFF10B981),
-              isDark: isDark,
             ),
           ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return DeliveryFullListScreen();
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.access_time_filled,
-              title: S.of(context).bdfbfd43tgfd,
-              subtitle: S.of(context).bdfbertgfvdre,
-              bgColor: WawatColors.primary.withOpacity(0.1),
-              iconColor: WawatColors.primary,
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return FovoriteOfferListScreen();
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.favorite_border_rounded,
-              title: S.of(context).gbfbgfgb,
-              subtitle: 'Sevimlilərə əlavə etdiyin elanlar',
-              bgColor: const Color(0xFFFCE7F3),
-              iconColor: const Color(0xFFDB2777),
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return MyRevievsScreen(
-                    courierId: user.id ?? 0,
-                  );
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.star_outline,
-              title: S.of(context).nfgn53tgdfg,
-              subtitle: S.of(context).bgf43bgfd3,
-              bgColor: const Color(0xFFFEF3C7),
-              iconColor: const Color(0xFFFCD34D),
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return SupportScreen();
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.headset_mic_rounded,
-              title: S.of(context).bgfbgfeerfdfd,
-              subtitle: S.of(context).bgbgf34fdg,
-              bgColor: Color(0xFF031B7A).withOpacity(0.9),
-              iconColor: Colors.white,
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return EditProfileScreen();
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.settings_outlined,
-              title: S.of(context).bgfbgf34gvfd,
-              subtitle: S.of(context).nfngret4,
-              bgColor: const Color(0xFFEFF6FF),
-              iconColor: const Color(0xFF3B82F6),
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return PrivacyPolicyScreen();
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.privacy_tip,
-              title: S.of(context).privacyPolicy,
-              subtitle: S.of(context).privacyPolicyvfev,
-              bgColor: const Color(0xFFEFF6FF),
-              iconColor: const Color(0xFF3B82F6),
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) {
-                  return FaqScreen();
-                },
-              ),
-            ),
-            child: _buildMenuItem(
-              icon: Icons.question_answer_outlined,
-              title: S.of(context).faq,
-              subtitle: S.of(context).viewFaq,
-              bgColor: const Color(0xFFEFF6FF),
-              iconColor: const Color(0xFF3B82F6),
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => showLogoutBottomSheet(
-                title: S.of(context).profiliSilmk,
-                description: S.of(context).silmkIstdiyinizMinsiniz,
-                yes: S.of(context).nhtntt5,
-                no: S.of(context).bnbv3h,
-                context: context,
-                onConfirmLogout: () {
-                  bloc.logout().then(
-                    (value) {
-                      return Navigator.pushAndRemoveUntil(context,
-                          MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return HomeScreen();
-                        },
-                      ), (route) => false);
-                    },
-                  );
-                }),
-            child: _buildMenuItem(
-              icon: Icons.delete_outline,
-              title: S.of(context).profiliSilmk,
-              subtitle: null,
-              bgColor: const Color(0xFFFEE2E2),
-              iconColor: const Color(0xFFFCA5A5),
-              isLogout: true,
-              isDark: isDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () => showLogoutBottomSheet(
-                title: S.of(context).ngfngfn44,
-                description: S.of(context).vxer3,
-                yes: S.of(context).bg33a,
-                no: S.of(context).bnbv3h,
-                context: context,
-                onConfirmLogout: () {
-                  bloc.logout().then(
-                    // ИСПРАВЛЕНО: Добавлены скобки ()
-                    (value) {
-                      return Navigator.pushAndRemoveUntil(context,
-                          MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return HomeScreen();
-                        },
-                      ), (route) => false);
-                    },
-                  );
-                }),
-            child: _buildMenuItem(
-              icon: Icons.logout_outlined,
-              title: S.of(context).bgd32,
-              subtitle: S.of(context).bgfnyuj3,
-              bgColor: const Color(0xFFFEE2E2),
-              iconColor: const Color(0xFFFCA5A5),
-              isLogout: true,
-              isDark: isDark,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showMenu(Locale? locale) {
-    final themeManager = Provider.of<ThemeManager>(context, listen: false);
-    final isDark = themeManager.isDarkMode;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(35),
-          topRight: Radius.circular(35),
-        ),
-      ),
-      builder: (_) {
-        return LocalizationPopUp(
-          currentLocale: locale,
-          onChanged: (Locale newLocale) {
-            bloc.setLocale(newLocale);
-          },
         );
       },
     );
   }
+}
 
-  void showLogoutBottomSheet({
-    required BuildContext context,
-    required VoidCallback onConfirmLogout,
-    String? title,
-    String? description,
-    String? yes,
-    String? no,
-  }) {
-    final themeManager = Provider.of<ThemeManager>(context, listen: false);
-    final isDark = themeManager.isDarkMode;
+class _ProfileHeaderCard extends StatelessWidget {
+  final WawatProfileUser user;
+  final Map<String, String> content;
+  final VoidCallback onTap;
 
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      isScrollControlled: true,
-      builder: (_) => SafeArea(
-        child: LogoutDialogContent(
-          onConfirmLogout: onConfirmLogout,
-          no: no,
-          yes: yes,
-          title: title,
-          description: description,
+  const _ProfileHeaderCard({
+    required this.user,
+    required this.content,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 14, 12, 8),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: _ink900.withValues(alpha: .07),
+              blurRadius: 26,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _MenuAvatar(user: user),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          user.safeFullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: _ink900,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      if (user.isVerified) ...[
+                        const SizedBox(width: 6),
+                        const Icon(
+                          PhosphorIconsFill.sealCheck,
+                          color: _brand,
+                          size: 16,
+                        ),
+                      ],
+                      if ((user.tier ?? '').isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        _SmallTier(label: user.tier!),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user.username == null || user.username!.isEmpty
+                        ? user.email ?? ''
+                        : '@${user.username}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _ink400,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Row(
+                    children: [
+                      Text(
+                        _text(
+                          content,
+                          'menu.view_profile',
+                          'Profilə bax',
+                        ),
+                        style: const TextStyle(
+                          color: _brand,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        PhosphorIconsBold.arrowRight,
+                        color: _brand,
+                        size: 12,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Icon(PhosphorIconsRegular.caretRight,
+                color: _ink300, size: 18),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    required Color bgColor,
-    required Color iconColor,
-    required bool isDark,
-    bool isLogout = false,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+class _MenuAvatar extends StatelessWidget {
+  final WawatProfileUser user;
+
+  const _MenuAvatar({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = user.avatarThumbUrl ?? user.avatarUrl;
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    return Container(
+      width: 56,
+      height: 56,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(colors: [_brand, Color(0xFF024FA3)]),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        user.initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _SmallTier extends StatelessWidget {
+  final String label;
+
+  const _SmallTier({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: _ink100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: _ink600,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuSectionTitle extends StatelessWidget {
+  final String text;
+
+  const _MenuSectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: _ink500,
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuGroup extends StatelessWidget {
+  final List<Widget> children;
+
+  const _MenuGroup({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: _ink900.withValues(alpha: .06),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: iconColor,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 300),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isLogout
-                        ? const Color(0xFFDC2626)
-                        : (isDark ? Colors.white : const Color(0xFF000000)),
-                  ),
-                  child: Text(title),
-                ),
-                if (subtitle != null && subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF9CA3AF),
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: children),
+    );
+  }
+}
+
+class _MenuRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? badge;
+  final bool amberBadge;
+  final String? trailingText;
+  final bool isLast;
+  final VoidCallback onTap;
+
+  const _MenuRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.badge,
+    this.amberBadge = false,
+    this.trailingText,
+    this.isLast = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: 58,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            border: isLast
+                ? null
+                : Border(
+                    bottom: BorderSide(
+                      color: _ink900.withValues(alpha: .06),
+                      width: 1,
                     ),
                   ),
-                ],
-              ],
-            ),
           ),
-          Icon(
-            Icons.chevron_right,
-            size: 24,
-            color: isDark ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildThemeToggleItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color bgColor,
-    required Color iconColor,
-    required bool isDarkMode,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: iconColor,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 300),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isDarkMode
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
-                  child: Text(title),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _brand50,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
+                child: Icon(icon, color: _brand, size: 19),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9CA3AF),
+                    color: _ink900,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
-              ],
-            ),
-          ),
-          _buildCustomSwitch(isDarkMode),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCustomSwitch(bool isOn) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: 56,
-      height: 32,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: isOn
-            ? const LinearGradient(
-                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              )
-            : null,
-        color: isOn ? null : const Color(0xFFE5E7EB),
-        boxShadow: [
-          BoxShadow(
-            color: isOn
-                ? const Color(0xFF6366F1).withOpacity(0.3)
-                : Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: AnimatedAlign(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          width: 28,
-          height: 28,
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+              ),
+              if (badge != null && badge!.isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: amberBadge ? const Color(0xFFFFF7ED) : _brand50,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    badge!,
+                    style: TextStyle(
+                      color: amberBadge ? const Color(0xFFD97706) : _brand,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              if (trailingText != null && trailingText!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Text(
+                    trailingText!,
+                    style: const TextStyle(
+                      color: _ink400,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 8),
+              const Icon(
+                PhosphorIconsRegular.caretRight,
+                color: _ink300,
+                size: 16,
               ),
             ],
-          ),
-          child: Icon(
-            isOn ? Icons.dark_mode : Icons.light_mode,
-            size: 16,
-            color: isOn ? const Color(0xFF6366F1) : const Color(0xFF9CA3AF),
           ),
         ),
       ),
@@ -921,48 +1077,226 @@ class _ProfileTabScreenState
   }
 }
 
-class CircularAvatar extends StatelessWidget {
-  final String? imageUrl;
-  final double size;
+class _MenuActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool danger;
+  final VoidCallback onTap;
 
-  const CircularAvatar({
-    Key? key,
-    this.imageUrl,
-    this.size = 80,
-  }) : super(key: key);
+  const _MenuActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.danger = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Container(
-        width: size,
-        height: size,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        height: 52,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          image: DecorationImage(
-            image: NetworkImage(imageUrl!),
-            fit: BoxFit.cover,
-          ),
+          color: danger ? const Color(0xFFFFEBEE) : Colors.white,
+          border: danger ? Border.all(color: const Color(0xFFFFCDD2)) : null,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: danger
+              ? null
+              : [
+                  BoxShadow(
+                    color: _ink900.withValues(alpha: .06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
         ),
-      );
-    }
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          colors: [Color(0xFF5B5BFF), Color(0xFFB847FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: danger ? const Color(0xFFEF4444) : _ink700,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: danger ? const Color(0xFFEF4444) : _ink700,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
         ),
-      ),
-      child: Icon(
-        Icons.person,
-        color: Colors.white,
-        size: size / 2,
       ),
     );
+  }
+}
+
+class _LanguageRow extends StatelessWidget {
+  final _LanguageOption option;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _LanguageRow({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: selected ? _brand50 : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected
+                ? _brand.withValues(alpha: .35)
+                : _ink900.withValues(alpha: .06),
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(option.flag, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                option.name,
+                style: TextStyle(
+                  color: selected ? _brand : _ink900,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            if (selected)
+              const Icon(PhosphorIconsFill.checkCircle,
+                  color: _brand, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageOption {
+  final String code;
+  final String name;
+  final String flag;
+
+  const _LanguageOption(this.code, this.name, this.flag);
+}
+
+class _MenuSkeleton extends StatelessWidget {
+  const _MenuSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: _screen,
+      body: SafeArea(
+        child: Center(
+          child: CircularProgressIndicator(color: _brand),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuError extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _MenuError({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _screen,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(PhosphorIconsRegular.warningCircle,
+                    color: _brand, size: 42),
+                const SizedBox(height: 12),
+                const Text(
+                  'Menyu yüklənmədi.',
+                  style: TextStyle(
+                    color: _ink900,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                ElevatedButton(
+                  onPressed: onRetry,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _brand,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text('Yenidən yoxla'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _shortEmail(String? email) {
+  if (email == null || email.trim().isEmpty) return '';
+  final parts = email.split('@');
+  if (parts.length != 2 || parts.first.length < 4) return email;
+  return '${parts.first.substring(0, 3)}@…';
+}
+
+String _localeName(String? code) {
+  switch (code) {
+    case 'en':
+      return 'English';
+    case 'ru':
+      return 'Русский';
+    case 'tr':
+      return 'Türkçe';
+    case 'ua':
+    case 'uk':
+      return 'Українська';
+    case 'az':
+    default:
+      return 'Azərbaycanca';
+  }
+}
+
+String _flagForLocale(String code) {
+  switch (code) {
+    case 'en':
+      return '🇬🇧';
+    case 'ru':
+      return '🇷🇺';
+    case 'tr':
+      return '🇹🇷';
+    case 'ua':
+    case 'uk':
+      return '🇺🇦';
+    case 'az':
+    default:
+      return '🇦🇿';
   }
 }

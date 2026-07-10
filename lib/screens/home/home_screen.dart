@@ -129,7 +129,10 @@ class __TabsState extends State<_Tabs> {
 
     _tabs = <Widget>[
       HomeTabScreen(),
-      SearchOfferListScreen(showBackButton: false),
+      SearchOfferListScreen(
+        showBackButton: false,
+        openResultsInNewPage: true,
+      ),
       const SizedBox.shrink(),
       ChatListScreen(),
       ProfileTabScreen(),

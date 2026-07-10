@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/city.dart';
 import '../../../../../data/network/response/package_types_response.dart';
@@ -14,14 +15,23 @@ const _ink900 = Color(0xFF0F172A);
 const _ink500 = Color(0xFF64748B);
 const _ink400 = Color(0xFF94A3B8);
 
+String _contentText(Map<String, String> content, String key,
+    [String? fallback]) {
+  final value = content[key];
+  if (value == null || value.trim().isEmpty) return fallback ?? key;
+  return value;
+}
+
 class SearchFormWidget extends StatefulWidget {
   final ListingFeedBloc bloc;
   final bool compact;
+  final ValueChanged<ListingFilterState>? onSearch;
 
   const SearchFormWidget({
     super.key,
     required this.bloc,
     this.compact = false,
+    this.onSearch,
   });
 
   @override
@@ -32,6 +42,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   City? _fromCity;
   City? _toCity;
   String? _type;
+  bool _citiesTouched = false;
 
   List<City> _initialCities = [];
   bool _isLoadingCities = true;
@@ -49,7 +60,9 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     try {
       final response = await widget.bloc.getCities('');
       if (!mounted) return;
-      final defaultFromCity = _fromCity ?? _findDefaultFromCity(response.data);
+      final defaultFromCity = _citiesTouched
+          ? _fromCity
+          : _fromCity ?? _findDefaultFromCity(response.data);
       setState(() {
         _initialCities = response.data;
         _fromCity = defaultFromCity;
@@ -98,6 +111,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
 
     if (!mounted) return;
     setState(() {
+      _citiesTouched = true;
       if (isFrom) {
         _fromCity = selected;
       } else {
@@ -108,6 +122,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
 
   void _swapCities() {
     setState(() {
+      _citiesTouched = true;
       final from = _fromCity;
       _fromCity = _toCity;
       _toCity = from;
@@ -125,6 +140,10 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
 
   void _performSearch() {
     final filters = _filters();
+    if (widget.onSearch != null) {
+      widget.onSearch!(filters);
+      return;
+    }
     if (widget.compact) {
       widget.bloc.setFilters(filters);
       widget.bloc.refreshList();
@@ -142,128 +161,147 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(24, widget.compact ? 8 : 0, 24, 0),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(26),
-          boxShadow: [
-            BoxShadow(
-              color: _brand.withValues(alpha: isDark ? 0.10 : 0.14),
-              blurRadius: 34,
-              offset: const Offset(0, 18),
+    return StreamBuilder<Map<String, String>>(
+      stream: widget.bloc.listingContent,
+      initialData: const {},
+      builder: (context, snapshot) {
+        final content = snapshot.data ?? const {};
+        return Padding(
+          padding: EdgeInsets.fromLTRB(16, widget.compact ? 8 : 0, 16, 0),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: BorderRadius.circular(26),
+              boxShadow: [
+                BoxShadow(
+                  color: _brand.withValues(alpha: isDark ? 0.10 : 0.14),
+                  blurRadius: 34,
+                  offset: const Offset(0, 18),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Stack(
+            child: Column(
               children: [
-                Column(
+                Stack(
                   children: [
-                    _CityField(
-                      icon: Icons.circle,
-                      iconSize: 9,
-                      label: _fromCity?.name ?? 'Bakı',
-                      country: _fromCity?.countryName,
-                      isSelected: true,
-                      onTap: () => _pickCity(isFrom: true),
-                      onClear: _fromCity == null
-                          ? null
-                          : () => setState(() => _fromCity = null),
+                    Column(
+                      children: [
+                        _CityField(
+                          icon: PhosphorIconsFill.circle,
+                          iconSize: 9,
+                          label: _fromCity?.name ??
+                              _contentText(content, 'search.from_placeholder'),
+                          country: _fromCity?.countryName,
+                          isSelected: _fromCity != null,
+                          onTap: () => _pickCity(isFrom: true),
+                          onClear: _fromCity == null
+                              ? null
+                              : () => setState(() {
+                                    _citiesTouched = true;
+                                    _fromCity = null;
+                                  }),
+                        ),
+                        const SizedBox(height: 10),
+                        _CityField(
+                          icon: PhosphorIconsFill.mapPin,
+                          iconSize: 18,
+                          label: _toCity?.name ??
+                              _contentText(content, 'search.to_placeholder'),
+                          country: _toCity?.countryName,
+                          isSelected: _toCity != null,
+                          onTap: () => _pickCity(isFrom: false),
+                          onClear: _toCity == null
+                              ? null
+                              : () => setState(() {
+                                    _citiesTouched = true;
+                                    _toCity = null;
+                                  }),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    _CityField(
-                      icon: Icons.location_on,
-                      iconSize: 18,
-                      label: _toCity?.name ?? 'Hara',
-                      country: _toCity?.countryName,
-                      isSelected: _toCity != null,
-                      onTap: () => _pickCity(isFrom: false),
-                      onClear: _toCity == null
-                          ? null
-                          : () => setState(() => _toCity = null),
+                    Positioned(
+                      right: 14,
+                      top: 35,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: _swapCities,
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color:
+                                isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.white10
+                                  : const Color(0x0F0F172A),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.14),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            PhosphorIconsBold.arrowsDownUp,
+                            color: _brand,
+                            size: 20,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                Positioned(
-                  right: 14,
-                  top: 35,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: _swapCities,
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color:
-                              isDark ? Colors.white10 : const Color(0x0F0F172A),
+                const SizedBox(height: 11),
+                _TypeSegment(
+                  value: _type,
+                  content: content,
+                  onChanged: (value) => setState(() => _type = value),
+                ),
+                const SizedBox(height: 11),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _performSearch,
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: _brand,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _brand.withValues(alpha: 0.35),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.14),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(PhosphorIconsRegular.magnifyingGlass,
+                            color: Colors.white, size: 19),
+                        const SizedBox(width: 8),
+                        Text(
+                          _contentText(content, 'search.button'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
                           ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.swap_vert,
-                        color: _brand,
-                        size: 20,
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 11),
-            _TypeSegment(
-              value: _type,
-              onChanged: (value) => setState(() => _type = value),
-            ),
-            const SizedBox(height: 11),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: _performSearch,
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: _brand,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _brand.withValues(alpha: 0.35),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.search, color: Colors.white, size: 19),
-                    SizedBox(width: 8),
-                    Text(
-                      'Axtar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -365,7 +403,7 @@ class _ListingFilterSheetState extends State<ListingFilterSheet> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.close, color: title, size: 26),
+                  child: Icon(PhosphorIconsBold.x, color: title, size: 26),
                 ),
               ],
             ),
@@ -599,7 +637,8 @@ class _CityField extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: onClear,
-                child: const Icon(Icons.close, color: _ink400, size: 18),
+                child:
+                    const Icon(PhosphorIconsBold.x, color: _ink400, size: 18),
               ),
           ],
         ),
@@ -610,10 +649,12 @@ class _CityField extends StatelessWidget {
 
 class _TypeSegment extends StatelessWidget {
   final String? value;
+  final Map<String, String> content;
   final ValueChanged<String?> onChanged;
 
   const _TypeSegment({
     required this.value,
+    this.content = const {},
     required this.onChanged,
   });
 
@@ -628,9 +669,10 @@ class _TypeSegment extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _segment('Hamısı', null),
-          _segment('Səfər', 'trip'),
-          _segment('Göndəriş', 'shipment_post'),
+          _segment(_contentText(content, 'search.type_all'), null),
+          _segment(content['enum.listing_type.trip'] ?? 'Səfər', 'trip'),
+          _segment(content['enum.listing_type.shipment_post'] ?? 'Göndəriş',
+              'shipment_post'),
         ],
       ),
     );
@@ -812,10 +854,12 @@ class _DateBox extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => onChanged(null),
-                child: const Icon(Icons.close, color: _ink400, size: 17),
+                child:
+                    const Icon(PhosphorIconsBold.x, color: _ink400, size: 17),
               )
             else
-              const Icon(Icons.calendar_month, color: _ink400, size: 17),
+              const Icon(PhosphorIconsRegular.calendarBlank,
+                  color: _ink400, size: 17),
           ],
         ),
       ),

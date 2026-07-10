@@ -140,7 +140,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white : Colors.black,
                               ),
-                              child:   Text(S.of(context).gret4h5h53g2b),
+                              child: Text(S.of(context).gret4h5h53g2b),
                             ),
                             const SizedBox(height: 4),
                             AnimatedDefaultTextStyle(
@@ -151,7 +151,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                                     ? const Color(0xFF9CA3AF)
                                     : const Color(0xFF8E8E93),
                               ),
-                              child:   Text(S.of(context).vfsvf33fr),
+                              child: Text(S.of(context).vfsvf33fr),
                             ),
                           ],
                         ),
@@ -165,24 +165,27 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child:   Text(S.of(context).vsf3r4gh57j6hnbd),
+                      child: Text(S.of(context).vsf3r4gh57j6hnbd),
                     ),
                     const SizedBox(height: 12),
-                    _buildToggleRow(S.of(context).myiuk7564hd, showPhoneTab, (value) {
+                    _buildToggleRow(S.of(context).myiuk7564hd, showPhoneTab,
+                        (value) {
                       setState(() => showPhoneTab = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
-                    _buildToggleRow(S.of(context).emailnhrtybe, showEmailTab, (value) {
+                    _buildToggleRow(S.of(context).emailnhrtybe, showEmailTab,
+                        (value) {
                       setState(() => showEmailTab = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
-                    _buildToggleRow(S.of(context).bgfbgt4ry46hj57jhg, showActivityTime,
-                            (value) {
-                          setState(() => showActivityTime = value);
-                          _checkFormValidity();
-                        }, isDark),
+                    _buildToggleRow(
+                        S.of(context).bgfbgt4ry46hj57jhg, showActivityTime,
+                        (value) {
+                      setState(() => showActivityTime = value);
+                      _checkFormValidity();
+                    }, isDark),
                     const SizedBox(height: 24),
                     AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 300),
@@ -191,24 +194,26 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : Colors.black,
                       ),
-                      child:   Text(S.of(context).jyntytrk5j34r),
+                      child: Text(S.of(context).jyntytrk5j34r),
                     ),
                     const SizedBox(height: 12),
-                    _buildToggleRow(S.of(context).trbgtvrger56fd, showNewMessages, (value) {
+                    _buildToggleRow(
+                        S.of(context).trbgtvrger56fd, showNewMessages, (value) {
                       setState(() => showNewMessages = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
-                    _buildToggleRow(S.of(context).ger4tr3345, showNewReviews, (value) {
+                    _buildToggleRow(S.of(context).ger4tr3345, showNewReviews,
+                        (value) {
                       setState(() => showNewReviews = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
                     _buildToggleRow(S.of(context).bfvdeb3gg34, showMarketing,
-                            (value) {
-                          setState(() => showMarketing = value);
-                          _checkFormValidity();
-                        }, isDark),
+                        (value) {
+                      setState(() => showMarketing = value);
+                      _checkFormValidity();
+                    }, isDark),
                     Container(
                       height: 50,
                       width: double.infinity,
@@ -223,7 +228,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                                  const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -232,7 +237,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                               elevation: 0,
                             ),
                             onPressed: isValid ? _addEmployer : null,
-                            child:   Text(
+                            child: Text(
                               S.of(context).gbd423g54bd,
                               style: TextStyle(
                                 color: Colors.white,
@@ -279,9 +284,8 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
             onChanged: onChanged,
             activeColor: const Color(0xFF5B4FFF),
             inactiveThumbColor: Colors.white,
-            inactiveTrackColor: isDark
-                ? const Color(0xFF4A4A4A)
-                : const Color(0xFFD1D1D6),
+            inactiveTrackColor:
+                isDark ? const Color(0xFF4A4A4A) : const Color(0xFFD1D1D6),
           ),
         ],
       ),
@@ -301,8 +305,6 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
     final bool finalShowNewReviews = showNewReviews;
     final bool finalShowMarketing = showMarketing;
 
- 
-
     bloc
         .privacyProfile(PrivacySettings(
       showPhone: finalShowPhoneTab,
@@ -310,7 +312,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
       showLastSeen: finalShowActivityTime,
     ))
         .then(
-          (onValue) {
+      (onValue) {
         bloc.customersMe();
         showIOSStyleMessage(context, S.of(context).greg5g4g4g3);
       },
@@ -318,11 +320,11 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
     bloc
         .notificationsProfile(NotificationSettings(
       notifyNewMessages: finalShowNewMessages,
-      notifyNewReviews: finalShowNewReviews,
+      notifyReviews: finalShowNewReviews,
       notifyMarketing: finalShowMarketing,
     ))
         .then(
-          (onValue) {
+      (onValue) {
         bloc.customersMe();
       },
     );

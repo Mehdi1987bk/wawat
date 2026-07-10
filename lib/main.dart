@@ -2,7 +2,6 @@ import 'package:buking/data/network/response/type_option.dart';
 import 'package:buking/screens/home/tabs/profile_tab/unread_chat_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 
@@ -25,11 +24,8 @@ import 'data/network/response/stats.dart';
 import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
- import 'wawat_app.dart';
+import 'wawat_app.dart';
 import 'services/theme_manager.dart';
-import 'wawat/wawat_app.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,7 +36,7 @@ final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
 const baseUrl = 'https://api.wawatair.com/api/v1';
 final RouteObserver<ModalRoute<void>> routeObserver =
-RouteObserver<ModalRoute<void>>();
+    RouteObserver<ModalRoute<void>>();
 
 late ThemeManager themeManager;
 
@@ -49,14 +45,14 @@ void main() async {
 
   // Firebase и пуши требуют Google Play Services. На устройствах без них или с отключённым Play — не падаем, работаем без пушей.
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
     // Must be registered immediately after Firebase.initializeApp(), before runApp().
     // Must be a top-level function — see push_notification_service.dart.
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  } catch (e, st) {
+  } catch (e) {
     logger.w('Firebase init failed (device may lack Google Play Services): $e');
   }
-
 
   final dir = await getApplicationDocumentsDirectory();
 
@@ -65,6 +61,8 @@ void main() async {
   Hive
     ..init(dir.path)
     ..registerAdapter(UserAdapter())
+    ..registerAdapter(ListingQuotaAdapter())
+    ..registerAdapter(ListingQuotaItemAdapter())
     ..registerAdapter(RatingAdapter())
     ..registerAdapter(NotificationsAdapter())
     ..registerAdapter(PrivacyAdapter())
@@ -92,8 +90,9 @@ void main() async {
         logger.d('FCM mock send to backend failed: $e');
       });
     }
-  } catch (e, st) {
-    logger.w('Push notifications init failed (Google Play Services may be missing): $e');
+  } catch (e) {
+    logger.w(
+        'Push notifications init failed (Google Play Services may be missing): $e');
   }
 
   runApp(WawatApp());

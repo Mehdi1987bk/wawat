@@ -18,22 +18,27 @@ import '../request/forgot_password_request_email.dart';
 import '../request/forgot_password_reset_request.dart';
 import '../request/forgot_password_verify_request.dart';
 import '../request/login_request.dart';
+import '../request/listing_proposal_request.dart';
 import '../request/fcm_token_request.dart';
 import '../request/notification_settings.dart';
 import '../request/offer_response.dart';
 import '../request/otp_verify_request.dart';
 import '../request/privacy_settings.dart';
 import '../request/registration_request.dart';
+import '../request/report_request.dart';
+import '../request/saved_search_request.dart';
 import '../request/support_request.dart';
 import '../request/user_request.dart';
 import '../response/all_request_data.dart';
 import '../response/cities_response.dart';
+import '../response/content_response.dart';
 import '../response/countries_response.dart';
 import '../response/faq_response.dart';
 import '../response/forgot_password_response.dart';
 import '../response/language_response.dart';
 import '../response/listing_response.dart';
 import '../response/login_response_data.dart';
+import '../response/me_response_data.dart';
 import '../response/notification_response.dart';
 import '../response/offer_models.dart';
 import '../response/offer_type_model.dart';
@@ -44,6 +49,7 @@ import '../response/privacy_policy_response.dart';
 import '../response/registration_response.dart';
 import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
+import '../response/saved_search_response.dart';
 import '../response/trending_routes_response.dart';
 import '../response/unread_chat_count_response.dart';
 import '../response/unread_count_response.dart';
@@ -96,7 +102,12 @@ abstract class AuthApi {
   );
 
   @GET('/auth/me')
-  Future<LoginResponseData> customersMe();
+  Future<MeResponseData> customersMe();
+
+  @GET('/content')
+  Future<ContentResponse> getContent(
+    @Query('group') String? group,
+  );
 
   @GET('/languages')
   Future<LanguageResponse> getLanguages();
@@ -107,7 +118,7 @@ abstract class AuthApi {
   @PUT('/api/v1/profile/privacy')
   Future<void> privacyProfile(@Body() PrivacySettings request);
 
-  @PUT('/api/v1/profile/notifications')
+  @PUT('/profile/notifications')
   Future<void> notificationsProfile(@Body() NotificationSettings request);
 
   @POST('/fcm-tokens')
@@ -237,6 +248,19 @@ abstract class AuthApi {
   @DELETE('/listings/{id}/favorite')
   Future<ListingMessageResponse> removeListingFavorite(@Path() String id);
 
+  @POST('/listings/{id}/proposals')
+  Future<ListingMessageResponse> createListingProposal(
+    @Path() String id,
+    @Body() ListingProposalRequest request,
+    @Header('Idempotency-Key') String idempotencyKey,
+  );
+
+  @POST('/reports')
+  Future<ListingMessageResponse> reportListing(
+    @Body() ReportRequest request,
+    @Header('Idempotency-Key') String idempotencyKey,
+  );
+
   @GET('/package-types')
   Future<PackageTypesResponse> getListingPackageTypes();
 
@@ -252,6 +276,17 @@ abstract class AuthApi {
   @GET('/search/trending-routes')
   Future<TrendingRoutesResponse> getTrendingRoutes();
 
+  @GET('/saved-searches')
+  Future<SavedSearchesResponse> getSavedSearches();
+
+  @POST('/saved-searches')
+  Future<SavedSearchResponse> createSavedSearch(
+    @Body() SavedSearchRequest request,
+  );
+
+  @DELETE('/saved-searches/{id}')
+  Future<void> deleteSavedSearch(@Path() String id);
+
   @POST('/api/v1/support')
   Future<void> support(
     @Body() SupportRequest request,
@@ -262,13 +297,23 @@ abstract class AuthApi {
     @Path() int date,
   );
 
-  @POST('/api/v1/notifications/{date}/read')
+  @POST('/notifications/{id}/read')
   Future<void> notificationsRead(
-    @Path() int date,
+    @Path() String id,
   );
 
-  @GET('/api/v1/notifications')
-  Future<NotificationResponse> notifications();
+  @POST('/notifications/read-all')
+  Future<void> notificationsReadAll();
+
+  @DELETE('/notifications/{id}')
+  Future<void> deleteNotification(@Path() String id);
+
+  @GET('/notifications')
+  Future<NotificationResponse> notifications(
+    @Query('unread') bool? unread,
+    @Query('page') int page,
+    @Query('per_page') int perPage,
+  );
 
   @POST('/api/v1/favorites/toggle')
   Future<void> setFavorites(@Body() OfferResponse request);
@@ -328,7 +373,7 @@ abstract class AuthApi {
   @GET('/api/v1/faqs')
   Future<FaqResponse> faqs();
 
-  @GET('/api/v1/notifications/unread-count')
+  @GET('/notifications/unread-count')
   Future<UnreadCountResponse> notifUnread();
 
   @GET('/api/v1/chats/unread-count')

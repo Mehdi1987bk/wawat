@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../main.dart';
+
+Future<Map<String, String>>? _listingContentFuture;
+
+Future<Map<String, String>> _loadListingContent() {
+  return _listingContentFuture ??=
+      sl.get<AuthRepository>().getContent(group: 'listing').then(
+            (response) => response.data,
+            onError: (_) => const <String, String>{},
+          );
+}
 
 typedef ListingFavoriteCallback = Future<void> Function(
   Listing listing,
@@ -48,11 +61,13 @@ class _ListingCardState extends State<ListingCard> {
   late bool _isFavorited;
   bool _isExpanded = false;
   bool _isFavoriteBusy = false;
+  late final Future<Map<String, String>> _contentFuture;
 
   @override
   void initState() {
     super.initState();
     _isFavorited = widget.listing.isFavorited;
+    _contentFuture = _loadListingContent();
   }
 
   @override
@@ -84,66 +99,77 @@ class _ListingCardState extends State<ListingCard> {
         ? const Color(0xFFF59E0B)
         : Colors.transparent;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.onDetailsTap == null
-          ? null
-          : () => widget.onDetailsTap!(widget.listing),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(26),
-          border: Border.all(
-            color: borderColor == Colors.transparent
-                ? (isDark ? Colors.white10 : const Color(0x0F0F172A))
-                : borderColor,
-            width: widget.listing.promotionType == 'vip' ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.08),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
+    return FutureBuilder<Map<String, String>>(
+      future: _contentFuture,
+      initialData: const {},
+      builder: (context, snapshot) {
+        final content = snapshot.data ?? const {};
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onDetailsTap == null
+              ? null
+              : () => widget.onDetailsTap!(widget.listing),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(26),
+              border: Border.all(
+                color: borderColor == Colors.transparent
+                    ? (isDark ? Colors.white10 : const Color(0x0F0F172A))
+                    : borderColor,
+                width: widget.listing.promotionType == 'vip' ? 2 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(textColor, mutedColor),
-            const SizedBox(height: 16),
-            _buildRoute(textColor, mutedColor),
-            const SizedBox(height: 14),
-            _buildMainMeta(textColor, mutedColor),
-            if (!widget.isCompact || _isExpanded) ...[
-              const SizedBox(height: 14),
-              _buildDetails(textColor, mutedColor, isDark),
-            ],
-            if (widget.listing.owner != null) ...[
-              const SizedBox(height: 16),
-              _buildOwner(textColor, mutedColor, isDark),
-            ],
-            if (widget.isOwner) ...[
-              const SizedBox(height: 14),
-              _buildOwnerStats(textColor, mutedColor, isDark),
-            ],
-            if (widget.actionsEnabled) ...[
-              const SizedBox(height: 16),
-              widget.isOwner
-                  ? _buildOwnerActions()
-                  : _buildPublicActions(textColor),
-            ],
-            if (widget.isCompact) _buildExpandButton(),
-          ],
-        ),
-      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(textColor, mutedColor, content),
+                const SizedBox(height: 16),
+                _buildRoute(textColor, mutedColor),
+                const SizedBox(height: 14),
+                _buildMainMeta(textColor, mutedColor),
+
+                if (!widget.isCompact || _isExpanded) ...[
+                   _buildDetails(textColor, mutedColor, isDark),
+                ],
+                if (widget.listing.owner != null) ...[
+                  const SizedBox(height: 16),
+                  _buildOwner(textColor, mutedColor, isDark, content),
+                ],
+                if (widget.isOwner) ...[
+                  const SizedBox(height: 14),
+                  _buildOwnerStats(textColor, mutedColor, isDark),
+                ],
+                if (widget.actionsEnabled) ...[
+                  const SizedBox(height: 16),
+                  widget.isOwner
+                      ? _buildOwnerActions()
+                      : _buildPublicActions(textColor),
+                ],
+                if (widget.isCompact) _buildExpandButton(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader(Color textColor, Color mutedColor) {
+  Widget _buildHeader(
+    Color textColor,
+    Color mutedColor,
+    Map<String, String> content,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -153,29 +179,34 @@ class _ListingCardState extends State<ListingCard> {
             runSpacing: 8,
             children: [
               _Badge(
-                icon: _isTrip ? Icons.flight_takeoff : Icons.inventory_2,
+                icon: _isTrip
+                    ? PhosphorIconsFill.airplaneTakeoff
+                    : PhosphorIconsFill.package,
                 label: widget.listing.typeLabel ??
-                    (_isTrip ? 'SƏFƏR' : 'GÖNDƏRİŞ'),
+                    content[
+                        'enum.listing_type.${_isTrip ? 'trip' : 'shipment_post'}'] ??
+                    (_isTrip ? 'Səfər' : 'Göndəriş'),
                 color: _accent,
                 background: _accentSoft,
               ),
               if (widget.listing.promotionType == 'vip')
-                const _Badge(
-                  icon: Icons.workspace_premium,
-                  label: 'VİP',
-                  color: Color(0xFF0F172A),
-                  background: Color(0xFFFBBF24),
+                _Badge(
+                  icon: PhosphorIconsFill.sealCheck,
+                  label: content['enum.promotion_type.vip'] ?? 'VİP',
+                  color: const Color(0xFF0F172A),
+                  background: const Color(0xFFFBBF24),
                 ),
               if (widget.listing.promotionType == 'featured')
-                const _Badge(
-                  icon: Icons.rocket_launch,
-                  label: 'Önə çıxarılan',
-                  color: Color(0xFF024FA3),
-                  background: Color(0xFFCFE3FD),
+                _Badge(
+                  icon: PhosphorIconsFill.rocketLaunch,
+                  label: content['enum.promotion_type.featured'] ??
+                      'Önə çıxarılan',
+                  color: const Color(0xFF024FA3),
+                  background: const Color(0xFFCFE3FD),
                 ),
               if (widget.isOwner && widget.listing.statusLabel != null)
                 _Badge(
-                  icon: Icons.info_outline,
+                  icon: PhosphorIconsRegular.info,
                   label: widget.listing.statusLabel!,
                   color: mutedColor,
                   background: mutedColor.withValues(alpha: 0.12),
@@ -190,7 +221,9 @@ class _ListingCardState extends State<ListingCard> {
             child: Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Icon(
-                _isFavorited ? Icons.favorite : Icons.favorite_border,
+                _isFavorited
+                    ? PhosphorIconsFill.heart
+                    : PhosphorIconsRegular.heart,
                 color: _isFavorited ? _accent : mutedColor,
                 size: 24,
               ),
@@ -231,7 +264,7 @@ class _ListingCardState extends State<ListingCard> {
       children: [
         Expanded(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 9),
             decoration: BoxDecoration(
               color: _accentSoft,
               borderRadius: BorderRadius.circular(14),
@@ -240,12 +273,13 @@ class _ListingCardState extends State<ListingCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  _isTrip ? Icons.calendar_month : Icons.date_range,
+                  _isTrip
+                      ? PhosphorIconsFill.calendarDots
+                      : PhosphorIconsRegular.calendarBlank,
                   color: _accent,
                   size: 18,
                 ),
-                const SizedBox(width: 8),
-                Flexible(
+                 Flexible(
                   child: Text(
                     _dateText(context),
                     overflow: TextOverflow.ellipsis,
@@ -260,6 +294,8 @@ class _ListingCardState extends State<ListingCard> {
             ),
           ),
         ),
+        Spacer(),
+
         if (_isTrip && widget.listing.pricePerKg != null) ...[
           const SizedBox(width: 12),
           Text.rich(
@@ -299,7 +335,7 @@ class _ListingCardState extends State<ListingCard> {
           _buildCapacity(textColor, mutedColor),
         if (!_isTrip && widget.listing.weightKg != null)
           _InfoRow(
-            icon: Icons.scale,
+            icon: PhosphorIconsRegular.scales,
             label: 'Çəki',
             value: '${_formatNumber(widget.listing.weightKg!)} kq',
             textColor: textColor,
@@ -308,7 +344,7 @@ class _ListingCardState extends State<ListingCard> {
         if (_isTrip && widget.listing.flightNumber != null) ...[
           const SizedBox(height: 10),
           _InfoRow(
-            icon: Icons.airplane_ticket,
+            icon: PhosphorIconsRegular.ticket,
             label: 'Reys',
             value: widget.listing.flightNumber!,
             textColor: textColor,
@@ -318,7 +354,7 @@ class _ListingCardState extends State<ListingCard> {
         if (_isTrip && widget.listing.allowPriceNegotiation == true) ...[
           const SizedBox(height: 10),
           _Badge(
-            icon: Icons.handshake,
+            icon: PhosphorIconsFill.handshake,
             label: 'Qiymət razılaşma ilə',
             color: _accent,
             background: _accentSoft,
@@ -422,7 +458,12 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildOwner(Color textColor, Color mutedColor, bool isDark) {
+  Widget _buildOwner(
+    Color textColor,
+    Color mutedColor,
+    bool isDark,
+    Map<String, String> content,
+  ) {
     final owner = widget.listing.owner!;
     final initials = _initials(owner.displayName);
 
@@ -470,14 +511,14 @@ class _ListingCardState extends State<ListingCard> {
                     if (owner.isVerified) ...[
                       const SizedBox(width: 5),
                       const Icon(
-                        Icons.verified,
+                        PhosphorIconsFill.sealCheck,
                         color: Color(0xFF0271EB),
                         size: 16,
                       ),
                     ],
-                    if (_tierLabel(owner.tier) != null) ...[
+                    if (_tierLabel(owner.tier, content) != null) ...[
                       const SizedBox(width: 6),
-                      _TierBadge(tier: owner.tier!),
+                      _TierBadge(tier: owner.tier!, content: content),
                     ],
                   ],
                 ),
@@ -485,7 +526,7 @@ class _ListingCardState extends State<ListingCard> {
                 Row(
                   children: [
                     if (owner.ratingAvg != null) ...[
-                      const Icon(Icons.star,
+                      const Icon(PhosphorIconsFill.star,
                           color: Color(0xFFFBBF24), size: 15),
                       const SizedBox(width: 4),
                       Text(
@@ -568,7 +609,7 @@ class _ListingCardState extends State<ListingCard> {
           flex: 3,
           child: _ActionButton(
             label: 'Təklif göndər',
-            icon: Icons.send,
+            icon: PhosphorIconsBold.paperPlaneTilt,
             background: _accent,
             color: Colors.white,
             onTap: widget.onOfferTap == null
@@ -581,7 +622,7 @@ class _ListingCardState extends State<ListingCard> {
           flex: 2,
           child: _ActionButton(
             label: 'Mesaj',
-            icon: Icons.chat_bubble_outline,
+            icon: PhosphorIconsRegular.chatCircle,
             background: _accentSoft,
             color: _accent,
             onTap: widget.onMessageTap == null
@@ -600,7 +641,9 @@ class _ListingCardState extends State<ListingCard> {
         Expanded(
           child: _ActionButton(
             label: canResume ? 'Aktiv et' : 'Dayandır',
-            icon: canResume ? Icons.play_arrow : Icons.pause,
+            icon: canResume
+                ? PhosphorIconsFill.arrowClockwise
+                : PhosphorIconsBold.pause,
             background: _accentSoft,
             color: _accent,
             onTap: canResume
@@ -616,7 +659,7 @@ class _ListingCardState extends State<ListingCard> {
         Expanded(
           child: _ActionButton(
             label: 'Repost',
-            icon: Icons.refresh,
+            icon: PhosphorIconsBold.arrowClockwise,
             background: const Color(0xFFEAF3FE),
             color: const Color(0xFF0271EB),
             onTap: widget.onRepostTap == null
@@ -628,7 +671,7 @@ class _ListingCardState extends State<ListingCard> {
         Expanded(
           child: _ActionButton(
             label: 'Sil',
-            icon: Icons.delete_outline,
+            icon: PhosphorIconsRegular.trash,
             background: const Color(0xFFFEE2E2),
             color: const Color(0xFFDC2626),
             onTap: widget.onDeleteTap == null
@@ -661,7 +704,8 @@ class _ListingCardState extends State<ListingCard> {
             AnimatedRotation(
               turns: _isExpanded ? 0.5 : 0,
               duration: const Duration(milliseconds: 160),
-              child: Icon(Icons.keyboard_arrow_down, color: _accent, size: 18),
+              child: Icon(PhosphorIconsRegular.caretDown,
+                  color: _accent, size: 18),
             ),
           ],
         ),
@@ -724,17 +768,17 @@ class _ListingCardState extends State<ListingCard> {
   IconData _packageIcon(String code) {
     switch (code) {
       case 'documents':
-        return Icons.description_outlined;
+        return PhosphorIconsFill.fileText;
       case 'small_parcel':
-        return Icons.inventory_2_outlined;
+        return PhosphorIconsRegular.cube;
       case 'electronics':
-        return Icons.phone_iphone;
+        return PhosphorIconsRegular.deviceMobile;
       case 'clothing':
-        return Icons.shopping_bag_outlined;
+        return PhosphorIconsRegular.shoppingBag;
       case 'food':
-        return Icons.restaurant;
+        return PhosphorIconsRegular.forkKnife;
       default:
-        return Icons.more_horiz;
+        return PhosphorIconsRegular.dotsThreeCircle;
     }
   }
 
@@ -807,7 +851,7 @@ class _RouteLine extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Icon(
-            isTrip ? Icons.flight : Icons.inventory_2,
+            isTrip ? PhosphorIconsFill.airplaneTilt : PhosphorIconsFill.package,
             color: accent,
             size: 17,
           ),
@@ -966,13 +1010,17 @@ class _Badge extends StatelessWidget {
 
 class _TierBadge extends StatelessWidget {
   final String tier;
+  final Map<String, String> content;
 
-  const _TierBadge({required this.tier});
+  const _TierBadge({
+    required this.tier,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
     final style = _tierStyle(tier);
-    final label = _tierLabel(tier);
+    final label = _tierLabel(tier, content);
     if (label == null) return const SizedBox.shrink();
 
     return Container(
@@ -1017,10 +1065,15 @@ _TierStyle _tierStyle(String tier) {
   }
 }
 
-String? _tierLabel(String? tier) {
+String? _tierLabel(String? tier, Map<String, String> content) {
+  if (tier == null || tier.trim().isEmpty) return null;
+  final cmsLabel = content['enum.user_tier.$tier'];
+  if (cmsLabel != null && cmsLabel.trim().isNotEmpty) return cmsLabel;
   switch (tier) {
     case 'new':
       return 'Yeni';
+    case 'standard':
+      return 'Standart';
     case 'bronze':
       return 'Bürünc';
     case 'silver':
@@ -1030,7 +1083,7 @@ String? _tierLabel(String? tier) {
     case 'platinum':
       return 'Platin';
     default:
-      return null;
+      return tier;
   }
 }
 

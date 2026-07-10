@@ -12,17 +12,17 @@ class PusherService {
   String? _authToken;
   bool _isInitialized = false;
 
-   final Set<String> _subscribedChannels = {};
+  final Set<String> _subscribedChannels = {};
 
-   Function(dynamic)? _onUserChannelMessage;
+  Function(dynamic)? _onUserChannelMessage;
 
-   final Map<int, Function(dynamic)> _conversationCallbacks = {};
+  final Map<String, Function(dynamic)> _conversationCallbacks = {};
 
   bool get isInitialized => _isInitialized;
 
   Future<void> initialize(String token) async {
     if (_isInitialized) {
-       return;
+      return;
     }
 
     _authToken = token;
@@ -34,52 +34,46 @@ class PusherService {
         cluster: 'ap2',
         onEvent: _handleEvent,
         onSubscriptionSucceeded: (channelName, data) {
-           _subscribedChannels.add(channelName);
+          _subscribedChannels.add(channelName);
         },
-        onSubscriptionError: (channelName, error) {
-         },
-        onConnectionStateChange: (currentState, previousState) {
-         },
-        onError: (message, code, error) {
-         },
+        onSubscriptionError: (channelName, error) {},
+        onConnectionStateChange: (currentState, previousState) {},
+        onError: (message, code, error) {},
         onAuthorizer: _handleAuth,
       );
 
       await pusher.connect();
       _isInitialized = true;
-     } catch (e) {
-     }
+    } catch (e) {}
   }
 
   void _handleEvent(PusherEvent event) {
-
-
-     if (event.eventName != 'message.sent') return;
+    if (event.eventName != 'message.sent') return;
 
     try {
       final data = jsonDecode(event.data ?? '{}');
-      final conversationId = data['conversation_id'] as int?;
+      final conversationId = data['conversation_id']?.toString();
 
-       if (_onUserChannelMessage != null) {
-         _onUserChannelMessage!(data);
+      if (_onUserChannelMessage != null) {
+        _onUserChannelMessage!(data);
       }
 
-       if (conversationId != null && _conversationCallbacks.containsKey(conversationId)) {
-         _conversationCallbacks[conversationId]!(data);
+      if (conversationId != null &&
+          _conversationCallbacks.containsKey(conversationId)) {
+        _conversationCallbacks[conversationId]!(data);
       }
-    } catch (e) {
-     }
+    } catch (e) {}
   }
 
   Future<Map<String, dynamic>> _handleAuth(
-      String channelName,
-      String socketId,
-      dynamic options,
-      ) async {
+    String channelName,
+    String socketId,
+    dynamic options,
+  ) async {
     print('🔐 Auth for: $channelName');
 
     final response = await http.post(
-      Uri.parse('https://wawatair.com/api/v1/broadcasting/auth'),
+      Uri.parse('https://api.wawatair.com/api/broadcasting/auth'),
       headers: {
         'Authorization': 'Bearer $_authToken',
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -91,67 +85,66 @@ class PusherService {
       },
     );
 
-     return jsonDecode(response.body);
+    return jsonDecode(response.body);
   }
 
-   Future<void> subscribeToUserChannel(int userId, Function(dynamic) onMessage) async {
+  Future<void> subscribeToUserChannel(
+      int userId, Function(dynamic) onMessage) async {
     final channelName = 'private-user.$userId';
 
-     _onUserChannelMessage = onMessage;
+    _onUserChannelMessage = onMessage;
 
-     if (_subscribedChannels.contains(channelName)) {
-       return;
+    if (_subscribedChannels.contains(channelName)) {
+      return;
     }
-
 
     try {
       await pusher.subscribe(channelName: channelName);
-     } catch (e) {
-       if (e.toString().contains('Already subscribed')) {
+    } catch (e) {
+      if (e.toString().contains('Already subscribed')) {
         _subscribedChannels.add(channelName);
       }
     }
   }
 
-   Future<void> subscribeToConversation(int conversationId, Function(dynamic) onMessage) async {
+  Future<void> subscribeToConversation(
+      String conversationId, Function(dynamic) onMessage) async {
     final channelName = 'private-conversation.$conversationId';
 
-     _conversationCallbacks[conversationId] = onMessage;
+    _conversationCallbacks[conversationId] = onMessage;
 
-     if (_subscribedChannels.contains(channelName)) {
-       return;
+    if (_subscribedChannels.contains(channelName)) {
+      return;
     }
-
 
     try {
       await pusher.subscribe(channelName: channelName);
-     } catch (e) {
-       if (e.toString().contains('Already subscribed')) {
+    } catch (e) {
+      if (e.toString().contains('Already subscribed')) {
         _subscribedChannels.add(channelName);
       }
     }
   }
 
-   Future<void> unsubscribeFromUserChannel(int userId) async {
+  Future<void> unsubscribeFromUserChannel(int userId) async {
     final channelName = 'private-user.$userId';
 
     if (!_subscribedChannels.contains(channelName)) {
-       return;
+      return;
     }
 
     try {
       await pusher.unsubscribe(channelName: channelName);
       _subscribedChannels.remove(channelName);
       _onUserChannelMessage = null;
-     } catch (e) {
-     }
+    } catch (e) {}
   }
 
-   Future<void> unsubscribeFromConversation(int conversationId) async {
+  Future<void> unsubscribeFromConversation(String conversationId) async {
     final channelName = 'private-conversation.$conversationId';
 
     if (!_subscribedChannels.contains(channelName)) {
-       _conversationCallbacks.remove(conversationId);
+      _conversationCallbacks.remove(conversationId);
       return;
     }
 
@@ -159,15 +152,13 @@ class PusherService {
       await pusher.unsubscribe(channelName: channelName);
       _subscribedChannels.remove(channelName);
       _conversationCallbacks.remove(conversationId);
-     } catch (e) {
-     }
+    } catch (e) {}
   }
 
   Future<void> disconnect() async {
     try {
       await pusher.disconnect();
-    } catch (e) {
-     }
+    } catch (e) {}
     _isInitialized = false;
     _subscribedChannels.clear();
     _onUserChannelMessage = null;

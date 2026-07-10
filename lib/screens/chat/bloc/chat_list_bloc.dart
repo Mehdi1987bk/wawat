@@ -14,20 +14,22 @@ class ChatListBloc extends BaseBloc {
   final CacheManager _cacheManager = sl.get<CacheManager>();
 
   final BehaviorSubject<List<Conversation>> _conversationsSubject =
-  BehaviorSubject.seeded([]);
+      BehaviorSubject.seeded([]);
   final BehaviorSubject<bool> _isLoadingMoreSubject =
-  BehaviorSubject.seeded(false);
+      BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _isLoadingSubject = BehaviorSubject.seeded(true);
 
   Stream<List<Conversation>> get conversationsStream =>
       _conversationsSubject.stream;
   Stream<bool> get isLoadingMoreStream => _isLoadingMoreSubject.stream;
+  Stream<bool> get isLoadingStream => _isLoadingSubject.stream;
 
   int _currentPage = 1;
   int _lastPage = 1;
   bool _isLoadingMore = false;
   bool _showArchived = false;
   int? _myUserId;
-  bool _isInitialized = false;  // <-- Добавлено
+  bool _isInitialized = false; // <-- Добавлено
 
   /// Инициализация - вызывать в initState
   Future<void> init() async {
@@ -54,7 +56,7 @@ class ChatListBloc extends BaseBloc {
     print('📬 ChatListBloc received: $data');
 
     try {
-      final conversationId = data['conversation_id'] as int?;
+      final conversationId = data['conversation_id']?.toString();
       final messageData = data['message'] as Map<String, dynamic>?;
       final unreadCounts = data['unread_counts'] as Map<String, dynamic>?;
 
@@ -64,7 +66,8 @@ class ChatListBloc extends BaseBloc {
       }
 
       final newMessage = ChatMessage.fromJson(messageData);
-      final conversations = List<Conversation>.from(_conversationsSubject.value);
+      final conversations =
+          List<Conversation>.from(_conversationsSubject.value);
 
       // Находим чат в списке
       final index = conversations.indexWhere((c) => c.id == conversationId);
@@ -95,6 +98,9 @@ class ChatListBloc extends BaseBloc {
         unreadCount: newUnreadCount,
         isPinned: oldConversation.isPinned,
         isArchived: oldConversation.isArchived,
+        isBlocked: oldConversation.isBlocked,
+        isBlockedByOther: oldConversation.isBlockedByOther,
+        lastMessageAt: newMessage.createdAt,
       );
 
       // Удаляем старый
@@ -107,7 +113,8 @@ class ChatListBloc extends BaseBloc {
       } else {
         // Находим позицию после всех закрепленных
         int insertAt = 0;
-        while (insertAt < conversations.length && conversations[insertAt].isPinned) {
+        while (insertAt < conversations.length &&
+            conversations[insertAt].isPinned) {
           insertAt++;
         }
         // Вставляем в начало незакрепленных (сортировка по времени будет в UI)
@@ -124,6 +131,7 @@ class ChatListBloc extends BaseBloc {
   Future<void> loadConversations() async {
     _showArchived = false;
     _currentPage = 1;
+    _isLoadingSubject.add(true);
 
     try {
       final response = await _chatApi.getConversations(20, _currentPage);
@@ -132,9 +140,10 @@ class ChatListBloc extends BaseBloc {
     } catch (e) {
       print('Error loading conversations: $e');
       _conversationsSubject.addError(e);
+    } finally {
+      _isLoadingSubject.add(false);
     }
   }
-
 
   Future<void> blockUser(int userId) async {
     try {
@@ -154,19 +163,21 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-
   Future<void> loadArchivedConversations() async {
     _showArchived = true;
     _currentPage = 1;
+    _isLoadingSubject.add(true);
 
     try {
       final response =
-      await _chatApi.getArchivedConversations(20, _currentPage);
+          await _chatApi.getArchivedConversations(20, _currentPage);
       _conversationsSubject.add(response.data);
       _lastPage = response.meta.lastPage;
     } catch (e) {
       print('Error loading archived conversations: $e');
       _conversationsSubject.addError(e);
+    } finally {
+      _isLoadingSubject.add(false);
     }
   }
 
@@ -194,11 +205,11 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  Future<void> togglePin(int conversationId) async {
+  Future<void> togglePin(String conversationId) async {
     try {
       final currentConversations = _conversationsSubject.value;
       final conversation =
-      currentConversations.firstWhere((c) => c.id == conversationId);
+          currentConversations.firstWhere((c) => c.id == conversationId);
 
       if (conversation.isPinned) {
         await _chatApi.unpinConversation(conversationId);
@@ -212,11 +223,11 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  Future<void> toggleArchive(int conversationId) async {
+  Future<void> toggleArchive(String conversationId) async {
     try {
       final currentConversations = _conversationsSubject.value;
       final conversation =
-      currentConversations.firstWhere((c) => c.id == conversationId);
+          currentConversations.firstWhere((c) => c.id == conversationId);
 
       if (conversation.isArchived) {
         await _chatApi.unarchiveConversation(conversationId);
@@ -232,7 +243,7 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  Future<void> deleteConversation(int conversationId) async {
+  Future<void> deleteConversation(String conversationId) async {
     try {
       await _chatApi.deleteConversation(conversationId);
 
@@ -251,6 +262,7 @@ class ChatListBloc extends BaseBloc {
     // так как это singleton и может использоваться в других местах
     _conversationsSubject.close();
     _isLoadingMoreSubject.close();
+    _isLoadingSubject.close();
     super.dispose();
   }
 }

@@ -8,14 +8,18 @@ import '../../data/network/request/delete_listing_request.dart';
 import '../../data/network/request/edit_status_offer_request.dart';
 import '../../data/network/request/forgot_password_request.dart';
 import '../../data/network/request/login_request.dart';
+import '../../data/network/request/listing_proposal_request.dart';
 import '../../data/network/request/notification_settings.dart';
 import '../../data/network/request/offer_response.dart';
 import '../../data/network/request/otp_verify_request.dart';
 import '../../data/network/request/privacy_settings.dart';
 import '../../data/network/request/registration_request.dart';
+import '../../data/network/request/report_request.dart';
+import '../../data/network/request/saved_search_request.dart';
 import '../../data/network/request/support_request.dart';
 import '../../data/network/response/all_request_data.dart';
 import '../../data/network/response/cities_response.dart';
+import '../../data/network/response/content_response.dart';
 import '../../data/network/response/faq_response.dart';
 import '../../data/network/response/language_response.dart';
 import '../../data/network/response/listing_response.dart';
@@ -28,6 +32,7 @@ import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/privacy_policy_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/reviews_response.dart';
+import '../../data/network/response/saved_search_response.dart';
 import '../../data/network/response/trending_routes_response.dart';
 import '../../data/network/response/unread_chat_count_response.dart';
 import '../../data/network/response/unread_count_response.dart';
@@ -49,6 +54,8 @@ abstract class AuthRepository {
   Future<void> sendOtpLogin(int number, int otpCode);
 
   Future<void> customersMe();
+
+  Future<ContentResponse> getContent({String? group});
 
   Future<void> registration(RegistrationRequest request);
 
@@ -118,7 +125,11 @@ abstract class AuthRepository {
 
   Future<ReviewsResponse> myAboutLeft();
 
-  Future<void> notificationsRead(int date);
+  Future<void> notificationsRead(String id);
+
+  Future<void> notificationsReadAll();
+
+  Future<void> deleteNotification(String id);
 
   Future<void> submitVerification(
       {required File passport, required File selfie});
@@ -131,7 +142,11 @@ abstract class AuthRepository {
 
   Future<PartnerUserResponse> getUserById(int date);
 
-  Future<NotificationResponse> notifications();
+  Future<NotificationResponse> notifications({
+    bool? unread,
+    int page = 1,
+    int perPage = 20,
+  });
 
   Future<Pagination<OfferModel>> searchOffers({
     String? offerType,
@@ -207,6 +222,17 @@ abstract class AuthRepository {
 
   Future<ListingMessageResponse> removeListingFavorite(String id);
 
+  Future<ListingMessageResponse> createListingProposal(
+    String id,
+    ListingProposalRequest request,
+    String idempotencyKey,
+  );
+
+  Future<ListingMessageResponse> reportListing(
+    ReportRequest request,
+    String idempotencyKey,
+  );
+
   Future<PackageTypesResponse> getListingPackageTypes();
 
   Future<CitiesResponse> getListingCities(String? search, {int limit = 20});
@@ -214,6 +240,12 @@ abstract class AuthRepository {
   Future<CitiesResponse> getPopularCities();
 
   Future<TrendingRoutesResponse> getTrendingRoutes();
+
+  Future<SavedSearchesResponse> getSavedSearches();
+
+  Future<SavedSearchResponse> createSavedSearch(SavedSearchRequest request);
+
+  Future<void> deleteSavedSearch(String id);
 
   Future<void> logout();
 }

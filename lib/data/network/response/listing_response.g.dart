@@ -115,6 +115,7 @@ Map<String, dynamic> _$ListingToJson(Listing instance) => <String, dynamic>{
     };
 
 ListingOwner _$ListingOwnerFromJson(Map<String, dynamic> json) => ListingOwner(
+      id: json['id']?.toString(),
       username: json['username'] as String?,
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
@@ -129,6 +130,7 @@ ListingOwner _$ListingOwnerFromJson(Map<String, dynamic> json) => ListingOwner(
 
 Map<String, dynamic> _$ListingOwnerToJson(ListingOwner instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'username': instance.username,
       'first_name': instance.firstName,
       'last_name': instance.lastName,

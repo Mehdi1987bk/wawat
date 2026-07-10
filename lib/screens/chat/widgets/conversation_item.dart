@@ -1,13 +1,16 @@
-import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
 import '../../../data/network/response/chat_response.dart';
-import '../../../generated/l10n.dart';
-import '../../../presentation/resourses/wawat_colors.dart';
-import '../../../presentation/resourses/wawat_dimensions.dart';
-import '../../../presentation/resourses/wawat_text_styles.dart';
-import '../../../services/theme_manager.dart';
+
+const _brand = Color(0xFF0271EB);
+const _brand50 = Color(0xFFEAF3FE);
+const _brand100 = Color(0xFFCFE3FD);
+const _ink900 = Color(0xFF0F172A);
+const _ink500 = Color(0xFF64748B);
+const _ink400 = Color(0xFF94A3B8);
+const _emerald = Color(0xFF22C55E);
 
 class ConversationItem extends StatelessWidget {
   final Conversation conversation;
@@ -15,228 +18,194 @@ class ConversationItem extends StatelessWidget {
   final VoidCallback onTapMenu;
 
   const ConversationItem({
-    Key? key,
+    super.key,
     required this.conversation,
     required this.onTap,
     required this.onTapMenu,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
+    final unread = conversation.unreadCount > 0;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.only(left: 20, right: 16, top: 16),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              width: 1,
-              color: AppColors.appColor.withOpacity(0.3),
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(28),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 5, top: 5, bottom: 5, right: 10),
-                    child: Row(
+    return Material(
+      color: unread ? _brand50.withOpacity(0.4) : Colors.white,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Row(
+            children: [
+              _Avatar(user: conversation.user),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundColor: isDark
-                                  ? WawatColors.primary.withOpacity(0.2)
-                                  : WawatColors.primary.withOpacity(0.1),
-                              backgroundImage:
-                              conversation.user.avatarUrl.isNotEmpty
-                                  ? CachedNetworkImageProvider(
-                                  conversation.user.avatarUrl)
-                                  : null,
-                              child: conversation.user.avatarUrl.isEmpty
-                                  ? Text(
-                                conversation.user.fullname[0]
-                                    .toUpperCase(),
-                                style: WawatTextStyles.h2.copyWith(
-                                  color: WawatColors.primary,
-                                ),
-                              )
-                                  : null,
+                        Flexible(
+                          child: Text(
+                            conversation.user.fullname,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _ink900,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
                             ),
-                            if (conversation.user.isOnline)
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 14,
-                                  height: 14,
-                                  decoration: BoxDecoration(
-                                    color: WawatColors.success,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: isDark
-                                          ? const Color(0xFF1E1E1E)
-                                          : Colors.white,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
+                          ),
                         ),
-                        SizedBox(width: WawatDimensions.spacingMd),
+                        if (conversation.user.isVerified) ...[
+                          const SizedBox(width: 4),
+                          const Icon(PhosphorIconsFill.sealCheck,
+                              color: _brand, size: 14),
+                        ],
+                        if (conversation.isPinned) ...[
+                          const Spacer(),
+                          const Icon(PhosphorIconsFill.pushPin,
+                              color: _ink400, size: 14),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        _PreviewIcon(type: conversation.lastMessage?.type),
+                        if (conversation.lastMessage != null)
+                          const SizedBox(width: 4),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Flexible(
-                                          child: AnimatedDefaultTextStyle(
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            style: WawatTextStyles.bodyBold
-                                                .copyWith(
-                                              color: isDark
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                            ),
-                                            child: Text(
-                                              conversation.user.fullname,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ),
-                                        if (conversation.user.isVerified ==
-                                            true)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 2,
-                                              vertical: 2,
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Image.asset(
-                                                  "asset/prof_3.png",
-                                                  width: 16,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        if (conversation.user.isBlocked == true)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 2,
-                                              vertical: 2,
-                                            ),
-                                            child: Icon(
-                                              Icons.block,
-                                              size: 16,
-                                              color: WawatColors.error,
-                                            ),
-                                          ),
-                                        if (conversation.isPinned) ...[
-                                           const Icon(
-                                            Icons.push_pin,
-                                            size: 14,
-                                            color: WawatColors.warning,
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: WawatDimensions.spacingSm),
-                                  AnimatedDefaultTextStyle(
-                                    duration: const Duration(milliseconds: 300),
-                                    style: WawatTextStyles.caption.copyWith(
-                                      color: isDark
-                                          ? const Color(0xFF9CA3AF)
-                                          : WawatColors.textSecondary,
-                                    ),
-                                    child: Text(
-                                      conversation.lastMessage?.timeString(context) ??
-                                          '',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AnimatedDefaultTextStyle(
-                                      duration:
-                                      const Duration(milliseconds: 300),
-                                      style: WawatTextStyles.body.copyWith(
-                                        color: conversation.unreadCount > 0
-                                            ? WawatColors.primary
-                                            : (isDark
-                                            ? const Color(0xFF9CA3AF)
-                                            : WawatColors.textSecondary),
-                                        fontWeight: conversation.unreadCount > 0
-                                            ? FontWeight.w600
-                                            : FontWeight.normal,
-                                      ),
-                                      child: Text(
-                                        conversation.unreadCount > 0
-                                            ? (conversation.unreadCount > 99
-                                            ? '99+'
-                                            : '${conversation.unreadCount} ' + S.of(context).bgbgffbgfg4)
-                                            : conversation.lastMessagePreview(context),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 50,
-                                    height: 30,
-                                  )
-                                ],
-                              ),
-                            ],
+                          child: Text(
+                            conversation.lastMessagePreview(context),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: unread ? _ink900 : _ink500,
+                              fontSize: 13,
+                              fontWeight:
+                                  unread ? FontWeight.w700 : FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: GestureDetector(
-                      onTap: onTapMenu,
-                      behavior: HitTestBehavior.translucent,
-                      child: Container(
-                        height: 48,
-                        width: 50,
-                        child: Icon(
-                          Icons.more_horiz,
-                          color:
-                          isDark ? const Color(0xFF9CA3AF) : Colors.black54,
-                        ),
-                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    conversation.lastMessage?.timeString(context) ?? '',
+                    style: const TextStyle(
+                      color: _ink400,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 7),
+                  if (unread)
+                    Container(
+                      constraints: const BoxConstraints(minWidth: 20),
+                      height: 20,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: const BoxDecoration(
+                        color: _brand,
+                        borderRadius: BorderRadius.all(Radius.circular(99)),
+                      ),
+                      child: Text(
+                        conversation.unreadCount > 99
+                            ? '99+'
+                            : '${conversation.unreadCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    )
+                  else
+                    GestureDetector(
+                      onTap: onTapMenu,
+                      behavior: HitTestBehavior.translucent,
+                      child: const SizedBox(
+                        width: 28,
+                        height: 22,
+                        child: Icon(PhosphorIconsBold.dotsThreeVertical,
+                            color: _ink400, size: 18),
+                      ),
+                    ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final ChatUser user;
+
+  const _Avatar({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: user.avatarUrl.isEmpty ? _brand100 : Colors.white,
+          backgroundImage: user.avatarUrl.isEmpty
+              ? null
+              : CachedNetworkImageProvider(user.avatarUrl),
+          child: user.avatarUrl.isEmpty
+              ? Text(
+                  user.initials,
+                  style: const TextStyle(
+                    color: _brand,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
+                )
+              : null,
+        ),
+        if (user.isOnline)
+          Positioned(
+            right: -1,
+            bottom: -1,
+            child: Container(
+              width: 11,
+              height: 11,
+              decoration: BoxDecoration(
+                color: _emerald,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
               ),
             ),
           ),
-        );
-      },
+      ],
     );
+  }
+}
+
+class _PreviewIcon extends StatelessWidget {
+  final String? type;
+
+  const _PreviewIcon({this.type});
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = switch (type) {
+      'image' => PhosphorIconsRegular.image,
+      'system_card' => PhosphorIconsRegular.paperPlaneTilt,
+      _ => null,
+    };
+    if (icon == null) return const SizedBox.shrink();
+    return Icon(icon, color: _ink400, size: 15);
   }
 }

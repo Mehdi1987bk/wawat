@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:buking/screens/home/tabs/profile_tab/unread_chat_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../generated/l10n.dart';
@@ -83,7 +83,7 @@ class _BottomBarState extends State<BottomBar> {
                         index: 0,
                         selectedIndex: widget.selectedIndex,
                         label: 'Kəşf',
-                        iconAsset: 'asset/ph_compass_fill.svg',
+                        icon: PhosphorIconsFill.compass,
                         onChanged: widget.onChanged,
                         isDark: isDark,
                       ),
@@ -91,7 +91,7 @@ class _BottomBarState extends State<BottomBar> {
                         index: 1,
                         selectedIndex: widget.selectedIndex,
                         label: S.of(context).searchbtrrevfdsc,
-                        iconAsset: 'asset/ph_magnifying_glass.svg',
+                        icon: PhosphorIconsRegular.magnifyingGlass,
                         onChanged: widget.onChanged,
                         isDark: isDark,
                       ),
@@ -102,7 +102,7 @@ class _BottomBarState extends State<BottomBar> {
                         index: 3,
                         selectedIndex: widget.selectedIndex,
                         label: S.of(context).mjhmhjmj5,
-                        iconAsset: 'asset/ph_chat_circle.svg',
+                        icon: PhosphorIconsRegular.chatCircle,
                         onChanged: widget.onChanged,
                         isDark: isDark,
                         badgeCount: unreadChatCount,
@@ -111,7 +111,7 @@ class _BottomBarState extends State<BottomBar> {
                         index: 4,
                         selectedIndex: widget.selectedIndex,
                         label: S.of(context).vfdvfdvfd,
-                        iconAsset: 'asset/ph_user.svg',
+                        icon: PhosphorIconsRegular.user,
                         onChanged: widget.onChanged,
                         isDark: isDark,
                       ),
@@ -131,7 +131,7 @@ class BottomNavigationItem extends StatelessWidget {
   final int index;
   final int selectedIndex;
   final String label;
-  final String iconAsset;
+  final IconData icon;
   final ValueChanged<int> onChanged;
   final bool isDark;
   final int badgeCount;
@@ -141,7 +141,7 @@ class BottomNavigationItem extends StatelessWidget {
     required this.index,
     required this.selectedIndex,
     required this.label,
-    required this.iconAsset,
+    required this.icon,
     required this.onChanged,
     required this.isDark,
     this.badgeCount = 0,
@@ -165,12 +165,7 @@ class BottomNavigationItem extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                SvgPicture.asset(
-                  iconAsset,
-                  width: 22,
-                  height: 22,
-                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-                ),
+                Icon(icon, size: 22, color: iconColor),
                 if (badgeCount > 0)
                   Positioned(
                     top: 1,
@@ -237,12 +232,10 @@ class _CenterPostButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: SvgPicture.asset(
-              'asset/ph_plus_bold.svg',
-              width: 25,
-              height: 25,
-              colorFilter:
-                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            child: const Icon(
+              PhosphorIconsBold.plus,
+              size: 25,
+              color: Colors.white,
             ),
           ),
         ),

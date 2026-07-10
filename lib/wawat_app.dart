@@ -13,6 +13,8 @@ import 'screens/splesh/splesh_screen.dart';
 import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+const _appFontFamily = 'Instrument Sans';
+const _appFontFallback = <String>['Noto Sans'];
 
 class WawatApp extends StatefulWidget {
   @override
@@ -46,10 +48,15 @@ class App extends StatelessWidget {
               SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
-                  statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-                  statusBarBrightness: isDark ? Brightness.light : Brightness.dark,
-                  systemNavigationBarColor: isDark ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
-                  systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                  statusBarIconBrightness:
+                      isDark ? Brightness.light : Brightness.dark,
+                  statusBarBrightness:
+                      isDark ? Brightness.light : Brightness.dark,
+                  systemNavigationBarColor: isDark
+                      ? const Color(0xFF000000)
+                      : const Color(0xFFFFFFFF),
+                  systemNavigationBarIconBrightness:
+                      isDark ? Brightness.light : Brightness.dark,
                   systemNavigationBarDividerColor: Colors.transparent,
                 ),
               );
@@ -57,7 +64,8 @@ class App extends StatelessWidget {
               return MaterialApp(
                 builder: (context, child) {
                   return MediaQuery(
-                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    data: MediaQuery.of(context)
+                        .copyWith(textScaler: TextScaler.noScaling),
                     child: child!,
                   );
                 },
@@ -95,22 +103,29 @@ class App extends StatelessWidget {
                 supportedLocales: S.delegate.supportedLocales,
                 home: SpleshScreen(),
               );
-
             },
           );
-
         });
   }
 
   ThemeData _buildLightTheme() {
     return ThemeData(
       brightness: Brightness.light,
+      fontFamily: _appFontFamily,
+      fontFamilyFallback: _appFontFallback,
+      cupertinoOverrideTheme: const CupertinoThemeData(
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(
+            fontFamily: _appFontFamily,
+            fontFamilyFallback: _appFontFallback,
+          ),
+        ),
+      ),
       scaffoldBackgroundColor: Colors.white,
       colorScheme: ColorScheme.light(
         primary: const Color(0xFF5B4FFF),
         secondary: const Color(0xFF5B4FFF),
         surface: Colors.white,
-        background: Colors.white,
       ),
       useMaterial3: true,
       inputDecorationTheme: InputDecorationTheme(
@@ -122,12 +137,21 @@ class App extends StatelessWidget {
   ThemeData _buildDarkTheme() {
     return ThemeData(
       brightness: Brightness.dark,
+      fontFamily: _appFontFamily,
+      fontFamilyFallback: _appFontFallback,
+      cupertinoOverrideTheme: const CupertinoThemeData(
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(
+            fontFamily: _appFontFamily,
+            fontFamilyFallback: _appFontFallback,
+          ),
+        ),
+      ),
       scaffoldBackgroundColor: const Color(0xFF121212),
       colorScheme: ColorScheme.dark(
         primary: const Color(0xFF5B4FFF),
         secondary: const Color(0xFF5B4FFF),
         surface: const Color(0xFF1E1E1E),
-        background: const Color(0xFF121212),
       ),
       useMaterial3: true,
       inputDecorationTheme: InputDecorationTheme(

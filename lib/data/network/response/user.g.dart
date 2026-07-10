@@ -32,13 +32,14 @@ class UserAdapter extends TypeAdapter<User> {
       isVerified: fields[13] as bool?,
       profile: fields[12] as ProfileInfo?,
       stats: fields[14] as Stats?,
+      listingQuota: fields[21] as ListingQuota?,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -68,7 +69,9 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(13)
       ..write(obj.isVerified)
       ..writeByte(14)
-      ..write(obj.stats);
+      ..write(obj.stats)
+      ..writeByte(21)
+      ..write(obj.listingQuota);
   }
 
   @override
@@ -78,6 +81,83 @@ class UserAdapter extends TypeAdapter<User> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is UserAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ListingQuotaAdapter extends TypeAdapter<ListingQuota> {
+  @override
+  final int typeId = 61;
+
+  @override
+  ListingQuota read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ListingQuota(
+      trip: fields[0] as ListingQuotaItem?,
+      shipmentPost: fields[1] as ListingQuotaItem?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ListingQuota obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.trip)
+      ..writeByte(1)
+      ..write(obj.shipmentPost);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ListingQuotaAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class ListingQuotaItemAdapter extends TypeAdapter<ListingQuotaItem> {
+  @override
+  final int typeId = 62;
+
+  @override
+  ListingQuotaItem read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ListingQuotaItem(
+      active: fields[0] as int,
+      limit: fields[1] as int,
+      remaining: fields[2] as int,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ListingQuotaItem obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.active)
+      ..writeByte(1)
+      ..write(obj.limit)
+      ..writeByte(2)
+      ..write(obj.remaining);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ListingQuotaItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -123,9 +203,24 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       emailVerified: json['email_verified'] as bool?,
       preferredLocale: json['preferred_locale'] as String?,
       avatarThumbUrl: json['avatar_thumb_url'] as String?,
+      status: json['status'] as String?,
+      tier: json['tier'] as String?,
+      ratingAvg: (_readRatingAvg(json, 'rating_avg') as num?)?.toDouble(),
+      ratingCount: (_readRatingCount(json, 'rating_count') as num?)?.toInt(),
+      completedShipmentsCount:
+          (_readCompletedShipmentsCount(json, 'completed_shipments_count')
+                  as num?)
+              ?.toInt(),
+      memberSince: json['member_since'] == null
+          ? null
+          : DateTime.parse(json['member_since'] as String),
       country: json['country'] == null
           ? null
           : Country.fromJson(json['country'] as Map<String, dynamic>),
+      listingQuota: json['listing_quota'] == null
+          ? null
+          : ListingQuota.fromJson(
+              json['listing_quota'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -150,5 +245,42 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'email_verified': instance.emailVerified,
       'preferred_locale': instance.preferredLocale,
       'avatar_thumb_url': instance.avatarThumbUrl,
+      'status': instance.status,
+      'tier': instance.tier,
+      'rating_avg': instance.ratingAvg,
+      'rating_count': instance.ratingCount,
+      'completed_shipments_count': instance.completedShipmentsCount,
+      'member_since': instance.memberSince?.toIso8601String(),
       'country': instance.country,
+      'listing_quota': instance.listingQuota,
+    };
+
+ListingQuota _$ListingQuotaFromJson(Map<String, dynamic> json) => ListingQuota(
+      trip: json['trip'] == null
+          ? null
+          : ListingQuotaItem.fromJson(json['trip'] as Map<String, dynamic>),
+      shipmentPost: json['shipment_post'] == null
+          ? null
+          : ListingQuotaItem.fromJson(
+              json['shipment_post'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$ListingQuotaToJson(ListingQuota instance) =>
+    <String, dynamic>{
+      'trip': instance.trip,
+      'shipment_post': instance.shipmentPost,
+    };
+
+ListingQuotaItem _$ListingQuotaItemFromJson(Map<String, dynamic> json) =>
+    ListingQuotaItem(
+      active: (json['active'] as num?)?.toInt() ?? 0,
+      limit: (json['limit'] as num?)?.toInt() ?? 0,
+      remaining: (json['remaining'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$ListingQuotaItemToJson(ListingQuotaItem instance) =>
+    <String, dynamic>{
+      'active': instance.active,
+      'limit': instance.limit,
+      'remaining': instance.remaining,
     };

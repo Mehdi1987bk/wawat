@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../data/network/response/cities_response.dart';
 import '../../../../data/network/response/city.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/package_types_response.dart';
+import '../../../../data/network/request/saved_search_request.dart';
+import '../../../../data/network/response/saved_search_response.dart';
 import '../../../../data/network/response/trending_routes_response.dart';
 import '../../../../domain/entities/pagination.dart';
 import '../../../../domain/repositories/auth_repository.dart';
@@ -15,6 +20,8 @@ class ListingFilterState {
   final City? cityFrom;
   final City? cityTo;
   final List<String> packageTypes;
+  final bool verifiedOnly;
+  final bool following;
   final String? dateFrom;
   final String? dateTo;
   final double? weightMin;
@@ -30,6 +37,8 @@ class ListingFilterState {
     this.cityFrom,
     this.cityTo,
     this.packageTypes = const [],
+    this.verifiedOnly = false,
+    this.following = false,
     this.dateFrom,
     this.dateTo,
     this.weightMin,
@@ -46,6 +55,8 @@ class ListingFilterState {
     City? cityFrom,
     City? cityTo,
     List<String>? packageTypes,
+    bool? verifiedOnly,
+    bool? following,
     String? dateFrom,
     String? dateTo,
     double? weightMin,
@@ -72,6 +83,8 @@ class ListingFilterState {
       cityFrom: clearCityFrom ? null : cityFrom ?? this.cityFrom,
       cityTo: clearCityTo ? null : cityTo ?? this.cityTo,
       packageTypes: packageTypes ?? this.packageTypes,
+      verifiedOnly: verifiedOnly ?? this.verifiedOnly,
+      following: following ?? this.following,
       dateFrom: clearDateFrom ? null : dateFrom ?? this.dateFrom,
       dateTo: clearDateTo ? null : dateTo ?? this.dateTo,
       weightMin: clearWeightMin ? null : weightMin ?? this.weightMin,
@@ -89,6 +102,8 @@ class ListingFilterState {
         cityFrom != null ||
         cityTo != null ||
         packageTypes.isNotEmpty ||
+        verifiedOnly ||
+        following ||
         dateFrom != null ||
         dateTo != null ||
         weightMin != null ||
@@ -99,6 +114,130 @@ class ListingFilterState {
         tierMin != null ||
         sort != 'relevance';
   }
+
+  int get activeFilterCount {
+    var count = 0;
+    if (type != null) count++;
+    if (packageTypes.isNotEmpty) count += packageTypes.length;
+    if (verifiedOnly) count++;
+    if (following) count++;
+    if (dateFrom != null || dateTo != null) count++;
+    if (weightMin != null || weightMax != null) count++;
+    if (priceMin != null || priceMax != null) count++;
+    if (ratingMin != null) count++;
+    if (tierMin != null) count++;
+    return count;
+  }
+
+  bool get hasRoute => cityFrom != null || cityTo != null;
+
+  ListingFilterState routeOnly() {
+    return ListingFilterState(cityFrom: cityFrom, cityTo: cityTo);
+  }
+
+  Map<String, dynamic> toApiFilters({bool includeFollowing = true}) {
+    final data = <String, dynamic>{};
+    if (type != null) data['type'] = type;
+    if (cityFrom != null) data['city_from_id'] = cityFrom!.id;
+    if (cityTo != null) data['city_to_id'] = cityTo!.id;
+    if (verifiedOnly) data['verified_only'] = true;
+    if (includeFollowing && following) data['following'] = true;
+    if (packageTypes.isNotEmpty) data['package_types'] = packageTypes;
+    if (dateFrom != null) data['date_from'] = dateFrom;
+    if (dateTo != null) data['date_to'] = dateTo;
+    if (weightMin != null) data['weight_min'] = weightMin;
+    if (weightMax != null) data['weight_max'] = weightMax;
+    if (priceMin != null) data['price_min'] = priceMin;
+    if (priceMax != null) data['price_max'] = priceMax;
+    if (ratingMin != null) data['rating_min'] = ratingMin;
+    if (tierMin != null) data['tier_min'] = tierMin;
+    return data;
+  }
+
+  Map<String, dynamic> toHistoryJson() {
+    return {
+      'filters': toApiFilters(),
+      'from_name': cityFrom?.name,
+      'from_country': cityFrom?.countryName,
+      'to_name': cityTo?.name,
+      'to_country': cityTo?.countryName,
+    };
+  }
+
+  static ListingFilterState fromHistoryJson(Map<String, dynamic> json) {
+    final filters = json['filters'] is Map
+        ? Map<String, dynamic>.from(json['filters'] as Map)
+        : json;
+    return fromFilterMap(
+      filters,
+      cityFromName: json['from_name']?.toString(),
+      cityFromCountry: json['from_country']?.toString(),
+      cityToName: json['to_name']?.toString(),
+      cityToCountry: json['to_country']?.toString(),
+    );
+  }
+
+  static ListingFilterState fromFilterMap(
+    Map<String, dynamic> filters, {
+    String? cityFromName,
+    String? cityFromCountry,
+    String? cityToName,
+    String? cityToCountry,
+  }) {
+    final fromId = _intValue(filters['city_from_id']);
+    final toId = _intValue(filters['city_to_id']);
+    return ListingFilterState(
+      type: filters['type']?.toString(),
+      cityFrom: fromId == null
+          ? null
+          : City(
+              id: fromId,
+              name: cityFromName ?? '#$fromId',
+              countryId: 0,
+              countryCode: '',
+              countryName: cityFromCountry ?? '',
+            ),
+      cityTo: toId == null
+          ? null
+          : City(
+              id: toId,
+              name: cityToName ?? '#$toId',
+              countryId: 0,
+              countryCode: '',
+              countryName: cityToCountry ?? '',
+            ),
+      packageTypes: _stringList(filters['package_types']),
+      verifiedOnly: filters['verified_only'] == true ||
+          filters['verified_only']?.toString() == 'true',
+      following: filters['following'] == true ||
+          filters['following']?.toString() == 'true',
+      dateFrom: filters['date_from']?.toString(),
+      dateTo: filters['date_to']?.toString(),
+      weightMin: _doubleValue(filters['weight_min']),
+      weightMax: _doubleValue(filters['weight_max']),
+      priceMin: _doubleValue(filters['price_min']),
+      priceMax: _doubleValue(filters['price_max']),
+      ratingMin: _doubleValue(filters['rating_min']),
+      tierMin: filters['tier_min']?.toString(),
+    );
+  }
+}
+
+int? _intValue(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
+}
+
+double? _doubleValue(Object? value) {
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '');
+}
+
+List<String> _stringList(Object? value) {
+  if (value is List) return value.map((e) => e.toString()).toList();
+  return const [];
 }
 
 class ListingFeedBloc extends PaginableBloc<Listing> {
@@ -108,10 +247,15 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
   int? _seed;
   Pagination<Listing>? lastPagination;
   PackageTypesResponse? _packageTypes;
+  Map<String, String>? _listingContent;
 
   final BehaviorSubject<Map<String, String>> packageNamesByCode =
       BehaviorSubject.seeded(const {});
+  final BehaviorSubject<Map<String, String>> listingContent =
+      BehaviorSubject.seeded(const {});
   final BehaviorSubject<List<PaginationSuggestion>> suggestions =
+      BehaviorSubject.seeded(const []);
+  final BehaviorSubject<List<ListingFilterState>> recentSearches =
       BehaviorSubject.seeded(const []);
 
   ListingFeedBloc({this.filters = const ListingFilterState()});
@@ -120,12 +264,15 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
   void init() {
     super.init();
     loadPackageTypes();
+    loadListingContent();
   }
 
   @override
   void dispose() {
     packageNamesByCode.close();
+    listingContent.close();
     suggestions.close();
+    recentSearches.close();
     super.dispose();
   }
 
@@ -161,6 +308,14 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
     return result;
   }
 
+  Future<Map<String, String>> loadListingContent() async {
+    if (_listingContent != null) return _listingContent!;
+    final result = await authRepository.getContent(group: 'listing');
+    _listingContent = result.data;
+    listingContent.add(result.data);
+    return result.data;
+  }
+
   Future<CitiesResponse> getCities(String search) {
     return authRepository.getListingCities(search, limit: 20);
   }
@@ -189,6 +344,8 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
       type: filters.type,
       cityFromId: filters.cityFrom?.id,
       cityToId: filters.cityTo?.id,
+      verifiedOnly: filters.verifiedOnly ? true : null,
+      following: filters.following ? true : null,
       packageTypes: filters.packageTypes.isEmpty ? null : filters.packageTypes,
       dateFrom: filters.dateFrom,
       dateTo: filters.dateTo,
@@ -209,5 +366,76 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
     }
     suggestions.add(response.suggestions);
     return response;
+  }
+
+  Future<void> loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList('wawatair_recent_searches') ?? const [];
+    recentSearches.add(
+      raw
+          .map((item) {
+            try {
+              return ListingFilterState.fromHistoryJson(
+                Map<String, dynamic>.from(jsonDecode(item) as Map),
+              );
+            } catch (_) {
+              return null;
+            }
+          })
+          .whereType<ListingFilterState>()
+          .toList(),
+    );
+  }
+
+  Future<void> saveRecentSearch(ListingFilterState filters) async {
+    if (!filters.hasFilters) return;
+    final prefs = await SharedPreferences.getInstance();
+    final current =
+        prefs.getStringList('wawatair_recent_searches') ?? const <String>[];
+    final next = [
+      jsonEncode(filters.toHistoryJson()),
+      ...current.where((item) {
+        try {
+          final saved = ListingFilterState.fromHistoryJson(
+            Map<String, dynamic>.from(jsonDecode(item) as Map),
+          );
+          return saved.cityFrom?.id != filters.cityFrom?.id ||
+              saved.cityTo?.id != filters.cityTo?.id ||
+              saved.type != filters.type;
+        } catch (_) {
+          return false;
+        }
+      }),
+    ].take(8).toList();
+    await prefs.setStringList('wawatair_recent_searches', next);
+    await loadRecentSearches();
+  }
+
+  Future<void> clearRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('wawatair_recent_searches');
+    recentSearches.add(const []);
+  }
+
+  Future<SavedSearchesResponse> getSavedSearches() {
+    return authRepository.getSavedSearches();
+  }
+
+  Future<SavedSearchResponse> createSavedSearch({
+    String? name,
+    bool notify = true,
+    required ListingFilterState filters,
+  }) {
+    return authRepository.createSavedSearch(
+      SavedSearchRequest(
+        name: name,
+        notify: notify,
+        filters: filters.toApiFilters(includeFollowing: false),
+      ),
+    );
+  }
+
+  Future<void> deleteSavedSearch(String id) {
+    return authRepository.deleteSavedSearch(id);
   }
 }

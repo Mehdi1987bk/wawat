@@ -190,6 +190,8 @@ class Listing {
 
 @JsonSerializable()
 class ListingOwner {
+  final String? id;
+
   final String? username;
 
   @JsonKey(name: 'first_name')
@@ -219,6 +221,7 @@ class ListingOwner {
   final int? avgResponseMinutes;
 
   ListingOwner({
+    this.id,
     this.username,
     this.firstName,
     this.lastName,

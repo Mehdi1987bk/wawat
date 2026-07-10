@@ -4,6 +4,8 @@ import '../../../../data/network/request/create_listing_request.dart';
 import '../../../../data/network/response/cities_response.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/package_types_response.dart';
+import '../../../../data/network/response/trending_routes_response.dart';
+import '../../../../data/network/response/user.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_bloc.dart';
@@ -12,15 +14,35 @@ class CreatePostBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
 
   PackageTypesResponse? _cachedPackageTypes;
+  Map<String, String>? _cachedListingContent;
+
+  Stream<User> get userDetails => authRepository.userDetails;
+
+  Future<void> refreshCurrentUser() => authRepository.customersMe();
 
   Future<CitiesResponse> getCities(String search) {
     return authRepository.getListingCities(search, limit: 20);
+  }
+
+  Future<CitiesResponse> getPopularCities() {
+    return authRepository.getPopularCities();
+  }
+
+  Future<TrendingRoutesResponse> getTrendingRoutes() {
+    return authRepository.getTrendingRoutes();
   }
 
   Future<PackageTypesResponse> getPackageTypes() async {
     if (_cachedPackageTypes != null) return _cachedPackageTypes!;
     _cachedPackageTypes = await authRepository.getListingPackageTypes();
     return _cachedPackageTypes!;
+  }
+
+  Future<Map<String, String>> getListingContent() async {
+    if (_cachedListingContent != null) return _cachedListingContent!;
+    final response = await authRepository.getContent(group: 'listing');
+    _cachedListingContent = response.data;
+    return _cachedListingContent!;
   }
 
   Future<ListingResponse> createListing(

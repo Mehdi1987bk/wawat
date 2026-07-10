@@ -16,16 +16,20 @@ import '../network/request/delete_listing_request.dart';
 import '../network/request/edit_status_offer_request.dart';
 import '../network/request/forgot_password_request.dart';
 import '../network/request/login_request.dart';
+import '../network/request/listing_proposal_request.dart';
 import '../network/request/fcm_token_request.dart';
 import '../network/request/notification_settings.dart';
 import '../network/request/offer_response.dart';
 import '../network/request/otp_verify_request.dart';
 import '../network/request/privacy_settings.dart';
 import '../network/request/registration_request.dart';
+import '../network/request/report_request.dart';
+import '../network/request/saved_search_request.dart';
 import '../network/request/support_request.dart';
 import '../network/request/user_request.dart';
 import '../network/response/all_request_data.dart';
 import '../network/response/cities_response.dart';
+import '../network/response/content_response.dart';
 import '../network/response/faq_response.dart';
 import '../network/response/language_response.dart';
 import '../network/response/listing_response.dart';
@@ -38,6 +42,7 @@ import '../network/response/partner_user_response.dart';
 import '../network/response/privacy_policy_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/reviews_response.dart';
+import '../network/response/saved_search_response.dart';
 import '../network/response/trending_routes_response.dart';
 import '../network/response/unread_chat_count_response.dart';
 import '../network/response/unread_count_response.dart';
@@ -94,7 +99,7 @@ class DataAuthRepository implements AuthRepository {
   Future<void> customersMe() async {
     try {
       final response = await _authApi.customersMe();
-      await _cacheManager.saveUser(response.data.user);
+      await _cacheManager.saveUser(response.data);
     } catch (e) {
       // Если 401 - очищаем токен
       if (e is DioException && e.response?.statusCode == 401) {
@@ -103,6 +108,11 @@ class DataAuthRepository implements AuthRepository {
       }
       rethrow;
     }
+  }
+
+  @override
+  Future<ContentResponse> getContent({String? group}) {
+    return _authApi.getContent(group);
   }
 
   @override
@@ -276,8 +286,16 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.myAboutLeft();
   }
 
-  Future<void> notificationsRead(int date) {
-    return _authApi.notificationsRead(date);
+  Future<void> notificationsRead(String id) {
+    return _authApi.notificationsRead(id);
+  }
+
+  Future<void> notificationsReadAll() {
+    return _authApi.notificationsReadAll();
+  }
+
+  Future<void> deleteNotification(String id) {
+    return _authApi.deleteNotification(id);
   }
 
   Future<void> submitVerification(
@@ -300,8 +318,12 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.getUserById(date);
   }
 
-  Future<NotificationResponse> notifications() {
-    return _authApi.notifications();
+  Future<NotificationResponse> notifications({
+    bool? unread,
+    int page = 1,
+    int perPage = 20,
+  }) {
+    return _authApi.notifications(unread, page, perPage);
   }
 
   @override
@@ -456,6 +478,23 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<ListingMessageResponse> createListingProposal(
+    String id,
+    ListingProposalRequest request,
+    String idempotencyKey,
+  ) {
+    return _authApi.createListingProposal(id, request, idempotencyKey);
+  }
+
+  @override
+  Future<ListingMessageResponse> reportListing(
+    ReportRequest request,
+    String idempotencyKey,
+  ) {
+    return _authApi.reportListing(request, idempotencyKey);
+  }
+
+  @override
   Future<PackageTypesResponse> getListingPackageTypes() {
     return _authApi.getListingPackageTypes();
   }
@@ -473,5 +512,20 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<TrendingRoutesResponse> getTrendingRoutes() {
     return _authApi.getTrendingRoutes();
+  }
+
+  @override
+  Future<SavedSearchesResponse> getSavedSearches() {
+    return _authApi.getSavedSearches();
+  }
+
+  @override
+  Future<SavedSearchResponse> createSavedSearch(SavedSearchRequest request) {
+    return _authApi.createSavedSearch(request);
+  }
+
+  @override
+  Future<void> deleteSavedSearch(String id) {
+    return _authApi.deleteSavedSearch(id);
   }
 }

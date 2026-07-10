@@ -6,6 +6,7 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
+import '../../../../../services/wawat_content.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../../listings/widgets/listing_card.dart';
 import 'delivery_full_list_bloc.dart';
@@ -25,6 +26,7 @@ class DeliveryFullListScreen extends BaseScreen<DeliveryFullListBloc> {
 class _DeliveryFullListScreenState
     extends BaseState<DeliveryFullListScreen, DeliveryFullListBloc> {
   final ScrollController _scrollController = ScrollController();
+  Map<String, String> _content = const {};
 
   @override
   bool get showProgressIndicator => false;
@@ -34,6 +36,9 @@ class _DeliveryFullListScreenState
     super.initState();
     bloc.loadPackageTypes();
     bloc.load();
+    WawatContent.load().then((content) {
+      if (mounted) setState(() => _content = content);
+    });
     _scrollController.addListener(() {
       hideKeyboardOnScroll(context, _scrollController);
       if (_scrollController.position.extentAfter <=
@@ -41,6 +46,10 @@ class _DeliveryFullListScreenState
         bloc.load();
       }
     });
+  }
+
+  String _t(String key, [String? fallback]) {
+    return WawatContent.text(_content, key, fallback);
   }
 
   @override
@@ -63,7 +72,9 @@ class _DeliveryFullListScreenState
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                      SliverToBoxAdapter(child: _Header(isDark: isDark)),
+                      SliverToBoxAdapter(
+                        child: _Header(isDark: isDark, content: _content),
+                      ),
                       StreamBuilder<List<Listing>>(
                         stream: bloc.paginableList,
                         builder: (context, snapshot) {
@@ -74,9 +85,9 @@ class _DeliveryFullListScreenState
                             );
                           }
                           if (listings.isEmpty) {
-                            return const SliverFillRemaining(
+                            return SliverFillRemaining(
                               hasScrollBody: false,
-                              child: _EmptyMine(),
+                              child: _EmptyMine(content: _content),
                             );
                           }
                           return SliverList.builder(
@@ -91,10 +102,10 @@ class _DeliveryFullListScreenState
                                 packageNamesByCode: bloc.packageNamesByCode,
                                 isOwner: true,
                                 isCompact: true,
-                                onDetailsTap: _openDetails,
-                                onPauseTap: (item) => bloc.pauseListing(item),
-                                onResumeTap: (item) => bloc.resumeListing(item),
-                                onRepostTap: (item) => bloc.repostListing(item),
+                                onDetailsTap: (item) => _openDetails(item),
+                                onPauseTap: _confirmPause,
+                                onResumeTap: _confirmResume,
+                                onRepostTap: _confirmRepost,
                                 onDeleteTap: _confirmDelete,
                               );
                             },
@@ -125,22 +136,142 @@ class _DeliveryFullListScreenState
     );
   }
 
-  void _openDetails(Listing listing) {
-    Navigator.of(context).push(
+  Future<void> _openDetails(Listing listing) async {
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ListingDetailsScreen(listingId: listing.id),
       ),
     );
+    if (!mounted) return;
+    await bloc.loadList();
+  }
+
+  Future<void> _confirmPause(Listing listing) async {
+    final confirmed = await _confirmAction(
+      title: _t('my_listings.pause_confirm_title'),
+      message: _t(
+        'my_listings.pause_confirm_message',
+      ),
+      confirmLabel: _t('common.pause'),
+    );
+    if (!confirmed) return;
+    try {
+      await bloc.pauseListing(listing);
+      if (!mounted) return;
+      _showSuccess(_t('listing.paused'));
+    } catch (_) {
+      if (!mounted) return;
+      _showError(_t('common.operation_failed'));
+    }
+  }
+
+  Future<void> _confirmResume(Listing listing) async {
+    final confirmed = await _confirmAction(
+      title: _t('my_listings.resume_confirm_title'),
+      message: _t(
+        'my_listings.resume_confirm_message',
+      ),
+      confirmLabel: _t('my_listings.resume'),
+    );
+    if (!confirmed) return;
+    try {
+      await bloc.resumeListing(listing);
+      if (!mounted) return;
+      _showSuccess(_t('listing.resumed'));
+    } catch (_) {
+      if (!mounted) return;
+      _showError(_t('common.operation_failed'));
+    }
+  }
+
+  Future<void> _confirmRepost(Listing listing) async {
+    final confirmed = await _confirmAction(
+      title: _t('my_listings.repost_confirm_title'),
+      message: _t(
+        'my_listings.repost_confirm_message',
+      ),
+      confirmLabel: _t('my_listings.repost'),
+    );
+    if (!confirmed) return;
+    try {
+      await bloc.repostListing(listing);
+      if (!mounted) return;
+      _showSuccess(_t('listing.reposted'));
+    } catch (_) {
+      if (!mounted) return;
+      _showError(_t('common.operation_failed'));
+    }
   }
 
   Future<void> _confirmDelete(Listing listing) async {
+    final confirmed = await _confirmAction(
+      title: _t('my_listings.delete_confirm_title'),
+      message: _t(
+        'my_listings.delete_confirm_message',
+      ),
+      confirmLabel: _t('common.delete'),
+      isDanger: true,
+    );
+    if (!confirmed) return;
     final reason = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _DeleteReasonSheet(),
+      builder: (_) => _DeleteReasonSheet(content: _content),
     );
     if (reason == null) return;
-    await bloc.deleteListing(listing, reasonCode: reason);
+    try {
+      await bloc.deleteListing(listing, reasonCode: reason);
+      if (!mounted) return;
+      _showSuccess(_t('listing.deleted'));
+    } catch (_) {
+      if (!mounted) return;
+      _showError(_t('common.operation_failed'));
+    }
+  }
+
+  Future<bool> _confirmAction({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    bool isDanger = false,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => _ConfirmActionDialog(
+        title: title,
+        message: message,
+        confirmLabel: confirmLabel,
+        isDanger: isDanger,
+      ),
+    );
+    return result == true;
+  }
+
+  void _showSuccess(String message) {
+    _showToast(message, const Color(0xFF10B981), Icons.check_circle);
+  }
+
+  void _showError(String message) {
+    _showToast(message, const Color(0xFFEF4444), Icons.error);
+  }
+
+  void _showToast(String message, Color color, IconData icon) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 1400),
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 22),
+      ),
+    );
   }
 
   @override
@@ -157,8 +288,9 @@ class _DeliveryFullListScreenState
 
 class _Header extends StatelessWidget {
   final bool isDark;
+  final Map<String, String> content;
 
-  const _Header({required this.isDark});
+  const _Header({required this.isDark, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -178,16 +310,22 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mənim elanlarım',
+                  WawatContent.text(
+                    content,
+                    'my_listings.title',
+                  ),
                   style: TextStyle(
                     color: titleColor,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const Text(
-                  'Status, baxış və idarəetmə',
-                  style: TextStyle(
+                Text(
+                  WawatContent.text(
+                    content,
+                    'my_listings.subtitle',
+                  ),
+                  style: const TextStyle(
                     color: _ink400,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -203,17 +341,23 @@ class _Header extends StatelessWidget {
 }
 
 class _DeleteReasonSheet extends StatelessWidget {
-  const _DeleteReasonSheet();
+  final Map<String, String> content;
+
+  const _DeleteReasonSheet({required this.content});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final reasons = const {
-      'plans_changed': 'Planlarım dəyişdi',
-      'found_another': 'Başqa variant tapdım',
-      'no_longer_needed': 'Artıq lazım deyil',
-      'created_by_mistake': 'Səhvən yaratdım',
-      'other': 'Digər',
+    final reasons = {
+      'plans_changed': WawatContent.text(
+          content, 'enum.listing_delete_reason.plans_changed'),
+      'found_another': WawatContent.text(
+          content, 'enum.listing_delete_reason.found_another'),
+      'no_longer_needed': WawatContent.text(
+          content, 'enum.listing_delete_reason.no_longer_needed'),
+      'created_by_mistake': WawatContent.text(
+          content, 'enum.listing_delete_reason.created_by_mistake'),
+      'other': WawatContent.text(content, 'enum.listing_delete_reason.other'),
     };
 
     return Container(
@@ -238,7 +382,10 @@ class _DeleteReasonSheet extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'Silinmə səbəbi',
+            WawatContent.text(
+              content,
+              'my_listings.delete_reason_title',
+            ),
             style: TextStyle(
               color: isDark ? Colors.white : _ink900Local,
               fontSize: 20,
@@ -275,6 +422,119 @@ class _DeleteReasonSheet extends StatelessWidget {
   }
 }
 
+class _ConfirmActionDialog extends StatelessWidget {
+  final String title;
+  final String message;
+  final String confirmLabel;
+  final bool isDanger;
+
+  const _ConfirmActionDialog({
+    required this.title,
+    required this.message,
+    required this.confirmLabel,
+    required this.isDanger,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleColor = isDark ? Colors.white : _ink900Local;
+    final primary = isDanger ? const Color(0xFFEF4444) : _brand;
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
+              blurRadius: 28,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: titleColor,
+                fontSize: 19,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: TextStyle(
+                color: isDark ? Colors.white70 : _ink500,
+                fontSize: 14,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context, false),
+                    child: Container(
+                      height: 48,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        'Ləğv et',
+                        style: TextStyle(
+                          color: isDark ? Colors.white : _ink500,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context, true),
+                    child: Container(
+                      height: 48,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: primary,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        confirmLabel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MyListingsSkeleton extends StatelessWidget {
   const _MyListingsSkeleton();
 
@@ -300,7 +560,9 @@ class _MyListingsSkeleton extends StatelessWidget {
 }
 
 class _EmptyMine extends StatelessWidget {
-  const _EmptyMine();
+  final Map<String, String> content;
+
+  const _EmptyMine({required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +576,7 @@ class _EmptyMine extends StatelessWidget {
             const Icon(Icons.inbox_outlined, color: _brand, size: 64),
             const SizedBox(height: 14),
             Text(
-              'Hələ elan yoxdur',
+              WawatContent.text(content, 'my_listings.empty_title'),
               style: TextStyle(
                 color: isDark ? Colors.white : _ink900Local,
                 fontSize: 20,
@@ -323,7 +585,10 @@ class _EmptyMine extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Yeni səfər və ya göndəriş elanı yaratmaq üçün ortadakı + tabına keç.',
+              WawatContent.text(
+                content,
+                'my_listings.empty_subtitle',
+              ),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? Colors.white70 : _ink500,

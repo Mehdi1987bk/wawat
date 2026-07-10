@@ -79,7 +79,27 @@ class User extends HiveObject {
   @JsonKey(name: 'avatar_thumb_url')
   final String? avatarThumbUrl;
 
+  final String? status;
+
+  final String? tier;
+
+  @JsonKey(readValue: _readRatingAvg)
+  final double? ratingAvg;
+
+  @JsonKey(readValue: _readRatingCount)
+  final int? ratingCount;
+
+  @JsonKey(readValue: _readCompletedShipmentsCount)
+  final int? completedShipmentsCount;
+
+  @JsonKey(name: 'member_since')
+  final DateTime? memberSince;
+
   final Country? country;
+
+  @HiveField(21)
+  @JsonKey(name: 'listing_quota')
+  final ListingQuota? listingQuota;
 
   User({
     required this.id,
@@ -103,7 +123,14 @@ class User extends HiveObject {
     this.emailVerified,
     this.preferredLocale,
     this.avatarThumbUrl,
+    this.status,
+    this.tier,
+    this.ratingAvg,
+    this.ratingCount,
+    this.completedShipmentsCount,
+    this.memberSince,
     this.country,
+    this.listingQuota,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -117,4 +144,66 @@ Object? _readFullName(Map json, String key) {
 
 Object? _readAvatar(Map json, String key) {
   return json['avatar_url'] ?? json['avatar'];
+}
+
+Object? _readRatingAvg(Map json, String key) {
+  return json['rating_avg'] ?? (json['trust'] as Map?)?['rating_avg'];
+}
+
+Object? _readRatingCount(Map json, String key) {
+  return json['rating_count'] ?? (json['trust'] as Map?)?['rating_count'];
+}
+
+Object? _readCompletedShipmentsCount(Map json, String key) {
+  return json['completed_shipments_count'] ??
+      (json['trust'] as Map?)?['completed_shipments_count'];
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+@HiveType(typeId: 61)
+class ListingQuota extends HiveObject {
+  @HiveField(0)
+  final ListingQuotaItem? trip;
+
+  @HiveField(1)
+  @JsonKey(name: 'shipment_post')
+  final ListingQuotaItem? shipmentPost;
+
+  ListingQuota({
+    this.trip,
+    this.shipmentPost,
+  });
+
+  factory ListingQuota.fromJson(Map<String, dynamic> json) =>
+      _$ListingQuotaFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ListingQuotaToJson(this);
+
+  ListingQuotaItem? forType(String type) {
+    return type == 'shipment_post' ? shipmentPost : trip;
+  }
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+@HiveType(typeId: 62)
+class ListingQuotaItem extends HiveObject {
+  @HiveField(0)
+  final int active;
+
+  @HiveField(1)
+  final int limit;
+
+  @HiveField(2)
+  final int remaining;
+
+  ListingQuotaItem({
+    this.active = 0,
+    this.limit = 0,
+    this.remaining = 0,
+  });
+
+  factory ListingQuotaItem.fromJson(Map<String, dynamic> json) =>
+      _$ListingQuotaItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ListingQuotaItemToJson(this);
 }

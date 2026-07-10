@@ -19,19 +19,20 @@ class ChatConversationBloc extends BaseBloc {
       BehaviorSubject.seeded([]);
   final BehaviorSubject<bool> _isLoadingMoreSubject =
       BehaviorSubject.seeded(false);
-
+  final BehaviorSubject<bool> _isLoadingSubject = BehaviorSubject.seeded(true);
 
   Stream<List<ChatMessage>> get messagesStream => _messagesSubject.stream;
 
   Stream<bool> get isLoadingMoreStream => _isLoadingMoreSubject.stream;
+  Stream<bool> get isLoadingStream => _isLoadingSubject.stream;
 
-  int? _conversationId;
+  String? _conversationId;
   int _currentPage = 1;
   int _lastPage = 1;
   bool _isLoadingMore = false;
   int? _myUserId;
 
-  Future<void> initChat(int conversationId) async {
+  Future<void> initChat(String conversationId) async {
     _conversationId = conversationId;
     _myUserId = await _cacheManager.getUserId();
 
@@ -45,32 +46,7 @@ class ChatConversationBloc extends BaseBloc {
 
   void _onNewMessage(dynamic data) {
     try {
-      final messageData = data['message'] as Map<String, dynamic>?;
-      if (messageData == null) return;
-
-      final message = ChatMessage.fromJson(messageData);
-
-      // Проверяем, не закрыт ли subject
-      if (_messagesSubject.isClosed) return;
-
-      final currentMessages = _messagesSubject.value;
-
-      // Проверяем, не наше ли это сообщение (избегаем дубликатов)
-      if (message.user?.id == _myUserId) {
-        print('⚠️ Skipping own message from Pusher (id: ${message.id})');
-        return;
-      }
-
-      // Проверяем на дубликат по ID
-      final alreadyExists = currentMessages.any((m) => m.id == message.id);
-      if (alreadyExists) {
-        print('⚠️ Message ${message.id} already exists, skipping');
-        return;
-      }
-
-      // Добавляем в начало списка
-      print('✅ Adding new message from Pusher: ${message.id}');
-      _messagesSubject.add([message, ...currentMessages]);
+      loadMessages();
     } catch (e) {
       print('Error handling new message: $e');
     }
@@ -80,6 +56,7 @@ class ChatConversationBloc extends BaseBloc {
     if (_conversationId == null) return;
 
     _currentPage = 1;
+    _isLoadingSubject.add(true);
 
     try {
       final response =
@@ -92,6 +69,10 @@ class ChatConversationBloc extends BaseBloc {
       print('Error loading messages: $e');
       if (!_messagesSubject.isClosed) {
         _messagesSubject.addError(e);
+      }
+    } finally {
+      if (!_isLoadingSubject.isClosed) {
+        _isLoadingSubject.add(false);
       }
     }
   }
@@ -162,7 +143,10 @@ class ChatConversationBloc extends BaseBloc {
     }
   }
 
-
+  Future<void> runShipmentAction(String shipmentId, String action) async {
+    await _chatApi.shipmentAction(shipmentId, action);
+    await loadMessages();
+  }
 
   Future<bool> sendReviews(int id) async {
     if (_conversationId == null) return false;
@@ -177,7 +161,7 @@ class ChatConversationBloc extends BaseBloc {
   }
 
   bool isMyMessage(ChatMessage message) {
-    return message.user?.id == _myUserId;
+    return message.isMine || message.user?.id == _myUserId;
   }
 
   @override
@@ -187,6 +171,7 @@ class ChatConversationBloc extends BaseBloc {
     }
     _messagesSubject.close();
     _isLoadingMoreSubject.close();
+    _isLoadingSubject.close();
     super.dispose();
   }
 }
