@@ -210,6 +210,7 @@ class _FavoriteSkeleton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
+
         children: List.generate(
           3,
           (index) => Container(
