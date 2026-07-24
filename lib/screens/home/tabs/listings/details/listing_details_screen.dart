@@ -3146,11 +3146,12 @@ class _ProposalSuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final ownerName = listing.owner?.firstName ??
         listing.owner?.displayName.split(' ').first ??
         'İstifadəçi';
     return Scaffold(
-      backgroundColor: _brand,
+      backgroundColor: isDark ? WawatDark.bg : _brand,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(28, 40, 28, 28),
@@ -3162,17 +3163,19 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 height: 104,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.22),
+                  color: isDark
+                      ? WawatDark.brandChip
+                      : Colors.white.withValues(alpha: 0.22),
                   shape: BoxShape.circle,
                 ),
                 child: const _BrandMark(size: 60),
               ),
               const SizedBox(height: 46),
-              const Text(
+              Text(
                 'Təklif göndərildi',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: isDark ? WawatDark.textPrimary : Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   height: 1.1,
@@ -3183,7 +3186,9 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 '$ownerName təklifinizə baxıb cavab verəcək.\nSöhbətdən danışıqları davam etdirə bilərsiniz.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.88),
+                  color: isDark
+                      ? WawatDark.textSecondary
+                      : Colors.white.withValues(alpha: 0.88),
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                   height: 1.45,
@@ -3195,8 +3200,11 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  color: isDark
+                      ? WawatDark.surface
+                      : Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(24),
+                  border: isDark ? Border.all(color: WawatDark.border) : null,
                 ),
                 child: Column(
                   children: [
@@ -3226,19 +3234,19 @@ class _ProposalSuccessScreen extends StatelessWidget {
                   width: double.infinity,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? _brand : Colors.white,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(PhosphorIconsFill.chatCircle,
-                          color: _brand, size: 22),
-                      SizedBox(width: 10),
+                          color: isDark ? Colors.white : _brand, size: 22),
+                      const SizedBox(width: 10),
                       Text(
                         'Söhbətə keç',
                         style: TextStyle(
-                          color: _brand,
+                          color: isDark ? Colors.white : _brand,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
@@ -3254,7 +3262,9 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 child: Text(
                   'Elana qayıt',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.78),
+                    color: isDark
+                        ? WawatDark.textSecondary
+                        : Colors.white.withValues(alpha: 0.78),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -3318,13 +3328,14 @@ class _SuccessSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: isDark ? WawatDark.textSecondary : Colors.white,
               fontSize: 17,
               fontWeight: FontWeight.w600,
             ),
@@ -3336,8 +3347,8 @@ class _SuccessSummaryRow extends StatelessWidget {
             textAlign: TextAlign.right,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: isDark ? WawatDark.textPrimary : Colors.white,
               fontSize: 17,
               fontWeight: FontWeight.w600,
             ),
