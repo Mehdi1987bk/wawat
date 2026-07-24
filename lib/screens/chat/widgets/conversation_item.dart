@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
+import '../../../presentation/resourses/wawat_dark.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -27,9 +28,12 @@ class ConversationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unread = conversation.unreadCount > 0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: unread ? _brand50.withValues(alpha: 0.4) : Colors.white,
+      color: unread
+          ? (isDark ? WawatDark.brandSoft : _brand50.withValues(alpha: 0.4))
+          : (isDark ? WawatDark.surface : Colors.white),
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -49,10 +53,10 @@ class ConversationItem extends StatelessWidget {
                             conversation.user.fullname,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _ink900,
+                            style: TextStyle(
+                              color: isDark ? WawatDark.textPrimary : _ink900,
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -63,8 +67,9 @@ class ConversationItem extends StatelessWidget {
                         ],
                         if (conversation.isPinned) ...[
                           const Spacer(),
-                          const Icon(PhosphorIconsFill.pushPin,
-                              color: _ink400, size: 14),
+                          Icon(PhosphorIconsFill.pushPin,
+                              color: isDark ? WawatDark.iconMuted : _ink400,
+                              size: 14),
                         ],
                       ],
                     ),
@@ -80,10 +85,16 @@ class ConversationItem extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: unread ? _ink900 : _ink500,
+                              color: unread
+                                  ? (isDark
+                                      ? WawatDark.textPrimary
+                                      : _ink900)
+                                  : (isDark
+                                      ? WawatDark.textSecondary
+                                      : _ink500),
                               fontSize: 13,
                               fontWeight:
-                                  unread ? FontWeight.w700 : FontWeight.w500,
+                                  unread ? FontWeight.w600 : FontWeight.w500,
                             ),
                           ),
                         ),
@@ -98,10 +109,10 @@ class ConversationItem extends StatelessWidget {
                 children: [
                   Text(
                     conversation.lastMessage?.timeString(context) ?? '',
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink400,
                       fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 7),
@@ -122,7 +133,7 @@ class ConversationItem extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     )
@@ -130,11 +141,12 @@ class ConversationItem extends StatelessWidget {
                     GestureDetector(
                       onTap: onTapMenu,
                       behavior: HitTestBehavior.translucent,
-                      child: const SizedBox(
+                      child: SizedBox(
                         width: 28,
                         height: 22,
                         child: Icon(PhosphorIconsBold.dotsThreeVertical,
-                            color: _ink400, size: 18),
+                            color: isDark ? WawatDark.iconMuted : _ink400,
+                            size: 18),
                       ),
                     ),
                 ],
@@ -154,12 +166,15 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       clipBehavior: Clip.none,
       children: [
         CircleAvatar(
           radius: 24,
-          backgroundColor: user.avatarUrl.isEmpty ? _brand100 : Colors.white,
+          backgroundColor: user.avatarUrl.isEmpty
+              ? (isDark ? WawatDark.brandSoft : _brand100)
+              : (isDark ? WawatDark.surface : Colors.white),
           backgroundImage: user.avatarUrl.isEmpty
               ? null
               : CachedNetworkImageProvider(user.avatarUrl),
@@ -169,7 +184,7 @@ class _Avatar extends StatelessWidget {
                   style: const TextStyle(
                     color: _brand,
                     fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 )
               : null,
@@ -184,7 +199,9 @@ class _Avatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _emerald,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(
+                    color: isDark ? WawatDark.surface : Colors.white,
+                    width: 2),
               ),
             ),
           ),
@@ -200,12 +217,13 @@ class _PreviewIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final icon = switch (type) {
       'image' => PhosphorIconsRegular.image,
       'system_card' => PhosphorIconsRegular.paperPlaneTilt,
       _ => null,
     };
     if (icon == null) return const SizedBox.shrink();
-    return Icon(icon, color: _ink400, size: 15);
+    return Icon(icon, color: isDark ? WawatDark.iconMuted : _ink400, size: 15);
   }
 }

@@ -116,7 +116,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                         S.of(context).bfgbgfb3,
                         style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
@@ -217,7 +217,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                       S.of(context).bgfbggfbfg3,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),

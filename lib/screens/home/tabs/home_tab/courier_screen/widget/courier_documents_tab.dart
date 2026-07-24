@@ -62,7 +62,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 duration: Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 child: Text(S.of(context).bteg4r5344wfvsfdg34wf),
@@ -107,6 +107,17 @@ class CourierDocumentsTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Normalises a time string to `HH:mm` (drops seconds).
+  String _hhmm(String? value) {
+    if (value == null || value.trim().isEmpty) return '';
+    final raw = value.trim();
+    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
+    if (match != null) {
+      return '${match.group(1)!.padLeft(2, '0')}:${match.group(2)}';
+    }
+    return raw;
   }
 
   String _formatResponseTime(String? minutes, BuildContext context) {
@@ -158,7 +169,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 child: Text(S.of(context).bterv4gg353r5r35),
@@ -214,7 +225,7 @@ class CourierDocumentsTab extends StatelessWidget {
             title: S.of(context).beg53gt342feg35g2fw,
             value: professional.workTimeFrom != null &&
                     professional.workTimeTo != null
-                ? '${professional.workTimeFrom} - ${professional.workTimeTo}'
+                ? '${_hhmm(professional.workTimeFrom)} - ${_hhmm(professional.workTimeTo)}'
                 : '--',
             iconColor: Colors.indigo,
             isDark: isDark,
@@ -311,7 +322,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 child: Text(S.of(context).ki7ju6h5ytg4erf53fw),

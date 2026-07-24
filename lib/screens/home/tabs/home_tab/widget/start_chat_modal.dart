@@ -161,7 +161,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                         ),
                         child:   Text(S.of(context).hrt4h5hte43h454),
@@ -254,7 +254,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                                 S.of(context).brg353gffvw34fr3,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                 ),
                               ),

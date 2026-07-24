@@ -49,7 +49,7 @@ class _PrivacyPolicyScreenState
                 'Privacy Policy',  // Замени на S.of(context).privacyPolicy если есть локализация
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               centerTitle: true,
@@ -94,7 +94,7 @@ class _PrivacyPolicyScreenState
                             'Error loading privacy policy',  // Замени на локализацию
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: isDark ? Colors.white : Colors.black,
                             ),
                           ),
@@ -126,7 +126,7 @@ class _PrivacyPolicyScreenState
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),

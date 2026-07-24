@@ -59,6 +59,10 @@ class _SearchOfferListScreenState
   final ScrollController _scrollController = ScrollController();
   bool _showResults = false;
   bool _currentSearchSaved = false;
+  bool _advancedOpen = false;
+  // True while editing the route from an existing results view — so the
+  // back button returns to those results instead of leaving the screen.
+  bool _editingFromResults = false;
 
   @override
   bool get showProgressIndicator => false;
@@ -91,7 +95,17 @@ class _SearchOfferListScreenState
 
   @override
   Widget body() {
-    return Consumer<ThemeManager>(
+    return PopScope(
+      canPop: !(_editingFromResults && !_showResults),
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _editingFromResults && !_showResults) {
+          setState(() {
+            _showResults = true;
+            _editingFromResults = false;
+          });
+        }
+      },
+      child: Consumer<ThemeManager>(
       builder: (context, themeManager, _) {
         final isDark = themeManager.isDarkMode;
         return ThemeAwareScreen(
@@ -112,6 +126,7 @@ class _SearchOfferListScreenState
           ),
         );
       },
+      ),
     );
   }
 
@@ -123,17 +138,45 @@ class _SearchOfferListScreenState
           child: _EntryTopBar(
             content: content,
             showBackButton: widget.showBackButton,
-            onBack: () => Navigator.of(context).maybePop(),
+            onBack: _backFromEntry,
             onSavedTap: _openSavedSearches,
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: _advancedOpen
+                ? const SizedBox(width: double.infinity)
+                : _SearchHero(content: content),
           ),
         ),
         SliverToBoxAdapter(
           child: SearchFormWidget(
             bloc: bloc,
-            advanced: widget.openResultsInNewPage,
             onSearch: _applySearch,
+            showAdvancedToggle: true,
+            advancedOpen: _advancedOpen,
+            onAdvancedToggle: (open) => setState(() => _advancedOpen = open),
           ),
         ),
+        if (_advancedOpen)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+              child: Text(
+                _contentText(content, 'search.applied_hint',
+                    'Filtrlər tətbiq olunur · «Ətraflı»-ya yenidən basıb yığmaq olar'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: _ink400,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
         SliverToBoxAdapter(
             child: _RecentSearchesBlock(bloc: bloc, content: content)),
         SliverToBoxAdapter(
@@ -157,7 +200,7 @@ class _SearchOfferListScreenState
               filters: bloc.filters,
               showBackButton: widget.showBackButton,
               onBack: _backFromResults,
-              onEditRoute: () => setState(() => _showResults = false),
+              onEditRoute: _openEditRoute,
             ),
           ),
           SliverToBoxAdapter(
@@ -287,6 +330,26 @@ class _SearchOfferListScreenState
       Navigator.of(context).maybePop();
     } else {
       setState(() => _showResults = false);
+    }
+  }
+
+  void _openEditRoute() {
+    setState(() {
+      _showResults = false;
+      _editingFromResults = true;
+    });
+  }
+
+  // Back from the route-edit view: return to the results we came from instead
+  // of leaving the screen. Only leaves when we opened straight into the form.
+  void _backFromEntry() {
+    if (_editingFromResults) {
+      setState(() {
+        _showResults = true;
+        _editingFromResults = false;
+      });
+    } else {
+      Navigator.of(context).maybePop();
     }
   }
 
@@ -478,6 +541,56 @@ class _SearchOfferListScreenState
   }
 }
 
+class _SearchHero extends StatelessWidget {
+  final Map<String, String> content;
+
+  const _SearchHero({required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 28, 16, 4),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF14263F) : _brand50,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(PhosphorIconsFill.airplaneTilt,
+                color: _brand, size: 27),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _contentText(content, 'search.hero_title', 'Marşrutu axtar'),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isDark ? Colors.white : _ink900,
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _contentText(content, 'search.hero_subtitle',
+                'Haradan hara göndərmək istəyirsən?'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: _ink400,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _EntryTopBar extends StatelessWidget {
   final Map<String, String> content;
   final bool showBackButton;
@@ -521,7 +634,7 @@ class _EntryTopBar extends StatelessWidget {
               style: TextStyle(
                 color: titleColor,
                 fontSize: 16,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -597,7 +710,7 @@ class _ResultsTopBar extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink800,
                               fontSize: 14,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -646,7 +759,7 @@ class _RecentSearchesBlock extends StatelessWidget {
                     style: const TextStyle(
                       color: _ink900,
                       fontSize: 14,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Spacer(),
@@ -657,7 +770,7 @@ class _RecentSearchesBlock extends StatelessWidget {
                       style: const TextStyle(
                         color: _brand,
                         fontSize: 12,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -695,7 +808,7 @@ class _RecentSearchesBlock extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink800,
                               fontSize: 14,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -746,7 +859,7 @@ class _SearchIntroEmpty extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 15,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
@@ -793,7 +906,7 @@ class _TrendingRoutesBlock extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink900,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 10),
@@ -842,7 +955,7 @@ class _TrendingRoutesBlock extends StatelessWidget {
                               style: const TextStyle(
                                 color: _ink900,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -854,7 +967,7 @@ class _TrendingRoutesBlock extends StatelessWidget {
                               style: const TextStyle(
                                 color: _ink400,
                                 fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             const Spacer(),
@@ -863,7 +976,7 @@ class _TrendingRoutesBlock extends StatelessWidget {
                               style: const TextStyle(
                                 color: _brand,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -925,7 +1038,7 @@ class _ActiveFiltersRow extends StatelessWidget {
                   style: const TextStyle(
                     color: _ink400,
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -965,7 +1078,7 @@ class _FilterChipView extends StatelessWidget {
               style: const TextStyle(
                 color: _brand,
                 fontSize: 12,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 6),
@@ -996,118 +1109,162 @@ class _ResultsMetaBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final border = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : _ink900.withValues(alpha: 0.07);
+    final labelColor = isDark ? Colors.white : _ink700;
+    final iconColor = isDark ? const Color(0xFFCBD5E1) : _ink600;
+    final hasFilters = activeFilterCount > 0;
+    final countText = total == null
+        ? ''
+        : _contentText(content, 'search.results_count_template')
+            .replaceAll('{count}', '$total');
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            total == null
-                ? ''
-                : _contentText(content, 'search.results_count_template')
-                    .replaceAll('{count}', '$total'),
-            style: const TextStyle(
-              color: _ink500,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
+          if (countText.isNotEmpty) ...[
+            Text(
+              countText,
+              style: TextStyle(
+                color: isDark ? const Color(0xFF9CA3AF) : _ink500,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const Spacer(),
-          Container(
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(100),
-              boxShadow: [
-                BoxShadow(
-                  color: _ink900.withValues(alpha: 0.06),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+            const SizedBox(height: 8),
+          ],
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: _MetaTile(
                   onTap: onSortTap,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(11, 0, 9, 0),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          PhosphorIconsRegular.arrowsDownUp,
-                          color: _ink600,
-                          size: 15,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
+                  background: surface,
+                  borderColor: border,
+                  shadow: !isDark,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(PhosphorIconsRegular.arrowsDownUp,
+                          color: iconColor, size: 16),
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
                           _sortLabel(content, sort),
-                          style: const TextStyle(
-                            color: _ink700,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: labelColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 20,
-                  color: _ink900.withValues(alpha: 0.08),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 2,
+                child: _MetaTile(
                   onTap: onFilterTap,
-                  child: SizedBox(
-                    width: 42,
-                    height: 36,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.center,
-                      children: [
-                        const Icon(
-                          PhosphorIconsRegular.slidersHorizontal,
-                          color: _brand,
-                          size: 18,
+                  background: hasFilters
+                      ? (isDark ? const Color(0xFF14263F) : _brand50)
+                      : surface,
+                  borderColor: hasFilters ? _brand.withValues(alpha: 0.35) : border,
+                  shadow: !isDark && !hasFilters,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(PhosphorIconsRegular.slidersHorizontal,
+                          color: _brand, size: 17),
+                      const SizedBox(width: 7),
+                      Text(
+                        _contentText(content, 'search.filter', 'Filtrlə'),
+                        style: TextStyle(
+                          color: hasFilters ? _brand : labelColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
-                        if (activeFilterCount > 0)
-                          Positioned(
-                            right: 4,
-                            top: 3,
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                minWidth: 15,
-                                minHeight: 15,
-                              ),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 3),
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                color: _brand,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                '$activeFilterCount',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  height: 1,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
+                      ),
+                      if (hasFilters) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          constraints: const BoxConstraints(minWidth: 16),
+                          height: 16,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: _brand,
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Text(
+                            '$activeFilterCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              height: 1,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MetaTile extends StatelessWidget {
+  final VoidCallback onTap;
+  final Color background;
+  final Color borderColor;
+  final bool shadow;
+  final Widget child;
+
+  const _MetaTile({
+    required this.onTap,
+    required this.background,
+    required this.borderColor,
+    required this.child,
+    this.shadow = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        height: 46,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: borderColor),
+          boxShadow: shadow
+              ? [
+                  BoxShadow(
+                    color: _ink900.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: child,
       ),
     );
   }
@@ -1212,7 +1369,7 @@ class _SearchSaveActionButton extends StatelessWidget {
                 style: TextStyle(
                   color: foreground,
                   fontSize: 12,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1315,7 +1472,7 @@ class _SearchEmpty extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
@@ -1344,7 +1501,7 @@ class _SearchEmpty extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: _brand,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -1387,7 +1544,7 @@ class _NetworkError extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
@@ -1436,7 +1593,7 @@ class _EndLabel extends StatelessWidget {
             style: const TextStyle(
               color: _ink700,
               fontSize: 14,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 3),
@@ -1487,7 +1644,7 @@ class _SortSheet extends StatelessWidget {
               style: const TextStyle(
                 color: _ink900,
                 fontSize: 16,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1518,8 +1675,8 @@ class _SortSheet extends StatelessWidget {
                           color: selected == item.value ? _brand : _ink800,
                           fontSize: 15,
                           fontWeight: selected == item.value
-                              ? FontWeight.w900
-                              : FontWeight.w700,
+                              ? FontWeight.w700
+                              : FontWeight.w600,
                         ),
                       ),
                     ),
@@ -1615,7 +1772,7 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                       style: const TextStyle(
                         color: _ink900,
                         fontSize: 16,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -1626,7 +1783,7 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                       style: const TextStyle(
                         color: _brand,
                         fontSize: 14,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -2104,7 +2261,7 @@ class _SavedSearchCard extends StatelessWidget {
                         style: const TextStyle(
                           color: _ink900,
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       if (item.notify)
@@ -2124,7 +2281,7 @@ class _SavedSearchCard extends StatelessWidget {
                             style: const TextStyle(
                               color: Color(0xFF059669),
                               fontSize: 10,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -2149,7 +2306,7 @@ class _SavedSearchCard extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink600,
                               fontSize: 10,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -2246,7 +2403,7 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
             style: const TextStyle(
               color: _ink900,
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
@@ -2288,7 +2445,7 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
               style: const TextStyle(
                 color: Color(0xFFDC2626),
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -2651,7 +2808,7 @@ class _SimpleTopBar extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 16,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -2673,7 +2830,7 @@ class _SavedEmpty extends StatelessWidget {
         child: Text(
           _contentText(content, 'search.saved_empty'),
           textAlign: TextAlign.center,
-          style: const TextStyle(color: _ink500, fontWeight: FontWeight.w700),
+          style: const TextStyle(color: _ink500, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -2694,7 +2851,7 @@ class _FilterTitle extends StatelessWidget {
         style: const TextStyle(
           color: _ink700,
           fontSize: 13,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -2747,7 +2904,7 @@ class _Segmented extends StatelessWidget {
             style: TextStyle(
               color: selected ? _brand : _ink500,
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -2794,7 +2951,7 @@ class _Pill extends StatelessWidget {
               style: TextStyle(
                 color: selected ? _brand : _ink700,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -2838,7 +2995,7 @@ class _SwitchRow extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink700,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -2923,7 +3080,7 @@ class _DateFilterBox extends StatelessWidget {
                 style: TextStyle(
                   color: hasValue ? _ink900 : _ink400,
                   fontSize: 14,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -2995,7 +3152,7 @@ class _PrimaryAction extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 14,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -3021,7 +3178,7 @@ class _TinyChip extends StatelessWidget {
         style: const TextStyle(
           color: _ink600,
           fontSize: 11,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

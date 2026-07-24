@@ -153,7 +153,7 @@ class _RegistrationScreenState
                     'Hesab yarat',
                     style: TextStyle(
                       fontSize: 26,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: titleColor,
                     ),
                   ),
@@ -240,7 +240,7 @@ class _RegistrationScreenState
               'Danışdığın dillər',
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: labelColor,
               ),
             ),
@@ -259,7 +259,7 @@ class _RegistrationScreenState
                   checkmarkColor: Colors.white,
                   labelStyle: TextStyle(
                     color: isSelected ? Colors.white : bodyColor,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 12,
                   ),
                   side: BorderSide(
@@ -305,7 +305,7 @@ class _RegistrationScreenState
                             text: 'Məxfilik siyasəti',
                             style: const TextStyle(
                               color: _brand,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
@@ -332,7 +332,7 @@ class _RegistrationScreenState
                   style: TextStyle(
                     color: Colors.red.shade600,
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -379,7 +379,7 @@ class _RegistrationScreenState
                       'Daxil ol',
                       style: TextStyle(
                         color: _brand,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -434,7 +434,7 @@ class _AuthField extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: labelColor,
           ),
         ),
@@ -475,7 +475,7 @@ class _AuthField extends StatelessWidget {
             style: TextStyle(
               color: Colors.red.shade600,
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -512,7 +512,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -545,7 +545,7 @@ class _OutlineButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -578,7 +578,7 @@ class _AlertBox extends StatelessWidget {
               style: TextStyle(
                 color: Colors.red.shade700,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -605,7 +605,7 @@ class _DividerLabel extends StatelessWidget {
             style: const TextStyle(
               color: Color(0xFF9CA3AF),
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

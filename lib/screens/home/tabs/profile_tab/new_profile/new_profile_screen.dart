@@ -12,6 +12,7 @@ import '../../../../../data/network/response/package_types_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../listings/details/listing_details_screen.dart';
@@ -37,6 +38,19 @@ const _screen = Color(0xFFF6F8FB);
 const _amber = Color(0xFFE8A400);
 const _amber50 = Color(0xFFFEF6E7);
 const _emerald = Color(0xFF10B981);
+
+// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не меняется),
+// тёмная ветка = единый графит из [WawatDark].
+Color _cScreen(bool d) => d ? WawatDark.bg : _screen;
+Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
+Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
+Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink500;
+Color _cMuted(bool d) => d ? WawatDark.textMuted : _ink400;
+Color _cFaint(bool d) => d ? WawatDark.iconMuted : _ink300;
+Color _cLine(bool d) => d ? WawatDark.divider : _ink900.withValues(alpha: .06);
+Color _cBrandSoft(bool d) => d ? WawatDark.brandSoft : _brand50;
+BoxBorder? _cCardBorder(bool d) =>
+    d ? Border.all(color: WawatDark.border) : null;
 
 String _tx(Map<String, String> content, String key, String fallback) {
   return WawatContent.text(content, key, fallback);
@@ -290,8 +304,9 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -304,7 +319,9 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: _ink900.withValues(alpha: 0.05),
+                  color: isDark
+                      ? WawatDark.surfaceAlt
+                      : _ink900.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
@@ -433,8 +450,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _isSelf ? _screen : Colors.white,
+      backgroundColor: _isSelf ? _cScreen(isDark) : _cCard(isDark),
       body: SafeArea(
         bottom: false,
         child: FutureBuilder<WawatProfileBundle>(
@@ -747,11 +765,14 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
   }
 
   void _toast(String message, {bool error = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: error ? const Color(0xFFEF4444) : _ink900,
+        backgroundColor: error
+            ? const Color(0xFFEF4444)
+            : (isDark ? WawatDark.elevated : _ink900),
         duration: const Duration(milliseconds: 1500),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
@@ -774,13 +795,14 @@ class _ProfileTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cCard(isDark),
         border: Border(
-          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+          bottom: BorderSide(color: _cLine(isDark)),
         ),
       ),
       child: Row(
@@ -789,7 +811,8 @@ class _ProfileTopBar extends StatelessWidget {
             GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () => Navigator.of(context).maybePop(),
-              child: const Icon(PhosphorIconsBold.arrowLeft, color: _ink700),
+              child: Icon(PhosphorIconsBold.arrowLeft,
+                  color: isDark ? WawatDark.icon : _ink700),
             )
           else
             const SizedBox(width: 24),
@@ -799,10 +822,10 @@ class _ProfileTopBar extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: _cText(isDark),
                 fontSize: 17,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -812,7 +835,8 @@ class _ProfileTopBar extends StatelessWidget {
               onTap: onTrailing,
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Icon(trailingIcon, color: _ink700, size: 22),
+                child: Icon(trailingIcon,
+                    color: isDark ? WawatDark.icon : _ink700, size: 22),
               ),
             )
           else
@@ -831,6 +855,7 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Column(
@@ -851,10 +876,10 @@ class _ProfileHeader extends StatelessWidget {
                             user.safeFullName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _ink900,
+                            style: TextStyle(
+                              color: _cText(isDark),
                               fontSize: 19,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -871,10 +896,10 @@ class _ProfileHeader extends StatelessWidget {
                     if (user.username != null)
                       Text(
                         '@${user.username}',
-                        style: const TextStyle(
-                          color: _ink400,
+                        style: TextStyle(
+                          color: _cMuted(isDark),
                           fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     const SizedBox(height: 5),
@@ -886,10 +911,10 @@ class _ProfileHeader extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             '${user.memberSince!.year}-dən üzv',
-                            style: const TextStyle(
-                              color: _ink400,
+                            style: TextStyle(
+                              color: _cMuted(isDark),
                               fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -904,11 +929,11 @@ class _ProfileHeader extends StatelessWidget {
             const SizedBox(height: 13),
             Text(
               user.bio!.trim(),
-              style: const TextStyle(
-                color: _ink600,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink600,
                 fontSize: 13.5,
                 height: 1.45,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -942,13 +967,14 @@ class _VerificationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: _amber50,
+          color: isDark ? WawatDark.warning.withValues(alpha: 0.12) : _amber50,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: _amber.withValues(alpha: 0.18)),
         ),
@@ -960,14 +986,14 @@ class _VerificationBanner extends StatelessWidget {
               child: Text(
                 _tx(content, 'profile.verify_account',
                     'Hesabınızı təsdiqləyin'),
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: _cText(isDark),
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const Icon(PhosphorIconsRegular.caretRight, color: _ink400),
+            Icon(PhosphorIconsRegular.caretRight, color: _cMuted(isDark)),
           ],
         ),
       ),
@@ -1035,12 +1061,16 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cCard(isDark),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _ink900.withValues(alpha: 0.05)),
+        border: Border.all(
+            color: isDark
+                ? WawatDark.border
+                : _ink900.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -1049,10 +1079,10 @@ class _StatTile extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: _cText(isDark),
                   fontSize: 17,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               if (icon != null) ...[
@@ -1064,10 +1094,10 @@ class _StatTile extends StatelessWidget {
           const SizedBox(height: 5),
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
-              color: _ink400,
+            style: TextStyle(
+              color: _cMuted(isDark),
               fontSize: 10.5,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0.3,
             ),
           ),
@@ -1092,12 +1122,16 @@ class _FollowCounters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cCard(isDark),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+        border: Border.all(
+            color: isDark
+                ? WawatDark.border
+                : _ink900.withValues(alpha: 0.06)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
@@ -1110,7 +1144,7 @@ class _FollowCounters extends StatelessWidget {
             ),
           ),
           Container(
-              width: 1, height: 44, color: _ink900.withValues(alpha: 0.06)),
+              width: 1, height: 44, color: _cLine(isDark)),
           Expanded(
             child: _FollowCounterButton(
               value: _compact(user.followingCount),
@@ -1137,6 +1171,7 @@ class _FollowCounterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -1147,19 +1182,19 @@ class _FollowCounterButton extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: _cText(isDark),
                 fontSize: 15,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
-                color: _ink400,
+              style: TextStyle(
+                color: _cMuted(isDark),
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -1188,11 +1223,14 @@ class _ProfileTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.05),
+        color: isDark
+            ? WawatDark.surfaceAlt
+            : _ink900.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -1232,6 +1270,7 @@ class _Segment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -1240,9 +1279,11 @@ class _Segment extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? Colors.white : Colors.transparent,
+            color: selected
+                ? (isDark ? WawatDark.elevated : Colors.white)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(14),
-            boxShadow: selected
+            boxShadow: selected && !isDark
                 ? [
                     BoxShadow(
                       color: _ink900.withValues(alpha: 0.06),
@@ -1258,9 +1299,9 @@ class _Segment extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? _brand : _ink500,
+                  color: selected ? _brand : _cText2(isDark),
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               if (count > 0) ...[
@@ -1271,15 +1312,17 @@ class _Segment extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: selected
                         ? _brand.withValues(alpha: 0.12)
-                        : _ink900.withValues(alpha: 0.06),
+                        : (isDark
+                            ? WawatDark.border
+                            : _ink900.withValues(alpha: 0.06)),
                     borderRadius: BorderRadius.circular(99),
                   ),
                   child: Text(
                     '$count',
                     style: TextStyle(
-                      color: selected ? _brand : _ink500,
+                      color: selected ? _brand : _cText2(isDark),
                       fontSize: 10.5,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1347,8 +1390,11 @@ class _ProfileListingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = listing.isTrip ? _brand : _amber;
-    final accent50 = listing.isTrip ? _brand50 : _amber50;
+    final accent50 = isDark
+        ? accent.withValues(alpha: 0.15)
+        : (listing.isTrip ? _brand50 : _amber50);
     final subtitle = listing.isTrip
         ? [
             _formatDate(listing.flightDate),
@@ -1372,16 +1418,20 @@ class _ProfileListingRow extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cCard(isDark),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _ink900.withValues(alpha: 0.06)),
-          boxShadow: [
-            BoxShadow(
-              color: _ink900.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          border: isDark
+              ? Border.all(color: WawatDark.border)
+              : Border.all(color: _ink900.withValues(alpha: 0.06)),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: _ink900.withValues(alpha: 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -1411,10 +1461,10 @@ class _ProfileListingRow extends StatelessWidget {
                           '${listing.cityFrom ?? '-'} → ${listing.cityTo ?? '-'}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _ink900,
+                          style: TextStyle(
+                            color: _cText(isDark),
                             fontSize: 14,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -1429,17 +1479,17 @@ class _ProfileListingRow extends StatelessWidget {
                     subtitle.isEmpty ? '—' : subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _ink500,
+                    style: TextStyle(
+                      color: _cText2(isDark),
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(PhosphorIconsRegular.caretRight, color: _ink300),
+            Icon(PhosphorIconsRegular.caretRight, color: _cFaint(isDark)),
           ],
         ),
       ),
@@ -1477,6 +1527,7 @@ class _ReviewsSection extends StatelessWidget {
         ),
       );
     }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
       child: Column(
@@ -1487,10 +1538,10 @@ class _ReviewsSection extends StatelessWidget {
           Text(
             _tx(content, 'review.moderation_note',
                 'Rəylər dərc olunmadan öncə yoxlanılır.'),
-            style: const TextStyle(
-              color: _ink400,
+            style: TextStyle(
+              color: _cMuted(isDark),
               fontSize: 11.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 12),
@@ -1525,20 +1576,21 @@ class _ReviewSummary extends StatelessWidget {
     final avg = user.trust.ratingAvg;
     final maxCount =
         reviews.distribution.values.fold<int>(0, (a, b) => a > b ? a : b);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(isDark),
       child: Row(
         children: [
           Column(
             children: [
               Text(
                 avg == null ? '—' : avg.toStringAsFixed(1),
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: _cText(isDark),
                   fontSize: 38,
                   height: 1,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 5),
@@ -1556,10 +1608,10 @@ class _ReviewSummary extends StatelessWidget {
               Text(
                 _tx(content, 'review.count', '{count} rəy')
                     .replaceAll('{count}', '$total'),
-                style: const TextStyle(
-                  color: _ink400,
+                style: TextStyle(
+                  color: _cMuted(isDark),
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -1597,6 +1649,7 @@ class _DistributionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final value = max == 0 ? 0.0 : count / max;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -1605,10 +1658,10 @@ class _DistributionRow extends StatelessWidget {
             width: 12,
             child: Text(
               '$star',
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: _cText2(isDark),
                 fontSize: 11,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -1619,7 +1672,9 @@ class _DistributionRow extends StatelessWidget {
                 minHeight: 6,
                 value: value,
                 color: const Color(0xFFF5B301),
-                backgroundColor: _ink900.withValues(alpha: 0.06),
+                backgroundColor: isDark
+                    ? WawatDark.surfaceAlt
+                    : _ink900.withValues(alpha: 0.06),
               ),
             ),
           ),
@@ -1628,10 +1683,10 @@ class _DistributionRow extends StatelessWidget {
             child: Text(
               '$count',
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: _ink400,
+              style: TextStyle(
+                color: _cMuted(isDark),
                 fontSize: 11,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1659,10 +1714,11 @@ class _ReviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final author = review.author;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1681,10 +1737,10 @@ class _ReviewCard extends StatelessWidget {
                             author?.displayName ?? '@user',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _ink900,
+                            style: TextStyle(
+                              color: _cText(isDark),
                               fontSize: 13.5,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -1707,7 +1763,7 @@ class _ReviewCard extends StatelessWidget {
                               : PhosphorIconsRegular.star,
                           color: index < review.rating
                               ? const Color(0xFFF5B301)
-                              : _ink300,
+                              : _cFaint(isDark),
                           size: 12,
                         ),
                       ),
@@ -1717,10 +1773,10 @@ class _ReviewCard extends StatelessWidget {
               ),
               Text(
                 _relativeDate(review.createdAt),
-                style: const TextStyle(
-                  color: _ink400,
+                style: TextStyle(
+                  color: _cMuted(isDark),
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -1729,11 +1785,11 @@ class _ReviewCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               review.comment!.trim(),
-              style: const TextStyle(
-                color: _ink600,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink600,
                 fontSize: 13,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -1745,7 +1801,9 @@ class _ReviewCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: _ink900.withValues(alpha: 0.03),
+                color: isDark
+                    ? WawatDark.surfaceAlt
+                    : _ink900.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(
@@ -1753,18 +1811,18 @@ class _ReviewCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         PhosphorIconsFill.arrowBendUpRight,
-                        color: _ink500,
+                        color: _cText2(isDark),
                         size: 14,
                       ),
                       const SizedBox(width: 5),
                       Text(
                         _tx(content, 'review.your_reply', 'Sizin cavabınız'),
-                        style: const TextStyle(
-                          color: _ink500,
+                        style: TextStyle(
+                          color: _cText2(isDark),
                           fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -1772,11 +1830,11 @@ class _ReviewCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     review.reply!.trim(),
-                    style: const TextStyle(
-                      color: _ink600,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textSecondary : _ink600,
                       fontSize: 12.5,
                       height: 1.3,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -1787,7 +1845,9 @@ class _ReviewCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
               decoration: BoxDecoration(
-                color: _amber50,
+                color: isDark
+                    ? WawatDark.warning.withValues(alpha: 0.12)
+                    : _amber50,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -1805,7 +1865,7 @@ class _ReviewCard extends StatelessWidget {
                     style: const TextStyle(
                       color: _amber,
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -1829,7 +1889,7 @@ class _ReviewCard extends StatelessWidget {
                     style: const TextStyle(
                       color: _brand,
                       fontSize: 12,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -1849,10 +1909,13 @@ class _VerifiedReviewBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFECFDF5),
+        color: isDark
+            ? WawatDark.success.withValues(alpha: 0.14)
+            : const Color(0xFFECFDF5),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -1869,7 +1932,7 @@ class _VerifiedReviewBadge extends StatelessWidget {
             style: const TextStyle(
               color: Color(0xFF059669),
               fontSize: 10.5,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1893,6 +1956,7 @@ class _PublicActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -1901,15 +1965,21 @@ class _PublicActionBar extends StatelessWidget {
         10 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: _ink900.withValues(alpha: 0.05))),
-        boxShadow: [
-          BoxShadow(
-            color: _ink900.withValues(alpha: 0.16),
-            blurRadius: 24,
-            offset: const Offset(0, -8),
-          ),
-        ],
+        color: _cCard(isDark),
+        border: Border(
+            top: BorderSide(
+                color: isDark
+                    ? WawatDark.divider
+                    : _ink900.withValues(alpha: 0.05))),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: _ink900.withValues(alpha: 0.16),
+                  blurRadius: 24,
+                  offset: const Offset(0, -8),
+                ),
+              ],
       ),
       child: Row(
         children: [
@@ -1976,8 +2046,9 @@ class _FollowListScreenState extends State<_FollowListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cCard(isDark),
       body: SafeArea(
         child: Column(
           children: [
@@ -1993,7 +2064,9 @@ class _FollowListScreenState extends State<_FollowListScreen> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: _ink900.withValues(alpha: 0.05),
+                  color: isDark
+                      ? WawatDark.surfaceAlt
+                      : _ink900.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
@@ -2056,7 +2129,10 @@ class _FollowListScreenState extends State<_FollowListScreen> {
                   return ListView.separated(
                     itemCount: items.length,
                     separatorBuilder: (_, __) => Divider(
-                        height: 1, color: _ink900.withValues(alpha: 0.05)),
+                        height: 1,
+                        color: isDark
+                            ? WawatDark.divider
+                            : _ink900.withValues(alpha: 0.05)),
                     itemBuilder: (context, index) {
                       return _UserRow(
                         user: items[index],
@@ -2087,6 +2163,7 @@ class _UserRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onOpen,
@@ -2107,10 +2184,10 @@ class _UserRow extends StatelessWidget {
                           user.safeFullName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _ink900,
+                          style: TextStyle(
+                            color: _cText(isDark),
                             fontSize: 14,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -2130,16 +2207,16 @@ class _UserRow extends StatelessWidget {
                       if (user.trust.ratingAvg != null)
                         '★ ${user.trust.ratingAvg!.toStringAsFixed(1)}',
                     ].join(' · '),
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: _cMuted(isDark),
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(PhosphorIconsRegular.caretRight, color: _ink300),
+            Icon(PhosphorIconsRegular.caretRight, color: _cFaint(isDark)),
           ],
         ),
       ),
@@ -2164,8 +2241,9 @@ class _SettingsHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         child: ListView(
           children: [
@@ -2320,20 +2398,20 @@ class _SettingsHubScreen extends StatelessWidget {
                   style: const TextStyle(
                     color: Color(0xFFEF4444),
                     fontSize: 13,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 24),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 24),
               child: Text(
                 'Wawatair · v1.0.0',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: _ink400,
+                  color: _cMuted(isDark),
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -2432,8 +2510,9 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cCard(isDark),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -2468,7 +2547,7 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                                     color: _brand,
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                        color: Colors.white, width: 2),
+                                        color: _cCard(isDark), width: 2),
                                     boxShadow: [
                                       BoxShadow(
                                         color: _brand.withValues(alpha: 0.35),
@@ -2491,7 +2570,7 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                           child: Text(
                             _tx(widget.content, 'profile.change_photo',
                                 'Şəkli dəyiş'),
-                            style: const TextStyle(fontWeight: FontWeight.w900),
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -2647,8 +2726,9 @@ class _PrivacySettingsScreenState extends State<_PrivacySettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         child: ListView(
           children: [
@@ -2717,14 +2797,16 @@ class _PrivacySettingsScreenState extends State<_PrivacySettingsScreen> {
               margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _cCard(isDark),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+                border: isDark
+                    ? Border.all(color: WawatDark.border)
+                    : Border.all(color: _ink900.withValues(alpha: 0.06)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(PhosphorIconsFill.info, color: _ink400, size: 17),
+                  Icon(PhosphorIconsFill.info, color: _cMuted(isDark), size: 17),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -2733,11 +2815,11 @@ class _PrivacySettingsScreenState extends State<_PrivacySettingsScreen> {
                         'profile.privacy_note',
                         'Əlaqə həmişə söhbət (chat) vasitəsilə mümkündür — nömrənizi gizli saxlasanız belə.',
                       ),
-                      style: const TextStyle(
-                        color: _ink500,
+                      style: TextStyle(
+                        color: _cText2(isDark),
                         fontSize: 12.5,
                         height: 1.35,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -2803,8 +2885,9 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cCard(isDark),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -2845,10 +2928,10 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
                       'profile.password_hint',
                       'Ən az 8 simvol, cari paroldan fərqli',
                     ),
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: _cMuted(isDark),
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -2906,6 +2989,7 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -2914,7 +2998,9 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
+              color: isDark
+                  ? WawatDark.danger.withValues(alpha: 0.14)
+                  : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(18),
             ),
             child: const Icon(
@@ -2926,10 +3012,10 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
           const SizedBox(height: 12),
           Text(
             _tx(widget.content, 'profile.delete_title', 'Hesabı silmək?'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
@@ -2940,11 +3026,11 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
               'Elanlarınız, söhbətləriniz və rəyləriniz gizlədiləcək. Bu əməli geri qaytarmaq mümkün deyil.',
             ),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: _cText2(isDark),
               fontSize: 13,
               height: 1.35,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 14),
@@ -2953,9 +3039,11 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? WawatDark.surfaceAlt : Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: _ink900.withValues(alpha: 0.08)),
+                border: isDark
+                    ? Border.all(color: WawatDark.border)
+                    : Border.all(color: _ink900.withValues(alpha: 0.08)),
               ),
               child: Row(
                 children: [
@@ -2963,7 +3051,7 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
                     _confirmed
                         ? PhosphorIconsFill.checkSquare
                         : PhosphorIconsRegular.square,
-                    color: _confirmed ? _brand : _ink300,
+                    color: _confirmed ? _brand : _cFaint(isDark),
                     size: 22,
                   ),
                   const SizedBox(width: 10),
@@ -2974,10 +3062,10 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
                         'profile.delete_confirm_understand',
                         'Nəticələri başa düşürəm',
                       ),
-                      style: const TextStyle(
-                        color: _ink700,
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textSecondary : _ink700,
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -3057,6 +3145,7 @@ class _ReportUserSheetState extends State<_ReportUserSheet> {
           _tx(widget.content, 'profile.report_inappropriate', 'Uyğunsuz'),
       'other': _tx(widget.content, 'profile.report_other', 'Digər'),
     };
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -3068,10 +3157,10 @@ class _ReportUserSheetState extends State<_ReportUserSheet> {
               'profile.report_user_title',
               'İstifadəçini şikayət et',
             ),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 4),
@@ -3081,10 +3170,10 @@ class _ReportUserSheetState extends State<_ReportUserSheet> {
               'profile.report_user_subtitle',
               'Səbəbi seçin. Şikayət anonimdir.',
             ),
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: _cText2(isDark),
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 14),
@@ -3168,6 +3257,7 @@ class _ReplyReviewSheetState extends State<_ReplyReviewSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -3175,10 +3265,10 @@ class _ReplyReviewSheetState extends State<_ReplyReviewSheet> {
         children: [
           Text(
             _tx(widget.content, 'review.reply_title', 'Cavab yaz'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
@@ -3186,16 +3276,18 @@ class _ReplyReviewSheetState extends State<_ReplyReviewSheet> {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _ink900.withValues(alpha: 0.03),
+              color: isDark
+                  ? WawatDark.surfaceAlt
+                  : _ink900.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
               widget.review.comment ?? widget.review.author?.displayName ?? '',
-              style: const TextStyle(
-                color: _ink600,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink600,
                 fontSize: 13,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -3288,7 +3380,7 @@ class _ProfileAvatar extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: size * 0.32,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -3316,7 +3408,7 @@ class _ReviewAvatar extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontSize: 13,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -3350,7 +3442,7 @@ class _TierBadge extends StatelessWidget {
         style: TextStyle(
           color: palette.$2,
           fontSize: 10,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0.3,
         ),
       ),
@@ -3366,26 +3458,29 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? WawatDark.surfaceAlt : Colors.white,
         borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: _ink900.withValues(alpha: 0.08)),
+        border: isDark
+            ? Border.all(color: WawatDark.border)
+            : Border.all(color: _ink900.withValues(alpha: 0.08)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: _ink400, size: 14),
+            Icon(icon, color: _cMuted(isDark), size: 14),
             const SizedBox(width: 5),
           ],
           Text(
             label,
-            style: const TextStyle(
-              color: _ink700,
+            style: TextStyle(
+              color: isDark ? WawatDark.textSecondary : _ink700,
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -3402,10 +3497,13 @@ class _TinyStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: amber ? _amber50 : const Color(0xFFECFDF5),
+        color: isDark
+            ? (amber ? _amber : WawatDark.success).withValues(alpha: 0.14)
+            : (amber ? _amber50 : const Color(0xFFECFDF5)),
         borderRadius: BorderRadius.circular(7),
       ),
       child: Text(
@@ -3413,7 +3511,7 @@ class _TinyStatus extends StatelessWidget {
         style: TextStyle(
           color: amber ? _amber : const Color(0xFF059669),
           fontSize: 10,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -3457,11 +3555,12 @@ class _SoftButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _ButtonBase(
       label: label,
       icon: icon,
       onTap: onTap,
-      background: _brand50,
+      background: _cBrandSoft(isDark),
       foreground: _brand,
     );
   }
@@ -3480,12 +3579,14 @@ class _GhostButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _ButtonBase(
       label: label,
       icon: icon,
       onTap: onTap,
-      background: _ink900.withValues(alpha: 0.05),
-      foreground: _ink600,
+      background:
+          isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05),
+      foreground: isDark ? WawatDark.textSecondary : _ink600,
     );
   }
 }
@@ -3565,7 +3666,7 @@ class _ButtonBase extends StatelessWidget {
                 style: TextStyle(
                   color: foreground,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -3583,6 +3684,7 @@ class _BottomCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -3591,15 +3693,21 @@ class _BottomCta extends StatelessWidget {
         10 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: _ink900.withValues(alpha: 0.05))),
-        boxShadow: [
-          BoxShadow(
-            color: _ink900.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, -8),
-          ),
-        ],
+        color: _cCard(isDark),
+        border: Border(
+            top: BorderSide(
+                color: isDark
+                    ? WawatDark.divider
+                    : _ink900.withValues(alpha: 0.05))),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: _ink900.withValues(alpha: 0.18),
+                  blurRadius: 24,
+                  offset: const Offset(0, -8),
+                ),
+              ],
       ),
       child: child,
     );
@@ -3623,15 +3731,16 @@ class _Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: _cText(isDark),
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 7),
@@ -3641,32 +3750,43 @@ class _Field extends StatelessWidget {
           maxLength: maxLength,
           decoration: InputDecoration(
             hintText: hint,
-            counterStyle: const TextStyle(
-              color: _ink400,
+            hintStyle: isDark
+                ? const TextStyle(color: WawatDark.textMuted)
+                : null,
+            counterStyle: TextStyle(
+              color: _cMuted(isDark),
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
             filled: true,
-            fillColor: _ink900.withValues(alpha: 0.02),
+            fillColor: isDark
+                ? WawatDark.surfaceAlt
+                : _ink900.withValues(alpha: 0.02),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+              borderSide: BorderSide(
+                  color: isDark
+                      ? WawatDark.border
+                      : _ink900.withValues(alpha: 0.07)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+              borderSide: BorderSide(
+                  color: isDark
+                      ? WawatDark.border
+                      : _ink900.withValues(alpha: 0.07)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
               borderSide: const BorderSide(color: _brand),
             ),
           ),
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: _cText(isDark),
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -3691,41 +3811,51 @@ class _PasswordField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: _cText(isDark),
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 7),
         TextField(
           controller: controller,
           obscureText: !visible,
+          style: isDark ? const TextStyle(color: WawatDark.textPrimary) : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: _ink400),
+            prefixIcon: Icon(icon, color: _cMuted(isDark)),
             suffixIcon: GestureDetector(
               onTap: onToggle,
               child: Icon(
                 visible
                     ? PhosphorIconsRegular.eyeSlash
                     : PhosphorIconsRegular.eye,
-                color: _ink400,
+                color: _cMuted(isDark),
               ),
             ),
             filled: true,
-            fillColor: _ink900.withValues(alpha: 0.02),
+            fillColor: isDark
+                ? WawatDark.surfaceAlt
+                : _ink900.withValues(alpha: 0.02),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+              borderSide: BorderSide(
+                  color: isDark
+                      ? WawatDark.border
+                      : _ink900.withValues(alpha: 0.07)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+              borderSide: BorderSide(
+                  color: isDark
+                      ? WawatDark.border
+                      : _ink900.withValues(alpha: 0.07)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
@@ -3746,6 +3876,7 @@ class _PasswordStrength extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = length >= 8 ? 3 : (length >= 4 ? 2 : (length > 0 ? 1 : 0));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         for (var i = 0; i < 4; i++) ...[
@@ -3753,7 +3884,9 @@ class _PasswordStrength extends StatelessWidget {
             child: Container(
               height: 4,
               decoration: BoxDecoration(
-                color: i < active ? _emerald : _ink200,
+                color: i < active
+                    ? _emerald
+                    : (isDark ? WawatDark.surfaceAlt : _ink200),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -3764,9 +3897,9 @@ class _PasswordStrength extends StatelessWidget {
         Text(
           active >= 3 ? 'Güclü' : 'Zəif',
           style: TextStyle(
-            color: active >= 3 ? _emerald : _ink400,
+            color: active >= 3 ? _emerald : _cMuted(isDark),
             fontSize: 11,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -3782,30 +3915,41 @@ class _SelectLocale extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Tətbiq dili',
           style: TextStyle(
-            color: _ink900,
+            color: _cText(isDark),
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 7),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: _ink900.withValues(alpha: 0.02),
+            color: isDark
+                ? WawatDark.surfaceAlt
+                : _ink900.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: _ink900.withValues(alpha: 0.07)),
+            border: Border.all(
+                color: isDark
+                    ? WawatDark.border
+                    : _ink900.withValues(alpha: 0.07)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              icon: const Icon(PhosphorIconsRegular.caretDown, color: _ink400),
+              dropdownColor: isDark ? WawatDark.surface : null,
+              style: isDark
+                  ? const TextStyle(color: WawatDark.textPrimary, fontSize: 16)
+                  : null,
+              icon: Icon(PhosphorIconsRegular.caretDown,
+                  color: _cMuted(isDark)),
               items: const [
                 DropdownMenuItem(value: 'az', child: Text('Azərbaycanca')),
                 DropdownMenuItem(value: 'en', child: Text('English')),
@@ -3837,15 +3981,16 @@ class _LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Bildiyiniz dillər',
           style: TextStyle(
-            color: _ink900,
+            color: _cText(isDark),
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 8),
@@ -3861,21 +4006,23 @@ class _LanguageSelector extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: selected.contains(language.code)
-                        ? _brand50
-                        : Colors.white,
+                        ? _cBrandSoft(isDark)
+                        : (isDark ? WawatDark.surfaceAlt : Colors.white),
                     borderRadius: BorderRadius.circular(99),
                     border: Border.all(
-                      color:
-                          selected.contains(language.code) ? _brand : _ink200,
+                      color: selected.contains(language.code)
+                          ? _brand
+                          : (isDark ? WawatDark.border : _ink200),
                     ),
                   ),
                   child: Text(
                     language.name ?? language.code,
                     style: TextStyle(
-                      color:
-                          selected.contains(language.code) ? _brand : _ink700,
+                      color: selected.contains(language.code)
+                          ? _brand
+                          : (isDark ? WawatDark.textSecondary : _ink700),
                       fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -3894,18 +4041,22 @@ class _SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cCard(isDark),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: _ink900.withValues(alpha: 0.07),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        border: _cCardBorder(isDark),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: _ink900.withValues(alpha: 0.07),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -3930,6 +4081,7 @@ class _SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -3942,10 +4094,10 @@ class _SettingsRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: _cText(isDark),
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -3954,14 +4106,14 @@ class _SettingsRow extends StatelessWidget {
             else if (trailingText != null)
               Text(
                 trailingText!,
-                style: const TextStyle(
-                  color: _ink400,
+                style: TextStyle(
+                  color: _cMuted(isDark),
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             const SizedBox(width: 6),
-            const Icon(PhosphorIconsRegular.caretRight, color: _ink300),
+            Icon(PhosphorIconsRegular.caretRight, color: _cFaint(isDark)),
           ],
         ),
       ),
@@ -3986,6 +4138,7 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       child: Row(
@@ -3998,19 +4151,19 @@ class _SwitchRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: _ink400,
+                  style: TextStyle(
+                    color: _cMuted(isDark),
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -4020,8 +4173,10 @@ class _SwitchRow extends StatelessWidget {
             value: value,
             activeColor: Colors.white,
             activeTrackColor: _brand,
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: _ink900.withValues(alpha: 0.12),
+            inactiveThumbColor: isDark ? WawatDark.icon : Colors.white,
+            inactiveTrackColor: isDark
+                ? WawatDark.elevated
+                : _ink900.withValues(alpha: 0.12),
             onChanged: onChanged,
           ),
         ],
@@ -4037,11 +4192,12 @@ class _SettingsIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: _brand50,
+        color: _cBrandSoft(isDark),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(icon, color: _brand, size: 18),
@@ -4056,14 +4212,15 @@ class _GroupHead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(
-          color: _ink400,
+        style: TextStyle(
+          color: _cMuted(isDark),
           fontSize: 11,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0.4,
         ),
       ),
@@ -4078,6 +4235,7 @@ class _SheetShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.fromLTRB(
         18,
@@ -4085,9 +4243,10 @@ class _SheetShell extends StatelessWidget {
         18,
         18 + MediaQuery.of(context).padding.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: _cCard(isDark),
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -4097,7 +4256,7 @@ class _SheetShell extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 14),
             decoration: BoxDecoration(
-              color: _ink200,
+              color: isDark ? WawatDark.elevated : _ink200,
               borderRadius: BorderRadius.circular(99),
             ),
           ),
@@ -4111,18 +4270,20 @@ class _SheetShell extends StatelessWidget {
 class _SheetAction extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Color color;
+  final Color? color;
   final VoidCallback onTap;
 
   const _SheetAction({
     required this.icon,
     required this.label,
     required this.onTap,
-    this.color = _ink800,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final resolved = color ?? (isDark ? WawatDark.textPrimary : _ink800);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -4130,14 +4291,14 @@ class _SheetAction extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
           children: [
-            Icon(icon, color: color, size: 20),
+            Icon(icon, color: resolved, size: 20),
             const SizedBox(width: 12),
             Text(
               label,
               style: TextStyle(
-                color: color,
+                color: resolved,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -4162,6 +4323,7 @@ class _AvatarSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -4171,10 +4333,10 @@ class _AvatarSheet extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 4),
             child: Text(
               _tx(content, 'profile.avatar_title', 'Profil şəkli'),
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: _cText(isDark),
                 fontSize: 16,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -4198,10 +4360,10 @@ class _AvatarSheet extends StatelessWidget {
           ),
           Text(
             _tx(content, 'profile.avatar_hint', 'JPG/PNG/WEBP · maks 10 MB'),
-            style: const TextStyle(
-              color: _ink400,
+            style: TextStyle(
+              color: _cMuted(isDark),
               fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -4223,21 +4385,29 @@ class _ReasonChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? _brand50 : Colors.white,
+          color: selected
+              ? _cBrandSoft(isDark)
+              : (isDark ? WawatDark.surfaceAlt : Colors.white),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: selected ? _brand : _ink200),
+          border: Border.all(
+              color: selected
+                  ? _brand
+                  : (isDark ? WawatDark.border : _ink200)),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? _brand : _ink700,
+            color: selected
+                ? _brand
+                : (isDark ? WawatDark.textSecondary : _ink700),
             fontSize: 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -4258,6 +4428,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SizedBox(
       height: 360,
       child: Column(
@@ -4267,7 +4438,7 @@ class _EmptyState extends StatelessWidget {
             width: 78,
             height: 78,
             decoration: BoxDecoration(
-              color: _brand50,
+              color: _cBrandSoft(isDark),
               borderRadius: BorderRadius.circular(26),
             ),
             child: Icon(icon, color: _brand, size: 38),
@@ -4276,10 +4447,10 @@ class _EmptyState extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 7),
@@ -4288,11 +4459,11 @@ class _EmptyState extends StatelessWidget {
             child: Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: _cText2(isDark),
                 fontSize: 13.5,
                 height: 1.35,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -4376,11 +4547,12 @@ class _SkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: _ink200,
+        color: isDark ? WawatDark.surfaceAlt : _ink200,
         shape: circle ? BoxShape.circle : BoxShape.rectangle,
         borderRadius: circle ? null : BorderRadius.circular(18),
       ),
@@ -4395,6 +4567,7 @@ class _ProfileNotFound extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         const _ProfileTopBar(title: 'Profil'),
@@ -4409,33 +4582,35 @@ class _ProfileNotFound extends StatelessWidget {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: _ink900.withValues(alpha: 0.05),
+                      color: isDark
+                          ? WawatDark.surfaceAlt
+                          : _ink900.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(28),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       PhosphorIconsRegular.userMinus,
-                      color: _ink300,
+                      color: _cFaint(isDark),
                       size: 40,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'İstifadəçi tapılmadı',
                     style: TextStyle(
-                      color: _ink900,
+                      color: _cText(isDark),
                       fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 7),
-                  const Text(
+                  Text(
                     'Bu hesab mövcud deyil, dayandırılıb və ya silinib.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: _ink500,
+                      color: _cText2(isDark),
                       fontSize: 13.5,
                       height: 1.35,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -4464,6 +4639,7 @@ class _InlineLoadError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -4474,12 +4650,14 @@ class _InlineLoadError extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _ink900.withValues(alpha: 0.05),
+                color: isDark
+                    ? WawatDark.surfaceAlt
+                    : _ink900.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(28),
               ),
-              child: const Icon(
+              child: Icon(
                 PhosphorIconsRegular.warningCircle,
-                color: _ink300,
+                color: _cFaint(isDark),
                 size: 40,
               ),
             ),
@@ -4491,10 +4669,10 @@ class _InlineLoadError extends StatelessWidget {
                 'Məlumatları yükləmək alınmadı',
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: _cText(isDark),
                 fontSize: 18,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 18),
@@ -4519,6 +4697,7 @@ class _ProfileAuthRequired extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         const _ProfileTopBar(title: 'Profil'),
@@ -4533,7 +4712,7 @@ class _ProfileAuthRequired extends StatelessWidget {
                     width: 88,
                     height: 88,
                     decoration: BoxDecoration(
-                      color: _brand50,
+                      color: _cBrandSoft(isDark),
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: const Icon(
@@ -4543,24 +4722,24 @@ class _ProfileAuthRequired extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  const Text(
+                  Text(
                     'Profil üçün daxil ol',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: _ink900,
+                      color: _cText(isDark),
                       fontSize: 20,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Elanlarını, rəylərini və ayarlarını idarə etmək üçün hesabına daxil ol.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: _ink500,
+                      color: _cText2(isDark),
                       fontSize: 13.5,
                       height: 1.35,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -4579,7 +4758,7 @@ class _ProfileAuthRequired extends StatelessWidget {
                         style: TextStyle(
                           color: _brand,
                           fontSize: 13,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -4594,18 +4773,22 @@ class _ProfileAuthRequired extends StatelessWidget {
   }
 }
 
-BoxDecoration _cardDecoration() {
+BoxDecoration _cardDecoration([bool d = false]) {
   return BoxDecoration(
-    color: Colors.white,
+    color: _cCard(d),
     borderRadius: BorderRadius.circular(20),
-    border: Border.all(color: _ink900.withValues(alpha: 0.06)),
-    boxShadow: [
-      BoxShadow(
-        color: _ink900.withValues(alpha: 0.08),
-        blurRadius: 22,
-        offset: const Offset(0, 8),
-      ),
-    ],
+    border: d
+        ? Border.all(color: WawatDark.border)
+        : Border.all(color: _ink900.withValues(alpha: 0.06)),
+    boxShadow: d
+        ? null
+        : [
+            BoxShadow(
+              color: _ink900.withValues(alpha: 0.08),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
+            ),
+          ],
   );
 }
 
@@ -4687,11 +4870,14 @@ String _errorMessage(Object error) {
 }
 
 void _showSnack(BuildContext context, String message, {bool error = false}) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: error ? const Color(0xFFEF4444) : _ink900,
+      backgroundColor: error
+          ? const Color(0xFFEF4444)
+          : (isDark ? WawatDark.elevated : _ink900),
       duration: const Duration(milliseconds: 1500),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     ),

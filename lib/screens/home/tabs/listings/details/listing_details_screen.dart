@@ -764,7 +764,7 @@ class _ConfirmActionDialog extends StatelessWidget {
               style: TextStyle(
                 color: titleColor,
                 fontSize: 19,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -774,7 +774,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                 color: isDark ? Colors.white70 : _ink500,
                 fontSize: 14,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 18),
@@ -797,7 +797,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                         style: TextStyle(
                           color: isDark ? Colors.white : _ink500,
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -819,7 +819,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -884,7 +884,7 @@ class _TopBar extends StatelessWidget {
               style: TextStyle(
                 color: titleColor,
                 fontSize: 17,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1043,7 +1043,7 @@ class _TypeBadge extends StatelessWidget {
             style: TextStyle(
               color: accent,
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
             ),
           ),
@@ -1084,7 +1084,7 @@ class _StatusBadge extends StatelessWidget {
             style: TextStyle(
               color: color,
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1131,7 +1131,7 @@ class _PromotionBadge extends StatelessWidget {
             style: const TextStyle(
               color: _ink800,
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1204,7 +1204,7 @@ class _RouteSide extends StatelessWidget {
           style: const TextStyle(
             color: _ink400,
             fontSize: 12,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 2),
@@ -1216,7 +1216,7 @@ class _RouteSide extends StatelessWidget {
             color: _ink900,
             fontSize: 25,
             height: 1.05,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
             letterSpacing: -0.3,
           ),
         ),
@@ -1314,7 +1314,8 @@ class _DateRibbon extends StatelessWidget {
     final label = listing.isTrip
         ? [
             _formatDate(listing.flightDate),
-            if ((listing.flightTime ?? '').isNotEmpty) listing.flightTime,
+            if ((listing.flightTime ?? '').isNotEmpty)
+              _formatTime(listing.flightTime),
           ].whereType<String>().join(' · ')
         : _formatDateRange(listing.deliveryDateFrom, listing.deliveryDateTo);
     if (label.isEmpty) return const SizedBox.shrink();
@@ -1334,7 +1335,7 @@ class _DateRibbon extends StatelessWidget {
               style: const TextStyle(
                 color: _ink900,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1386,7 +1387,7 @@ class _TrustBlock extends StatelessWidget {
                               style: const TextStyle(
                                 color: _ink900,
                                 fontSize: 15,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -1413,7 +1414,7 @@ class _TrustBlock extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink800,
                               fontSize: 12,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
@@ -1421,7 +1422,7 @@ class _TrustBlock extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink500,
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           const Text('·', style: TextStyle(color: _ink300)),
@@ -1430,7 +1431,7 @@ class _TrustBlock extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink500,
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -1462,7 +1463,7 @@ class _TrustBlock extends StatelessWidget {
                         style: const TextStyle(
                           color: Color(0xFF047857),
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -1598,7 +1599,7 @@ class _OwnerStatCard extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 4),
@@ -1615,7 +1616,7 @@ class _OwnerStatCard extends StatelessWidget {
                   style: const TextStyle(
                     color: _ink400,
                     fontSize: 11,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -1650,7 +1651,7 @@ class _ReservationProgressCard extends StatelessWidget {
                 style: TextStyle(
                   color: _ink900,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),
@@ -1659,7 +1660,7 @@ class _ReservationProgressCard extends StatelessWidget {
                 style: const TextStyle(
                   color: _brand,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -1680,7 +1681,7 @@ class _ReservationProgressCard extends StatelessWidget {
             style: const TextStyle(
               color: _ink500,
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1711,7 +1712,7 @@ class _OwnerDetailsCard extends StatelessWidget {
           style: TextStyle(
             color: _ink900,
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 8),
@@ -1773,7 +1774,7 @@ class _OwnerDetailRow extends StatelessWidget {
             style: const TextStyle(
               color: _ink500,
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(width: 12),
@@ -1786,7 +1787,7 @@ class _OwnerDetailRow extends StatelessWidget {
               style: const TextStyle(
                 color: _ink900,
                 fontSize: 13,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1835,7 +1836,7 @@ class _OwnerInfoBanner extends StatelessWidget {
                     style: TextStyle(
                       color: color,
                       fontSize: 13,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1845,7 +1846,7 @@ class _OwnerInfoBanner extends StatelessWidget {
                   style: TextStyle(
                     color: color,
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     height: 1.25,
                   ),
                 ),
@@ -1971,7 +1972,7 @@ class _FactCard extends StatelessWidget {
                   style: const TextStyle(
                     color: _ink400,
                     fontSize: 11,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: 0.2,
                   ),
                 ),
@@ -1989,7 +1990,7 @@ class _FactCard extends StatelessWidget {
                     style: const TextStyle(
                       color: _ink400,
                       fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
               ],
@@ -1999,7 +2000,7 @@ class _FactCard extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 17,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -2032,7 +2033,7 @@ class _PackageTypesBlock extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 14,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 10),
@@ -2076,7 +2077,7 @@ class _DescriptionBlock extends StatelessWidget {
             style: TextStyle(
               color: _ink900,
               fontSize: 14,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 9),
@@ -2086,7 +2087,7 @@ class _DescriptionBlock extends StatelessWidget {
               color: _ink600,
               fontSize: 16,
               height: 1.45,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -2129,7 +2130,7 @@ class _SimilarBlock extends StatelessWidget {
                           ? Colors.white
                           : _ink900,
                       fontSize: 15,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -2143,7 +2144,7 @@ class _SimilarBlock extends StatelessWidget {
                       style: TextStyle(
                         color: _brand,
                         fontSize: 12,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -2214,7 +2215,7 @@ class _SimilarListingsScreen extends StatelessWidget {
                         style: TextStyle(
                           color: _ink900,
                           fontSize: 17,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -2299,7 +2300,7 @@ class _SimilarListCard extends StatelessWidget {
                     style: const TextStyle(
                       color: _ink900,
                       fontSize: 16,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 5),
@@ -2315,7 +2316,7 @@ class _SimilarListCard extends StatelessWidget {
                     style: const TextStyle(
                       color: _ink500,
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -2328,7 +2329,7 @@ class _SimilarListCard extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink900,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             const SizedBox(width: 8),
@@ -2384,7 +2385,7 @@ class _SimilarCard extends StatelessWidget {
                     style: TextStyle(
                       color: accent,
                       fontSize: 11,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -2398,7 +2399,7 @@ class _SimilarCard extends StatelessWidget {
               style: const TextStyle(
                 color: _ink900,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const Spacer(),
@@ -2411,7 +2412,7 @@ class _SimilarCard extends StatelessWidget {
               style: const TextStyle(
                 color: _ink500,
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
             if (listing.isTrip)
@@ -2420,7 +2421,7 @@ class _SimilarCard extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink900,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
           ],
@@ -2666,7 +2667,7 @@ class _ActionButton extends StatelessWidget {
                 style: TextStyle(
                   color: fg,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -2743,7 +2744,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                   style: TextStyle(
                     color: _ink900,
                     fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const Spacer(),
@@ -2763,7 +2764,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
               style: TextStyle(
                 color: _ink900,
                 fontSize: 13,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
@@ -2816,7 +2817,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                 style: const TextStyle(
                   color: _ink500,
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -2985,7 +2986,7 @@ class _ProposalErrorBox extends StatelessWidget {
                   style: const TextStyle(
                     color: Color(0xFF991B1B),
                     fontSize: 13,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     height: 1.35,
                   ),
                 ),
@@ -3014,7 +3015,7 @@ class _ProposalErrorBox extends StatelessWidget {
                       style: TextStyle(
                         color: _brand,
                         fontSize: 13,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -3072,20 +3073,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.22),
                   shape: BoxShape.circle,
                 ),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    PhosphorIconsBold.check,
-                    color: _brand,
-                    size: 34,
-                  ),
-                ),
+                child: const _BrandMark(size: 60),
               ),
               const SizedBox(height: 46),
               const Text(
@@ -3094,7 +3082,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 32,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   height: 1.1,
                 ),
               ),
@@ -3105,7 +3093,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.88),
                   fontSize: 17,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   height: 1.45,
                 ),
               ),
@@ -3160,7 +3148,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                         style: TextStyle(
                           color: _brand,
                           fontSize: 18,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -3176,13 +3164,51 @@ class _ProposalSuccessScreen extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.78),
                     fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               const Spacer(flex: 3),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The Wawat launcher mark (two-tone "W") on a white chip so the black+blue
+/// logo stays legible on ANY background — brand blue, dark or light. The soft
+/// shadow + hairline keep the chip delineated even on a white surface.
+class _BrandMark extends StatelessWidget {
+  final double size;
+
+  const _BrandMark({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0x11000000)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.14),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(size * 0.16),
+        child: Image.asset(
+          'assets/icon.png',
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.medium,
         ),
       ),
     );
@@ -3208,7 +3234,7 @@ class _SuccessSummaryRow extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 17,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -3221,7 +3247,7 @@ class _SuccessSummaryRow extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 17,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -3284,7 +3310,7 @@ class _ReasonSheetState extends State<_ReasonSheet> {
               style: const TextStyle(
                 color: _ink900,
                 fontSize: 18,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 4),
@@ -3293,7 +3319,7 @@ class _ReasonSheetState extends State<_ReasonSheet> {
               style: const TextStyle(
                 color: _ink500,
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 12),
@@ -3416,7 +3442,7 @@ class _SheetInput extends StatelessWidget {
           style: const TextStyle(
             color: _ink900,
             fontSize: 12,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 7),
@@ -3428,7 +3454,7 @@ class _SheetInput extends StatelessWidget {
             hintText: hint,
             hintStyle: const TextStyle(
               color: _ink400,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
@@ -3488,7 +3514,7 @@ class _SelectableChip extends StatelessWidget {
               style: TextStyle(
                 color: selected ? _brand : _ink800,
                 fontSize: 13,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             if (selected) ...[
@@ -3536,7 +3562,7 @@ class _RadioRow extends StatelessWidget {
                 style: TextStyle(
                   color: selected ? _brand : _ink800,
                   fontSize: 14,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -3582,7 +3608,7 @@ class _Chip extends StatelessWidget {
             style: const TextStyle(
               color: _ink700,
               fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -3613,7 +3639,7 @@ class _TierBadge extends StatelessWidget {
         style: TextStyle(
           color: _tierColor(tier),
           fontSize: 10,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -3644,7 +3670,7 @@ class _Avatar extends StatelessWidget {
         style: TextStyle(
           color: color,
           fontSize: 15,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -3722,7 +3748,7 @@ class _ErrorState extends StatelessWidget {
               style: TextStyle(
                 color: _ink900,
                 fontSize: 21,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -3732,7 +3758,7 @@ class _ErrorState extends StatelessWidget {
               style: TextStyle(
                 color: _ink500,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 18),
@@ -3968,6 +3994,22 @@ String _formatDate(String? value) {
     'Dek'
   ];
   return '${date.day} ${months[date.month - 1]}';
+}
+
+/// Normalises any time-ish string to `HH:mm` (drops seconds).
+String? _formatTime(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final raw = value.trim();
+  final dt = DateTime.tryParse(raw);
+  if (dt != null) {
+    return '${dt.hour.toString().padLeft(2, '0')}:'
+        '${dt.minute.toString().padLeft(2, '0')}';
+  }
+  final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
+  if (match != null) {
+    return '${match.group(1)!.padLeft(2, '0')}:${match.group(2)}';
+  }
+  return raw;
 }
 
 String _formatDateRange(String? from, String? to) {

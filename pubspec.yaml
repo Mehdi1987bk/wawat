@@ -157,6 +157,7 @@ flutter:
     - asset/home_back.png
     - asset/add_offer.png
     - asset/icon.jpeg
+    - assets/icon.png
     - asset/icon.png
 
   fonts:

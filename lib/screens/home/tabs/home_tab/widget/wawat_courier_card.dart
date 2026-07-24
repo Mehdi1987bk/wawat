@@ -281,7 +281,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                     duration: const Duration(milliseconds: 300),
                                     style: TextStyle(
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                       color: isDark
                                           ? Colors.white
                                           : const Color(0xFF1A1A1A),
@@ -313,7 +313,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                           const Duration(milliseconds: 300),
                                           style: TextStyle(
                                             fontSize: 13,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w500,
                                             color: isDark
                                                 ? Colors.white
                                                 : const Color(0xFF1A1A1A),
@@ -360,7 +360,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                           widget.courier.offerType!.title,
                                           style: TextStyle(
                                             fontSize: 13,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w500,
                                             color: const Color(0xFF2196F3),
                                           ),
                                         ),
@@ -385,7 +385,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                           S.of(context).ge35e5g3gerg3,
                                           style: TextStyle(
                                             fontSize: 13,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w500,
                                             color: const Color(0xFF4CAF50),
                                           ),
                                         ),
@@ -633,7 +633,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                     S.of(context).etg5g43gdg,
                                     style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.white,
                                     ),
                                   ),
@@ -668,7 +668,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                     S.of(context).grt4g4gdeg354,
                                     style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w600,
                                       color: const Color(0xFF5B5FFF),
                                     ),
                                   ),
@@ -836,15 +836,19 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   }
 
   String _formatTime(String? time) {
-    if (time == null) return '-';
-
-    try {
-      final DateTime parsedTime = DateTime.parse(time);
-      final hours = parsedTime.hour.toString().padLeft(2, '0');
-      final minutes = parsedTime.minute.toString().padLeft(2, '0');
-      return '$hours:$minutes';
-    } catch (e) {
-      return time;
+    if (time == null || time.trim().isEmpty) return '-';
+    final raw = time.trim();
+    // Full ISO datetime.
+    final dt = DateTime.tryParse(raw);
+    if (dt != null) {
+      return '${dt.hour.toString().padLeft(2, '0')}:'
+          '${dt.minute.toString().padLeft(2, '0')}';
     }
+    // Bare time string like "09:15:00" or "9:15" → HH:mm (drop seconds).
+    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
+    if (match != null) {
+      return '${match.group(1)!.padLeft(2, '0')}:${match.group(2)}';
+    }
+    return raw;
   }
 }

@@ -276,7 +276,7 @@ class _FeedSectionTitle extends StatelessWidget {
             style: TextStyle(
               color: isDark ? Colors.white : _ink900,
               fontSize: 15,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -442,7 +442,7 @@ class _HeroHeader extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 24,
                       height: 1.13,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -454,7 +454,7 @@ class _HeroHeader extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.78),
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -523,13 +523,13 @@ class _CommunityStats extends StatelessWidget {
                   TextSpan(
                     text: '1,240',
                     style:
-                        TextStyle(fontWeight: FontWeight.w900, color: _ink900),
+                        TextStyle(fontWeight: FontWeight.w700, color: _ink900),
                   ),
                   TextSpan(text: ' çatdırılma · '),
                   TextSpan(
                     text: '3,500+',
                     style:
-                        TextStyle(fontWeight: FontWeight.w900, color: _ink900),
+                        TextStyle(fontWeight: FontWeight.w700, color: _ink900),
                   ),
                   TextSpan(text: ' təsdiqlənmiş səyahətçi'),
                 ],
@@ -537,7 +537,7 @@ class _CommunityStats extends StatelessWidget {
               style: TextStyle(
                 color: isDark ? Colors.white70 : _ink500,
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -667,7 +667,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
               style: TextStyle(
                 color: isDark ? Colors.white : _ink900,
                 fontSize: 15,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -703,7 +703,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                           style: const TextStyle(
                             color: _ink400,
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const Spacer(),
@@ -712,7 +712,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                           style: const TextStyle(
                             color: _brand,
                             fontSize: 16,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -798,7 +798,7 @@ class _RouteTitle extends StatelessWidget {
     final baseStyle = TextStyle(
       color: isDark ? Colors.white : _ink900,
       fontSize: 14,
-      fontWeight: FontWeight.w900,
+      fontWeight: FontWeight.w600,
     );
 
     if (parts.length != 2) {
@@ -875,7 +875,7 @@ class _EmptyState extends StatelessWidget {
             style: const TextStyle(
               color: _ink900,
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 8),
@@ -888,7 +888,7 @@ class _EmptyState extends StatelessWidget {
             style: const TextStyle(
               color: _ink500,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 16),
@@ -907,7 +907,7 @@ class _EmptyState extends StatelessWidget {
                   item.label!,
                   style: const TextStyle(
                     color: _brand,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -941,7 +941,7 @@ class _FeedEnd extends StatelessWidget {
         textAlign: TextAlign.center,
         style: const TextStyle(
           color: _ink400,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
           fontSize: 13,
         ),
       ),

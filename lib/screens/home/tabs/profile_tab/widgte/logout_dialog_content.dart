@@ -50,7 +50,7 @@ class LogoutDialogContent extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 child: Text(title ?? ""),

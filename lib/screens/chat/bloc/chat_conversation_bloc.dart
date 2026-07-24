@@ -22,6 +22,8 @@ class ChatConversationBloc extends BaseBloc {
   final BehaviorSubject<bool> _isLoadingSubject = BehaviorSubject.seeded(true);
   final BehaviorSubject<Map<String, ShipmentData>> _shipmentsSubject =
       BehaviorSubject.seeded(const {});
+  final BehaviorSubject<ShipmentData?> _activeShipmentSubject =
+      BehaviorSubject.seeded(null);
   final BehaviorSubject<bool> _otherUserTypingSubject =
       BehaviorSubject.seeded(false);
 
@@ -30,7 +32,22 @@ class ChatConversationBloc extends BaseBloc {
   Stream<bool> get isLoadingStream => _isLoadingSubject.stream;
   Stream<Map<String, ShipmentData>> get shipmentsStream =>
       _shipmentsSubject.stream;
+  Stream<ShipmentData?> get activeShipmentStream =>
+      _activeShipmentSubject.stream;
   Stream<bool> get otherUserTypingStream => _otherUserTypingSubject.stream;
+
+  /// Statuses that keep a deal "active" for the pinned bar (§3A.2).
+  /// completed/auto_completed stay (review nudge); terminal declined/cancelled/
+  /// expired do not.
+  static const _pinbarStatuses = {
+    'proposal_pending',
+    'accepted',
+    'picked_up',
+    'delivered',
+    'disputed',
+    'completed',
+    'auto_completed',
+  };
 
   String? _conversationId;
   int _currentPage = 1;
@@ -432,6 +449,26 @@ class ChatConversationBloc extends BaseBloc {
     if (!_shipmentsSubject.isClosed) {
       _shipmentsSubject.add(states);
     }
+    _recomputeActiveShipment(messages, states);
+  }
+
+  /// The pinned bar shows the deal from the newest live system card (§3A.2).
+  void _recomputeActiveShipment(
+    List<ChatMessage> messages,
+    Map<String, ShipmentData> states,
+  ) {
+    if (_activeShipmentSubject.isClosed) return;
+    ShipmentData? active;
+    for (final message in messages) {
+      final id = message.card?.shipmentId;
+      if (id == null || id.isEmpty) continue;
+      final state = states[id];
+      if (state != null && _pinbarStatuses.contains(state.status)) {
+        active = state;
+        break;
+      }
+    }
+    _activeShipmentSubject.add(active);
   }
 
   String _localId() =>
@@ -479,6 +516,7 @@ class ChatConversationBloc extends BaseBloc {
     _isLoadingMoreSubject.close();
     _isLoadingSubject.close();
     _shipmentsSubject.close();
+    _activeShipmentSubject.close();
     _otherUserTypingSubject.close();
     super.dispose();
   }

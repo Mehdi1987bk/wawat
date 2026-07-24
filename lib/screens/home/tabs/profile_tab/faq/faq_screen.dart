@@ -39,7 +39,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
         style: TextStyle(
           color: isDark ? Colors.white : Colors.black,
           fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ),
       centerTitle: false,
@@ -101,7 +101,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               'Часто задаваемые вопросы',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
@@ -293,7 +293,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                           question,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: isDark ? Colors.white : Colors.black,
                             height: 1.4,
                           ),

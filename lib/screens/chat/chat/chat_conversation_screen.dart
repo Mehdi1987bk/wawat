@@ -11,10 +11,15 @@ import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
+import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/wawat_content.dart';
 import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
+import '../widgets/deal_pin_bar.dart';
 import '../widgets/message_bubble.dart';
+import '../../home/tabs/profile_tab/deals/deal_detail_screen.dart';
+import '../../home/tabs/profile_tab/new_profile/new_profile_screen.dart';
+import '../../home/tabs/profile_tab/support/support_screen.dart';
 import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 
 const _brand = Color(0xFF0271EB);
@@ -26,6 +31,37 @@ const _ink500 = Color(0xFF64748B);
 const _ink400 = Color(0xFF94A3B8);
 const _emerald = Color(0xFF22C55E);
 const _threadBg = Color(0xFFEAEEF4);
+
+// Тёмная ветка = единый графит из [WawatDark]; светлая часть остаётся как была.
+Color _cThreadBg(bool d) => d ? WawatDark.bg : _threadBg;
+Color _cSurface(bool d) => d ? WawatDark.surface : Colors.white;
+Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
+Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink700;
+Color _cText3(bool d) => d ? WawatDark.textSecondary : _ink500;
+Color _cMuted(bool d) => d ? WawatDark.textMuted : _ink400;
+Color _cGrip(bool d) => d ? WawatDark.iconMuted : const Color(0xFFCBD5E1);
+Color _cBrandSoft(bool d) => d ? WawatDark.brandSoft : _brand50;
+Color _cHeaderLine(bool d) =>
+    d ? WawatDark.divider : _ink900.withValues(alpha: 0.06);
+
+/// Message ids of the newest proposal per shipment. Older proposals in the same
+/// deal were superseded by a counter-offer and must stay read-only (no
+/// accept/reject/change buttons), so only these ids remain actionable.
+Set<String> _currentProposalMessageIds(List<ChatMessage> messages) {
+  final latest = <String, ChatMessage>{};
+  for (final message in messages) {
+    final card = message.card;
+    if (card == null || card.type != 'proposal') continue;
+    final shipmentId = card.shipmentId;
+    if (shipmentId == null || shipmentId.isEmpty) continue;
+    final existing = latest[shipmentId];
+    if (existing == null ||
+        message.createdAtDateTime.isAfter(existing.createdAtDateTime)) {
+      latest[shipmentId] = message;
+    }
+  }
+  return latest.values.map((message) => message.id).toSet();
+}
 
 class ChatConversationScreen extends BaseScreen {
   final Conversation conversation;
@@ -109,144 +145,169 @@ class _ChatConversationScreenState
 
   @override
   Widget body() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
-      child: Scaffold(
-        backgroundColor: _threadBg,
-        body: SafeArea(
-          child: Column(
-            children: [
-              _ConversationHeader(
-                conversation: widget.conversation,
-                onBack: () => Navigator.of(context).maybePop(),
-                onMenu: _showConversationOptions,
+      child: Column(
+        children: [
+          ColoredBox(
+            color: _cSurface(isDark),
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ConversationHeader(
+                    conversation: widget.conversation,
+                    onBack: () => Navigator.of(context).maybePop(),
+                    onMenu: _showConversationOptions,
+                    onOpenProfile: _openProfile,
+                  ),
+                  StreamBuilder<ShipmentData?>(
+                    stream: bloc.activeShipmentStream,
+                    initialData: null,
+                    builder: (context, snapshot) {
+                      final shipment = snapshot.data;
+                      if (shipment == null) return const SizedBox.shrink();
+                      return DealPinBar(
+                        shipment: shipment,
+                        content: _content,
+                        onTap: () => _openDeal(shipment.id),
+                      );
+                    },
+                  ),
+                ],
               ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    const Positioned.fill(child: _ThreadBackground()),
-                    StreamBuilder<bool>(
-                      stream: bloc.isLoadingStream,
-                      initialData: true,
-                      builder: (context, loadingSnapshot) {
-                        return StreamBuilder<Map<String, ShipmentData>>(
-                          stream: bloc.shipmentsStream,
-                          initialData: const {},
-                          builder: (context, shipmentSnapshot) {
-                            return StreamBuilder<List<ChatMessage>>(
-                              stream: bloc.messagesStream,
-                              initialData: const [],
-                              builder: (context, snapshot) {
-                                final messages = snapshot.data ?? const [];
-                                if (loadingSnapshot.data == true &&
-                                    messages.isEmpty) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(
-                                      color: _brand,
-                                      strokeWidth: 2,
-                                    ),
-                                  );
-                                }
-                                if (messages.isEmpty) {
-                                  return _EmptyConversation(
-                                    user: widget.conversation.user,
-                                    content: _content,
-                                  );
-                                }
-
-                                return RefreshIndicator(
+            ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                const Positioned.fill(child: _ThreadBackground()),
+                StreamBuilder<bool>(
+                  stream: bloc.isLoadingStream,
+                  initialData: true,
+                  builder: (context, loadingSnapshot) {
+                    return StreamBuilder<Map<String, ShipmentData>>(
+                      stream: bloc.shipmentsStream,
+                      initialData: const {},
+                      builder: (context, shipmentSnapshot) {
+                        return StreamBuilder<List<ChatMessage>>(
+                          stream: bloc.messagesStream,
+                          initialData: const [],
+                          builder: (context, snapshot) {
+                            final messages = snapshot.data ?? const [];
+                            if (loadingSnapshot.data == true &&
+                                messages.isEmpty) {
+                              return const Center(
+                                child: CircularProgressIndicator(
                                   color: _brand,
-                                  onRefresh: bloc.loadMessages,
-                                  child: ListView.builder(
-                                    controller: _scrollController,
-                                    reverse: true,
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        14, 12, 14, 12),
-                                    itemCount: messages.length,
-                                    itemBuilder: (context, index) {
-                                      final message = messages[index];
-                                      final showDate = _shouldShowDate(
-                                        messages,
-                                        index,
-                                      );
-                                      return Column(
-                                        children: [
-                                          if (showDate)
-                                            _DateSeparator(
-                                              date: _dateLabel(
-                                                message.createdAtDateTime,
-                                              ),
-                                            ),
-                                          MessageBubble(
-                                            message: message,
-                                            isMyMessage:
-                                                bloc.isMyMessage(message),
-                                            shipment:
-                                                message.card?.shipmentId == null
-                                                    ? null
-                                                    : shipmentSnapshot.data?[
-                                                        message
-                                                            .card!.shipmentId],
-                                            onShipmentAction:
-                                                _handleShipmentAction,
-                                            onRetry: bloc.retryMessage,
-                                            onLongPress: _showMessageOptions,
-                                            onReview: _showReviewDialog,
+                                  strokeWidth: 2,
+                                ),
+                              );
+                            }
+                            if (messages.isEmpty) {
+                              return _EmptyConversation(
+                                user: widget.conversation.user,
+                                content: _content,
+                              );
+                            }
+
+                            final currentOfferIds =
+                                _currentProposalMessageIds(messages);
+
+                            return RefreshIndicator(
+                              color: _brand,
+                              onRefresh: bloc.loadMessages,
+                              child: ListView.builder(
+                                controller: _scrollController,
+                                reverse: true,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding:
+                                    const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                                itemCount: messages.length,
+                                itemBuilder: (context, index) {
+                                  final message = messages[index];
+                                  final showDate = _shouldShowDate(
+                                    messages,
+                                    index,
+                                  );
+                                  return Column(
+                                    children: [
+                                      if (showDate)
+                                        _DateSeparator(
+                                          date: _dateLabel(
+                                            message.createdAtDateTime,
                                           ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
+                                        ),
+                                      MessageBubble(
+                                        message: message,
+                                        isMyMessage: bloc.isMyMessage(message),
+                                        isCurrentOffer:
+                                            message.card?.type != 'proposal' ||
+                                                currentOfferIds
+                                                    .contains(message.id),
+                                        shipment:
+                                            message.card?.shipmentId == null
+                                                ? null
+                                                : shipmentSnapshot.data?[
+                                                    message.card!.shipmentId],
+                                        onShipmentAction: _handleShipmentAction,
+                                        onRetry: bloc.retryMessage,
+                                        onLongPress: _showMessageOptions,
+                                        onReview: _showReviewDialog,
+                                        onSupport: _openSupport,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
                             );
                           },
                         );
                       },
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-              StreamBuilder<bool>(
-                stream: bloc.otherUserTypingStream,
-                initialData: false,
-                builder: (context, snapshot) {
-                  if (snapshot.data != true) return const SizedBox.shrink();
-                  return _TypingIndicator(
-                    user: widget.conversation.user,
-                  );
-                },
-              ),
-              if (_selectedFile != null)
-                _FilePreview(
-                    file: _selectedFile!,
-                    onClear: () {
-                      setState(() => _selectedFile = null);
-                    }),
-              ChatInput(
-                controller: _messageController,
-                enabled: !_isBlocked,
-                content: _content,
-                disabledText: _isBlockedByMe
-                    ? _t(
-                        'chat.input.blocked_by_me',
-                      )
-                    : _t(
-                        'chat.input.blocked',
-                      ),
-                onSend: _send,
-                onAttachImage: _pickImage,
-                onChanged: bloc.onComposerChanged,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          StreamBuilder<bool>(
+            stream: bloc.otherUserTypingStream,
+            initialData: false,
+            builder: (context, snapshot) {
+              if (snapshot.data != true) return const SizedBox.shrink();
+              return _TypingIndicator(
+                user: widget.conversation.user,
+              );
+            },
+          ),
+          if (_selectedFile != null)
+            _FilePreview(
+                file: _selectedFile!,
+                onClear: () {
+                  setState(() => _selectedFile = null);
+                }),
+          ChatInput(
+            controller: _messageController,
+            enabled: !_isBlocked,
+            content: _content,
+            disabledText: _isBlockedByMe
+                ? _t(
+                    'chat.input.blocked_by_me',
+                  )
+                : _t(
+                    'chat.input.blocked',
+                  ),
+            onSend: _send,
+            onAttachImage: _pickImage,
+            onChanged: bloc.onComposerChanged,
+          ),
+        ],
       ),
     );
   }
@@ -372,71 +433,14 @@ class _ChatConversationScreenState
     return null;
   }
 
-  Future<Map<String, dynamic>?> _showCounterDialog() async {
-    final weightController = TextEditingController();
-    final priceController = TextEditingController();
-    final noteController = TextEditingController();
-    final result = await showDialog<Map<String, dynamic>>(
+  Future<Map<String, dynamic>?> _showCounterDialog() {
+    return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(_t('chat.shipment.counter', 'Təklifi dəyiş')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: weightController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: _t('chat.shipment.weight', 'Çəki (kq)'),
-              ),
-            ),
-            TextField(
-              controller: priceController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: _t('chat.shipment.price', 'Ümumi qiymət'),
-              ),
-            ),
-            TextField(
-              controller: noteController,
-              decoration: InputDecoration(
-                labelText: _t('chat.shipment.note', 'Qeyd'),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(_t('common.cancel')),
-          ),
-          FilledButton(
-            onPressed: () {
-              final body = <String, dynamic>{};
-              final weight = double.tryParse(
-                weightController.text.replaceAll(',', '.'),
-              );
-              final price = double.tryParse(
-                priceController.text.replaceAll(',', '.'),
-              );
-              if (weight != null) body['weight_kg'] = weight;
-              if (price != null) body['price_total'] = price;
-              if (noteController.text.trim().isNotEmpty) {
-                body['note'] = noteController.text.trim();
-              }
-              Navigator.pop(context, body);
-            },
-            child: Text(_t('common.confirm')),
-          ),
-        ],
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: _ink900.withValues(alpha: 0.4),
+      builder: (_) => _CounterSheet(content: _content),
     );
-    weightController.dispose();
-    priceController.dispose();
-    noteController.dispose();
-    return result;
   }
 
   Future<String?> _showTextPrompt({
@@ -478,63 +482,20 @@ class _ChatConversationScreenState
   }
 
   Future<void> _showReviewDialog(String shipmentId) async {
-    final commentController = TextEditingController();
-    var rating = 5;
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<_ReviewResult>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text(_t('chat.review.title', 'Rəy yaz')),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  final value = index + 1;
-                  return IconButton(
-                    onPressed: () => setDialogState(() => rating = value),
-                    icon: Icon(
-                      value <= rating
-                          ? PhosphorIconsFill.star
-                          : PhosphorIconsRegular.star,
-                      color: const Color(0xFFF59E0B),
-                    ),
-                  );
-                }),
-              ),
-              TextField(
-                controller: commentController,
-                minLines: 2,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: _t('chat.review.comment', 'Şərhinizi yazın'),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(_t('common.cancel')),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: Text(_t('common.confirm')),
-            ),
-          ],
-        ),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: _ink900.withValues(alpha: 0.4),
+      builder: (_) => _ReviewSheet(content: _content),
     );
-    final comment = commentController.text.trim();
-    commentController.dispose();
-    if (result != true) return;
+    if (result == null) return;
 
     try {
       final message = await bloc.submitShipmentReview(
         shipmentId,
-        rating: rating,
-        comment: comment,
+        rating: result.rating,
+        comment: result.comment,
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -592,10 +553,11 @@ class _ChatConversationScreenState
         !message.id.startsWith('local-');
     final canDelete =
         message.type != 'system_card' && !message.id.startsWith('local-');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: _cSurface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -605,6 +567,15 @@ class _ChatConversationScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Container(
+                width: 40,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: _cGrip(isDark),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
               if (message.body?.isNotEmpty == true)
                 _SheetTile(
                   icon: PhosphorIconsRegular.copy,
@@ -686,9 +657,10 @@ class _ChatConversationScreenState
   }
 
   void _showConversationOptions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: _cSurface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
@@ -703,7 +675,7 @@ class _ChatConversationScreenState
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFCBD5E1),
+                    color: _cGrip(isDark),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -718,16 +690,16 @@ class _ChatConversationScreenState
                         children: [
                           Text(
                             widget.conversation.user.fullname,
-                            style: const TextStyle(
-                              color: _ink900,
+                            style: TextStyle(
+                              color: _cText(isDark),
                               fontSize: 15,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             _t('chat.action.profile'),
-                            style:
-                                const TextStyle(color: _ink400, fontSize: 12),
+                            style: TextStyle(
+                                color: _cMuted(isDark), fontSize: 12),
                           ),
                         ],
                       ),
@@ -817,6 +789,29 @@ class _ChatConversationScreenState
     }
   }
 
+  void _openProfile() {
+    final user = widget.conversation.user;
+    final userId = user.publicId ?? (user.id > 0 ? user.id.toString() : null);
+    if (userId == null || userId.isEmpty) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => PublicProfileScreen(userId: userId)),
+    );
+  }
+
+  Future<void> _openDeal(String shipmentId) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (_) => DealDetailScreen(shipmentId: shipmentId)),
+    );
+    if (mounted) bloc.loadMessages();
+  }
+
+  void _openSupport() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => SupportScreen()),
+    );
+  }
+
   @override
   ChatConversationBloc provideBloc() => ChatConversationBloc();
 }
@@ -825,21 +820,24 @@ class _ConversationHeader extends StatelessWidget {
   final Conversation conversation;
   final VoidCallback onBack;
   final VoidCallback onMenu;
+  final VoidCallback onOpenProfile;
 
   const _ConversationHeader({
     required this.conversation,
     required this.onBack,
     required this.onMenu,
+    required this.onOpenProfile,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = conversation.user;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cSurface(isDark),
         border: Border(
-          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+          bottom: BorderSide(color: _cHeaderLine(isDark)),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -848,60 +846,72 @@ class _ConversationHeader extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onBack,
-            child: const SizedBox(
+            child: SizedBox(
               width: 36,
               height: 40,
-              child:
-                  Icon(PhosphorIconsBold.arrowLeft, color: _ink700, size: 22),
+              child: Icon(PhosphorIconsBold.arrowLeft,
+                  color: isDark ? WawatDark.icon : _ink700, size: 22),
             ),
           ),
-          _HeaderAvatar(user: user, size: 36),
-          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        user.fullname,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: _ink900,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w900,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onOpenProfile,
+              child: Row(
+                children: [
+                  _HeaderAvatar(user: user, size: 36),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                user.fullname,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: _cText(isDark),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (user.isVerified) ...[
+                              const SizedBox(width: 4),
+                              const Icon(PhosphorIconsFill.sealCheck,
+                                  color: _brand, size: 13),
+                            ],
+                          ],
                         ),
-                      ),
+                        Text(
+                          user.getLastSeenText(context),
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: user.isOnline
+                                ? _emerald
+                                : _cMuted(isDark),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    if (user.isVerified) ...[
-                      const SizedBox(width: 4),
-                      const Icon(PhosphorIconsFill.sealCheck,
-                          color: _brand, size: 13),
-                    ],
-                  ],
-                ),
-                Text(
-                  user.getLastSeenText(context),
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: user.isOnline ? _emerald : _ink400,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onMenu,
-            child: const SizedBox(
+            child: SizedBox(
               width: 36,
               height: 40,
               child: Icon(PhosphorIconsBold.dotsThreeVertical,
-                  color: _ink500, size: 22),
+                  color: _cText3(isDark), size: 22),
             ),
           ),
         ],
@@ -936,8 +946,9 @@ class _TypingIndicatorState extends State<_TypingIndicator>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ColoredBox(
-      color: _threadBg,
+      color: _cThreadBg(isDark),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
         child: Row(
@@ -945,14 +956,18 @@ class _TypingIndicatorState extends State<_TypingIndicator>
           children: [
             CircleAvatar(
               radius: 12,
-              backgroundColor: _ink900.withValues(alpha: 0.08),
+              backgroundColor: isDark
+                  ? WawatDark.surfaceAlt
+                  : _ink900.withValues(alpha: 0.08),
               child: Text(
                 widget.user.initials,
-                style: const TextStyle(
-                  color: Color(0xFF475569),
+                style: TextStyle(
+                  color: isDark
+                      ? WawatDark.textSecondary
+                      : const Color(0xFF475569),
                   fontSize: 9,
                   height: 1,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -963,7 +978,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                 vertical: 12,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _cSurface(isDark),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(18),
                   topRight: Radius.circular(18),
@@ -971,15 +986,19 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                   bottomRight: Radius.circular(18),
                 ),
                 border: Border.all(
-                  color: _ink900.withValues(alpha: 0.05),
+                  color: isDark
+                      ? WawatDark.border
+                      : _ink900.withValues(alpha: 0.05),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _ink900.withValues(alpha: 0.07),
-                    blurRadius: 1.5,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: _ink900.withValues(alpha: 0.07),
+                          blurRadius: 1.5,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
               ),
               child: AnimatedBuilder(
                 animation: _controller,
@@ -993,6 +1012,9 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                     children: List.generate(
                       3,
                       (index) => _HtmlTypingDot(
+                        color: isDark
+                            ? WawatDark.textMuted
+                            : const Color(0xFF94A3B8),
                         state: _typingDotStateAt(
                           elapsedSeconds,
                           index * 0.2,
@@ -1012,8 +1034,9 @@ class _TypingIndicatorState extends State<_TypingIndicator>
 
 class _HtmlTypingDot extends StatelessWidget {
   final (double, double) state;
+  final Color color;
 
-  const _HtmlTypingDot({required this.state});
+  const _HtmlTypingDot({required this.state, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1023,12 +1046,12 @@ class _HtmlTypingDot extends StatelessWidget {
         offset: Offset(0, state.$1),
         child: Opacity(
           opacity: state.$2,
-          child: const SizedBox(
+          child: SizedBox(
             width: 6,
             height: 6,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: Color(0xFF94A3B8),
+                color: color,
                 shape: BoxShape.circle,
               ),
             ),
@@ -1070,12 +1093,13 @@ class _HeaderAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       clipBehavior: Clip.none,
       children: [
         CircleAvatar(
           radius: size / 2,
-          backgroundColor: _brand100,
+          backgroundColor: isDark ? WawatDark.surfaceAlt : _brand100,
           backgroundImage: user.avatarUrl.isEmpty
               ? null
               : CachedNetworkImageProvider(user.avatarUrl),
@@ -1085,7 +1109,7 @@ class _HeaderAvatar extends StatelessWidget {
                   style: TextStyle(
                     color: _brand,
                     fontSize: size * 0.31,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 )
               : null,
@@ -1100,7 +1124,8 @@ class _HeaderAvatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _emerald,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(
+                    color: _cSurface(isDark), width: 2),
               ),
             ),
           ),
@@ -1114,15 +1139,33 @@ class _ThreadBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(painter: _DotPainter(), child: const SizedBox.expand());
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // ClipRect confines the painter to its own bounds so its background fill
+    // can never bleed over the header/composer painted around it.
+    return ClipRect(
+      child: CustomPaint(
+        painter: _DotPainter(isDark: isDark),
+        child: const SizedBox.expand(),
+      ),
+    );
   }
 }
 
 class _DotPainter extends CustomPainter {
+  final bool isDark;
+
+  _DotPainter({required this.isDark});
+
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawColor(_threadBg, BlendMode.src);
-    final paint = Paint()..color = _ink900.withValues(alpha: 0.035);
+    // Fill only this widget's rect — NOT canvas.drawColor(), which floods the
+    // whole canvas clip and would paint over sibling widgets.
+    canvas.drawRect(
+        Offset.zero & size, Paint()..color = _cThreadBg(isDark));
+    final paint = Paint()
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.035)
+          : _ink900.withValues(alpha: 0.035);
     for (double x = 0; x < size.width; x += 22) {
       for (double y = 0; y < size.height; y += 22) {
         canvas.drawCircle(Offset(x, y), 1, paint);
@@ -1131,7 +1174,8 @@ class _DotPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _DotPainter oldDelegate) =>
+      oldDelegate.isDark != isDark;
 }
 
 class _DateSeparator extends StatelessWidget {
@@ -1141,20 +1185,23 @@ class _DateSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: _ink900.withValues(alpha: 0.06),
+          color: isDark
+              ? WawatDark.surfaceAlt
+              : _ink900.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(99),
         ),
         child: Text(
           date,
-          style: const TextStyle(
-            color: _ink500,
+          style: TextStyle(
+            color: _cText3(isDark),
             fontSize: 11,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -1170,6 +1217,7 @@ class _EmptyConversation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 38),
@@ -1180,15 +1228,18 @@ class _EmptyConversation extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _cSurface(isDark),
                 borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: _ink900.withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
+                border: isDark ? Border.all(color: WawatDark.border) : null,
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: _ink900.withValues(alpha: 0.08),
+                          blurRadius: 24,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
               ),
               child: const Icon(PhosphorIconsRegular.handWaving,
                   color: _brand, size: 32),
@@ -1196,10 +1247,10 @@ class _EmptyConversation extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               WawatContent.text(content, 'chat.thread.empty_title'),
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: _cText(isDark),
                 fontSize: 15,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 6),
@@ -1209,8 +1260,8 @@ class _EmptyConversation extends StatelessWidget {
                 'chat.thread.empty_subtitle',
               ).replaceAll('{name}', user.fullname),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: _cText3(isDark),
                 fontSize: 13,
                 height: 1.35,
               ),
@@ -1230,10 +1281,11 @@ class _FilePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isImage = RegExp(r'\.(png|jpg|jpeg|webp)$', caseSensitive: false)
         .hasMatch(file.path);
     return Container(
-      color: Colors.white,
+      color: _cSurface(isDark),
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Row(
         children: [
@@ -1242,7 +1294,7 @@ class _FilePreview extends StatelessWidget {
             child: Container(
               width: 48,
               height: 48,
-              color: _brand50,
+              color: _cBrandSoft(isDark),
               child: isImage
                   ? Image.file(file, fit: BoxFit.cover)
                   : const Icon(PhosphorIconsRegular.file, color: _brand),
@@ -1254,15 +1306,15 @@ class _FilePreview extends StatelessWidget {
               file.path.split('/').last,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: _ink900,
-                fontWeight: FontWeight.w700,
+              style: TextStyle(
+                color: _cText(isDark),
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
           IconButton(
             onPressed: onClear,
-            icon: const Icon(PhosphorIconsBold.x, color: _ink400),
+            icon: Icon(PhosphorIconsBold.x, color: _cMuted(isDark)),
           ),
         ],
       ),
@@ -1285,16 +1337,503 @@ class _SheetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? const Color(0xFFEF4444) : _ink900;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = danger ? const Color(0xFFEF4444) : _cText(isDark);
     return ListTile(
       onTap: onTap,
-      leading: Icon(icon, color: danger ? color : _ink500),
+      leading: Icon(icon, color: danger ? color : _cText3(isDark)),
       title: Text(
         label,
         style: TextStyle(
           color: color,
           fontSize: 15,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// Counter-offer compose sheet (design screen 11): weight stepper, total price,
+/// optional note → returns the `POST /shipments/{id}/counter` body.
+class _CounterSheet extends StatefulWidget {
+  final Map<String, String> content;
+
+  const _CounterSheet({required this.content});
+
+  @override
+  State<_CounterSheet> createState() => _CounterSheetState();
+}
+
+class _CounterSheetState extends State<_CounterSheet> {
+  final TextEditingController _weight = TextEditingController(text: '1');
+  final TextEditingController _price = TextEditingController();
+  final TextEditingController _note = TextEditingController();
+
+  String _t(String key, String fallback) =>
+      WawatContent.text(widget.content, key, fallback);
+
+  @override
+  void dispose() {
+    _weight.dispose();
+    _price.dispose();
+    _note.dispose();
+    super.dispose();
+  }
+
+  void _bumpWeight(int delta) {
+    final current = double.tryParse(_weight.text.replaceAll(',', '.')) ?? 0;
+    final next = (current + delta).clamp(0, 999);
+    _weight.text = next % 1 == 0 ? next.toInt().toString() : next.toString();
+  }
+
+  void _submit() {
+    final body = <String, dynamic>{};
+    final weight = double.tryParse(_weight.text.replaceAll(',', '.'));
+    final price = double.tryParse(_price.text.replaceAll(',', '.'));
+    if (weight != null) body['weight_kg'] = weight;
+    if (price != null) body['price_total'] = price;
+    if (_note.text.trim().isNotEmpty) body['note'] = _note.text.trim();
+    Navigator.of(context).pop(body);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: BoxDecoration(
+            color: _cSurface(isDark),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(26)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: _cGrip(isDark),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              Center(
+                child: Text(
+                  _t('chat.counter.title', 'Təklifi dəyiş'),
+                  style: TextStyle(
+                    color: _cText(isDark),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _label(_t('chat.counter.weight', 'Çəki'), isDark),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  _StepBtn(
+                    icon: PhosphorIconsBold.minus,
+                    background: isDark
+                        ? WawatDark.surfaceAlt
+                        : _ink900.withValues(alpha: 0.05),
+                    color: isDark ? WawatDark.textSecondary : _ink700,
+                    onTap: () => _bumpWeight(-1),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _CounterField(
+                      controller: _weight,
+                      suffix: 'kq',
+                      textAlign: TextAlign.center,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  _StepBtn(
+                    icon: PhosphorIconsBold.plus,
+                    background: _cBrandSoft(isDark),
+                    color: _brand,
+                    onTap: () => _bumpWeight(1),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _label(_t('chat.counter.price', 'Ümumi qiymət'), isDark),
+              const SizedBox(height: 6),
+              _CounterField(
+                controller: _price,
+                suffix: '₼',
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  _label(_t('chat.counter.note', 'Qeyd'), isDark),
+                  const SizedBox(width: 6),
+                  Text(
+                    '· ${_t('chat.counter.note_optional', 'istəyə bağlı')}',
+                    style: TextStyle(
+                      color: _cMuted(isDark),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              _CounterField(
+                controller: _note,
+                hint: _t('chat.counter.note_hint', 'Şərti izah et...'),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _brand,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  icon: const Icon(PhosphorIconsBold.paperPlaneTilt,
+                      size: 17, color: Colors.white),
+                  label: Text(
+                    _t('chat.counter.submit', 'Yeni təklif göndər'),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _label(String text, bool isDark) => Text(
+        text,
+        style: TextStyle(
+          color: _cText2(isDark),
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      );
+}
+
+class _StepBtn extends StatelessWidget {
+  final IconData icon;
+  final Color background;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _StepBtn({
+    required this.icon,
+    required this.background,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Icon(icon, color: color, size: 18),
+      ),
+    );
+  }
+}
+
+class _CounterField extends StatelessWidget {
+  final TextEditingController controller;
+  final String? suffix;
+  final String? hint;
+  final TextAlign textAlign;
+  final TextInputType? keyboardType;
+  final int? minLines;
+  final int maxLines;
+
+  const _CounterField({
+    required this.controller,
+    this.suffix,
+    this.hint,
+    this.textAlign = TextAlign.start,
+    this.keyboardType,
+    this.minLines,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      textAlign: textAlign,
+      minLines: minLines,
+      maxLines: maxLines,
+      style: TextStyle(
+        color: _cText(isDark),
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+            color: _cMuted(isDark), fontWeight: FontWeight.w500),
+        suffixText: suffix,
+        suffixStyle: TextStyle(
+          color: _cMuted(isDark),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+        filled: true,
+        fillColor: isDark
+            ? WawatDark.surfaceAlt
+            : _ink900.withValues(alpha: 0.02),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+              color: isDark
+                  ? WawatDark.border
+                  : _ink900.withValues(alpha: 0.07)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+              color: isDark
+                  ? WawatDark.border
+                  : _ink900.withValues(alpha: 0.07)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: _brand, width: 1.5),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewResult {
+  final int rating;
+  final String comment;
+
+  const _ReviewResult(this.rating, this.comment);
+}
+
+class _ReviewSheet extends StatefulWidget {
+  final Map<String, String> content;
+
+  const _ReviewSheet({required this.content});
+
+  @override
+  State<_ReviewSheet> createState() => _ReviewSheetState();
+}
+
+class _ReviewSheetState extends State<_ReviewSheet> {
+  final TextEditingController _comment = TextEditingController();
+  int _rating = 5;
+
+  String _t(String key, String fallback) =>
+      WawatContent.text(widget.content, key, fallback);
+
+  @override
+  void dispose() {
+    _comment.dispose();
+    super.dispose();
+  }
+
+  String _ratingLabel(int rating) {
+    switch (rating) {
+      case 1:
+        return _t('chat.review.r1', 'Çox pis');
+      case 2:
+        return _t('chat.review.r2', 'Pis');
+      case 3:
+        return _t('chat.review.r3', 'Normal');
+      case 4:
+        return _t('chat.review.r4', 'Yaxşı');
+      default:
+        return _t('chat.review.r5', 'Əla');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const amber = Color(0xFFF59E0B);
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: BoxDecoration(
+            color: _cSurface(isDark),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(26)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  decoration: BoxDecoration(
+                    color: _cGrip(isDark),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              Center(
+                child: Text(
+                  _t('chat.review.title', 'Rəy yaz'),
+                  style: TextStyle(
+                    color: _cText(isDark),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 3),
+              Center(
+                child: Text(
+                  _t('chat.review.subtitle', 'Təcrübəni qiymətləndir'),
+                  style: TextStyle(
+                    color: _cMuted(isDark),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(5, (index) {
+                    final value = index + 1;
+                    final active = value <= _rating;
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _rating = value),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 7),
+                        child: Icon(
+                          active
+                              ? PhosphorIconsFill.star
+                              : PhosphorIconsRegular.star,
+                          color: active
+                              ? amber
+                              : (isDark ? WawatDark.iconMuted : _ink400),
+                          size: 36,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  _ratingLabel(_rating),
+                  style: const TextStyle(
+                    color: amber,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                _t('chat.review.comment_label', 'Şərhiniz'),
+                style: TextStyle(
+                  color: _cText2(isDark),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 6),
+              _CounterField(
+                controller: _comment,
+                hint: _t('chat.review.comment', 'Şərhinizi yazın'),
+                minLines: 3,
+                maxLines: 5,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        _t('common.cancel', 'İmtina et'),
+                        style: TextStyle(
+                          color: _cMuted(isDark),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).pop(
+                        _ReviewResult(_rating, _comment.text.trim()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _brand,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                      ),
+                      icon: const Icon(PhosphorIconsBold.check,
+                          size: 17, color: Colors.white),
+                      label: Text(
+                        _t('common.confirm', 'Təsdiq et'),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

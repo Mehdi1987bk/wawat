@@ -133,14 +133,14 @@ Theme _wawatPickerTheme(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         dayStyle: const TextStyle(
           fontSize: 15,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
         ),
         weekdayStyle: const TextStyle(
           color: _ink800,
           fontSize: 14,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
         ),
-        yearStyle: const TextStyle(fontWeight: FontWeight.w800),
+        yearStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
       timePickerTheme: TimePickerThemeData(
         backgroundColor: Colors.white,
@@ -159,7 +159,7 @@ Theme _wawatPickerTheme(
           foregroundColor: accent,
           textStyle: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -808,7 +808,7 @@ class _CreatePostScreenState
             style: const TextStyle(
               color: _ink400,
               fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -1230,7 +1230,7 @@ class _TopBar extends StatelessWidget {
               style: TextStyle(
                 color: color,
                 fontSize: 17,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
                 letterSpacing: -0.1,
               ),
             ),
@@ -1249,7 +1249,7 @@ class _TopBar extends StatelessWidget {
                 style: TextStyle(
                   color: accent,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1302,7 +1302,7 @@ class _CreateHeroHeader extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 17,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -1311,7 +1311,7 @@ class _CreateHeroHeader extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -1391,7 +1391,7 @@ class _Stepper extends StatelessWidget {
                 style: TextStyle(
                   color: active ? Colors.white : _ink400,
                   fontSize: 15,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
       );
@@ -1432,17 +1432,17 @@ class _Stepper extends StatelessWidget {
                   style: TextStyle(
                       color: step >= 0 ? accent : _ink400,
                       fontSize: 11,
-                      fontWeight: FontWeight.w900)),
+                      fontWeight: FontWeight.w500)),
               Text(WawatContent.text(content, 'create.step_details'),
                   style: TextStyle(
                       color: step >= 1 ? accent : _ink400,
                       fontSize: 11,
-                      fontWeight: FontWeight.w900)),
+                      fontWeight: FontWeight.w500)),
               Text(WawatContent.text(content, 'create.step_preview'),
                   style: TextStyle(
                       color: step >= 2 ? accent : _ink400,
                       fontSize: 11,
-                      fontWeight: FontWeight.w900)),
+                      fontWeight: FontWeight.w500)),
             ],
           ),
         ],
@@ -1470,7 +1470,7 @@ class _StepIntro extends StatelessWidget {
           style: const TextStyle(
             color: _ink900,
             fontSize: 19,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
             height: 1.1,
           ),
         ),
@@ -1588,7 +1588,7 @@ class _QuickRoutes extends StatelessWidget {
           style: const TextStyle(
             color: _ink500,
             fontSize: 12,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 9),
@@ -1613,7 +1613,7 @@ class _QuickRoutes extends StatelessWidget {
                       style: const TextStyle(
                         color: _ink800,
                         fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -1700,7 +1700,7 @@ class _RouteText extends StatelessWidget {
       style: const TextStyle(
         color: _ink900,
         fontSize: 14,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -1776,7 +1776,7 @@ class _TypeCard extends StatelessWidget {
                           style: TextStyle(
                             color: isDark ? Colors.white : _ink900,
                             fontSize: 16,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -1795,7 +1795,7 @@ class _TypeCard extends StatelessWidget {
                             style: TextStyle(
                               color: quotaIsFull ? _amber : accent,
                               fontSize: 10,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -1808,7 +1808,7 @@ class _TypeCard extends StatelessWidget {
                       color: _ink500,
                       fontSize: 12.5,
                       height: 1.25,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -1831,7 +1831,7 @@ class _TypeCard extends StatelessWidget {
                               style: TextStyle(
                                 color: accent,
                                 fontSize: 10,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -1880,7 +1880,7 @@ class _InfoBox extends StatelessWidget {
                 color: _ink500,
                 fontSize: 12,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -1947,7 +1947,7 @@ class _CityPickerTile extends StatelessWidget {
                               ? _ink400
                               : (isDark ? Colors.white : _ink900),
                           fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       if (city?.countryName.isNotEmpty == true)
@@ -1958,7 +1958,7 @@ class _CityPickerTile extends StatelessWidget {
                           style: const TextStyle(
                             color: _ink400,
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                     ],
@@ -2008,7 +2008,7 @@ class _FieldLabel extends StatelessWidget {
               style: const TextStyle(
                 color: _ink800,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
                 letterSpacing: -0.2,
                 height: 1.1,
               ),
@@ -2034,7 +2034,7 @@ class _FieldHint extends StatelessWidget {
         style: const TextStyle(
           color: _ink400,
           fontSize: 12,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -2155,7 +2155,7 @@ class _DateBox extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink900,
                   fontSize: 20,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -2314,7 +2314,7 @@ class _FieldShell extends StatelessWidget {
                   color: value == null
                       ? _ink400
                       : (isDark ? Colors.white : _ink900),
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   fontSize: 15,
                 ),
               ),
@@ -2355,7 +2355,7 @@ class _InlineFieldLabel extends StatelessWidget {
           style: const TextStyle(
             color: _ink800,
             fontSize: 14,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -2402,7 +2402,7 @@ class _Input extends StatelessWidget {
           maxLines: maxLines,
           style: TextStyle(
             color: isDark ? Colors.white : _ink900,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             fontSize: maxLines > 1 ? 15 : 16,
           ),
           decoration: InputDecoration(
@@ -2417,12 +2417,12 @@ class _Input extends StatelessWidget {
             ),
             hintStyle: const TextStyle(
               color: _ink400,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
             suffixStyle: const TextStyle(
               color: _ink400,
               fontSize: 16,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w500,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(22),
@@ -2501,7 +2501,7 @@ class _WeightStepper extends StatelessWidget {
                     style: const TextStyle(
                       color: _ink900,
                       fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                     decoration: InputDecoration(
                       hintText: hint,
@@ -2513,7 +2513,7 @@ class _WeightStepper extends StatelessWidget {
                       suffixStyle: const TextStyle(
                         color: _ink400,
                         fontSize: 16,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w500,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -2622,7 +2622,7 @@ class _SwitchRow extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink800,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -2667,7 +2667,7 @@ class _SectionTitle extends StatelessWidget {
         style: TextStyle(
           color: isDark ? Colors.white : _ink900,
           fontSize: 13,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -2768,7 +2768,7 @@ class _SelectedPackagesButton extends StatelessWidget {
                       style: TextStyle(
                         color: accent,
                         fontSize: 13,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     )
                   : Wrap(
@@ -2788,7 +2788,7 @@ class _SelectedPackagesButton extends StatelessWidget {
                                 style: TextStyle(
                                   color: accent,
                                   fontSize: 13,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -2799,7 +2799,7 @@ class _SelectedPackagesButton extends StatelessWidget {
                               style: TextStyle(
                                 color: _ink400,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                         ],
@@ -2820,7 +2820,7 @@ class _SelectedPackagesButton extends StatelessWidget {
                   style: TextStyle(
                     color: accent,
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               )
@@ -2915,7 +2915,7 @@ class _TripPreviewCard extends StatelessWidget {
                       style: const TextStyle(
                         color: _brand,
                         fontSize: 13,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -2948,7 +2948,7 @@ class _TripPreviewCard extends StatelessWidget {
                   style: const TextStyle(
                     color: _brand,
                     fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 )
               else
@@ -2958,7 +2958,7 @@ class _TripPreviewCard extends StatelessWidget {
                     style: const TextStyle(
                       color: _ink900,
                       fontSize: 22,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                     children: const [
                       TextSpan(text: ' ₼', style: TextStyle(fontSize: 20)),
@@ -2967,7 +2967,7 @@ class _TripPreviewCard extends StatelessWidget {
                         style: TextStyle(
                           color: _ink400,
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -3008,7 +3008,7 @@ class _TripPreviewCard extends StatelessWidget {
                   style: const TextStyle(
                     color: Color(0xFF024FA3),
                     fontSize: 13,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -3026,7 +3026,7 @@ class _TripPreviewCard extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink900,
                               fontSize: 14,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -3049,7 +3049,7 @@ class _TripPreviewCard extends StatelessWidget {
                               style: const TextStyle(
                                 color: _ink500,
                                 fontSize: 11,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -3068,7 +3068,7 @@ class _TripPreviewCard extends StatelessWidget {
                             style: const TextStyle(
                               color: _ink800,
                               fontSize: 13,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (ownerRatingCount != null) ...[
@@ -3078,7 +3078,7 @@ class _TripPreviewCard extends StatelessWidget {
                               style: const TextStyle(
                                 color: _ink500,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -3151,7 +3151,7 @@ class _PreviewChip extends StatelessWidget {
             style: const TextStyle(
               color: _ink500,
               fontSize: 12,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -3231,7 +3231,7 @@ class _ShipmentPreviewCard extends StatelessWidget {
                       style: const TextStyle(
                         color: Color(0xFFB45309),
                         fontSize: 13,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -3325,7 +3325,7 @@ class _PreviewOwnerRow extends StatelessWidget {
             style: const TextStyle(
               color: Color(0xFF024FA3),
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -3343,7 +3343,7 @@ class _PreviewOwnerRow extends StatelessWidget {
                       style: const TextStyle(
                         color: _ink900,
                         fontSize: 14,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -3366,7 +3366,7 @@ class _PreviewOwnerRow extends StatelessWidget {
                         style: const TextStyle(
                           color: _ink500,
                           fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -3385,7 +3385,7 @@ class _PreviewOwnerRow extends StatelessWidget {
                       style: const TextStyle(
                         color: _ink800,
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     if (ownerRatingCount != null) ...[
@@ -3395,7 +3395,7 @@ class _PreviewOwnerRow extends StatelessWidget {
                         style: const TextStyle(
                           color: _ink500,
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -3492,7 +3492,7 @@ class _PreviewCity extends StatelessWidget {
             color: _ink900,
             fontSize: 24,
             height: 1.05,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 4),
@@ -3504,7 +3504,7 @@ class _PreviewCity extends StatelessWidget {
           style: const TextStyle(
             color: _ink400,
             fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -3610,7 +3610,7 @@ class _DateTimePill extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink900,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
                 children: [
                   TextSpan(
@@ -3674,7 +3674,7 @@ class _PreviewInfoBanner extends StatelessWidget {
                 color: _ink500,
                 fontSize: 12,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -3730,7 +3730,7 @@ class _ShipmentInfoBanner extends StatelessWidget {
                 color: _ink500,
                 fontSize: 12,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -3796,7 +3796,7 @@ class _PackageTypeSheet extends StatelessWidget {
                   style: const TextStyle(
                     color: _ink900,
                     fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -3805,7 +3805,7 @@ class _PackageTypeSheet extends StatelessWidget {
                 style: const TextStyle(
                   color: _ink400,
                   fontSize: 12,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -3866,7 +3866,7 @@ class _PackageTypeSheet extends StatelessWidget {
                           style: TextStyle(
                             color: selected ? accent : _ink800,
                             fontSize: 13,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -3962,7 +3962,7 @@ class _PackageChip extends StatelessWidget {
                 style: TextStyle(
                   color: selected ? accent : _ink800,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -3996,7 +3996,6 @@ class _BottomCta extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -4004,29 +4003,35 @@ class _BottomCta extends StatelessWidget {
               color: isDark ? Colors.white10 : const Color(0x0F0F172A)),
         ),
       ),
-      child: Row(
-        children: [
-          if (secondaryLabel != null) ...[
+      child: SafeArea(
+        top: false,
+        // Reserve the system nav-bar / home-indicator inset so the buttons are
+        // never hidden behind the OS bar; falls back to 18 when there is none.
+        minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+        child: Row(
+          children: [
+            if (secondaryLabel != null) ...[
+              Expanded(
+                flex: 10,
+                child: _SecondaryAction(
+                  label: secondaryLabel!,
+                  icon: _secondaryCtaIcon(secondaryKey!),
+                  onTap: onSecondary!,
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
             Expanded(
-              flex: 10,
-              child: _SecondaryAction(
-                label: secondaryLabel!,
-                icon: _secondaryCtaIcon(secondaryKey!),
-                onTap: onSecondary!,
+              flex: secondaryLabel != null ? 16 : 1,
+              child: _PrimaryAction(
+                label: primaryLabel,
+                icon: _primaryCtaIcon(primaryKey),
+                accent: _brand,
+                onTap: onPrimary,
               ),
             ),
-            const SizedBox(width: 10),
           ],
-          Expanded(
-            flex: secondaryLabel != null ? 16 : 1,
-            child: _PrimaryAction(
-              label: primaryLabel,
-              icon: _primaryCtaIcon(primaryKey),
-              accent: _brand,
-              onTap: onPrimary,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -4086,7 +4091,7 @@ class _PrimaryAction extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -4132,7 +4137,7 @@ class _SecondaryAction extends StatelessWidget {
               style: const TextStyle(
                 color: _ink500,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -4227,7 +4232,7 @@ class _SuccessCtaButton extends StatelessWidget {
               style: TextStyle(
                 color: foreground,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -4306,7 +4311,7 @@ class _ResultTile extends StatelessWidget {
                       style: TextStyle(
                         color: isDark ? Colors.white : _ink900,
                         fontSize: highlighted ? 14 : 13,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -4346,7 +4351,7 @@ class _ResultTile extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -4374,7 +4379,7 @@ class _ErrorText extends StatelessWidget {
         style: const TextStyle(
           color: Colors.red,
           fontSize: 11,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

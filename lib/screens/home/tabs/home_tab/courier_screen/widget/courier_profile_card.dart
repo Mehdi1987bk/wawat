@@ -117,7 +117,7 @@ class CourierProfileCard extends StatelessWidget {
                             S.of(context).hgterfvb4btgv,
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF4CAF50),
                             ),
                           ),
@@ -129,7 +129,7 @@ class CourierProfileCard extends StatelessWidget {
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : Colors.black,
                     ),
                     child: Text(user.fullname),
@@ -284,7 +284,7 @@ class CourierProfileCard extends StatelessWidget {
                             S.of(context).nrhnnryhtnyr464,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
@@ -438,7 +438,7 @@ class CourierProfileCard extends StatelessWidget {
           value,
           style: TextStyle(
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
             color: color,
           ),
         ),
@@ -483,7 +483,7 @@ class CourierProfileCard extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: isDark ? Colors.white : Colors.black,
             ),
             child: Text(value + " " + label),
@@ -591,7 +591,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     duration: const Duration(milliseconds: 300),
                     style: WawatTextStyles.h2.copyWith(
                       fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: widget.isDark ? Colors.white : Colors.black,
                     ),
                     child: Text(
@@ -610,7 +610,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     child: Text(
                       widget.courierName,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -704,7 +704,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                           : Text(
                               S.of(context).nhtnhtnyth4465645,
                               style: WawatTextStyles.button.copyWith(
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                     ),

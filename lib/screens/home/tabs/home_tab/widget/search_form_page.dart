@@ -28,12 +28,21 @@ class SearchFormWidget extends StatefulWidget {
   final bool advanced;
   final ValueChanged<ListingFilterState>? onSearch;
 
+  /// Search-entry mode (screens 1/1b): hides the standalone type segment and
+  /// shows an «Ətraflı» accordion toggle that reveals the filters inline.
+  final bool showAdvancedToggle;
+  final bool advancedOpen;
+  final ValueChanged<bool>? onAdvancedToggle;
+
   const SearchFormWidget({
     super.key,
     required this.bloc,
     this.compact = false,
     this.advanced = false,
     this.onSearch,
+    this.showAdvancedToggle = false,
+    this.advancedOpen = false,
+    this.onAdvancedToggle,
   });
 
   @override
@@ -81,7 +90,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     _priceMin.text = _numberText(widget.bloc.filters.priceMin);
     _priceMax.text = _numberText(widget.bloc.filters.priceMax);
     _loadInitialCities();
-    if (widget.advanced) _loadPackages();
+    if (widget.advanced || widget.showAdvancedToggle) _loadPackages();
   }
 
   @override
@@ -224,7 +233,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   }
 
   void _performSearch() {
-    if (_toCity == null) return;
+    if (_fromCity == null || _toCity == null) return;
 
     final filters = _filters();
     if (widget.onSearch != null) {
@@ -253,7 +262,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       initialData: const {},
       builder: (context, snapshot) {
         final content = snapshot.data ?? const {};
-        final canSearch = _toCity != null;
+        final canSearch = _fromCity != null && _toCity != null;
         return Padding(
           padding: EdgeInsets.fromLTRB(16, widget.compact ? 8 : 0, 16, 0),
           child: Container(
@@ -344,17 +353,36 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 11),
-                _TypeSegment(
-                  value: _type,
-                  content: content,
-                  onChanged: (value) => setState(() => _type = value),
-                ),
-                if (widget.advanced) ...[
-                  const SizedBox(height: 18),
-                  _buildAdvancedFilters(content),
+                if (widget.showAdvancedToggle) ...[
+                  const SizedBox(height: 12),
+                  _AdvancedToggle(
+                    label: _contentText(content, 'search.advanced'),
+                    open: widget.advancedOpen,
+                    onTap: () =>
+                        widget.onAdvancedToggle?.call(!widget.advancedOpen),
+                  ),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    alignment: Alignment.topCenter,
+                    child: widget.advancedOpen
+                        ? _buildInlineFilters(content)
+                        : const SizedBox(width: double.infinity),
+                  ),
+                  const SizedBox(height: 8),
+                ] else ...[
+                  const SizedBox(height: 11),
+                  _TypeSegment(
+                    value: _type,
+                    content: content,
+                    onChanged: (value) => setState(() => _type = value),
+                  ),
+                  if (widget.advanced) ...[
+                    const SizedBox(height: 18),
+                    _buildAdvancedFilters(content),
+                  ],
+                  const SizedBox(height: 11),
                 ],
-                const SizedBox(height: 11),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: canSearch ? _performSearch : null,
@@ -388,7 +416,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -414,7 +442,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
               style: const TextStyle(
                 color: _ink900,
                 fontSize: 16,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const Spacer(),
@@ -428,7 +456,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   style: const TextStyle(
                     color: _brand,
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -586,6 +614,216 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       onTap: () => setState(() => _tierMin = value),
     );
   }
+
+  /// Inline filters shown under the «Ətraflı» accordion (design screen 1b).
+  /// Same fields/order/components as the full-screen filter panel (screen 8).
+  Widget _buildInlineFilters(Map<String, String> content) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.only(top: 16),
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionTitle(_contentText(content, 'search.filter_type', 'Elan tipi')),
+          _TypeSegment(
+            value: _type,
+            content: content,
+            onChanged: (value) => setState(() => _type = value),
+          ),
+          const SizedBox(height: 18),
+          _SectionTitle(_contentText(content, 'search.filter_package_type')),
+          if (_packages.isEmpty)
+            const LinearProgressIndicator(
+              minHeight: 3,
+              color: _brand,
+              backgroundColor: _brand50,
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final package in _packages)
+                  _FilterChip(
+                    label: package.name,
+                    selected: _packageTypes.contains(package.code),
+                    onTap: () {
+                      setState(() {
+                        _packageTypes.contains(package.code)
+                            ? _packageTypes.remove(package.code)
+                            : _packageTypes.add(package.code);
+                      });
+                    },
+                  ),
+              ],
+            ),
+          const SizedBox(height: 18),
+          _SectionTitle(_contentText(content, 'search.filter_price')),
+          Row(
+            children: [
+              Expanded(
+                child: _NumberBox(
+                  controller: _priceMin,
+                  label: _contentText(content, 'search.price_min'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _NumberBox(
+                  controller: _priceMax,
+                  label: _contentText(content, 'search.price_max'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _SectionTitle(_contentText(content, 'search.filter_weight')),
+          Row(
+            children: [
+              Expanded(
+                child: _NumberBox(
+                  controller: _weightMin,
+                  label: _contentText(content, 'search.weight_min'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _NumberBox(
+                  controller: _weightMax,
+                  label: _contentText(content, 'search.weight_max'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _SectionTitle(_contentText(content, 'search.filter_date')),
+          Row(
+            children: [
+              Expanded(
+                child: _DateBox(
+                  label: _contentText(content, 'search.date_from'),
+                  value: _dateFrom,
+                  onChanged: (value) => setState(() => _dateFrom = value),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _DateBox(
+                  label: _contentText(content, 'search.date_to'),
+                  value: _dateTo,
+                  onChanged: (value) => setState(() => _dateTo = value),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _SectionTitle(_contentText(content, 'search.filter_rating')),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _FilterChip(
+                label: _contentText(content, 'search.filter_any'),
+                selected: _ratingMin == null,
+                onTap: () => setState(() => _ratingMin = null),
+              ),
+              _FilterChip(
+                label: '4.5+',
+                selected: _ratingMin == 4.5,
+                onTap: () => setState(() => _ratingMin = 4.5),
+              ),
+              _FilterChip(
+                label: '4.8+',
+                selected: _ratingMin == 4.8,
+                onTap: () => setState(() => _ratingMin = 4.8),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _SectionTitle(_contentText(content, 'search.filter_tier')),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _tierChip(content, 'search.filter_any', null),
+              _tierChip(content, 'tier.bronze_plus', 'bronze'),
+              _tierChip(content, 'tier.silver_plus', 'silver'),
+              _tierChip(content, 'tier.gold_plus', 'gold'),
+              _tierChip(content, 'tier.platinum', 'platinum'),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _AdvancedSwitchRow(
+            label: _contentText(content, 'search.verified_only'),
+            icon: PhosphorIconsFill.sealCheck,
+            value: _verifiedOnly,
+            onChanged: (value) => setState(() => _verifiedOnly = value),
+          ),
+          const SizedBox(height: 10),
+          _AdvancedSwitchRow(
+            label: _contentText(content, 'search.following_only'),
+            icon: PhosphorIconsRegular.userCheck,
+            value: _following,
+            onChanged: (value) => setState(() => _following = value),
+          ),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdvancedToggle extends StatelessWidget {
+  final String label;
+  final bool open;
+  final VoidCallback onTap;
+
+  const _AdvancedToggle({
+    required this.label,
+    required this.open,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(PhosphorIconsBold.slidersHorizontal,
+                color: _brand, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: _brand,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              open
+                  ? PhosphorIconsBold.caretUp
+                  : PhosphorIconsBold.caretDown,
+              color: _brand,
+              size: 12,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ListingFilterSheet extends StatefulWidget {
@@ -678,7 +916,7 @@ class _ListingFilterSheetState extends State<ListingFilterSheet> {
                   style: TextStyle(
                     color: title,
                     fontSize: 22,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const Spacer(),
@@ -898,7 +1136,7 @@ class _CityField extends StatelessWidget {
                           : _ink400,
                       fontSize: 16,
                       fontWeight:
-                          isSelected ? FontWeight.w800 : FontWeight.w600,
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                   if (country != null && country!.isNotEmpty)
@@ -909,7 +1147,7 @@ class _CityField extends StatelessWidget {
                       style: const TextStyle(
                         color: _ink400,
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                 ],
@@ -987,7 +1225,7 @@ class _TypeSegment extends StatelessWidget {
             style: TextStyle(
               color: selected ? _brand : _ink500,
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -1012,7 +1250,7 @@ class _SectionTitle extends StatelessWidget {
               ? Colors.white
               : _ink900,
           fontSize: 14,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -1076,7 +1314,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             color: selected ? _brand : _ink500,
             fontSize: 12,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -1128,7 +1366,7 @@ class _DateBox extends StatelessWidget {
                 style: TextStyle(
                   color: value == null ? _ink400 : _ink900,
                   fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1219,7 +1457,7 @@ class _AdvancedSwitchRow extends StatelessWidget {
               style: TextStyle(
                 color: isDark ? Colors.white : _ink800,
                 fontSize: 13,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1259,7 +1497,7 @@ class _PrimaryButton extends StatelessWidget {
           label,
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
         ),
@@ -1293,7 +1531,7 @@ class _SecondaryButton extends StatelessWidget {
           label,
           style: const TextStyle(
             color: _brand,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
         ),

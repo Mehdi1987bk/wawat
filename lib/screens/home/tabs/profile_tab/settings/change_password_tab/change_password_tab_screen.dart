@@ -147,7 +147,7 @@ class _ChangePasswordTabState
                                 duration: const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                   color: isDark ? Colors.white : Colors.black,
                                 ),
                                 child:   Text(S.of(context).brttt4htg3rfwd),
@@ -249,7 +249,7 @@ class _ChangePasswordTabState
                               S.of(context).jt676676756jhr,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 16,
                               ),
                             ),
@@ -282,7 +282,7 @@ class _ChangePasswordTabState
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: isDark ? Colors.white : Colors.black,
           ),
           child: Text(label),

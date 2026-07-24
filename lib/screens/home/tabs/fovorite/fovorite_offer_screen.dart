@@ -175,7 +175,7 @@ class _FavoritesHeader extends StatelessWidget {
                   style: TextStyle(
                     color: titleColor,
                     fontSize: 22,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -184,7 +184,7 @@ class _FavoritesHeader extends StatelessWidget {
                   style: TextStyle(
                     color: _ink400,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -237,7 +237,7 @@ class _EmptyFavorites extends StatelessWidget {
             style: TextStyle(
               color: isDark ? Colors.white : _ink900,
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 8),
@@ -249,7 +249,7 @@ class _EmptyFavorites extends StatelessWidget {
               style: TextStyle(
                 color: isDark ? Colors.white70 : _ink500,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

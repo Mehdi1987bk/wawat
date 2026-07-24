@@ -193,7 +193,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                   S.of(context).nbtynt7,
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: widget.isDark ? Colors.white : Colors.black,
                   ),
                 ),
@@ -258,7 +258,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                     country.name,
                     style: TextStyle(
                       color: widget.isDark ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
                   ),
                   trailing: Row(

@@ -121,7 +121,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: isDark ? Colors.white : Colors.black,
                         ),
                         child:   Text(S.of(context).bgvfd3),
@@ -227,7 +227,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                       S.of(context).bnht,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),

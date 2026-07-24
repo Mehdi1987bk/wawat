@@ -191,7 +191,7 @@ class _CitySelectorState extends State<CitySelector> {
                       S.of(context).tnhyj5brgbdfg,
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
@@ -390,7 +390,7 @@ class _CitySelectorState extends State<CitySelector> {
                           city.name,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            fontWeight: isSelected ? FontWeight.w500 : FontWeight.w500,
                             color: isSelected
                                 ? const Color(0xFF5B51FF)
                                 : (isDark ? Colors.white : Colors.black),

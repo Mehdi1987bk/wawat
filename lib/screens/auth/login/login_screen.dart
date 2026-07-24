@@ -126,7 +126,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                     'Xoş gəldin',
                     style: TextStyle(
                       fontSize: 26,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: titleColor,
                     ),
                   ),
@@ -202,7 +202,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                     'Şifrənizi unutmusunuz?',
                     style: TextStyle(
                       color: _brand,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -250,7 +250,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                       'Qeydiyyatdan keç',
                       style: TextStyle(
                         color: _brand,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -333,7 +333,7 @@ class _AuthField extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: labelColor,
           ),
         ),
@@ -377,7 +377,7 @@ class _AuthField extends StatelessWidget {
             style: TextStyle(
               color: Colors.red.shade600,
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -414,7 +414,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -448,7 +448,7 @@ class _OutlineButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -490,7 +490,7 @@ class _AlertBox extends StatelessWidget {
               style: TextStyle(
                 color: color.shade700,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -517,7 +517,7 @@ class _DividerLabel extends StatelessWidget {
             style: const TextStyle(
               color: Color(0xFF9CA3AF),
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

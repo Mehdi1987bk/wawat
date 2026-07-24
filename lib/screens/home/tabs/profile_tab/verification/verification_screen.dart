@@ -108,7 +108,7 @@ class _VerificationScreenState
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: isDark ? Colors.white : Colors.black,
                     ),
                     child:   Text(S.of(context).bd3435fvd),
@@ -141,7 +141,7 @@ class _VerificationScreenState
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                         child:   Text(S.of(context).vfdfv22434),
@@ -271,7 +271,7 @@ class _VerificationScreenState
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: isDark ? Colors.white : Colors.black,
                     ),
                     child:   Text(S.of(context).vfdgfdvfd42343),
@@ -304,7 +304,7 @@ class _VerificationScreenState
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                         child:   Text(S.of(context).vdfvfd42422),
@@ -439,7 +439,7 @@ class _VerificationScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: isDark ? Colors.white : Colors.black87,
                 ),
                 child: Text(title),
@@ -485,7 +485,7 @@ class _VerificationScreenState
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).gregrere4334),
@@ -512,7 +512,7 @@ class _VerificationScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: isDark ? Colors.white : Colors.black87,
                 ),
                 child:   Text(S.of(context).gre43fbd4t3),
@@ -555,7 +555,7 @@ class _VerificationScreenState
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 17,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black87,
                       ),
                       child:   Text(S.of(context).gdfgdf4343gre),
@@ -614,7 +614,7 @@ class _VerificationScreenState
                       text: S.of(context).gbdgb3434 + " ",
                       style: TextStyle(
                         color: Color(0xFF4A90D9),
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     TextSpan(
@@ -652,7 +652,7 @@ class _VerificationScreenState
                     S.of(context).bfdbffd24343vfd,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -779,7 +779,7 @@ class _VerificationScreenState
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black87,
                       ),
                       child: Text(title),

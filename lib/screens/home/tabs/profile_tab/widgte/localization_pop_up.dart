@@ -108,7 +108,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color:
                           isDark ? Colors.white : const Color(0xFF000000),
                         ),
@@ -198,7 +198,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: isSelected
-                                        ? FontWeight.w600
+                                        ? FontWeight.w500
                                         : FontWeight.w500,
                                     color: isDark
                                         ? (isSelected

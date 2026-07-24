@@ -80,7 +80,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
               S.of(context).bvetgh423rfc,
               style: TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : Colors.black,
               ),
             ),
@@ -135,7 +135,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                 S.of(context).get3434gvrevef,
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               centerTitle: true,
@@ -177,7 +177,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                               S.of(context).bgrf4tb4dgfb,
                               style: TextStyle(
                                 fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
@@ -210,7 +210,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                             S.of(context).nrtn33ss,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: isDark ? Colors.white : Colors.black,
                             ),
                           ),
@@ -349,7 +349,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 17,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
@@ -399,7 +399,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                     S.of(context).dfg34fgdwrrew,
                                     style: TextStyle(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w500,
                                       color:
                                           isDark ? Colors.white : Colors.black,
                                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/wawat_content.dart';
 
 const _brand = Color(0xFF0271EB);
@@ -61,34 +62,38 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!widget.enabled) {
       return ColoredBox(
-        color: Colors.white,
+        color: isDark ? WawatDark.surface : Colors.white,
         child: SafeArea(
           top: false,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? WawatDark.surface : Colors.white,
               border: Border(
-                top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+                top: BorderSide(
+                    color: isDark
+                        ? WawatDark.divider
+                        : _ink900.withValues(alpha: 0.06)),
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(PhosphorIconsFill.prohibitInset,
-                    color: _ink400, size: 18),
+                Icon(PhosphorIconsFill.prohibitInset,
+                    color: isDark ? WawatDark.iconMuted : _ink400, size: 18),
                 const SizedBox(width: 7),
                 Flexible(
                   child: Text(
                     widget.disabledText ?? _t('chat.input.blocked'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _ink500,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink500,
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -100,62 +105,61 @@ class _ChatInputState extends State<ChatInput> {
     }
 
     return ColoredBox(
-      color: Colors.white,
+      color: isDark ? WawatDark.surface : Colors.white,
       child: SafeArea(
         top: false,
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? WawatDark.surface : Colors.white,
             border: Border(
-              top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+              top: BorderSide(
+                  color: isDark
+                      ? WawatDark.divider
+                      : _ink900.withValues(alpha: 0.06)),
             ),
           ),
           child: Row(
             children: [
               IconButton(
                 onPressed: _showAttachOptions,
-                icon: const Icon(PhosphorIconsRegular.plusCircle,
-                    color: _ink500, size: 28),
+                icon: Icon(PhosphorIconsRegular.plusCircle,
+                    color: isDark ? WawatDark.icon : _ink500, size: 28),
               ),
               Expanded(
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 44),
                   decoration: BoxDecoration(
-                    color: _ink900.withValues(alpha: 0.05),
+                    color: isDark
+                        ? WawatDark.surfaceAlt
+                        : _ink900.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  padding: const EdgeInsets.only(left: 15, right: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: widget.controller,
-                          onChanged: widget.onChanged,
-                          minLines: 1,
-                          maxLines: 4,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(5000),
-                          ],
-                          textInputAction: TextInputAction.newline,
-                          style: const TextStyle(
-                            color: _ink900,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: _t('chat.input.placeholder'),
-                            hintStyle: const TextStyle(
-                              color: _ink400,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      const Icon(PhosphorIconsRegular.smiley,
-                          color: _ink400, size: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: TextField(
+                    controller: widget.controller,
+                    onChanged: widget.onChanged,
+                    minLines: 1,
+                    maxLines: 4,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(5000),
                     ],
+                    textInputAction: TextInputAction.newline,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textPrimary : _ink900,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: _t('chat.input.placeholder'),
+                      hintStyle: TextStyle(
+                        color: isDark ? WawatDark.textMuted : _ink400,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
               ),
@@ -182,7 +186,9 @@ class _ChatInputState extends State<ChatInput> {
                     _hasText
                         ? PhosphorIconsFill.paperPlaneTilt
                         : PhosphorIconsRegular.camera,
-                    color: _hasText ? Colors.white : _ink500,
+                    color: _hasText
+                        ? Colors.white
+                        : (isDark ? WawatDark.icon : _ink500),
                     size: _hasText ? 19 : 28,
                   ),
                 ),
@@ -195,9 +201,10 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void _showAttachOptions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.surface : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
@@ -212,7 +219,9 @@ class _ChatInputState extends State<ChatInput> {
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? WawatDark.iconMuted
+                        : const Color(0xFFCBD5E1),
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -247,23 +256,24 @@ class _AttachTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
       onTap: onTap,
       leading: Container(
         width: 42,
         height: 42,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEAF3FE),
+        decoration: BoxDecoration(
+          color: isDark ? WawatDark.brandSoft : const Color(0xFFEAF3FE),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: _brand),
       ),
       title: Text(
         label,
-        style: const TextStyle(
-          color: _ink900,
+        style: TextStyle(
+          color: isDark ? WawatDark.textPrimary : _ink900,
           fontSize: 15,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

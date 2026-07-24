@@ -171,7 +171,7 @@ class _MyRevievsScreenState
                   duration: const Duration(milliseconds: 300),
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                   ),
                   child: Text(
@@ -188,7 +188,7 @@ class _MyRevievsScreenState
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                       child: Text(
@@ -261,7 +261,7 @@ class _MyRevievsScreenState
                     ? Colors.white
                     : (isDark ? const Color(0xFF6B7280) : Colors.grey[400]),
                 fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
               ),
             ),
           ),
@@ -363,7 +363,7 @@ class _MyRevievsScreenState
                     review.author.fullname[0].toUpperCase(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),
                   ),
@@ -375,7 +375,7 @@ class _MyRevievsScreenState
                   duration: const Duration(milliseconds: 300),
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : Colors.black,
                   ),
                   child: Text(review.author.fullname),
@@ -479,7 +479,7 @@ class _MyRevievsScreenState
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : Colors.black,
                     ),
                     child: Text(

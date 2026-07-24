@@ -9,6 +9,7 @@ import 'generated/l10n.dart';
 import 'main.dart';
 import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';
+import 'presentation/resourses/wawat_dark.dart';
 import 'screens/splesh/splesh_screen.dart';
 import 'services/theme_manager.dart';
 
@@ -139,23 +140,119 @@ class App extends StatelessWidget {
       brightness: Brightness.dark,
       fontFamily: _appFontFamily,
       fontFamilyFallback: _appFontFallback,
+      scaffoldBackgroundColor: WawatDark.bg,
+      canvasColor: WawatDark.bg,
+      splashColor: Colors.white10,
+      highlightColor: Colors.white10,
       cupertinoOverrideTheme: const CupertinoThemeData(
+        brightness: Brightness.dark,
         textTheme: CupertinoTextThemeData(
           textStyle: TextStyle(
             fontFamily: _appFontFamily,
             fontFamilyFallback: _appFontFallback,
+            color: WawatDark.textPrimary,
           ),
         ),
       ),
-      scaffoldBackgroundColor: const Color(0xFF121212),
-      colorScheme: ColorScheme.dark(
-        primary: const Color(0xFF5B4FFF),
-        secondary: const Color(0xFF5B4FFF),
-        surface: const Color(0xFF1E1E1E),
+      colorScheme: const ColorScheme.dark(
+        primary: WawatDark.brand,
+        onPrimary: Colors.white,
+        secondary: WawatDark.brand,
+        onSecondary: Colors.white,
+        surface: WawatDark.surface,
+        onSurface: WawatDark.textPrimary,
+        surfaceContainerHighest: WawatDark.elevated,
+        outline: WawatDark.border,
+        error: WawatDark.danger,
       ),
       useMaterial3: true,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: WawatDark.bg,
+        foregroundColor: WawatDark.textPrimary,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        iconTheme: IconThemeData(color: WawatDark.textPrimary),
+        titleTextStyle: TextStyle(
+          fontFamily: _appFontFamily,
+          fontFamilyFallback: _appFontFallback,
+          color: WawatDark.textPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      cardColor: WawatDark.surface,
+      cardTheme: const CardThemeData(
+        color: WawatDark.surface,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: WawatDark.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: WawatDark.surface,
+        modalBackgroundColor: WawatDark.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: WawatDark.divider,
+        thickness: 1,
+        space: 1,
+      ),
+      iconTheme: const IconThemeData(color: WawatDark.icon),
+      listTileTheme: const ListTileThemeData(
+        iconColor: WawatDark.icon,
+        textColor: WawatDark.textPrimary,
+      ),
+      textTheme: Typography.whiteMountainView.apply(
+        fontFamily: _appFontFamily,
+        fontFamilyFallback: _appFontFallback,
+        bodyColor: WawatDark.textPrimary,
+        displayColor: WawatDark.textPrimary,
+      ),
+      hintColor: WawatDark.textMuted,
       inputDecorationTheme: InputDecorationTheme(
-        fillColor: const Color(0xFF1E1E1E),
+        filled: true,
+        fillColor: WawatDark.surface,
+        hintStyle: const TextStyle(color: WawatDark.textMuted),
+        labelStyle: const TextStyle(color: WawatDark.textSecondary),
+        prefixIconColor: WawatDark.iconMuted,
+        suffixIconColor: WawatDark.iconMuted,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: WawatDark.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: WawatDark.brand, width: 1.4),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? WawatDark.brand
+              : const Color(0xFF9CA3AF),
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? WawatDark.brand.withValues(alpha: 0.45)
+              : const Color(0xFF3A3A3A),
+        ),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: WawatDark.surface,
+        selectedItemColor: WawatDark.brand,
+        unselectedItemColor: WawatDark.textMuted,
+        type: BottomNavigationBarType.fixed,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: WawatDark.surfaceAlt,
+        labelStyle: const TextStyle(color: WawatDark.textPrimary),
+        side: const BorderSide(color: WawatDark.border),
       ),
     );
   }

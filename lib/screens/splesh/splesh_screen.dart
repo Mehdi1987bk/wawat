@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
+import '../../presentation/resourses/wawat_dark.dart';
 import '../home/home_screen.dart';
 import 'Intro_page.dart';
 
@@ -51,8 +52,9 @@ class _SpleshScreenState extends State<SpleshScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.bg : Colors.white,
       body: Center(
         child: Image.asset(
           'asset/wawatair_primary.png',

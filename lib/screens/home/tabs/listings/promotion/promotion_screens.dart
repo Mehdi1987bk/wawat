@@ -11,6 +11,7 @@ import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/promotion_response.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../details/listing_details_screen.dart';
 import '../widgets/listing_card.dart';
@@ -27,6 +28,20 @@ const _ink400 = Color(0xFF94A3B8);
 const _ink300 = Color(0xFFCBD5E1);
 const _screen = Color(0xFFEEF1F6);
 const _emerald = Color(0xFF10B981);
+
+// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не
+// меняется), тёмная ветка = единый графит из [WawatDark].
+Color _cScreen(bool d) => d ? WawatDark.bg : _screen;
+Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
+Color _cFill(bool d) => d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05);
+Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
+Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink500;
+Color _cText3(bool d) => d ? WawatDark.textSecondary : _ink600;
+Color _cText4(bool d) => d ? WawatDark.textSecondary : _ink700;
+Color _cMuted(bool d) => d ? WawatDark.textMuted : _ink400;
+Color _cFaint(bool d) => d ? WawatDark.iconMuted : _ink300;
+Color _cLine(bool d) => d ? WawatDark.divider : _ink900.withValues(alpha: 0.06);
+Color _cBrandSoft(bool d) => d ? WawatDark.brandSoft : _brand50;
 
 Future<void> openPromotionFlow(
   BuildContext context, {
@@ -72,6 +87,7 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FutureBuilder<_PromotionBundle>(
       future: _future,
       builder: (context, snapshot) {
@@ -79,7 +95,7 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
         final content = bundle?.content ?? const <String, String>{};
         final pricing = bundle?.pricing;
         return ColoredBox(
-          color: Colors.white,
+          color: _cScreen(isDark),
           child: SafeArea(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 30, 16, 24),
@@ -89,7 +105,9 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFECFDF5),
+                      color: isDark
+                          ? WawatDark.success.withValues(alpha: 0.14)
+                          : const Color(0xFFECFDF5),
                       borderRadius: BorderRadius.circular(26),
                     ),
                     child: const Icon(
@@ -107,10 +125,10 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                     'Elanın yoxlamaya göndərildi',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 20,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 7),
@@ -121,8 +139,8 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                     'Adətən 1–2 saat ərzində təsdiqlənir. Təsdiqdən sonra lentdə görünəcək.',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _ink500,
+                  style: TextStyle(
+                    color: _cText2(isDark),
                     fontSize: 13,
                     height: 1.35,
                   ),
@@ -145,10 +163,10 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                           'promotion.upsell_title',
                           'Elanını daha çox insana çatdır',
                         ),
-                        style: const TextStyle(
-                          color: _ink900,
+                        style: TextStyle(
+                          color: _cText(isDark),
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -223,9 +241,9 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                       'promotion.skip',
                       'İndi yox, elanlarıma keç',
                     ),
-                    style: const TextStyle(
-                      color: _ink400,
-                      fontWeight: FontWeight.w800,
+                    style: TextStyle(
+                      color: _cMuted(isDark),
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -462,9 +480,10 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final vip = widget.type == 'vip';
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       appBar: _simpleAppBar(
         context,
         _tx(widget.content, 'promotion.checkout_title', 'Sifariş yekunu'),
@@ -482,12 +501,12 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: _whiteCard(),
+            decoration: _whiteCard(isDark),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   PhosphorIconsRegular.ticket,
-                  color: _ink400,
+                  color: _cMuted(isDark),
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -496,10 +515,10 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                     height: 44,
                     child: TextField(
                       controller: _promoCode,
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: _cText(isDark),
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
                         hintText: _tx(
@@ -507,19 +526,23 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                           'promotion.promo_code',
                           'Promokod (varsa)',
                         ),
-                        hintStyle: const TextStyle(
-                          color: _ink400,
+                        hintStyle: TextStyle(
+                          color: _cMuted(isDark),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
                         filled: true,
-                        fillColor: _ink900.withValues(alpha: 0.02),
+                        fillColor: isDark
+                            ? WawatDark.surfaceAlt
+                            : _ink900.withValues(alpha: 0.02),
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 14),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                            color: _ink900.withValues(alpha: 0.07),
+                            color: isDark
+                                ? WawatDark.border
+                                : _ink900.withValues(alpha: 0.07),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -536,15 +559,15 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: _ink900.withValues(alpha: 0.05),
+                    color: _cFill(isDark),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     _tx(widget.content, 'promotion.apply', 'Tətbiq et'),
-                    style: const TextStyle(
-                      color: _ink700,
+                    style: TextStyle(
+                      color: _cText4(isDark),
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -554,7 +577,7 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: _whiteCard(),
+            decoration: _whiteCard(isDark),
             child: Column(
               children: [
                 _CheckoutRow(
@@ -642,8 +665,9 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       appBar: _simpleAppBar(
         context,
         _tx(widget.content, 'promotion.pay.title', 'Ödəniş'),
@@ -661,10 +685,10 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
           const SizedBox(height: 20),
           Text(
             _tx(widget.content, 'promotion.payment_method', 'Ödəniş üsulu'),
-            style: const TextStyle(
-              color: _ink700,
+            style: TextStyle(
+              color: _cText4(isDark),
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 12),
@@ -687,7 +711,7 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
           _PaymentOption(
             selected: _method == 'balance',
             icon: PhosphorIconsFill.wallet,
-            iconBackground: _brand50,
+            iconBackground: _cBrandSoft(isDark),
             iconColor: _brand,
             title: _tx(
               widget.content,
@@ -717,8 +741,8 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
                     'promotion.pay.secure_note',
                     'Ödənişlər şifrələnir · kart məlumatı serverdə saxlanmır',
                   ),
-                  style: const TextStyle(
-                    color: _ink400,
+                  style: TextStyle(
+                    color: _cMuted(isDark),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
@@ -847,8 +871,9 @@ class _PromotionProcessingScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -885,10 +910,10 @@ class _PromotionProcessingScreenState
                     'promotion.pay.processing',
                     'Ödəniş emal olunur…',
                   ),
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 20,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -899,7 +924,7 @@ class _PromotionProcessingScreenState
                     'Zəhmət olmasa gözlə. Bu ekranı bağlama.',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: _ink500, fontSize: 13),
+                  style: TextStyle(color: _cText2(isDark), fontSize: 13),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 18),
@@ -923,9 +948,9 @@ class _PromotionProcessingScreenState
                         'promotion.payment.change_method',
                         'Ödəniş üsulunu dəyiş',
                       ),
-                      style: const TextStyle(
-                        color: _ink500,
-                        fontWeight: FontWeight.w700,
+                      style: TextStyle(
+                        color: _cText2(isDark),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -1009,8 +1034,9 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                     'promotion.payment_pending',
                     'Təsdiq gözlənilir',
                   );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 55, 24, 24),
@@ -1029,18 +1055,18 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: _cText(isDark),
                   fontSize: 23,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 9),
               Text(
                 _statusDescription(widget.content, _promotion),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: _ink500,
+                style: TextStyle(
+                  color: _cText2(isDark),
                   fontSize: 14,
                   height: 1.4,
                 ),
@@ -1050,10 +1076,14 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: _ink900.withValues(alpha: 0.025),
+                  color: isDark
+                      ? WawatDark.surfaceAlt
+                      : _ink900.withValues(alpha: 0.025),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: _ink900.withValues(alpha: 0.06),
+                    color: isDark
+                        ? WawatDark.border
+                        : _ink900.withValues(alpha: 0.06),
                   ),
                 ),
                 child: Column(
@@ -1159,9 +1189,9 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                           'promotion.status.check_later',
                           'Sonra profildən yoxla',
                         ),
-                  style: const TextStyle(
-                    color: _ink400,
-                    fontWeight: FontWeight.w800,
+                  style: TextStyle(
+                    color: _cMuted(isDark),
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -1243,8 +1273,9 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       appBar: _simpleAppBar(
         context,
         _tx(_content, 'promotion.my_title', 'Promosyonlarım'),
@@ -1323,10 +1354,11 @@ class _BoostTierPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final defaultDuration =
         pricing.durations.contains(7) ? 7 : pricing.durations.firstOrNull;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cScreen(isDark),
       body: Column(
         children: [
           _PromotionHero(
@@ -1430,10 +1462,11 @@ class _DurationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = vip ? _amber : _brand;
     final selectedPrice = prices[selectedDuration] ?? 0;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cScreen(isDark),
       body: Column(
         children: [
           _PromotionHero(
@@ -1547,10 +1580,10 @@ class _DurationPage extends StatelessWidget {
                     'promotion.preview_title',
                     'Lentdə belə görünəcək',
                   ),
-                  style: const TextStyle(
-                    color: _ink700,
+                  style: TextStyle(
+                    color: _cText4(isDark),
                     fontSize: 13,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -1617,6 +1650,7 @@ class _PromotionPurchaseBottomBar extends StatelessWidget {
             },
           );
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _StickyBottom(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1625,19 +1659,19 @@ class _PromotionPurchaseBottomBar extends StatelessWidget {
             children: [
               Text(
                 '${existing ? '+' : ''}$summary',
-                style: const TextStyle(
-                  color: _ink500,
+                style: TextStyle(
+                  color: _cText2(isDark),
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const Spacer(),
               Text(
                 '${_money(selectedPrice)} ₼',
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: _cText(isDark),
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -1675,7 +1709,7 @@ class _PromotionListingPreview extends StatelessWidget {
     required this.promotionType,
   });
 
-  void _showFullPreview(BuildContext context) {
+  void _showFullPreview(BuildContext context, bool isDark) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -1685,9 +1719,10 @@ class _PromotionListingPreview extends StatelessWidget {
         return FractionallySizedBox(
           heightFactor: 0.92,
           child: Container(
-            decoration: const BoxDecoration(
-              color: _screen,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            decoration: BoxDecoration(
+              color: _cScreen(isDark),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(28)),
             ),
             child: Column(
               children: [
@@ -1696,7 +1731,7 @@ class _PromotionListingPreview extends StatelessWidget {
                   width: 40,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: _ink300,
+                    color: _cFaint(isDark),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -1711,21 +1746,21 @@ class _PromotionListingPreview extends StatelessWidget {
                             'promotion.preview_full_title',
                             'Elanın lentdə görünüşü',
                           ),
-                          style: const TextStyle(
-                            color: _ink900,
+                          style: TextStyle(
+                            color: _cText(isDark),
                             fontSize: 16,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => Navigator.pop(sheetContext),
-                        child: const Padding(
-                          padding: EdgeInsets.all(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
                           child: Icon(
                             PhosphorIconsBold.x,
-                            color: _ink700,
+                            color: _cText4(isDark),
                             size: 21,
                           ),
                         ),
@@ -1760,6 +1795,7 @@ class _PromotionListingPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       children: [
         IgnorePointer(
@@ -1778,7 +1814,7 @@ class _PromotionListingPreview extends StatelessWidget {
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _showFullPreview(context),
+            onTap: () => _showFullPreview(context, isDark),
           ),
         ),
       ],
@@ -1853,7 +1889,7 @@ class _PromotionHero extends StatelessWidget {
                   style: TextStyle(
                     color: vip ? _ink900 : Colors.white,
                     fontSize: 19,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -1866,7 +1902,7 @@ class _PromotionHero extends StatelessWidget {
               color: vip ? _ink700 : Colors.white.withValues(alpha: 0.88),
               fontSize: 14,
               height: 1.35,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -1894,8 +1930,11 @@ class _UpsellCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = vip ? _amber : _brand;
-    final soft = vip ? _amber50 : _brand50;
+    final soft = vip
+        ? (isDark ? WawatDark.warning.withValues(alpha: 0.12) : _amber50)
+        : _cBrandSoft(isDark);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1929,19 +1968,23 @@ class _UpsellCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: _cText(isDark),
                         fontSize: 15,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: vip ? const Color(0xFFB45309) : _brand,
+                        color: vip
+                            ? (isDark
+                                ? WawatDark.warning
+                                : const Color(0xFFB45309))
+                            : _brand,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -1956,14 +1999,14 @@ class _UpsellCard extends StatelessWidget {
                       'promotion.starting_from',
                       'başlanğıc',
                     ),
-                    style: const TextStyle(color: _ink400, fontSize: 10),
+                    style: TextStyle(color: _cMuted(isDark), fontSize: 10),
                   ),
                   Text(
                     price == null ? '...' : '${_money(price!)} ₼',
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: _cText(isDark),
                       fontSize: 16,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -2002,6 +2045,7 @@ class _SelectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -2009,10 +2053,13 @@ class _SelectionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: selected ? accent.withValues(alpha: 0.08) : Colors.white,
+          color:
+              selected ? accent.withValues(alpha: 0.08) : _cCard(isDark),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? accent : _ink900.withValues(alpha: 0.09),
+            color: selected
+                ? accent
+                : (isDark ? WawatDark.border : _ink900.withValues(alpha: 0.09)),
             width: selected ? 2 : 1,
           ),
         ),
@@ -2025,7 +2072,7 @@ class _SelectionCard extends StatelessWidget {
                 color: selected ? accent : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? accent : _ink400,
+                  color: selected ? accent : _cFaint(isDark),
                   width: 1.5,
                 ),
               ),
@@ -2044,17 +2091,17 @@ class _SelectionCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: _cText(isDark),
                       fontSize: 14,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   if (subtitle.isNotEmpty) ...[
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: const TextStyle(color: _ink500, fontSize: 11),
+                      style: TextStyle(color: _cText2(isDark), fontSize: 11),
                     ),
                   ],
                 ],
@@ -2063,10 +2110,10 @@ class _SelectionCard extends StatelessWidget {
             Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: _cText(isDark),
                 fontSize: 15,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -2083,12 +2130,18 @@ class _RoutePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.025),
+        color: isDark
+            ? WawatDark.surfaceAlt
+            : _ink900.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+        border: Border.all(
+          color:
+              isDark ? WawatDark.border : _ink900.withValues(alpha: 0.06),
+        ),
       ),
       child: _RouteLine(
         from: listing.cityFrom ?? '-',
@@ -2112,16 +2165,17 @@ class _RouteLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
           child: Text(
             from,
             textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -2129,8 +2183,8 @@ class _RouteLine extends StatelessWidget {
         Container(
           width: 38,
           height: 38,
-          decoration: const BoxDecoration(
-            color: _brand50,
+          decoration: BoxDecoration(
+            color: _cBrandSoft(isDark),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -2143,10 +2197,10 @@ class _RouteLine extends StatelessWidget {
         Expanded(
           child: Text(
             to,
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 18,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -2172,6 +2226,7 @@ class _CheckoutSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final typeLabel = listing.typeLabel ??
         (listing.isTrip
             ? WawatContent.text(
@@ -2190,7 +2245,7 @@ class _CheckoutSummaryCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _whiteCard(),
+      decoration: _whiteCard(isDark),
       child: Column(
         children: [
           Row(
@@ -2228,17 +2283,17 @@ class _CheckoutSummaryCard extends StatelessWidget {
                               'Önə çək · {tier}',
                               {'tier': _tierLabel(tier, content)},
                             ),
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: _cText(isDark),
                         fontSize: 16,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       '${listing.cityFrom ?? '-'} → ${listing.cityTo ?? '-'} · $typeLabel',
-                      style: const TextStyle(
-                        color: _ink500,
+                      style: TextStyle(
+                        color: _cText2(isDark),
                         fontSize: 12,
                       ),
                     ),
@@ -2253,7 +2308,7 @@ class _CheckoutSummaryCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: _ink900.withValues(alpha: 0.06),
+                  color: _cLine(isDark),
                 ),
               ),
             ),
@@ -2332,16 +2387,19 @@ class _PaymentOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cCard(isDark),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? _brand : _ink900.withValues(alpha: 0.07),
+            color: selected
+                ? _brand
+                : (isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07)),
           ),
           boxShadow: selected
               ? [
@@ -2371,17 +2429,17 @@ class _PaymentOption extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: _cText(isDark),
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: const TextStyle(
-                        color: _ink400,
+                      style: TextStyle(
+                        color: _cMuted(isDark),
                         fontSize: 11,
                       ),
                     ),
@@ -2395,7 +2453,7 @@ class _PaymentOption extends StatelessWidget {
                 color: selected ? _brand : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? _brand : _ink300,
+                  color: selected ? _brand : _cFaint(isDark),
                   width: 2,
                 ),
               ),
@@ -2421,10 +2479,11 @@ class _PaymentIntegrationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _amber50,
+        color: isDark ? WawatDark.warning.withValues(alpha: 0.12) : _amber50,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: _amber.withValues(alpha: 0.4),
@@ -2433,20 +2492,20 @@ class _PaymentIntegrationBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             PhosphorIconsFill.wrench,
-            color: Color(0xFFB67C00),
+            color: isDark ? WawatDark.warning : const Color(0xFFB67C00),
             size: 17,
           ),
           const SizedBox(width: 7),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: Color(0xFF8A5D00),
+              style: TextStyle(
+                color: isDark ? WawatDark.warning : const Color(0xFF8A5D00),
                 fontSize: 12,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -2473,6 +2532,7 @@ class _CheckoutRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(
         top: topBorder ? 10 : 8,
@@ -2482,7 +2542,7 @@ class _CheckoutRow extends StatelessWidget {
           ? BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: _ink900.withValues(alpha: 0.06),
+                  color: _cLine(isDark),
                 ),
               ),
             )
@@ -2493,9 +2553,9 @@ class _CheckoutRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: emphasized ? _ink900 : _ink500,
+                color: emphasized ? _cText(isDark) : _cText2(isDark),
                 fontSize: 14,
-                fontWeight: emphasized ? FontWeight.w700 : FontWeight.w400,
+                fontWeight: emphasized ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ),
@@ -2503,9 +2563,9 @@ class _CheckoutRow extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: valueColor ?? _ink900,
+              color: valueColor ?? _cText(isDark),
               fontSize: emphasized ? 18 : 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -2527,6 +2587,7 @@ class _PromotionHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final vip = promotion.isVip;
     final accent = vip ? _amber : _brand;
     final route = promotion.listing == null
@@ -2539,7 +2600,7 @@ class _PromotionHistoryCard extends StatelessWidget {
         : '${promotion.listing?.cityFrom ?? '-'} → ${promotion.listing?.cityTo ?? '-'}';
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: _whiteCard(radius: 18),
+      decoration: _whiteCard(isDark, radius: 18),
       child: Column(
         children: [
           Row(
@@ -2567,16 +2628,16 @@ class _PromotionHistoryCard extends StatelessWidget {
                       '${vip ? _tx(content, 'enum.promotion_type.vip', 'VİP') : promotion.tierLabel ?? promotion.typeLabel} · $route',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: _cText(isDark),
                         fontSize: 13,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       '${_remainingLabel(promotion, content)} · ${_money(promotion.amount)} ₼',
-                      style: const TextStyle(color: _ink400, fontSize: 11),
+                      style: TextStyle(color: _cMuted(isDark), fontSize: 11),
                     ),
                   ],
                 ),
@@ -2606,7 +2667,7 @@ class _PromotionHistoryCard extends StatelessWidget {
                     style: TextStyle(
                       color: vip ? _ink900 : Colors.white,
                       fontSize: 12,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -2621,7 +2682,8 @@ class _PromotionHistoryCard extends StatelessWidget {
                 minHeight: 5,
                 value: _promotionProgress(promotion),
                 color: accent,
-                backgroundColor: _ink900.withValues(alpha: 0.06),
+                backgroundColor:
+                    isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.06),
               ),
             ),
           ],
@@ -2648,15 +2710,17 @@ class _PromotionTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.05),
+        color: _cFill(isDark),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
         children: [
           _tab(
+            isDark,
             'active',
             _formatContent(
               content,
@@ -2666,6 +2730,7 @@ class _PromotionTabs extends StatelessWidget {
             ),
           ),
           _tab(
+            isDark,
             'expired',
             _formatContent(
               content,
@@ -2679,7 +2744,7 @@ class _PromotionTabs extends StatelessWidget {
     );
   }
 
-  Widget _tab(String itemValue, String label) {
+  Widget _tab(bool isDark, String itemValue, String label) {
     final selected = value == itemValue;
     return Expanded(
       child: GestureDetector(
@@ -2689,9 +2754,11 @@ class _PromotionTabs extends StatelessWidget {
           height: 38,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? Colors.white : Colors.transparent,
+            color: selected
+                ? (isDark ? WawatDark.elevated : Colors.white)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: selected
+            boxShadow: selected && !isDark
                 ? [
                     BoxShadow(
                       color: _ink900.withValues(alpha: 0.06),
@@ -2704,9 +2771,9 @@ class _PromotionTabs extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: selected ? _brand : _ink500,
+              color: selected ? _brand : _cText2(isDark),
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -2722,6 +2789,7 @@ class _EmptyPromotions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -2731,8 +2799,8 @@ class _EmptyPromotions extends StatelessWidget {
             Container(
               width: 78,
               height: 78,
-              decoration: const BoxDecoration(
-                color: _brand50,
+              decoration: BoxDecoration(
+                color: _cBrandSoft(isDark),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -2749,9 +2817,9 @@ class _EmptyPromotions extends StatelessWidget {
                 'Bu bölmədə promosyon yoxdur.',
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink500,
-                fontWeight: FontWeight.w700,
+              style: TextStyle(
+                color: _cText2(isDark),
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -2805,12 +2873,15 @@ class _ActivePromotionPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final vip = promotion.isVip;
     final color = vip ? _amber : _brand;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: vip ? _amber50 : _brand50,
+        color: vip
+            ? (isDark ? WawatDark.warning.withValues(alpha: 0.12) : _amber50)
+            : _cBrandSoft(isDark),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: color, width: 2),
       ),
@@ -2839,16 +2910,16 @@ class _ActivePromotionPanel extends StatelessWidget {
               '{type} artıq aktivdir',
               {'type': promotion.typeLabel},
             ),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 17,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 5),
           Text(
             _remainingLabel(promotion, content),
-            style: const TextStyle(color: _ink600, fontSize: 13),
+            style: TextStyle(color: _cText3(isDark), fontSize: 13),
           ),
           const SizedBox(height: 12),
           ClipRRect(
@@ -2857,7 +2928,7 @@ class _ActivePromotionPanel extends StatelessWidget {
               minHeight: 6,
               value: _promotionProgress(promotion),
               color: color,
-              backgroundColor: Colors.white,
+              backgroundColor: isDark ? WawatDark.elevated : Colors.white,
             ),
           ),
         ],
@@ -2879,10 +2950,13 @@ class _BenefitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.025),
+        color: isDark
+            ? WawatDark.surfaceAlt
+            : _ink900.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -2890,10 +2964,10 @@ class _BenefitCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: _cText(isDark),
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 9),
@@ -2912,8 +2986,8 @@ class _BenefitCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item,
-                      style: const TextStyle(
-                        color: _ink600,
+                      style: TextStyle(
+                        color: _cText3(isDark),
                         fontSize: 12,
                         height: 1.3,
                       ),
@@ -2954,7 +3028,7 @@ class _StepTitle extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 11,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -2965,7 +3039,7 @@ class _StepTitle extends StatelessWidget {
           style: TextStyle(
             color: color,
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -2980,10 +3054,11 @@ class _InfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: _brand50,
+        color: _cBrandSoft(isDark),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _brand.withValues(alpha: 0.18)),
       ),
@@ -2999,7 +3074,7 @@ class _InfoBanner extends StatelessWidget {
                 color: _brand,
                 fontSize: 12,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -3016,10 +3091,13 @@ class _ErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: isDark
+            ? WawatDark.danger.withValues(alpha: 0.14)
+            : const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -3032,10 +3110,10 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: Color(0xFFDC2626),
+              style: TextStyle(
+                color: isDark ? WawatDark.danger : const Color(0xFFDC2626),
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -3056,24 +3134,25 @@ class _KeyValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: _cText2(isDark),
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: _cText(isDark),
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -3138,7 +3217,7 @@ class _PrimaryButton extends StatelessWidget {
                   style: TextStyle(
                     color: amber ? _ink900 : Colors.white,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -3171,6 +3250,7 @@ class _OutlineButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -3178,22 +3258,25 @@ class _OutlineButton extends StatelessWidget {
         height: 52,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cCard(isDark),
           borderRadius: BorderRadius.circular(17),
-          border: Border.all(color: _ink900.withValues(alpha: 0.10)),
+          border: Border.all(
+            color:
+                isDark ? WawatDark.border : _ink900.withValues(alpha: 0.10),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, color: _ink700, size: 19),
+              Icon(icon, color: _cText4(isDark), size: 19),
               const SizedBox(width: 7),
             ],
             Text(
               label,
-              style: const TextStyle(
-                color: _ink700,
-                fontWeight: FontWeight.w900,
+              style: TextStyle(
+                color: _cText4(isDark),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -3210,14 +3293,15 @@ class _StickyBottom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(
       top: false,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cCard(isDark),
           border: Border(
-            top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+            top: BorderSide(color: _cLine(isDark)),
           ),
         ),
         child: child,
@@ -3231,9 +3315,10 @@ class _LoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: CircularProgressIndicator(color: _brand)),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      backgroundColor: _cScreen(isDark),
+      body: const Center(child: CircularProgressIndicator(color: _brand)),
     );
   }
 }
@@ -3245,8 +3330,9 @@ class _ErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -3267,10 +3353,10 @@ class _ErrorPage extends StatelessWidget {
                     'Məlumatları yükləmək alınmadı.',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -3331,42 +3417,47 @@ class _PromotionBundle {
 }
 
 PreferredSizeWidget _simpleAppBar(BuildContext context, String title) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   return AppBar(
-    backgroundColor: Colors.white,
+    backgroundColor: _cCard(isDark),
     elevation: 0,
-    surfaceTintColor: Colors.white,
+    surfaceTintColor: _cCard(isDark),
     leading: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
-      child: const Icon(
+      child: Icon(
         PhosphorIconsBold.arrowLeft,
-        color: _ink700,
+        color: _cText4(isDark),
         size: 20,
       ),
     ),
     title: Text(
       title,
-      style: const TextStyle(
-        color: _ink900,
+      style: TextStyle(
+        color: _cText(isDark),
         fontSize: 18,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       ),
     ),
   );
 }
 
-BoxDecoration _whiteCard({double radius = 24}) {
+BoxDecoration _whiteCard(bool isDark, {double radius = 24}) {
   return BoxDecoration(
-    color: Colors.white,
+    color: _cCard(isDark),
     borderRadius: BorderRadius.circular(radius),
-    border: Border.all(color: _ink900.withValues(alpha: 0.06)),
-    boxShadow: [
-      BoxShadow(
-        color: _ink900.withValues(alpha: 0.06),
-        blurRadius: 20,
-        offset: const Offset(0, 9),
-      ),
-    ],
+    border: isDark
+        ? Border.all(color: WawatDark.border)
+        : Border.all(color: _ink900.withValues(alpha: 0.06)),
+    boxShadow: isDark
+        ? null
+        : [
+            BoxShadow(
+              color: _ink900.withValues(alpha: 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 9),
+            ),
+          ],
   );
 }
 

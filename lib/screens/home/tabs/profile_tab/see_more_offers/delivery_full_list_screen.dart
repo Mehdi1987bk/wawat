@@ -347,7 +347,7 @@ class _Header extends StatelessWidget {
                   style: TextStyle(
                     color: titleColor,
                     fontSize: 22,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
@@ -358,7 +358,7 @@ class _Header extends StatelessWidget {
                   style: const TextStyle(
                     color: _ink400,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -419,7 +419,7 @@ class _DeleteReasonSheet extends StatelessWidget {
             style: TextStyle(
               color: isDark ? Colors.white : _ink900Local,
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
@@ -440,7 +440,7 @@ class _DeleteReasonSheet extends StatelessWidget {
                   style: TextStyle(
                     color: isDark ? Colors.white : _ink900Local,
                     fontSize: 14,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -495,7 +495,7 @@ class _ConfirmActionDialog extends StatelessWidget {
               style: TextStyle(
                 color: titleColor,
                 fontSize: 19,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -505,7 +505,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                 color: isDark ? Colors.white70 : _ink500,
                 fontSize: 14,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 18),
@@ -528,7 +528,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                         style: TextStyle(
                           color: isDark ? Colors.white : _ink500,
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -550,7 +550,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -610,7 +610,7 @@ class _EmptyMine extends StatelessWidget {
               style: TextStyle(
                 color: isDark ? Colors.white : _ink900Local,
                 fontSize: 20,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -623,7 +623,7 @@ class _EmptyMine extends StatelessWidget {
               style: TextStyle(
                 color: isDark ? Colors.white70 : _ink500,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

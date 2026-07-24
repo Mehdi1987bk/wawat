@@ -141,7 +141,7 @@ class CourierRatingsTab extends StatelessWidget {
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.black,
                         ),
                         child: Text(review.author.fullname),

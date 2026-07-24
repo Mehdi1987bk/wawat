@@ -137,7 +137,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                               duration: const Duration(milliseconds: 300),
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: isDark ? Colors.white : Colors.black,
                               ),
                               child: Text(S.of(context).gret4h5h53g2b),
@@ -162,7 +162,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child: Text(S.of(context).vsf3r4gh57j6hnbd),
@@ -191,7 +191,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child: Text(S.of(context).jyntytrk5j34r),
@@ -241,7 +241,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                               S.of(context).gbd423g54bd,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 16,
                               ),
                             ),

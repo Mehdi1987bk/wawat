@@ -393,7 +393,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).bryh4tb4thb4yhhe),
@@ -405,7 +405,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).brbt444b3tgsdgetr),
@@ -417,7 +417,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).vevrtbgvt5ybtvew+"\$)"),
@@ -429,7 +429,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).bgdbtb4brgd),
@@ -465,7 +465,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).nujnhry4hrt),
@@ -529,7 +529,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).nybhtgr54terfw3),
@@ -551,7 +551,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white : Colors.black,
                       ),
                       child:   Text(S.of(context).greg3greg43grgre),
@@ -623,7 +623,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                               S.of(context).htrh4hedh4th4,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 16,
                               ),
                             ),
@@ -837,7 +837,7 @@ void showIOSStyleAlert(BuildContext context, String message,
                   S.of(context).ok,
                   style: TextStyle(
                     fontSize: 17,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: isError ? Colors.red : Colors.blue,
                   ),
                 ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 
+import '../../../../../../../presentation/resourses/wawat_dark.dart';
+
 class ProfileImageWidget extends StatelessWidget {
   final String? imageUrl;
   final File? localFile;
@@ -23,6 +25,7 @@ class ProfileImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onCameraPressed,
       child: Stack(
@@ -60,7 +63,7 @@ class ProfileImageWidget extends StatelessWidget {
                 color: const Color(0xFF5B4FFF),
                 borderRadius: BorderRadius.circular(borderRadius / 2),
                 border: Border.all(
-                  color: Colors.white,
+                  color: isDark ? WawatDark.surface : Colors.white,
                   width: 3,
                 ),
                 boxShadow: showShadow

@@ -90,7 +90,7 @@ class _EmailVerifyScreenState
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 26,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: titleColor,
                     ),
                   ),
@@ -121,7 +121,7 @@ class _EmailVerifyScreenState
                       'Davam et',
                       style: TextStyle(
                         color: _brand,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -175,7 +175,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );

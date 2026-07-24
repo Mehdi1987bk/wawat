@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
+import '../../presentation/resourses/wawat_dark.dart';
 import '../../services/wawat_content.dart';
 import '../auth/login/login_screen.dart';
 import '../home/home_screen.dart';
@@ -68,10 +69,11 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? WawatDark.bg : Colors.white,
         body: SafeArea(
           child: PageView.builder(
             controller: _pageController,
@@ -132,6 +134,7 @@ class _OnboardingSlide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxHeight < 720;
@@ -160,10 +163,10 @@ class _OnboardingSlide extends StatelessWidget {
                           ),
                           child: Text(
                             skipLabel,
-                            style: const TextStyle(
-                              color: _ink400,
+                            style: TextStyle(
+                              color: isDark ? WawatDark.textMuted : _ink400,
                               fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -182,19 +185,19 @@ class _OnboardingSlide extends StatelessWidget {
               SizedBox(height: compact ? 22 : 28),
               Text(
                 title,
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: isDark ? WawatDark.textPrimary : _ink900,
                   fontSize: 27,
                   height: 1.08,
                   letterSpacing: -0.65,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 10),
               Text(
                 body,
-                style: const TextStyle(
-                  color: _ink500,
+                style: TextStyle(
+                  color: isDark ? WawatDark.textSecondary : _ink500,
                   fontSize: 15,
                   height: 1.48,
                   fontWeight: FontWeight.w400,
@@ -211,8 +214,11 @@ class _OnboardingSlide extends StatelessWidget {
                     height: 8,
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
-                      color:
-                          dotIndex == index ? _brand : _IntroPageState._ink300,
+                      color: dotIndex == index
+                          ? _brand
+                          : (isDark
+                              ? WawatDark.iconMuted
+                              : _IntroPageState._ink300),
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -244,10 +250,10 @@ class _OnboardingSlide extends StatelessWidget {
                             ),
                           ],
                         ),
-                        style: const TextStyle(
-                          color: _ink400,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textMuted : _ink400,
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -317,7 +323,7 @@ class _PrimaryButton extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(width: 8),
@@ -614,7 +620,7 @@ class _ArtChip extends StatelessWidget {
               color: _IntroPageState._ink900,
               fontSize: 12,
               height: 1,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -660,7 +666,7 @@ class _MoneyChip extends StatelessWidget {
                 color: Colors.white,
                 fontSize: 11,
                 height: 1,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -671,7 +677,7 @@ class _MoneyChip extends StatelessWidget {
               color: _IntroPageState._ink900,
               fontSize: 12,
               height: 1,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

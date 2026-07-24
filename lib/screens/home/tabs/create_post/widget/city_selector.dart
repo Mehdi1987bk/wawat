@@ -87,7 +87,7 @@ class _CitySelectorState extends State<CitySelector> {
                   duration: const Duration(milliseconds: 300),
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: widget.isDark ? Colors.white : Colors.black,
                   ),
                   child:   Text(S.of(context).bgrhtrgrfr445),
@@ -256,7 +256,7 @@ class _CitySelectorState extends State<CitySelector> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: isSelected
-                                      ? FontWeight.w600
+                                      ? FontWeight.w500
                                       : FontWeight.w500,
                                   color: isSelected
                                       ? const Color(0xFF5B51FF)

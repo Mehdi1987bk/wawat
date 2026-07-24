@@ -295,13 +295,15 @@ class _ListingCardState extends State<ListingCard> {
                   color: _accent,
                   size: 18,
                 ),
+                const SizedBox(width: 5),
                 Flexible(
                   child: Text(
                     _dateText(context),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: textColor,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
                   ),
@@ -319,7 +321,7 @@ class _ListingCardState extends State<ListingCard> {
               style: TextStyle(
                 color: textColor,
                 fontSize: 22,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
               children: [
                 TextSpan(
@@ -331,7 +333,7 @@ class _ListingCardState extends State<ListingCard> {
                   style: TextStyle(
                     fontSize: 12,
                     color: mutedColor,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -419,7 +421,7 @@ class _ListingCardState extends State<ListingCard> {
               style: TextStyle(
                 color: mutedColor,
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const Spacer(),
@@ -428,7 +430,7 @@ class _ListingCardState extends State<ListingCard> {
               style: TextStyle(
                 color: textColor,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -465,7 +467,7 @@ class _ListingCardState extends State<ListingCard> {
             style: const TextStyle(
               color: Color(0xFF475569),
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -514,7 +516,7 @@ class _ListingCardState extends State<ListingCard> {
                 initials,
                 style: TextStyle(
                   color: _accent,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
               ),
@@ -534,7 +536,7 @@ class _ListingCardState extends State<ListingCard> {
                           style: TextStyle(
                             color: textColor,
                             fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -564,7 +566,7 @@ class _ListingCardState extends State<ListingCard> {
                           style: TextStyle(
                             color: textColor,
                             fontSize: 12,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         if (owner.ratingCount != null)
@@ -573,7 +575,7 @@ class _ListingCardState extends State<ListingCard> {
                             style: TextStyle(
                               color: mutedColor,
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                       ],
@@ -584,7 +586,7 @@ class _ListingCardState extends State<ListingCard> {
                           style: TextStyle(
                             color: mutedColor,
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -747,7 +749,7 @@ class _ListingCardState extends State<ListingCard> {
                   color: Color(0xFF64748B),
                   fontSize: 11,
                   height: 1.3,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -825,7 +827,7 @@ class _ListingCardState extends State<ListingCard> {
                       style: TextStyle(
                         color: textColor,
                         fontSize: 12,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -834,7 +836,7 @@ class _ListingCardState extends State<ListingCard> {
                     style: TextStyle(
                       color: mutedColor,
                       fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -956,7 +958,7 @@ class _ListingCardState extends State<ListingCard> {
                 style: TextStyle(
                   color: _accent,
                   fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(width: 4),
@@ -1002,7 +1004,7 @@ class _ListingCardState extends State<ListingCard> {
   String _dateText(BuildContext context) {
     if (_isTrip) {
       final date = _formatDate(context, widget.listing.flightDate);
-      final time = widget.listing.flightTime;
+      final time = _formatTime(widget.listing.flightTime);
       if (date != null && time != null) return '$date · $time';
       return date ?? time ?? '-';
     }
@@ -1019,6 +1021,23 @@ class _ListingCardState extends State<ListingCard> {
     if (date == null) return value;
     final locale = Localizations.localeOf(context).languageCode;
     return DateFormat('d MMM', locale).format(date);
+  }
+
+  /// Normalises any time-ish string to `HH:mm` (drops seconds).
+  /// Handles full ISO datetimes, `HH:mm:ss`, `HH:mm` and `H:mm`.
+  String? _formatTime(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    final raw = value.trim();
+    final dt = DateTime.tryParse(raw);
+    if (dt != null) {
+      return '${dt.hour.toString().padLeft(2, '0')}:'
+          '${dt.minute.toString().padLeft(2, '0')}';
+    }
+    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
+    if (match != null) {
+      return '${match.group(1)!.padLeft(2, '0')}:${match.group(2)}';
+    }
+    return raw;
   }
 
   String _formatNumber(double value) {
@@ -1082,7 +1101,7 @@ class _RouteCity extends StatelessWidget {
         color: color,
         fontSize: 21,
         height: 1.1,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -1213,7 +1232,7 @@ class _InfoRow extends StatelessWidget {
           style: TextStyle(
             color: mutedColor,
             fontSize: 12,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const Spacer(),
@@ -1222,7 +1241,7 @@ class _InfoRow extends StatelessWidget {
           style: TextStyle(
             color: textColor,
             fontSize: 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -1261,7 +1280,7 @@ class _Badge extends StatelessWidget {
             style: TextStyle(
               color: color,
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.2,
             ),
           ),
@@ -1297,7 +1316,7 @@ class _TierBadge extends StatelessWidget {
         style: TextStyle(
           color: style.color,
           fontSize: 10,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -1373,7 +1392,7 @@ class _OwnerStat extends StatelessWidget {
           style: TextStyle(
             color: mutedColor,
             fontSize: 11,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 3),
@@ -1382,7 +1401,7 @@ class _OwnerStat extends StatelessWidget {
           style: TextStyle(
             color: color,
             fontSize: 16,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -1431,7 +1450,7 @@ class _ActionButton extends StatelessWidget {
                   style: TextStyle(
                     color: color,
                     fontSize: 13,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

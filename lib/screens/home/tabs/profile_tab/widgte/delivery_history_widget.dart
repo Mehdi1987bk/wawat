@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../generated/l10n.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../home_tab/widget/wawat_courier_card.dart';
 import '../see_more_offers/delivery_full_list_screen.dart';
 
@@ -13,6 +14,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final offers = response.data ?? [];
 
     if (offers.isEmpty) {
@@ -20,14 +22,15 @@ class DeliveryHistoryWidget extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? WawatDark.surface : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: isDark ? Border.all(color: WawatDark.border) : null,
         ),
         child:   Text(
           S.of(context).gbdyh5g,
           style: TextStyle(
             fontSize: 16,
-            color: Color(0xFF6B7280),
+            color: isDark ? WawatDark.textMuted : Color(0xFF6B7280),
           ),
         ),
       );
@@ -37,8 +40,9 @@ class DeliveryHistoryWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? WawatDark.surface : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: isDark ? Border.all(color: WawatDark.border) : null,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 20),
        child: Column(
@@ -53,8 +57,8 @@ class DeliveryHistoryWidget extends StatelessWidget {
                   S.of(context).bfdgbt5,
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF000000),
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? WawatDark.textPrimary : Color(0xFF000000),
                   ),
                 ),
                 GestureDetector(
@@ -80,7 +84,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
                       S.of(context).bgnhju46,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),

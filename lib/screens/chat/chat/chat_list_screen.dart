@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/wawat_content.dart';
 import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 import '../bloc/chat_list_bloc.dart';
@@ -79,14 +80,15 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
   @override
   Widget body() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+      value: SystemUiOverlayStyle(
+        statusBarColor: isDark ? WawatDark.bg : Colors.white,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? WawatDark.bg : Colors.white,
         body: SafeArea(
           child: Column(
             children: [
@@ -94,6 +96,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                 onSearch: () {},
                 showArchived: _showArchived,
                 content: _content,
+                isDark: isDark,
                 onTabChanged: (archived) {
                   if (_showArchived == archived) return;
                   setState(() => _showArchived = archived);
@@ -118,13 +121,14 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
                         if (loadingSnapshot.data == true &&
                             conversations.isEmpty) {
-                          return const _ChatSkeleton();
+                          return _ChatSkeleton(isDark: isDark);
                         }
 
                         if (conversations.isEmpty) {
                           return _EmptyState(
                             showArchived: _showArchived,
                             content: _content,
+                            isDark: isDark,
                           );
                         }
 
@@ -144,7 +148,9 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                     : Divider(
                                         height: 1,
                                         indent: 20,
-                                        color: _ink900.withValues(alpha: 0.04),
+                                        color: isDark
+                                            ? WawatDark.divider
+                                            : _ink900.withValues(alpha: 0.04),
                                       ),
                             itemBuilder: (context, index) {
                               if (index == conversations.length) {
@@ -217,9 +223,10 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   }
 
   void _showConversationMenu(Conversation conversation) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.surface : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
@@ -234,7 +241,9 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFCBD5E1),
+                    color: isDark
+                        ? WawatDark.iconMuted
+                        : const Color(0xFFCBD5E1),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -243,12 +252,12 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   children: [
                     CircleAvatar(
                       radius: 22,
-                      backgroundColor: _brand50,
+                      backgroundColor: isDark ? WawatDark.brandSoft : _brand50,
                       child: Text(
                         conversation.user.initials,
                         style: const TextStyle(
                           color: _brand,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -259,16 +268,19 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                         children: [
                           Text(
                             conversation.user.fullname,
-                            style: const TextStyle(
-                              color: _ink900,
+                            style: TextStyle(
+                              color:
+                                  isDark ? WawatDark.textPrimary : _ink900,
                               fontSize: 15,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             _t('chat.action.profile'),
-                            style:
-                                const TextStyle(color: _ink400, fontSize: 12),
+                            style: TextStyle(
+                              color: isDark ? WawatDark.textMuted : _ink400,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -281,6 +293,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   label: conversation.isPinned
                       ? _t('chat.action.unpin')
                       : _t('chat.action.pin'),
+                  isDark: isDark,
                   onTap: () {
                     Navigator.pop(context);
                     bloc.togglePin(conversation.id);
@@ -291,6 +304,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   label: conversation.isArchived
                       ? _t('chat.action.unarchive')
                       : _t('chat.action.archive'),
+                  isDark: isDark,
                   onTap: () {
                     Navigator.pop(context);
                     bloc.toggleArchive(conversation.id);
@@ -302,6 +316,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                       ? _t('chat.action.unblock')
                       : _t('chat.action.block'),
                   danger: true,
+                  isDark: isDark,
                   onTap: () {
                     Navigator.pop(context);
                     conversation.isBlocked
@@ -313,6 +328,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   icon: PhosphorIconsRegular.trash,
                   label: _t('chat.action.delete'),
                   danger: true,
+                  isDark: isDark,
                   onTap: () {
                     Navigator.pop(context);
                     bloc.deleteConversation(conversation.id);
@@ -334,12 +350,14 @@ class _Header extends StatelessWidget {
   final VoidCallback onSearch;
   final bool showArchived;
   final Map<String, String> content;
+  final bool isDark;
   final ValueChanged<bool> onTabChanged;
 
   const _Header({
     required this.onSearch,
     required this.showArchived,
     required this.content,
+    required this.isDark,
     required this.onTabChanged,
   });
 
@@ -354,10 +372,10 @@ class _Header extends StatelessWidget {
               Expanded(
                 child: Text(
                   WawatContent.text(content, 'chat.list.title'),
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.textPrimary : _ink900,
                     fontSize: 22,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -367,11 +385,13 @@ class _Header extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _ink900.withValues(alpha: 0.04),
+                    color: isDark
+                        ? WawatDark.surfaceAlt
+                        : _ink900.withValues(alpha: 0.04),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(PhosphorIconsRegular.magnifyingGlass,
-                      color: _ink900, size: 20),
+                  child: Icon(PhosphorIconsRegular.magnifyingGlass,
+                      color: isDark ? WawatDark.icon : _ink900, size: 20),
                 ),
               ),
             ],
@@ -384,12 +404,14 @@ class _Header extends StatelessWidget {
               _TabChip(
                 label: WawatContent.text(content, 'chat.tab.all'),
                 selected: !showArchived,
+                isDark: isDark,
                 onTap: () => onTabChanged(false),
               ),
               const SizedBox(width: 8),
               _TabChip(
                 label: WawatContent.text(content, 'chat.tab.archive'),
                 selected: showArchived,
+                isDark: isDark,
                 onTap: () => onTabChanged(true),
               ),
             ],
@@ -403,11 +425,13 @@ class _Header extends StatelessWidget {
 class _TabChip extends StatelessWidget {
   final String label;
   final bool selected;
+  final bool isDark;
   final VoidCallback onTap;
 
   const _TabChip({
     required this.label,
     required this.selected,
+    required this.isDark,
     required this.onTap,
   });
 
@@ -418,15 +442,23 @@ class _TabChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? _brand : _ink900.withValues(alpha: 0.05),
+          color: selected
+              ? _brand
+              : isDark
+                  ? WawatDark.surfaceAlt
+                  : _ink900.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(99),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : _ink500,
+            color: selected
+                ? Colors.white
+                : isDark
+                    ? WawatDark.textSecondary
+                    : _ink500,
             fontSize: 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -437,8 +469,13 @@ class _TabChip extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   final bool showArchived;
   final Map<String, String> content;
+  final bool isDark;
 
-  const _EmptyState({required this.showArchived, required this.content});
+  const _EmptyState({
+    required this.showArchived,
+    required this.content,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -452,7 +489,7 @@ class _EmptyState extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _brand50,
+                color: isDark ? WawatDark.brandSoft : _brand50,
                 borderRadius: BorderRadius.circular(26),
               ),
               child: Icon(
@@ -475,10 +512,10 @@ class _EmptyState extends StatelessWidget {
                       'chat.empty_title',
                     ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 18,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 7),
@@ -493,8 +530,8 @@ class _EmptyState extends StatelessWidget {
                       'chat.empty_subtitle',
                     ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink500,
                 fontSize: 14,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -508,7 +545,9 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _ChatSkeleton extends StatelessWidget {
-  const _ChatSkeleton();
+  final bool isDark;
+
+  const _ChatSkeleton({required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -519,19 +558,19 @@ class _ChatSkeleton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
-            const _SkeletonBox(width: 48, height: 48, radius: 24),
+            _SkeletonBox(width: 48, height: 48, radius: 24, isDark: isDark),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  _SkeletonBox(width: 140, height: 14, radius: 8),
-                  SizedBox(height: 10),
-                  _SkeletonBox(width: 220, height: 12, radius: 8),
+                children: [
+                  _SkeletonBox(width: 140, height: 14, radius: 8, isDark: isDark),
+                  const SizedBox(height: 10),
+                  _SkeletonBox(width: 220, height: 12, radius: 8, isDark: isDark),
                 ],
               ),
             ),
-            const _SkeletonBox(width: 34, height: 12, radius: 8),
+            _SkeletonBox(width: 34, height: 12, radius: 8, isDark: isDark),
           ],
         ),
       ),
@@ -543,11 +582,13 @@ class _SkeletonBox extends StatelessWidget {
   final double width;
   final double height;
   final double radius;
+  final bool isDark;
 
   const _SkeletonBox({
     required this.width,
     required this.height,
     required this.radius,
+    required this.isDark,
   });
 
   @override
@@ -556,7 +597,7 @@ class _SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFE2E8F0),
+        color: isDark ? WawatDark.surfaceAlt : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(radius),
       ),
     );
@@ -568,26 +609,33 @@ class _MenuTile extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool danger;
+  final bool isDark;
 
   const _MenuTile({
     required this.icon,
     required this.label,
     required this.onTap,
+    required this.isDark,
     this.danger = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? const Color(0xFFEF4444) : _ink900;
+    final color = danger
+        ? const Color(0xFFEF4444)
+        : (isDark ? WawatDark.textPrimary : _ink900);
     return ListTile(
       onTap: onTap,
-      leading: Icon(icon, color: danger ? color : _ink500),
+      leading: Icon(
+        icon,
+        color: danger ? color : (isDark ? WawatDark.icon : _ink500),
+      ),
       title: Text(
         label,
         style: TextStyle(
           color: color,
           fontSize: 15,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

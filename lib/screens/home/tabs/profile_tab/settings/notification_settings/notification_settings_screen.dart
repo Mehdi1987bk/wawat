@@ -6,6 +6,7 @@ import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/response/notifications.dart';
 import '../../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../../main.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -79,14 +80,15 @@ class _NotificationSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
+      value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: _screenBg,
+        backgroundColor: isDark ? WawatDark.bg : _screenBg,
         body: SafeArea(
           child: Column(
             children: [
@@ -150,8 +152,10 @@ class _NotificationSettingsScreenState
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.star,
-                                iconColor: _amber,
-                                iconBg: _amber50,
+                                iconColor: isDark ? WawatDark.warning : _amber,
+                                iconBg: isDark
+                                    ? const Color(0xFF3A2A12)
+                                    : _amber50,
                                 title: 'Rəylər',
                                 subtitle: 'Yeni rəy və xatırlatma',
                                 value: notifyReviews,
@@ -190,8 +194,10 @@ class _NotificationSettingsScreenState
                             children: [
                               _SettingRow(
                                 icon: PhosphorIconsFill.moon,
-                                iconColor: _ink500,
-                                iconBg: _ink900.withValues(alpha: 0.05),
+                                iconColor: isDark ? WawatDark.icon : _ink500,
+                                iconBg: isDark
+                                    ? WawatDark.surfaceAlt
+                                    : _ink900.withValues(alpha: 0.05),
                                 title: 'Push-u sakitləşdir',
                                 subtitle: 'Seçilən saatlarda push gəlməz',
                                 value: quietEnabled,
@@ -346,28 +352,29 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      color: Colors.white,
+      color: isDark ? WawatDark.surface : Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
       child: Row(
         children: [
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onBack,
-            child: const Icon(
+            child: Icon(
               PhosphorIconsBold.arrowLeft,
-              color: _ink700,
+              color: isDark ? WawatDark.icon : _ink700,
               size: 24,
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Text(
               'Bildiriş ayarları',
               style: TextStyle(
-                color: _ink900,
+                color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 16,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -384,15 +391,16 @@ class _GroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(
-          color: _ink400,
+        style: TextStyle(
+          color: isDark ? WawatDark.textMuted : _ink400,
           fontSize: 11,
           letterSpacing: 0.4,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -406,19 +414,23 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? WawatDark.surface : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: _ink900.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: isDark ? Border.all(color: WawatDark.border) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: _ink900.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
       ),
       child: Column(children: children),
     );
@@ -448,6 +460,9 @@ class _SettingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveIconBg =
+        isDark && iconBg == _brand50 ? WawatDark.brandSoft : iconBg;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => onChanged(!value),
@@ -457,7 +472,10 @@ class _SettingRow extends StatelessWidget {
           border: isLast
               ? null
               : Border(
-                  bottom: BorderSide(color: _ink900.withValues(alpha: 0.05)),
+                  bottom: BorderSide(
+                    color:
+                        isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
+                  ),
                 ),
         ),
         child: Row(
@@ -466,7 +484,7 @@ class _SettingRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: iconBg,
+                color: effectiveIconBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: iconColor, size: 20),
@@ -478,19 +496,19 @@ class _SettingRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textPrimary : _ink900,
                       fontSize: 14,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink400,
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -550,26 +568,29 @@ class _QuietHoursRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Opacity(
       opacity: enabled ? 1 : 0.45,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         child: Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Başlanğıc — son',
                 style: TextStyle(
-                  color: _ink600,
+                  color: isDark ? WawatDark.textSecondary : _ink600,
                   fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             _TimeChip(label: start, onTap: onStartTap),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text('—', style: TextStyle(color: _ink400)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text('—',
+                  style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink400)),
             ),
             _TimeChip(label: end, onTap: onEndTap),
           ],
@@ -590,20 +611,22 @@ class _TimeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: _ink900.withValues(alpha: 0.05),
+          color:
+              isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            color: _ink800,
+          style: TextStyle(
+            color: isDark ? WawatDark.textPrimary : _ink800,
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -616,27 +639,30 @@ class _CriticalNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? WawatDark.surface : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _ink900.withValues(alpha: 0.06)),
+        border: Border.all(
+            color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.06)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(PhosphorIconsFill.lockSimple, color: _ink400, size: 18),
-          SizedBox(width: 10),
+          Icon(PhosphorIconsFill.lockSimple,
+              color: isDark ? WawatDark.iconMuted : _ink400, size: 18),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.',
               style: TextStyle(
-                color: _ink500,
+                color: isDark ? WawatDark.textSecondary : _ink500,
                 fontSize: 12.5,
                 height: 1.3,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

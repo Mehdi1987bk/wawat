@@ -199,7 +199,7 @@ class BottomNavigationItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 height: 1.1,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: iconColor,
               ),
             ),

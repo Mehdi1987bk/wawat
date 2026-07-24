@@ -182,6 +182,26 @@ class ChatApi {
     return ShipmentResponse.fromJson(response.data ?? {});
   }
 
+  Future<ShipmentsPage> getShipments({
+    String? filter,
+    String? status,
+    String? role,
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_baseUrl/shipments',
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+        if (filter != null) 'filter': filter,
+        if (status != null) 'status': status,
+        if (role != null) 'role': role,
+      },
+    );
+    return ShipmentsPage.fromJson(response.data ?? {});
+  }
+
   Future<String?> shipmentAction(
     String shipmentId,
     String action, {

@@ -46,7 +46,7 @@ class _AuthWelcomeScreenState
                     'Qonaq',
                     style: TextStyle(
                       color: Colors.white70,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -115,7 +115,7 @@ class _AuthWelcomeScreenState
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -158,7 +158,7 @@ class _WhiteButton extends StatelessWidget {
           text,
           style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -194,7 +194,7 @@ class _GlassButton extends StatelessWidget {
           text,
           style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -233,7 +233,7 @@ class _OAuthButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
           textStyle: const TextStyle(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
         ),
@@ -259,7 +259,7 @@ class _DividerLabel extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

@@ -427,6 +427,28 @@ class ShipmentData {
   final double? weightKg;
   final double? priceTotal;
   final String? note;
+  final String? source;
+  final String? listingType;
+  final String? myRole;
+  final String? conversationId;
+  final String? cityFrom;
+  final String? cityTo;
+  final int? cityFromId;
+  final int? cityToId;
+  final String? travelDate;
+  final String? dateFrom;
+  final String? dateTo;
+  final ShipmentParty? sender;
+  final ShipmentParty? carrier;
+  final String? cancelReason;
+  final String? cancelReasonLabel;
+  final String? cancelReasonNote;
+  final String? pickedUpAt;
+  final String? deliveredAt;
+  final String? completedAt;
+  final String? autoCompleteAt;
+  final String? expiresAt;
+  final String? createdAt;
 
   const ShipmentData({
     required this.id,
@@ -438,9 +460,33 @@ class ShipmentData {
     this.weightKg,
     this.priceTotal,
     this.note,
+    this.source,
+    this.listingType,
+    this.myRole,
+    this.conversationId,
+    this.cityFrom,
+    this.cityTo,
+    this.cityFromId,
+    this.cityToId,
+    this.travelDate,
+    this.dateFrom,
+    this.dateTo,
+    this.sender,
+    this.carrier,
+    this.cancelReason,
+    this.cancelReasonLabel,
+    this.cancelReasonNote,
+    this.pickedUpAt,
+    this.deliveredAt,
+    this.completedAt,
+    this.autoCompleteAt,
+    this.expiresAt,
+    this.createdAt,
   });
 
   factory ShipmentData.fromJson(Map<String, dynamic> json) {
+    final senderJson = _map(json['sender']);
+    final carrierJson = _map(json['carrier']);
     return ShipmentData(
       id: _string(json['id']) ?? '',
       status: _string(json['status']) ?? '',
@@ -454,6 +500,113 @@ class ShipmentData {
       weightKg: _double(json['weight_kg']),
       priceTotal: _double(json['price_total']),
       note: _string(json['note']),
+      source: _string(json['source']),
+      listingType: _string(json['listing_type']),
+      myRole: _string(json['my_role']),
+      conversationId: _string(json['conversation_id']),
+      cityFrom: _string(json['city_from']),
+      cityTo: _string(json['city_to']),
+      cityFromId: _int(json['city_from_id']),
+      cityToId: _int(json['city_to_id']),
+      travelDate: _string(json['travel_date']),
+      dateFrom: _string(json['date_from']),
+      dateTo: _string(json['date_to']),
+      sender: senderJson == null ? null : ShipmentParty.fromJson(senderJson),
+      carrier:
+          carrierJson == null ? null : ShipmentParty.fromJson(carrierJson),
+      cancelReason: _string(json['cancel_reason']),
+      cancelReasonLabel: _string(json['cancel_reason_label']),
+      cancelReasonNote: _string(json['cancel_reason_note']),
+      pickedUpAt: _string(json['picked_up_at']),
+      deliveredAt: _string(json['delivered_at']),
+      completedAt: _string(json['completed_at']),
+      autoCompleteAt: _string(json['auto_complete_at']),
+      expiresAt: _string(json['expires_at']),
+      createdAt: _string(json['created_at']),
+    );
+  }
+
+  bool get isSender => myRole == 'sender';
+  bool get isCarrier => myRole == 'carrier';
+
+  String get route => [cityFrom, cityTo]
+      .where((city) => city != null && city.isNotEmpty)
+      .join(' → ');
+}
+
+class ShipmentParty {
+  final String? username;
+  final String fullname;
+  final String? avatar;
+  final bool isVerified;
+
+  const ShipmentParty({
+    this.username,
+    required this.fullname,
+    this.avatar,
+    this.isVerified = false,
+  });
+
+  factory ShipmentParty.fromJson(Map<String, dynamic> json) {
+    return ShipmentParty(
+      username: _string(json['username']),
+      fullname: _string(json['fullname']) ?? _string(json['full_name']) ?? '',
+      avatar: _string(json['avatar']),
+      isVerified: _bool(json['is_verified']),
+    );
+  }
+}
+
+class ShipmentCounts {
+  final int active;
+  final int history;
+  final int awaitingMe;
+
+  const ShipmentCounts({
+    this.active = 0,
+    this.history = 0,
+    this.awaitingMe = 0,
+  });
+
+  factory ShipmentCounts.fromJson(Map<String, dynamic> json) {
+    return ShipmentCounts(
+      active: _int(json['active']) ?? 0,
+      history: _int(json['history']) ?? 0,
+      awaitingMe: _int(json['awaiting_me']) ?? 0,
+    );
+  }
+}
+
+class ShipmentsPage {
+  final List<ShipmentData> data;
+  final int currentPage;
+  final int lastPage;
+  final int total;
+  final ShipmentCounts counts;
+
+  const ShipmentsPage({
+    required this.data,
+    required this.currentPage,
+    required this.lastPage,
+    required this.total,
+    required this.counts,
+  });
+
+  factory ShipmentsPage.fromJson(Map<String, dynamic> json) {
+    final list = json['data'];
+    final meta = _map(json['meta']) ?? const {};
+    return ShipmentsPage(
+      data: list is List
+          ? list
+              .whereType<Map>()
+              .map((item) =>
+                  ShipmentData.fromJson(Map<String, dynamic>.from(item)))
+              .toList()
+          : const [],
+      currentPage: _int(meta['current_page']) ?? 1,
+      lastPage: _int(meta['last_page']) ?? 1,
+      total: _int(meta['total']) ?? 0,
+      counts: ShipmentCounts.fromJson(_map(meta['counts']) ?? const {}),
     );
   }
 }

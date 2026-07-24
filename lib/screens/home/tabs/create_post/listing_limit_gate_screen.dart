@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/user.dart';
 import '../../../../presentation/bloc/base_screen.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/wawat_content.dart';
 import '../profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'create_post_screen.dart';
@@ -58,8 +59,9 @@ class _ListingLimitGateScreenState
 
   @override
   Widget body() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.bg : Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -87,10 +89,10 @@ class _ListingLimitGateScreenState
                             : _t(
                                 'limit.active_shipment_list',
                               ),
-                        style: const TextStyle(
-                          color: _ink500,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textMuted : _ink500,
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -183,27 +185,31 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 54,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0x0F0F172A))),
+      decoration: BoxDecoration(
+        border: Border(
+            bottom: BorderSide(
+                color: isDark ? WawatDark.divider : const Color(0x0F0F172A))),
       ),
       child: Row(
         children: [
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Icon(PhosphorIconsBold.x, color: _ink700, size: 26),
+            child: Icon(PhosphorIconsBold.x,
+                color: isDark ? WawatDark.icon : _ink700, size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 15,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -226,6 +232,7 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final noun = isTrip
         ? WawatContent.text(content, 'limit.noun_trip')
         : WawatContent.text(content, 'limit.noun_shipment');
@@ -235,10 +242,11 @@ class _Hero extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: _amber50,
+            color: isDark ? const Color(0xFF3A2A12) : _amber50,
             borderRadius: BorderRadius.circular(22),
           ),
-          child: const Icon(PhosphorIconsFill.stack, color: _amber, size: 38),
+          child: Icon(PhosphorIconsFill.stack,
+              color: isDark ? WawatDark.warning : _amber, size: 38),
         ),
         const SizedBox(height: 16),
         Text(
@@ -247,10 +255,10 @@ class _Hero extends StatelessWidget {
             isTrip ? 'limit.trip_title' : 'limit.shipment_title',
           ).replaceAll('{noun}', noun),
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: isDark ? WawatDark.textPrimary : _ink900,
             fontSize: 19,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 8),
@@ -263,8 +271,9 @@ class _Hero extends StatelessWidget {
               children: [
                 TextSpan(
                   text: WawatContent.text(content, 'limit.pause_word'),
-                  style: const TextStyle(
-                      color: _ink800, fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                      color: isDark ? WawatDark.textPrimary : _ink800,
+                      fontWeight: FontWeight.w700),
                 ),
                 TextSpan(
                   text: WawatContent.text(
@@ -275,8 +284,8 @@ class _Hero extends StatelessWidget {
               ],
             ),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: isDark ? WawatDark.textSecondary : _ink500,
               fontSize: 13,
               height: 1.35,
               fontWeight: FontWeight.w500,
@@ -303,6 +312,7 @@ class _ActiveListingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final date = isTrip ? listing.flightDate : listing.deliveryDateFrom;
     final status = listing.statusLabel ??
         content['enum.listing_status.${listing.status}'] ??
@@ -310,16 +320,19 @@ class _ActiveListingTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? WawatDark.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x0F0F172A)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        border: Border.all(
+            color: isDark ? WawatDark.border : const Color(0x0F0F172A)),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
       ),
       child: Row(
         children: [
@@ -327,7 +340,7 @@ class _ActiveListingTile extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: _brand50,
+              color: isDark ? WawatDark.brandSoft : _brand50,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -347,10 +360,10 @@ class _ActiveListingTile extends StatelessWidget {
                   '${listing.cityFrom ?? WawatContent.text(content, 'search.from_placeholder')} → ${listing.cityTo ?? WawatContent.text(content, 'search.to_placeholder')}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.textPrimary : _ink900,
                     fontSize: 13,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -367,7 +380,7 @@ class _ActiveListingTile extends StatelessWidget {
                         style: const TextStyle(
                           color: _emerald,
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -383,19 +396,22 @@ class _ActiveListingTile extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
               decoration: BoxDecoration(
-                color: _ink900.withValues(alpha: 0.05),
+                color: isDark
+                    ? WawatDark.surfaceAlt
+                    : _ink900.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(PhosphorIconsBold.pause, color: _ink700, size: 14),
+                  Icon(PhosphorIconsBold.pause,
+                      color: isDark ? WawatDark.icon : _ink700, size: 14),
                   const SizedBox(width: 5),
                   Text(
                     WawatContent.text(content, 'common.pause'),
-                    style: const TextStyle(
-                      color: _ink700,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textSecondary : _ink700,
                       fontSize: 12,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -415,10 +431,11 @@ class _InfoBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
-        color: _brand50.withValues(alpha: 0.60),
+        color: isDark ? WawatDark.brandSoft : _brand50.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -432,11 +449,11 @@ class _InfoBox extends StatelessWidget {
                 content,
                 'limit.pause_info',
               ),
-              style: const TextStyle(
-                color: _ink600,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink600,
                 fontSize: 11.5,
                 height: 1.28,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -454,11 +471,14 @@ class _BottomCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0x0F0F172A))),
+      decoration: BoxDecoration(
+        color: isDark ? WawatDark.surface : Colors.white,
+        border: Border(
+            top: BorderSide(
+                color: isDark ? WawatDark.divider : const Color(0x0F0F172A))),
       ),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -467,24 +487,25 @@ class _BottomCta extends StatelessWidget {
           height: 54,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _ink900.withValues(alpha: 0.04),
+            color:
+                isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(PhosphorIconsBold.listBullets,
-                  color: _ink700, size: 20),
+              Icon(PhosphorIconsBold.listBullets,
+                  color: isDark ? WawatDark.icon : _ink700, size: 20),
               const SizedBox(width: 8),
               Text(
                 WawatContent.text(
                   content,
                   'limit.view_all_my_listings',
                 ),
-                style: const TextStyle(
-                  color: _ink700,
+                style: TextStyle(
+                  color: isDark ? WawatDark.textSecondary : _ink700,
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -514,19 +535,21 @@ class _EmptyList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.03),
+        color:
+            isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         WawatContent.text(content, 'limit.empty_active'),
-        style: const TextStyle(
-          color: _ink500,
+        style: TextStyle(
+          color: isDark ? WawatDark.textMuted : _ink500,
           fontSize: 12,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

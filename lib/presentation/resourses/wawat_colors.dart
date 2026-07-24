@@ -12,9 +12,9 @@ class WawatColors {
   static const Color backgroundWhite = Color(0xFFFFFFFF); // Белый
 
   // Текстовые цвета
-  static const Color textPrimary = Color(0xFF1A1A1A); // Черный
-  static const Color textSecondary = Color(0xFF999999); // Серый
-  static const Color textDisabled = Color(0xFF999999); // Отключенный текст
+  static const Color textPrimary = Color(0xFF1A1A1A); // Почти чёрный — заголовки
+  static const Color textSecondary = Color(0xFF6B7280); // Серый — второстепенный текст
+  static const Color textDisabled = Color(0xFF9CA3AF); // Светло-серый — отключённый текст
 
   // Акцентные цвета
   static const Color success = Color(0xFF4CAF50); // Зеленый (для "Проверен")

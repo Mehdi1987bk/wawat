@@ -244,7 +244,7 @@ class _ForgotPasswordScreenState
               style: TextStyle(
                 color: titleColor,
                 fontSize: 26,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -333,7 +333,7 @@ class _ForgotPasswordScreenState
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.red.shade600,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
           ),
@@ -356,7 +356,7 @@ class _ForgotPasswordScreenState
           style: TextStyle(
             color: isExpired ? Colors.orange.shade600 : bodyColor,
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         if (!isExpired) ...[
@@ -368,7 +368,7 @@ class _ForgotPasswordScreenState
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: _brand,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -458,7 +458,7 @@ class _ForgotPasswordScreenState
             style: TextStyle(
               color: titleColor,
               fontSize: 26,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 10),
@@ -519,7 +519,7 @@ class _StepIndicator extends StatelessWidget {
                       style: TextStyle(
                         color:
                             isActive ? Colors.white : const Color(0xFF9CA3AF),
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),
                     ),
@@ -579,7 +579,7 @@ class _AuthField extends StatelessWidget {
           style: TextStyle(
             color: labelColor,
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
           ),
         ),
@@ -621,7 +621,7 @@ class _AuthField extends StatelessWidget {
             style: TextStyle(
               color: Colors.red.shade600,
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -663,7 +663,7 @@ class _OtpBox extends StatelessWidget {
         style: TextStyle(
           color: isDark ? Colors.white : const Color(0xFF111827),
           fontSize: 20,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w700,
         ),
         decoration: InputDecoration(
           counterText: '',
@@ -719,7 +719,7 @@ class _PrimaryButton extends StatelessWidget {
           text,
           style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -756,7 +756,7 @@ class _AlertBox extends StatelessWidget {
               style: TextStyle(
                 color: isDark ? Colors.red.shade100 : Colors.red.shade700,
                 fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

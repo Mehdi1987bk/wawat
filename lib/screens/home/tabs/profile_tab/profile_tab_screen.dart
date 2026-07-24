@@ -1,18 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../data/network/api/chat_api.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../domain/entities/pagination.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
-import '../../../chat/chat/chat_list_screen.dart';
 import '../fovorite/fovorite_offer_screen.dart';
 import '../home_tab/search/search_offer_list_screen.dart';
 import '../listings/promotion/promotion_screens.dart';
 import 'faq/faq_screen.dart';
 import 'blocked_users/blocked_users_screen.dart';
+import 'deals/deals_list_screen.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
@@ -33,6 +37,21 @@ const _ink300 = Color(0xFFCBD5E1);
 const _ink100 = Color(0xFFF1F5F9);
 const _screen = Color(0xFFF4F6F9);
 
+// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не меняется),
+// тёмная ветка = единый графит из [WawatDark].
+Color _cScreen(bool d) => d ? WawatDark.bg : _screen;
+Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
+Color _cFill(bool d) => d ? WawatDark.surfaceAlt : _ink100;
+Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
+Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink500;
+Color _cText3(bool d) => d ? WawatDark.textSecondary : _ink600;
+Color _cMuted(bool d) => d ? WawatDark.textMuted : _ink400;
+Color _cFaint(bool d) => d ? WawatDark.iconMuted : _ink300;
+Color _cLine(bool d) => d ? WawatDark.divider : _ink900.withValues(alpha: .06);
+Color _cBrandSoft(bool d) => d ? WawatDark.brandSoft : _brand50;
+BoxBorder? _cCardBorder(bool d) =>
+    d ? Border.all(color: WawatDark.border) : null;
+
 String _text(Map<String, String> content, String key, String fallback) {
   return WawatContent.text(content, key, fallback);
 }
@@ -47,11 +66,23 @@ class ProfileTabScreen extends StatefulWidget {
 class _ProfileTabScreenState extends State<ProfileTabScreen> {
   final WawatProfileApi _api = WawatProfileApi();
   late Future<WawatProfileBundle> _future;
+  late Future<int> _activeDealsCountFuture;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _activeDealsCountFuture = _loadActiveDealsCount();
+  }
+
+  Future<int> _loadActiveDealsCount() async {
+    try {
+      final page =
+          await sl.get<ChatApi>().getShipments(filter: 'active', perPage: 1);
+      return page.counts.active;
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<WawatProfileBundle> _load() async {
@@ -73,7 +104,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   void _reload() {
-    setState(() => _future = _load());
+    setState(() {
+      _future = _load();
+      _activeDealsCountFuture = _loadActiveDealsCount();
+    });
   }
 
   void _push(Widget screen) {
@@ -81,13 +115,15 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   void _openUnavailable(Map<String, String> content, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: _ink900,
+        backgroundColor: isDark ? WawatDark.elevated : _ink900,
         content: Text(
           _text(content, 'common.coming_soon', '$label tezliklə aktiv olacaq.'),
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -163,6 +199,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     } catch (_) {}
 
     if (!mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -173,9 +210,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           child: Container(
             margin: const EdgeInsets.only(top: 64),
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            decoration: BoxDecoration(
+              color: _cCard(isDark),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(30)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -186,7 +224,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     width: 40,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: _ink300,
+                      color: _cFaint(isDark),
                       borderRadius: BorderRadius.circular(99),
                     ),
                   ),
@@ -194,10 +232,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                 const SizedBox(height: 18),
                 Text(
                   _text(content, 'menu.language', 'Dil'),
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 16,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -207,10 +245,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     'menu.language_subtitle',
                     'Tətbiq dilini seçin.',
                   ),
-                  style: const TextStyle(
-                    color: _ink400,
+                  style: TextStyle(
+                    color: _cMuted(isDark),
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -241,6 +279,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   Future<void> _confirmLogout(Map<String, String> content) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -249,9 +288,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           top: false,
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 22),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            decoration: BoxDecoration(
+              color: _cCard(isDark),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(30)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -260,7 +300,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: _ink300,
+                    color: _cFaint(isDark),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -269,11 +309,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: _ink100,
+                    color: _cFill(isDark),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Icon(PhosphorIconsRegular.signOut,
-                      color: _ink600, size: 28),
+                  child: Icon(PhosphorIconsRegular.signOut,
+                      color: _cText3(isDark), size: 28),
                 ),
                 const SizedBox(height: 14),
                 Text(
@@ -282,10 +322,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     'menu.logout_confirm_title',
                     'Çıxış etmək?',
                   ),
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 17,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -296,10 +336,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     'Yenidən daxil olmaq üçün e-poçt və parolunuz lazım olacaq.',
                   ),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _ink500,
+                  style: TextStyle(
+                    color: _cText2(isDark),
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -320,19 +360,19 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                       _text(content, 'menu.logout', 'Çıxış'),
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(sheetContext).pop(false),
-                  child: const Text(
+                  child: Text(
                     'İmtina et',
                     style: TextStyle(
-                      color: _ink400,
+                      color: _cMuted(isDark),
                       fontSize: 13,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -362,17 +402,19 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
         final bundle = snapshot.data!;
         final content = bundle.content;
         final user = bundle.user;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         final activeListings =
             user.stats.listingsActive ?? bundle.listings.data.length;
         final reviewsCount =
             user.stats.reviewsReceivedCount ?? bundle.reviews.data.length;
 
         return Scaffold(
-          backgroundColor: _screen,
+          backgroundColor: _cScreen(isDark),
           body: SafeArea(
             bottom: false,
             child: RefreshIndicator(
               color: _brand,
+              backgroundColor: isDark ? WawatDark.surface : Colors.white,
               onRefresh: () async => _reload(),
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 112),
@@ -382,10 +424,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                     child: Text(
                       _text(content, 'menu.title', 'Menyu'),
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: _cText(isDark),
                         fontSize: 17,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -414,10 +456,24 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         ),
                         onTap: () => _push(const MyPromotionsScreen()),
                       ),
-                      _MenuRow(
-                        icon: PhosphorIconsFill.handshake,
-                        label: _text(content, 'menu.deals', 'Sövdələşmələrim'),
-                        onTap: () => _push(ChatListScreen()),
+                      FutureBuilder<int>(
+                        future: _activeDealsCountFuture,
+                        builder: (context, snapshot) {
+                          final count = snapshot.data ?? 0;
+                          return _MenuRow(
+                            icon: PhosphorIconsFill.handshake,
+                            label:
+                                _text(content, 'menu.deals', 'Sövdələşmələrim'),
+                            badge: count > 0
+                                ? _text(
+                                    content,
+                                    'deals.active_badge_template',
+                                    '{count} aktiv',
+                                  ).replaceAll('{count}', '$count')
+                                : null,
+                            onTap: () => _push(DealsListScreen()),
+                          );
+                        },
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.heart,
@@ -560,6 +616,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         trailingText: _localeName(user.preferredLocale),
                         onTap: () => _openLanguageSheet(bundle),
                       ),
+                      _ThemeModeRow(
+                        label: _text(content, 'menu.appearance', 'Görünüş'),
+                      ),
                       _MenuRow(
                         icon: PhosphorIconsFill.prohibit,
                         label: _text(
@@ -685,15 +744,15 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                       onTap: () => _openDeleteAccount(bundle),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       'Wawatair · v1.0.0',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: _ink400,
+                        color: _cMuted(isDark),
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -720,6 +779,7 @@ class _ProfileHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -727,15 +787,18 @@ class _ProfileHeaderCard extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(12, 14, 12, 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cCard(isDark),
           borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: _ink900.withValues(alpha: .07),
-              blurRadius: 26,
-              offset: const Offset(0, 12),
-            ),
-          ],
+          border: _cCardBorder(isDark),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: _ink900.withValues(alpha: .07),
+                    blurRadius: 26,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -752,10 +815,10 @@ class _ProfileHeaderCard extends StatelessWidget {
                           user.safeFullName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _ink900,
+                          style: TextStyle(
+                            color: _cText(isDark),
                             fontSize: 16,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -780,10 +843,10 @@ class _ProfileHeaderCard extends StatelessWidget {
                         : '@${user.username}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: _cMuted(isDark),
                       fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 7),
@@ -798,7 +861,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                         style: const TextStyle(
                           color: _brand,
                           fontSize: 12,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -812,8 +875,8 @@ class _ProfileHeaderCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(PhosphorIconsRegular.caretRight,
-                color: _ink300, size: 18),
+            Icon(PhosphorIconsRegular.caretRight,
+                color: _cFaint(isDark), size: 18),
           ],
         ),
       ),
@@ -853,7 +916,7 @@ class _MenuAvatar extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontSize: 18,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -867,18 +930,19 @@ class _SmallTier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _ink100,
+        color: _cFill(isDark),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: _ink600,
+        style: TextStyle(
+          color: _cText3(isDark),
           fontSize: 10.5,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -892,14 +956,15 @@ class _MenuSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
       child: Text(
         text,
-        style: const TextStyle(
-          color: _ink500,
+        style: TextStyle(
+          color: _cText2(isDark),
           fontSize: 12,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -913,18 +978,22 @@ class _MenuGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cCard(isDark),
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: _ink900.withValues(alpha: .06),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
+        border: _cCardBorder(isDark),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: _ink900.withValues(alpha: .06),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(children: children),
@@ -953,8 +1022,9 @@ class _MenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
-      color: Colors.white,
+      color: _cCard(isDark),
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -965,7 +1035,7 @@ class _MenuRow extends StatelessWidget {
                 ? null
                 : Border(
                     bottom: BorderSide(
-                      color: _ink900.withValues(alpha: .06),
+                      color: _cLine(isDark),
                       width: 1,
                     ),
                   ),
@@ -976,7 +1046,7 @@ class _MenuRow extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: _brand50,
+                  color: _cBrandSoft(isDark),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: _brand, size: 19),
@@ -987,10 +1057,10 @@ class _MenuRow extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: _cText(isDark),
                     fontSize: 14,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -1000,15 +1070,23 @@ class _MenuRow extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: amberBadge ? const Color(0xFFFFF7ED) : _brand50,
+                    color: amberBadge
+                        ? (isDark
+                            ? const Color(0xFF3A2A12)
+                            : const Color(0xFFFFF7ED))
+                        : _cBrandSoft(isDark),
                     borderRadius: BorderRadius.circular(99),
                   ),
                   child: Text(
                     badge!,
                     style: TextStyle(
-                      color: amberBadge ? const Color(0xFFD97706) : _brand,
+                      color: amberBadge
+                          ? (isDark
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFFD97706))
+                          : _brand,
                       fontSize: 10.5,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1017,22 +1095,209 @@ class _MenuRow extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 8),
                   child: Text(
                     trailingText!,
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: _cMuted(isDark),
                       fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               const SizedBox(width: 8),
-              const Icon(
+              Icon(
                 PhosphorIconsRegular.caretRight,
-                color: _ink300,
+                color: _cFaint(isDark),
                 size: 16,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Menu row that toggles the app light/dark theme via [ThemeManager], with an
+/// animated day↔night switch (sliding sun/moon knob) as its trailing control.
+class _ThemeModeRow extends StatelessWidget {
+  final String label;
+
+  const _ThemeModeRow({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: _cCard(isDark),
+      child: InkWell(
+        onTap: () =>
+            Provider.of<ThemeManager>(context, listen: false).toggleTheme(),
+        child: Container(
+          height: 58,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: _cLine(isDark), width: 1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _cBrandSoft(isDark),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(PhosphorIconsFill.circleHalf,
+                    color: _brand, size: 19),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _cText(isDark),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _ThemeSwitch(isDark: isDark),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Animated day/night toggle: a gradient track (sky blue ↔ night navy), a
+/// sliding white knob whose icon cross-fades sun ↔ moon, and stars that appear
+/// at night. Purely visual — the parent row owns the tap/toggle.
+class _ThemeSwitch extends StatelessWidget {
+  final bool isDark;
+
+  const _ThemeSwitch({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 340),
+      curve: Curves.easeInOut,
+      width: 58,
+      height: 32,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? const [Color(0xFF243244), Color(0xFF0C1524)]
+              : const [Color(0xFF8EC5FF), Color(0xFF5B9DF9)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? const Color(0xFF0B1220) : const Color(0xFF5B9DF9))
+                .withValues(alpha: 0.35),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          _StarLayer(show: isDark),
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 340),
+            curve: Curves.easeInOutCubic,
+            alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              width: 26,
+              height: 26,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.22),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 320),
+                transitionBuilder: (child, anim) => FadeTransition(
+                  opacity: anim,
+                  child: ScaleTransition(
+                    scale: anim,
+                    child: RotationTransition(
+                      turns: Tween<double>(begin: 0.55, end: 1).animate(anim),
+                      child: child,
+                    ),
+                  ),
+                ),
+                child: Icon(
+                  isDark ? PhosphorIconsFill.moon : PhosphorIconsFill.sun,
+                  key: ValueKey<bool>(isDark),
+                  size: 15,
+                  color: isDark
+                      ? const Color(0xFF475569)
+                      : const Color(0xFFF59E0B),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fades the three stars in (night) / out (day) together.
+class _StarLayer extends StatelessWidget {
+  final bool show;
+
+  const _StarLayer({required this.show});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 260),
+      opacity: show ? 1 : 0,
+      child: const SizedBox.expand(
+        child: Stack(
+          children: [
+            Positioned(left: 6, top: 6, child: _Star(size: 2.5)),
+            Positioned(left: 14, top: 13, child: _Star(size: 1.6)),
+            Positioned(left: 5, top: 18, child: _Star(size: 1.3)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Star extends StatelessWidget {
+  final double size;
+
+  const _Star({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
       ),
     );
   }
@@ -1053,16 +1318,27 @@ class _MenuActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final contentColor = danger
+        ? const Color(0xFFEF4444)
+        : (isDark ? WawatDark.textPrimary : _ink700);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         height: 52,
         decoration: BoxDecoration(
-          color: danger ? const Color(0xFFFFEBEE) : Colors.white,
-          border: danger ? Border.all(color: const Color(0xFFFFCDD2)) : null,
+          color: danger
+              ? (isDark ? const Color(0xFF3A1E1E) : const Color(0xFFFFEBEE))
+              : _cCard(isDark),
+          border: danger
+              ? Border.all(
+                  color: isDark
+                      ? const Color(0xFF5A2A2A)
+                      : const Color(0xFFFFCDD2))
+              : _cCardBorder(isDark),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: danger
+          boxShadow: (danger || isDark)
               ? null
               : [
                   BoxShadow(
@@ -1077,16 +1353,16 @@ class _MenuActionButton extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: danger ? const Color(0xFFEF4444) : _ink700,
+              color: contentColor,
               size: 20,
             ),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
-                color: danger ? const Color(0xFFEF4444) : _ink700,
+                color: contentColor,
                 fontSize: 14,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -1109,6 +1385,7 @@ class _LanguageRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -1116,12 +1393,10 @@ class _LanguageRow extends StatelessWidget {
         height: 52,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: selected ? _brand50 : Colors.white,
+          color: selected ? _cBrandSoft(isDark) : _cCard(isDark),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected
-                ? _brand.withValues(alpha: .35)
-                : _ink900.withValues(alpha: .06),
+            color: selected ? _brand.withValues(alpha: .35) : _cLine(isDark),
           ),
         ),
         child: Row(
@@ -1132,9 +1407,9 @@ class _LanguageRow extends StatelessWidget {
               child: Text(
                 option.name,
                 style: TextStyle(
-                  color: selected ? _brand : _ink900,
+                  color: selected ? _brand : _cText(isDark),
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1161,9 +1436,10 @@ class _MenuSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: _screen,
-      body: SafeArea(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      backgroundColor: _cScreen(isDark),
+      body: const SafeArea(
         child: Center(
           child: CircularProgressIndicator(color: _brand),
         ),
@@ -1179,8 +1455,9 @@ class _MenuError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _screen,
+      backgroundColor: _cScreen(isDark),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -1191,12 +1468,12 @@ class _MenuError extends StatelessWidget {
                 const Icon(PhosphorIconsRegular.warningCircle,
                     color: _brand, size: 42),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Menyu yüklənmədi.',
                   style: TextStyle(
-                    color: _ink900,
+                    color: _cText(isDark),
                     fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 14),

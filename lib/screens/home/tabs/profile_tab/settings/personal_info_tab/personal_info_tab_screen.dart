@@ -173,7 +173,7 @@ class _PersonalInfoTabState
                           duration: const Duration(milliseconds: 300),
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: isDark ? Colors.white : Colors.black,
                           ),
                           child:   Text(S.of(context).vrevre43),
@@ -250,7 +250,7 @@ class _PersonalInfoTabState
                               S.of(context).grvge3g5,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 16,
                               ),
                             ),
@@ -278,7 +278,7 @@ class _PersonalInfoTabState
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: isDark ? Colors.white : Colors.black,
           ),
           child:   Text(S.of(context).vsf3grevsf43),
@@ -429,7 +429,7 @@ class _PersonalInfoTabState
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: isDark ? Colors.white : Colors.black,
           ),
           child: Text(label),
@@ -485,7 +485,7 @@ class _PersonalInfoTabState
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: isDark ? Colors.white : Colors.black,
           ),
           child: Text(label),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../presentation/bloc/base_screen.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../new_profile/profile_models.dart';
 import 'blocked_users_bloc.dart';
@@ -71,13 +72,15 @@ class _BlockedUsersScreenState
   BlockedUsersBloc provideBloc() => BlockedUsersBloc();
 
   @override
-  Color? backgroundColor() => _screen;
+  Color? backgroundColor() =>
+      Theme.of(context).brightness == Brightness.dark ? WawatDark.bg : _screen;
 
   @override
   PreferredSizeWidget appBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.surface : Colors.white,
+      surfaceTintColor: isDark ? WawatDark.surface : Colors.white,
       elevation: 0,
       centerTitle: false,
       toolbarHeight: 56,
@@ -93,12 +96,12 @@ class _BlockedUsersScreenState
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.of(context).maybePop(),
-                child: const SizedBox(
+                child: SizedBox(
                   width: 36,
                   height: 36,
                   child: Icon(
                     PhosphorIconsBold.caretLeft,
-                    color: _ink700,
+                    color: isDark ? WawatDark.icon : _ink700,
                     size: 23,
                   ),
                 ),
@@ -113,10 +116,10 @@ class _BlockedUsersScreenState
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.textPrimary : _ink900,
                     fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -128,7 +131,7 @@ class _BlockedUsersScreenState
         preferredSize: const Size.fromHeight(1),
         child: Container(
           height: 1,
-          color: _ink900.withValues(alpha: 0.06),
+          color: isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.06),
         ),
       ),
     );
@@ -136,8 +139,9 @@ class _BlockedUsersScreenState
 
   @override
   Widget body() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ColoredBox(
-      color: _screen,
+      color: isDark ? WawatDark.bg : _screen,
       child: StreamBuilder<BlockedUsersState>(
         stream: bloc.state,
         initialData: bloc.value,
@@ -171,11 +175,11 @@ class _BlockedUsersScreenState
                       'block.subtitle',
                       'Blokladığınız istifadəçilər sizə mesaj yaza və elanlarınıza baxa bilməz.',
                     ),
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink400,
                       fontSize: 12.5,
                       height: 1.35,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -183,21 +187,24 @@ class _BlockedUsersScreenState
                   margin: const EdgeInsets.fromLTRB(12, 6, 12, 0),
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? WawatDark.surface : Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _ink900.withValues(alpha: 0.08),
-                        blurRadius: 24,
-                        spreadRadius: -12,
-                        offset: const Offset(0, 8),
-                      ),
-                      BoxShadow(
-                        color: _ink900.withValues(alpha: 0.04),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+                    border: isDark ? Border.all(color: WawatDark.border) : null,
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: _ink900.withValues(alpha: 0.08),
+                              blurRadius: 24,
+                              spreadRadius: -12,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: _ink900.withValues(alpha: 0.04),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                   ),
                   child: Column(
                     children: [
@@ -224,10 +231,10 @@ class _BlockedUsersScreenState
                       {'count': state.total},
                     ),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink400,
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -237,9 +244,9 @@ class _BlockedUsersScreenState
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const _SpinningIcon(
+                        _SpinningIcon(
                           icon: PhosphorIconsRegular.spinnerGap,
-                          color: _ink400,
+                          color: isDark ? WawatDark.textMuted : _ink400,
                           size: 17,
                         ),
                         const SizedBox(width: 8),
@@ -249,10 +256,10 @@ class _BlockedUsersScreenState
                             'block.loading_more',
                             'Yüklənir…',
                           ),
-                          style: const TextStyle(
-                            color: _ink400,
+                          style: TextStyle(
+                            color: isDark ? WawatDark.textMuted : _ink400,
                             fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -270,6 +277,7 @@ class _BlockedUsersScreenState
     WawatProfileUser user,
     Map<String, String> content,
   ) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final message = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -303,14 +311,14 @@ class _BlockedUsersScreenState
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ],
           ),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: _ink900,
+          backgroundColor: isDark ? WawatDark.elevated : _ink900,
           width: math.min(MediaQuery.sizeOf(context).width - 48, 360),
           shape: const StadiumBorder(),
           duration: const Duration(seconds: 2),
@@ -345,13 +353,15 @@ class _BlockedUserRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         border: showDivider
             ? Border(
                 bottom: BorderSide(
-                  color: _ink900.withValues(alpha: 0.05),
+                  color:
+                      isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
                 ),
               )
             : null,
@@ -371,10 +381,10 @@ class _BlockedUserRow extends StatelessWidget {
                         user.safeFullName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: _ink900,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textPrimary : _ink900,
                           fontSize: 14.5,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -393,10 +403,10 @@ class _BlockedUserRow extends StatelessWidget {
                     '@${user.username}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _ink400,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textMuted : _ink400,
                       fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
               ],
@@ -412,9 +422,9 @@ class _BlockedUserRow extends StatelessWidget {
                 vertical: 7,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? WawatDark.surfaceAlt : Colors.white,
                 borderRadius: BorderRadius.circular(99),
-                border: Border.all(color: _ink200),
+                border: Border.all(color: isDark ? WawatDark.border : _ink200),
               ),
               child: Text(
                 _text(
@@ -422,10 +432,10 @@ class _BlockedUserRow extends StatelessWidget {
                   'block.unblock',
                   'Blokdan çıxar',
                 ),
-                style: const TextStyle(
-                  color: _ink700,
+                style: TextStyle(
+                  color: isDark ? WawatDark.textSecondary : _ink700,
                   fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -485,7 +495,7 @@ class _AvatarInitials extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontSize: 15,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -532,6 +542,7 @@ class _UnblockSheetState extends State<_UnblockSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final body = _template(
       widget.content,
       'block.confirm.body',
@@ -542,9 +553,10 @@ class _UnblockSheetState extends State<_UnblockSheet> {
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+        decoration: BoxDecoration(
+          color: isDark ? WawatDark.surface : Colors.white,
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(26)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -553,7 +565,7 @@ class _UnblockSheetState extends State<_UnblockSheet> {
               width: 38,
               height: 4,
               decoration: BoxDecoration(
-                color: _ink200,
+                color: isDark ? WawatDark.divider : _ink200,
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -566,10 +578,10 @@ class _UnblockSheetState extends State<_UnblockSheet> {
                 'block.confirm.title',
                 'Bloku açmaq?',
               ),
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 17,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 4),
@@ -585,7 +597,7 @@ class _UnblockSheetState extends State<_UnblockSheet> {
                 style: const TextStyle(
                   color: Color(0xFFDC2626),
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -638,7 +650,7 @@ class _UnblockSheetState extends State<_UnblockSheet> {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -661,9 +673,11 @@ class _UnblockSheetState extends State<_UnblockSheet> {
                     'İmtina et',
                   ),
                   style: TextStyle(
-                    color: _loading ? _ink300 : _ink400,
+                    color: isDark
+                        ? (_loading ? WawatDark.iconMuted : WawatDark.textMuted)
+                        : (_loading ? _ink300 : _ink400),
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -686,11 +700,12 @@ class _ConfirmationBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const baseStyle = TextStyle(
-      color: _ink500,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseStyle = TextStyle(
+      color: isDark ? WawatDark.textSecondary : _ink500,
       fontSize: 13,
       height: 1.35,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     );
     final index = body.indexOf(highlightedText);
     if (highlightedText.isEmpty || index < 0) {
@@ -707,9 +722,9 @@ class _ConfirmationBody extends StatelessWidget {
           TextSpan(text: body.substring(0, index)),
           TextSpan(
             text: highlightedText,
-            style: const TextStyle(
-              color: _ink900,
-              fontWeight: FontWeight.w800,
+            style: TextStyle(
+              color: isDark ? WawatDark.textPrimary : _ink900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           TextSpan(text: body.substring(index + highlightedText.length)),
@@ -727,6 +742,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -737,7 +753,7 @@ class _EmptyState extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _brand50,
+                color: isDark ? WawatDark.brandSoft : _brand50,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: const Icon(
@@ -754,10 +770,10 @@ class _EmptyState extends StatelessWidget {
                 'Bloklanmış istifadəçi yoxdur',
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 16.5,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 6),
@@ -768,11 +784,11 @@ class _EmptyState extends StatelessWidget {
                 'Kimisə bloklasanız, burada görünəcək. Söhbətdə və ya profildə «Blokla» ilə bloklaya bilərsiniz.',
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink500,
                 fontSize: 13,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -793,6 +809,7 @@ class _LoadError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -803,22 +820,22 @@ class _LoadError extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: _amber50,
+                color: isDark ? const Color(0xFF3A2A12) : _amber50,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 PhosphorIconsRegular.wifiSlash,
-                color: _amber600,
+                color: isDark ? WawatDark.warning : _amber600,
                 size: 40,
               ),
             ),
             const SizedBox(height: 16),
             Text(
               _text(content, 'block.error.title', 'Yüklənmədi'),
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 16.5,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 6),
@@ -829,11 +846,11 @@ class _LoadError extends StatelessWidget {
                 'İnternet bağlantısını yoxlayıb yenidən cəhd edin.',
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: isDark ? WawatDark.textSecondary : _ink500,
                 fontSize: 13,
                 height: 1.35,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 20),
@@ -873,7 +890,7 @@ class _LoadError extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -892,6 +909,7 @@ class _BlockedUsersSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 24),
@@ -904,16 +922,19 @@ class _BlockedUsersSkeleton extends StatelessWidget {
           margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? WawatDark.surface : Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: _ink900.withValues(alpha: 0.08),
-                blurRadius: 24,
-                spreadRadius: -12,
-                offset: const Offset(0, 8),
-              ),
-            ],
+            border: isDark ? Border.all(color: WawatDark.border) : null,
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: _ink900.withValues(alpha: 0.08),
+                      blurRadius: 24,
+                      spreadRadius: -12,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
           ),
           child: const Column(
             children: [
@@ -942,13 +963,15 @@ class _SkeletonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         border: showDivider
             ? Border(
                 bottom: BorderSide(
-                  color: _ink900.withValues(alpha: 0.05),
+                  color:
+                      isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
                 ),
               )
             : null,
@@ -998,6 +1021,7 @@ class _ShimmerBoxState extends State<_ShimmerBox>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
@@ -1009,11 +1033,17 @@ class _ShimmerBoxState extends State<_ShimmerBox>
             gradient: LinearGradient(
               begin: Alignment(-2 + (_controller.value * 4), 0),
               end: Alignment(0 + (_controller.value * 4), 0),
-              colors: const [
-                Color(0xFFEEF2F7),
-                Color(0xFFE2E8F0),
-                Color(0xFFEEF2F7),
-              ],
+              colors: isDark
+                  ? const [
+                      WawatDark.surfaceAlt,
+                      WawatDark.elevated,
+                      WawatDark.surfaceAlt,
+                    ]
+                  : const [
+                      Color(0xFFEEF2F7),
+                      Color(0xFFE2E8F0),
+                      Color(0xFFEEF2F7),
+                    ],
               stops: const [0.25, 0.50, 0.75],
             ),
           ),
