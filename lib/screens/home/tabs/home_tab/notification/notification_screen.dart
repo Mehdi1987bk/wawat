@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/notification_response.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../listings/details/listing_details_screen.dart';
@@ -196,6 +197,7 @@ class _NotificationScreenState
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (_) => _ActionsSheet(
         item: item,
         content: _content,
@@ -325,13 +327,13 @@ class _Header extends StatelessWidget {
                   onTap: onReadAll,
                   child: Row(
                     children: [
-                      const Icon(PhosphorIconsBold.checks,
-                          color: _brand, size: 16),
+                      Icon(PhosphorIconsBold.checks,
+                          color: isDark ? cBrandText(true) : _brand, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         WawatContent.text(content, 'notifications.read_all'),
-                        style: const TextStyle(
-                          color: _brand,
+                        style: TextStyle(
+                          color: isDark ? cBrandText(true) : _brand,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -439,7 +441,7 @@ class _SegmentButton extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: selected
-                      ? _brand
+                      ? (isDark ? cBrandText(true) : _brand)
                       : (isDark ? WawatDark.textSecondary : _ink500),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -524,12 +526,13 @@ class _NotificationTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: item.isUnread
               ? (isDark
-                  ? WawatDark.brand.withValues(alpha: 0.12)
+                  ? WawatDark.brand.withValues(alpha: 0.08)
                   : _brand.withValues(alpha: 0.045))
               : (isDark ? WawatDark.surface : Colors.white),
           border: Border(
             bottom: BorderSide(
-              color: isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
+              color:
+                  isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
             ),
           ),
         ),
@@ -570,8 +573,8 @@ class _NotificationTile extends StatelessWidget {
                           width: 8,
                           height: 8,
                           margin: const EdgeInsets.only(top: 4),
-                          decoration: const BoxDecoration(
-                            color: _brand,
+                          decoration: BoxDecoration(
+                            color: isDark ? WawatDark.brandTextStrong : _brand,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -775,7 +778,7 @@ class _ActionsSheet extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 14),
             decoration: BoxDecoration(
-              color: isDark ? WawatDark.surfaceAlt : _ink200,
+              color: isDark ? WawatDark.grab : _ink200,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -892,9 +895,8 @@ class _SheetAction extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: danger
-                    ? _red
-                    : (isDark ? WawatDark.textPrimary : _ink800),
+                color:
+                    danger ? _red : (isDark ? WawatDark.textPrimary : _ink800),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -932,9 +934,9 @@ class _EmptyState extends StatelessWidget {
                 color: isDark ? WawatDark.brandSoft : _brand50,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 PhosphorIconsRegular.bell,
-                color: _brand,
+                color: isDark ? cBrandText(true) : _brand,
                 size: 42,
               ),
             ),
@@ -979,16 +981,16 @@ class _EmptyState extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(PhosphorIconsRegular.magnifyingGlass,
-                        color: _brand, size: 18),
+                    Icon(PhosphorIconsRegular.magnifyingGlass,
+                        color: isDark ? cBrandText(true) : _brand, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       WawatContent.text(
                         content,
                         'notifications.empty_action',
                       ),
-                      style: const TextStyle(
-                        color: _brand,
+                      style: TextStyle(
+                        color: isDark ? cBrandText(true) : _brand,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1061,7 +1063,7 @@ class _Skeleton extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: isDark ? WawatDark.surfaceAlt : const Color(0xFFE7EBF1),
+        color: isDark ? WawatDark.skeletonBase : const Color(0xFFE7EBF1),
         borderRadius: BorderRadius.circular(radius),
       ),
     );
@@ -1081,38 +1083,38 @@ class _NotificationVisual {
 _NotificationVisual _notificationVisual(String type, [bool isDark = false]) {
   // Тёмный режим: пастельные подложки → графит (акцент — мягкая синяя),
   // акцентные цвета иконок остаются яркими и читаемыми на #1E1E1E.
-  final Color brandFg = isDark ? WawatDark.brand : _brand;
-  final Color brandBg = isDark ? WawatDark.brandSoft : _brand50;
+  final Color brandFg = isDark ? WawatDark.brandText : _brand;
+  final Color brandBg = isDark ? WawatDark.brandChip : _brand50;
   final Color emeraldFg = isDark ? WawatDark.success : _emerald;
-  final Color emeraldBg = isDark ? WawatDark.surfaceAlt : _emerald50;
-  final Color redFg = isDark ? WawatDark.danger : _red;
-  final Color redBg = isDark ? WawatDark.surfaceAlt : _red50;
+  final Color emeraldBg = isDark ? WawatDark.successBg : _emerald50;
+  final Color redFg = isDark ? WawatDark.dangerText : _red;
+  final Color redBg = isDark ? WawatDark.dangerSoftBg : _red50;
   final Color amberFg = isDark ? WawatDark.warning : _amber;
-  final Color amberBg = isDark ? WawatDark.surfaceAlt : _amber50;
+  final Color amberBg = isDark ? WawatDark.warningBg : _amber50;
   final Color neutralFg = isDark ? WawatDark.textSecondary : _ink500;
   final Color neutralBg =
       isDark ? WawatDark.surfaceAlt : const Color(0x0D0F172A);
-  final Color accentBg = isDark ? WawatDark.surfaceAlt : _accent50;
+  final Color accentBg = isDark ? WawatDark.goldSoftBg : _accent50;
   return switch (type) {
     'proposal_received' =>
       _NotificationVisual(PhosphorIconsFill.handshake, brandFg, brandBg),
-    'proposal_countered' => _NotificationVisual(
-        PhosphorIconsFill.arrowsClockwise, brandFg, brandBg),
+    'proposal_countered' =>
+      _NotificationVisual(PhosphorIconsFill.arrowsClockwise, brandFg, brandBg),
     'proposal_accepted' ||
     'shipment_auto_completed' ||
     'listing_approved' =>
-      _NotificationVisual(
-          PhosphorIconsFill.checkCircle, emeraldFg, emeraldBg),
+      _NotificationVisual(PhosphorIconsFill.checkCircle, emeraldFg, emeraldBg),
     'proposal_declined' ||
     'listing_rejected' ||
     'verification_rejected' =>
       _NotificationVisual(PhosphorIconsFill.xCircle, redFg, redBg),
     'shipment_picked_up' =>
       _NotificationVisual(PhosphorIconsFill.package, brandFg, brandBg),
-    'shipment_delivered' => _NotificationVisual(
-        PhosphorIconsFill.shoppingBag, brandFg, brandBg),
-    'shipment_completed' || 'account_verified' => _NotificationVisual(
-        PhosphorIconsFill.sealCheck, emeraldFg, emeraldBg),
+    'shipment_delivered' =>
+      _NotificationVisual(PhosphorIconsFill.shoppingBag, brandFg, brandBg),
+    'shipment_completed' ||
+    'account_verified' =>
+      _NotificationVisual(PhosphorIconsFill.sealCheck, emeraldFg, emeraldBg),
     'shipment_disputed' =>
       _NotificationVisual(PhosphorIconsFill.warningOctagon, redFg, redBg),
     'shipment_cancelled' ||
@@ -1122,23 +1124,23 @@ _NotificationVisual _notificationVisual(String type, [bool isDark = false]) {
         PhosphorIconsFill.clockCountdown, neutralFg, neutralBg),
     'dispute_resolved' =>
       _NotificationVisual(PhosphorIconsFill.scales, emeraldFg, emeraldBg),
-    'counterparty_account_issue' => _NotificationVisual(
-        PhosphorIconsFill.warningCircle, amberFg, amberBg),
+    'counterparty_account_issue' =>
+      _NotificationVisual(PhosphorIconsFill.warningCircle, amberFg, amberBg),
     'proposal_expiring' ||
     'verification_processing' =>
       _NotificationVisual(PhosphorIconsFill.hourglass, amberFg, amberBg),
-    'listing_expiring' => _NotificationVisual(
-        PhosphorIconsFill.hourglassMedium, amberFg, amberBg),
-    'delivery_confirm_reminder' => _NotificationVisual(
-        PhosphorIconsFill.bellRinging, amberFg, amberBg),
-    'trip_reminder' => _NotificationVisual(
-        PhosphorIconsFill.airplaneTakeoff, brandFg, brandBg),
+    'listing_expiring' =>
+      _NotificationVisual(PhosphorIconsFill.hourglassMedium, amberFg, amberBg),
+    'delivery_confirm_reminder' =>
+      _NotificationVisual(PhosphorIconsFill.bellRinging, amberFg, amberBg),
+    'trip_reminder' =>
+      _NotificationVisual(PhosphorIconsFill.airplaneTakeoff, brandFg, brandBg),
     'matching_listing' =>
       _NotificationVisual(PhosphorIconsFill.sparkle, brandFg, brandBg),
     'new_message' =>
       _NotificationVisual(PhosphorIconsFill.chatCircle, brandFg, brandBg),
-    'message_awaiting_reply' => _NotificationVisual(
-        PhosphorIconsFill.chatsCircle, amberFg, amberBg),
+    'message_awaiting_reply' =>
+      _NotificationVisual(PhosphorIconsFill.chatsCircle, amberFg, amberBg),
     'review_received' ||
     'review_reminder' =>
       _NotificationVisual(PhosphorIconsFill.star, amberFg, amberBg),
@@ -1150,8 +1152,8 @@ _NotificationVisual _notificationVisual(String type, [bool isDark = false]) {
       _NotificationVisual(PhosphorIconsFill.userPlus, brandFg, brandBg),
     'followed_user_listing' =>
       _NotificationVisual(PhosphorIconsFill.bell, brandFg, brandBg),
-    'saved_search_match' => _NotificationVisual(
-        PhosphorIconsFill.bookmarkSimple, brandFg, brandBg),
+    'saved_search_match' =>
+      _NotificationVisual(PhosphorIconsFill.bookmarkSimple, brandFg, brandBg),
     'system_announcement' =>
       _NotificationVisual(PhosphorIconsFill.megaphone, brandFg, brandBg),
     'milestone_reached' =>
@@ -1163,16 +1165,16 @@ _NotificationVisual _notificationVisual(String type, [bool isDark = false]) {
       _NotificationVisual(PhosphorIconsFill.warning, amberFg, amberBg),
     'content_removed' =>
       _NotificationVisual(PhosphorIconsFill.trash, redFg, redBg),
-    'report_received_ack' => _NotificationVisual(
-        PhosphorIconsFill.shieldCheck, brandFg, brandBg),
-    'new_device_login' => _NotificationVisual(
-        PhosphorIconsFill.deviceMobile, amberFg, amberBg),
+    'report_received_ack' =>
+      _NotificationVisual(PhosphorIconsFill.shieldCheck, brandFg, brandBg),
+    'new_device_login' =>
+      _NotificationVisual(PhosphorIconsFill.deviceMobile, amberFg, amberBg),
     'password_changed' =>
       _NotificationVisual(PhosphorIconsFill.lockKey, brandFg, brandBg),
-    'email_changed' => _NotificationVisual(
-        PhosphorIconsFill.envelopeSimple, brandFg, brandBg),
-    'app_update_required' => _NotificationVisual(
-        PhosphorIconsFill.downloadSimple, brandFg, brandBg),
+    'email_changed' =>
+      _NotificationVisual(PhosphorIconsFill.envelopeSimple, brandFg, brandBg),
+    'app_update_required' =>
+      _NotificationVisual(PhosphorIconsFill.downloadSimple, brandFg, brandBg),
     _ => _NotificationVisual(PhosphorIconsFill.bell, brandFg, brandBg),
   };
 }

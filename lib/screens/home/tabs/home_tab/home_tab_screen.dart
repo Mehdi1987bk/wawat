@@ -9,6 +9,8 @@ import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/bloc/utils.dart';
+import '../../../../presentation/resourses/theme_colors.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/wawat_content.dart';
 import '../../../../services/theme_manager.dart';
 import '../home_tab/widget/auth_modal_utils.dart';
@@ -75,7 +77,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
           builder: (context, contentSnapshot) {
             final content = contentSnapshot.data ?? const {};
             return Container(
-              color: isDark ? const Color(0xFF101010) : const Color(0xFFEEF1F6),
+              color: isDark ? cScreen(true) : const Color(0xFFEEF1F6),
               child: RefreshIndicator(
                 color: _brand,
                 onRefresh: _listingBloc.refreshList,
@@ -274,7 +276,7 @@ class _FeedSectionTitle extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isDark ? Colors.white : _ink900,
+              color: isDark ? cText(true) : _ink900,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -343,11 +345,14 @@ class _HeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: height,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF0F7BF4), Color(0xFF0257AE)],
+          colors: isDark
+              ? const [Color(0xFF0C57C9), Color(0xFF072F6E), Color(0xFF0A1B3E)]
+              : const [Color(0xFF0F7BF4), Color(0xFF0257AE)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -506,10 +511,10 @@ class _CommunityStats extends StatelessWidget {
       margin: const EdgeInsets.only(left: 24, right: 24, top: 20),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(true) : Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-            color: isDark ? Colors.white10 : const Color(0x0F0F172A)),
+            color: isDark ? WawatDark.border : const Color(0x0F0F172A)),
       ),
       child: Row(
         children: [
@@ -519,23 +524,25 @@ class _CommunityStats extends StatelessWidget {
             child: Text.rich(
               TextSpan(
                 text: _contentText(content, 'home.stats_prefix'),
-                children: const [
+                children: [
                   TextSpan(
                     text: '1,240',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w700, color: _ink900),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? cText(true) : _ink900),
                   ),
-                  TextSpan(text: ' çatdırılma · '),
+                  const TextSpan(text: ' çatdırılma · '),
                   TextSpan(
                     text: '3,500+',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w700, color: _ink900),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? cText(true) : _ink900),
                   ),
-                  TextSpan(text: ' təsdiqlənmiş səyahətçi'),
+                  const TextSpan(text: ' təsdiqlənmiş səyahətçi'),
                 ],
               ),
               style: TextStyle(
-                color: isDark ? Colors.white70 : _ink500,
+                color: isDark ? cText2(true) : _ink500,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -665,7 +672,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                 'home.popular_routes',
               ),
               style: TextStyle(
-                color: isDark ? Colors.white : _ink900,
+                color: isDark ? cText(true) : _ink900,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
@@ -686,11 +693,11 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                     width: 178,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      color: isDark ? cCard(true) : Colors.white,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color:
-                            isDark ? Colors.white10 : const Color(0x0F0F172A),
+                            isDark ? WawatDark.border : const Color(0x0F0F172A),
                       ),
                     ),
                     child: Column(
@@ -700,8 +707,8 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                         const SizedBox(height: 5),
                         Text(
                           '${route.total} səyahətçi',
-                          style: const TextStyle(
-                            color: _ink400,
+                          style: TextStyle(
+                            color: isDark ? cMuted(true) : _ink400,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -709,8 +716,8 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                         const Spacer(),
                         Text(
                           '${route.minPrice} ₼-dən',
-                          style: const TextStyle(
-                            color: _brand,
+                          style: TextStyle(
+                            color: isDark ? cBrandText(true) : _brand,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -796,7 +803,7 @@ class _RouteTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final parts = label.split('→');
     final baseStyle = TextStyle(
-      color: isDark ? Colors.white : _ink900,
+      color: isDark ? cText(true) : _ink900,
       fontSize: 14,
       fontWeight: FontWeight.w600,
     );
@@ -814,9 +821,9 @@ class _RouteTitle extends StatelessWidget {
       TextSpan(
         children: [
           TextSpan(text: parts.first.trim()),
-          const TextSpan(
+          TextSpan(
             text: '  →  ',
-            style: TextStyle(color: _brand),
+            style: TextStyle(color: isDark ? cBrandText(true) : _brand),
           ),
           TextSpan(text: parts.last.trim()),
         ],
@@ -833,6 +840,7 @@ class _ListingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -842,7 +850,7 @@ class _ListingSkeleton extends StatelessWidget {
             height: 220,
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFE7EBF1),
+              color: isDark ? WawatDark.skeletonBase : const Color(0xFFE7EBF1),
               borderRadius: BorderRadius.circular(26),
             ),
           ),
@@ -863,17 +871,18 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
       child: Column(
         children: [
-          const Icon(PhosphorIconsRegular.magnifyingGlass,
-              color: _brand, size: 54),
+          Icon(PhosphorIconsRegular.magnifyingGlass,
+              color: isDark ? cBrandText(true) : _brand, size: 54),
           const SizedBox(height: 14),
           Text(
             _contentText(content, 'search.empty_title'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: isDark ? cText(true) : _ink900,
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
@@ -885,8 +894,8 @@ class _EmptyState extends StatelessWidget {
               'search.empty_subtitle',
             ),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: isDark ? cText2(true) : _ink500,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -900,13 +909,13 @@ class _EmptyState extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: _brand50,
+                  color: isDark ? cBrandSoft(true) : _brand50,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   item.label!,
-                  style: const TextStyle(
-                    color: _brand,
+                  style: TextStyle(
+                    color: isDark ? cBrandText(true) : _brand,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -928,10 +937,15 @@ class _FeedEnd extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!isEnd) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 18),
-        child: Center(child: CircularProgressIndicator(color: _brand)),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: isDark ? cBrandText(true) : _brand,
+          ),
+        ),
       );
     }
     return Padding(
@@ -939,8 +953,8 @@ class _FeedEnd extends StatelessWidget {
       child: Text(
         _contentText(content, 'feed.end'),
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: _ink400,
+        style: TextStyle(
+          color: isDark ? cMuted(true) : _ink400,
           fontWeight: FontWeight.w500,
           fontSize: 13,
         ),

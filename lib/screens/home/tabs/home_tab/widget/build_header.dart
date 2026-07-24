@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dimensions.dart';
 import '../notification/notification_screen.dart';
 import 'auth_modal_utils.dart';
@@ -16,7 +17,7 @@ Widget BuildHeader(
   return AnimatedContainer(
     duration: const Duration(milliseconds: 300),
     decoration: BoxDecoration(
-      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      color: isDark ? cBar(true) : Colors.white,
       boxShadow: [
         BoxShadow(
           color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
@@ -71,7 +72,7 @@ Widget BuildHeader(
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  color: isDark ? cFill(true) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
@@ -93,7 +94,7 @@ Widget BuildHeader(
                       color: Colors.red,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                        color: isDark ? cBar(true) : Colors.white,
                         width: 2,
                       ),
                     ),
