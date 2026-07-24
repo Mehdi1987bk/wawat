@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../generated/l10n.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../widget/wawat_courier_card.dart';
 
@@ -29,7 +30,7 @@ class CourierOffersTab extends StatelessWidget {
                   Icon(
                     Icons.inbox_outlined,
                     size: 64,
-                    color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFD1D5DB),
+                    color: isDark ? cFaint(true) : const Color(0xFFD1D5DB),
                   ),
                   const SizedBox(height: 16),
                   AnimatedDefaultTextStyle(
@@ -37,9 +38,9 @@ class CourierOffersTab extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF6B7280),
+                      color: isDark ? cText2(true) : const Color(0xFF6B7280),
                     ),
-                    child:   Text(S.of(context).ynbreg4t3gfwr3gf),
+                    child: Text(S.of(context).ynbreg4t3gfwr3gf),
                   ),
                 ],
               ),

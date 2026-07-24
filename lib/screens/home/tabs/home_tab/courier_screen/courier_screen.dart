@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import '../../../../../data/network/request/create_review_request.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import 'courier_details_bloc.dart';
@@ -49,7 +51,7 @@ class _CourierDetailsScreenState
                         CourierProfileCard(
                           data: data,
                           onReviewSubmitted: (CreateReviewRequest request) {
-                             print(
+                            print(
                                 'Review Request ID: ${request.reviewRequestId}');
                             print('Target ID: ${request.targetId}');
                             print('Rating: ${request.rating}');
@@ -67,9 +69,7 @@ class _CourierDetailsScreenState
                 }
                 return Center(
                   child: CircularProgressIndicator(
-                    color: isDark
-                        ? const Color(0xFF6366F1)
-                        : const Color(0xFF5B5BFF),
+                    color: isDark ? cBrandText(true) : const Color(0xFF5B5BFF),
                   ),
                 );
               },
@@ -86,16 +86,17 @@ class _CourierDetailsScreenState
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(true) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-          ),
-        ],
+        border: cCardBorder(isDark),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                ),
+              ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,7 +104,9 @@ class _CourierDetailsScreenState
           _buildTabButton(index: 0, icon: Icons.description, isDark: isDark),
           _buildTabButton(index: 1, icon: Icons.star_outline, isDark: isDark),
           _buildTabButton(
-              index: 2, icon: Icons.airplanemode_active_rounded, isDark: isDark),
+              index: 2,
+              icon: Icons.airplanemode_active_rounded,
+              isDark: isDark),
         ],
       ),
     );
@@ -133,7 +136,7 @@ class _CourierDetailsScreenState
             icon,
             color: isSelected
                 ? Colors.white
-                : (isDark ? const Color(0xFF6B7280) : Colors.grey[400]),
+                : (isDark ? cFaint(true) : Colors.grey[400]),
             size: 24,
           ),
         ),

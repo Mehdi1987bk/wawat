@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../generated/l10n.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_manager.dart';
-import '../../widget/wawat_courier_card.dart';
 
 class CourierDocumentsTab extends StatelessWidget {
   final Data data;
@@ -40,30 +40,33 @@ class CourierDocumentsTab extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(true) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-          ),
-        ],
+        border: cCardBorder(isDark),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.person, color: Color(0xFF5B5BFF), size: 20),
+              Icon(Icons.person,
+                  color: isDark ? cBrandText(true) : const Color(0xFF5B5BFF),
+                  size: 20),
               const SizedBox(width: 8),
               AnimatedDefaultTextStyle(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(true) : Colors.black,
                 ),
                 child: Text(S.of(context).bteg4r5344wfvsfdg34wf),
               ),
@@ -99,8 +102,7 @@ class CourierDocumentsTab extends StatelessWidget {
           _buildContactItem(
             icon: Icons.access_time,
             title: S.of(context).btergwfe5g34rfecerv,
-            value: _formatResponseTime(
-                data.user.lastSeenAt, context),
+            value: _formatResponseTime(data.user.lastSeenAt, context),
             iconColor: Colors.red,
             isDark: isDark,
           ),
@@ -147,30 +149,33 @@ class CourierDocumentsTab extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(true) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-          ),
-        ],
+        border: cCardBorder(isDark),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.work, color: Color(0xFF5B5BFF), size: 20),
+              Icon(Icons.work,
+                  color: isDark ? cBrandText(true) : const Color(0xFF5B5BFF),
+                  size: 20),
               const SizedBox(width: 8),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(true) : Colors.black,
                 ),
                 child: Text(S.of(context).bterv4gg353r5r35),
               ),
@@ -273,7 +278,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                  color: isDark ? cText2(true) : Colors.grey[600],
                 ),
                 child: Text(title),
               ),
@@ -283,7 +288,7 @@ class CourierDocumentsTab extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(true) : Colors.black,
                 ),
                 child: Text(value),
               ),
@@ -300,30 +305,33 @@ class CourierDocumentsTab extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(true) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-          ),
-        ],
+        border: cCardBorder(isDark),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.language, color: Color(0xFF5B5BFF), size: 20),
+              Icon(Icons.language,
+                  color: isDark ? cBrandText(true) : const Color(0xFF5B5BFF),
+                  size: 20),
               const SizedBox(width: 8),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(true) : Colors.black,
                 ),
                 child: Text(S.of(context).ki7ju6h5ytg4erf53fw),
               ),
@@ -341,15 +349,14 @@ class CourierDocumentsTab extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                        color: isDark ? cFill(true) : Colors.grey[100],
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         lang.name,
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? cText(true) : Colors.black,
                         ),
                       ),
                     ))

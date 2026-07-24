@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../generated/l10n.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../courier_screen.dart';
@@ -28,14 +30,14 @@ class CourierRatingsTab extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: isDark
-                      ? Colors.black.withOpacity(0.3)
-                      : Colors.grey.withOpacity(0.1),
-                  blurRadius: 8,
-                ),
-              ],
+              boxShadow: isDark
+                  ? WawatDark.cardShadow
+                  : [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        blurRadius: 8,
+                      ),
+                    ],
             ),
             child: Column(
               children: [
@@ -50,9 +52,7 @@ class CourierRatingsTab extends StatelessWidget {
                             duration: const Duration(milliseconds: 300),
                             style: TextStyle(
                               fontSize: 16,
-                              color: isDark
-                                  ? const Color(0xFF9CA3AF)
-                                  : Colors.grey[600],
+                              color: isDark ? cText2(true) : Colors.grey[600],
                             ),
                             child: Center(
                               child: Text(
@@ -68,7 +68,7 @@ class CourierRatingsTab extends StatelessWidget {
                   ...data.reviewsReceived.asMap().entries.map((entry) {
                     int index = entry.key;
                     Review review = entry.value;
-                    return _buildReviewCard(review,context, isDark);
+                    return _buildReviewCard(review, context, isDark);
                   }).toList(),
               ],
             ),
@@ -84,21 +84,21 @@ class CourierRatingsTab extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(true) : Colors.white,
+        border: cCardBorder(isDark),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
                   builder: (BuildContext context) {
                     return CourierDetailsScreen(
-                      courierId:
-                      review.author.id ?? 0,
+                      courierId: review.author.id ?? 0,
                     );
                   },
                 ),
@@ -119,18 +119,18 @@ class CourierRatingsTab extends StatelessWidget {
                   ),
                   child: review.author.avatar != null
                       ? ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: review.author.avatar ?? "",
-                      fit: BoxFit.cover,
-                    ),
-                  )
+                          child: CachedNetworkImage(
+                            imageUrl: review.author.avatar ?? "",
+                            fit: BoxFit.cover,
+                          ),
+                        )
                       : Center(
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -142,7 +142,7 @@ class CourierRatingsTab extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? cText(true) : Colors.black,
                         ),
                         child: Text(review.author.fullname),
                       ),
@@ -161,7 +161,7 @@ class CourierRatingsTab extends StatelessWidget {
                 size: 14,
                 color: index < review.rating
                     ? Colors.amber
-                    : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
+                    : (isDark ? cBorder(true) : Colors.grey[300]),
               ),
             ),
           ),
@@ -170,7 +170,7 @@ class CourierRatingsTab extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 13,
-              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+              color: isDark ? cText2(true) : Colors.grey[700],
               height: 1.4,
             ),
             child: Text(review.comment ?? ""),

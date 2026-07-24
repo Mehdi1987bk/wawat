@@ -9,7 +9,9 @@ import '../../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../main.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../presentation/resourses/wawat_text_styles.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
@@ -44,17 +46,18 @@ class CourierProfileCard extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? cCard(true) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? Colors.black.withOpacity(0.3)
-                        : Colors.grey.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                border: cCardBorder(isDark),
+                boxShadow: isDark
+                    ? WawatDark.cardShadow
+                    : [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
               ),
               child: Column(
                 children: [
@@ -71,29 +74,29 @@ class CourierProfileCard extends StatelessWidget {
                           tag: 'courier_avatar_${user.id}',
                           child: user.avatar != null && user.avatar!.isNotEmpty
                               ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              user.avatar!,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          )
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.network(
+                                    user.avatar!,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
                               : Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF5B5BFF),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.person,
-                                size: 40,
-                                color: Colors.yellow[600],
-                              ),
-                            ),
-                          ),
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF5B5BFF),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: Colors.yellow[600],
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -118,7 +121,9 @@ class CourierProfileCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF4CAF50),
+                              color: isDark
+                                  ? WawatDark.success
+                                  : const Color(0xFF4CAF50),
                             ),
                           ),
                         ],
@@ -130,7 +135,7 @@ class CourierProfileCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? cText(true) : Colors.black,
                     ),
                     child: Text(user.fullname),
                   ),
@@ -153,8 +158,7 @@ class CourierProfileCard extends StatelessWidget {
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 14,
-                          color:
-                              isDark ? const Color(0xFFE5E7EB) : Colors.black87,
+                          color: isDark ? cText(true) : Colors.black87,
                         ),
                         child: Text(
                             '${stats.ratingAvg} (${stats.ratingCount} ' +
@@ -185,8 +189,7 @@ class CourierProfileCard extends StatelessWidget {
                     duration: const Duration(milliseconds: 300),
                     style: TextStyle(
                       fontSize: 12,
-                      color:
-                          isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+                      color: isDark ? cText2(true) : Colors.grey[700],
                       height: 1.5,
                     ),
                     child: Text(
@@ -201,12 +204,11 @@ class CourierProfileCard extends StatelessWidget {
                       Expanded(
                         child: _buildMetricItem(
                           icon: Icons.schedule,
-                          value: _formatResponseTime(professional.responseTimeMinutes, context),
+                          value: _formatResponseTime(
+                              professional.responseTimeMinutes, context),
                           label: /*S.of(context).brh45hg43g4tgve*/ "",
                           sublabel: '',
-                          color: isDark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFF5F8FD),
+                          color: isDark ? cFill(true) : const Color(0xFFF5F8FD),
                           isDark: isDark,
                         ),
                       ),
@@ -217,9 +219,7 @@ class CourierProfileCard extends StatelessWidget {
                           value: '${professional.maxWeightKg ?? 0}',
                           label: S.of(context).hyrhh6g453grth4ge,
                           sublabel: S.of(context).brthgteb4h5g4t35g,
-                          color: isDark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFF4FDF8),
+                          color: isDark ? cFill(true) : const Color(0xFFF4FDF8),
                           isDark: isDark,
                         ),
                       ),
@@ -235,9 +235,7 @@ class CourierProfileCard extends StatelessWidget {
                           value: '\$${professional.insuranceUsd ?? 0}',
                           label: '',
                           sublabel: S.of(context).nrny5nrnrny5n5y454,
-                          color: isDark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFFBF9FE),
+                          color: isDark ? cFill(true) : const Color(0xFFFBF9FE),
                           isDark: isDark,
                         ),
                       ),
@@ -248,9 +246,7 @@ class CourierProfileCard extends StatelessWidget {
                           value: '${(professional.onTimePercent ?? 0)}%',
                           label: '',
                           sublabel: S.of(context).ntnhnhry454,
-                          color: isDark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFFBFBF1),
+                          color: isDark ? cFill(true) : const Color(0xFFFBFBF1),
                           isDark: isDark,
                         ),
                       ),
@@ -334,12 +330,12 @@ class CourierProfileCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                  color: isDark ? cFill(true) : Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.arrow_back,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(true) : Colors.black,
                 ),
               ),
             ),
@@ -348,6 +344,7 @@ class CourierProfileCard extends StatelessWidget {
       },
     );
   }
+
   void _openFullScreenImage(BuildContext context, String imageUrl) {
     Navigator.push(
       context,
@@ -360,21 +357,24 @@ class CourierProfileCard extends StatelessWidget {
     );
   }
 
-
   String _formatResponseTime(String? minutes, BuildContext context) {
     final minutesInt = int.tryParse(minutes ?? '0') ?? 0;
 
     if (minutesInt == 0) return '0 ' + S.of(context).vre3gg43gv3r3v3rv;
 
     if (minutesInt < 60) {
-      return '$minutesInt ' +  S.of(context).vre3gg43gv3r3v3rv;
+      return '$minutesInt ' + S.of(context).vre3gg43gv3r3v3rv;
     }
 
     final hours = minutesInt ~/ 60;
     final mins = minutesInt % 60;
-    return mins == 0 ? '$hours ' + S.of(context).trh34tgvrt4h3g4rwev : '$hours '+ S.of(context).trh34tgvrt4h3g4rwev +' $mins '  + S.of(context).vre3gg43gv3r3v3rv;
+    return mins == 0
+        ? '$hours ' + S.of(context).trh34tgvrt4h3g4rwev
+        : '$hours ' +
+            S.of(context).trh34tgvrt4h3g4rwev +
+            ' $mins ' +
+            S.of(context).vre3gg43gv3r3v3rv;
   }
-
 
   void _handleReviewTap(BuildContext context, bool isDark) async {
     final isLogged = await sl.get<AuthRepository>().isLogged();
@@ -386,6 +386,7 @@ class CourierProfileCard extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (context) => SafeArea(
         child: _CourierReviewBottomSheet(
           courierId: data.user.id ?? 0,
@@ -447,7 +448,7 @@ class CourierProfileCard extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
             fontSize: 12,
-            color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+            color: isDark ? cText2(true) : Colors.grey[600],
           ),
           child: Text(label),
         ),
@@ -475,7 +476,7 @@ class CourierProfileCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: isDark ? const Color(0xFF6B7280) : Colors.grey[600],
+            color: isDark ? WawatDark.icon : Colors.grey[600],
             size: 24,
           ),
           const SizedBox(height: 8),
@@ -484,7 +485,7 @@ class CourierProfileCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black,
+              color: isDark ? cText(true) : Colors.black,
             ),
             child: Text(value + " " + label),
           ),
@@ -492,7 +493,7 @@ class CourierProfileCard extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 12,
-              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey,
+              color: isDark ? cText2(true) : Colors.grey,
             ),
             child: Text(sublabel),
           ),
@@ -546,7 +547,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
-            color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: widget.isDark ? cCard(true) : Colors.white,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
@@ -563,7 +564,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     height: 4,
                     decoration: BoxDecoration(
                       color: widget.isDark
-                          ? const Color(0xFF4A4A4A)
+                          ? WawatDark.grab
                           : WawatColors.backgroundLight,
                       borderRadius: BorderRadius.circular(2),
                     ),
@@ -592,7 +593,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     style: WawatTextStyles.h2.copyWith(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: widget.isDark ? Colors.white : Colors.black,
+                      color: widget.isDark ? cText(true) : Colors.black,
                     ),
                     child: Text(
                       S.of(context).ntnyyh4664bnrgn,
@@ -604,7 +605,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     duration: const Duration(milliseconds: 300),
                     style: WawatTextStyles.body.copyWith(
                       color: widget.isDark
-                          ? const Color(0xFF9CA3AF)
+                          ? cText2(true)
                           : WawatColors.textSecondary,
                     ),
                     child: Text(
@@ -634,9 +635,9 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                             color: _rating >= starNumber
                                 ? WawatColors.warning
                                 : (widget.isDark
-                                        ? const Color(0xFF4A4A4A)
-                                        : WawatColors.textSecondary)
-                                    .withOpacity(0.3),
+                                    ? cBorder(true)
+                                    : WawatColors.textSecondary
+                                        .withOpacity(0.3)),
                           ),
                         ),
                       );
@@ -647,7 +648,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     duration: const Duration(milliseconds: 300),
                     decoration: BoxDecoration(
                       color: widget.isDark
-                          ? const Color(0xFF2A2A2A)
+                          ? cFill(true)
                           : WawatColors.backgroundLight,
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -656,21 +657,20 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                       maxLines: 4,
                       maxLength: 500,
                       style: WawatTextStyles.body.copyWith(
-                        color: widget.isDark ? Colors.white : Colors.black,
+                        color: widget.isDark ? cText(true) : Colors.black,
                       ),
                       decoration: InputDecoration(
                         hintText: S.of(context).nhthnnhthnty554y54y,
                         hintStyle: WawatTextStyles.body.copyWith(
-                          color: (widget.isDark
-                                  ? const Color(0xFF6B7280)
-                                  : WawatColors.textSecondary)
-                              .withOpacity(0.5),
+                          color: widget.isDark
+                              ? WawatDark.placeholder
+                              : WawatColors.textSecondary.withOpacity(0.5),
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(16),
                         counterStyle: WawatTextStyles.caption.copyWith(
                           color: widget.isDark
-                              ? const Color(0xFF9CA3AF)
+                              ? cText2(true)
                               : WawatColors.textSecondary,
                         ),
                       ),
@@ -763,10 +763,8 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
         showTopSnackbar(ErrorParser.parseDioError(e), false, context);
       }
     }
-  }}
-
-
-
+  }
+}
 
 class _FullScreenImageViewer extends StatefulWidget {
   final String imageUrl;
@@ -783,7 +781,7 @@ class _FullScreenImageViewer extends StatefulWidget {
 
 class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
   final TransformationController _transformationController =
-  TransformationController();
+      TransformationController();
 
   @override
   void dispose() {
@@ -813,7 +811,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
                             ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
+                                loadingProgress.expectedTotalBytes!
                             : null,
                         color: Colors.white,
                       ),
