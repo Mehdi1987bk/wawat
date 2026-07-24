@@ -28,9 +28,7 @@ Future<T?> _showSheet<T>(BuildContext context, WidgetBuilder builder) {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: isDark
-        ? Colors.black.withValues(alpha: 0.6)
-        : dealInk900.withValues(alpha: 0.45),
+    barrierColor: isDark ? WawatDark.scrim : dealInk900.withValues(alpha: 0.45),
     builder: builder,
   );
 }
@@ -63,7 +61,7 @@ class _SheetShell extends StatelessWidget {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 14),
                   decoration: BoxDecoration(
-                    color: isDark ? WawatDark.iconMuted : dealInk200,
+                    color: isDark ? WawatDark.grab : dealInk200,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -121,18 +119,24 @@ class _SheetField extends StatelessWidget {
                 color: isDark ? WawatDark.textMuted : dealInk400,
                 fontWeight: FontWeight.w500),
             filled: true,
-            fillColor:
-                isDark ? WawatDark.surfaceAlt : dealInk900.withValues(alpha: 0.02),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            fillColor: isDark
+                ? WawatDark.surfaceAlt
+                : dealInk900.withValues(alpha: 0.02),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(
-                  color: isDark ? WawatDark.border : dealInk900.withValues(alpha: 0.07)),
+                  color: isDark
+                      ? WawatDark.border
+                      : dealInk900.withValues(alpha: 0.07)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(
-                  color: isDark ? WawatDark.border : dealInk900.withValues(alpha: 0.07)),
+                  color: isDark
+                      ? WawatDark.border
+                      : dealInk900.withValues(alpha: 0.07)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -152,8 +156,10 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
   required ShipmentData shipment,
 }) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  final weightController = TextEditingController(text: shipment.weightKg?.toString() ?? '');
-  final priceController = TextEditingController(text: shipment.priceTotal?.toStringAsFixed(0) ?? '');
+  final weightController =
+      TextEditingController(text: shipment.weightKg?.toString() ?? '');
+  final priceController = TextEditingController(
+      text: shipment.priceTotal?.toStringAsFixed(0) ?? '');
   final noteController = TextEditingController();
   return _showSheet<Map<String, dynamic>>(
     context,
@@ -164,10 +170,12 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
         children: [
           Row(
             children: [
-              const Icon(PhosphorIconsBold.arrowUUpLeft, color: dealBrand, size: 18),
+              const Icon(PhosphorIconsBold.arrowUUpLeft,
+                  color: dealBrand, size: 18),
               const SizedBox(width: 8),
               Text(
-                WawatContent.text(content, 'deals.counter.title', 'Qarşı təklif'),
+                WawatContent.text(
+                    content, 'deals.counter.title', 'Qarşı təklif'),
                 style: TextStyle(
                     color: isDark ? WawatDark.textPrimary : dealInk900,
                     fontSize: 16,
@@ -190,19 +198,22 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
           const SizedBox(height: 14),
           _SheetField(
             isDark: isDark,
-            label: '${WawatContent.text(content, 'deals.terms.weight', 'Çəki')} (kq)',
+            label:
+                '${WawatContent.text(content, 'deals.terms.weight', 'Çəki')} (kq)',
             controller: weightController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           _SheetField(
             isDark: isDark,
-            label: '${WawatContent.text(content, 'deals.terms.price', 'Qiymət')} (₼)',
+            label:
+                '${WawatContent.text(content, 'deals.terms.price', 'Qiymət')} (₼)',
             controller: priceController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           _SheetField(
             isDark: isDark,
-            label: WawatContent.text(content, 'deals.note_optional', 'Qeyd (istəyə bağlı)'),
+            label: WawatContent.text(
+                content, 'deals.note_optional', 'Qeyd (istəyə bağlı)'),
             controller: noteController,
             maxLines: 2,
           ),
@@ -215,20 +226,24 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
                     'weight_kg': double.tryParse(weightController.text.trim()),
                   if (priceController.text.trim().isNotEmpty)
                     'price_total': double.tryParse(priceController.text.trim()),
-                  if (noteController.text.trim().isNotEmpty) 'note': noteController.text.trim(),
+                  if (noteController.text.trim().isNotEmpty)
+                    'note': noteController.text.trim(),
                 });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: dealBrand,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
               icon: const Icon(PhosphorIconsFill.paperPlaneTilt,
                   size: 17, color: Colors.white),
               label: Text(
-                WawatContent.text(content, 'deals.counter.submit', 'Qarşı təklifi göndər'),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                WawatContent.text(
+                    content, 'deals.counter.submit', 'Qarşı təklifi göndər'),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -267,10 +282,12 @@ Future<Map<String, dynamic>?> showDealCancelSheet(
           children: [
             Row(
               children: [
-                const Icon(PhosphorIconsFill.prohibit, color: dealRed600, size: 18),
+                const Icon(PhosphorIconsFill.prohibit,
+                    color: dealRed600, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  WawatContent.text(content, 'deals.cancel.title', 'Sövdələşməni ləğv et'),
+                  WawatContent.text(
+                      content, 'deals.cancel.title', 'Sövdələşməni ləğv et'),
                   style: TextStyle(
                       color: isDark ? WawatDark.textPrimary : dealInk900,
                       fontSize: 16,
@@ -296,7 +313,8 @@ Future<Map<String, dynamic>?> showDealCancelSheet(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: _ReasonOption(
                   isDark: isDark,
-                  label: WawatContent.text(content, 'enum.shipment_cancel_reason.$reason', reason),
+                  label: WawatContent.text(
+                      content, 'enum.shipment_cancel_reason.$reason', reason),
                   selected: selected == reason,
                   onTap: () => setState(() => selected = reason),
                 ),
@@ -304,7 +322,8 @@ Future<Map<String, dynamic>?> showDealCancelSheet(
             const SizedBox(height: 4),
             _SheetField(
               isDark: isDark,
-              label: WawatContent.text(content, 'deals.note_optional', 'Qeyd (istəyə bağlı)'),
+              label: WawatContent.text(
+                  content, 'deals.note_optional', 'Qeyd (istəyə bağlı)'),
               controller: noteController,
               maxLines: 2,
             ),
@@ -314,20 +333,23 @@ Future<Map<String, dynamic>?> showDealCancelSheet(
                 onPressed: () {
                   Navigator.of(sheetContext).pop({
                     'reason_code': selected,
-                    if (noteController.text.trim().isNotEmpty) 'reason_note': noteController.text.trim(),
+                    if (noteController.text.trim().isNotEmpty)
+                      'reason_note': noteController.text.trim(),
                   });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: dealRed600,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(PhosphorIconsFill.prohibit,
                     size: 17, color: Colors.white),
                 label: Text(
                   WawatContent.text(content, 'deals.action.cancel', 'Ləğv et'),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -367,10 +389,12 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
           children: [
             Row(
               children: [
-                const Icon(PhosphorIconsFill.warningOctagon, color: dealRed600, size: 18),
+                const Icon(PhosphorIconsFill.warningOctagon,
+                    color: dealRed600, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  WawatContent.text(content, 'deals.dispute.title', 'Problem bildir'),
+                  WawatContent.text(
+                      content, 'deals.dispute.title', 'Problem bildir'),
                   style: TextStyle(
                       color: isDark ? WawatDark.textPrimary : dealInk900,
                       fontSize: 16,
@@ -396,7 +420,8 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: _ReasonOption(
                   isDark: isDark,
-                  label: WawatContent.text(content, 'deals.dispute_reason.${entry[0]}', entry[1]),
+                  label: WawatContent.text(
+                      content, 'deals.dispute_reason.${entry[0]}', entry[1]),
                   selected: selected == entry[0],
                   onTap: () => setState(() => selected = entry[0]),
                 ),
@@ -414,21 +439,26 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
               child: ElevatedButton.icon(
                 onPressed: () {
                   final detail = reasonController.text.trim();
-                  final reasonLabel = _disputeReasons.firstWhere((e) => e[0] == selected)[1];
-                  final reason = detail.isEmpty ? reasonLabel : '$reasonLabel: $detail';
+                  final reasonLabel =
+                      _disputeReasons.firstWhere((e) => e[0] == selected)[1];
+                  final reason =
+                      detail.isEmpty ? reasonLabel : '$reasonLabel: $detail';
                   Navigator.of(sheetContext).pop({'reason': reason});
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: dealRed600,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(PhosphorIconsFill.flag,
                     size: 17, color: Colors.white),
                 label: Text(
-                  WawatContent.text(content, 'deals.dispute.submit', 'Problemi göndər'),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  WawatContent.text(
+                      content, 'deals.dispute.submit', 'Problemi göndər'),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -506,11 +536,14 @@ Future<bool> showDealConfirmDialog(
                   backgroundColor: dealBrand,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
-                  WawatContent.text(content, 'deals.confirm.yes', 'Bəli, təsdiqlə'),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  WawatContent.text(
+                      content, 'deals.confirm.yes', 'Bəli, təsdiqlə'),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -562,11 +595,13 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: isDark ? WawatDark.surfaceAlt : dealInk100,
-                    backgroundImage:
-                        counterpartAvatar != null ? CachedNetworkImageProvider(counterpartAvatar) : null,
+                    backgroundImage: counterpartAvatar != null
+                        ? CachedNetworkImageProvider(counterpartAvatar)
+                        : null,
                     child: counterpartAvatar == null
                         ? Icon(PhosphorIconsFill.user,
-                            color: isDark ? WawatDark.textMuted : dealInk400, size: 26)
+                            color: isDark ? WawatDark.textMuted : dealInk400,
+                            size: 26)
                         : null,
                   ),
                   const SizedBox(height: 8),
@@ -587,7 +622,9 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
                           child: Icon(
-                            value <= rating ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
+                            value <= rating
+                                ? PhosphorIconsFill.star
+                                : PhosphorIconsRegular.star,
                             color: const Color(0xFFF5B301),
                             size: 30,
                           ),
@@ -603,7 +640,8 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
               isDark: isDark,
               label: '',
               controller: commentController,
-              hint: WawatContent.text(content, 'deals.review.prompt', 'Təcrübəni bir neçə sözlə yaz…'),
+              hint: WawatContent.text(content, 'deals.review.prompt',
+                  'Təcrübəni bir neçə sözlə yaz…'),
               maxLines: 3,
             ),
             Wrap(
@@ -613,21 +651,24 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                 for (final trait in traits)
                   GestureDetector(
                     onTap: () => setState(() {
-                      if (!selectedTraits.add(trait[0])) selectedTraits.remove(trait[0]);
+                      if (!selectedTraits.add(trait[0]))
+                        selectedTraits.remove(trait[0]);
                     }),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: selectedTraits.contains(trait[0])
-                            ? dealEmerald50
+                            ? (isDark ? WawatDark.successBg : dealEmerald50)
                             : (isDark ? WawatDark.surfaceAlt : dealInk100),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        WawatContent.text(content, 'deals.review.trait.${trait[0]}', trait[1]),
+                        WawatContent.text(content,
+                            'deals.review.trait.${trait[0]}', trait[1]),
                         style: TextStyle(
                           color: selectedTraits.contains(trait[0])
-                              ? dealEmerald600
+                              ? (isDark ? WawatDark.success : dealEmerald600)
                               : (isDark ? WawatDark.textSecondary : dealInk600),
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
@@ -642,8 +683,9 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  final traitSuffix =
-                      selectedTraits.map((code) => traits.firstWhere((t) => t[0] == code)[1]).join(', ');
+                  final traitSuffix = selectedTraits
+                      .map((code) => traits.firstWhere((t) => t[0] == code)[1])
+                      .join(', ');
                   final comment = [commentController.text.trim(), traitSuffix]
                       .where((e) => e.isNotEmpty)
                       .join(' · ');
@@ -656,13 +698,16 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                   backgroundColor: dealBrand,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(PhosphorIconsFill.paperPlaneTilt,
                     size: 17, color: Colors.white),
                 label: Text(
-                  WawatContent.text(content, 'deals.review.submit', 'Rəyi göndər'),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  WawatContent.text(
+                      content, 'deals.review.submit', 'Rəyi göndər'),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -694,13 +739,17 @@ class _ReasonOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: selected
-              ? (isDark ? WawatDark.brandSoft : dealBrand50.withValues(alpha: 0.6))
+              ? (isDark
+                  ? WawatDark.brandSoft
+                  : dealBrand50.withValues(alpha: 0.6))
               : (isDark ? WawatDark.surfaceAlt : Colors.white),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
               color: selected
                   ? dealBrand
-                  : (isDark ? WawatDark.border : dealInk900.withValues(alpha: 0.08)),
+                  : (isDark
+                      ? WawatDark.border
+                      : dealInk900.withValues(alpha: 0.08)),
               width: 2),
         ),
         child: Row(
@@ -712,10 +761,15 @@ class _ReasonOption extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: selected ? dealBrand : Colors.transparent,
                 border: Border.all(
-                    color: selected ? dealBrand : (isDark ? WawatDark.iconMuted : dealInk300),
+                    color: selected
+                        ? dealBrand
+                        : (isDark ? WawatDark.iconMuted : dealInk300),
                     width: 2),
               ),
-              child: selected ? const Icon(PhosphorIconsBold.check, size: 11, color: Colors.white) : null,
+              child: selected
+                  ? const Icon(PhosphorIconsBold.check,
+                      size: 11, color: Colors.white)
+                  : null,
             ),
             const SizedBox(width: 10),
             Expanded(

@@ -88,7 +88,8 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => _toast(
-                  WawatContent.text(content, 'common.coming_soon', 'Tezliklə aktiv olacaq.'),
+                  WawatContent.text(
+                      content, 'common.coming_soon', 'Tezliklə aktiv olacaq.'),
                 ),
                 child: Container(
                   width: 36,
@@ -100,7 +101,8 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(PhosphorIconsRegular.magnifyingGlass,
-                      color: isDark ? WawatDark.iconMuted : dealInk500, size: 18),
+                      color: isDark ? WawatDark.iconMuted : dealInk500,
+                      size: 18),
                 ),
               ),
             ],
@@ -111,7 +113,9 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
         preferredSize: const Size.fromHeight(1),
         child: Container(
             height: 1,
-            color: isDark ? WawatDark.divider : dealInk900.withValues(alpha: 0.06)),
+            color: isDark
+                ? WawatDark.divider
+                : dealInk900.withValues(alpha: 0.06)),
       ),
     );
   }
@@ -164,7 +168,8 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: dealBrand),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: dealBrand),
                 ),
               ),
             );
@@ -182,7 +187,8 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
 
   Future<void> _openDetail(ShipmentData shipment) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => DealDetailScreen(shipmentId: shipment.id)),
+      MaterialPageRoute(
+          builder: (_) => DealDetailScreen(shipmentId: shipment.id)),
     );
     if (mounted) bloc.loadInitial();
   }
@@ -193,7 +199,8 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
       SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: isDark ? WawatDark.elevated : dealInk900,
-        content: Text(message, style: const TextStyle(fontWeight: FontWeight.w600)),
+        content:
+            Text(message, style: const TextStyle(fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -231,7 +238,8 @@ class _TabsAndFilters extends StatelessWidget {
             children: [
               Expanded(
                 child: _TabSegment(
-                  label: WawatContent.text(state.content, 'deals.tab.active', 'Aktiv'),
+                  label: WawatContent.text(
+                      state.content, 'deals.tab.active', 'Aktiv'),
                   count: state.counts.active,
                   selected: state.tab == 'active',
                   onTap: () => bloc.setTab('active'),
@@ -239,7 +247,8 @@ class _TabsAndFilters extends StatelessWidget {
               ),
               Expanded(
                 child: _TabSegment(
-                  label: WawatContent.text(state.content, 'deals.tab.history', 'Tarixçə'),
+                  label: WawatContent.text(
+                      state.content, 'deals.tab.history', 'Tarixçə'),
                   count: state.counts.history,
                   selected: state.tab == 'history',
                   onTap: () => bloc.setTab('history'),
@@ -255,19 +264,22 @@ class _TabsAndFilters extends StatelessWidget {
             child: Row(
               children: [
                 _RoleFilterChip(
-                  label: WawatContent.text(state.content, 'deals.filter.all', 'Hamısı'),
+                  label: WawatContent.text(
+                      state.content, 'deals.filter.all', 'Hamısı'),
                   selected: state.role == null,
                   onTap: () => bloc.setRole(null),
                 ),
                 const SizedBox(width: 8),
                 _RoleFilterChip(
-                  label: WawatContent.text(state.content, 'deals.filter.sender', 'Göndərən kimi'),
+                  label: WawatContent.text(
+                      state.content, 'deals.filter.sender', 'Göndərən kimi'),
                   selected: state.role == 'sender',
                   onTap: () => bloc.setRole('sender'),
                 ),
                 const SizedBox(width: 8),
                 _RoleFilterChip(
-                  label: WawatContent.text(state.content, 'deals.filter.carrier', 'Daşıyıcı kimi'),
+                  label: WawatContent.text(
+                      state.content, 'deals.filter.carrier', 'Daşıyıcı kimi'),
                   selected: state.role == 'carrier',
                   onTap: () => bloc.setRole('carrier'),
                 ),
@@ -307,7 +319,10 @@ class _TabSegment extends StatelessWidget {
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: (selected && !isDark)
-              ? [BoxShadow(color: dealInk900.withValues(alpha: 0.08), blurRadius: 6)]
+              ? [
+                  BoxShadow(
+                      color: dealInk900.withValues(alpha: 0.08), blurRadius: 6)
+                ]
               : null,
         ),
         child: Row(
@@ -316,7 +331,9 @@ class _TabSegment extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: selected ? dealBrand : (isDark ? WawatDark.textMuted : dealInk500),
+                color: selected
+                    ? dealBrand
+                    : (isDark ? WawatDark.textMuted : dealInk500),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -336,7 +353,9 @@ class _TabSegment extends StatelessWidget {
                 child: Text(
                   '$count',
                   style: TextStyle(
-                    color: selected ? dealBrand : (isDark ? WawatDark.textMuted : dealInk500),
+                    color: selected
+                        ? dealBrand
+                        : (isDark ? WawatDark.textMuted : dealInk500),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -355,7 +374,8 @@ class _RoleFilterChip extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _RoleFilterChip({required this.label, required this.selected, required this.onTap});
+  const _RoleFilterChip(
+      {required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -369,15 +389,22 @@ class _RoleFilterChip extends StatelessWidget {
               ? (isDark ? WawatDark.elevated : dealInk900)
               : (isDark ? WawatDark.surface : Colors.white),
           borderRadius: BorderRadius.circular(999),
-          border: (!selected && isDark) ? Border.all(color: WawatDark.border) : null,
+          border: (!selected && isDark)
+              ? Border.all(color: WawatDark.border)
+              : null,
           boxShadow: (selected || isDark)
               ? null
-              : [BoxShadow(color: dealInk900.withValues(alpha: 0.06), blurRadius: 4)],
+              : [
+                  BoxShadow(
+                      color: dealInk900.withValues(alpha: 0.06), blurRadius: 4)
+                ],
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : (isDark ? WawatDark.textSecondary : dealInk600),
+            color: selected
+                ? Colors.white
+                : (isDark ? WawatDark.textSecondary : dealInk600),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -407,11 +434,13 @@ class _EmptyState extends StatelessWidget {
               decoration: BoxDecoration(
                   color: isDark ? WawatDark.brandSoft : dealBrand50,
                   shape: BoxShape.circle),
-              child: const Icon(PhosphorIconsFill.handshake, color: dealBrand, size: 44),
+              child: const Icon(PhosphorIconsFill.handshake,
+                  color: dealBrand, size: 44),
             ),
             const SizedBox(height: 20),
             Text(
-              WawatContent.text(content, 'deals.empty.title', 'Hələ sövdələşməniz yoxdur'),
+              WawatContent.text(
+                  content, 'deals.empty.title', 'Hələ sövdələşməniz yoxdur'),
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: isDark ? WawatDark.textPrimary : dealInk900,
@@ -441,12 +470,14 @@ class _EmptyState extends StatelessWidget {
                   backgroundColor: dealBrand,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
                 icon: const Icon(PhosphorIconsFill.compass, size: 18),
                 label: Text(
                   WawatContent.text(content, 'deals.empty.cta', 'Elanlara bax'),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -454,8 +485,12 @@ class _EmptyState extends StatelessWidget {
             TextButton(
               onPressed: () {},
               child: Text(
-                WawatContent.text(content, 'deals.how_it_works', 'Necə işləyir?'),
-                style: const TextStyle(color: dealBrand, fontSize: 13, fontWeight: FontWeight.w600),
+                WawatContent.text(
+                    content, 'deals.how_it_works', 'Necə işləyir?'),
+                style: const TextStyle(
+                    color: dealBrand,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -473,20 +508,25 @@ class _LoadError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dangerText = isDark ? WawatDark.dangerText : dealRed600;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: dealRed50,
+            color: isDark ? WawatDark.dangerSoftBg : dealRed50,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFFEE2E2)),
+            border: Border.all(
+                color: isDark
+                    ? WawatDark.dangerSoftBorder
+                    : const Color(0xFFFEE2E2)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(PhosphorIconsFill.wifiSlash, color: dealRed600, size: 22),
+              Icon(PhosphorIconsFill.wifiSlash, color: dangerText, size: 22),
               const SizedBox(height: 8),
               Text(
                 WawatContent.text(
@@ -495,20 +535,26 @@ class _LoadError extends StatelessWidget {
                   'Yüklənmədi. İnternet bağlantısını yoxlayın.',
                 ),
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: dealRed600, fontSize: 12.5, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                    color: dangerText,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: onRetry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: dealRed600,
+                  backgroundColor: isDark ? dealBrand : dealRed600,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
                   WawatContent.text(content, 'deals.retry', 'Yenidən'),
-                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 12.5, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -542,7 +588,8 @@ class _SkeletonCard extends StatefulWidget {
   State<_SkeletonCard> createState() => _SkeletonCardState();
 }
 
-class _SkeletonCardState extends State<_SkeletonCard> with SingleTickerProviderStateMixin {
+class _SkeletonCardState extends State<_SkeletonCard>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 900),
@@ -597,7 +644,8 @@ class _SkeletonCardState extends State<_SkeletonCard> with SingleTickerProviderS
     );
   }
 
-  Widget _bar(bool isDark, {required double width, required double height, double radius = 6}) {
+  Widget _bar(bool isDark,
+      {required double width, required double height, double radius = 6}) {
     return Container(
       width: width,
       height: height,
