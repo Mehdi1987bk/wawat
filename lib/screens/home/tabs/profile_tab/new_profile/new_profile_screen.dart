@@ -287,6 +287,9 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? WawatDark.scrim
+          : null,
       builder: (_) => _ReplyReviewSheet(
         api: widget.api,
         review: review,
@@ -711,6 +714,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? WawatDark.scrim
+          : null,
       builder: (_) =>
           _ReplyReviewSheet(api: _api, review: review, content: content),
     );
@@ -732,6 +738,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? WawatDark.scrim
+          : null,
       builder: (_) => _UserActionSheet(
         onBlock: () async {
           Navigator.pop(context);
@@ -759,6 +768,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? WawatDark.scrim
+          : null,
       builder: (_) => _ReportUserSheet(api: _api, user: user, content: content),
     );
     if (sent == true) _toast('Şikayət göndərildi.');
@@ -771,7 +783,7 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
         content: Text(message),
         behavior: SnackBarBehavior.floating,
         backgroundColor: error
-            ? const Color(0xFFEF4444)
+            ? (isDark ? WawatDark.danger : const Color(0xFFEF4444))
             : (isDark ? WawatDark.elevated : _ink900),
         duration: const Duration(milliseconds: 1500),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -885,9 +897,9 @@ class _ProfileHeader extends StatelessWidget {
                         ),
                         if (user.isVerified) ...[
                           const SizedBox(width: 6),
-                          const Icon(
+                          Icon(
                             PhosphorIconsFill.sealCheck,
-                            color: _brand,
+                            color: isDark ? WawatDark.brandText : _brand,
                             size: 18,
                           ),
                         ],
@@ -976,11 +988,14 @@ class _VerificationBanner extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? WawatDark.warning.withValues(alpha: 0.12) : _amber50,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _amber.withValues(alpha: 0.18)),
+          border: Border.all(
+              color: (isDark ? WawatDark.warning : _amber)
+                  .withValues(alpha: 0.18)),
         ),
         child: Row(
           children: [
-            const Icon(PhosphorIconsFill.sealCheck, color: _amber),
+            Icon(PhosphorIconsFill.sealCheck,
+                color: isDark ? WawatDark.warning : _amber),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -1009,6 +1024,7 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Row(
@@ -1020,7 +1036,7 @@ class _StatsRow extends StatelessWidget {
                   : user.trust.ratingAvg!.toStringAsFixed(1),
               label: _tx(content, 'profile.rating', 'Reytinq'),
               icon: PhosphorIconsFill.star,
-              iconColor: _amber,
+              iconColor: isDark ? WawatDark.star : _amber,
             ),
           ),
           const SizedBox(width: 8),
@@ -1068,9 +1084,7 @@ class _StatTile extends StatelessWidget {
         color: _cCard(isDark),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-            color: isDark
-                ? WawatDark.border
-                : _ink900.withValues(alpha: 0.05)),
+            color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -1129,9 +1143,7 @@ class _FollowCounters extends StatelessWidget {
         color: _cCard(isDark),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-            color: isDark
-                ? WawatDark.border
-                : _ink900.withValues(alpha: 0.06)),
+            color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.06)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
@@ -1143,8 +1155,7 @@ class _FollowCounters extends StatelessWidget {
               onTap: onFollowers,
             ),
           ),
-          Container(
-              width: 1, height: 44, color: _cLine(isDark)),
+          Container(width: 1, height: 44, color: _cLine(isDark)),
           Expanded(
             child: _FollowCounterButton(
               value: _compact(user.followingCount),
@@ -1228,9 +1239,7 @@ class _ProfileTabs extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: isDark
-            ? WawatDark.surfaceAlt
-            : _ink900.withValues(alpha: 0.05),
+        color: isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -1299,7 +1308,9 @@ class _Segment extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? _brand : _cText2(isDark),
+                  color: selected
+                      ? (isDark ? WawatDark.brandText : _brand)
+                      : _cText2(isDark),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1311,7 +1322,9 @@ class _Segment extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                   decoration: BoxDecoration(
                     color: selected
-                        ? _brand.withValues(alpha: 0.12)
+                        ? (isDark
+                            ? WawatDark.brandBadge
+                            : _brand.withValues(alpha: 0.12))
                         : (isDark
                             ? WawatDark.border
                             : _ink900.withValues(alpha: 0.06)),
@@ -1320,7 +1333,9 @@ class _Segment extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: TextStyle(
-                      color: selected ? _brand : _cText2(isDark),
+                      color: selected
+                          ? (isDark ? WawatDark.brandText : _brand)
+                          : _cText2(isDark),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1391,7 +1406,9 @@ class _ProfileListingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = listing.isTrip ? _brand : _amber;
+    final accent = isDark
+        ? (listing.isTrip ? WawatDark.brandText : WawatDark.warning)
+        : (listing.isTrip ? _brand : _amber);
     final accent50 = isDark
         ? accent.withValues(alpha: 0.15)
         : (listing.isTrip ? _brand50 : _amber50);
@@ -1671,7 +1688,7 @@ class _DistributionRow extends StatelessWidget {
               child: LinearProgressIndicator(
                 minHeight: 6,
                 value: value,
-                color: const Color(0xFFF5B301),
+                color: isDark ? WawatDark.star : const Color(0xFFF5B301),
                 backgroundColor: isDark
                     ? WawatDark.surfaceAlt
                     : _ink900.withValues(alpha: 0.06),
@@ -1746,9 +1763,9 @@ class _ReviewCard extends StatelessWidget {
                         ),
                         if (author?.isVerified == true) ...[
                           const SizedBox(width: 4),
-                          const Icon(
+                          Icon(
                             PhosphorIconsFill.sealCheck,
-                            color: _brand,
+                            color: isDark ? WawatDark.brandText : _brand,
                             size: 14,
                           ),
                         ],
@@ -1762,7 +1779,9 @@ class _ReviewCard extends StatelessWidget {
                               ? PhosphorIconsFill.star
                               : PhosphorIconsRegular.star,
                           color: index < review.rating
-                              ? const Color(0xFFF5B301)
+                              ? (isDark
+                                  ? WawatDark.star
+                                  : const Color(0xFFF5B301))
                               : _cFaint(isDark),
                           size: 12,
                         ),
@@ -1853,17 +1872,17 @@ class _ReviewCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     PhosphorIconsFill.hourglass,
-                    color: _amber,
+                    color: isDark ? WawatDark.warning : _amber,
                     size: 14,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     _tx(content, 'review.reply_pending',
                         'Cavabınız yoxlanılır'),
-                    style: const TextStyle(
-                      color: _amber,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.warning : _amber,
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1878,16 +1897,16 @@ class _ReviewCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     PhosphorIconsRegular.arrowBendUpLeft,
-                    color: _brand,
+                    color: isDark ? WawatDark.brandText : _brand,
                     size: 15,
                   ),
                   const SizedBox(width: 5),
                   Text(
                     _tx(content, 'review.reply_button', 'Cavab yaz'),
-                    style: const TextStyle(
-                      color: _brand,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.brandText : _brand,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1921,16 +1940,16 @@ class _VerifiedReviewBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             PhosphorIconsFill.checkCircle,
-            color: Color(0xFF059669),
+            color: isDark ? WawatDark.success : const Color(0xFF059669),
             size: 13,
           ),
           const SizedBox(width: 5),
           Text(
             _tx(content, 'review.verified_shipment', 'Təsdiqlənmiş sifariş'),
-            style: const TextStyle(
-              color: Color(0xFF059669),
+            style: TextStyle(
+              color: isDark ? WawatDark.success : const Color(0xFF059669),
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
             ),
@@ -2193,9 +2212,9 @@ class _UserRow extends StatelessWidget {
                       ),
                       if (user.isVerified) ...[
                         const SizedBox(width: 5),
-                        const Icon(
+                        Icon(
                           PhosphorIconsFill.sealCheck,
-                          color: _brand,
+                          color: isDark ? WawatDark.brandText : _brand,
                           size: 14,
                         ),
                       ],
@@ -2388,6 +2407,7 @@ class _SettingsHubScreen extends StatelessWidget {
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
+                barrierColor: isDark ? WawatDark.scrim : null,
                 builder: (_) => _DeleteAccountSheet(api: api, content: content),
               ),
               child: Padding(
@@ -2395,8 +2415,9 @@ class _SettingsHubScreen extends StatelessWidget {
                 child: Text(
                   _tx(content, 'profile.delete_account', 'Hesabı sil'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFFEF4444),
+                  style: TextStyle(
+                    color:
+                        isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2656,6 +2677,9 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? WawatDark.scrim
+          : null,
       builder: (_) => _AvatarSheet(
         onCamera: () {
           Navigator.pop(context);
@@ -2806,7 +2830,8 @@ class _PrivacySettingsScreenState extends State<_PrivacySettingsScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(PhosphorIconsFill.info, color: _cMuted(isDark), size: 17),
+                  Icon(PhosphorIconsFill.info,
+                      color: _cMuted(isDark), size: 17),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -3003,9 +3028,9 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
                   : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(
+            child: Icon(
               PhosphorIconsFill.warning,
-              color: Color(0xFFEF4444),
+              color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
               size: 28,
             ),
           ),
@@ -3051,7 +3076,9 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
                     _confirmed
                         ? PhosphorIconsFill.checkSquare
                         : PhosphorIconsRegular.square,
-                    color: _confirmed ? _brand : _cFaint(isDark),
+                    color: _confirmed
+                        ? (isDark ? WawatDark.brandText : _brand)
+                        : _cFaint(isDark),
                     size: 22,
                   ),
                   const SizedBox(width: 10),
@@ -3324,6 +3351,7 @@ class _UserActionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -3336,7 +3364,7 @@ class _UserActionSheet extends StatelessWidget {
           _SheetAction(
             icon: PhosphorIconsRegular.flag,
             label: 'Şikayət et',
-            color: const Color(0xFFEF4444),
+            color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
             onTap: onReport,
           ),
           TextButton(
@@ -3423,13 +3451,25 @@ class _TierBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = switch (tier) {
-      'bronze' => (const Color(0xFFEFE1D0), const Color(0xFF9A5B2A)),
-      'silver' => (const Color(0xFFF1F5F9), _ink600),
-      'gold' => (const Color(0xFFFDECC8), const Color(0xFFB67C00)),
-      'platinum' => (const Color(0xFFE0E7FF), const Color(0xFF3730A3)),
-      _ => (const Color(0xFFDCFCE7), const Color(0xFF15803D)),
-    };
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final palette = isDark
+        ? switch (tier) {
+            'bronze' => (WawatDark.tierBronzeBg, WawatDark.tierBronzeText),
+            'silver' => (WawatDark.tierSilverBg, WawatDark.tierSilverText),
+            'gold' => (WawatDark.tierGoldBg, WawatDark.tierGoldText),
+            'platinum' => (
+                WawatDark.tierPlatinumBg,
+                WawatDark.tierPlatinumText
+              ),
+            _ => (WawatDark.successBg, WawatDark.success),
+          }
+        : switch (tier) {
+            'bronze' => (const Color(0xFFEFE1D0), const Color(0xFF9A5B2A)),
+            'silver' => (const Color(0xFFF1F5F9), _ink600),
+            'gold' => (const Color(0xFFFDECC8), const Color(0xFFB67C00)),
+            'platinum' => (const Color(0xFFE0E7FF), const Color(0xFF3730A3)),
+            _ => (const Color(0xFFDCFCE7), const Color(0xFF15803D)),
+          };
     final label = _tx(content, 'enum.user_tier.$tier', _tierLabel(tier));
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -3502,14 +3542,17 @@ class _TinyStatus extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
         color: isDark
-            ? (amber ? _amber : WawatDark.success).withValues(alpha: 0.14)
+            ? (amber ? WawatDark.warning : WawatDark.success)
+                .withValues(alpha: 0.14)
             : (amber ? _amber50 : const Color(0xFFECFDF5)),
         borderRadius: BorderRadius.circular(7),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: amber ? _amber : const Color(0xFF059669),
+          color: isDark
+              ? (amber ? WawatDark.warning : WawatDark.success)
+              : (amber ? _amber : const Color(0xFF059669)),
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
@@ -3561,7 +3604,7 @@ class _SoftButton extends StatelessWidget {
       icon: icon,
       onTap: onTap,
       background: _cBrandSoft(isDark),
-      foreground: _brand,
+      foreground: isDark ? WawatDark.brandText : _brand,
     );
   }
 }
@@ -3604,11 +3647,12 @@ class _DangerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _ButtonBase(
       label: label,
       icon: icon,
       onTap: onTap,
-      background: const Color(0xFFEF4444),
+      background: isDark ? WawatDark.danger : const Color(0xFFEF4444),
       foreground: Colors.white,
     );
   }
@@ -3750,18 +3794,16 @@ class _Field extends StatelessWidget {
           maxLength: maxLength,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: isDark
-                ? const TextStyle(color: WawatDark.textMuted)
-                : null,
+            hintStyle:
+                isDark ? const TextStyle(color: WawatDark.textMuted) : null,
             counterStyle: TextStyle(
               color: _cMuted(isDark),
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
             filled: true,
-            fillColor: isDark
-                ? WawatDark.surfaceAlt
-                : _ink900.withValues(alpha: 0.02),
+            fillColor:
+                isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.02),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             border: OutlineInputBorder(
@@ -3780,7 +3822,8 @@ class _Field extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: const BorderSide(color: _brand),
+              borderSide:
+                  BorderSide(color: isDark ? WawatDark.focusRing : _brand),
             ),
           ),
           style: TextStyle(
@@ -3840,9 +3883,8 @@ class _PasswordField extends StatelessWidget {
               ),
             ),
             filled: true,
-            fillColor: isDark
-                ? WawatDark.surfaceAlt
-                : _ink900.withValues(alpha: 0.02),
+            fillColor:
+                isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.02),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide(
@@ -3859,7 +3901,8 @@ class _PasswordField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: const BorderSide(color: _brand),
+              borderSide:
+                  BorderSide(color: isDark ? WawatDark.focusRing : _brand),
             ),
           ),
         ),
@@ -3885,7 +3928,7 @@ class _PasswordStrength extends StatelessWidget {
               height: 4,
               decoration: BoxDecoration(
                 color: i < active
-                    ? _emerald
+                    ? (isDark ? WawatDark.success : _emerald)
                     : (isDark ? WawatDark.surfaceAlt : _ink200),
                 borderRadius: BorderRadius.circular(99),
               ),
@@ -3897,7 +3940,9 @@ class _PasswordStrength extends StatelessWidget {
         Text(
           active >= 3 ? 'Güclü' : 'Zəif',
           style: TextStyle(
-            color: active >= 3 ? _emerald : _cMuted(isDark),
+            color: active >= 3
+                ? (isDark ? WawatDark.success : _emerald)
+                : _cMuted(isDark),
             fontSize: 11,
             fontWeight: FontWeight.w500,
           ),
@@ -3931,9 +3976,8 @@ class _SelectLocale extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: isDark
-                ? WawatDark.surfaceAlt
-                : _ink900.withValues(alpha: 0.02),
+            color:
+                isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
                 color: isDark
@@ -3948,8 +3992,8 @@ class _SelectLocale extends StatelessWidget {
               style: isDark
                   ? const TextStyle(color: WawatDark.textPrimary, fontSize: 16)
                   : null,
-              icon: Icon(PhosphorIconsRegular.caretDown,
-                  color: _cMuted(isDark)),
+              icon:
+                  Icon(PhosphorIconsRegular.caretDown, color: _cMuted(isDark)),
               items: const [
                 DropdownMenuItem(value: 'az', child: Text('Azərbaycanca')),
                 DropdownMenuItem(value: 'en', child: Text('English')),
@@ -4019,7 +4063,7 @@ class _LanguageSelector extends StatelessWidget {
                     language.name ?? language.code,
                     style: TextStyle(
                       color: selected.contains(language.code)
-                          ? _brand
+                          ? (isDark ? WawatDark.brandText : _brand)
                           : (isDark ? WawatDark.textSecondary : _ink700),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -4174,9 +4218,8 @@ class _SwitchRow extends StatelessWidget {
             activeColor: Colors.white,
             activeTrackColor: _brand,
             inactiveThumbColor: isDark ? WawatDark.icon : Colors.white,
-            inactiveTrackColor: isDark
-                ? WawatDark.elevated
-                : _ink900.withValues(alpha: 0.12),
+            inactiveTrackColor:
+                isDark ? WawatDark.elevated : _ink900.withValues(alpha: 0.12),
             onChanged: onChanged,
           ),
         ],
@@ -4200,7 +4243,7 @@ class _SettingsIcon extends StatelessWidget {
         color: _cBrandSoft(isDark),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(icon, color: _brand, size: 18),
+      child: Icon(icon, color: isDark ? WawatDark.brandText : _brand, size: 18),
     );
   }
 }
@@ -4245,8 +4288,7 @@ class _SheetShell extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: _cCard(isDark),
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -4256,7 +4298,7 @@ class _SheetShell extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 14),
             decoration: BoxDecoration(
-              color: isDark ? WawatDark.elevated : _ink200,
+              color: isDark ? WawatDark.grab : _ink200,
               borderRadius: BorderRadius.circular(99),
             ),
           ),
@@ -4343,19 +4385,19 @@ class _AvatarSheet extends StatelessWidget {
           _SheetAction(
             icon: PhosphorIconsRegular.camera,
             label: _tx(content, 'profile.avatar_camera', 'Kameradan çək'),
-            color: _brand,
+            color: isDark ? WawatDark.brandText : _brand,
             onTap: onCamera,
           ),
           _SheetAction(
             icon: PhosphorIconsRegular.image,
             label: _tx(content, 'profile.avatar_gallery', 'Qalereyadan seç'),
-            color: _brand,
+            color: isDark ? WawatDark.brandText : _brand,
             onTap: onGallery,
           ),
           _SheetAction(
             icon: PhosphorIconsRegular.trash,
             label: _tx(content, 'profile.avatar_delete', 'Şəkli sil'),
-            color: const Color(0xFFEF4444),
+            color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
             onTap: onDelete,
           ),
           Text(
@@ -4396,15 +4438,13 @@ class _ReasonChip extends StatelessWidget {
               : (isDark ? WawatDark.surfaceAlt : Colors.white),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: selected
-                  ? _brand
-                  : (isDark ? WawatDark.border : _ink200)),
+              color: selected ? _brand : (isDark ? WawatDark.border : _ink200)),
         ),
         child: Text(
           label,
           style: TextStyle(
             color: selected
-                ? _brand
+                ? (isDark ? WawatDark.brandText : _brand)
                 : (isDark ? WawatDark.textSecondary : _ink700),
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -4441,7 +4481,8 @@ class _EmptyState extends StatelessWidget {
               color: _cBrandSoft(isDark),
               borderRadius: BorderRadius.circular(26),
             ),
-            child: Icon(icon, color: _brand, size: 38),
+            child: Icon(icon,
+                color: isDark ? WawatDark.brandText : _brand, size: 38),
           ),
           const SizedBox(height: 16),
           Text(
@@ -4552,7 +4593,7 @@ class _SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: isDark ? WawatDark.surfaceAlt : _ink200,
+        color: isDark ? WawatDark.skeletonBase : _ink200,
         shape: circle ? BoxShape.circle : BoxShape.rectangle,
         borderRadius: circle ? null : BorderRadius.circular(18),
       ),
@@ -4715,9 +4756,9 @@ class _ProfileAuthRequired extends StatelessWidget {
                       color: _cBrandSoft(isDark),
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       PhosphorIconsFill.userCirclePlus,
-                      color: _brand,
+                      color: isDark ? WawatDark.brandText : _brand,
                       size: 44,
                     ),
                   ),
@@ -4751,12 +4792,12 @@ class _ProfileAuthRequired extends StatelessWidget {
                   GestureDetector(
                     onTap: onRetry,
                     behavior: HitTestBehavior.translucent,
-                    child: const Padding(
-                      padding: EdgeInsets.all(10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
                       child: Text(
                         'Yenilə',
                         style: TextStyle(
-                          color: _brand,
+                          color: isDark ? WawatDark.brandText : _brand,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -4876,7 +4917,7 @@ void _showSnack(BuildContext context, String message, {bool error = false}) {
       content: Text(message),
       behavior: SnackBarBehavior.floating,
       backgroundColor: error
-          ? const Color(0xFFEF4444)
+          ? (isDark ? WawatDark.danger : const Color(0xFFEF4444))
           : (isDark ? WawatDark.elevated : _ink900),
       duration: const Duration(milliseconds: 1500),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
