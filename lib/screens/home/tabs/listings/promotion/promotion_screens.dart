@@ -33,7 +33,8 @@ const _emerald = Color(0xFF10B981);
 // меняется), тёмная ветка = единый графит из [WawatDark].
 Color _cScreen(bool d) => d ? WawatDark.bg : _screen;
 Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
-Color _cFill(bool d) => d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05);
+Color _cFill(bool d) =>
+    d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05);
 Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
 Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink500;
 Color _cText3(bool d) => d ? WawatDark.textSecondary : _ink600;
@@ -110,9 +111,9 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                           : const Color(0xFFECFDF5),
                       borderRadius: BorderRadius.circular(26),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       PhosphorIconsFill.checkCircle,
-                      color: _emerald,
+                      color: isDark ? WawatDark.success : _emerald,
                       size: 50,
                     ),
                   ),
@@ -594,7 +595,7 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                     'Endirim',
                   ),
                   value: '0.00 ₼',
-                  valueColor: _emerald,
+                  valueColor: isDark ? WawatDark.success : _emerald,
                 ),
                 _CheckoutRow(
                   label: _tx(widget.content, 'promotion.total', 'Yekun'),
@@ -712,7 +713,7 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
             selected: _method == 'balance',
             icon: PhosphorIconsFill.wallet,
             iconBackground: _cBrandSoft(isDark),
-            iconColor: _brand,
+            iconColor: isDark ? WawatDark.brandText : _brand,
             title: _tx(
               widget.content,
               'enum.payment_method.balance',
@@ -728,9 +729,9 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(
+              Icon(
                 PhosphorIconsFill.shieldCheck,
-                color: _emerald,
+                color: isDark ? WawatDark.success : _emerald,
                 size: 17,
               ),
               const SizedBox(width: 7),
@@ -885,8 +886,11 @@ class _PromotionProcessingScreenState
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: (_error == null ? _brand : const Color(0xFFEF4444))
-                        .withValues(alpha: 0.10),
+                    color: _error == null
+                        ? _brand.withValues(alpha: 0.10)
+                        : (isDark
+                            ? WawatDark.danger.withValues(alpha: 0.14)
+                            : const Color(0xFFEF4444).withValues(alpha: 0.10)),
                     shape: BoxShape.circle,
                   ),
                   child: _error == null
@@ -897,9 +901,11 @@ class _PromotionProcessingScreenState
                             strokeWidth: 4,
                           ),
                         )
-                      : const Icon(
+                      : Icon(
                           PhosphorIconsFill.warningCircle,
-                          color: Color(0xFFEF4444),
+                          color: isDark
+                              ? WawatDark.danger
+                              : const Color(0xFFEF4444),
                           size: 42,
                         ),
                 ),
@@ -999,15 +1005,16 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final status = _promotion.status;
     final active = status == 'active' || status == 'pending_activation';
     final failed = status == 'failed';
     final refunded = status == 'refunded';
     final color = active
-        ? _emerald
+        ? (isDark ? WawatDark.success : _emerald)
         : failed || refunded
-            ? const Color(0xFFEF4444)
-            : _amber;
+            ? (isDark ? WawatDark.danger : const Color(0xFFEF4444))
+            : (isDark ? WawatDark.warning : _amber);
     final icon = active
         ? PhosphorIconsFill.check
         : failed
@@ -1034,7 +1041,6 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                     'promotion.payment_pending',
                     'Təsdiq gözlənilir',
                   );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: _cScreen(isDark),
       body: SafeArea(
@@ -1982,7 +1988,7 @@ class _UpsellCard extends StatelessWidget {
                             ? (isDark
                                 ? WawatDark.warning
                                 : const Color(0xFFB45309))
-                            : _brand,
+                            : (isDark ? WawatDark.brandText : _brand),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2053,8 +2059,7 @@ class _SelectionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color:
-              selected ? accent.withValues(alpha: 0.08) : _cCard(isDark),
+          color: selected ? accent.withValues(alpha: 0.08) : _cCard(isDark),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: selected
@@ -2134,13 +2139,10 @@ class _RoutePreview extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark
-            ? WawatDark.surfaceAlt
-            : _ink900.withValues(alpha: 0.025),
+        color: isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color:
-              isDark ? WawatDark.border : _ink900.withValues(alpha: 0.06),
+          color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.06),
         ),
       ),
       child: _RouteLine(
@@ -2189,7 +2191,7 @@ class _RouteLine extends StatelessWidget {
           ),
           child: Icon(
             trip ? PhosphorIconsFill.airplaneTilt : PhosphorIconsFill.package,
-            color: _brand,
+            color: isDark ? WawatDark.brandText : _brand,
             size: 20,
           ),
         ),
@@ -2371,7 +2373,7 @@ class _PaymentOption extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final Color iconBackground;
+  final Color? iconBackground;
   final Color iconColor;
   final VoidCallback? onTap;
 
@@ -2380,7 +2382,7 @@ class _PaymentOption extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
-    this.iconBackground = _ink900,
+    this.iconBackground,
     this.iconColor = Colors.white,
     this.onTap,
   });
@@ -2388,6 +2390,7 @@ class _PaymentOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileBg = iconBackground ?? (isDark ? WawatDark.elevated : _ink900);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -2417,7 +2420,7 @@ class _PaymentOption extends StatelessWidget {
               width: 48,
               height: 36,
               decoration: BoxDecoration(
-                color: iconBackground,
+                color: tileBg,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: iconColor, size: 18),
@@ -2682,8 +2685,9 @@ class _PromotionHistoryCard extends StatelessWidget {
                 minHeight: 5,
                 value: _promotionProgress(promotion),
                 color: accent,
-                backgroundColor:
-                    isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.06),
+                backgroundColor: isDark
+                    ? WawatDark.surfaceAlt
+                    : _ink900.withValues(alpha: 0.06),
               ),
             ),
           ],
@@ -2771,7 +2775,9 @@ class _PromotionTabs extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: selected ? _brand : _cText2(isDark),
+              color: selected
+                  ? (isDark ? WawatDark.brandText : _brand)
+                  : _cText2(isDark),
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -2803,9 +2809,9 @@ class _EmptyPromotions extends StatelessWidget {
                 color: _cBrandSoft(isDark),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 PhosphorIconsFill.rocketLaunch,
-                color: _brand,
+                color: isDark ? WawatDark.brandText : _brand,
                 size: 38,
               ),
             ),
@@ -2954,9 +2960,7 @@ class _BenefitCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark
-            ? WawatDark.surfaceAlt
-            : _ink900.withValues(alpha: 0.025),
+        color: isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -3015,6 +3019,12 @@ class _StepTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Кружок-номер остаётся бренд/amber ЗАЛИВКОЙ; подпись как ТЕКСТ должна быть
+    // читаемой на тёмном (brandText / warning), light-ветку не трогаем.
+    final Color labelColor = isDark
+        ? (color == _amber ? WawatDark.warning : WawatDark.brandText)
+        : color;
     return Row(
       children: [
         if (step != null) ...[
@@ -3037,7 +3047,7 @@ class _StepTitle extends StatelessWidget {
         Text(
           text,
           style: TextStyle(
-            color: color,
+            color: labelColor,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -3055,6 +3065,7 @@ class _InfoBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brandText = isDark ? WawatDark.brandText : _brand;
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
@@ -3065,13 +3076,13 @@ class _InfoBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(PhosphorIconsFill.info, color: _brand, size: 18),
+          Icon(PhosphorIconsFill.info, color: brandText, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: _brand,
+              style: TextStyle(
+                color: brandText,
                 fontSize: 12,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -3102,9 +3113,9 @@ class _ErrorBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             PhosphorIconsFill.warningCircle,
-            color: Color(0xFFEF4444),
+            color: isDark ? WawatDark.danger : const Color(0xFFEF4444),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -3261,8 +3272,7 @@ class _OutlineButton extends StatelessWidget {
           color: _cCard(isDark),
           borderRadius: BorderRadius.circular(17),
           border: Border.all(
-            color:
-                isDark ? WawatDark.border : _ink900.withValues(alpha: 0.10),
+            color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.10),
           ),
         ),
         child: Row(
@@ -3340,9 +3350,9 @@ class _ErrorPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   PhosphorIconsFill.warningCircle,
-                  color: Color(0xFFEF4444),
+                  color: isDark ? WawatDark.danger : const Color(0xFFEF4444),
                   size: 56,
                 ),
                 const SizedBox(height: 14),
