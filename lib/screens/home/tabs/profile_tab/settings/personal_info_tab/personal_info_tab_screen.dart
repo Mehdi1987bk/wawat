@@ -15,10 +15,11 @@ import '../../../../../../data/network/response/country.dart';
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/common/image_selector.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
-
 
 class PersonalInfoTab extends BaseScreen {
   final User user;
@@ -88,7 +89,7 @@ class _PersonalInfoTabState
           // Если у пользователя уже есть код - находим его в списке
           if (widget.user.country != null) {
             _selectedCountry = _allCountries.firstWhere(
-                  (c) => c.id == widget.user.country!.id,
+              (c) => c.id == widget.user.country!.id,
               orElse: () => widget.user.country!,
             );
             _initialCountry = _selectedCountry;
@@ -118,16 +119,17 @@ class _PersonalInfoTabState
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  color: cCard(isDark),
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? Colors.black.withOpacity(0.3)
-                          : Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  border: cCardBorder(isDark),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                          ),
+                        ],
                 ),
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -147,14 +149,14 @@ class _PersonalInfoTabState
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark
-                            ? const Color(0xFF9CA3AF)
+                            ? WawatDark.textSecondary
                             : const Color(0xFF8E8E93),
                       ),
-                      child:   Text(S.of(context).bvfdb4btevsf),
+                      child: Text(S.of(context).bvfdb4btevsf),
                     ),
                     const SizedBox(height: 24),
-                    _buildTextField(
-                        S.of(context).vrebveg34g3sd, _fullNameController, isDark),
+                    _buildTextField(S.of(context).vrebveg34g3sd,
+                        _fullNameController, isDark),
                     const SizedBox(height: 16),
                     _buildTextField('Email', _emailController, isDark),
                     const SizedBox(height: 16),
@@ -174,29 +176,31 @@ class _PersonalInfoTabState
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white : Colors.black,
+                            color:
+                                isDark ? WawatDark.textPrimary : Colors.black,
                           ),
-                          child:   Text(S.of(context).vrevre43),
+                          child: Text(S.of(context).vrevre43),
                         ),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _aboutController,
                           maxLines: 4,
                           keyboardAppearance:
-                          isDark ? Brightness.dark : Brightness.light,
+                              isDark ? Brightness.dark : Brightness.light,
                           style: TextStyle(
                             fontSize: 14,
-                            color: isDark ? Colors.white : Colors.black,
+                            color:
+                                isDark ? WawatDark.textPrimary : Colors.black,
                           ),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor:
-                            isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                                isDark ? WawatDark.surfaceAlt : Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
                                 color: isDark
-                                    ? const Color(0xFF4A4A4A)
+                                    ? WawatDark.border
                                     : const Color(0xFFE5E5EA),
                               ),
                             ),
@@ -204,14 +208,16 @@ class _PersonalInfoTabState
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
                                 color: isDark
-                                    ? const Color(0xFF4A4A4A)
+                                    ? WawatDark.border
                                     : const Color(0xFFE5E5EA),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF5B4FFF),
+                              borderSide: BorderSide(
+                                color: isDark
+                                    ? WawatDark.focusRing
+                                    : const Color(0xFF5B4FFF),
                                 width: 2,
                               ),
                             ),
@@ -237,7 +243,7 @@ class _PersonalInfoTabState
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                                  const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -246,7 +252,7 @@ class _PersonalInfoTabState
                               elevation: 0,
                             ),
                             onPressed: isValid ? _addEmployer : null,
-                            child:   Text(
+                            child: Text(
                               S.of(context).grvge3g5,
                               style: TextStyle(
                                 color: Colors.white,
@@ -279,9 +285,9 @@ class _PersonalInfoTabState
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
-          child:   Text(S.of(context).vsf3grevsf43),
+          child: Text(S.of(context).vsf3grevsf43),
         ),
         const SizedBox(height: 8),
         Row(
@@ -306,26 +312,23 @@ class _PersonalInfoTabState
                 keyboardType: TextInputType.phone,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? WawatDark.textPrimary : Colors.black,
                 ),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor:
-                  isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                  fillColor: isDark ? WawatDark.surfaceAlt : Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: isDark
-                          ? const Color(0xFF4A4A4A)
-                          : const Color(0xFFE5E5EA),
+                      color:
+                          isDark ? WawatDark.border : const Color(0xFFE5E5EA),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: isDark
-                          ? const Color(0xFF4A4A4A)
-                          : const Color(0xFFE5E5EA),
+                      color:
+                          isDark ? WawatDark.border : const Color(0xFFE5E5EA),
                     ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
@@ -345,8 +348,6 @@ class _PersonalInfoTabState
   provideBloc() {
     return PersonalInfoTabBloc();
   }
-
-
 
   Future<void> _selectImage() async {
     final source = await showSelectImageSourceAlert(context);
@@ -374,12 +375,13 @@ class _PersonalInfoTabState
           final fixedImage = img.bakeOrientation(originalImage);
 
           // Сжимаем если нужно (максимум 1024px по большей стороне)
-          final resizedImage = fixedImage.width > 1024 || fixedImage.height > 1024
+          final resizedImage = fixedImage.width > 1024 ||
+                  fixedImage.height > 1024
               ? img.copyResize(
-            fixedImage,
-            width: fixedImage.width > fixedImage.height ? 1024 : null,
-            height: fixedImage.height > fixedImage.width ? 1024 : null,
-          )
+                  fixedImage,
+                  width: fixedImage.width > fixedImage.height ? 1024 : null,
+                  height: fixedImage.height > fixedImage.width ? 1024 : null,
+                )
               : fixedImage;
 
           // Сохраняем в temp директорию
@@ -419,7 +421,6 @@ class _PersonalInfoTabState
     }
   }
 
-
   Widget _buildTextField(
       String label, TextEditingController controller, bool isDark) {
     return Column(
@@ -430,7 +431,7 @@ class _PersonalInfoTabState
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
           child: Text(label),
         ),
@@ -440,29 +441,27 @@ class _PersonalInfoTabState
           keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
           style: TextStyle(
             fontSize: 14,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+            fillColor: isDark ? WawatDark.surfaceAlt : Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color:
-                isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color:
-                isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF5B4FFF),
+              borderSide: BorderSide(
+                color: isDark ? WawatDark.focusRing : const Color(0xFF5B4FFF),
                 width: 2,
               ),
             ),
@@ -486,7 +485,7 @@ class _PersonalInfoTabState
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
           child: Text(label),
         ),
@@ -498,25 +497,21 @@ class _PersonalInfoTabState
               readOnly: true,
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? Colors.white : Colors.black,
+                color: isDark ? WawatDark.textPrimary : Colors.black,
               ),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                fillColor: isDark ? WawatDark.surfaceAlt : Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: isDark
-                        ? const Color(0xFF4A4A4A)
-                        : const Color(0xFFE5E5EA),
+                    color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: isDark
-                        ? const Color(0xFF4A4A4A)
-                        : const Color(0xFFE5E5EA),
+                    color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
                   ),
                 ),
               ),
@@ -544,8 +539,8 @@ class _PersonalInfoTabState
     // final currentLocation = _locationController.text.trim();
     final currentAbout = _aboutController.text.trim();
 
-    final isRequiredFieldsFilled = currentFullname.isNotEmpty &&
-        currentEmail.isNotEmpty;
+    final isRequiredFieldsFilled =
+        currentFullname.isNotEmpty && currentEmail.isNotEmpty;
 
     // Проверяем изменился ли код страны
     final isCountryChanged = _selectedCountry?.id != _initialCountry?.id;
@@ -580,7 +575,7 @@ class _PersonalInfoTabState
       callingCode: _selectedCountry?.callingCode,
     )
         .then(
-          (onValue) {
+      (onValue) {
         // 🔥 Проверяем что виджет еще существует
         if (!mounted) return;
 

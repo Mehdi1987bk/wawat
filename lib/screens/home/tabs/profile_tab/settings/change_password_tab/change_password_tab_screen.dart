@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
@@ -108,16 +110,17 @@ class _ChangePasswordTabState
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  color: cCard(isDark),
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? Colors.black.withOpacity(0.3)
-                          : Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  border: cCardBorder(isDark),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                          ),
+                        ],
                 ),
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -129,12 +132,16 @@ class _ChangePasswordTabState
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF5B4FFF).withOpacity(0.1),
+                            color: isDark
+                                ? WawatDark.brandChip
+                                : const Color(0xFF5B4FFF).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.lock_outline,
-                            color: Color(0xFF5B4FFF),
+                            color: isDark
+                                ? WawatDark.brandText
+                                : const Color(0xFF5B4FFF),
                             size: 24,
                           ),
                         ),
@@ -148,9 +155,11 @@ class _ChangePasswordTabState
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: isDark ? Colors.white : Colors.black,
+                                  color: isDark
+                                      ? WawatDark.textPrimary
+                                      : Colors.black,
                                 ),
-                                child:   Text(S.of(context).brttt4htg3rfwd),
+                                child: Text(S.of(context).brttt4htg3rfwd),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -158,7 +167,7 @@ class _ChangePasswordTabState
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: isDark
-                                      ? const Color(0xFF9CA3AF)
+                                      ? WawatDark.textSecondary
                                       : const Color(0xFF6B7280),
                                 ),
                               ),
@@ -229,7 +238,7 @@ class _ChangePasswordTabState
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                                  const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -241,18 +250,17 @@ class _ChangePasswordTabState
                                 : null,
                             child: _isLoading
                                 ? const SizedBox(
-                              width: 20,
-                              height: 20,
-
-                            )
-                                :   Text(
-                              S.of(context).jt676676756jhr,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                            ),
+                                    width: 20,
+                                    height: 20,
+                                  )
+                                : Text(
+                                    S.of(context).jt676676756jhr,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                           ),
                         );
                       },
@@ -283,7 +291,7 @@ class _ChangePasswordTabState
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
           child: Text(label),
         ),
@@ -294,35 +302,31 @@ class _ChangePasswordTabState
           keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
           style: TextStyle(
             fontSize: 14,
-            color: isDark ? Colors.white : Colors.black,
+            color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
           decoration: InputDecoration(
             hintText: hint ?? '••••••••',
             hintStyle: TextStyle(
-              color: isDark ? Colors.white38 : Colors.grey,
+              color: isDark ? WawatDark.placeholder : Colors.grey,
             ),
             filled: true,
-            fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+            fillColor: isDark ? WawatDark.surfaceAlt : Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: isDark
-                    ? const Color(0xFF4A4A4A)
-                    : const Color(0xFFE5E5EA),
+                color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: isDark
-                    ? const Color(0xFF4A4A4A)
-                    : const Color(0xFFE5E5EA),
+                color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF5B4FFF),
+              borderSide: BorderSide(
+                color: isDark ? WawatDark.focusRing : const Color(0xFF5B4FFF),
                 width: 2,
               ),
             ),
@@ -333,7 +337,7 @@ class _ChangePasswordTabState
             suffixIcon: IconButton(
               icon: Icon(
                 obscureText ? Icons.visibility_off : Icons.visibility,
-                color: isDark ? Colors.white54 : Colors.grey,
+                color: isDark ? WawatDark.iconMuted : Colors.grey,
                 size: 20,
               ),
               onPressed: onToggleObscure,
@@ -343,8 +347,6 @@ class _ChangePasswordTabState
       ],
     );
   }
-
-
 
   @override
   ChangePasswordTabBloc provideBloc() {

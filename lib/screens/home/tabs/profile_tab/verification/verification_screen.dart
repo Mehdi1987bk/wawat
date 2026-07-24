@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_response.dart';
 import '../../../../../generated/l10n.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_manager.dart';
 import '../settings/experience_tab/experience_tab_screen.dart';
 
@@ -23,7 +25,8 @@ class VerificationScreen extends BaseScreen {
 }
 
 class _VerificationScreenState
-    extends BaseState<VerificationScreen, VerificationBloc> with ErrorDispatcher{
+    extends BaseState<VerificationScreen, VerificationBloc>
+    with ErrorDispatcher {
   File? _passportImage;
   File? _selfieImage;
   bool _isLoading = false;
@@ -60,10 +63,10 @@ class _VerificationScreenState
 
         if (_isLoadingStatus) {
           return Scaffold(
-            backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+            backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
             body: Center(
               child: CircularProgressIndicator(
-                color: isDark ? const Color(0xFF6366F1) : const Color(0xFF00B4A6),
+                color: isDark ? WawatDark.brandText : const Color(0xFF00B4A6),
               ),
             ),
           );
@@ -87,7 +90,7 @@ class _VerificationScreenState
 
   Widget _buildVerifiedScreen(bool isDark) {
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+      backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: Column(
           children: [
@@ -100,7 +103,7 @@ class _VerificationScreenState
                     child: Icon(
                       Icons.arrow_back,
                       size: 24,
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? WawatDark.textPrimary : Colors.black,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -109,9 +112,9 @@ class _VerificationScreenState
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? WawatDark.textPrimary : Colors.black,
                     ),
-                    child:   Text(S.of(context).bd3435fvd),
+                    child: Text(S.of(context).bd3435fvd),
                   ),
                 ],
               ),
@@ -142,19 +145,22 @@ class _VerificationScreenState
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color:
+                              isDark ? WawatDark.textPrimary : Colors.black87,
                         ),
-                        child:   Text(S.of(context).vfdfv22434),
+                        child: Text(S.of(context).vfdfv22434),
                       ),
                       const SizedBox(height: 16),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 16,
-                          color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                          color: isDark
+                              ? WawatDark.textSecondary
+                              : Colors.grey[600],
                           height: 1.5,
                         ),
-                        child:   Text(
+                        child: Text(
                           S.of(context).vfdvfdvfvfdewr44,
                           textAlign: TextAlign.center,
                         ),
@@ -165,12 +171,13 @@ class _VerificationScreenState
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          color: isDark ? WawatDark.surface : Colors.white,
                           borderRadius: BorderRadius.circular(16),
+                          border: cCardBorder(isDark),
                           boxShadow: [
                             BoxShadow(
                               color: isDark
-                                  ? Colors.black.withOpacity(0.3)
+                                  ? Colors.black.withOpacity(0.45)
                                   : Colors.black.withOpacity(0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
@@ -189,7 +196,8 @@ class _VerificationScreenState
                             ),
                             const SizedBox(height: 16),
                             Divider(
-                              color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                              color:
+                                  isDark ? WawatDark.divider : Colors.grey[200],
                               height: 1,
                             ),
                             const SizedBox(height: 16),
@@ -210,15 +218,17 @@ class _VerificationScreenState
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? const Color(0xFF1E3A1E)
+                              ? WawatDark.successBg
                               : const Color(0xFFE8F5E9),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.verified,
-                              color: Color(0xFF4CAF50),
+                              color: isDark
+                                  ? WawatDark.success
+                                  : const Color(0xFF4CAF50),
                               size: 20,
                             ),
                             const SizedBox(width: 12),
@@ -227,9 +237,11 @@ class _VerificationScreenState
                                 duration: const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: isDark ? const Color(0xFFB0B0B0) : Colors.grey[700],
+                                  color: isDark
+                                      ? WawatDark.textSecondary
+                                      : Colors.grey[700],
                                 ),
-                                child:   Text(
+                                child: Text(
                                   S.of(context).dfbdf424fdv,
                                 ),
                               ),
@@ -250,7 +262,7 @@ class _VerificationScreenState
 
   Widget _buildPendingScreen(bool isDark) {
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+      backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: Column(
           children: [
@@ -263,7 +275,7 @@ class _VerificationScreenState
                     child: Icon(
                       Icons.arrow_back,
                       size: 24,
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? WawatDark.textPrimary : Colors.black,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -272,9 +284,9 @@ class _VerificationScreenState
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? WawatDark.textPrimary : Colors.black,
                     ),
-                    child:   Text(S.of(context).vfdgfdvfd42343),
+                    child: Text(S.of(context).vfdgfdvfd42343),
                   ),
                 ],
               ),
@@ -305,19 +317,22 @@ class _VerificationScreenState
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color:
+                              isDark ? WawatDark.textPrimary : Colors.black87,
                         ),
-                        child:   Text(S.of(context).vdfvfd42422),
+                        child: Text(S.of(context).vdfvfd42422),
                       ),
                       const SizedBox(height: 16),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
                           fontSize: 16,
-                          color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                          color: isDark
+                              ? WawatDark.textSecondary
+                              : Colors.grey[600],
                           height: 1.5,
                         ),
-                        child:   Text(
+                        child: Text(
                           S.of(context).n13vdf43,
                           textAlign: TextAlign.center,
                         ),
@@ -328,12 +343,13 @@ class _VerificationScreenState
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          color: isDark ? WawatDark.surface : Colors.white,
                           borderRadius: BorderRadius.circular(16),
+                          border: cCardBorder(isDark),
                           boxShadow: [
                             BoxShadow(
                               color: isDark
-                                  ? Colors.black.withOpacity(0.3)
+                                  ? Colors.black.withOpacity(0.45)
                                   : Colors.black.withOpacity(0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
@@ -352,7 +368,8 @@ class _VerificationScreenState
                             ),
                             const SizedBox(height: 16),
                             Divider(
-                              color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                              color:
+                                  isDark ? WawatDark.divider : Colors.grey[200],
                               height: 1,
                             ),
                             const SizedBox(height: 16),
@@ -373,15 +390,17 @@ class _VerificationScreenState
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? const Color(0xFF1E2A3A)
+                              ? WawatDark.brandChip
                               : const Color(0xFFE8F2FC),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.info_outline,
-                              color: Color(0xFF4A90D9),
+                              color: isDark
+                                  ? WawatDark.brandText
+                                  : const Color(0xFF4A90D9),
                               size: 20,
                             ),
                             const SizedBox(width: 12),
@@ -390,9 +409,11 @@ class _VerificationScreenState
                                 duration: const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: isDark ? const Color(0xFFB0B0B0) : Colors.grey[700],
+                                  color: isDark
+                                      ? WawatDark.textSecondary
+                                      : Colors.grey[700],
                                 ),
-                                child:   Text(
+                                child: Text(
                                   S.of(context).gtrgtr34343,
                                 ),
                               ),
@@ -419,16 +440,18 @@ class _VerificationScreenState
     required String subtitle,
     required bool isDark,
   }) {
+    final effectiveIconBg = isDark ? _darkIconBg(iconColor) : iconBgColor;
+    final effectiveIconColor = isDark ? _darkIconColor(iconColor) : iconColor;
     return Row(
       children: [
         Container(
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: iconBgColor,
+            color: effectiveIconBg,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: iconColor, size: 24),
+          child: Icon(icon, color: effectiveIconColor, size: 24),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -440,7 +463,7 @@ class _VerificationScreenState
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: isDark ? WawatDark.textPrimary : Colors.black87,
                 ),
                 child: Text(title),
               ),
@@ -449,7 +472,7 @@ class _VerificationScreenState
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                  color: isDark ? WawatDark.textSecondary : Colors.grey[600],
                 ),
                 child: Text(subtitle),
               ),
@@ -462,7 +485,7 @@ class _VerificationScreenState
 
   Widget _buildUploadDocumentsScreen(bool isDark) {
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+      backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -477,7 +500,7 @@ class _VerificationScreenState
                       child: Icon(
                         Icons.arrow_back,
                         size: 24,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -486,9 +509,9 @@ class _VerificationScreenState
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).gregrere4334),
+                      child: Text(S.of(context).gregrere4334),
                     ),
                   ],
                 ),
@@ -513,19 +536,19 @@ class _VerificationScreenState
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: isDark ? WawatDark.textPrimary : Colors.black87,
                 ),
-                child:   Text(S.of(context).gre43fbd4t3),
+                child: Text(S.of(context).gre43fbd4t3),
               ),
               const SizedBox(height: 8),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 15,
-                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey,
+                  color: isDark ? WawatDark.textSecondary : Colors.grey,
                   height: 1.4,
                 ),
-                child:   Text(
+                child: Text(
                   S.of(context).ngre24532vfds,
                   textAlign: TextAlign.center,
                 ),
@@ -536,12 +559,13 @@ class _VerificationScreenState
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  color: isDark ? WawatDark.surface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: cCardBorder(isDark),
                   boxShadow: [
                     BoxShadow(
                       color: isDark
-                          ? Colors.black.withOpacity(0.3)
+                          ? Colors.black.withOpacity(0.45)
                           : Colors.black.withOpacity(0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
@@ -556,18 +580,19 @@ class _VerificationScreenState
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: isDark ? WawatDark.textPrimary : Colors.black87,
                       ),
-                      child:   Text(S.of(context).gdfgdf4343gre),
+                      child: Text(S.of(context).gdfgdf4343gre),
                     ),
                     const SizedBox(height: 4),
                     AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                        color:
+                            isDark ? WawatDark.textSecondary : Colors.grey[600],
                       ),
-                      child:   Text(S.of(context).get42fvfdvs),
+                      child: Text(S.of(context).get42fvfdvs),
                     ),
                   ],
                 ),
@@ -579,8 +604,11 @@ class _VerificationScreenState
                 iconBgColor: const Color(0xFFE8F2FC),
                 title: S.of(context).vfd43vfd,
                 subtitle: S.of(context).vdfvbfd34,
-                status: _passportImage != null ? S.of(context).gdf43gf : S.of(context).fbdbdf3434,
-                statusColor: _passportImage != null ? Colors.green : Colors.grey,
+                status: _passportImage != null
+                    ? S.of(context).gdf43gf
+                    : S.of(context).fbdbdf3434,
+                statusColor:
+                    _passportImage != null ? Colors.green : Colors.grey,
                 uploadText: S.of(context).bdf234rffd,
                 image: _passportImage,
                 onTap: _pickPassportImage,
@@ -593,7 +621,9 @@ class _VerificationScreenState
                 iconBgColor: const Color(0xFFE8F5E9),
                 title: S.of(context).gfdfd3434,
                 subtitle: S.of(context).bfxvdg34,
-                status: _selfieImage != null ? S.of(context).hrgrs434 : S.of(context).yghtrdf4343,
+                status: _selfieImage != null
+                    ? S.of(context).hrgrs434
+                    : S.of(context).yghtrdf4343,
                 statusColor: _selfieImage != null ? Colors.green : Colors.grey,
                 uploadText: S.of(context).fdggg35tr34g,
                 image: _selfieImage,
@@ -606,20 +636,21 @@ class _VerificationScreenState
                 text: TextSpan(
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+                    color: isDark ? WawatDark.textSecondary : Colors.grey[600],
                     height: 1.5,
                   ),
-                  children:   [
+                  children: [
                     TextSpan(
                       text: S.of(context).gbdgb3434 + " ",
                       style: TextStyle(
-                        color: Color(0xFF4A90D9),
+                        color: isDark
+                            ? WawatDark.brandText
+                            : const Color(0xFF4A90D9),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     TextSpan(
-                      text:
-                      S.of(context).grgdfgdfg34t343t,
+                      text: S.of(context).grgdfgdfg34t343t,
                     ),
                   ],
                 ),
@@ -637,24 +668,25 @@ class _VerificationScreenState
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    disabledBackgroundColor: AppColors.appColor.withOpacity(0.6),
+                    disabledBackgroundColor:
+                        AppColors.appColor.withOpacity(0.6),
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                    ),
-                  )
-                      :   Text(
-                    S.of(context).bfdbffd24343vfd,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Text(
+                          S.of(context).bfdbffd24343vfd,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 30),
@@ -691,7 +723,7 @@ class _VerificationScreenState
   Future<void> _submitVerification() async {
     if (_passportImage == null || _selfieImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+        SnackBar(
           content: Text(S.of(context).bgfbgd3ttgtebdsdf),
           backgroundColor: Colors.orange,
         ),
@@ -716,7 +748,6 @@ class _VerificationScreenState
         await _loadVerificationStatus();
       }
     } catch (e) {
-
     } finally {
       if (mounted) {
         setState(() {
@@ -740,17 +771,20 @@ class _VerificationScreenState
     required bool isDark,
     bool showUploadIcon = false,
   }) {
+    final effectiveIconBg = isDark ? _darkIconBg(iconColor) : iconBgColor;
+    final effectiveIconColor = isDark ? _darkIconColor(iconColor) : iconColor;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? WawatDark.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: cCardBorder(isDark),
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withOpacity(0.3)
+                ? Colors.black.withOpacity(0.45)
                 : Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
@@ -765,10 +799,10 @@ class _VerificationScreenState
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: iconBgColor,
+                  color: effectiveIconBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 24),
+                child: Icon(icon, color: effectiveIconColor, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -780,7 +814,7 @@ class _VerificationScreenState
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: isDark ? WawatDark.textPrimary : Colors.black87,
                       ),
                       child: Text(title),
                     ),
@@ -789,7 +823,7 @@ class _VerificationScreenState
                       duration: const Duration(milliseconds: 300),
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? const Color(0xFF6B7280) : Colors.grey[500],
+                        color: isDark ? WawatDark.textMuted : Colors.grey[500],
                       ),
                       child: Text(subtitle),
                     ),
@@ -803,7 +837,7 @@ class _VerificationScreenState
                     Icon(
                       Icons.upload_outlined,
                       size: 18,
-                      color: isDark ? const Color(0xFF6B7280) : Colors.grey[400],
+                      color: isDark ? WawatDark.iconMuted : Colors.grey[400],
                     ),
                   if (image != null)
                     Icon(
@@ -822,50 +856,53 @@ class _VerificationScreenState
               width: double.infinity,
               height: 180,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[50],
+                color: isDark ? WawatDark.surfaceAlt : Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]!,
+                  color: isDark ? WawatDark.border : Colors.grey[300]!,
                   style: BorderStyle.solid,
                   width: 1.5,
                 ),
               ),
               child: CustomPaint(
                 painter: DashedBorderPainter(
-                  color: isDark ? const Color(0xFF4A4A4A) : Colors.grey[350]!,
+                  color: isDark ? WawatDark.border : Colors.grey[350]!,
                   strokeWidth: 1.5,
                   gap: 6,
                 ),
                 child: image != null
                     ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(
-                    image,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
-                )
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(
+                          image,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                      )
                     : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.upload_outlined,
-                      size: 32,
-                      color: isDark ? const Color(0xFF6B7280) : Colors.grey[400],
-                    ),
-                    const SizedBox(height: 10),
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[500],
-                        fontWeight: FontWeight.w500,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.upload_outlined,
+                            size: 32,
+                            color:
+                                isDark ? WawatDark.iconMuted : Colors.grey[400],
+                          ),
+                          const SizedBox(height: 10),
+                          AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 300),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark
+                                  ? WawatDark.textSecondary
+                                  : Colors.grey[500],
+                              fontWeight: FontWeight.w500,
+                            ),
+                            child: Text(uploadText),
+                          ),
+                        ],
                       ),
-                      child: Text(uploadText),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -873,6 +910,22 @@ class _VerificationScreenState
       ),
     );
   }
+}
+
+/// Мягкая плашка под иконку в тёмной теме по цвету самой иконки.
+Color _darkIconBg(Color iconColor) {
+  if (iconColor == const Color(0xFF4CAF50)) return WawatDark.successBg;
+  if (iconColor == const Color(0xFFF5A623)) return WawatDark.warningBg;
+  if (iconColor == const Color(0xFF4A90D9)) return WawatDark.brandChip;
+  return WawatDark.surfaceAlt;
+}
+
+/// Цвет иконки в тёмной теме (мягкие статусные/бренд-токены).
+Color _darkIconColor(Color iconColor) {
+  if (iconColor == const Color(0xFF4CAF50)) return WawatDark.success;
+  if (iconColor == const Color(0xFFF5A623)) return WawatDark.warning;
+  if (iconColor == const Color(0xFF4A90D9)) return WawatDark.brandText;
+  return WawatDark.icon;
 }
 
 class DashedBorderPainter extends CustomPainter {

@@ -8,6 +8,8 @@ import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../../../../auth/registration/widget/language_selector.dart';
@@ -73,7 +75,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     // Инициализация опыта с поддержкой половинных значений
     if (professional?.workExperienceYears != null) {
       _selectedExperience =
-      double.tryParse(professional!.workExperienceYears ?? "")!;
+          double.tryParse(professional!.workExperienceYears ?? "")!;
       if (_selectedExperience < 0.5) _selectedExperience = 0.5;
       if (_selectedExperience > 15) _selectedExperience = 15;
     } else {
@@ -84,14 +86,14 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         professional!.workTimeFrom!.isNotEmpty) {
       final parts = professional.workTimeFrom!.split(':');
       _selectedWorkTimeFrom =
-      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional?.workTimeTo != null &&
         professional!.workTimeTo!.isNotEmpty) {
       final parts = professional.workTimeTo!.split(':');
       _selectedWorkTimeTo =
-      parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
+          parts.length >= 2 ? '${parts[0]}:${parts[1]}' : '00:00';
     }
 
     if (professional != null && professional.languages.isNotEmpty) {
@@ -213,7 +215,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   Future<void> _showTimePickerFrom() async {
     try {
       final timeString =
-      _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
+          _selectedWorkTimeFrom.isNotEmpty ? _selectedWorkTimeFrom : '09:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -241,7 +243,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeFrom =
-                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -262,7 +264,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   Future<void> _showTimePickerTo() async {
     try {
       final timeString =
-      _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
+          _selectedWorkTimeTo.isNotEmpty ? _selectedWorkTimeTo : '18:00';
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
@@ -290,7 +292,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onDateTimeChanged: (DateTime newTime) {
                 setState(() {
                   _selectedWorkTimeTo =
-                  '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+                      '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
                 });
               },
             ),
@@ -300,7 +302,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).fvdvefr34vfsvd+' $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(S.of(context).fvdvefr34vfsvd + ' $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -374,16 +378,17 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  color: cCard(isDark),
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? Colors.black.withOpacity(0.3)
-                          : Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  border: cCardBorder(isDark),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                          ),
+                        ],
                 ),
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -394,9 +399,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).bryh4tb4thb4yhhe),
+                      child: Text(S.of(context).bryh4tb4thb4yhhe),
                     ),
                     const SizedBox(height: 8),
                     _buildExperienceSlider(isDark),
@@ -406,9 +411,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).brbt444b3tgsdgetr),
+                      child: Text(S.of(context).brbt444b3tgsdgetr),
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(_maxWeightController, isDark),
@@ -418,9 +423,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).vevrtbgvt5ybtvew+"\$)"),
+                      child: Text(S.of(context).vevrtbgvt5ybtvew + "\$)"),
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(_insuranceController, isDark),
@@ -430,9 +435,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).bgdbtb4brgd),
+                      child: Text(S.of(context).bgdbtb4brgd),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -441,9 +446,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
-                        child:   Text(S.of(context).bgfbgf534tg534g),
+                        child: Text(S.of(context).bgfbgf534tg534g),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -454,9 +459,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).bry5yn4ny4bde),
+                      child: Text(S.of(context).bry5yn4ny4bde),
                     ),
                     const SizedBox(height: 4),
                     _buildInputField(_priceToController, isDark),
@@ -466,9 +471,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).nujnhry4hrt),
+                      child: Text(S.of(context).nujnhry4hrt),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -482,9 +487,11 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
-                                  color: isDark ? Colors.white : Colors.black,
+                                  color: isDark
+                                      ? WawatDark.textPrimary
+                                      : Colors.black,
                                 ),
-                                child:   Text(S.of(context).btrb4tdb4tbr),
+                                child: Text(S.of(context).btrb4tdb4tbr),
                               ),
                               const SizedBox(height: 4),
                               _buildTimePickerField(
@@ -507,9 +514,11 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
-                                  color: isDark ? Colors.white : Colors.black,
+                                  color: isDark
+                                      ? WawatDark.textPrimary
+                                      : Colors.black,
                                 ),
-                                child:   Text(S.of(context).greg54eh3rwgs),
+                                child: Text(S.of(context).greg54eh3rwgs),
                               ),
                               const SizedBox(height: 4),
                               _buildTimePickerField(
@@ -530,9 +539,9 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).nybhtgr54terfw3),
+                      child: Text(S.of(context).nybhtgr54terfw3),
                     ),
                     const SizedBox(height: 8),
                     LanguageSelector(
@@ -552,50 +561,49 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child:   Text(S.of(context).greg3greg43grgre),
+                      child: Text(S.of(context).greg3greg43grgre),
                     ),
                     const SizedBox(height: 8),
                     _allPackageTypes.isEmpty && !_isLoadingPackageTypes
                         ? AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF4A4A4A)
-                              : const Color(0xFFE5E5EA),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        color: isDark
-                            ? const Color(0xFF2A2A2A)
-                            : const Color(0xFFF5F5F5),
-                      ),
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 300),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark
-                              ? const Color(0xFF9CA3AF)
-                              : Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        child:   Text(
-                            S.of(context).trh35hteh354heh),
-                      ),
-                    )
+                            duration: const Duration(milliseconds: 300),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isDark
+                                    ? WawatDark.border
+                                    : const Color(0xFFE5E5EA),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              color: isDark
+                                  ? WawatDark.surfaceAlt
+                                  : const Color(0xFFF5F5F5),
+                            ),
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? WawatDark.textSecondary
+                                    : Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              child: Text(S.of(context).trh35hteh354heh),
+                            ),
+                          )
                         : PackageTypesSelector(
-                      packageTypes: _allPackageTypes,
-                      selectedPackageTypeCodes: _selectedPackageTypeCodes,
-                      onSelectionChanged: (newSelection) {
-                        setState(() {
-                          _selectedPackageTypeCodes = newSelection;
-                        });
-                        _validateForm();
-                      },
-                      isLoading: _isLoadingPackageTypes,
-                    ),
+                            packageTypes: _allPackageTypes,
+                            selectedPackageTypeCodes: _selectedPackageTypeCodes,
+                            onSelectionChanged: (newSelection) {
+                              setState(() {
+                                _selectedPackageTypeCodes = newSelection;
+                              });
+                              _validateForm();
+                            },
+                            isLoading: _isLoadingPackageTypes,
+                          ),
                     Container(
                       height: 50,
                       width: double.infinity,
@@ -610,7 +618,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
+                                  const Color(0xFF5B4FFF).withOpacity(0.3),
                               backgroundColor: const Color(0xFF5B4FFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -619,7 +627,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                               elevation: 0,
                             ),
                             onPressed: isValid ? _saveChanges : null,
-                            child:   Text(
+                            child: Text(
                               S.of(context).htrh4hedh4th4,
                               style: TextStyle(
                                 color: Colors.white,
@@ -648,27 +656,27 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       style: TextStyle(
         fontSize: 14,
-        color: isDark ? Colors.white : Colors.black,
+        color: isDark ? WawatDark.textPrimary : Colors.black,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+        fillColor: isDark ? WawatDark.surfaceAlt : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+            color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+            color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFF5B4FFF),
+          borderSide: BorderSide(
+            color: isDark ? WawatDark.focusRing : const Color(0xFF5B4FFF),
             width: 2,
           ),
         ),
@@ -681,18 +689,18 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   }
 
   Widget _buildTimePickerField(
-      String value,
-      VoidCallback onTap,
-      bool isDark,
-      ) {
+    String value,
+    VoidCallback onTap,
+    bool isDark,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+          color: isDark ? WawatDark.surfaceAlt : Colors.white,
           border: Border.all(
-            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+            color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
           ),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -704,14 +712,14 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               duration: const Duration(milliseconds: 300),
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? Colors.white : Colors.black,
+                color: isDark ? WawatDark.textPrimary : Colors.black,
                 fontWeight: FontWeight.w500,
               ),
               child: Text(value),
             ),
             Icon(
               Icons.access_time,
-              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF8E8E93),
+              color: isDark ? WawatDark.iconMuted : const Color(0xFF8E8E93),
               size: 20,
             ),
           ],
@@ -734,13 +742,15 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               min: 1,
               max: 10,
               divisions: 9,
-              label: '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
+              label:
+                  '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
               activeColor: const Color(0xFF5B4FFF),
               inactiveColor:
-              isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                  isDark ? WawatDark.border : const Color(0xFFE5E5EA),
               onChanged: (value) {
                 setState(() {
-                  _selectedExperience = value.roundToDouble(); // Округляем до целого
+                  _selectedExperience =
+                      value.roundToDouble(); // Округляем до целого
                 });
               },
             ),
@@ -749,7 +759,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Text(
-            S.of(context).bgdretr35grdf + ' ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
+            S.of(context).bgdretr35grdf +
+                ' ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -771,6 +782,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       return S.of(context).myijtyhg34ewfrv;
     }
   }
+
   @override
   ExperienceTabBloc provideBloc() {
     return ExperienceTabBloc();
@@ -809,7 +821,7 @@ void showIOSStyleAlert(BuildContext context, String message,
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: isDark ? WawatDark.surface : Colors.white,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -827,7 +839,7 @@ void showIOSStyleAlert(BuildContext context, String message,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? WawatDark.textPrimary : Colors.black,
                 ),
               ),
               const SizedBox(height: 20),
@@ -851,11 +863,11 @@ void showIOSStyleAlert(BuildContext context, String message,
 }
 
 void showIOSStyleMessage(
-    BuildContext context,
-    String message, {
-      bool isSuccess = true,
-      Duration duration = const Duration(seconds: 2),
-    }) {
+  BuildContext context,
+  String message, {
+  bool isSuccess = true,
+  Duration duration = const Duration(seconds: 2),
+}) {
   final themeManager = Provider.of<ThemeManager>(context, listen: false);
 
   final isDark = themeManager.isDarkMode;
@@ -877,7 +889,7 @@ void showIOSStyleMessage(
             margin: const EdgeInsets.symmetric(horizontal: 40),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: isDark ? WawatDark.surface : Colors.white,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
@@ -896,7 +908,7 @@ void showIOSStyleMessage(
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: isDark ? WawatDark.textPrimary : Colors.black87,
                   ),
                 ),
               ],

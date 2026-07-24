@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/request/privacy_settings.dart';
 import '../../../../../../generated/l10n.dart';
+import '../../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
@@ -97,16 +99,17 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  color: cCard(isDark),
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark
-                          ? Colors.black.withOpacity(0.3)
-                          : Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  border: cCardBorder(isDark),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                          ),
+                        ],
                 ),
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -138,7 +141,9 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: isDark ? Colors.white : Colors.black,
+                                color: isDark
+                                    ? WawatDark.textPrimary
+                                    : Colors.black,
                               ),
                               child: Text(S.of(context).gret4h5h53g2b),
                             ),
@@ -148,7 +153,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isDark
-                                    ? const Color(0xFF9CA3AF)
+                                    ? WawatDark.textSecondary
                                     : const Color(0xFF8E8E93),
                               ),
                               child: Text(S.of(context).vfsvf33fr),
@@ -163,7 +168,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
                       child: Text(S.of(context).vsf3r4gh57j6hnbd),
                     ),
@@ -192,7 +197,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
                       child: Text(S.of(context).jyntytrk5j34r),
                     ),
@@ -264,7 +269,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F7),
+        color: isDark ? WawatDark.surfaceAlt : const Color(0xFFF5F5F7),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -275,7 +280,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 14,
-              color: isDark ? Colors.white : Colors.black,
+              color: isDark ? WawatDark.textPrimary : Colors.black,
             ),
             child: Text(label),
           ),
@@ -285,7 +290,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
             activeColor: const Color(0xFF5B4FFF),
             inactiveThumbColor: Colors.white,
             inactiveTrackColor:
-                isDark ? const Color(0xFF4A4A4A) : const Color(0xFFD1D1D6),
+                isDark ? WawatDark.border : const Color(0xFFD1D1D6),
           ),
         ],
       ),
