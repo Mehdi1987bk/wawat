@@ -4,6 +4,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/faq_response.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../services/theme_manager.dart';
 import 'faq_bloc.dart';
@@ -25,19 +26,19 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
     final isDark = themeManager.isDarkMode;
 
     return AppBar(
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? cBar(isDark) : Colors.white,
       elevation: 0,
       leading: IconButton(
         icon: Icon(
           Icons.arrow_back,
-          color: isDark ? Colors.white : Colors.black,
+          color: isDark ? cText(isDark) : Colors.black,
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
         'FAQ',
         style: TextStyle(
-          color: isDark ? Colors.white : Colors.black,
+          color: isDark ? cText(isDark) : Colors.black,
           fontSize: 18,
           fontWeight: FontWeight.w500,
         ),
@@ -53,23 +54,21 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
         final isDark = themeManager.isDarkMode;
 
         return Container(
-          color: isDark
-              ? const Color(0xFF121212)
-              : const Color(0xFFF5F5F7),
+          color: isDark ? cScreen(isDark) : const Color(0xFFF5F5F7),
           child: CustomScrollView(
             slivers: [
               // Красивый header
               SliverToBoxAdapter(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    color: isDark ? cCard(isDark) : Colors.white,
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(24),
                       bottomRight: Radius.circular(24),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
                         blurRadius: 8,
                       ),
                     ],
@@ -102,7 +101,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: isDark ? Colors.white : Colors.black,
+                                color: isDark ? cText(isDark) : Colors.black,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -111,7 +110,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isDark
-                                    ? const Color(0xFF9CA3AF)
+                                    ? cText2(isDark)
                                     : const Color(0xFF8E8E93),
                               ),
                             ),
@@ -132,9 +131,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                       child: Center(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            isDark
-                                ? const Color(0xFF6366F1)
-                                : WawatColors.primary,
+                            isDark ? cBrandText(isDark) : WawatColors.primary,
                           ),
                         ),
                       ),
@@ -151,7 +148,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               Icons.error_outline,
                               size: 64,
                               color: isDark
-                                  ? Colors.white38
+                                  ? cFaint(isDark)
                                   : Colors.grey.shade400,
                             ),
                             const SizedBox(height: 16),
@@ -160,7 +157,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isDark
-                                    ? Colors.white70
+                                    ? cText2(isDark)
                                     : Colors.grey.shade600,
                               ),
                             ),
@@ -180,7 +177,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               Icons.quiz_outlined,
                               size: 64,
                               color: isDark
-                                  ? Colors.white38
+                                  ? cFaint(isDark)
                                   : Colors.grey.shade400,
                             ),
                             const SizedBox(height: 16),
@@ -189,7 +186,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isDark
-                                    ? Colors.white70
+                                    ? cText2(isDark)
                                     : Colors.grey.shade600,
                               ),
                             ),
@@ -205,7 +202,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                     padding: const EdgeInsets.all(16),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (context, index) {
+                        (context, index) {
                           final faq = faqs[index];
                           final isExpanded = _expandedItems.contains(index);
 
@@ -257,17 +254,18 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isExpanded
-              ? (isDark ? const Color(0xFF6366F1) : WawatColors.primary)
-              : (isDark ? Colors.white12 : Colors.grey.shade200),
+              ? (isDark ? cBrandText(isDark) : WawatColors.primary)
+              : (isDark ? cBorder(isDark) : Colors.grey.shade200),
           width: isExpanded ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isExpanded ? 0.1 : 0.05),
+            color: Colors.black.withOpacity(
+                isExpanded ? (isDark ? 0.3 : 0.1) : (isDark ? 0.25 : 0.05)),
             blurRadius: isExpanded ? 12 : 8,
             offset: const Offset(0, 2),
           ),
@@ -294,7 +292,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white : Colors.black,
+                            color: isDark ? cText(isDark) : Colors.black,
                             height: 1.4,
                           ),
                         ),
@@ -309,20 +307,20 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                           decoration: BoxDecoration(
                             color: isExpanded
                                 ? (isDark
-                                ? const Color(0xFF6366F1)
-                                : WawatColors.primary)
+                                    ? cBrandBadge(isDark)
+                                    : WawatColors.primary)
                                 : (isDark
-                                ? Colors.white12
-                                : Colors.grey.shade100),
+                                    ? cFill(isDark)
+                                    : Colors.grey.shade100),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.keyboard_arrow_down_rounded,
                             color: isExpanded
-                                ? Colors.white
+                                ? (isDark ? cBrandText(isDark) : Colors.white)
                                 : (isDark
-                                ? Colors.white70
-                                : Colors.grey.shade600),
+                                    ? cMuted(isDark)
+                                    : Colors.grey.shade600),
                             size: 24,
                           ),
                         ),
@@ -340,9 +338,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         Container(
                           width: double.infinity,
                           height: 1,
-                          color: isDark
-                              ? Colors.white12
-                              : Colors.grey.shade200,
+                          color: isDark ? cLine(isDark) : Colors.grey.shade200,
                         ),
                         const SizedBox(height: 12),
                         HtmlWidget(
@@ -351,7 +347,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             fontSize: 14,
                             height: 1.6,
                             color: isDark
-                                ? const Color(0xFFD1D5DB)
+                                ? cText2(isDark)
                                 : const Color(0xFF4B5563),
                           ),
                           customStylesBuilder: (element) {
@@ -359,7 +355,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             if (element.localName == 'a') {
                               return {
                                 'color': isDark
-                                    ? '#6366F1'
+                                    ? '#7FB6FF'
                                     : '#${WawatColors.primary.value.toRadixString(16).substring(2)}',
                                 'text-decoration': 'underline',
                               };
@@ -367,7 +363,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             if (element.localName == 'strong' ||
                                 element.localName == 'b') {
                               return {
-                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'color': isDark ? '#EAF0FA' : '#000000',
                                 'font-weight': '600',
                               };
                             }
@@ -375,7 +371,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               return {
                                 'font-size': '20px',
                                 'font-weight': 'bold',
-                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'color': isDark ? '#EAF0FA' : '#000000',
                                 'margin': '8px 0 12px 0',
                               };
                             }
@@ -383,7 +379,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               return {
                                 'font-size': '18px',
                                 'font-weight': 'bold',
-                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'color': isDark ? '#EAF0FA' : '#000000',
                                 'margin': '8px 0 10px 0',
                               };
                             }
@@ -391,7 +387,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               return {
                                 'font-size': '16px',
                                 'font-weight': '600',
-                                'color': isDark ? '#FFFFFF' : '#000000',
+                                'color': isDark ? '#EAF0FA' : '#000000',
                                 'margin': '6px 0 8px 0',
                               };
                             }

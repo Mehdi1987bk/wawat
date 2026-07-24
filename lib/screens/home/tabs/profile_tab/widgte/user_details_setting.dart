@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/user.dart';
 import '../../../../../generated/l10n.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../services/theme_manager.dart';
 import '../profile_tab_bloc.dart';
 import '../settings/change_password_tab/change_password_tab_screen.dart';
@@ -45,7 +46,7 @@ class _EditProfileScreenState
               final isDark = themeManager.isDarkMode;
               return Scaffold(
                 backgroundColor:
-                isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+                    isDark ? cScreen(isDark) : const Color(0xFFF5F5F7),
                 body: SafeArea(
                   child: Column(
                     children: [
@@ -60,7 +61,7 @@ class _EditProfileScreenState
                               child: Icon(
                                 Icons.arrow_back,
                                 size: 24,
-                                color: isDark ? Colors.white : Colors.black,
+                                color: isDark ? cText(isDark) : Colors.black,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -69,9 +70,9 @@ class _EditProfileScreenState
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
-                                color: isDark ? Colors.white : Colors.black,
+                                color: isDark ? cText(isDark) : Colors.black,
                               ),
-                              child:   Text(S.of(context).vfgbhyujkerg3),
+                              child: Text(S.of(context).vfgbhyujkerg3),
                             ),
                           ],
                         ),
@@ -83,8 +84,7 @@ class _EditProfileScreenState
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color:
-                          isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          color: isDark ? cCard(isDark) : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -109,9 +109,8 @@ class _EditProfileScreenState
                             ),
                           ),
                           labelColor: Colors.white,
-                          unselectedLabelColor: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFFC7C7CC),
+                          unselectedLabelColor:
+                              isDark ? cMuted(isDark) : const Color(0xFFC7C7CC),
                           tabs: const [
                             Tab(
                               child: SizedBox(
@@ -152,22 +151,22 @@ class _EditProfileScreenState
                             ),
                             PrivacyTab(
                               showPhoneTab:
-                              snapshot.requireData.privacy?.showPhone ??
-                                  false,
+                                  snapshot.requireData.privacy?.showPhone ??
+                                      false,
                               showEmailTab:
-                              snapshot.requireData.privacy?.showEmail ??
-                                  false,
+                                  snapshot.requireData.privacy?.showEmail ??
+                                      false,
                               showActivityTime: snapshot
-                                  .requireData.privacy?.showActivityTime ??
+                                      .requireData.privacy?.showActivityTime ??
                                   false,
                               showNewMessages: snapshot.requireData
-                                  .notifications?.notifyNewMessages ??
+                                      .notifications?.notifyNewMessages ??
                                   false,
                               showNewReviews: snapshot.requireData.notifications
-                                  ?.notifyNewReviews ??
+                                      ?.notifyNewReviews ??
                                   false,
                               showMarketing: snapshot.requireData.notifications
-                                  ?.notifyMarketing ??
+                                      ?.notifyMarketing ??
                                   false,
                             ),
                             ExperienceTab(

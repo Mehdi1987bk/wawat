@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../data/network/response/partner_user_response.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../data/network/response/reviews_response.dart';
@@ -62,7 +63,7 @@ class _MyRevievsScreenState
                                     return Center(
                                       child: CircularProgressIndicator(
                                         color: isDark
-                                            ? const Color(0xFF6366F1)
+                                            ? cBrandText(isDark)
                                             : const Color(0xFF5B5BFF),
                                       ),
                                     );
@@ -80,7 +81,7 @@ class _MyRevievsScreenState
                                     return Center(
                                       child: CircularProgressIndicator(
                                         color: isDark
-                                            ? const Color(0xFF6366F1)
+                                            ? cBrandText(isDark)
                                             : const Color(0xFF5B5BFF),
                                       ),
                                     );
@@ -93,9 +94,8 @@ class _MyRevievsScreenState
                 }
                 return Center(
                   child: CircularProgressIndicator(
-                    color: isDark
-                        ? const Color(0xFF6366F1)
-                        : const Color(0xFF5B5BFF),
+                    color:
+                        isDark ? cBrandText(isDark) : const Color(0xFF5B5BFF),
                   ),
                 );
               },
@@ -112,8 +112,9 @@ class _MyRevievsScreenState
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: cCardBorder(isDark),
         boxShadow: [
           BoxShadow(
             color: isDark
@@ -131,14 +132,13 @@ class _MyRevievsScreenState
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color:
-                    isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
+                color: isDark ? cFill(isDark) : const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.arrow_back_ios_new,
                 size: 18,
-                color: isDark ? Colors.white : Colors.black,
+                color: isDark ? cText(isDark) : Colors.black,
               ),
             ),
           ),
@@ -172,7 +172,7 @@ class _MyRevievsScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                    color: isDark ? cText(isDark) : const Color(0xFF1A1A1A),
                   ),
                   child: Text(
                     S.of(context).listingHistory,
@@ -189,7 +189,7 @@ class _MyRevievsScreenState
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        color: isDark ? cText(isDark) : const Color(0xFF1A1A1A),
                       ),
                       child: Text(
                         (data.stats.ratingAvg).toStringAsFixed(1),
@@ -211,8 +211,9 @@ class _MyRevievsScreenState
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: cCardBorder(isDark),
         boxShadow: [
           BoxShadow(
             color: isDark
@@ -250,7 +251,9 @@ class _MyRevievsScreenState
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF5B5BFF) : Colors.transparent,
+            color: isSelected
+                ? (isDark ? cBrandFill : const Color(0xFF5B5BFF))
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
@@ -259,7 +262,7 @@ class _MyRevievsScreenState
               style: TextStyle(
                 color: isSelected
                     ? Colors.white
-                    : (isDark ? const Color(0xFF6B7280) : Colors.grey[400]),
+                    : (isDark ? cMuted(isDark) : Colors.grey[400]),
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
               ),
@@ -320,7 +323,7 @@ class _MyRevievsScreenState
           duration: const Duration(milliseconds: 300),
           style: TextStyle(
             fontSize: 16,
-            color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[600],
+            color: isDark ? cText2(isDark) : Colors.grey[600],
           ),
           child: Text(message),
         ),
@@ -335,7 +338,8 @@ class _MyRevievsScreenState
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(isDark) : Colors.white,
+        border: cCardBorder(isDark),
         boxShadow: [
           BoxShadow(
             color: isDark
@@ -354,8 +358,8 @@ class _MyRevievsScreenState
               Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF5B5BFF),
+                decoration: BoxDecoration(
+                  color: isDark ? cBrandFill : const Color(0xFF5B5BFF),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -376,7 +380,7 @@ class _MyRevievsScreenState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black,
+                    color: isDark ? cText(isDark) : Colors.black,
                   ),
                   child: Text(review.author.fullname),
                 ),
@@ -392,7 +396,7 @@ class _MyRevievsScreenState
                 size: 14,
                 color: index < review.rating
                     ? Colors.amber
-                    : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
+                    : (isDark ? cFaint(isDark) : Colors.grey[300]),
               ),
             ),
           ),
@@ -401,7 +405,7 @@ class _MyRevievsScreenState
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 13,
-              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+              color: isDark ? cText2(isDark) : Colors.grey[700],
               height: 1.4,
             ),
             child: Text(review.comment ?? ""),
@@ -418,7 +422,8 @@ class _MyRevievsScreenState
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(isDark) : Colors.white,
+        border: cCardBorder(isDark),
         boxShadow: [
           BoxShadow(
             color: isDark
@@ -480,7 +485,7 @@ class _MyRevievsScreenState
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark ? cText(isDark) : Colors.black,
                     ),
                     child: Text(
                         (review.author?.fullname ?? review.target?.fullname) ??
@@ -500,7 +505,7 @@ class _MyRevievsScreenState
                 color:
                     index < (int.tryParse(review.rating.toString() ?? '0') ?? 0)
                         ? Colors.amber
-                        : (isDark ? const Color(0xFF4A4A4A) : Colors.grey[300]),
+                        : (isDark ? cFaint(isDark) : Colors.grey[300]),
               ),
             ),
           ),
@@ -509,7 +514,7 @@ class _MyRevievsScreenState
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
               fontSize: 13,
-              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey[700],
+              color: isDark ? cText2(isDark) : Colors.grey[700],
               height: 1.4,
             ),
             child: Text(review.comment ?? ''),

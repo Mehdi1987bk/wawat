@@ -3,7 +3,9 @@ import 'package:buking/screens/home/tabs/profile_tab/profile_tab_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:buking/presentation/resourses/theme_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:buking/presentation/resourses/wawat_dark.dart';
 import 'package:buking/services/theme_manager.dart';
 
 import '../../../../../data/network/request/support_request.dart';
@@ -61,7 +63,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? cCard(isDark) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -81,7 +83,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black,
+                color: isDark ? cText(isDark) : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
@@ -90,7 +92,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? Colors.white70 : Colors.black54,
+                color: isDark ? cText2(isDark) : Colors.black54,
               ),
             ),
           ],
@@ -98,8 +100,9 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                  Text(S.of(context).ok, style: TextStyle(color: WawatColors.primary)),
+            child: Text(S.of(context).ok,
+                style: TextStyle(
+                    color: isDark ? cBrandText(isDark) : WawatColors.primary)),
           ),
         ],
       ),
@@ -120,21 +123,21 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
-            backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+            backgroundColor: isDark ? cScreen(isDark) : Colors.white,
             appBar: AppBar(
-              backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+              backgroundColor: isDark ? cBar(isDark) : Colors.white,
               elevation: 0,
               leading: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(isDark) : Colors.black,
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
                 S.of(context).get3434gvrevef,
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(isDark) : Colors.black,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -178,7 +181,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : Colors.black,
+                                color: isDark ? cText(isDark) : Colors.black,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -187,7 +190,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: isDark ? Colors.white60 : Colors.black54,
+                                color: isDark ? cText2(isDark) : Colors.black54,
                                 height: 1.4,
                               ),
                             ),
@@ -200,9 +203,11 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                       // Метка поля
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.edit_note_rounded,
-                            color: WawatColors.primary,
+                            color: isDark
+                                ? cBrandText(isDark)
+                                : WawatColors.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -211,7 +216,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.white : Colors.black,
+                              color: isDark ? cText(isDark) : Colors.black,
                             ),
                           ),
                         ],
@@ -223,22 +228,25 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         decoration: BoxDecoration(
-                          color: isDark
-                              ? const Color(0xFF1E1E1E)
-                              : const Color(0xFFF8F9FA),
+                          color:
+                              isDark ? cFill(isDark) : const Color(0xFFF8F9FA),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _isFocused
-                                ? WawatColors.primary
+                                ? (isDark
+                                    ? WawatDark.focusRing
+                                    : WawatColors.primary)
                                 : (isDark
-                                    ? const Color(0xFF3A3A3A)
+                                    ? cBorder(isDark)
                                     : const Color(0xFFE8E8E8)),
                             width: _isFocused ? 2 : 1,
                           ),
                           boxShadow: _isFocused
                               ? [
                                   BoxShadow(
-                                    color: WawatColors.primary.withOpacity(0.1),
+                                    color: isDark
+                                        ? WawatDark.focusGlow
+                                        : WawatColors.primary.withOpacity(0.1),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -253,15 +261,14 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                               isDark ? Brightness.dark : Brightness.light,
                           style: TextStyle(
                             fontSize: 15,
-                            color: isDark ? Colors.white : Colors.black,
+                            color: isDark ? cText(isDark) : Colors.black,
                             height: 1.5,
                           ),
                           decoration: InputDecoration(
-                            hintText:
-                                S.of(context).bbddgbtgbbvb,
+                            hintText: S.of(context).bbddgbtgbbvb,
                             hintStyle: TextStyle(
                               color: isDark
-                                  ? const Color(0xFF6B7280)
+                                  ? WawatDark.placeholder
                                   : const Color(0xFF9CA3AF),
                               fontSize: 15,
                             ),
@@ -288,14 +295,14 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                           Icon(
                             Icons.info_outline_rounded,
                             size: 16,
-                            color: isDark ? Colors.white38 : Colors.black38,
+                            color: isDark ? cFaint(isDark) : Colors.black38,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             S.of(context).gbrg533gds24rtegv,
                             style: TextStyle(
                               fontSize: 12,
-                              color: isDark ? Colors.white38 : Colors.black38,
+                              color: isDark ? cMuted(isDark) : Colors.black38,
                             ),
                           ),
                         ],
@@ -335,7 +342,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                           Colors.white),
                                     ),
                                   )
-                                :   Row(
+                                : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
@@ -366,12 +373,12 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? const Color(0xFF1E1E1E)
+                              ? cCard(isDark)
                               : WawatColors.primary.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isDark
-                                ? const Color(0xFF3A3A3A)
+                                ? cBorder(isDark)
                                 : WawatColors.primary.withOpacity(0.1),
                           ),
                         ),
@@ -381,12 +388,16 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: WawatColors.primary.withOpacity(0.1),
+                                color: isDark
+                                    ? cBrandSoft(isDark)
+                                    : WawatColors.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.access_time_rounded,
-                                color: WawatColors.primary,
+                                color: isDark
+                                    ? cBrandText(isDark)
+                                    : WawatColors.primary,
                                 size: 20,
                               ),
                             ),
@@ -401,7 +412,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color:
-                                          isDark ? Colors.white : Colors.black,
+                                          isDark ? cText(isDark) : Colors.black,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -410,7 +421,7 @@ class _SupportScreenState extends BaseState<SupportScreen, ProfileTabBloc> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isDark
-                                          ? Colors.white60
+                                          ? cText2(isDark)
                                           : Colors.black54,
                                     ),
                                   ),

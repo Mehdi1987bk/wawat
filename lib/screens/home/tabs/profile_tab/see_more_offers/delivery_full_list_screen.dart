@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
@@ -62,7 +64,7 @@ class _DeliveryFullListScreenState
         return ThemeAwareScreen(
           isDark: isDark,
           lightBackgroundColor: const Color(0xFFEEF1F6),
-          darkBackgroundColor: const Color(0xFF101010),
+          darkBackgroundColor: WawatDark.bg,
           child: SafeArea(
             child: Stack(
               children: [
@@ -136,7 +138,9 @@ class _DeliveryFullListScreenState
                   builder: (context, snapshot) {
                     if (snapshot.data != true) return const SizedBox.shrink();
                     return Container(
-                      color: Colors.black.withValues(alpha: 0.35),
+                      color: isDark
+                          ? WawatDark.scrim
+                          : Colors.black.withValues(alpha: 0.35),
                       child: const Center(
                         child: CircularProgressIndicator(color: _brand),
                       ),
@@ -243,9 +247,11 @@ class _DeliveryFullListScreenState
       isDanger: true,
     );
     if (!confirmed) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final reason = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (_) => _DeleteReasonSheet(content: _content),
     );
     if (reason == null) return;
@@ -324,7 +330,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleColor = isDark ? Colors.white : _ink900Local;
+    final titleColor = isDark ? cText(isDark) : _ink900Local;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
       child: Row(
@@ -355,8 +361,8 @@ class _Header extends StatelessWidget {
                     content,
                     'my_listings.subtitle',
                   ),
-                  style: const TextStyle(
-                    color: _ink400,
+                  style: TextStyle(
+                    color: isDark ? cMuted(isDark) : _ink400,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -392,7 +398,7 @@ class _DeleteReasonSheet extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 26),
@@ -405,7 +411,7 @@ class _DeleteReasonSheet extends StatelessWidget {
               width: 40,
               height: 6,
               decoration: BoxDecoration(
-                color: const Color(0xFFCBD5E1),
+                color: isDark ? WawatDark.grab : const Color(0xFFCBD5E1),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -417,7 +423,7 @@ class _DeleteReasonSheet extends StatelessWidget {
               'my_listings.delete_reason_title',
             ),
             style: TextStyle(
-              color: isDark ? Colors.white : _ink900Local,
+              color: isDark ? cText(isDark) : _ink900Local,
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
@@ -432,13 +438,13 @@ class _DeleteReasonSheet extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
+                  color: isDark ? cFill(isDark) : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   entry.value,
                   style: TextStyle(
-                    color: isDark ? Colors.white : _ink900Local,
+                    color: isDark ? cText(isDark) : _ink900Local,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -468,15 +474,17 @@ class _ConfirmActionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.white : _ink900Local;
-    final primary = isDanger ? const Color(0xFFEF4444) : _brand;
+    final titleColor = isDark ? cText(isDark) : _ink900Local;
+    final primary = isDanger
+        ? (isDark ? WawatDark.danger : const Color(0xFFEF4444))
+        : _brand;
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
       backgroundColor: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: isDark ? cCard(isDark) : Colors.white,
           borderRadius: BorderRadius.circular(26),
           boxShadow: [
             BoxShadow(
@@ -502,7 +510,7 @@ class _ConfirmActionDialog extends StatelessWidget {
             Text(
               message,
               style: TextStyle(
-                color: isDark ? Colors.white70 : _ink500,
+                color: isDark ? cText2(isDark) : _ink500,
                 fontSize: 14,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -518,15 +526,13 @@ class _ConfirmActionDialog extends StatelessWidget {
                       height: 48,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.08)
-                            : const Color(0xFFF1F5F9),
+                        color: isDark ? cFill(isDark) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         'Ləğv et',
                         style: TextStyle(
-                          color: isDark ? Colors.white : _ink500,
+                          color: isDark ? cMuted(isDark) : _ink500,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -570,6 +576,7 @@ class _MyListingsSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -579,7 +586,7 @@ class _MyListingsSkeleton extends StatelessWidget {
             height: 220,
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFE7EBF1),
+              color: isDark ? WawatDark.skeletonBase : const Color(0xFFE7EBF1),
               borderRadius: BorderRadius.circular(26),
             ),
           ),
@@ -603,12 +610,13 @@ class _EmptyMine extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.inbox_outlined, color: _brand, size: 64),
+            Icon(Icons.inbox_outlined,
+                color: isDark ? cBrandText(isDark) : _brand, size: 64),
             const SizedBox(height: 14),
             Text(
               WawatContent.text(content, 'my_listings.empty_title'),
               style: TextStyle(
-                color: isDark ? Colors.white : _ink900Local,
+                color: isDark ? cText(isDark) : _ink900Local,
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
@@ -621,7 +629,7 @@ class _EmptyMine extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isDark ? Colors.white70 : _ink500,
+                color: isDark ? cText2(isDark) : _ink500,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

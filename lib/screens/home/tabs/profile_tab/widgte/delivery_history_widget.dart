@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../generated/l10n.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../home_tab/widget/wawat_courier_card.dart';
 import '../see_more_offers/delivery_full_list_screen.dart';
@@ -26,7 +27,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: isDark ? Border.all(color: WawatDark.border) : null,
         ),
-        child:   Text(
+        child: Text(
           S.of(context).gbdyh5g,
           style: TextStyle(
             fontSize: 16,
@@ -45,15 +46,15 @@ class DeliveryHistoryWidget extends StatelessWidget {
         border: isDark ? Border.all(color: WawatDark.border) : null,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 20),
-       child: Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 20,right: 20,top: 15),
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 15),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                  Text(
+                Text(
                   S.of(context).bfdgbt5,
                   style: TextStyle(
                     fontSize: 18,
@@ -67,8 +68,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
                       context,
                       CupertinoPageRoute(
                         builder: (BuildContext context) {
-                          return DeliveryFullListScreen(
-                           );
+                          return DeliveryFullListScreen();
                         },
                       ),
                     );
@@ -77,10 +77,10 @@ class DeliveryHistoryWidget extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5B5BFF),
+                      color: isDark ? cBrandFill : const Color(0xFF5B5BFF),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child:   Text(
+                    child: Text(
                       S.of(context).bgnhju46,
                       style: TextStyle(
                         fontSize: 14,
@@ -109,4 +109,3 @@ class DeliveryHistoryWidget extends StatelessWidget {
     );
   }
 }
-

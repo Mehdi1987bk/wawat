@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../presentation/resourses/app_colors.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_manager.dart';
 
 class LogoutDialogContent extends StatelessWidget {
@@ -41,7 +43,7 @@ class LogoutDialogContent extends StatelessWidget {
                 width: 100,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF4A4A4A) : Colors.grey[300],
+                  color: isDark ? WawatDark.grab : Colors.grey[300],
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -51,21 +53,21 @@ class LogoutDialogContent extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(isDark) : Colors.black,
                 ),
                 child: Text(title ?? ""),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Divider(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[300],
+                  color: isDark ? cLine(isDark) : Colors.grey[300],
                 ),
               ),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 300),
                 style: TextStyle(
                   fontSize: 16,
-                  color: isDark ? const Color(0xFF9CA3AF) : Colors.grey,
+                  color: isDark ? cText2(isDark) : Colors.grey,
                 ),
                 child: Text(
                   description ?? "",
@@ -80,7 +82,7 @@ class LogoutDialogContent extends StatelessWidget {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
-                          color: isDark ? Colors.white : AppColors.appColor,
+                          color: isDark ? cMuted(isDark) : AppColors.appColor,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -90,7 +92,7 @@ class LogoutDialogContent extends StatelessWidget {
                       child: Text(
                         no ?? "",
                         style: TextStyle(
-                          color: isDark ? Colors.white : AppColors.appColor,
+                          color: isDark ? cMuted(isDark) : AppColors.appColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -104,7 +106,8 @@ class LogoutDialogContent extends StatelessWidget {
                         onConfirmLogout();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.appColor,
+                        backgroundColor:
+                            isDark ? WawatDark.danger : AppColors.appColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:buking/presentation/resourses/theme_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:buking/presentation/resourses/wawat_dark.dart';
 import 'package:buking/services/theme_manager.dart';
 
 import '../../../../../data/network/response/privacy_policy_response.dart';
@@ -19,7 +21,6 @@ class PrivacyPolicyScreen extends BaseScreen {
 
 class _PrivacyPolicyScreenState
     extends BaseState<PrivacyPolicyScreen, PrivacyPolicyBloc> {
-
   @override
   Widget body() {
     return Consumer<ThemeManager>(
@@ -30,25 +31,25 @@ class _PrivacyPolicyScreenState
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+                isDark ? Brightness.light : Brightness.dark,
             statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
           ),
           child: Scaffold(
-            backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+            backgroundColor: isDark ? cScreen(isDark) : Colors.white,
             appBar: AppBar(
-              backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+              backgroundColor: isDark ? cBar(isDark) : Colors.white,
               elevation: 0,
               leading: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(isDark) : Colors.black,
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
-                'Privacy Policy',  // Замени на S.of(context).privacyPolicy если есть локализация
+                'Privacy Policy', // Замени на S.of(context).privacyPolicy если есть локализация
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? cText(isDark) : Colors.black,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -62,7 +63,7 @@ class _PrivacyPolicyScreenState
                   return Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        WawatColors.primary,
+                        isDark ? cBrandText(isDark) : WawatColors.primary,
                       ),
                     ),
                   );
@@ -80,22 +81,26 @@ class _PrivacyPolicyScreenState
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
-                              color: WawatColors.error.withOpacity(0.1),
+                              color: isDark
+                                  ? WawatDark.dangerSoftBg
+                                  : WawatColors.error.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Icon(
                               Icons.error_outline_rounded,
-                              color: WawatColors.error,
+                              color: isDark
+                                  ? WawatDark.dangerText
+                                  : WawatColors.error,
                               size: 40,
                             ),
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Error loading privacy policy',  // Замени на локализацию
+                            'Error loading privacy policy', // Замени на локализацию
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.white : Colors.black,
+                              color: isDark ? cText(isDark) : Colors.black,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -104,7 +109,7 @@ class _PrivacyPolicyScreenState
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
-                              color: isDark ? Colors.white60 : Colors.black54,
+                              color: isDark ? cText2(isDark) : Colors.black54,
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -122,7 +127,7 @@ class _PrivacyPolicyScreenState
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Text(
-                                'Retry',  // Замени на локализацию
+                                'Retry', // Замени на локализацию
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -146,13 +151,11 @@ class _PrivacyPolicyScreenState
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF1E1E1E)
-                            : const Color(0xFFF8F9FA),
+                        color: isDark ? cCard(isDark) : const Color(0xFFF8F9FA),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isDark
-                              ? const Color(0xFF3A3A3A)
+                              ? cBorder(isDark)
                               : const Color(0xFFE8E8E8),
                         ),
                       ),
@@ -161,13 +164,13 @@ class _PrivacyPolicyScreenState
                         textStyle: TextStyle(
                           fontSize: 15,
                           height: 1.6,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: isDark ? cText(isDark) : Colors.black87,
                         ),
                         customStylesBuilder: (element) {
                           // Стилизация заголовков
                           if (element.localName == 'h1') {
                             return {
-                              'color': isDark ? '#FFFFFF' : '#1A1A1A',
+                              'color': isDark ? '#EAF0FA' : '#1A1A1A',
                               'font-size': '24px',
                               'font-weight': 'bold',
                               'margin-bottom': '16px',
@@ -176,7 +179,7 @@ class _PrivacyPolicyScreenState
                           }
                           if (element.localName == 'h2') {
                             return {
-                              'color': isDark ? '#FFFFFF' : '#1A1A1A',
+                              'color': isDark ? '#EAF0FA' : '#1A1A1A',
                               'font-size': '20px',
                               'font-weight': '600',
                               'margin-bottom': '12px',
@@ -185,7 +188,7 @@ class _PrivacyPolicyScreenState
                           }
                           if (element.localName == 'h3') {
                             return {
-                              'color': isDark ? '#FFFFFF' : '#1A1A1A',
+                              'color': isDark ? '#EAF0FA' : '#1A1A1A',
                               'font-size': '18px',
                               'font-weight': '600',
                               'margin-bottom': '10px',
@@ -196,16 +199,17 @@ class _PrivacyPolicyScreenState
                           // Стилизация параграфов
                           if (element.localName == 'p') {
                             return {
-                              'color': isDark ? '#E0E0E0' : '#333333',
+                              'color': isDark ? '#9FB0C7' : '#333333',
                               'margin-bottom': '12px',
                               'line-height': '1.6',
                             };
                           }
 
                           // Стилизация списков
-                          if (element.localName == 'ul' || element.localName == 'ol') {
+                          if (element.localName == 'ul' ||
+                              element.localName == 'ol') {
                             return {
-                              'color': isDark ? '#E0E0E0' : '#333333',
+                              'color': isDark ? '#9FB0C7' : '#333333',
                               'margin-bottom': '12px',
                               'padding-left': '20px',
                             };
@@ -213,7 +217,7 @@ class _PrivacyPolicyScreenState
 
                           if (element.localName == 'li') {
                             return {
-                              'color': isDark ? '#E0E0E0' : '#333333',
+                              'color': isDark ? '#9FB0C7' : '#333333',
                               'margin-bottom': '6px',
                             };
                           }
@@ -227,9 +231,10 @@ class _PrivacyPolicyScreenState
                           }
 
                           // Стилизация жирного текста
-                          if (element.localName == 'strong' || element.localName == 'b') {
+                          if (element.localName == 'strong' ||
+                              element.localName == 'b') {
                             return {
-                              'color': isDark ? '#FFFFFF' : '#1A1A1A',
+                              'color': isDark ? '#EAF0FA' : '#1A1A1A',
                               'font-weight': 'bold',
                             };
                           }
@@ -244,10 +249,10 @@ class _PrivacyPolicyScreenState
                 // No data
                 return Center(
                   child: Text(
-                    'No content available',  // Замени на локализацию
+                    'No content available', // Замени на локализацию
                     style: TextStyle(
                       fontSize: 16,
-                      color: isDark ? Colors.white60 : Colors.black54,
+                      color: isDark ? cText2(isDark) : Colors.black54,
                     ),
                   ),
                 );
