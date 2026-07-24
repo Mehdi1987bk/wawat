@@ -6,6 +6,8 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../home_tab/notification/unread_notif_bloc.dart';
@@ -14,10 +16,7 @@ import '../listings/details/listing_details_screen.dart';
 import '../listings/widgets/listing_card.dart';
 import 'fovorite_offer_bloc.dart';
 
-const _brand = Color(0xFF0271EB);
-const _ink900 = Color(0xFF0F172A);
 const _ink500 = Color(0xFF64748B);
-const _ink400 = Color(0xFF94A3B8);
 
 class FovoriteOfferListScreen extends BaseScreen {
   FovoriteOfferListScreen({super.key});
@@ -59,10 +58,10 @@ class _FovoriteOfferListScreenState
     return ThemeAwareScreen(
       isDark: isDark,
       lightBackgroundColor: const Color(0xFFEEF1F6),
-      darkBackgroundColor: const Color(0xFF101010),
+      darkBackgroundColor: cScreen(true),
       child: SafeArea(
         child: RefreshIndicator(
-          color: _brand,
+          color: cBrandText(isDark),
           onRefresh: bloc.loadList,
           child: CustomScrollView(
             controller: _scrollController,
@@ -155,7 +154,7 @@ class _FavoritesHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.white : _ink900;
+    final titleColor = cText(isDark);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
       child: Row(
@@ -179,10 +178,10 @@ class _FavoritesHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   'Yadda saxladığın elanlar',
                   style: TextStyle(
-                    color: _ink400,
+                    color: cMuted(isDark),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -201,6 +200,7 @@ class _FavoriteSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -210,7 +210,7 @@ class _FavoriteSkeleton extends StatelessWidget {
             height: 210,
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFE7EBF1),
+              color: isDark ? WawatDark.skeletonBase : const Color(0xFFE7EBF1),
               borderRadius: BorderRadius.circular(26),
             ),
           ),
@@ -230,12 +230,12 @@ class _EmptyFavorites extends StatelessWidget {
       padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.22),
       child: Column(
         children: [
-          const Icon(Icons.favorite_border, size: 64, color: _brand),
+          Icon(Icons.favorite_border, size: 64, color: cBrandText(isDark)),
           const SizedBox(height: 14),
           Text(
             'Hələ sevimli elan yoxdur',
             style: TextStyle(
-              color: isDark ? Colors.white : _ink900,
+              color: cText(isDark),
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
@@ -247,7 +247,7 @@ class _EmptyFavorites extends StatelessWidget {
               'Bəyəndiyin elanları ürək işarəsi ilə burada saxla.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isDark ? Colors.white70 : _ink500,
+                color: isDark ? cText2(isDark) : _ink500,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
