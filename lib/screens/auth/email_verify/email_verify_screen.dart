@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
+import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
 import 'email_verify_bloc.dart';
@@ -45,11 +46,10 @@ class _EmailVerifyScreenState
   @override
   Widget body() {
     final isDark = Provider.of<ThemeManager>(context).isDarkMode;
-    final titleColor = isDark ? Colors.white : const Color(0xFF111827);
+    final titleColor = isDark ? WawatDark.textPrimary : const Color(0xFF111827);
     final bodyColor =
-        isDark ? const Color(0xFFB0B0B0) : const Color(0xFF4B5563);
-    final mutedColor =
-        isDark ? const Color(0xFF8E8E93) : const Color(0xFF9CA3AF);
+        isDark ? WawatDark.textSecondary : const Color(0xFF4B5563);
+    final mutedColor = isDark ? WawatDark.textMuted : const Color(0xFF9CA3AF);
 
     return SafeArea(
       child: Padding(
@@ -75,12 +75,14 @@ class _EmailVerifyScreenState
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: _brand.withValues(alpha: 0.1),
+                      color: isDark
+                          ? WawatDark.brandChip
+                          : _brand.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(24),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.mark_email_unread_outlined,
-                      color: _brand,
+                      color: isDark ? WawatDark.brandText : _brand,
                       size: 42,
                     ),
                   ),
@@ -117,10 +119,10 @@ class _EmailVerifyScreenState
                         (route) => false,
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       'Davam et',
                       style: TextStyle(
-                        color: _brand,
+                        color: isDark ? WawatDark.brandText : _brand,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

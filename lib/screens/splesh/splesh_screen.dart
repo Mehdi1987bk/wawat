@@ -56,11 +56,27 @@ class _SpleshScreenState extends State<SpleshScreen> {
     return Scaffold(
       backgroundColor: isDark ? WawatDark.bg : Colors.white,
       body: Center(
-        child: Image.asset(
-          'asset/wawatair_primary.png',
-          fit: BoxFit.contain,
-          width: 260,
-        ),
+        child: isDark
+            ? Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Image.asset(
+                  'asset/wawatair_primary.png',
+                  fit: BoxFit.contain,
+                  width: 260,
+                ),
+              )
+            : Image.asset(
+                'asset/wawatair_primary.png',
+                fit: BoxFit.contain,
+                width: 260,
+              ),
       ),
     );
   }

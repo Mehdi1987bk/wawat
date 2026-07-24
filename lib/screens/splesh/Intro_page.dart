@@ -151,7 +151,7 @@ class _OnboardingSlide extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const _BrandLogo(),
+                    _BrandLogo(isDark: isDark),
                     if (index < 2)
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
@@ -270,16 +270,27 @@ class _OnboardingSlide extends StatelessWidget {
 }
 
 class _BrandLogo extends StatelessWidget {
-  const _BrandLogo();
+  const _BrandLogo({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'asset/wawatair_primary.png',
+    const logo = Image(
+      image: AssetImage('asset/wawatair_primary.png'),
       width: 132,
       height: 27,
       fit: BoxFit.contain,
       alignment: Alignment.centerLeft,
+    );
+    if (!isDark) return logo;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: logo,
     );
   }
 }

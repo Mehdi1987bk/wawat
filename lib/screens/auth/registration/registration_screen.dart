@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/network/response/language.dart';
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
 import '../../home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
@@ -128,11 +129,11 @@ class _RegistrationScreenState
   @override
   Widget body() {
     final isDark = Provider.of<ThemeManager>(context).isDarkMode;
-    final titleColor = isDark ? Colors.white : const Color(0xFF111827);
+    final titleColor = isDark ? WawatDark.textPrimary : const Color(0xFF111827);
     final bodyColor =
-        isDark ? const Color(0xFFB0B0B0) : const Color(0xFF4B5563);
+        isDark ? WawatDark.textSecondary : const Color(0xFF4B5563);
     final labelColor =
-        isDark ? const Color(0xFFE5E7EB) : const Color(0xFF374151);
+        isDark ? WawatDark.textSecondary : const Color(0xFF374151);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -170,7 +171,7 @@ class _RegistrationScreenState
             ),
             if (_message != null) ...[
               const SizedBox(height: 20),
-              _AlertBox(message: _message!),
+              _AlertBox(message: _message!, isDark: isDark),
             ],
             const SizedBox(height: 22),
             Row(
@@ -217,7 +218,7 @@ class _RegistrationScreenState
                   _obscurePassword
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: isDark ? const Color(0xFF9CA3AF) : null,
+                  color: isDark ? WawatDark.iconMuted : null,
                   size: 20,
                 ),
                 onPressed: () {
@@ -254,8 +255,7 @@ class _RegistrationScreenState
                   selected: isSelected,
                   label: Text(language.name ?? language.code),
                   selectedColor: _brand,
-                  backgroundColor:
-                      isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  backgroundColor: isDark ? WawatDark.surfaceAlt : Colors.white,
                   checkmarkColor: Colors.white,
                   labelStyle: TextStyle(
                     color: isSelected ? Colors.white : bodyColor,
@@ -265,7 +265,7 @@ class _RegistrationScreenState
                   side: BorderSide(
                     color: isSelected
                         ? _brand
-                        : (isDark ? Colors.white12 : Colors.black12),
+                        : (isDark ? WawatDark.border : Colors.black12),
                   ),
                   onSelected: (value) {
                     setState(() {
@@ -303,8 +303,8 @@ class _RegistrationScreenState
                           const TextSpan(text: 'İstifadə qaydaları və '),
                           TextSpan(
                             text: 'Məxfilik siyasəti',
-                            style: const TextStyle(
-                              color: _brand,
+                            style: TextStyle(
+                              color: isDark ? WawatDark.brandText : _brand,
                               fontWeight: FontWeight.w700,
                             ),
                             recognizer: TapGestureRecognizer()
@@ -343,23 +343,25 @@ class _RegistrationScreenState
               onPressed: _isLoading ? null : _register,
             ),
             const SizedBox(height: 24),
-            _DividerLabel(text: 'və ya'),
+            _DividerLabel(text: 'və ya', isDark: isDark),
             const SizedBox(height: 18),
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: _OutlineButton(
                     text: 'Google',
                     icon: Icons.g_mobiledata,
                     onPressed: null,
+                    isDark: isDark,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: _OutlineButton(
                     text: 'Apple',
                     icon: Icons.apple,
                     onPressed: null,
+                    isDark: isDark,
                   ),
                 ),
               ],
@@ -375,10 +377,10 @@ class _RegistrationScreenState
                   ),
                   GestureDetector(
                     onTap: _openLogin,
-                    child: const Text(
+                    child: Text(
                       'Daxil ol',
                       style: TextStyle(
-                        color: _brand,
+                        color: isDark ? WawatDark.brandText : _brand,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -421,12 +423,13 @@ class _AuthField extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasError = error != null && error!.isNotEmpty;
     final labelColor =
-        isDark ? const Color(0xFFE5E7EB) : const Color(0xFF374151);
-    final inputColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF111827);
-    final hintColor =
-        isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF);
-    final borderColor = isDark ? Colors.white12 : Colors.black12;
+        isDark ? WawatDark.textSecondary : const Color(0xFF374151);
+    final inputColor = isDark ? WawatDark.surfaceAlt : Colors.white;
+    final textColor = isDark ? WawatDark.textPrimary : const Color(0xFF111827);
+    final hintColor = isDark ? WawatDark.placeholder : const Color(0xFF9CA3AF);
+    final borderColor = isDark ? WawatDark.border : Colors.black12;
+    final focusColor =
+        isDark ? WawatDark.focusRing : _RegistrationScreenState._brand;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -462,7 +465,7 @@ class _AuthField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: hasError ? Colors.red : _RegistrationScreenState._brand,
+                color: hasError ? Colors.red : focusColor,
                 width: 1.5,
               ),
             ),
@@ -523,11 +526,13 @@ class _OutlineButton extends StatelessWidget {
   final String text;
   final IconData icon;
   final VoidCallback? onPressed;
+  final bool isDark;
 
   const _OutlineButton({
     required this.text,
     required this.icon,
     required this.onPressed,
+    this.isDark = false,
   });
 
   @override
@@ -539,9 +544,13 @@ class _OutlineButton extends StatelessWidget {
         icon: Icon(icon, size: 22),
         label: Text(text),
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF111827),
-          disabledForegroundColor: const Color(0xFF9CA3AF),
-          side: const BorderSide(color: Colors.black12),
+          foregroundColor:
+              isDark ? WawatDark.textPrimary : const Color(0xFF111827),
+          disabledForegroundColor:
+              isDark ? WawatDark.textSecondary : const Color(0xFF9CA3AF),
+          side: BorderSide(
+            color: isDark ? WawatDark.border : Colors.black12,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -554,8 +563,9 @@ class _OutlineButton extends StatelessWidget {
 
 class _AlertBox extends StatelessWidget {
   final String message;
+  final bool isDark;
 
-  const _AlertBox({required this.message});
+  const _AlertBox({required this.message, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
@@ -563,20 +573,26 @@ class _AlertBox extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        border: Border.all(color: Colors.red.shade200),
+        color: isDark ? WawatDark.dangerSoftBg : Colors.red.shade50,
+        border: Border.all(
+          color: isDark ? WawatDark.dangerSoftBorder : Colors.red.shade200,
+        ),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+          Icon(
+            Icons.error_outline,
+            color: isDark ? WawatDark.dangerText : Colors.red.shade700,
+            size: 20,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
-                color: Colors.red.shade700,
+                color: isDark ? WawatDark.dangerText : Colors.red.shade700,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -590,26 +606,27 @@ class _AlertBox extends StatelessWidget {
 
 class _DividerLabel extends StatelessWidget {
   final String text;
+  final bool isDark;
 
-  const _DividerLabel({required this.text});
+  const _DividerLabel({required this.text, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider()),
+        Expanded(child: Divider(color: isDark ? WawatDark.divider : null)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             text,
-            style: const TextStyle(
-              color: Color(0xFF9CA3AF),
+            style: TextStyle(
+              color: isDark ? WawatDark.textMuted : const Color(0xFF9CA3AF),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        const Expanded(child: Divider()),
+        Expanded(child: Divider(color: isDark ? WawatDark.divider : null)),
       ],
     );
   }

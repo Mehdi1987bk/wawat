@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../data/network/response/country.dart';
 import '../../../../generated/l10n.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_manager.dart';
 
 class CountryCodeSelector extends StatelessWidget {
@@ -29,18 +30,21 @@ class CountryCodeSelector extends StatelessWidget {
         final isDark = themeManager.isDarkMode;
 
         return GestureDetector(
-          onTap: (isLoading || !enabled) ? null : () => _showCountryPicker(context, isDark), // ✅ Проверка enabled
+          onTap: (isLoading || !enabled)
+              ? null
+              : () => _showCountryPicker(context, isDark), // ✅ Проверка enabled
           child: Container(
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
+              color: isDark ? WawatDark.surfaceAlt : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isDark ? Colors.white12 : Colors.grey.shade300,
+                color: isDark ? WawatDark.border : Colors.grey.shade300,
               ),
             ),
-            child: Opacity( // ✅ Визуальная индикация disabled состояния
+            child: Opacity(
+              // ✅ Визуальная индикация disabled состояния
               opacity: enabled ? 1.0 : 0.5,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -51,7 +55,7 @@ class CountryCodeSelector extends StatelessWidget {
                       height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: isDark ? Colors.white54 : Colors.grey,
+                        color: isDark ? WawatDark.textMuted : Colors.grey,
                       ),
                     )
                   else if (selectedCountry != null) ...[
@@ -65,7 +69,7 @@ class CountryCodeSelector extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
                     ),
                   ] else
@@ -73,14 +77,14 @@ class CountryCodeSelector extends StatelessWidget {
                       '+...',
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? Colors.white54 : Colors.grey,
+                        color: isDark ? WawatDark.textMuted : Colors.grey,
                       ),
                     ),
                   const SizedBox(width: 4),
                   Icon(
                     Icons.keyboard_arrow_down,
                     size: 18,
-                    color: isDark ? Colors.white54 : Colors.grey,
+                    color: isDark ? WawatDark.iconMuted : Colors.grey,
                   ),
                 ],
               ),
@@ -96,6 +100,7 @@ class CountryCodeSelector extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (context) => _CountryPickerSheet(
         countries: countries,
         selectedCountry: selectedCountry,
@@ -130,24 +135,22 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
   @override
   void initState() {
     super.initState();
-    _filteredCountries = widget.countries
-        .where((c) => c.callingCode != null)
-        .toList();
+    _filteredCountries =
+        widget.countries.where((c) => c.callingCode != null).toList();
   }
 
   void _filterCountries(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredCountries = widget.countries
-            .where((c) => c.callingCode != null)
-            .toList();
+        _filteredCountries =
+            widget.countries.where((c) => c.callingCode != null).toList();
       } else {
         _filteredCountries = widget.countries
             .where((c) =>
-        c.callingCode != null &&
-            (c.name.toLowerCase().contains(query.toLowerCase()) ||
-                c.callingCode!.contains(query) ||
-                c.code.toLowerCase().contains(query.toLowerCase())))
+                c.callingCode != null &&
+                (c.name.toLowerCase().contains(query.toLowerCase()) ||
+                    c.callingCode!.contains(query) ||
+                    c.code.toLowerCase().contains(query.toLowerCase())))
             .toList();
       }
     });
@@ -158,7 +161,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: BoxDecoration(
-        color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: widget.isDark ? WawatDark.surface : Colors.white,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -172,7 +175,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: widget.isDark ? Colors.white24 : Colors.grey.shade300,
+              color: widget.isDark ? WawatDark.grab : Colors.grey.shade300,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -184,9 +187,8 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               children: [
                 Icon(
                   Icons.public,
-                  color: widget.isDark
-                      ? const Color(0xFF6366F1)
-                      : WawatColors.primary,
+                  color:
+                      widget.isDark ? WawatDark.brandText : WawatColors.primary,
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -194,7 +196,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: widget.isDark ? Colors.white : Colors.black,
+                    color: widget.isDark ? WawatDark.textPrimary : Colors.black,
                   ),
                 ),
               ],
@@ -208,21 +210,20 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               controller: _searchController,
               onChanged: _filterCountries,
               style: TextStyle(
-                color: widget.isDark ? Colors.white : Colors.black,
+                color: widget.isDark ? WawatDark.textPrimary : Colors.black,
               ),
               decoration: InputDecoration(
                 hintText: S.of(context).mjh5y,
                 hintStyle: TextStyle(
-                  color: widget.isDark ? Colors.white38 : Colors.grey,
+                  color: widget.isDark ? WawatDark.placeholder : Colors.grey,
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: widget.isDark ? Colors.white38 : Colors.grey,
+                  color: widget.isDark ? WawatDark.iconMuted : Colors.grey,
                 ),
                 filled: true,
-                fillColor: widget.isDark
-                    ? const Color(0xFF2A2A2A)
-                    : Colors.grey.shade100,
+                fillColor:
+                    widget.isDark ? WawatDark.surfaceAlt : Colors.grey.shade100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -257,8 +258,10 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                   title: Text(
                     country.name,
                     style: TextStyle(
-                      color: widget.isDark ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                      color:
+                          widget.isDark ? WawatDark.textPrimary : Colors.black,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
                   ),
                   trailing: Row(
@@ -268,7 +271,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                         country.callingCode ?? '',
                         style: TextStyle(
                           color: widget.isDark
-                              ? const Color(0xFF6366F1)
+                              ? WawatDark.brandText
                               : WawatColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
@@ -278,7 +281,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                         Icon(
                           Icons.check_circle,
                           color: widget.isDark
-                              ? const Color(0xFF6366F1)
+                              ? WawatDark.brandText
                               : WawatColors.primary,
                           size: 20,
                         ),
@@ -287,8 +290,8 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                   ),
                   tileColor: isSelected
                       ? (widget.isDark
-                      ? const Color(0xFF6366F1).withOpacity(0.1)
-                      : WawatColors.primary.withOpacity(0.05))
+                          ? WawatDark.brandBadge
+                          : WawatColors.primary.withOpacity(0.05))
                       : null,
                 );
               },

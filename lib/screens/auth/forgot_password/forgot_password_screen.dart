@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../login/login_screen.dart';
 import 'forgot_password_bloc.dart';
@@ -189,9 +190,9 @@ class _ForgotPasswordScreenState
   @override
   Widget body() {
     final isDark = Provider.of<ThemeManager>(context).isDarkMode;
-    final titleColor = isDark ? Colors.white : const Color(0xFF111827);
+    final titleColor = isDark ? WawatDark.textPrimary : const Color(0xFF111827);
     final bodyColor =
-        isDark ? const Color(0xFFB0B0B0) : const Color(0xFF4B5563);
+        isDark ? WawatDark.textSecondary : const Color(0xFF4B5563);
 
     return SafeArea(
       child: Padding(
@@ -223,7 +224,7 @@ class _ForgotPasswordScreenState
 
   Widget _buildStep(bool isDark, Color titleColor, Color bodyColor) {
     if (_step == 3) {
-      return _buildSuccessStep(titleColor, bodyColor);
+      return _buildSuccessStep(isDark, titleColor, bodyColor);
     }
 
     return Center(
@@ -232,7 +233,7 @@ class _ForgotPasswordScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _StepIndicator(currentStep: _step),
+            _StepIndicator(currentStep: _step, isDark: isDark),
             const SizedBox(height: 28),
             Text(
               _step == 0
@@ -354,7 +355,9 @@ class _ForgotPasswordScreenState
           isExpired ? 'Kodun vaxtı bitib.' : 'Kodun vaxtı: $_timerText',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isExpired ? Colors.orange.shade600 : bodyColor,
+            color: isExpired
+                ? (isDark ? WawatDark.warning : Colors.orange.shade600)
+                : bodyColor,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -363,11 +366,11 @@ class _ForgotPasswordScreenState
           const SizedBox(height: 6),
           GestureDetector(
             onTap: _isLoading ? null : () => _requestOtp(isResend: true),
-            child: const Text(
+            child: Text(
               'Kod gəlmədi? Yenidən göndər',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: _brand,
+                color: isDark ? WawatDark.brandText : _brand,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -393,7 +396,7 @@ class _ForgotPasswordScreenState
               _obscurePassword
                   ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
-              color: isDark ? const Color(0xFF9CA3AF) : null,
+              color: isDark ? WawatDark.iconMuted : null,
             ),
             onPressed: () {
               setState(() => _obscurePassword = !_obscurePassword);
@@ -413,7 +416,7 @@ class _ForgotPasswordScreenState
               _obscureConfirmPassword
                   ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
-              color: isDark ? const Color(0xFF9CA3AF) : null,
+              color: isDark ? WawatDark.iconMuted : null,
             ),
             onPressed: () {
               setState(
@@ -430,7 +433,7 @@ class _ForgotPasswordScreenState
     );
   }
 
-  Widget _buildSuccessStep(Color titleColor, Color bodyColor) {
+  Widget _buildSuccessStep(bool isDark, Color titleColor, Color bodyColor) {
     return Center(
       key: const ValueKey('success'),
       child: Column(
@@ -442,12 +445,12 @@ class _ForgotPasswordScreenState
             height: 84,
             margin: const EdgeInsets.symmetric(horizontal: 120),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: isDark ? WawatDark.successBg : Colors.green.shade50,
               borderRadius: BorderRadius.circular(26),
             ),
             child: Icon(
               Icons.check_circle,
-              color: Colors.green.shade600,
+              color: isDark ? WawatDark.success : Colors.green.shade600,
               size: 52,
             ),
           ),
@@ -491,8 +494,9 @@ class _ForgotPasswordScreenState
 
 class _StepIndicator extends StatelessWidget {
   final int currentStep;
+  final bool isDark;
 
-  const _StepIndicator({required this.currentStep});
+  const _StepIndicator({required this.currentStep, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
@@ -508,7 +512,9 @@ class _StepIndicator extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isActive
                     ? _ForgotPasswordScreenState._brand
-                    : Colors.black.withValues(alpha: 0.05),
+                    : (isDark
+                        ? WawatDark.disabledBg
+                        : Colors.black.withValues(alpha: 0.05)),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -517,8 +523,11 @@ class _StepIndicator extends StatelessWidget {
                   : Text(
                       '${index + 1}',
                       style: TextStyle(
-                        color:
-                            isActive ? Colors.white : const Color(0xFF9CA3AF),
+                        color: isActive
+                            ? Colors.white
+                            : (isDark
+                                ? WawatDark.textMuted
+                                : const Color(0xFF9CA3AF)),
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),
@@ -530,7 +539,9 @@ class _StepIndicator extends StatelessWidget {
                 height: 2,
                 color: index < currentStep
                     ? _ForgotPasswordScreenState._brand
-                    : Colors.black.withValues(alpha: 0.08),
+                    : (isDark
+                        ? WawatDark.border
+                        : Colors.black.withValues(alpha: 0.08)),
               ),
           ],
         );
@@ -564,12 +575,13 @@ class _AuthField extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasError = error != null && error!.isNotEmpty;
     final labelColor =
-        isDark ? const Color(0xFFE5E7EB) : const Color(0xFF1F2937);
-    final inputColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF111827);
-    final hintColor =
-        isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF);
-    final borderColor = isDark ? Colors.white12 : Colors.black12;
+        isDark ? WawatDark.textSecondary : const Color(0xFF1F2937);
+    final inputColor = isDark ? WawatDark.surfaceAlt : Colors.white;
+    final textColor = isDark ? WawatDark.textPrimary : const Color(0xFF111827);
+    final hintColor = isDark ? WawatDark.placeholder : const Color(0xFF9CA3AF);
+    final borderColor = isDark ? WawatDark.border : Colors.black12;
+    final focusColor =
+        isDark ? WawatDark.focusRing : _ForgotPasswordScreenState._brand;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,8 +619,7 @@ class _AuthField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color:
-                    hasError ? Colors.red : _ForgotPasswordScreenState._brand,
+                color: hasError ? Colors.red : focusColor,
                 width: 1.5,
               ),
             ),
@@ -661,24 +672,30 @@ class _OtpBox extends StatelessWidget {
         maxLength: 1,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         style: TextStyle(
-          color: isDark ? Colors.white : const Color(0xFF111827),
+          color: isDark ? WawatDark.textPrimary : const Color(0xFF111827),
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
         decoration: InputDecoration(
           counterText: '',
           filled: true,
-          fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          fillColor: isDark ? WawatDark.surfaceAlt : Colors.white,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: hasError ? Colors.red.shade300 : Colors.black12,
+              color: hasError
+                  ? Colors.red.shade300
+                  : (isDark ? WawatDark.border : Colors.black12),
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: hasError ? Colors.red : _ForgotPasswordScreenState._brand,
+              color: hasError
+                  ? Colors.red
+                  : (isDark
+                      ? WawatDark.focusRing
+                      : _ForgotPasswordScreenState._brand),
               width: 1.5,
             ),
           ),
@@ -741,20 +758,26 @@ class _AlertBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF3A1E1E) : Colors.red.shade50,
-        border: Border.all(color: Colors.red.shade200),
+        color: isDark ? WawatDark.dangerSoftBg : Colors.red.shade50,
+        border: Border.all(
+          color: isDark ? WawatDark.dangerSoftBorder : Colors.red.shade200,
+        ),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, color: Colors.red.shade600, size: 20),
+          Icon(
+            Icons.error_outline,
+            color: isDark ? WawatDark.dangerText : Colors.red.shade600,
+            size: 20,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
-                color: isDark ? Colors.red.shade100 : Colors.red.shade700,
+                color: isDark ? WawatDark.dangerText : Colors.red.shade700,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),

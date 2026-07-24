@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../data/network/response/package_types_response.dart';
 import '../../../../data/network/response/type_option.dart';
 import '../../../../generated/l10n.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_manager.dart';
 
 class PackageTypesSelector extends StatefulWidget {
@@ -35,7 +36,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     final selectedNames = <String>[];
     for (var code in widget.selectedPackageTypeCodes) {
       final pkg = widget.packageTypes.firstWhere(
-            (p) => p.code == code,
+        (p) => p.code == code,
         orElse: () => PackageType(
           code: '',
           name: '',
@@ -54,7 +55,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
   void _showPackageTypesBottomSheet(bool isDark) {
     if (widget.packageTypes.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+        SnackBar(
           content: Text(S.of(context).t53grvfe5),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 3),
@@ -65,7 +66,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
 
     if (widget.packageTypes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+        SnackBar(
           content: Text(S.of(context).bgfbgfbgf4),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
@@ -79,11 +80,12 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
 
   void _showPackageTypesBottomSheetContent(bool isDark) {
     final localSelectedCodes =
-    Set<String>.from(widget.selectedPackageTypeCodes);
+        Set<String>.from(widget.selectedPackageTypeCodes);
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? WawatDark.surface : Colors.white,
+      barrierColor: isDark ? WawatDark.scrim : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
@@ -99,7 +101,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: isDark ? WawatDark.surface : Colors.white,
             ),
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.7,
@@ -117,14 +119,14 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
                         child: Icon(
                           Icons.close,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
                       ),
                     ],
@@ -134,68 +136,73 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                 Expanded(
                   child: widget.packageTypes.isEmpty
                       ? Center(
-                    child: Text(
-                      S.of(context).bgbffgb3,
-                      style: TextStyle(
-                        color: isDark
-                            ? const Color(0xFFB0B0B0)
-                            : Colors.black87,
-                      ),
-                    ),
-                  )
-                      : ListView.builder(
-                    itemCount: widget.packageTypes.length,
-                    itemBuilder: (context, index) {
-                      final packageType = widget.packageTypes[index];
-                      final isSelected =
-                      localSelectedCodes.contains(packageType.code);
-
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? (isDark
-                              ? const Color(0xFF2A2A2A)
-                              : const Color(0xFFF0EDFF))
-                              : Colors.transparent,
-                        ),
-                        child: ListTile(
-                          leading: Text(
-                            packageType.icon,
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                          title: Text(
-                            packageType.name,
+                          child: Text(
+                            S.of(context).bgbffgb3,
                             style: TextStyle(
-                              fontSize: 16,
-                              color: isDark ? Colors.white : Colors.black,
+                              color: isDark
+                                  ? WawatDark.textSecondary
+                                  : Colors.black87,
                             ),
                           ),
-                          trailing: isSelected
-                              ? const Icon(
-                            Icons.check_circle,
-                            color: Color(0xFF5B51FF),
-                            size: 28,
-                          )
-                              : Icon(
-                            Icons.circle_outlined,
-                            color: isDark
-                                ? const Color(0xFF6B7280)
-                                : Colors.grey,
-                            size: 28,
-                          ),
-                          onTap: () {
-                            setStateBottomSheet(() {
-                              if (isSelected) {
-                                localSelectedCodes.remove(packageType.code);
-                              } else {
-                                localSelectedCodes.add(packageType.code);
-                              }
-                            });
+                        )
+                      : ListView.builder(
+                          itemCount: widget.packageTypes.length,
+                          itemBuilder: (context, index) {
+                            final packageType = widget.packageTypes[index];
+                            final isSelected =
+                                localSelectedCodes.contains(packageType.code);
+
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? (isDark
+                                        ? WawatDark.brandBadge
+                                        : const Color(0xFFF0EDFF))
+                                    : Colors.transparent,
+                              ),
+                              child: ListTile(
+                                leading: Text(
+                                  packageType.icon,
+                                  style: const TextStyle(fontSize: 28),
+                                ),
+                                title: Text(
+                                  packageType.name,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: isDark
+                                        ? WawatDark.textPrimary
+                                        : Colors.black,
+                                  ),
+                                ),
+                                trailing: isSelected
+                                    ? Icon(
+                                        Icons.check_circle,
+                                        color: isDark
+                                            ? WawatDark.brandText
+                                            : const Color(0xFF5B51FF),
+                                        size: 28,
+                                      )
+                                    : Icon(
+                                        Icons.circle_outlined,
+                                        color: isDark
+                                            ? WawatDark.iconMuted
+                                            : Colors.grey,
+                                        size: 28,
+                                      ),
+                                onTap: () {
+                                  setStateBottomSheet(() {
+                                    if (isSelected) {
+                                      localSelectedCodes
+                                          .remove(packageType.code);
+                                    } else {
+                                      localSelectedCodes.add(packageType.code);
+                                    }
+                                  });
+                                },
+                              ),
+                            );
                           },
                         ),
-                      );
-                    },
-                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -213,7 +220,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                       minimumSize: const Size(double.infinity, 50),
                       elevation: 0,
                     ),
-                    child:   Text(
+                    child: Text(
                       S.of(context).bgfbggfbfg3,
                       style: TextStyle(
                         fontSize: 16,
@@ -240,7 +247,9 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
             widget.selectedPackageTypeCodes.isEmpty && !widget.isLoading;
 
         return GestureDetector(
-          onTap: widget.isLoading ? null : () => _showPackageTypesBottomSheet(isDark),
+          onTap: widget.isLoading
+              ? null
+              : () => _showPackageTypesBottomSheet(isDark),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: 60,
@@ -249,11 +258,9 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
               vertical: 12,
             ),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+              color: isDark ? WawatDark.surfaceAlt : Colors.white,
               border: Border.all(
-                color: isDark
-                    ? const Color(0xFF3A3A3A)
-                    : const Color(0xFFE5E5EA),
+                color: isDark ? WawatDark.border : const Color(0xFFE5E5EA),
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(14),
@@ -274,7 +281,9 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                       if (isPlaceholder) ...[
                         Image.asset(
                           "asset/search.png",
-                          color: const Color(0xFF5B51FF),
+                          color: isDark
+                              ? WawatDark.brandText
+                              : const Color(0xFF5B51FF),
                           width: 20,
                         ),
                         const SizedBox(width: 8),
@@ -286,13 +295,15 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                             fontSize: 14,
                             color: widget.isLoading
                                 ? (isDark
-                                ? const Color(0xFF6B7280)
-                                : const Color(0xFFC7C7CC))
+                                    ? WawatDark.textFaint
+                                    : const Color(0xFFC7C7CC))
                                 : isPlaceholder
-                                ? (isDark
-                                ? const Color(0xFF9CA3AF)
-                                : const Color(0xFF8E8E93))
-                                : (isDark ? Colors.white : Colors.black),
+                                    ? (isDark
+                                        ? WawatDark.textMuted
+                                        : const Color(0xFF8E8E93))
+                                    : (isDark
+                                        ? WawatDark.textPrimary
+                                        : Colors.black),
                             fontWeight: FontWeight.w500,
                           ),
                           child: Text(
@@ -310,9 +321,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                 const SizedBox(width: 8),
                 Icon(
                   Icons.expand_more,
-                  color: isDark
-                      ? const Color(0xFF9CA3AF)
-                      : const Color(0xFF8E8E93),
+                  color: isDark ? WawatDark.iconMuted : const Color(0xFF8E8E93),
                   size: 20,
                 ),
               ],
