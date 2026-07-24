@@ -4457,8 +4457,8 @@ class _ResultTile extends StatelessWidget {
       padding: EdgeInsets.all(highlighted ? 16 : 14),
       decoration: BoxDecoration(
         color: highlighted
-            ? _brand50
-            : (isDark ? const Color(0xFF1E1E1E) : const Color(0x080F172A)),
+            ? (isDark ? WawatDark.brandChip : _brand50)
+            : (isDark ? WawatDark.surface : const Color(0x080F172A)),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: highlighted

@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:buking/presentation/resourses/wawat_dark.dart';
 import '../../../../../generated/l10n.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 
 class StartChatModal {
   static void show(
-      BuildContext context, {
-        required int userId,
-        required String userName,
-        Function(String message)? onSuccess,
-      }) {
+    BuildContext context, {
+    required int userId,
+    required String userName,
+    Function(String message)? onSuccess,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Theme.of(context).brightness == Brightness.dark
+          ? WawatDark.scrim
+          : null,
       builder: (BuildContext context) {
         return SafeArea(
           child: _StartChatContent(
@@ -28,7 +31,6 @@ class StartChatModal {
     );
   }
 }
-
 
 class _StartChatContent extends StatefulWidget {
   final int userId;
@@ -66,11 +68,11 @@ class _StartChatContentState extends State<_StartChatContent> {
       return;
     }
 
-     Navigator.pop(context);
+    Navigator.pop(context);
 
-     widget.onSuccess?.call(message);
+    widget.onSuccess?.call(message);
 
-     showIOSStyleMessage(context, S.of(context).ybrfsg4t34gtgrvfedvfd);
+    showIOSStyleMessage(context, S.of(context).ybrfsg4t34gtgrvfedvfd);
   }
 
   @override
@@ -91,7 +93,7 @@ class _StartChatContentState extends State<_StartChatContent> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? WawatDark.surface : Colors.white,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(28),
                   topRight: Radius.circular(28),
@@ -112,7 +114,9 @@ class _StartChatContentState extends State<_StartChatContent> {
                           height: 4,
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE0E0E0),
+                            color: isDark
+                                ? WawatDark.grab
+                                : const Color(0xFFE0E0E0),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -123,10 +127,14 @@ class _StartChatContentState extends State<_StartChatContent> {
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFFF3E0),
+                          color: isDark
+                              ? WawatDark.warningBg
+                              : const Color(0xFFFFF3E0),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isDark ? const Color(0xFFFF9800) : const Color(0xFFFFB74D),
+                            color: isDark
+                                ? WawatDark.warning
+                                : const Color(0xFFFFB74D),
                             width: 1,
                           ),
                         ),
@@ -143,11 +151,15 @@ class _StartChatContentState extends State<_StartChatContent> {
                                 duration: const Duration(milliseconds: 300),
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: isDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100),
+                                  color: isDark
+                                      ? WawatDark.warning
+                                      : const Color(0xFFE65100),
                                   fontWeight: FontWeight.w500,
                                 ),
                                 child: Text(
-                                S.of(context).rth435gtre+  ' ${widget.userName} ' + S.of(context).brtevrfg45rfs,
+                                  S.of(context).rth435gtre +
+                                      ' ${widget.userName} ' +
+                                      S.of(context).brtevrfg45rfs,
                                 ),
                               ),
                             ),
@@ -162,9 +174,11 @@ class _StartChatContentState extends State<_StartChatContent> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                          color: isDark
+                              ? WawatDark.textPrimary
+                              : const Color(0xFF1A1A1A),
                         ),
-                        child:   Text(S.of(context).hrt4h5hte43h454),
+                        child: Text(S.of(context).hrt4h5hte43h454),
                       ),
 
                       const SizedBox(height: 16),
@@ -173,12 +187,16 @@ class _StartChatContentState extends State<_StartChatContent> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
+                          color: isDark
+                              ? WawatDark.surfaceAlt
+                              : const Color(0xFFF5F5F5),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _errorMessage != null
-                                ? Colors.red
-                                : (isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE0E0E0)),
+                                ? (isDark ? WawatDark.danger : Colors.red)
+                                : (isDark
+                                    ? WawatDark.border
+                                    : const Color(0xFFE0E0E0)),
                             width: 1,
                           ),
                         ),
@@ -189,19 +207,25 @@ class _StartChatContentState extends State<_StartChatContent> {
                           decoration: InputDecoration(
                             hintText: S.of(context).rthh4ger34f34,
                             hintStyle: TextStyle(
-                              color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9E9E9E),
+                              color: isDark
+                                  ? WawatDark.placeholder
+                                  : const Color(0xFF9E9E9E),
                               fontSize: 14,
                             ),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.all(16),
                             counterStyle: TextStyle(
-                              color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9E9E9E),
+                              color: isDark
+                                  ? WawatDark.placeholder
+                                  : const Color(0xFF9E9E9E),
                               fontSize: 12,
                             ),
                           ),
                           style: TextStyle(
                             fontSize: 14,
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                            color: isDark
+                                ? WawatDark.textPrimary
+                                : const Color(0xFF1A1A1A),
                           ),
                           onChanged: (value) {
                             if (_errorMessage != null) {
@@ -249,7 +273,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                           child: InkWell(
                             onTap: _sendMessage,
                             borderRadius: BorderRadius.circular(16),
-                            child:   Center(
+                            child: Center(
                               child: Text(
                                 S.of(context).brg353gffvw34fr3,
                                 style: TextStyle(
