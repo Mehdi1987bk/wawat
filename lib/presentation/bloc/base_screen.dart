@@ -7,6 +7,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../services/theme_manager.dart';
 import '../resourses/app_colors.dart';
+import '../resourses/wawat_dark.dart';
 import 'base_bloc.dart';
 import 'bloc_provider.dart';
 
@@ -22,7 +23,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   Color? backgroundColor() {
     final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
-    return isDark ? const Color(0xFF121212) : Colors.white;
+    return isDark ? WawatDark.bg : Colors.white;
   }
 
   @override
@@ -31,7 +32,6 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
     bloc = provideBloc();
     bloc.init();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
               key: scaffoldKey,
               appBar: appBar(),
               drawer: drawer(),
-              backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+              backgroundColor: isDark ? WawatDark.bg : Colors.white,
               primary: primary,
               drawerEdgeDragWidth: drawerEdgeDragWidth,
               bottomNavigationBar: bottomNavigationBar(),
@@ -65,12 +65,15 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
             return AnnotatedRegion<SystemUiOverlayStyle>(
               value: SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
-                statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                statusBarIconBrightness:
+                    isDark ? Brightness.light : Brightness.dark,
                 // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
                 // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
-                statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-                systemNavigationBarColor: isDark ? const Color(0xFF121212) : Colors.white,
-                systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+                statusBarBrightness:
+                    isDark ? Brightness.dark : Brightness.light,
+                systemNavigationBarColor: isDark ? WawatDark.bar : Colors.white,
+                systemNavigationBarIconBrightness:
+                    isDark ? Brightness.light : Brightness.dark,
               ),
               child: scaffold,
             );
@@ -157,7 +160,6 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   bool get wantKeepAlive => false;
 
-
   bool get resizeToAvoidBottomInset => true;
 
   // Переопределите на false для табов внутри IndexedStack
@@ -165,7 +167,7 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
 }
 
 abstract class BaseStateWithFlushBar<T extends BaseScreen,
-Bloc extends BaseBloc> extends BaseState<T, Bloc> {
+    Bloc extends BaseBloc> extends BaseState<T, Bloc> {
   final Duration _animDuration = Duration(milliseconds: 500);
   PublishSubject<bool> _flush = PublishSubject<bool>();
   String? _message;
@@ -183,11 +185,11 @@ Bloc extends BaseBloc> extends BaseState<T, Bloc> {
                 duration: _animDuration,
                 child: (snapshot.hasData && snapshot.data!)
                     ? FlushWidget(
-                  message: _message ?? '',
-                  onTap: () {
-                    _flush.add(false);
-                  },
-                )
+                        message: _message ?? '',
+                        onTap: () {
+                          _flush.add(false);
+                        },
+                      )
                     : const SizedBox.shrink(),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return SizeTransition(
@@ -251,7 +253,6 @@ class FlushWidget extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-
               ),
             ),
           ],

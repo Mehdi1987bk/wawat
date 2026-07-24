@@ -7,11 +7,11 @@ import 'package:provider/provider.dart';
 
 import '../../generated/l10n.dart';
 import '../../main.dart';
+import '../../presentation/resourses/theme_colors.dart';
+import '../../presentation/resourses/wawat_dark.dart';
 import '../../services/theme_manager.dart';
 
 const _brand = Color(0xFF0271EB);
-const _ink900 = Color(0xFF0F172A);
-const _ink400 = Color(0xFF94A3B8);
 
 class BottomBar extends StatefulWidget {
   final ValueChanged<int> onChanged;
@@ -69,12 +69,11 @@ class _BottomBarState extends State<BottomBar> {
               height: 64 + bottomInset,
               decoration: BoxDecoration(
                 color: isDark
-                    ? const Color(0xF21E1E1E)
+                    ? WawatDark.bar.withValues(alpha: 0.95)
                     : Colors.white.withValues(alpha: 0.95),
                 border: Border(
                   top: BorderSide(
-                    color: (isDark ? Colors.white : _ink900)
-                        .withValues(alpha: 0.06),
+                    color: cLine(isDark),
                   ),
                 ),
               ),
@@ -156,8 +155,8 @@ class BottomNavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedIndex == index;
-    final Color activeColor = isDark ? Colors.white : _brand;
-    final Color inactiveColor = isDark ? const Color(0xFF6B7280) : _ink400;
+    final Color activeColor = isDark ? cBrandText(isDark) : _brand;
+    final Color inactiveColor = cMuted(isDark);
     final Color iconColor = isSelected ? activeColor : inactiveColor;
 
     return Expanded(
@@ -183,8 +182,7 @@ class BottomNavigationItem extends StatelessWidget {
                         color: _brand,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color:
-                              isDark ? const Color(0xF21E1E1E) : Colors.white,
+                          color: isDark ? WawatDark.bar : Colors.white,
                           width: 1,
                         ),
                       ),

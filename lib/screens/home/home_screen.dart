@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/bloc/base_screen.dart';
+import '../../presentation/resourses/theme_colors.dart';
 import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
@@ -67,8 +68,10 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
 
   @override
   Widget body() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       children: [
+        if (isDark) Positioned.fill(child: ColoredBox(color: cScreen(isDark))),
         _Tabs(
           selectedIndex: _selectedIndex,
         ),
