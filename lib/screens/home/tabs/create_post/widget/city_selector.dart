@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:buking/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/city.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 
 class CitySelector extends StatefulWidget {
   final List<City> cities;
@@ -59,7 +60,7 @@ class _CitySelectorState extends State<CitySelector> {
       duration: const Duration(milliseconds: 300),
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: BoxDecoration(
-        color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: widget.isDark ? WawatDark.surface : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -70,9 +71,7 @@ class _CitySelectorState extends State<CitySelector> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: widget.isDark
-                  ? const Color(0xFF6B7280)
-                  : const Color(0xFFE5E5EA),
+              color: widget.isDark ? WawatDark.grab : const Color(0xFFE5E5EA),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -88,16 +87,16 @@ class _CitySelectorState extends State<CitySelector> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: widget.isDark ? Colors.white : Colors.black,
+                    color: widget.isDark ? WawatDark.textPrimary : Colors.black,
                   ),
-                  child:   Text(S.of(context).bgrhtrgrfr445),
+                  child: Text(S.of(context).bgrhtrgrfr445),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.close,
                     color: widget.isDark
-                        ? const Color(0xFFB0B0B0)
+                        ? WawatDark.icon
                         : const Color(0xFF8E8E93),
                   ),
                   padding: EdgeInsets.zero,
@@ -114,7 +113,7 @@ class _CitySelectorState extends State<CitySelector> {
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
                 color: widget.isDark
-                    ? const Color(0xFF2A2A2A)
+                    ? WawatDark.surfaceAlt
                     : const Color(0xFFF2F2F7),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -122,49 +121,49 @@ class _CitySelectorState extends State<CitySelector> {
                 controller: _searchController,
                 style: TextStyle(
                   fontSize: 15,
-                  color: widget.isDark ? Colors.white : Colors.black,
+                  color: widget.isDark ? WawatDark.textPrimary : Colors.black,
                 ),
                 decoration: InputDecoration(
                   hintText: S.of(context).hyrh5h4tgerwfs,
                   hintStyle: TextStyle(
                     fontSize: 15,
                     color: widget.isDark
-                        ? const Color(0xFF6B7280)
+                        ? WawatDark.placeholder
                         : const Color(0xFF8E8E93),
                   ),
                   prefixIcon: Icon(
                     Icons.search,
                     color: widget.isDark
-                        ? const Color(0xFF6B7280)
+                        ? WawatDark.iconMuted
                         : const Color(0xFF8E8E93),
                     size: 20,
                   ),
                   suffixIcon: widget.isLoading
                       ? const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Color(0xFF5B51FF),
-                      ),
-                    ),
-                  )
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF5B51FF),
+                            ),
+                          ),
+                        )
                       : _searchController.text.isNotEmpty
-                      ? IconButton(
-                    icon: Icon(
-                      Icons.clear,
-                      color: widget.isDark
-                          ? const Color(0xFF6B7280)
-                          : const Color(0xFF8E8E93),
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      _searchController.clear();
-                    },
-                  )
-                      : null,
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: widget.isDark
+                                    ? WawatDark.iconMuted
+                                    : const Color(0xFF8E8E93),
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                              },
+                            )
+                          : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -181,119 +180,119 @@ class _CitySelectorState extends State<CitySelector> {
           Expanded(
             child: widget.isLoading && widget.cities.isEmpty
                 ? const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF5B51FF),
-              ),
-            )
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF5B51FF),
+                    ),
+                  )
                 : widget.cities.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.search_off,
-                    size: 64,
-                    color: widget.isDark
-                        ? const Color(0xFF6B7280)
-                        : Colors.grey.shade300,
-                  ),
-                  const SizedBox(height: 16),
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 300),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: widget.isDark
-                          ? const Color(0xFFB0B0B0)
-                          : Colors.grey.shade600,
-                    ),
-                    child: Text(
-                      _searchController.text.isEmpty
-                          ? S.of(context).juu76j5yh4rtge
-                          : S.of(context).tyju65y4htge3rwfs,
-                    ),
-                  ),
-                ],
-              ),
-            )
-                : ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: widget.cities.length,
-              separatorBuilder: (context, index) => Divider(
-                height: 1,
-                indent: 20,
-                endIndent: 20,
-                color: widget.isDark
-                    ? const Color(0xFF2A2A2A)
-                    : const Color(0xFFE5E5EA),
-              ),
-              itemBuilder: (context, index) {
-                final city = widget.cities[index];
-                final isSelected = widget.selectedCity?.id == city.id;
-
-                return InkWell(
-                  onTap: () {
-                    widget.onCitySelected(city);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    color: isSelected
-                        ? const Color(0xFF5B51FF).withOpacity(0.1)
-                        : Colors.transparent,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              AnimatedDefaultTextStyle(
-                                duration:
-                                const Duration(milliseconds: 300),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w500
-                                      : FontWeight.w500,
-                                  color: isSelected
-                                      ? const Color(0xFF5B51FF)
-                                      : (widget.isDark
-                                      ? Colors.white
-                                      : Colors.black),
-                                ),
-                                child: Text(city.name),
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: widget.isDark
+                                  ? WawatDark.iconMuted
+                                  : Colors.grey.shade300,
+                            ),
+                            const SizedBox(height: 16),
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 300),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: widget.isDark
+                                    ? WawatDark.textSecondary
+                                    : Colors.grey.shade600,
                               ),
-                              const SizedBox(height: 4),
-                              AnimatedDefaultTextStyle(
-                                duration:
-                                const Duration(milliseconds: 300),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: widget.isDark
-                                      ? const Color(0xFFB0B0B0)
-                                      : const Color(0xFF8E8E93),
-                                ),
-                                child: Text(
-                                    '${city.countryName} (${city.countryCode})'),
+                              child: Text(
+                                _searchController.text.isEmpty
+                                    ? S.of(context).juu76j5yh4rtge
+                                    : S.of(context).tyju65y4htge3rwfs,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        if (isSelected)
-                          const Icon(
-                            Icons.check_circle,
-                            color: Color(0xFF5B51FF),
-                            size: 24,
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: widget.cities.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          indent: 20,
+                          endIndent: 20,
+                          color: widget.isDark
+                              ? WawatDark.divider
+                              : const Color(0xFFE5E5EA),
+                        ),
+                        itemBuilder: (context, index) {
+                          final city = widget.cities[index];
+                          final isSelected = widget.selectedCity?.id == city.id;
+
+                          return InkWell(
+                            onTap: () {
+                              widget.onCitySelected(city);
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              color: isSelected
+                                  ? const Color(0xFF5B51FF).withOpacity(0.1)
+                                  : Colors.transparent,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AnimatedDefaultTextStyle(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w500
+                                                : FontWeight.w500,
+                                            color: isSelected
+                                                ? const Color(0xFF5B51FF)
+                                                : (widget.isDark
+                                                    ? WawatDark.textPrimary
+                                                    : Colors.black),
+                                          ),
+                                          child: Text(city.name),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        AnimatedDefaultTextStyle(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: widget.isDark
+                                                ? WawatDark.textSecondary
+                                                : const Color(0xFF8E8E93),
+                                          ),
+                                          child: Text(
+                                              '${city.countryName} (${city.countryCode})'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF5B51FF),
+                                      size: 24,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),

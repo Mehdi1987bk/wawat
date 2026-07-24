@@ -144,10 +144,10 @@ class _ListingLimitGateScreenState
               initialData: false,
               builder: (context, snapshot) {
                 if (snapshot.data != true) return const SizedBox.shrink();
-                return const LinearProgressIndicator(
+                return LinearProgressIndicator(
                   minHeight: 2,
                   color: _brand,
-                  backgroundColor: _brand50,
+                  backgroundColor: isDark ? WawatDark.brandChip : _brand50,
                 );
               },
             ),
@@ -242,7 +242,7 @@ class _Hero extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF3A2A12) : _amber50,
+            color: isDark ? WawatDark.warningBg : _amber50,
             borderRadius: BorderRadius.circular(22),
           ),
           child: Icon(PhosphorIconsFill.stack,
@@ -347,7 +347,7 @@ class _ActiveListingTile extends StatelessWidget {
               isTrip
                   ? PhosphorIconsFill.airplaneTilt
                   : PhosphorIconsFill.package,
-              color: _brand,
+              color: isDark ? WawatDark.brandText : _brand,
               size: 20,
             ),
           ),
@@ -369,16 +369,16 @@ class _ActiveListingTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(PhosphorIconsFill.circle,
-                        color: _emerald, size: 5),
+                    Icon(PhosphorIconsFill.circle,
+                        color: isDark ? WawatDark.success : _emerald, size: 5),
                     const SizedBox(width: 5),
                     Flexible(
                       child: Text(
                         '$status${date == null ? '' : ' · ${_formatDate(date)}'}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: _emerald,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.success : _emerald,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -441,7 +441,8 @@ class _InfoBox extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(PhosphorIconsFill.info, color: _brand, size: 18),
+          Icon(PhosphorIconsFill.info,
+              color: isDark ? WawatDark.brandText : _brand, size: 18),
           const SizedBox(width: 9),
           Expanded(
             child: Text(
@@ -540,8 +541,7 @@ class _EmptyList extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color:
-            isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.03),
+        color: isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(

@@ -9,6 +9,8 @@ import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/package_types_response.dart';
 import '../../../../data/network/response/user.dart';
 import '../../../../presentation/bloc/base_screen.dart';
+import '../../../../presentation/resourses/theme_colors.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
@@ -103,60 +105,78 @@ Theme _wawatPickerTheme(
   BuildContext context,
   Widget? child, {
   required Color accent,
+  required bool isDark,
 }) {
   final base = Theme.of(context);
-  final colorScheme = ColorScheme.light(
-    primary: accent,
-    onPrimary: Colors.white,
-    secondary: accent,
-    onSecondary: Colors.white,
-    surface: Colors.white,
-    onSurface: _ink900,
-    surfaceContainerHighest: const Color(0xFFF4F6FA),
-    outline: _ink200,
-  );
+  final surface = isDark ? WawatDark.surface : Colors.white;
+  final onSurface = isDark ? WawatDark.textPrimary : _ink900;
+  final fill = isDark ? WawatDark.surfaceAlt : const Color(0xFFF4F6FA);
+  final colorScheme = isDark
+      ? ColorScheme.dark(
+          primary: accent,
+          onPrimary: Colors.white,
+          secondary: accent,
+          onSecondary: Colors.white,
+          surface: surface,
+          onSurface: onSurface,
+          surfaceContainerHighest: fill,
+          outline: WawatDark.border,
+        )
+      : ColorScheme.light(
+          primary: accent,
+          onPrimary: Colors.white,
+          secondary: accent,
+          onSecondary: Colors.white,
+          surface: Colors.white,
+          onSurface: _ink900,
+          surfaceContainerHighest: const Color(0xFFF4F6FA),
+          outline: _ink200,
+        );
 
   return Theme(
     data: base.copyWith(
       colorScheme: colorScheme,
       dialogTheme: DialogTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
       datePickerTheme: DatePickerThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
-        headerBackgroundColor: Colors.white,
-        headerForegroundColor: _ink900,
-        rangePickerBackgroundColor: Colors.white,
+        headerBackgroundColor: surface,
+        headerForegroundColor: onSurface,
+        rangePickerBackgroundColor: surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        todayBorder:
+            isDark ? const BorderSide(color: WawatDark.focusRing) : null,
         dayStyle: const TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w600,
         ),
-        weekdayStyle: const TextStyle(
-          color: _ink800,
+        weekdayStyle: TextStyle(
+          color: isDark ? WawatDark.textMuted : _ink800,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
         yearStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
       timePickerTheme: TimePickerThemeData(
-        backgroundColor: Colors.white,
-        dialBackgroundColor: const Color(0xFFF4F6FA),
+        backgroundColor: surface,
+        dialBackgroundColor: fill,
         dialHandColor: accent,
-        dialTextColor: _ink900,
-        entryModeIconColor: _ink900,
-        hourMinuteColor: const Color(0xFFF4F6FA),
-        hourMinuteTextColor: _ink900,
-        dayPeriodColor: const Color(0xFFF4F6FA),
-        dayPeriodTextColor: _ink900,
+        dialTextColor: onSurface,
+        entryModeIconColor: onSurface,
+        hourMinuteColor: fill,
+        hourMinuteTextColor: onSurface,
+        dayPeriodColor: fill,
+        dayPeriodTextColor: onSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: accent,
+          foregroundColor:
+              isDark && accent == _brand ? WawatDark.brandText : accent,
           textStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -176,6 +196,7 @@ Future<DateTime?> _showWawatDatePicker({
   required DateTime lastDate,
   required Color accent,
 }) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   return showDatePicker(
     context: context,
     initialDate: initialDate,
@@ -188,6 +209,7 @@ Future<DateTime?> _showWawatDatePicker({
       context,
       child,
       accent: accent,
+      isDark: isDark,
     ),
   );
 }
@@ -198,6 +220,7 @@ Future<TimeOfDay?> _showWawatTimePicker({
   required TimeOfDay initialTime,
   required Color accent,
 }) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   return showTimePicker(
     context: context,
     initialTime: initialTime,
@@ -208,6 +231,7 @@ Future<TimeOfDay?> _showWawatTimePicker({
       context,
       child,
       accent: accent,
+      isDark: isDark,
     ),
   );
 }
@@ -352,7 +376,7 @@ class _CreatePostScreenState
         return ThemeAwareScreen(
           isDark: isDark,
           lightBackgroundColor: const Color(0xFFEEF1F6),
-          darkBackgroundColor: const Color(0xFF101010),
+          darkBackgroundColor: WawatDark.bg,
           child: SizedBox.expand(
             child: _successResponse == null
                 ? _buildWizard(isDark)
@@ -923,10 +947,12 @@ class _CreatePostScreenState
   }
 
   Future<void> _showPackageSheet() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -1204,7 +1230,7 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? Colors.white : _ink900;
+    final color = isDark ? WawatDark.textPrimary : _ink900;
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -1212,9 +1238,11 @@ class _TopBar extends StatelessWidget {
         16,
         10,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0x0F0F172A))),
+      decoration: BoxDecoration(
+        color: cBar(isDark),
+        border: Border(
+            bottom: BorderSide(
+                color: isDark ? WawatDark.divider : const Color(0x0F0F172A))),
       ),
       child: Row(
         children: [
@@ -1239,7 +1267,11 @@ class _TopBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: softAccent,
+                color: isDark
+                    ? (accent == _brand
+                        ? WawatDark.brandChip
+                        : WawatDark.warningBg)
+                    : softAccent,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
@@ -1247,7 +1279,11 @@ class _TopBar extends StatelessWidget {
                     .replaceAll('{step}', '$step')
                     .replaceAll('{total}', '3'),
                 style: TextStyle(
-                  color: accent,
+                  color: isDark
+                      ? (accent == _brand
+                          ? WawatDark.brandText
+                          : WawatDark.warning)
+                      : accent,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1373,6 +1409,8 @@ class _Stepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inactiveText = isDark ? WawatDark.textMuted : _ink400;
     Widget dot(int index) {
       final completed = step > index;
       final active = step == index;
@@ -1381,7 +1419,9 @@ class _Stepper extends StatelessWidget {
         height: 32,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: completed || active ? accent : const Color(0xFFE9EDF2),
+          color: completed || active
+              ? accent
+              : (isDark ? WawatDark.surfaceAlt : const Color(0xFFE9EDF2)),
           shape: BoxShape.circle,
         ),
         child: completed
@@ -1389,7 +1429,7 @@ class _Stepper extends StatelessWidget {
             : Text(
                 '${index + 1}',
                 style: TextStyle(
-                  color: active ? Colors.white : _ink400,
+                  color: active ? Colors.white : inactiveText,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1403,7 +1443,9 @@ class _Stepper extends StatelessWidget {
           height: 3,
           margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: active ? accent : const Color(0xFFE5E7EB),
+            color: active
+                ? accent
+                : (isDark ? WawatDark.surfaceAlt : const Color(0xFFE5E7EB)),
             borderRadius: BorderRadius.circular(99),
           ),
         ),
@@ -1411,7 +1453,7 @@ class _Stepper extends StatelessWidget {
     }
 
     return Container(
-      color: Colors.white,
+      color: cBar(isDark),
       padding: const EdgeInsets.fromLTRB(32, 15, 32, 15),
       child: Column(
         children: [
@@ -1430,17 +1472,17 @@ class _Stepper extends StatelessWidget {
             children: [
               Text(WawatContent.text(content, 'create.step_route'),
                   style: TextStyle(
-                      color: step >= 0 ? accent : _ink400,
+                      color: step >= 0 ? accent : inactiveText,
                       fontSize: 11,
                       fontWeight: FontWeight.w500)),
               Text(WawatContent.text(content, 'create.step_details'),
                   style: TextStyle(
-                      color: step >= 1 ? accent : _ink400,
+                      color: step >= 1 ? accent : inactiveText,
                       fontSize: 11,
                       fontWeight: FontWeight.w500)),
               Text(WawatContent.text(content, 'create.step_preview'),
                   style: TextStyle(
-                      color: step >= 2 ? accent : _ink400,
+                      color: step >= 2 ? accent : inactiveText,
                       fontSize: 11,
                       fontWeight: FontWeight.w500)),
             ],
@@ -1462,13 +1504,14 @@ class _StepIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: cText(isDark),
             fontSize: 19,
             fontWeight: FontWeight.w700,
             height: 1.1,
@@ -1477,8 +1520,8 @@ class _StepIntro extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           subtitle,
-          style: const TextStyle(
-            color: _ink500,
+          style: TextStyle(
+            color: cText2(isDark),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -1503,18 +1546,22 @@ class _RoutePickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cCard(isDark),
         borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: cCardBorder(isDark),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
       ),
       child: Stack(
         clipBehavior: Clip.none,
@@ -1536,16 +1583,20 @@ class _RoutePickerCard extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? WawatDark.surfaceAlt : Colors.white,
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0x0F0F172A)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.16),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
+                  border: Border.all(
+                      color:
+                          isDark ? WawatDark.border : const Color(0x0F0F172A)),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.16),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                 ),
                 child: Icon(PhosphorIconsBold.arrowsDownUp,
                     color: accent, size: 24),
@@ -1580,13 +1631,14 @@ class _QuickRoutes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           WawatContent.text(content, 'create.quick_select'),
-          style: const TextStyle(
-            color: _ink500,
+          style: TextStyle(
+            color: cText2(isDark),
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -1604,14 +1656,17 @@ class _QuickRoutes extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cCard(isDark),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: const Color(0x120F172A)),
+                      border: Border.all(
+                          color: isDark
+                              ? WawatDark.border
+                              : const Color(0x120F172A)),
                     ),
                     child: Text(
                       route.label,
-                      style: const TextStyle(
-                        color: _ink800,
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textPrimary : _ink800,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1645,6 +1700,7 @@ class _RouteSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -1652,7 +1708,9 @@ class _RouteSummary extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: softAccent,
+          color: isDark
+              ? (accent == _brand ? WawatDark.brandChip : WawatDark.warningBg)
+              : softAccent,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
@@ -1661,7 +1719,8 @@ class _RouteSummary extends StatelessWidget {
                 isTrip
                     ? PhosphorIconsFill.airplaneTakeoff
                     : PhosphorIconsFill.package,
-                color: accent,
+                color:
+                    isDark && accent == _brand ? WawatDark.brandText : accent,
                 size: 20),
             const SizedBox(width: 10),
             Expanded(
@@ -1671,14 +1730,17 @@ class _RouteSummary extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Icon(PhosphorIconsRegular.arrowRight,
-                        color: accent, size: 16),
+                        color: isDark && accent == _brand
+                            ? WawatDark.brandText
+                            : accent,
+                        size: 16),
                   ),
                   Flexible(child: _RouteText(to)),
                 ],
               ),
             ),
-            const Icon(PhosphorIconsRegular.pencilSimple,
-                color: _ink400, size: 21),
+            Icon(PhosphorIconsRegular.pencilSimple,
+                color: cMuted(isDark), size: 21),
           ],
         ),
       ),
@@ -1693,12 +1755,13 @@ class _RouteText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        color: _ink900,
+      style: TextStyle(
+        color: cText(isDark),
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
@@ -1732,6 +1795,12 @@ class _TypeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
+    final chipBg = isDark
+        ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+        : softAccent;
+    final chipFg =
+        isDark ? (isBrand ? WawatDark.brandText : WawatDark.warning) : accent;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -1739,17 +1808,19 @@ class _TypeCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: cCard(isDark),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-              color: isDark ? Colors.white10 : const Color(0x0F0F172A)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.06),
-              blurRadius: 22,
-              offset: const Offset(0, 10),
-            ),
-          ],
+              color: isDark ? WawatDark.border : const Color(0x0F0F172A)),
+          boxShadow: isDark
+              ? WawatDark.cardShadow
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 22,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1758,10 +1829,10 @@ class _TypeCard extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: softAccent,
+                color: chipBg,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Icon(icon, color: accent, size: 30),
+              child: Icon(icon, color: chipFg, size: 30),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -1774,7 +1845,7 @@ class _TypeCard extends StatelessWidget {
                         child: Text(
                           title,
                           style: TextStyle(
-                            color: isDark ? Colors.white : _ink900,
+                            color: cText(isDark),
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1786,14 +1857,18 @@ class _TypeCard extends StatelessWidget {
                               horizontal: 8, vertical: 5),
                           decoration: BoxDecoration(
                             color: quotaIsFull
-                                ? _amber50
-                                : softAccent.withValues(alpha: 0.85),
+                                ? (isDark ? WawatDark.warningBg : _amber50)
+                                : (isDark
+                                    ? chipBg
+                                    : softAccent.withValues(alpha: 0.85)),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
                             quotaLabel!,
                             style: TextStyle(
-                              color: quotaIsFull ? _amber : accent,
+                              color: quotaIsFull
+                                  ? (isDark ? WawatDark.warning : _amber)
+                                  : chipFg,
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1804,8 +1879,8 @@ class _TypeCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     description,
-                    style: const TextStyle(
-                      color: _ink500,
+                    style: TextStyle(
+                      color: cText2(isDark),
                       fontSize: 12.5,
                       height: 1.25,
                       fontWeight: FontWeight.w500,
@@ -1823,13 +1898,13 @@ class _TypeCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: softAccent,
+                              color: chipBg,
                               borderRadius: BorderRadius.circular(7),
                             ),
                             child: Text(
                               chip,
                               style: TextStyle(
-                                color: accent,
+                                color: chipFg,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1841,8 +1916,8 @@ class _TypeCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(PhosphorIconsRegular.arrowRight,
-                color: _ink400, size: 20),
+            Icon(PhosphorIconsRegular.arrowRight,
+                color: cFaint(isDark), size: 20),
           ],
         ),
       ),
@@ -1861,23 +1936,31 @@ class _InfoBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.10),
+        color: isDark
+            ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+            : accent.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(PhosphorIconsFill.info, color: accent, size: 18),
+          Icon(PhosphorIconsFill.info,
+              color: isDark
+                  ? (isBrand ? WawatDark.brandText : WawatDark.warning)
+                  : accent,
+              size: 18),
           const SizedBox(width: 9),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: cText2(isDark),
                 fontSize: 12,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -1922,15 +2005,19 @@ class _CityPickerTile extends StatelessWidget {
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              color: cCard(isDark),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                  color: error == null ? const Color(0x120F172A) : Colors.red),
+                  color: error != null
+                      ? (isDark ? WawatDark.danger : Colors.red)
+                      : (isDark ? WawatDark.border : const Color(0x120F172A))),
             ),
             child: Row(
               children: [
                 Icon(icon,
-                    color: accent,
+                    color: isDark && accent == _brand
+                        ? WawatDark.brandText
+                        : accent,
                     size: icon == PhosphorIconsFill.circle ? 10 : 19),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1943,9 +2030,7 @@ class _CityPickerTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: city == null
-                              ? _ink400
-                              : (isDark ? Colors.white : _ink900),
+                          color: city == null ? cMuted(isDark) : cText(isDark),
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1955,8 +2040,8 @@ class _CityPickerTile extends StatelessWidget {
                           city!.countryName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _ink400,
+                          style: TextStyle(
+                            color: cMuted(isDark),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1968,11 +2053,11 @@ class _CityPickerTile extends StatelessWidget {
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: onClear,
-                    child: const Icon(PhosphorIconsBold.x,
-                        color: _ink400, size: 18),
+                    child: Icon(PhosphorIconsBold.x,
+                        color: cMuted(isDark), size: 18),
                   )
                 else
-                  const Icon(PhosphorIconsRegular.caretDown, color: _ink400),
+                  Icon(PhosphorIconsRegular.caretDown, color: cMuted(isDark)),
               ],
             ),
           ),
@@ -1994,19 +2079,20 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon, color: _ink400, size: 17),
+          Icon(icon, color: cMuted(isDark), size: 17),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               text,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: _ink800,
+              style: TextStyle(
+                color: cText3(isDark),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 letterSpacing: -0.2,
@@ -2027,12 +2113,13 @@ class _FieldHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Text(
         text,
-        style: const TextStyle(
-          color: _ink400,
+        style: TextStyle(
+          color: cMuted(isDark),
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -2064,6 +2151,7 @@ class _DateRangeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2079,10 +2167,10 @@ class _DateRangeRow extends StatelessWidget {
                 onChanged: onFromChanged,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Icon(PhosphorIconsRegular.arrowRight,
-                  color: _ink400, size: 22),
+                  color: cMuted(isDark), size: 22),
             ),
             Expanded(
               child: _DateBox(
@@ -2122,6 +2210,7 @@ class _DateBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () async {
@@ -2140,10 +2229,12 @@ class _DateBox extends StatelessWidget {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF4F6FA),
+          color: cFill(isDark),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-              color: error == null ? const Color(0x120F172A) : Colors.red),
+              color: error != null
+                  ? (isDark ? WawatDark.danger : Colors.red)
+                  : (isDark ? WawatDark.border : const Color(0x120F172A))),
         ),
         child: Row(
           children: [
@@ -2152,15 +2243,15 @@ class _DateBox extends StatelessWidget {
                 value == null
                     ? placeholder
                     : DateFormat('dd.MM').format(value!),
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: value == null ? cMuted(isDark) : cText(isDark),
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
-            const Icon(PhosphorIconsRegular.calendarBlank,
-                color: _ink400, size: 19),
+            Icon(PhosphorIconsRegular.calendarBlank,
+                color: cMuted(isDark), size: 19),
           ],
         ),
       ),
@@ -2298,10 +2389,12 @@ class _FieldShell extends StatelessWidget {
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: cCard(isDark),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: error == null ? const Color(0x120F172A) : Colors.red),
+              color: error != null
+                  ? (isDark ? WawatDark.danger : Colors.red)
+                  : (isDark ? WawatDark.border : const Color(0x120F172A))),
         ),
         child: Row(
           children: [
@@ -2311,9 +2404,7 @@ class _FieldShell extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: value == null
-                      ? _ink400
-                      : (isDark ? Colors.white : _ink900),
+                  color: value == null ? cMuted(isDark) : cText(isDark),
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
                 ),
@@ -2324,10 +2415,10 @@ class _FieldShell extends StatelessWidget {
                 behavior: HitTestBehavior.translucent,
                 onTap: onClear,
                 child:
-                    const Icon(PhosphorIconsBold.x, color: _ink400, size: 17),
+                    Icon(PhosphorIconsBold.x, color: cMuted(isDark), size: 17),
               )
             else
-              Icon(icon, color: _ink400, size: 20),
+              Icon(icon, color: cMuted(isDark), size: 20),
           ],
         ),
       ),
@@ -2346,14 +2437,15 @@ class _InlineFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
-        Icon(icon, color: _ink400, size: 15),
+        Icon(icon, color: cMuted(isDark), size: 15),
         const SizedBox(width: 5),
         Text(
           text,
-          style: const TextStyle(
-            color: _ink800,
+          style: TextStyle(
+            color: cText3(isDark),
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -2401,7 +2493,7 @@ class _Input extends StatelessWidget {
           keyboardType: keyboardType,
           maxLines: maxLines,
           style: TextStyle(
-            color: isDark ? Colors.white : _ink900,
+            color: cText(isDark),
             fontWeight: FontWeight.w700,
             fontSize: maxLines > 1 ? 15 : 16,
           ),
@@ -2409,34 +2501,38 @@ class _Input extends StatelessWidget {
             hintText: hint,
             suffixText: suffix,
             filled: true,
-            fillColor:
-                isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF4F6FA),
+            fillColor: cFill(isDark),
             contentPadding: EdgeInsets.symmetric(
               horizontal: 14,
               vertical: maxLines > 1 ? 18 : 14,
             ),
-            hintStyle: const TextStyle(
-              color: _ink400,
+            hintStyle: TextStyle(
+              color: isDark ? WawatDark.placeholder : _ink400,
               fontWeight: FontWeight.w500,
             ),
-            suffixStyle: const TextStyle(
-              color: _ink400,
+            suffixStyle: TextStyle(
+              color: cMuted(isDark),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(22),
               borderSide: BorderSide(
-                  color: error == null ? const Color(0x120F172A) : Colors.red),
+                  color: error != null
+                      ? (isDark ? WawatDark.danger : Colors.red)
+                      : (isDark ? WawatDark.border : const Color(0x120F172A))),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(22),
               borderSide: BorderSide(
-                  color: error == null ? const Color(0x120F172A) : Colors.red),
+                  color: error != null
+                      ? (isDark ? WawatDark.danger : Colors.red)
+                      : (isDark ? WawatDark.border : const Color(0x120F172A))),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(22),
-              borderSide: const BorderSide(color: _brand),
+              borderSide:
+                  BorderSide(color: isDark ? WawatDark.focusRing : _brand),
             ),
           ),
         ),
@@ -2470,6 +2566,13 @@ class _WeightStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
+    final stepSoftBg = isDark
+        ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+        : accent.withValues(alpha: 0.10);
+    final stepSoftFg =
+        isDark ? (isBrand ? WawatDark.brandText : WawatDark.warning) : accent;
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, valueState, _) {
@@ -2486,9 +2589,13 @@ class _WeightStepper extends StatelessWidget {
                 _RoundStepButton(
                   icon: PhosphorIconsRegular.minus,
                   color: canDecrease
-                      ? accent.withValues(alpha: 0.10)
-                      : const Color(0xFFE7E8EE),
-                  iconColor: canDecrease ? accent : _ink800,
+                      ? stepSoftBg
+                      : (isDark
+                          ? WawatDark.disabledBg
+                          : const Color(0xFFE7E8EE)),
+                  iconColor: canDecrease
+                      ? stepSoftFg
+                      : (isDark ? WawatDark.disabledFg : _ink800),
                   onTap: onMinus,
                 ),
                 const SizedBox(width: 10),
@@ -2498,8 +2605,8 @@ class _WeightStepper extends StatelessWidget {
                     textAlign: TextAlign.center,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: cText(isDark),
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -2507,33 +2614,41 @@ class _WeightStepper extends StatelessWidget {
                       hintText: hint,
                       suffixText: 'kq',
                       filled: true,
-                      fillColor: const Color(0xFFF4F6FA),
+                      fillColor: cFill(isDark),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 11),
-                      suffixStyle: const TextStyle(
-                        color: _ink400,
+                      hintStyle: TextStyle(
+                        color: isDark ? WawatDark.placeholder : _ink400,
+                      ),
+                      suffixStyle: TextStyle(
+                        color: cMuted(isDark),
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(
-                          color: error == null
-                              ? const Color(0x120F172A)
-                              : Colors.red,
+                          color: error != null
+                              ? (isDark ? WawatDark.danger : Colors.red)
+                              : (isDark
+                                  ? WawatDark.border
+                                  : const Color(0x120F172A)),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(
-                          color: error == null
-                              ? const Color(0x120F172A)
-                              : Colors.red,
+                          color: error != null
+                              ? (isDark ? WawatDark.danger : Colors.red)
+                              : (isDark
+                                  ? WawatDark.border
+                                  : const Color(0x120F172A)),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(color: accent),
+                        borderSide: BorderSide(
+                            color: isDark ? WawatDark.focusRing : accent),
                       ),
                     ),
                   ),
@@ -2541,8 +2656,8 @@ class _WeightStepper extends StatelessWidget {
                 const SizedBox(width: 10),
                 _RoundStepButton(
                   icon: PhosphorIconsRegular.plus,
-                  color: accent.withValues(alpha: 0.10),
-                  iconColor: accent,
+                  color: stepSoftBg,
+                  iconColor: stepSoftFg,
                   onTap: onPlus,
                 ),
               ],
@@ -2603,24 +2718,28 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => onChanged(!value),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0x080F172A),
+          color: isDark ? WawatDark.surfaceAlt : const Color(0x080F172A),
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
           children: [
-            Icon(PhosphorIconsFill.handshake, color: accent, size: 22),
+            Icon(PhosphorIconsFill.handshake,
+                color:
+                    isDark && accent == _brand ? WawatDark.brandText : accent,
+                size: 22),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  color: _ink800,
+                style: TextStyle(
+                  color: cText3(isDark),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -2633,7 +2752,7 @@ class _SwitchRow extends StatelessWidget {
               padding: const EdgeInsets.all(2),
               alignment: value ? Alignment.centerRight : Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: value ? accent : _ink200,
+                color: value ? accent : (isDark ? WawatDark.border : _ink200),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Container(
@@ -2665,7 +2784,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: isDark ? Colors.white : _ink900,
+          color: cText(isDark),
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -2743,6 +2862,13 @@ class _SelectedPackagesButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
+    final accentText =
+        isDark ? (isBrand ? WawatDark.brandText : WawatDark.warning) : accent;
+    final badgeBg = isDark
+        ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+        : softAccent;
     final selected = packageTypes
         .where((item) => selectedCodes.contains(item.code))
         .take(2)
@@ -2755,9 +2881,10 @@ class _SelectedPackagesButton extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 54),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cCard(isDark),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0x120F172A)),
+          border: Border.all(
+              color: isDark ? WawatDark.border : const Color(0x120F172A)),
         ),
         child: Row(
           children: [
@@ -2766,7 +2893,7 @@ class _SelectedPackagesButton extends StatelessWidget {
                   ? Text(
                       WawatContent.text(content, 'create.package_select'),
                       style: TextStyle(
-                        color: accent,
+                        color: accentText,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2781,12 +2908,12 @@ class _SelectedPackagesButton extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(_packageIconFor(selected[i]),
-                                  color: accent, size: 20),
+                                  color: accentText, size: 20),
                               const SizedBox(width: 6),
                               Text(
                                 selected[i].name,
                                 style: TextStyle(
-                                  color: accent,
+                                  color: accentText,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -2794,10 +2921,10 @@ class _SelectedPackagesButton extends StatelessWidget {
                             ],
                           ),
                           if (i != selected.length - 1)
-                            const Text(
+                            Text(
                               '·',
                               style: TextStyle(
-                                color: _ink400,
+                                color: cMuted(isDark),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -2811,21 +2938,21 @@ class _SelectedPackagesButton extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: softAccent,
+                  color: badgeBg,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   WawatContent.text(content, 'create.package_selected_count')
                       .replaceAll('{count}', '${selectedCodes.length}'),
                   style: TextStyle(
-                    color: accent,
+                    color: accentText,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               )
             else
-              Icon(PhosphorIconsRegular.caretDown, color: accent, size: 22),
+              Icon(PhosphorIconsRegular.caretDown, color: accentText, size: 22),
           ],
         ),
       ),
@@ -2876,20 +3003,24 @@ class _TripPreviewCard extends StatelessWidget {
         owner?.ratingAvg ?? owner?.stats?.ratingAvg ?? owner?.rating?.average;
     final ownerRatingCount =
         owner?.ratingCount ?? owner?.stats?.ratingCount ?? owner?.rating?.count;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cCard(isDark),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0x0F0F172A)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(
+            color: isDark ? WawatDark.border : const Color(0x0F0F172A)),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2901,19 +3032,19 @@ class _TripPreviewCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _brand50,
+                  color: isDark ? WawatDark.brandChip : _brand50,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(PhosphorIconsFill.airplaneTakeoff,
-                        color: _brand, size: 17),
+                    Icon(PhosphorIconsFill.airplaneTakeoff,
+                        color: isDark ? WawatDark.brandText : _brand, size: 17),
                     const SizedBox(width: 7),
                     Text(
                       typeLabel.toUpperCase(),
-                      style: const TextStyle(
-                        color: _brand,
+                      style: TextStyle(
+                        color: isDark ? WawatDark.brandText : _brand,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2922,7 +3053,8 @@ class _TripPreviewCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              const Icon(PhosphorIconsRegular.heart, color: _ink200, size: 28),
+              Icon(PhosphorIconsRegular.heart,
+                  color: isDark ? WawatDark.iconMuted : _ink200, size: 28),
             ],
           ),
           const SizedBox(height: 28),
@@ -2945,8 +3077,8 @@ class _TripPreviewCard extends StatelessWidget {
               if (allowNegotiation)
                 Text(
                   WawatContent.text(content, 'create.negotiable'),
-                  style: const TextStyle(
-                    color: _brand,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.brandText : _brand,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2955,17 +3087,18 @@ class _TripPreviewCard extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     text: _formatNumber(price ?? 0),
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: cText(isDark),
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                     ),
-                    children: const [
-                      TextSpan(text: ' ₼', style: TextStyle(fontSize: 20)),
+                    children: [
+                      const TextSpan(
+                          text: ' ₼', style: TextStyle(fontSize: 20)),
                       TextSpan(
                         text: '/kq',
                         style: TextStyle(
-                          color: _ink400,
+                          color: cMuted(isDark),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2991,7 +3124,9 @@ class _TripPreviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Container(height: 1, color: const Color(0x0F0F172A)),
+          Container(
+              height: 1,
+              color: isDark ? WawatDark.divider : const Color(0x0F0F172A)),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -2999,14 +3134,15 @@ class _TripPreviewCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFCFE3FD),
+                decoration: BoxDecoration(
+                  color: isDark ? WawatDark.brandChip : const Color(0xFFCFE3FD),
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   ownerInitials,
-                  style: const TextStyle(
-                    color: Color(0xFF024FA3),
+                  style: TextStyle(
+                    color:
+                        isDark ? WawatDark.brandText : const Color(0xFF024FA3),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -3023,8 +3159,8 @@ class _TripPreviewCard extends StatelessWidget {
                           child: Text(
                             ownerName,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _ink900,
+                            style: TextStyle(
+                              color: cText(isDark),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -3032,8 +3168,9 @@ class _TripPreviewCard extends StatelessWidget {
                         ),
                         if (owner?.isVerified == true) ...[
                           const SizedBox(width: 5),
-                          const Icon(PhosphorIconsFill.sealCheck,
-                              color: _brand, size: 18),
+                          Icon(PhosphorIconsFill.sealCheck,
+                              color: isDark ? WawatDark.brandText : _brand,
+                              size: 18),
                         ],
                         if (ownerTier != null) ...[
                           const SizedBox(width: 5),
@@ -3041,13 +3178,15 @@ class _TripPreviewCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              color: isDark
+                                  ? WawatDark.surfaceAlt
+                                  : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(7),
                             ),
                             child: Text(
                               ownerTier,
-                              style: const TextStyle(
-                                color: _ink500,
+                              style: TextStyle(
+                                color: cText2(isDark),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -3065,8 +3204,8 @@ class _TripPreviewCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             _formatNumber(ownerRating),
-                            style: const TextStyle(
-                              color: _ink800,
+                            style: TextStyle(
+                              color: cText3(isDark),
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
@@ -3075,8 +3214,8 @@ class _TripPreviewCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               '($ownerRatingCount)',
-                              style: const TextStyle(
-                                color: _ink500,
+                              style: TextStyle(
+                                color: cText2(isDark),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -3133,23 +3272,24 @@ class _PreviewChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0x0A0F172A),
+        color: isDark ? WawatDark.surfaceAlt : const Color(0x0A0F172A),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: _ink500, size: 15),
+            Icon(icon, color: cText2(isDark), size: 15),
             const SizedBox(width: 5),
           ],
           Text(
             label,
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: cText2(isDark),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -3192,20 +3332,24 @@ class _ShipmentPreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final weightText = _formatNumber(weight ?? 0);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cCard(isDark),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0x0F0F172A)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(
+            color: isDark ? WawatDark.border : const Color(0x0F0F172A)),
+        boxShadow: isDark
+            ? WawatDark.cardShadow
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3217,19 +3361,21 @@ class _ShipmentPreviewCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _amber50,
+                  color: isDark ? WawatDark.warningBg : _amber50,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(PhosphorIconsFill.package,
-                        color: _amber, size: 16),
+                    Icon(PhosphorIconsFill.package,
+                        color: isDark ? WawatDark.warning : _amber, size: 16),
                     const SizedBox(width: 7),
                     Text(
                       typeLabel.toUpperCase(),
-                      style: const TextStyle(
-                        color: Color(0xFFB45309),
+                      style: TextStyle(
+                        color: isDark
+                            ? WawatDark.warning
+                            : const Color(0xFFB45309),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -3238,7 +3384,8 @@ class _ShipmentPreviewCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              const Icon(PhosphorIconsRegular.heart, color: _ink200, size: 28),
+              Icon(PhosphorIconsRegular.heart,
+                  color: isDark ? WawatDark.iconMuted : _ink200, size: 28),
             ],
           ),
           const SizedBox(height: 28),
@@ -3276,7 +3423,9 @@ class _ShipmentPreviewCard extends StatelessWidget {
                 .toList(),
           ),
           const SizedBox(height: 14),
-          Container(height: 1, color: const Color(0x0F0F172A)),
+          Container(
+              height: 1,
+              color: isDark ? WawatDark.divider : const Color(0x0F0F172A)),
           const SizedBox(height: 14),
           _PreviewOwnerRow(owner: owner, tierLabels: tierLabels),
         ],
@@ -3309,6 +3458,7 @@ class _PreviewOwnerRow extends StatelessWidget {
         owner?.ratingAvg ?? owner?.stats?.ratingAvg ?? owner?.rating?.average;
     final ownerRatingCount =
         owner?.ratingCount ?? owner?.stats?.ratingCount ?? owner?.rating?.count;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Row(
       children: [
@@ -3316,14 +3466,14 @@ class _PreviewOwnerRow extends StatelessWidget {
           width: 42,
           height: 42,
           alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: Color(0xFFCFE3FD),
+          decoration: BoxDecoration(
+            color: isDark ? WawatDark.brandChip : const Color(0xFFCFE3FD),
             shape: BoxShape.circle,
           ),
           child: Text(
             ownerInitials,
-            style: const TextStyle(
-              color: Color(0xFF024FA3),
+            style: TextStyle(
+              color: isDark ? WawatDark.brandText : const Color(0xFF024FA3),
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -3340,8 +3490,8 @@ class _PreviewOwnerRow extends StatelessWidget {
                     child: Text(
                       ownerName,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: cText(isDark),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -3349,8 +3499,8 @@ class _PreviewOwnerRow extends StatelessWidget {
                   ),
                   if (owner?.isVerified == true) ...[
                     const SizedBox(width: 5),
-                    const Icon(PhosphorIconsFill.sealCheck,
-                        color: _brand, size: 18),
+                    Icon(PhosphorIconsFill.sealCheck,
+                        color: isDark ? WawatDark.brandText : _brand, size: 18),
                   ],
                   if (ownerTier != null) ...[
                     const SizedBox(width: 5),
@@ -3358,13 +3508,15 @@ class _PreviewOwnerRow extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 7, vertical: 3),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? WawatDark.surfaceAlt
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Text(
                         ownerTier,
-                        style: const TextStyle(
-                          color: _ink500,
+                        style: TextStyle(
+                          color: cText2(isDark),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),
@@ -3382,8 +3534,8 @@ class _PreviewOwnerRow extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       _formatNumber(ownerRating),
-                      style: const TextStyle(
-                        color: _ink800,
+                      style: TextStyle(
+                        color: cText3(isDark),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -3392,8 +3544,8 @@ class _PreviewOwnerRow extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '($ownerRatingCount)',
-                        style: const TextStyle(
-                          color: _ink500,
+                        style: TextStyle(
+                          color: cText2(isDark),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
@@ -3480,6 +3632,7 @@ class _PreviewCity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: align,
       children: [
@@ -3488,8 +3641,8 @@ class _PreviewCity extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: textAlign,
-          style: const TextStyle(
-            color: _ink900,
+          style: TextStyle(
+            color: cText(isDark),
             fontSize: 24,
             height: 1.05,
             fontWeight: FontWeight.w700,
@@ -3501,8 +3654,8 @@ class _PreviewCity extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: textAlign,
-          style: const TextStyle(
-            color: _ink400,
+          style: TextStyle(
+            color: cMuted(isDark),
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -3525,13 +3678,20 @@ class _RouteDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
+    final dotAccent =
+        isDark ? (isBrand ? WawatDark.brandText : WawatDark.warning) : accent;
+    final softBg = isDark
+        ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+        : softAccent;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: dotAccent, shape: BoxShape.circle),
         ),
         Container(
           width: 14,
@@ -3539,7 +3699,7 @@ class _RouteDots extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
-                color: accent.withValues(alpha: 0.28),
+                color: dotAccent.withValues(alpha: 0.28),
                 width: 2,
                 style: BorderStyle.solid,
               ),
@@ -3550,15 +3710,16 @@ class _RouteDots extends StatelessWidget {
           width: 26,
           height: 26,
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: softAccent, shape: BoxShape.circle),
-          child: Icon(icon, color: accent, size: 16),
+          decoration: BoxDecoration(color: softBg, shape: BoxShape.circle),
+          child: Icon(icon, color: dotAccent, size: 16),
         ),
         Container(
           width: 14,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(color: accent.withValues(alpha: 0.28), width: 2),
+              top: BorderSide(
+                  color: dotAccent.withValues(alpha: 0.28), width: 2),
             ),
           ),
         ),
@@ -3566,9 +3727,9 @@ class _RouteDots extends StatelessWidget {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cCard(isDark),
             shape: BoxShape.circle,
-            border: Border.all(color: accent, width: 2),
+            border: Border.all(color: dotAccent, width: 2),
           ),
         ),
       ],
@@ -3592,30 +3753,32 @@ class _DateTimePill extends StatelessWidget {
     final time = flightTime == null
         ? '17:10'
         : '${flightTime!.hour.toString().padLeft(2, '0')}:${flightTime!.minute.toString().padLeft(2, '0')}';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brandFg = isDark ? WawatDark.brandText : _brand;
     return Container(
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: _brand50,
+        color: isDark ? WawatDark.brandChip : _brand50,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          const Icon(PhosphorIconsFill.calendarDots, color: _brand, size: 20),
+          Icon(PhosphorIconsFill.calendarDots, color: brandFg, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text.rich(
               TextSpan(
                 text: date,
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: cText(isDark),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
                 children: [
                   TextSpan(
                     text: ' · $time',
-                    style: const TextStyle(color: _brand),
+                    style: TextStyle(color: brandFg),
                   ),
                 ],
               ),
@@ -3635,17 +3798,19 @@ class _PreviewInfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _brand50.withValues(alpha: 0.60),
+        color: isDark ? WawatDark.brandChip : _brand50.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(PhosphorIconsFill.shieldCheck, color: _brand, size: 18),
+          Icon(PhosphorIconsFill.shieldCheck,
+              color: isDark ? WawatDark.brandText : _brand, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text.rich(
@@ -3660,7 +3825,7 @@ class _PreviewInfoBanner extends StatelessWidget {
                       content,
                       'create.preview_moderation_bold',
                     ),
-                    style: const TextStyle(color: _ink900),
+                    style: TextStyle(color: cText(isDark)),
                   ),
                   TextSpan(
                     text: WawatContent.text(
@@ -3670,8 +3835,8 @@ class _PreviewInfoBanner extends StatelessWidget {
                   ),
                 ],
               ),
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: cText2(isDark),
                 fontSize: 12,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -3691,17 +3856,19 @@ class _ShipmentInfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _amber50.withValues(alpha: 0.70),
+        color: isDark ? WawatDark.warningBg : _amber50.withValues(alpha: 0.70),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(PhosphorIconsFill.info, color: _amber, size: 18),
+          Icon(PhosphorIconsFill.info,
+              color: isDark ? WawatDark.warning : _amber, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text.rich(
@@ -3716,7 +3883,7 @@ class _ShipmentInfoBanner extends StatelessWidget {
                       content,
                       'create.preview_shipment_price_bold',
                     ),
-                    style: const TextStyle(color: _ink900),
+                    style: TextStyle(color: cText(isDark)),
                   ),
                   TextSpan(
                     text: WawatContent.text(
@@ -3726,8 +3893,8 @@ class _ShipmentInfoBanner extends StatelessWidget {
                   ),
                 ],
               ),
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: cText2(isDark),
                 fontSize: 12,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -3759,6 +3926,13 @@ class _PackageTypeSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
+    final accentFg =
+        isDark ? (isBrand ? WawatDark.brandText : WawatDark.warning) : accent;
+    final selBg = isDark
+        ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+        : softAccent;
     return Container(
       padding: EdgeInsets.fromLTRB(
         20,
@@ -3766,9 +3940,9 @@ class _PackageTypeSheet extends StatelessWidget {
         20,
         MediaQuery.of(context).padding.bottom + 24,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      decoration: BoxDecoration(
+        color: cCard(isDark),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -3780,7 +3954,7 @@ class _PackageTypeSheet extends StatelessWidget {
               height: 6,
               margin: const EdgeInsets.only(bottom: 18),
               decoration: BoxDecoration(
-                color: const Color(0xFFCBD5E1),
+                color: isDark ? WawatDark.grab : const Color(0xFFCBD5E1),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -3793,8 +3967,8 @@ class _PackageTypeSheet extends StatelessWidget {
                     content,
                     'create.package_type_title',
                   ),
-                  style: const TextStyle(
-                    color: _ink900,
+                  style: TextStyle(
+                    color: cText(isDark),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -3802,8 +3976,8 @@ class _PackageTypeSheet extends StatelessWidget {
               ),
               Text(
                 WawatContent.text(content, 'create.package_min_one'),
-                style: const TextStyle(
-                  color: _ink400,
+                style: TextStyle(
+                  color: cMuted(isDark),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -3816,8 +3990,8 @@ class _PackageTypeSheet extends StatelessWidget {
               content,
               'create.package_sheet_subtitle',
             ),
-            style: const TextStyle(
-              color: _ink500,
+            style: TextStyle(
+              color: cText2(isDark),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -3843,10 +4017,16 @@ class _PackageTypeSheet extends StatelessWidget {
                   duration: const Duration(milliseconds: 150),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: selected ? softAccent : Colors.white,
+                    color: selected
+                        ? selBg
+                        : (isDark ? WawatDark.surfaceAlt : Colors.white),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: selected ? accent : const Color(0x120F172A),
+                      color: selected
+                          ? accentFg
+                          : (isDark
+                              ? WawatDark.border
+                              : const Color(0x120F172A)),
                       width: selected ? 1.5 : 1,
                     ),
                   ),
@@ -3854,7 +4034,7 @@ class _PackageTypeSheet extends StatelessWidget {
                     children: [
                       Icon(
                         _packageIconFor(item),
-                        color: selected ? accent : _ink500,
+                        color: selected ? accentFg : cText2(isDark),
                         size: 21,
                       ),
                       const SizedBox(width: 8),
@@ -3864,7 +4044,7 @@ class _PackageTypeSheet extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: selected ? accent : _ink800,
+                            color: selected ? accentFg : cText3(isDark),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -3872,7 +4052,7 @@ class _PackageTypeSheet extends StatelessWidget {
                       ),
                       if (selected)
                         Icon(PhosphorIconsFill.checkCircle,
-                            color: accent, size: 20),
+                            color: accentFg, size: 20),
                     ],
                   ),
                 ),
@@ -3936,6 +4116,13 @@ class _PackageChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBrand = accent == _brand;
+    final accentFg =
+        isDark ? (isBrand ? WawatDark.brandText : WawatDark.warning) : accent;
+    final selBg = isDark
+        ? (isBrand ? WawatDark.brandChip : WawatDark.warningBg)
+        : softAccent;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -3944,15 +4131,18 @@ class _PackageChip extends StatelessWidget {
         height: 58,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? softAccent : Colors.white,
+          color:
+              selected ? selBg : (isDark ? WawatDark.surfaceAlt : Colors.white),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: selected ? accent : const Color(0x120F172A),
+              color: selected
+                  ? accentFg
+                  : (isDark ? WawatDark.border : const Color(0x120F172A)),
               width: selected ? 2 : 1),
         ),
         child: Row(
           children: [
-            Icon(icon, color: selected ? accent : _ink800, size: 20),
+            Icon(icon, color: selected ? accentFg : cText3(isDark), size: 20),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -3960,14 +4150,14 @@ class _PackageChip extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: selected ? accent : _ink800,
+                  color: selected ? accentFg : cText3(isDark),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             if (selected)
-              Icon(PhosphorIconsFill.checkCircle, color: accent, size: 16),
+              Icon(PhosphorIconsFill.checkCircle, color: accentFg, size: 16),
           ],
         ),
       ),
@@ -3997,10 +4187,10 @@ class _BottomCta extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cBar(isDark),
         border: Border(
           top: BorderSide(
-              color: isDark ? Colors.white10 : const Color(0x0F0F172A)),
+              color: isDark ? WawatDark.divider : const Color(0x0F0F172A)),
         ),
       ),
       child: SafeArea(
@@ -4115,6 +4305,7 @@ class _SecondaryAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onTap,
@@ -4122,20 +4313,20 @@ class _SecondaryAction extends StatelessWidget {
         height: 52,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: _brand50,
+          color: isDark ? WawatDark.surfaceAlt : _brand50,
           borderRadius: BorderRadius.circular(17),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, color: _ink500, size: 19),
+              Icon(icon, color: cText2(isDark), size: 19),
               const SizedBox(width: 8),
             ],
             Text(
               label,
-              style: const TextStyle(
-                color: _ink500,
+              style: TextStyle(
+                color: cText2(isDark),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
