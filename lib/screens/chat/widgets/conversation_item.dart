@@ -86,9 +86,7 @@ class ConversationItem extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: unread
-                                  ? (isDark
-                                      ? WawatDark.textPrimary
-                                      : _ink900)
+                                  ? (isDark ? WawatDark.textPrimary : _ink900)
                                   : (isDark
                                       ? WawatDark.textSecondary
                                       : _ink500),
@@ -181,8 +179,8 @@ class _Avatar extends StatelessWidget {
           child: user.avatarUrl.isEmpty
               ? Text(
                   user.initials,
-                  style: const TextStyle(
-                    color: _brand,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.brandText : _brand,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -200,8 +198,7 @@ class _Avatar extends StatelessWidget {
                 color: _emerald,
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: isDark ? WawatDark.surface : Colors.white,
-                    width: 2),
+                    color: isDark ? WawatDark.surface : Colors.white, width: 2),
               ),
             ),
           ),

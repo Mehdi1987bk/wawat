@@ -205,6 +205,7 @@ class _ChatInputState extends State<ChatInput> {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: isDark ? WawatDark.surface : Colors.white,
+      barrierColor: isDark ? WawatDark.scrim : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
@@ -219,9 +220,7 @@ class _ChatInputState extends State<ChatInput> {
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? WawatDark.iconMuted
-                        : const Color(0xFFCBD5E1),
+                    color: isDark ? WawatDark.grab : const Color(0xFFCBD5E1),
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -266,7 +265,7 @@ class _AttachTile extends StatelessWidget {
           color: isDark ? WawatDark.brandSoft : const Color(0xFFEAF3FE),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: _brand),
+        child: Icon(icon, color: isDark ? WawatDark.brandText : _brand),
       ),
       title: Text(
         label,

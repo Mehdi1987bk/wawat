@@ -455,6 +455,9 @@ class _PillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final visual = _cardVisual(card.type);
+    // On graphite, lift the deliberately-dark status hue to its palette
+    // equivalent so it stays legible on the dark pill; light keeps it exactly.
+    final tone = isDark ? _darkCardColor(visual.color) : visual.color;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -469,14 +472,14 @@ class _PillCard extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(visual.icon, color: visual.color, size: 16),
+                Icon(visual.icon, color: tone, size: 16),
                 const SizedBox(width: 6),
                 Text(
                   card.label.isEmpty
                       ? _fallbackCardLabel(card.type)
                       : card.label,
                   style: TextStyle(
-                    color: visual.color,
+                    color: tone,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -644,9 +647,9 @@ class _ProposalCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const _DealAvatar(
+              _DealAvatar(
                 icon: PhosphorIconsFill.paperPlaneTilt,
-                color: _brand,
+                color: isDark ? WawatDark.brandText : _brand,
                 background: _brand50,
               ),
               const SizedBox(width: 10),
@@ -664,14 +667,15 @@ class _ProposalCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color:
-                                  isDark ? WawatDark.textPrimary : _ink900,
+                              color: isDark ? WawatDark.textPrimary : _ink900,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        if (message.isMine && !awaitingMe && isCurrentOffer) ...[
+                        if (message.isMine &&
+                            !awaitingMe &&
+                            isCurrentOffer) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -717,8 +721,8 @@ class _ProposalCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   price,
-                  style: const TextStyle(
-                    color: _brand,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.brandText : _brand,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -752,7 +756,7 @@ class _ProposalCard extends StatelessWidget {
                     child: _DealButton(
                       label: 'Dəyiş',
                       background: isDark ? WawatDark.brandSoft : _brand50,
-                      textColor: _brand,
+                      textColor: isDark ? WawatDark.brandText : _brand,
                       onTap: () =>
                           onShipmentAction!(card.shipmentId!, 'counter'),
                     ),
@@ -808,10 +812,10 @@ class _CompletedCard extends StatelessWidget {
       time: message.timeString(context),
       child: Row(
         children: [
-          const _DealAvatar(
+          _DealAvatar(
             icon: PhosphorIconsFill.sealCheck,
-            color: Color(0xFF10B981),
-            background: Color(0xFFECFDF5),
+            color: isDark ? WawatDark.success : const Color(0xFF10B981),
+            background: const Color(0xFFECFDF5),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -846,7 +850,7 @@ class _CompletedCard extends StatelessWidget {
               label: 'Rəy',
               icon: PhosphorIconsFill.star,
               background: isDark ? WawatDark.brandSoft : _brand50,
-              textColor: _brand,
+              textColor: isDark ? WawatDark.brandText : _brand,
               onTap: () => onReview!(card.shipmentId!),
             ),
           ],
@@ -879,10 +883,10 @@ class _DisputedCard extends StatelessWidget {
       background: const Color(0xFFFFFBEB),
       child: Row(
         children: [
-          const _DealAvatar(
+          _DealAvatar(
             icon: PhosphorIconsFill.warningOctagon,
-            color: Color(0xFFD97706),
-            background: Color(0xFFFDE68A),
+            color: isDark ? WawatDark.warning : const Color(0xFFD97706),
+            background: const Color(0xFFFDE68A),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1133,6 +1137,20 @@ class _CardVisual {
   final Color background;
 
   const _CardVisual(this.icon, this.color, this.background);
+}
+
+/// Maps a light-mode status-pill hue to its graphite-palette equivalent so the
+/// icon and label stay legible on the dark pill. Brand blue → brand text.
+Color _darkCardColor(Color light) {
+  if (light == const Color(0xFF047857)) return WawatDark.success; // done green
+  if (light == const Color(0xFFDC2626)) return WawatDark.dangerText; // declined
+  if (light == const Color(0xFFD97706)) return WawatDark.warning; // disputed
+  if (light == const Color(0xFF4F46E5)) {
+    return WawatDark.tierPlatinumText; // delivered indigo
+  }
+  if (light == _brand) return WawatDark.brandText; // brand blue
+  if (light == _ink500) return WawatDark.textMuted; // cancelled/expired slate
+  return light;
 }
 
 _CardVisual _cardVisual(String type) {

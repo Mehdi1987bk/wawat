@@ -39,7 +39,7 @@ Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
 Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink700;
 Color _cText3(bool d) => d ? WawatDark.textSecondary : _ink500;
 Color _cMuted(bool d) => d ? WawatDark.textMuted : _ink400;
-Color _cGrip(bool d) => d ? WawatDark.iconMuted : const Color(0xFFCBD5E1);
+Color _cGrip(bool d) => d ? WawatDark.grab : const Color(0xFFCBD5E1);
 Color _cBrandSoft(bool d) => d ? WawatDark.brandSoft : _brand50;
 Color _cHeaderLine(bool d) =>
     d ? WawatDark.divider : _ink900.withValues(alpha: 0.06);
@@ -434,11 +434,12 @@ class _ChatConversationScreenState
   }
 
   Future<Map<String, dynamic>?> _showCounterDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: _ink900.withValues(alpha: 0.4),
+      barrierColor: isDark ? WawatDark.scrim : _ink900.withValues(alpha: 0.4),
       builder: (_) => _CounterSheet(content: _content),
     );
   }
@@ -482,11 +483,12 @@ class _ChatConversationScreenState
   }
 
   Future<void> _showReviewDialog(String shipmentId) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final result = await showModalBottomSheet<_ReviewResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: _ink900.withValues(alpha: 0.4),
+      barrierColor: isDark ? WawatDark.scrim : _ink900.withValues(alpha: 0.4),
       builder: (_) => _ReviewSheet(content: _content),
     );
     if (result == null) return;
@@ -558,6 +560,7 @@ class _ChatConversationScreenState
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: _cSurface(isDark),
+      barrierColor: isDark ? WawatDark.scrim : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -661,6 +664,7 @@ class _ChatConversationScreenState
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: _cSurface(isDark),
+      barrierColor: isDark ? WawatDark.scrim : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
@@ -698,8 +702,8 @@ class _ChatConversationScreenState
                           ),
                           Text(
                             _t('chat.action.profile'),
-                            style: TextStyle(
-                                color: _cMuted(isDark), fontSize: 12),
+                            style:
+                                TextStyle(color: _cMuted(isDark), fontSize: 12),
                           ),
                         ],
                       ),
@@ -890,9 +894,7 @@ class _ConversationHeader extends StatelessWidget {
                           user.getLastSeenText(context),
                           maxLines: 1,
                           style: TextStyle(
-                            color: user.isOnline
-                                ? _emerald
-                                : _cMuted(isDark),
+                            color: user.isOnline ? _emerald : _cMuted(isDark),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1013,7 +1015,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                       3,
                       (index) => _HtmlTypingDot(
                         color: isDark
-                            ? WawatDark.textMuted
+                            ? WawatDark.textSecondary
                             : const Color(0xFF94A3B8),
                         state: _typingDotStateAt(
                           elapsedSeconds,
@@ -1124,8 +1126,7 @@ class _HeaderAvatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _emerald,
                 shape: BoxShape.circle,
-                border: Border.all(
-                    color: _cSurface(isDark), width: 2),
+                border: Border.all(color: _cSurface(isDark), width: 2),
               ),
             ),
           ),
@@ -1160,8 +1161,7 @@ class _DotPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Fill only this widget's rect — NOT canvas.drawColor(), which floods the
     // whole canvas clip and would paint over sibling widgets.
-    canvas.drawRect(
-        Offset.zero & size, Paint()..color = _cThreadBg(isDark));
+    canvas.drawRect(Offset.zero & size, Paint()..color = _cThreadBg(isDark));
     final paint = Paint()
       ..color = isDark
           ? Colors.white.withValues(alpha: 0.035)
@@ -1191,9 +1191,8 @@ class _DateSeparator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: isDark
-              ? WawatDark.surfaceAlt
-              : _ink900.withValues(alpha: 0.06),
+          color:
+              isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(99),
         ),
         child: Text(
@@ -1408,8 +1407,7 @@ class _CounterSheetState extends State<_CounterSheet> {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           decoration: BoxDecoration(
             color: _cSurface(isDark),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(26)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1600,8 +1598,8 @@ class _CounterField extends StatelessWidget {
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(
-            color: _cMuted(isDark), fontWeight: FontWeight.w500),
+        hintStyle:
+            TextStyle(color: _cMuted(isDark), fontWeight: FontWeight.w500),
         suffixText: suffix,
         suffixStyle: TextStyle(
           color: _cMuted(isDark),
@@ -1609,24 +1607,21 @@ class _CounterField extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
         filled: true,
-        fillColor: isDark
-            ? WawatDark.surfaceAlt
-            : _ink900.withValues(alpha: 0.02),
+        fillColor:
+            isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.02),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-              color: isDark
-                  ? WawatDark.border
-                  : _ink900.withValues(alpha: 0.07)),
+              color:
+                  isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-              color: isDark
-                  ? WawatDark.border
-                  : _ink900.withValues(alpha: 0.07)),
+              color:
+                  isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -1693,8 +1688,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           decoration: BoxDecoration(
             color: _cSurface(isDark),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(26)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

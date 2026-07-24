@@ -227,6 +227,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: isDark ? WawatDark.surface : Colors.white,
+      barrierColor: isDark ? WawatDark.scrim : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
@@ -241,9 +242,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? WawatDark.iconMuted
-                        : const Color(0xFFCBD5E1),
+                    color: isDark ? WawatDark.grab : const Color(0xFFCBD5E1),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -255,8 +254,8 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                       backgroundColor: isDark ? WawatDark.brandSoft : _brand50,
                       child: Text(
                         conversation.user.initials,
-                        style: const TextStyle(
-                          color: _brand,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.brandText : _brand,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -269,8 +268,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                           Text(
                             conversation.user.fullname,
                             style: TextStyle(
-                              color:
-                                  isDark ? WawatDark.textPrimary : _ink900,
+                              color: isDark ? WawatDark.textPrimary : _ink900,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
@@ -496,7 +494,7 @@ class _EmptyState extends StatelessWidget {
                 showArchived
                     ? PhosphorIconsRegular.archive
                     : PhosphorIconsRegular.chatsCircle,
-                color: _brand,
+                color: isDark ? WawatDark.brandText : _brand,
                 size: 44,
               ),
             ),
@@ -564,9 +562,11 @@ class _ChatSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SkeletonBox(width: 140, height: 14, radius: 8, isDark: isDark),
+                  _SkeletonBox(
+                      width: 140, height: 14, radius: 8, isDark: isDark),
                   const SizedBox(height: 10),
-                  _SkeletonBox(width: 220, height: 12, radius: 8, isDark: isDark),
+                  _SkeletonBox(
+                      width: 220, height: 12, radius: 8, isDark: isDark),
                 ],
               ),
             ),
@@ -597,7 +597,7 @@ class _SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: isDark ? WawatDark.surfaceAlt : const Color(0xFFE2E8F0),
+        color: isDark ? WawatDark.skeletonBase : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(radius),
       ),
     );
