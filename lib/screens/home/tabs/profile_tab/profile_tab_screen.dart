@@ -6,10 +6,13 @@ import '../../../../data/network/response/listing_response.dart';
 import '../../../../domain/entities/pagination.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
+import '../../../../services/wawat_content.dart';
 import '../../../chat/chat/chat_list_screen.dart';
 import '../fovorite/fovorite_offer_screen.dart';
 import '../home_tab/search/search_offer_list_screen.dart';
+import '../listings/promotion/promotion_screens.dart';
 import 'faq/faq_screen.dart';
+import 'blocked_users/blocked_users_screen.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
@@ -31,9 +34,7 @@ const _ink100 = Color(0xFFF1F5F9);
 const _screen = Color(0xFFF4F6F9);
 
 String _text(Map<String, String> content, String key, String fallback) {
-  final value = content[key];
-  if (value == null || value.trim().isEmpty || value == key) return fallback;
-  return value;
+  return WawatContent.text(content, key, fallback);
 }
 
 class ProfileTabScreen extends StatefulWidget {
@@ -54,28 +55,19 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   Future<WawatProfileBundle> _load() async {
-    final contentFuture = _api.content();
-    final user = await _api.me();
-    final listingsFuture = _api.myListings().catchError(
-          (_) => Pagination<Listing>(data: const [], lastPage: 1),
-        );
-    final reviewsFuture = _api.reviews(user.id).catchError(
-          (_) => const WawatReviewResponse(
-            data: [],
-            distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
-          ),
-        );
     final results = await Future.wait<dynamic>([
-      contentFuture,
-      listingsFuture,
-      reviewsFuture,
+      _api.content(),
+      _api.me(),
     ]);
 
     return WawatProfileBundle(
-      user: user,
+      user: results[1] as WawatProfileUser,
       content: results[0] as Map<String, String>,
-      listings: results[1] ?? Pagination<Listing>(data: const [], lastPage: 1),
-      reviews: results[2] as WawatReviewResponse,
+      listings: Pagination<Listing>(data: const [], lastPage: 1),
+      reviews: const WawatReviewResponse(
+        data: [],
+        distribution: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+      ),
       packageNames: const {},
     );
   }
@@ -414,6 +406,15 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         onTap: () => _push(DeliveryFullListScreen()),
                       ),
                       _MenuRow(
+                        icon: PhosphorIconsFill.rocketLaunch,
+                        label: _text(
+                          content,
+                          'menu.promotions',
+                          'Promosyonlarım',
+                        ),
+                        onTap: () => _push(const MyPromotionsScreen()),
+                      ),
+                      _MenuRow(
                         icon: PhosphorIconsFill.handshake,
                         label: _text(content, 'menu.deals', 'Sövdələşmələrim'),
                         onTap: () => _push(ChatListScreen()),
@@ -436,28 +437,20 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.users,
-                        label: _text(content, 'menu.followers', 'İzləyicilər'),
-                        trailingText: '${user.followersCount}',
-                        onTap: () => _push(
-                          WawatFollowListScreen(
-                            api: _api,
-                            user: user,
-                            content: content,
-                            following: false,
-                          ),
+                        label: _text(
+                          content,
+                          'menu.connections',
+                          'İzləyicilər və izlədiklərim',
                         ),
-                      ),
-                      _MenuRow(
-                        icon: PhosphorIconsFill.userCheck,
-                        label: _text(content, 'menu.following', 'İzlədiklərim'),
-                        trailingText: '${user.followingCount}',
+                        trailingText:
+                            '${user.followersCount} / ${user.followingCount}',
                         isLast: true,
                         onTap: () => _push(
                           WawatFollowListScreen(
                             api: _api,
                             user: user,
                             content: content,
-                            following: true,
+                            following: false,
                           ),
                         ),
                       ),
@@ -472,33 +465,17 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         icon: PhosphorIconsFill.star,
                         label: _text(
                           content,
-                          'menu.reviews_received',
-                          'Aldığım rəylər',
+                          'menu.reviews',
+                          'Rəylərim',
                         ),
                         badge: reviewsCount > 0 ? '$reviewsCount' : null,
-                        onTap: () => _push(
-                          WawatReviewsScreen(
-                            api: _api,
-                            user: user,
-                            content: content,
-                            canReply: true,
-                          ),
-                        ),
-                      ),
-                      _MenuRow(
-                        icon: PhosphorIconsFill.chatText,
-                        label: _text(
-                          content,
-                          'menu.reviews_left',
-                          'Yazdığım rəylər',
-                        ),
                         isLast: true,
                         onTap: () => _push(
                           WawatReviewsScreen(
                             api: _api,
                             user: user,
                             content: content,
-                            left: true,
+                            canReply: true,
                           ),
                         ),
                       ),
@@ -548,16 +525,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                             content: content,
                           ),
                         ),
-                      ),
-                      _MenuRow(
-                        icon: PhosphorIconsFill.envelopeSimple,
-                        label: _text(content, 'menu.email', 'E-poçt'),
-                        trailingText: _shortEmail(user.email),
                         isLast: true,
-                        onTap: () => _openUnavailable(
-                          content,
-                          _text(content, 'menu.email', 'E-poçt'),
-                        ),
                       ),
                     ],
                   ),
@@ -600,14 +568,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           'Bloklanmış istifadəçilər',
                         ),
                         isLast: true,
-                        onTap: () => _openUnavailable(
-                          content,
-                          _text(
-                            content,
-                            'menu.blocked_users',
-                            'Bloklanmış istifadəçilər',
-                          ),
-                        ),
+                        onTap: () => _push(BlockedUsersScreen()),
                       ),
                     ],
                   ),
@@ -1258,13 +1219,6 @@ class _MenuError extends StatelessWidget {
       ),
     );
   }
-}
-
-String _shortEmail(String? email) {
-  if (email == null || email.trim().isEmpty) return '';
-  final parts = email.split('@');
-  if (parts.length != 2 || parts.first.length < 4) return email;
-  return '${parts.first.substring(0, 3)}@…';
 }
 
 String _localeName(String? code) {

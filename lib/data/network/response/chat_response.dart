@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
+enum ChatMessageDeliveryStatus {
+  sending,
+  sent,
+  failed,
+}
+
 class ChatUser {
   final int id;
+  final String? publicId;
   final String? username;
   final String fullname;
   final String? avatar;
@@ -11,6 +18,7 @@ class ChatUser {
 
   const ChatUser({
     required this.id,
+    this.publicId,
     this.username,
     required this.fullname,
     this.avatar,
@@ -20,12 +28,15 @@ class ChatUser {
   });
 
   factory ChatUser.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id'];
     final name = _string(json['fullname']) ??
         _string(json['name']) ??
         _string(json['username']) ??
         '';
     return ChatUser(
-      id: _int(json['id']) ?? 0,
+      id: _int(rawId) ?? _int(json['numeric_id']) ?? 0,
+      publicId: _string(json['public_id']) ??
+          (_int(rawId) == null ? _string(rawId) : null),
       username: _string(json['username']),
       fullname: name,
       avatar: _string(json['avatar']),
@@ -35,6 +46,8 @@ class ChatUser {
       isBlocked: _bool(json['is_blocked']),
     );
   }
+
+  Object get apiId => publicId ?? id;
 
   String get avatarUrl {
     if (avatar == null || avatar!.isEmpty) return '';
@@ -148,6 +161,8 @@ class ChatMessage {
   final String? editedAt;
   final bool isMine;
   final bool? isRead;
+  final ChatMessageDeliveryStatus deliveryStatus;
+  final String? localImagePath;
 
   const ChatMessage({
     required this.id,
@@ -161,6 +176,8 @@ class ChatMessage {
     this.editedAt,
     this.isMine = false,
     this.isRead,
+    this.deliveryStatus = ChatMessageDeliveryStatus.sent,
+    this.localImagePath,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
@@ -181,6 +198,38 @@ class ChatMessage {
       editedAt: _string(json['edited_at']),
       isMine: _bool(json['is_mine']),
       isRead: json.containsKey('is_read') ? _bool(json['is_read']) : null,
+    );
+  }
+
+  ChatMessage copyWith({
+    String? id,
+    String? type,
+    String? body,
+    ChatFile? file,
+    ChatImage? image,
+    ChatUser? user,
+    ChatCard? card,
+    String? createdAt,
+    String? editedAt,
+    bool? isMine,
+    bool? isRead,
+    ChatMessageDeliveryStatus? deliveryStatus,
+    String? localImagePath,
+  }) {
+    return ChatMessage(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      body: body ?? this.body,
+      file: file ?? this.file,
+      image: image ?? this.image,
+      user: user ?? this.user,
+      card: card ?? this.card,
+      createdAt: createdAt ?? this.createdAt,
+      editedAt: editedAt ?? this.editedAt,
+      isMine: isMine ?? this.isMine,
+      isRead: isRead ?? this.isRead,
+      deliveryStatus: deliveryStatus ?? this.deliveryStatus,
+      localImagePath: localImagePath ?? this.localImagePath,
     );
   }
 
@@ -374,6 +423,10 @@ class ShipmentData {
   final String statusLabel;
   final bool isAwaitingMe;
   final List<String> availableActions;
+  final String? packageTypeCode;
+  final double? weightKg;
+  final double? priceTotal;
+  final String? note;
 
   const ShipmentData({
     required this.id,
@@ -381,6 +434,10 @@ class ShipmentData {
     required this.statusLabel,
     required this.isAwaitingMe,
     required this.availableActions,
+    this.packageTypeCode,
+    this.weightKg,
+    this.priceTotal,
+    this.note,
   });
 
   factory ShipmentData.fromJson(Map<String, dynamic> json) {
@@ -393,6 +450,10 @@ class ShipmentData {
           (json['available_actions'] as List<dynamic>? ?? const [])
               .map((e) => e.toString())
               .toList(),
+      packageTypeCode: _string(json['package_type_code']),
+      weightKg: _double(json['weight_kg']),
+      priceTotal: _double(json['price_total']),
+      note: _string(json['note']),
     );
   }
 }
@@ -409,6 +470,11 @@ int? _int(dynamic value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString() ?? '');
+}
+
+double? _double(dynamic value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '');
 }
 
 bool _bool(dynamic value) {

@@ -8,6 +8,7 @@ import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/package_types_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../main.dart';
+import '../../../../../services/wawat_content.dart';
 import 'profile_models.dart';
 
 class WawatProfileApi {
@@ -15,35 +16,10 @@ class WawatProfileApi {
 
   WawatProfileApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
-  Future<Map<String, String>> content() async {
-    final result = <String, String>{};
-    for (final group in const ['profile', 'review', 'listing', 'menu']) {
-      try {
-        final response = await _dio.get<Map<String, dynamic>>(
-          '$baseUrl/content',
-          queryParameters: {'group': group},
-        );
-        final data = response.data?['data'];
-        if (data is Map) {
-          result.addAll(
-            data.map(
-                (key, value) => MapEntry(key.toString(), value.toString())),
-          );
-        }
-      } catch (_) {
-        // CMS must not block profile rendering.
-      }
-    }
-    return result;
-  }
+  Future<Map<String, String>> content() => WawatContent.loadAll();
 
   Future<WawatProfileUser> me() async {
-    Response<Map<String, dynamic>> response;
-    try {
-      response = await _dio.get<Map<String, dynamic>>('$baseUrl/me');
-    } catch (_) {
-      response = await _dio.get<Map<String, dynamic>>('$baseUrl/auth/me');
-    }
+    final response = await _dio.get<Map<String, dynamic>>('$baseUrl/auth/me');
     return WawatProfileResponse.fromJson(response.data ?? const {}).data;
   }
 

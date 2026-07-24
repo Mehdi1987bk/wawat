@@ -14,6 +14,7 @@ import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
 import '../home_tab/widget/city_selector.dart';
 import '../profile_tab/see_more_offers/delivery_full_list_screen.dart';
+import '../listings/promotion/promotion_screens.dart';
 import 'create_post_bloc.dart';
 import 'listing_limit_gate_screen.dart';
 
@@ -522,9 +523,7 @@ class _CreatePostScreenState
   }
 
   String _listingText(String key, [String? fallback]) {
-    final value = _listingContent[key];
-    if (value == null || value.trim().isEmpty) return fallback ?? key;
-    return value;
+    return WawatContent.text(_listingContent, key, fallback);
   }
 
   String _enumText(String key, [String? fallback]) {
@@ -881,105 +880,13 @@ class _CreatePostScreenState
   }
 
   Widget _buildSuccess(bool isDark, ListingResponse response) {
-    final matches = response.meta?.matches ?? 0;
-    final displayMatches = matches > 0 ? matches : 3;
-    final remaining = response.meta?.remainingListings;
-    return Container(
-      color: Colors.white,
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 58, 24, 24),
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 100),
-                    width: 96,
-                    height: 96,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFECFDF5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(PhosphorIconsFill.checkCircle,
-                        color: _emerald, size: 58),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    _listingText(
-                      'create.success_title',
-                    ),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _ink900,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _listingText(
-                      'create.success_subtitle',
-                    ),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _ink500,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  if (remaining != null)
-                    _ResultTile(
-                      icon: PhosphorIconsFill.stack,
-                      title: _listingText(
-                        _isTrip
-                            ? 'create.success_remaining_trip'
-                            : 'create.success_remaining_shipment',
-                      ).replaceAll('{count}', '$remaining'),
-                      subtitle: _listingText(
-                        _isTrip
-                            ? 'create.success_quota_trip'
-                            : 'create.success_quota_shipment',
-                      ).replaceAll('{used}', '${3 - remaining}'),
-                      accent: _brand,
-                    ),
-                  const SizedBox(height: 12),
-                  _ResultTile(
-                    icon: _isTrip
-                        ? PhosphorIconsFill.package
-                        : PhosphorIconsFill.airplaneTakeoff,
-                    title: _listingText(
-                      _isTrip
-                          ? 'create.success_matches_shipments'
-                          : 'create.success_matches_travelers',
-                    ).replaceAll('{count}', '$displayMatches'),
-                    subtitle:
-                        '${_fromCity?.name ?? '-'} → ${_toCity?.name ?? '-'}',
-                    accent: _brand,
-                    highlighted: true,
-                    actionLabel: _listingText(
-                      _isTrip
-                          ? 'create.success_view_shipments'
-                          : 'create.success_view_travelers',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          _SuccessBottomCta(
-            content: _listingContent,
-            onNewListing: _reset,
-            onMyListings: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => DeliveryFullListScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+    return PromotionPostCreateUpsell(
+      listing: response.data,
+      onSkip: () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => DeliveryFullListScreen()),
+        );
+      },
     );
   }
 

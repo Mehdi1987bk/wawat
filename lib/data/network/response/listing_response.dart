@@ -15,6 +15,18 @@ int? _intFromJson(Object? value) {
   return int.tryParse(value.toString());
 }
 
+bool _boolFromJson(Object? value) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final normalized = value?.toString().trim().toLowerCase();
+  return normalized == 'true' || normalized == '1';
+}
+
+String? _stringFromJson(Object? value) {
+  final result = value?.toString().trim();
+  return result == null || result.isEmpty ? null : result;
+}
+
 @JsonSerializable()
 class ListingResponse {
   final Listing data;
@@ -102,6 +114,8 @@ class Listing {
   @JsonKey(name: 'promotion_type')
   final String? promotionType;
 
+  final ListingPromotion? promotion;
+
   @JsonKey(name: 'favorites_count', fromJson: _intFromJson)
   final int? favoritesCount;
 
@@ -109,6 +123,9 @@ class Listing {
   final bool isFavorited;
 
   final ListingOwner? owner;
+
+  @JsonKey(name: 'owner_id')
+  final String? ownerId;
 
   @JsonKey(name: 'flight_date')
   final String? flightDate;
@@ -157,9 +174,11 @@ class Listing {
     this.description,
     this.viewCount,
     this.promotionType,
+    this.promotion,
     this.favoritesCount,
     this.isFavorited = false,
     this.owner,
+    this.ownerId,
     this.flightDate,
     this.flightTime,
     this.flightNumber,
@@ -186,6 +205,62 @@ class Listing {
       _$ListingFromJson(json);
 
   Map<String, dynamic> toJson() => _$ListingToJson(this);
+}
+
+class ListingPromotion {
+  final String? id;
+  final String type;
+  final String typeLabel;
+  final String? tier;
+  final String? tierLabel;
+  final String? status;
+  final String? statusLabel;
+  final String? startsAt;
+  final String? endsAt;
+  final int? remainingSeconds;
+
+  const ListingPromotion({
+    this.id,
+    required this.type,
+    required this.typeLabel,
+    this.tier,
+    this.tierLabel,
+    this.status,
+    this.statusLabel,
+    this.startsAt,
+    this.endsAt,
+    this.remainingSeconds,
+  });
+
+  factory ListingPromotion.fromJson(Map<String, dynamic> json) {
+    return ListingPromotion(
+      id: _stringFromJson(json['id']),
+      type: json['type']?.toString() ?? '',
+      typeLabel: json['type_label']?.toString() ?? '',
+      tier: _stringFromJson(json['tier']),
+      tierLabel: _stringFromJson(json['tier_label']),
+      status: _stringFromJson(json['status']) ?? 'active',
+      statusLabel: _stringFromJson(json['status_label']),
+      startsAt: _stringFromJson(json['starts_at']),
+      endsAt: _stringFromJson(json['ends_at']),
+      remainingSeconds: _intFromJson(json['remaining_seconds']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'type': type,
+      'type_label': typeLabel,
+      if (tier != null) 'tier': tier,
+      if (tierLabel != null) 'tier_label': tierLabel,
+      if (status != null) 'status': status,
+      if (statusLabel != null) 'status_label': statusLabel,
+      if (startsAt != null) 'starts_at': startsAt,
+      if (endsAt != null) 'ends_at': endsAt,
+      if (remainingSeconds != null) 'remaining_seconds': remainingSeconds,
+    };
+  }
 }
 
 @JsonSerializable()
@@ -245,8 +320,31 @@ class ListingOwner {
     return username ?? '';
   }
 
-  factory ListingOwner.fromJson(Map<String, dynamic> json) =>
-      _$ListingOwnerFromJson(json);
+  factory ListingOwner.fromJson(Map<String, dynamic> json) {
+    final nestedUser = json['user'] is Map
+        ? Map<String, dynamic>.from(json['user'] as Map)
+        : const <String, dynamic>{};
+    Object? value(String key) => json[key] ?? nestedUser[key];
+    final normalized = Map<String, dynamic>.from(json)
+      ..['id'] = _stringFromJson(
+        value('id') ??
+            value('user_id') ??
+            value('ulid') ??
+            value('uuid') ??
+            json['owner_id'],
+      )
+      ..['username'] = _stringFromJson(value('username'))
+      ..['first_name'] = _stringFromJson(value('first_name'))
+      ..['last_name'] = _stringFromJson(value('last_name'))
+      ..['full_name'] = _stringFromJson(value('full_name') ?? value('fullname'))
+      ..['is_verified'] = _boolFromJson(value('is_verified'))
+      ..['tier'] = _stringFromJson(value('tier'))
+      ..['rating_avg'] = value('rating_avg')
+      ..['rating_count'] = value('rating_count')
+      ..['completed_shipments_count'] = value('completed_shipments_count')
+      ..['avg_response_minutes'] = value('avg_response_minutes');
+    return _$ListingOwnerFromJson(normalized);
+  }
 
   Map<String, dynamic> toJson() => _$ListingOwnerToJson(this);
 }

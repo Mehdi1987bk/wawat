@@ -66,11 +66,16 @@ Listing _$ListingFromJson(Map<String, dynamic> json) => Listing(
       description: json['description'] as String?,
       viewCount: _intFromJson(json['view_count']),
       promotionType: json['promotion_type'] as String?,
+      promotion: json['promotion'] == null
+          ? null
+          : ListingPromotion.fromJson(
+              json['promotion'] as Map<String, dynamic>),
       favoritesCount: _intFromJson(json['favorites_count']),
       isFavorited: json['is_favorited'] as bool? ?? false,
       owner: json['owner'] == null
           ? null
           : ListingOwner.fromJson(json['owner'] as Map<String, dynamic>),
+      ownerId: json['owner_id']?.toString(),
       flightDate: json['flight_date'] as String?,
       flightTime: json['flight_time'] as String?,
       flightNumber: json['flight_number'] as String?,
@@ -98,9 +103,11 @@ Map<String, dynamic> _$ListingToJson(Listing instance) => <String, dynamic>{
       'description': instance.description,
       'view_count': instance.viewCount,
       'promotion_type': instance.promotionType,
+      'promotion': instance.promotion,
       'favorites_count': instance.favoritesCount,
       'is_favorited': instance.isFavorited,
       'owner': instance.owner,
+      'owner_id': instance.ownerId,
       'flight_date': instance.flightDate,
       'flight_time': instance.flightTime,
       'flight_number': instance.flightNumber,

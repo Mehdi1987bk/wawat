@@ -122,6 +122,9 @@ class _Tabs extends StatefulWidget {
 
 class __TabsState extends State<_Tabs> {
   late List<Widget> _tabs;
+  final Set<int> _visitedTabs = {0};
+  final GlobalKey<ChatListScreenState> _chatKey =
+      GlobalKey<ChatListScreenState>();
 
   @override
   void initState() {
@@ -134,13 +137,32 @@ class __TabsState extends State<_Tabs> {
         openResultsInNewPage: true,
       ),
       const SizedBox.shrink(),
-      ChatListScreen(),
+      ChatListScreen(key: _chatKey),
       ProfileTabScreen(),
     ];
   }
 
   @override
+  void didUpdateWidget(covariant _Tabs oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _visitedTabs.add(widget.selectedIndex);
+    if (widget.selectedIndex == 3 && oldWidget.selectedIndex != 3) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _chatKey.currentState?.refreshFromTabFocus();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return _tabs[widget.selectedIndex];
+    return IndexedStack(
+      index: widget.selectedIndex,
+      children: List.generate(
+        _tabs.length,
+        (index) => _visitedTabs.contains(index)
+            ? _tabs[index]
+            : const SizedBox.shrink(),
+      ),
+    );
   }
 }

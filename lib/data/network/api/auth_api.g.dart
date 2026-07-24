@@ -2329,7 +2329,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/chats/unread-count',
+          '/chats/unread-count',
           queryParameters: queryParameters,
           data: _data,
         )

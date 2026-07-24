@@ -3,17 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/listing_response.dart';
-import '../../../../../domain/repositories/auth_repository.dart';
-import '../../../../../main.dart';
+import '../../../../../services/wawat_content.dart';
+import '../../profile_tab/new_profile/new_profile_screen.dart';
 
 Future<Map<String, String>>? _listingContentFuture;
 
 Future<Map<String, String>> _loadListingContent() {
-  return _listingContentFuture ??=
-      sl.get<AuthRepository>().getContent(group: 'listing').then(
-            (response) => response.data,
-            onError: (_) => const <String, String>{},
-          );
+  return _listingContentFuture ??= WawatContent.loadDefault();
 }
 
 typedef ListingFavoriteCallback = Future<void> Function(
@@ -27,6 +23,8 @@ class ListingCard extends StatefulWidget {
   final bool isOwner;
   final bool isCompact;
   final bool actionsEnabled;
+  final String? promotionTypeOverride;
+  final EdgeInsetsGeometry margin;
   final ListingFavoriteCallback? onFavoriteChanged;
   final ValueChanged<Listing>? onOfferTap;
   final ValueChanged<Listing>? onMessageTap;
@@ -35,6 +33,9 @@ class ListingCard extends StatefulWidget {
   final ValueChanged<Listing>? onResumeTap;
   final ValueChanged<Listing>? onRepostTap;
   final ValueChanged<Listing>? onDeleteTap;
+  final ValueChanged<Listing>? onVipTap;
+  final ValueChanged<Listing>? onBoostTap;
+  final ValueChanged<Listing>? onPromotionExtendTap;
 
   const ListingCard({
     super.key,
@@ -43,6 +44,8 @@ class ListingCard extends StatefulWidget {
     this.isOwner = false,
     this.isCompact = false,
     this.actionsEnabled = true,
+    this.promotionTypeOverride,
+    this.margin = const EdgeInsets.fromLTRB(16, 0, 16, 16),
     this.onFavoriteChanged,
     this.onOfferTap,
     this.onMessageTap,
@@ -51,6 +54,9 @@ class ListingCard extends StatefulWidget {
     this.onResumeTap,
     this.onRepostTap,
     this.onDeleteTap,
+    this.onVipTap,
+    this.onBoostTap,
+    this.onPromotionExtendTap,
   });
 
   @override
@@ -88,6 +94,11 @@ class _ListingCardState extends State<ListingCard> {
   Color get _accentSoft =>
       _isTrip ? const Color(0xFFEAF3FE) : const Color(0xFFFFF7ED);
 
+  String? get _promotionType =>
+      widget.promotionTypeOverride ??
+      widget.listing.promotion?.type ??
+      widget.listing.promotionType;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -95,9 +106,8 @@ class _ListingCardState extends State<ListingCard> {
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final mutedColor =
         isDark ? const Color(0xFFB8B8B8) : const Color(0xFF64748B);
-    final borderColor = widget.listing.promotionType == 'vip'
-        ? const Color(0xFFF59E0B)
-        : Colors.transparent;
+    final borderColor =
+        _promotionType == 'vip' ? const Color(0xFFF59E0B) : Colors.transparent;
 
     return FutureBuilder<Map<String, String>>(
       future: _contentFuture,
@@ -111,7 +121,7 @@ class _ListingCardState extends State<ListingCard> {
               : () => widget.onDetailsTap!(widget.listing),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            margin: widget.margin,
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: cardColor,
@@ -120,7 +130,7 @@ class _ListingCardState extends State<ListingCard> {
                 color: borderColor == Colors.transparent
                     ? (isDark ? Colors.white10 : const Color(0x0F0F172A))
                     : borderColor,
-                width: widget.listing.promotionType == 'vip' ? 2 : 1,
+                width: _promotionType == 'vip' ? 2 : 1,
               ),
               boxShadow: [
                 BoxShadow(
@@ -138,9 +148,8 @@ class _ListingCardState extends State<ListingCard> {
                 _buildRoute(textColor, mutedColor),
                 const SizedBox(height: 14),
                 _buildMainMeta(textColor, mutedColor),
-
                 if (!widget.isCompact || _isExpanded) ...[
-                   _buildDetails(textColor, mutedColor, isDark),
+                  _buildDetails(textColor, mutedColor, isDark),
                 ],
                 if (widget.listing.owner != null) ...[
                   const SizedBox(height: 16),
@@ -155,6 +164,13 @@ class _ListingCardState extends State<ListingCard> {
                   widget.isOwner
                       ? _buildOwnerActions()
                       : _buildPublicActions(textColor),
+                ],
+                if (widget.isOwner &&
+                    (widget.onVipTap != null ||
+                        widget.onBoostTap != null ||
+                        widget.onPromotionExtendTap != null)) ...[
+                  const SizedBox(height: 14),
+                  _buildPromotionActions(textColor, mutedColor, content),
                 ],
                 if (widget.isCompact) _buildExpandButton(),
               ],
@@ -189,14 +205,14 @@ class _ListingCardState extends State<ListingCard> {
                 color: _accent,
                 background: _accentSoft,
               ),
-              if (widget.listing.promotionType == 'vip')
+              if (_promotionType == 'vip')
                 _Badge(
                   icon: PhosphorIconsFill.sealCheck,
                   label: content['enum.promotion_type.vip'] ?? 'VİP',
                   color: const Color(0xFF0F172A),
                   background: const Color(0xFFFBBF24),
                 ),
-              if (widget.listing.promotionType == 'featured')
+              if (_promotionType == 'featured')
                 _Badge(
                   icon: PhosphorIconsFill.rocketLaunch,
                   label: content['enum.promotion_type.featured'] ??
@@ -279,7 +295,7 @@ class _ListingCardState extends State<ListingCard> {
                   color: _accent,
                   size: 18,
                 ),
-                 Flexible(
+                Flexible(
                   child: Text(
                     _dateText(context),
                     overflow: TextOverflow.ellipsis,
@@ -295,7 +311,6 @@ class _ListingCardState extends State<ListingCard> {
           ),
         ),
         Spacer(),
-
         if (_isTrip && widget.listing.pricePerKg != null) ...[
           const SizedBox(width: 12),
           Text.rich(
@@ -466,104 +481,120 @@ class _ListingCardState extends State<ListingCard> {
   ) {
     final owner = widget.listing.owner!;
     final initials = _initials(owner.displayName);
+    final ownerId =
+        (owner.id ?? widget.listing.ownerId ?? owner.username ?? '').trim();
 
-    return Container(
-      padding: const EdgeInsets.only(top: 14),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(
-              color: isDark ? Colors.white10 : const Color(0x0F0F172A)),
-        ),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 21,
-            backgroundColor: _accentSoft,
-            child: Text(
-              initials,
-              style: TextStyle(
-                color: _accent,
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: ownerId.isEmpty
+          ? null
+          : () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PublicProfileScreen(
+                    userId: ownerId,
+                    initialOwner: owner,
+                  ),
+                ),
               ),
+      child: Container(
+        padding: const EdgeInsets.only(top: 14),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: isDark ? Colors.white10 : const Color(0x0F0F172A),
             ),
           ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        owner.displayName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    if (owner.isVerified) ...[
-                      const SizedBox(width: 5),
-                      const Icon(
-                        PhosphorIconsFill.sealCheck,
-                        color: Color(0xFF0271EB),
-                        size: 16,
-                      ),
-                    ],
-                    if (_tierLabel(owner.tier, content) != null) ...[
-                      const SizedBox(width: 6),
-                      _TierBadge(tier: owner.tier!, content: content),
-                    ],
-                  ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 21,
+              backgroundColor: _accentSoft,
+              child: Text(
+                initials,
+                style: TextStyle(
+                  color: _accent,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    if (owner.ratingAvg != null) ...[
-                      const Icon(PhosphorIconsFill.star,
-                          color: Color(0xFFFBBF24), size: 15),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatNumber(owner.ratingAvg!),
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          owner.displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                      if (owner.ratingCount != null)
+                      if (owner.isVerified) ...[
+                        const SizedBox(width: 5),
+                        const Icon(
+                          PhosphorIconsFill.sealCheck,
+                          color: Color(0xFF0271EB),
+                          size: 16,
+                        ),
+                      ],
+                      if (_tierLabel(owner.tier, content) != null) ...[
+                        const SizedBox(width: 6),
+                        _TierBadge(tier: owner.tier!, content: content),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      if (owner.ratingAvg != null) ...[
+                        const Icon(PhosphorIconsFill.star,
+                            color: Color(0xFFFBBF24), size: 15),
+                        const SizedBox(width: 4),
                         Text(
-                          ' (${owner.ratingCount})',
+                          _formatNumber(owner.ratingAvg!),
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        if (owner.ratingCount != null)
+                          Text(
+                            ' (${owner.ratingCount})',
+                            style: TextStyle(
+                              color: mutedColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                      ],
+                      if (owner.avgResponseMinutes != null) ...[
+                        Text(' · ', style: TextStyle(color: mutedColor)),
+                        Text(
+                          '~${owner.avgResponseMinutes} dəq cavab',
                           style: TextStyle(
                             color: mutedColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ],
                     ],
-                    if (owner.avgResponseMinutes != null) ...[
-                      Text(' · ', style: TextStyle(color: mutedColor)),
-                      Text(
-                        '~${owner.avgResponseMinutes} dəq cavab',
-                        style: TextStyle(
-                          color: mutedColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -683,31 +714,263 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildExpandButton() {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () => setState(() => _isExpanded = !_isExpanded),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _isExpanded ? 'Yığ' : 'Ətraflı',
-              style: TextStyle(
-                color: _accent,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
+  Widget _buildPromotionActions(
+    Color textColor,
+    Color mutedColor,
+    Map<String, String> content,
+  ) {
+    final promotion = widget.listing.promotion;
+    final promotionType = promotion?.type ?? widget.listing.promotionType;
+    final isVip = promotionType == 'vip';
+    final isFeatured = promotionType == 'featured';
+
+    if (promotionType == null || promotionType.isEmpty) {
+      return Column(
+        children: [
+          if (widget.listing.status == 'pending' ||
+              widget.listing.status == 'in_moderation')
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(11),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                WawatContent.text(
+                  content,
+                  'promotion.pending_activation_note',
+                  'Promosyon indi alına bilər — elan təsdiqlənən kimi avtomatik aktivləşəcək.',
+                ),
+                style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 11,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            const SizedBox(width: 4),
-            AnimatedRotation(
-              turns: _isExpanded ? 0.5 : 0,
-              duration: const Duration(milliseconds: 160),
-              child: Icon(PhosphorIconsRegular.caretDown,
-                  color: _accent, size: 18),
+          Row(
+            children: [
+              Expanded(
+                child: _ActionButton(
+                  label: WawatContent.text(
+                    content,
+                    'promotion.cta.vip',
+                    'VİP et',
+                  ),
+                  icon: PhosphorIconsFill.crownSimple,
+                  background: const Color(0xFFFBBF24),
+                  color: const Color(0xFF0F172A),
+                  onTap: widget.onVipTap == null
+                      ? null
+                      : () => widget.onVipTap!(widget.listing),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ActionButton(
+                  label: WawatContent.text(
+                    content,
+                    'promotion.cta.boost',
+                    'Önə çək',
+                  ),
+                  icon: PhosphorIconsFill.rocketLaunch,
+                  background: const Color(0xFF0271EB),
+                  color: Colors.white,
+                  onTap: widget.onBoostTap == null
+                      ? null
+                      : () => widget.onBoostTap!(widget.listing),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    final remaining = _promotionRemaining(promotion);
+    final accent = isVip ? const Color(0xFFFBBF24) : const Color(0xFF0271EB);
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: accent.withValues(alpha: 0.30)),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isVip
+                        ? PhosphorIconsFill.crownSimple
+                        : PhosphorIconsFill.rocketLaunch,
+                    color: isVip ? const Color(0xFFB45309) : accent,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      isVip
+                          ? WawatContent.text(
+                              content,
+                              'promotion.vip_active',
+                              'VİP aktiv',
+                            )
+                          : '${WawatContent.text(content, 'enum.promotion_type.featured', 'Önə çıxarılan')}${promotion?.tierLabel == null ? '' : ' · ${promotion!.tierLabel}'}',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    remaining,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 9),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  minHeight: 5,
+                  value: _listingPromotionProgress(promotion),
+                  color: accent,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                label: WawatContent.text(
+                  content,
+                  'promotion.cta.extend',
+                  'Uzat',
+                ),
+                icon: PhosphorIconsFill.clockCounterClockwise,
+                background: accent,
+                color: isVip ? const Color(0xFF0F172A) : Colors.white,
+                onTap: widget.onPromotionExtendTap == null
+                    ? null
+                    : () => widget.onPromotionExtendTap!(widget.listing),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _ActionButton(
+                label: isVip
+                    ? WawatContent.text(
+                        content,
+                        'promotion.cta.boost_too',
+                        'Önə də çək',
+                      )
+                    : isFeatured
+                        ? WawatContent.text(
+                            content,
+                            'promotion.cta.upgrade_tier',
+                            'Zolağı yüksəlt',
+                          )
+                        : WawatContent.text(
+                            content,
+                            'promotion.cta.boost',
+                            'Önə çək',
+                          ),
+                icon: isVip
+                    ? PhosphorIconsFill.rocketLaunch
+                    : PhosphorIconsBold.arrowUp,
+                background: const Color(0xFFF8FAFC),
+                color: const Color(0xFF334155),
+                onTap: widget.onBoostTap == null
+                    ? null
+                    : () => widget.onBoostTap!(widget.listing),
+              ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+
+  String _promotionRemaining(ListingPromotion? promotion) {
+    if (promotion == null) return '';
+    var seconds = promotion.remainingSeconds ?? 0;
+    if (seconds <= 0 && promotion.endsAt != null) {
+      final end = DateTime.tryParse(promotion.endsAt!)?.toLocal();
+      if (end != null) {
+        seconds = end.difference(DateTime.now()).inSeconds;
+      }
+    }
+    if (seconds <= 0) return promotion.statusLabel ?? '';
+    final days = seconds ~/ 86400;
+    final hours = (seconds % 86400) ~/ 3600;
+    if (days > 0) return '$days gün $hours saat';
+    if (hours > 0) return '$hours saat';
+    final minutes = (seconds % 3600) ~/ 60;
+    return '$minutes dəq';
+  }
+
+  double _listingPromotionProgress(ListingPromotion? promotion) {
+    if (promotion == null ||
+        promotion.startsAt == null ||
+        promotion.endsAt == null) {
+      return 0;
+    }
+    final start = DateTime.tryParse(promotion.startsAt!)?.toLocal();
+    final end = DateTime.tryParse(promotion.endsAt!)?.toLocal();
+    if (start == null || end == null) return 0;
+    final total = end.difference(start).inSeconds;
+    if (total <= 0) return 1;
+    final elapsed = DateTime.now().difference(start).inSeconds;
+    return (elapsed / total).clamp(0.0, 1.0);
+  }
+
+  Widget _buildExpandButton() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => _isExpanded = !_isExpanded),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: SizedBox(
+          height: 42,
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _isExpanded ? 'Yığ' : 'Ətraflı',
+                style: TextStyle(
+                  color: _accent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(width: 4),
+              AnimatedRotation(
+                turns: _isExpanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 160),
+                child: Icon(
+                  PhosphorIconsRegular.caretDown,
+                  color: _accent,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -47,7 +47,7 @@ class _ListingLimitGateScreenState
   void initState() {
     super.initState();
     bloc.load(widget.type);
-    WawatContent.load().then((content) {
+    WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
   }

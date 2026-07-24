@@ -10,8 +10,17 @@ class ContentResponse {
     this.data = const {},
   });
 
-  factory ContentResponse.fromJson(Map<String, dynamic> json) =>
-      _$ContentResponseFromJson(json);
+  factory ContentResponse.fromJson(Map<String, dynamic> json) {
+    final raw = json['data'];
+    if (raw is Map) {
+      return ContentResponse(
+        data: raw.map(
+          (key, value) => MapEntry(key.toString(), value?.toString() ?? ''),
+        ),
+      );
+    }
+    return ContentResponse();
+  }
 
   Map<String, dynamic> toJson() => _$ContentResponseToJson(this);
 }

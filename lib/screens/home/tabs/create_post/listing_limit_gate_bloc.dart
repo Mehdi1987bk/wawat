@@ -4,6 +4,7 @@ import '../../../../data/network/response/listing_response.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_bloc.dart';
+import '../../../../services/wawat_content.dart';
 
 class ListingLimitGateBloc extends BaseBloc {
   final AuthRepository _authRepository = sl.get<AuthRepository>();
@@ -25,7 +26,7 @@ class ListingLimitGateBloc extends BaseBloc {
   Future<void> load(String type) async {
     _isLoading.add(true);
     try {
-      final contentFuture = _authRepository.getContent(group: 'listing');
+      final contentFuture = WawatContent.loadDefault();
       final listingsFuture =
           _authRepository.getMyListings(page: 1, perPage: 50);
       final content = await contentFuture;
@@ -34,7 +35,7 @@ class ListingLimitGateBloc extends BaseBloc {
           .where((listing) => listing.type == type)
           .where(_occupiesQuotaSlot)
           .toList();
-      _listingContent.add(content.data);
+      _listingContent.add(content);
       _activeListings.add(items);
     } finally {
       _isLoading.add(false);

@@ -1,11 +1,7 @@
-import 'package:buking/presentation/resourses/app_colors.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
-import '../../services/theme_manager.dart';
 import '../home/home_screen.dart';
 import 'Intro_page.dart';
 
@@ -32,7 +28,6 @@ class _SpleshScreenState extends State<SpleshScreen> {
       final isFirstOpen = value.last as bool;
 
       if (isFirstOpen) {
-        sl.get<AuthRepository>().setIsFirstOpen();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -56,34 +51,15 @@ class _SpleshScreenState extends State<SpleshScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        final isDark = themeManager.isDarkMode;
-        final backgroundColor = isDark ? const Color(0xFF121212) : Colors.white;
-
-        return Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  backgroundColor,
-                  backgroundColor,
-                ],
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Center(
-              child: Image.asset(
-                'asset/icon.png',
-                fit: BoxFit.fitWidth,
-                width: 200,
-              ),
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Image.asset(
+          'asset/wawatair_primary.png',
+          fit: BoxFit.contain,
+          width: 260,
+        ),
+      ),
     );
   }
 }

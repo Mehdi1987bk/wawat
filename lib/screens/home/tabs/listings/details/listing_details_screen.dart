@@ -4,11 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../data/network/api/chat_api.dart';
+import '../../../../../data/network/request/listing_proposal_request.dart';
 import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/user.dart';
+import '../../../../../domain/repositories/auth_repository.dart';
+import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
+import '../../../../../services/wawat_content.dart';
+import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import 'listing_details_bloc.dart';
@@ -27,17 +33,179 @@ const _ink300 = Color(0xFFCBD5E1);
 const _screenBg = Colors.white;
 
 String _t(Map<String, String> content, String key, String fallback) {
-  final value = content[key];
-  if (value == null || value.trim().isEmpty) return fallback;
-  return value;
+  return WawatContent.text(content, key, fallback);
+}
+
+enum ListingDetailsInitialAction {
+  proposal,
+  message,
+}
+
+final Set<String> _openingProposalListingIds = <String>{};
+final Set<String> _openingChatUserIds = <String>{};
+
+Future<void> showListingProposalFlow(
+  BuildContext context, {
+  required Listing listing,
+  Map<String, String> packageNamesByCode = const {},
+  Map<String, String> content = const {},
+}) async {
+  if (_openingProposalListingIds.contains(listing.id)) return;
+  final repository = sl.get<AuthRepository>();
+  if (!await repository.isLogged()) {
+    if (context.mounted) AuthModalUtils.showAuthRequiredModal(context);
+    return;
+  }
+  if (!context.mounted) return;
+
+  _openingProposalListingIds.add(listing.id);
+  try {
+    var packageNames = packageNamesByCode;
+    if (packageNames.isEmpty) {
+      try {
+        final response = await repository.getListingPackageTypes();
+        packageNames = {
+          for (final item in response.data) item.code: item.name,
+        };
+      } catch (_) {}
+    }
+    if (!context.mounted) return;
+
+    final sent = await showModalBottomSheet<_ProposalSuccessData>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ProposalSheet(
+        listing: listing,
+        packageNamesByCode: packageNames,
+        onChatTap: () => openListingChat(
+          context,
+          listing: listing,
+          content: content,
+        ),
+        onSubmit: ({
+          required packageTypeCode,
+          weightKg,
+          priceTotal,
+          note,
+        }) {
+          return repository.createListingProposal(
+            listing.id,
+            ListingProposalRequest(
+              packageTypeCode: packageTypeCode,
+              weightKg: weightKg,
+              priceTotal: priceTotal,
+              note: note,
+            ),
+            'listing-proposal-${DateTime.now().microsecondsSinceEpoch}',
+          );
+        },
+      ),
+    );
+    if (!context.mounted || sent == null) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _ProposalSuccessScreen(
+          listing: listing,
+          data: sent,
+          onChatTap: () => openListingChat(
+            context,
+            listing: listing,
+            content: content,
+          ),
+        ),
+      ),
+    );
+  } finally {
+    _openingProposalListingIds.remove(listing.id);
+  }
+}
+
+Future<void> openListingChat(
+  BuildContext context, {
+  required Listing listing,
+  Map<String, String> content = const {},
+}) async {
+  final repository = sl.get<AuthRepository>();
+  if (!await repository.isLogged()) {
+    if (context.mounted) AuthModalUtils.showAuthRequiredModal(context);
+    return;
+  }
+  if (!context.mounted) return;
+
+  var ownerId = listing.owner?.id?.trim() ?? listing.ownerId?.trim() ?? '';
+  if (ownerId.isEmpty) {
+    try {
+      final details = await repository.getListingDetails(listing.id);
+      ownerId =
+          details.data.owner?.id?.trim() ?? details.data.ownerId?.trim() ?? '';
+    } catch (_) {}
+  }
+  if (ownerId.isEmpty) {
+    ownerId = listing.owner?.username?.trim() ?? '';
+  }
+  if (ownerId.isEmpty) {
+    _showListingActionError(
+      context,
+      _t(content, 'chat.user_not_found', 'İstifadəçi məlumatı tapılmadı.'),
+    );
+    return;
+  }
+  if (_openingChatUserIds.contains(ownerId)) return;
+
+  _openingChatUserIds.add(ownerId);
+  try {
+    final response = await sl.get<ChatApi>().startChat({'user_id': ownerId});
+    if (!context.mounted) return;
+    final conversation = response.data;
+    if (conversation == null) {
+      _showListingActionError(
+        context,
+        _t(content, 'chat.open_error', 'Söhbəti açmaq alınmadı.'),
+      );
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatConversationScreen(conversation: conversation),
+      ),
+    );
+  } catch (_) {
+    if (!context.mounted) return;
+    _showListingActionError(
+      context,
+      _t(content, 'chat.open_error', 'Söhbəti açmaq alınmadı.'),
+    );
+  } finally {
+    _openingChatUserIds.remove(ownerId);
+  }
+}
+
+void _showListingActionError(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          const Icon(PhosphorIconsFill.warning, color: Colors.white),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message)),
+        ],
+      ),
+      backgroundColor: const Color(0xFFEF4444),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+  );
 }
 
 class ListingDetailsScreen extends BaseScreen<ListingDetailsBloc> {
   final String listingId;
+  final ListingDetailsInitialAction? initialAction;
 
   ListingDetailsScreen({
     super.key,
     required this.listingId,
+    this.initialAction,
   });
 
   @override
@@ -48,6 +216,7 @@ class _ListingDetailsScreenState
     extends BaseState<ListingDetailsScreen, ListingDetailsBloc> {
   late Future<_DetailsBundle> _detailsFuture;
   Map<String, String> _content = const {};
+  bool _initialActionHandled = false;
 
   @override
   bool get showProgressIndicator => false;
@@ -95,6 +264,23 @@ class _ListingDetailsScreenState
               final isOwner = listing == null
                   ? false
                   : _isOwner(listing, bundle?.currentUser);
+              if (listing != null &&
+                  !isOwner &&
+                  !_initialActionHandled &&
+                  widget.initialAction != null) {
+                _initialActionHandled = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  switch (widget.initialAction!) {
+                    case ListingDetailsInitialAction.proposal:
+                      _showProposalSheet(listing);
+                      break;
+                    case ListingDetailsInitialAction.message:
+                      _openMessage(listing);
+                      break;
+                  }
+                });
+              }
               final bottomHeight = listing == null
                   ? 0.0
                   : 112.0 + MediaQuery.of(context).padding.bottom;
@@ -161,7 +347,7 @@ class _ListingDetailsScreenState
                         listing: listing,
                         isOwner: isOwner,
                         content: bundle?.content ?? const {},
-                        onMessage: () => _requireAuth(),
+                        onMessage: () => _openMessage(listing),
                         onOffer: () => _showProposalSheet(listing),
                         onEdit: () => _showComingSoon('Redaktə'),
                         onPause: () => _pause(listing),
@@ -354,14 +540,8 @@ class _ListingDetailsScreenState
     }
   }
 
-  Future<void> _requireAuth() async {
-    final isLogged = await bloc.isLogged();
-    if (!mounted) return;
-    if (!isLogged) {
-      AuthModalUtils.showAuthRequiredModal(context);
-      return;
-    }
-    _showComingSoon('Mesaj');
+  Future<void> _openMessage(Listing listing) async {
+    await openListingChat(context, listing: listing, content: _content);
   }
 
   void _shareListing(Listing listing) {
@@ -391,45 +571,11 @@ class _ListingDetailsScreenState
   }
 
   Future<void> _showProposalSheet(Listing listing) async {
-    final isLogged = await bloc.isLogged();
-    if (!mounted) return;
-    if (!isLogged) {
-      AuthModalUtils.showAuthRequiredModal(context);
-      return;
-    }
-    final packageNames = bloc.packageNamesByCode;
-    final sent = await showModalBottomSheet<_ProposalSuccessData>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _ProposalSheet(
-        listing: listing,
-        packageNamesByCode: packageNames,
-        onSubmit: ({
-          required packageTypeCode,
-          weightKg,
-          priceTotal,
-          note,
-        }) {
-          return bloc.createProposal(
-            listingId: listing.id,
-            packageTypeCode: packageTypeCode,
-            weightKg: weightKg,
-            priceTotal: priceTotal,
-            note: note,
-          );
-        },
-      ),
-    );
-    if (!mounted || sent == null) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => _ProposalSuccessScreen(
-          listing: listing,
-          data: sent,
-          onChatTap: () => _showComingSoon('Söhbət'),
-        ),
-      ),
+    await showListingProposalFlow(
+      context,
+      listing: listing,
+      packageNamesByCode: bloc.packageNamesByCode,
+      content: _content,
     );
   }
 
@@ -2534,6 +2680,7 @@ class _ActionButton extends StatelessWidget {
 class _ProposalSheet extends StatefulWidget {
   final Listing listing;
   final Map<String, String> packageNamesByCode;
+  final VoidCallback? onChatTap;
   final Future<void> Function({
     required String packageTypeCode,
     double? weightKg,
@@ -2544,6 +2691,7 @@ class _ProposalSheet extends StatefulWidget {
   const _ProposalSheet({
     required this.listing,
     required this.packageNamesByCode,
+    this.onChatTap,
     required this.onSubmit,
   });
 
@@ -2600,9 +2748,12 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                 ),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () => Navigator.pop(context, false),
-                  child:
-                      const Icon(PhosphorIconsBold.x, color: _ink700, size: 22),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => Navigator.pop(context),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(PhosphorIconsBold.x, color: _ink700, size: 22),
+                  ),
                 ),
               ],
             ),
@@ -2675,12 +2826,8 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                 message: _errorText!,
                 showChatButton: _conversationError,
                 onChatTap: () {
-                  Navigator.pop(context, false);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Söhbət növbəti mərhələdə qoşulacaq.'),
-                    ),
-                  );
+                  Navigator.pop(context);
+                  widget.onChatTap?.call();
                 },
               ),
             ],

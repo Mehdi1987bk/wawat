@@ -21,13 +21,14 @@ class ChatListScreen extends BaseScreen {
   ChatListScreen({super.key});
 
   @override
-  State<ChatListScreen> createState() => _ChatListScreenState();
+  State<ChatListScreen> createState() => ChatListScreenState();
 }
 
-class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
+class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   final ScrollController _scrollController = ScrollController();
   bool _showArchived = false;
   Map<String, String> _content = const {};
+  AppLifecycleListener? _lifecycleListener;
 
   @override
   bool get useSystemOverlay => false;
@@ -37,14 +38,27 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
     super.initState();
     bloc.init();
     bloc.loadConversations();
-    WawatContent.load().then((content) {
+    WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(_onScroll);
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        bloc.reconnectRealtime();
+        bloc.refreshCurrent();
+        sl.get<UnreadChatBloc>().fetchUnreadCount();
+      },
+    );
   }
 
   String _t(String key, [String? fallback]) {
     return WawatContent.text(_content, key, fallback);
+  }
+
+  Future<void> refreshFromTabFocus() async {
+    await bloc.reconnectRealtime();
+    await bloc.refreshCurrent();
+    await sl.get<UnreadChatBloc>().fetchUnreadCount();
   }
 
   void _onScroll() {
@@ -59,6 +73,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
+    _lifecycleListener?.dispose();
     super.dispose();
   }
 
@@ -129,7 +144,7 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                     : Divider(
                                         height: 1,
                                         indent: 20,
-                                        color: _ink900.withOpacity(0.04),
+                                        color: _ink900.withValues(alpha: 0.04),
                                       ),
                             itemBuilder: (context, index) {
                               if (index == conversations.length) {
@@ -290,8 +305,8 @@ class _ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   onTap: () {
                     Navigator.pop(context);
                     conversation.isBlocked
-                        ? bloc.unblockUser(conversation.user.id)
-                        : bloc.blockUser(conversation.user.id);
+                        ? bloc.unblockUser(conversation.user.apiId)
+                        : bloc.blockUser(conversation.user.apiId);
                   },
                 ),
                 _MenuTile(
@@ -352,7 +367,7 @@ class _Header extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _ink900.withOpacity(0.04),
+                    color: _ink900.withValues(alpha: 0.04),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(PhosphorIconsRegular.magnifyingGlass,
@@ -403,7 +418,7 @@ class _TabChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? _brand : _ink900.withOpacity(0.05),
+          color: selected ? _brand : _ink900.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(99),
         ),
         child: Text(

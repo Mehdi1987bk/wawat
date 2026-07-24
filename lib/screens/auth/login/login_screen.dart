@@ -275,20 +275,19 @@ class _LogoMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size,
+      width: size * 3.5,
       height: size,
-      decoration: BoxDecoration(
-        color: _LoginScreenState._brand,
-        borderRadius: BorderRadius.circular(size * 0.32),
+      padding: EdgeInsets.symmetric(
+        horizontal: size * 0.28,
+        vertical: size * 0.2,
       ),
-      alignment: Alignment.center,
-      child: Text(
-        'W',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size * 0.42,
-          fontWeight: FontWeight.w900,
-        ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(size * 0.28),
+      ),
+      child: Image.asset(
+        'asset/wawatair_primary.png',
+        fit: BoxFit.contain,
       ),
     );
   }

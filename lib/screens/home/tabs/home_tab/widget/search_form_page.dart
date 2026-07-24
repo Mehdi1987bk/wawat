@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/city.dart';
 import '../../../../../data/network/response/package_types_response.dart';
+import '../../../../../services/wawat_content.dart';
 import '../../listings/listing_feed_bloc.dart';
 import '../search/search_offer_list_screen.dart';
 import 'city_selector.dart';
@@ -12,25 +13,26 @@ import 'city_selector.dart';
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
 const _ink900 = Color(0xFF0F172A);
+const _ink800 = Color(0xFF1E293B);
 const _ink500 = Color(0xFF64748B);
 const _ink400 = Color(0xFF94A3B8);
 
 String _contentText(Map<String, String> content, String key,
     [String? fallback]) {
-  final value = content[key];
-  if (value == null || value.trim().isEmpty) return fallback ?? key;
-  return value;
+  return WawatContent.text(content, key, fallback);
 }
 
 class SearchFormWidget extends StatefulWidget {
   final ListingFeedBloc bloc;
   final bool compact;
+  final bool advanced;
   final ValueChanged<ListingFilterState>? onSearch;
 
   const SearchFormWidget({
     super.key,
     required this.bloc,
     this.compact = false,
+    this.advanced = false,
     this.onSearch,
   });
 
@@ -43,9 +45,22 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
   City? _toCity;
   String? _type;
   bool _citiesTouched = false;
+  late String _sort;
+  late List<String> _packageTypes;
+  late bool _verifiedOnly;
+  late bool _following;
+  String? _dateFrom;
+  String? _dateTo;
+  double? _ratingMin;
+  String? _tierMin;
 
   List<City> _initialCities = [];
+  List<PackageType> _packages = [];
   bool _isLoadingCities = true;
+  final _weightMin = TextEditingController();
+  final _weightMax = TextEditingController();
+  final _priceMin = TextEditingController();
+  final _priceMax = TextEditingController();
 
   @override
   void initState() {
@@ -53,7 +68,36 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     _fromCity = widget.bloc.filters.cityFrom;
     _toCity = widget.bloc.filters.cityTo;
     _type = widget.bloc.filters.type;
+    _sort = widget.bloc.filters.sort;
+    _packageTypes = [...widget.bloc.filters.packageTypes];
+    _verifiedOnly = widget.bloc.filters.verifiedOnly;
+    _following = widget.bloc.filters.following;
+    _dateFrom = widget.bloc.filters.dateFrom;
+    _dateTo = widget.bloc.filters.dateTo;
+    _ratingMin = widget.bloc.filters.ratingMin;
+    _tierMin = widget.bloc.filters.tierMin;
+    _weightMin.text = _numberText(widget.bloc.filters.weightMin);
+    _weightMax.text = _numberText(widget.bloc.filters.weightMax);
+    _priceMin.text = _numberText(widget.bloc.filters.priceMin);
+    _priceMax.text = _numberText(widget.bloc.filters.priceMax);
     _loadInitialCities();
+    if (widget.advanced) _loadPackages();
+  }
+
+  @override
+  void dispose() {
+    _weightMin.dispose();
+    _weightMax.dispose();
+    _priceMin.dispose();
+    _priceMax.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPackages() async {
+    try {
+      final response = await widget.bloc.loadPackageTypes();
+      if (mounted) setState(() => _packages = response.data);
+    } catch (_) {}
   }
 
   Future<void> _loadInitialCities() async {
@@ -134,11 +178,54 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       type: _type,
       cityFrom: _fromCity,
       cityTo: _toCity,
-      sort: 'relevance',
+      packageTypes: _packageTypes,
+      verifiedOnly: _verifiedOnly,
+      following: _following,
+      dateFrom: _dateFrom,
+      dateTo: _dateTo,
+      weightMin: _parseNumber(_weightMin.text),
+      weightMax: _parseNumber(_weightMax.text),
+      priceMin: _parseNumber(_priceMin.text),
+      priceMax: _parseNumber(_priceMax.text),
+      ratingMin: _ratingMin,
+      tierMin: _tierMin,
+      sort: _sort,
     );
   }
 
+  double? _parseNumber(String value) {
+    final normalized = value.trim().replaceAll(',', '.');
+    if (normalized.isEmpty) return null;
+    return double.tryParse(normalized);
+  }
+
+  String _numberText(double? value) {
+    if (value == null) return '';
+    if (value == value.roundToDouble()) return value.toInt().toString();
+    return value.toString();
+  }
+
+  void _resetAdvancedFilters() {
+    setState(() {
+      _type = null;
+      _sort = 'relevance';
+      _packageTypes = [];
+      _verifiedOnly = false;
+      _following = false;
+      _dateFrom = null;
+      _dateTo = null;
+      _ratingMin = null;
+      _tierMin = null;
+      _weightMin.clear();
+      _weightMax.clear();
+      _priceMin.clear();
+      _priceMax.clear();
+    });
+  }
+
   void _performSearch() {
+    if (_toCity == null) return;
+
     final filters = _filters();
     if (widget.onSearch != null) {
       widget.onSearch!(filters);
@@ -166,6 +253,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       initialData: const {},
       builder: (context, snapshot) {
         final content = snapshot.data ?? const {};
+        final canSearch = _toCity != null;
         return Padding(
           padding: EdgeInsets.fromLTRB(16, widget.compact ? 8 : 0, 16, 0),
           child: Container(
@@ -262,22 +350,32 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   content: content,
                   onChanged: (value) => setState(() => _type = value),
                 ),
+                if (widget.advanced) ...[
+                  const SizedBox(height: 18),
+                  _buildAdvancedFilters(content),
+                ],
                 const SizedBox(height: 11),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onTap: _performSearch,
+                  onTap: canSearch ? _performSearch : null,
                   child: Container(
                     height: 50,
                     decoration: BoxDecoration(
-                      color: _brand,
+                      color: canSearch
+                          ? _brand
+                          : isDark
+                              ? const Color(0xFF3A3A3A)
+                              : const Color(0xFFCBD5E1),
                       borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _brand.withValues(alpha: 0.35),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                      boxShadow: canSearch
+                          ? [
+                              BoxShadow(
+                                color: _brand.withValues(alpha: 0.35),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ]
+                          : null,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -302,6 +400,190 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAdvancedFilters(Map<String, String> content) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              _contentText(content, 'search.filters_title'),
+              style: const TextStyle(
+                color: _ink900,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const Spacer(),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _resetAdvancedFilters,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  _contentText(content, 'common.reset'),
+                  style: const TextStyle(
+                    color: _brand,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        _SectionTitle(_contentText(content, 'search.filter_package_type')),
+        if (_packages.isEmpty)
+          const LinearProgressIndicator(
+            minHeight: 3,
+            color: _brand,
+            backgroundColor: _brand50,
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final package in _packages)
+                _FilterChip(
+                  label: package.name,
+                  selected: _packageTypes.contains(package.code),
+                  onTap: () {
+                    setState(() {
+                      _packageTypes.contains(package.code)
+                          ? _packageTypes.remove(package.code)
+                          : _packageTypes.add(package.code);
+                    });
+                  },
+                ),
+            ],
+          ),
+        const SizedBox(height: 18),
+        _SectionTitle(_contentText(content, 'search.filter_date')),
+        Row(
+          children: [
+            Expanded(
+              child: _DateBox(
+                label: _contentText(content, 'search.date_from'),
+                value: _dateFrom,
+                onChanged: (value) => setState(() => _dateFrom = value),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _DateBox(
+                label: _contentText(content, 'search.date_to'),
+                value: _dateTo,
+                onChanged: (value) => setState(() => _dateTo = value),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _SectionTitle(_contentText(content, 'search.filter_weight')),
+        Row(
+          children: [
+            Expanded(
+              child: _NumberBox(
+                controller: _weightMin,
+                label: _contentText(content, 'search.weight_min'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _NumberBox(
+                controller: _weightMax,
+                label: _contentText(content, 'search.weight_max'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _SectionTitle(_contentText(content, 'search.filter_price')),
+        Row(
+          children: [
+            Expanded(
+              child: _NumberBox(
+                controller: _priceMin,
+                label: _contentText(content, 'search.price_min'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _NumberBox(
+                controller: _priceMax,
+                label: _contentText(content, 'search.price_max'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _SectionTitle(_contentText(content, 'search.filter_rating')),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _FilterChip(
+              label: _contentText(content, 'search.filter_any'),
+              selected: _ratingMin == null,
+              onTap: () => setState(() => _ratingMin = null),
+            ),
+            _FilterChip(
+              label: '4.5+',
+              selected: _ratingMin == 4.5,
+              onTap: () => setState(() => _ratingMin = 4.5),
+            ),
+            _FilterChip(
+              label: '4.8+',
+              selected: _ratingMin == 4.8,
+              onTap: () => setState(() => _ratingMin = 4.8),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _SectionTitle(_contentText(content, 'search.filter_tier')),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _tierChip(content, 'search.filter_any', null),
+            _tierChip(content, 'tier.bronze_plus', 'bronze'),
+            _tierChip(content, 'tier.silver_plus', 'silver'),
+            _tierChip(content, 'tier.gold_plus', 'gold'),
+            _tierChip(content, 'tier.platinum', 'platinum'),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _AdvancedSwitchRow(
+          label: _contentText(content, 'search.verified_only'),
+          icon: PhosphorIconsFill.sealCheck,
+          value: _verifiedOnly,
+          onChanged: (value) => setState(() => _verifiedOnly = value),
+        ),
+        const SizedBox(height: 10),
+        _AdvancedSwitchRow(
+          label: _contentText(content, 'search.following_only'),
+          icon: PhosphorIconsRegular.userCheck,
+          value: _following,
+          onChanged: (value) => setState(() => _following = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _tierChip(
+    Map<String, String> content,
+    String key,
+    String? value,
+  ) {
+    return _FilterChip(
+      label: _contentText(content, key),
+      selected: _tierMin == value,
+      onTap: () => setState(() => _tierMin = value),
     );
   }
 }
@@ -897,6 +1179,56 @@ class _NumberBox extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: _brand),
         ),
+      ),
+    );
+  }
+}
+
+class _AdvancedSwitchRow extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _AdvancedSwitchRow({
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0x120F172A),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: value ? _brand : _ink400, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isDark ? Colors.white : _ink800,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            activeTrackColor: _brand,
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }

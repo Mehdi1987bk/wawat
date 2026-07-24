@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../services/wawat_content.dart';
@@ -12,7 +13,7 @@ class ChatInput extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final VoidCallback onAttachImage;
-  final VoidCallback onAttachFile;
+  final ValueChanged<String>? onChanged;
   final bool enabled;
   final String? disabledText;
   final Map<String, String> content;
@@ -22,7 +23,7 @@ class ChatInput extends StatefulWidget {
     required this.controller,
     required this.onSend,
     required this.onAttachImage,
-    required this.onAttachFile,
+    this.onChanged,
     this.enabled = true,
     this.disabledText,
     this.content = const {},
@@ -70,7 +71,9 @@ class _ChatInputState extends State<ChatInput> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: _ink900.withOpacity(0.06))),
+              border: Border(
+                top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -104,7 +107,9 @@ class _ChatInputState extends State<ChatInput> {
           padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border(top: BorderSide(color: _ink900.withOpacity(0.06))),
+            border: Border(
+              top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+            ),
           ),
           child: Row(
             children: [
@@ -117,7 +122,7 @@ class _ChatInputState extends State<ChatInput> {
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 44),
                   decoration: BoxDecoration(
-                    color: _ink900.withOpacity(0.05),
+                    color: _ink900.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(22),
                   ),
                   padding: const EdgeInsets.only(left: 15, right: 8),
@@ -126,8 +131,12 @@ class _ChatInputState extends State<ChatInput> {
                       Expanded(
                         child: TextField(
                           controller: widget.controller,
+                          onChanged: widget.onChanged,
                           minLines: 1,
                           maxLines: 4,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(5000),
+                          ],
                           textInputAction: TextInputAction.newline,
                           style: const TextStyle(
                             color: _ink900,
@@ -162,7 +171,7 @@ class _ChatInputState extends State<ChatInput> {
                     boxShadow: _hasText
                         ? [
                             BoxShadow(
-                              color: _brand.withOpacity(0.35),
+                              color: _brand.withValues(alpha: 0.35),
                               blurRadius: 18,
                               offset: const Offset(0, 8),
                             ),
@@ -214,14 +223,6 @@ class _ChatInputState extends State<ChatInput> {
                   onTap: () {
                     Navigator.pop(context);
                     widget.onAttachImage();
-                  },
-                ),
-                _AttachTile(
-                  icon: PhosphorIconsRegular.file,
-                  label: _t('chat.attach.file'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    widget.onAttachFile();
                   },
                 ),
               ],

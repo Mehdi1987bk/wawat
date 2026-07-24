@@ -7,6 +7,7 @@ import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
 import '../../../services/pusher_service.dart';
+import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 
 class ChatListBloc extends BaseBloc {
   final ChatApi _chatApi = ChatApi(sl.get<Dio>());
@@ -28,103 +29,48 @@ class ChatListBloc extends BaseBloc {
   int _lastPage = 1;
   bool _isLoadingMore = false;
   bool _showArchived = false;
+  bool _isInitialized = false;
+  bool _isFallbackRefreshing = false;
   int? _myUserId;
-  bool _isInitialized = false; // <-- Добавлено
+  final Set<String> _subscribedConversationIds = {};
+  Timer? _realtimeRefreshTimer;
+  Timer? _fallbackRefreshTimer;
 
-  /// Инициализация - вызывать в initState
   Future<void> init() async {
-    // Предотвращаем двойную инициализацию
-    if (_isInitialized) {
-      print('⚠️ ChatListBloc already initialized, skipping');
-      return;
-    }
+    if (_isInitialized) return;
     _isInitialized = true;
 
     _myUserId = await _cacheManager.getUserId();
     final token = await _cacheManager.getToken();
-
-    print('🚀 ChatListBloc init: userId=$_myUserId, hasToken=${token != null}');
-
-    if (token != null && _myUserId != null) {
+    if (token != null) {
       await _pusherService.initialize(token);
-      await _pusherService.subscribeToUserChannel(_myUserId!, _onNewMessage);
-      print('✅ Subscribed to user channel for chat list updates');
+      if (_myUserId != null) {
+        await _pusherService.subscribeToUserChannel(
+          _myUserId!,
+          _onConversationEvent,
+        );
+      }
     }
+    _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      unawaited(_fallbackRefresh());
+    });
   }
 
-  void _onNewMessage(dynamic data) {
-    print('📬 ChatListBloc received: $data');
+  void _onConversationEvent(Map<String, dynamic> data) {
+    _realtimeRefreshTimer?.cancel();
+    _realtimeRefreshTimer = Timer(const Duration(milliseconds: 250), () {
+      unawaited(_fallbackRefresh());
+    });
+  }
 
+  Future<void> _fallbackRefresh() async {
+    if (_isFallbackRefreshing) return;
+    _isFallbackRefreshing = true;
     try {
-      final conversationId = data['conversation_id']?.toString();
-      final messageData = data['message'] as Map<String, dynamic>?;
-      final unreadCounts = data['unread_counts'] as Map<String, dynamic>?;
-
-      if (conversationId == null || messageData == null) {
-        print('⚠️ Invalid data, skipping');
-        return;
-      }
-
-      final newMessage = ChatMessage.fromJson(messageData);
-      final conversations =
-          List<Conversation>.from(_conversationsSubject.value);
-
-      // Находим чат в списке
-      final index = conversations.indexWhere((c) => c.id == conversationId);
-
-      if (index == -1) {
-        // Чат не найден - перезагружаем список
-        print('⚠️ Conversation $conversationId not found, reloading');
-        loadConversations();
-        return;
-      }
-
-      final oldConversation = conversations[index];
-
-      // Получаем новый unread count
-      int newUnreadCount = oldConversation.unreadCount;
-      if (unreadCounts != null && _myUserId != null) {
-        final count = unreadCounts[_myUserId.toString()];
-        if (count != null) {
-          newUnreadCount = count as int;
-        }
-      }
-
-      // Создаем обновленный чат
-      final updatedConversation = Conversation(
-        id: oldConversation.id,
-        user: oldConversation.user,
-        lastMessage: newMessage,
-        unreadCount: newUnreadCount,
-        isPinned: oldConversation.isPinned,
-        isArchived: oldConversation.isArchived,
-        isBlocked: oldConversation.isBlocked,
-        isBlockedByOther: oldConversation.isBlockedByOther,
-        lastMessageAt: newMessage.createdAt,
-      );
-
-      // Удаляем старый
-      conversations.removeAt(index);
-
-      // Добавляем в начало соответствующей группы
-      if (updatedConversation.isPinned) {
-        // Закрепленные всегда в начале
-        conversations.insert(0, updatedConversation);
-      } else {
-        // Находим позицию после всех закрепленных
-        int insertAt = 0;
-        while (insertAt < conversations.length &&
-            conversations[insertAt].isPinned) {
-          insertAt++;
-        }
-        // Вставляем в начало незакрепленных (сортировка по времени будет в UI)
-        conversations.insert(insertAt, updatedConversation);
-      }
-
-      _conversationsSubject.add(conversations);
-      print('✅ Chat list updated: conversation $conversationId moved to top');
-    } catch (e) {
-      print('❌ Error in _onNewMessage: $e');
+      await refreshCurrent();
+      await sl.get<UnreadChatBloc>().fetchUnreadCount();
+    } finally {
+      _isFallbackRefreshing = false;
     }
   }
 
@@ -137,6 +83,7 @@ class ChatListBloc extends BaseBloc {
       final response = await _chatApi.getConversations(20, _currentPage);
       _conversationsSubject.add(response.data);
       _lastPage = response.meta.lastPage;
+      await _syncRealtimeSubscriptions(response.data);
     } catch (e) {
       print('Error loading conversations: $e');
       _conversationsSubject.addError(e);
@@ -145,7 +92,7 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  Future<void> blockUser(int userId) async {
+  Future<void> blockUser(Object userId) async {
     try {
       await _chatApi.blockUser({'user_id': userId});
       await loadConversations();
@@ -154,7 +101,7 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  Future<void> unblockUser(int userId) async {
+  Future<void> unblockUser(Object userId) async {
     try {
       await _chatApi.unblockUser({'user_id': userId});
       await loadConversations();
@@ -173,6 +120,7 @@ class ChatListBloc extends BaseBloc {
           await _chatApi.getArchivedConversations(20, _currentPage);
       _conversationsSubject.add(response.data);
       _lastPage = response.meta.lastPage;
+      await _syncRealtimeSubscriptions(response.data);
     } catch (e) {
       print('Error loading archived conversations: $e');
       _conversationsSubject.addError(e);
@@ -194,8 +142,10 @@ class ChatListBloc extends BaseBloc {
           : await _chatApi.getConversations(20, _currentPage);
 
       final currentConversations = _conversationsSubject.value;
-      _conversationsSubject.add([...currentConversations, ...response.data]);
+      final conversations = [...currentConversations, ...response.data];
+      _conversationsSubject.add(conversations);
       _lastPage = response.meta.lastPage;
+      await _syncRealtimeSubscriptions(conversations);
     } catch (e) {
       print('Error loading more: $e');
       _currentPage--;
@@ -256,10 +206,70 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
+  Future<void> refreshCurrent() {
+    return _showArchived ? loadArchivedConversations() : loadConversations();
+  }
+
+  Future<void> reconnectRealtime() async {
+    final token = await _cacheManager.getToken();
+    if (token == null) return;
+    await _pusherService.initialize(token);
+    _myUserId ??= await _cacheManager.getUserId();
+    if (_myUserId != null) {
+      await _pusherService.subscribeToUserChannel(
+        _myUserId!,
+        _onConversationEvent,
+      );
+    }
+    await _syncRealtimeSubscriptions(_conversationsSubject.value);
+  }
+
+  Future<void> _syncRealtimeSubscriptions(
+    List<Conversation> conversations,
+  ) async {
+    final desiredIds = conversations.map((item) => item.id).toSet();
+    final removed = _subscribedConversationIds.difference(desiredIds);
+    final added = desiredIds.difference(_subscribedConversationIds);
+
+    for (final id in removed) {
+      await _pusherService.unsubscribeFromConversation(
+        id,
+        _onConversationEvent,
+      );
+    }
+    for (final id in added) {
+      await _pusherService.subscribeToConversation(
+        id,
+        _onConversationEvent,
+      );
+    }
+
+    _subscribedConversationIds
+      ..clear()
+      ..addAll(desiredIds);
+  }
+
   @override
   void dispose() {
-    // НЕ отписываемся от user channel при dispose,
-    // так как это singleton и может использоваться в других местах
+    _realtimeRefreshTimer?.cancel();
+    _fallbackRefreshTimer?.cancel();
+    for (final id in _subscribedConversationIds) {
+      unawaited(
+        _pusherService.unsubscribeFromConversation(
+          id,
+          _onConversationEvent,
+        ),
+      );
+    }
+    if (_myUserId != null) {
+      unawaited(
+        _pusherService.unsubscribeFromUserChannel(
+          _myUserId!,
+          _onConversationEvent,
+        ),
+      );
+    }
+    _subscribedConversationIds.clear();
     _conversationsSubject.close();
     _isLoadingMoreSubject.close();
     _isLoadingSubject.close();

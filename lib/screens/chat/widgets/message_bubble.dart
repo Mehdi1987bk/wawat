@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -16,14 +18,22 @@ const _border = Color(0x0F0F172A);
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
   final bool isMyMessage;
+  final ShipmentData? shipment;
   final Future<void> Function(String shipmentId, String action)?
       onShipmentAction;
+  final ValueChanged<String>? onRetry;
+  final ValueChanged<ChatMessage>? onLongPress;
+  final ValueChanged<String>? onReview;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isMyMessage,
+    this.shipment,
     this.onShipmentAction,
+    this.onRetry,
+    this.onLongPress,
+    this.onReview,
   });
 
   @override
@@ -31,117 +41,177 @@ class MessageBubble extends StatelessWidget {
     if (message.type == 'system_card' && message.card != null) {
       return _SystemCardMessage(
         message: message,
+        shipmentData: shipment,
         onShipmentAction: onShipmentAction,
+        onReview: onReview,
       );
     }
 
     final imageUrl = message.image?.url ?? message.file?.url;
     final hasImage = imageUrl != null && imageUrl.isNotEmpty;
+    final localImagePath = message.localImagePath;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment:
-            isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMyMessage) ...[
-            _SmallAvatar(user: message.user),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Column(
-              crossAxisAlignment: isMyMessage
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                if (hasImage)
-                  _ImageBubble(
-                    imageUrl: imageUrl,
-                    isMine: isMyMessage,
-                    caption: message.body,
-                    time: message.timeString(context),
-                  )
-                else
-                  Container(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.sizeOf(context).width * 0.78,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 9,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isMyMessage ? _brand : Colors.white,
-                      border: isMyMessage
-                          ? null
-                          : Border.all(color: _border, width: 1),
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(18),
-                        topRight: const Radius.circular(18),
-                        bottomLeft: Radius.circular(isMyMessage ? 18 : 6),
-                        bottomRight: Radius.circular(isMyMessage ? 6 : 18),
+    return GestureDetector(
+      onLongPress: message.deliveryStatus == ChatMessageDeliveryStatus.sent
+          ? () => onLongPress?.call(message)
+          : null,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          mainAxisAlignment:
+              isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (!isMyMessage) ...[
+              _SmallAvatar(user: message.user),
+              const SizedBox(width: 8),
+            ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: isMyMessage
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
+                  if (hasImage || localImagePath != null)
+                    _ImageBubble(
+                      imageUrl: imageUrl,
+                      localFile:
+                          localImagePath == null ? null : File(localImagePath),
+                      isMine: isMyMessage,
+                      caption: message.body,
+                      time: message.timeString(context),
+                    )
+                  else
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.sizeOf(context).width * 0.78,
                       ),
-                      boxShadow: isMyMessage
-                          ? null
-                          : [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 2,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                    ),
-                    child: Text(
-                      message.body ?? '',
-                      style: TextStyle(
-                        color: isMyMessage ? Colors.white : _ink900,
-                        fontSize: 14,
-                        height: 1.25,
-                        fontWeight: FontWeight.w500,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 9,
                       ),
-                    ),
-                  ),
-                const SizedBox(height: 3),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      message.timeString(context),
-                      style: const TextStyle(
-                        color: _ink400,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
+                      decoration: BoxDecoration(
+                        color: isMyMessage ? _brand : Colors.white,
+                        border: isMyMessage
+                            ? null
+                            : Border.all(color: _border, width: 1),
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(18),
+                          topRight: const Radius.circular(18),
+                          bottomLeft: Radius.circular(isMyMessage ? 18 : 6),
+                          bottomRight: Radius.circular(isMyMessage ? 6 : 18),
+                        ),
+                        boxShadow: isMyMessage
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
                       ),
-                    ),
-                    if (message.editedAt != null) ...[
-                      const Text(' · ',
-                          style: TextStyle(color: _ink400, fontSize: 10)),
-                      const Text(
-                        'redaktə edildi',
+                      child: Text(
+                        message.body ?? '',
                         style: TextStyle(
+                          color: isMyMessage ? Colors.white : _ink900,
+                          fontSize: 14,
+                          height: 1.25,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 3),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        message.timeString(context),
+                        style: const TextStyle(
                           color: _ink400,
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      if (message.editedAt != null) ...[
+                        const Text(' · ',
+                            style: TextStyle(color: _ink400, fontSize: 10)),
+                        const Text(
+                          'redaktə edildi',
+                          style: TextStyle(
+                            color: _ink400,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                      if (isMyMessage) ...[
+                        const SizedBox(width: 3),
+                        _DeliveryStatus(
+                          message: message,
+                          onRetry: onRetry,
+                        ),
+                      ],
                     ],
-                    if (isMyMessage) ...[
-                      const SizedBox(width: 3),
-                      Icon(
-                        PhosphorIconsBold.checks,
-                        color: message.isRead == true ? _brand : _ink400,
-                        size: 14,
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+}
+
+class _DeliveryStatus extends StatelessWidget {
+  final ChatMessage message;
+  final ValueChanged<String>? onRetry;
+
+  const _DeliveryStatus({
+    required this.message,
+    this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    switch (message.deliveryStatus) {
+      case ChatMessageDeliveryStatus.sending:
+        return const Icon(
+          PhosphorIconsRegular.clock,
+          color: _ink400,
+          size: 13,
+        );
+      case ChatMessageDeliveryStatus.failed:
+        return GestureDetector(
+          onTap: () => onRetry?.call(message.id),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                PhosphorIconsFill.warningCircle,
+                color: Color(0xFFEF4444),
+                size: 13,
+              ),
+              SizedBox(width: 3),
+              Text(
+                'Yenidən cəhd',
+                style: TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        );
+      case ChatMessageDeliveryStatus.sent:
+        return Icon(
+          PhosphorIconsBold.checks,
+          color: message.isRead == true ? _brand : _ink400,
+          size: 14,
+        );
+    }
   }
 }
 
@@ -173,13 +243,15 @@ class _SmallAvatar extends StatelessWidget {
 }
 
 class _ImageBubble extends StatelessWidget {
-  final String imageUrl;
+  final String? imageUrl;
+  final File? localFile;
   final bool isMine;
   final String? caption;
   final String time;
 
   const _ImageBubble({
     required this.imageUrl,
+    this.localFile,
     required this.isMine,
     this.caption,
     required this.time,
@@ -190,7 +262,11 @@ class _ImageBubble extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => _ImageViewer(imageUrl: imageUrl, title: time),
+          builder: (_) => _ImageViewer(
+            imageUrl: imageUrl,
+            localFile: localFile,
+            title: time,
+          ),
         ),
       ),
       child: ClipRRect(
@@ -209,24 +285,35 @@ class _ImageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CachedNetworkImage(
-                imageUrl: imageUrl,
-                height: 180,
-                width: 220,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+              if (localFile != null)
+                Image.file(
+                  localFile!,
                   height: 180,
-                  color: _brand50,
-                  alignment: Alignment.center,
-                  child: const CircularProgressIndicator(strokeWidth: 2),
-                ),
-                errorWidget: (_, __, ___) => Container(
+                  width: 220,
+                  fit: BoxFit.cover,
+                )
+              else
+                CachedNetworkImage(
+                  imageUrl: imageUrl!,
                   height: 180,
-                  color: _brand50,
-                  alignment: Alignment.center,
-                  child: const Icon(PhosphorIconsRegular.image, color: _ink400),
+                  width: 220,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(
+                    height: 180,
+                    color: _brand50,
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (_, __, ___) => Container(
+                    height: 180,
+                    color: _brand50,
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      PhosphorIconsRegular.image,
+                      color: _ink400,
+                    ),
+                  ),
                 ),
-              ),
               if (caption != null && caption!.trim().isNotEmpty)
                 Padding(
                   padding:
@@ -249,10 +336,15 @@ class _ImageBubble extends StatelessWidget {
 }
 
 class _ImageViewer extends StatelessWidget {
-  final String imageUrl;
+  final String? imageUrl;
+  final File? localFile;
   final String title;
 
-  const _ImageViewer({required this.imageUrl, required this.title});
+  const _ImageViewer({
+    this.imageUrl,
+    this.localFile,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +357,12 @@ class _ImageViewer extends StatelessWidget {
       ),
       body: Center(
         child: InteractiveViewer(
-          child: CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.contain),
+          child: localFile != null
+              ? Image.file(localFile!, fit: BoxFit.contain)
+              : CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  fit: BoxFit.contain,
+                ),
         ),
       ),
     );
@@ -274,12 +371,16 @@ class _ImageViewer extends StatelessWidget {
 
 class _SystemCardMessage extends StatelessWidget {
   final ChatMessage message;
+  final ShipmentData? shipmentData;
   final Future<void> Function(String shipmentId, String action)?
       onShipmentAction;
+  final ValueChanged<String>? onReview;
 
   const _SystemCardMessage({
     required this.message,
+    this.shipmentData,
     this.onShipmentAction,
+    this.onReview,
   });
 
   @override
@@ -289,36 +390,89 @@ class _SystemCardMessage extends StatelessWidget {
       return _ProposalCard(
         message: message,
         card: card,
+        shipment: shipmentData,
         onShipmentAction: onShipmentAction,
       );
     }
 
     final visual = _cardVisual(card.type);
+    final actions =
+        _supportedActions(shipmentData?.availableActions ?? const []);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: visual.background,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(visual.icon, color: visual.color, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                card.label.isEmpty ? _fallbackCardLabel(card.type) : card.label,
-                style: TextStyle(
-                  color: visual.color,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w800,
-                ),
+      child: Column(
+        children: [
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: visual.background,
+                borderRadius: BorderRadius.circular(999),
               ),
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(visual.icon, color: visual.color, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    card.label.isEmpty
+                        ? _fallbackCardLabel(card.type)
+                        : card.label,
+                    style: TextStyle(
+                      color: visual.color,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+          if (actions.isNotEmpty &&
+              card.shipmentId != null &&
+              onShipmentAction != null) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: actions
+                  .map(
+                    (action) => _ActionButton(
+                      label: _actionLabel(action),
+                      icon: _actionIcon(action),
+                      color: _brand50,
+                      textColor: _brand,
+                      onTap: () => onShipmentAction!(
+                        card.shipmentId!,
+                        action,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+          if (card.type == 'completed' &&
+              card.shipmentId != null &&
+              onReview != null) ...[
+            const SizedBox(height: 8),
+            _ActionButton(
+              label: 'Rəy yaz',
+              icon: PhosphorIconsFill.star,
+              color: _brand,
+              textColor: Colors.white,
+              onTap: () => onReview!(card.shipmentId!),
+            ),
+          ],
+          const SizedBox(height: 3),
+          Text(
+            message.timeString(context),
+            style: const TextStyle(
+              color: _ink400,
+              fontSize: 10,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -327,12 +481,14 @@ class _SystemCardMessage extends StatelessWidget {
 class _ProposalCard extends StatelessWidget {
   final ChatMessage message;
   final ChatCard card;
+  final ShipmentData? shipment;
   final Future<void> Function(String shipmentId, String action)?
       onShipmentAction;
 
   const _ProposalCard({
     required this.message,
     required this.card,
+    this.shipment,
     this.onShipmentAction,
   });
 
@@ -346,10 +502,13 @@ class _ProposalCard extends StatelessWidget {
     final route = [from, to].where((e) => e.isNotEmpty).join(' → ');
     final packageType = _packageLabel(payload['package_type_code']);
     final note = payload['note']?.toString();
-    final canAct = card.isInteractive &&
-        !message.isMine &&
+    final actions = shipment?.isAwaitingMe == true
+        ? _supportedActions(shipment?.availableActions ?? const [])
+        : const <String>[];
+    final canAct = actions.isNotEmpty &&
         card.shipmentId != null &&
-        card.shipmentId!.isNotEmpty;
+        card.shipmentId!.isNotEmpty &&
+        onShipmentAction != null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7),
@@ -364,7 +523,7 @@ class _ProposalCard extends StatelessWidget {
               border: Border.all(color: _border),
               boxShadow: [
                 BoxShadow(
-                  color: _ink900.withOpacity(0.08),
+                  color: _ink900.withValues(alpha: 0.08),
                   blurRadius: 24,
                   offset: const Offset(0, 10),
                 ),
@@ -412,7 +571,7 @@ class _ProposalCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (message.isMine)
+                    if (shipment != null && !shipment!.isAwaitingMe)
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 5),
@@ -442,7 +601,7 @@ class _ProposalCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _ink900.withOpacity(0.03),
+                    color: _ink900.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -477,42 +636,24 @@ class _ProposalCard extends StatelessWidget {
                 ),
                 if (canAct) ...[
                   const SizedBox(height: 12),
-                  _ActionButton(
-                    label: 'Qəbul et',
-                    icon: PhosphorIconsBold.check,
-                    color: _brand,
-                    textColor: Colors.white,
-                    onTap: () => onShipmentAction?.call(
-                      card.shipmentId!,
-                      'accept',
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ActionButton(
-                          label: 'Rədd et',
-                          icon: PhosphorIconsRegular.x,
-                          color: _ink900.withOpacity(0.05),
-                          textColor: _ink600,
-                          onTap: () => onShipmentAction?.call(
-                            card.shipmentId!,
-                            'decline',
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: actions
+                        .map(
+                          (action) => _ActionButton(
+                            label: _actionLabel(action),
+                            icon: _actionIcon(action),
+                            color: action == 'accept' ? _brand : _brand50,
+                            textColor:
+                                action == 'accept' ? Colors.white : _brand,
+                            onTap: () => onShipmentAction!(
+                              card.shipmentId!,
+                              action,
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _ActionButton(
-                          label: 'Dəyiş',
-                          icon: PhosphorIconsRegular.pencilSimple,
-                          color: _brand50,
-                          textColor: _brand,
-                          onTap: null,
-                        ),
-                      ),
-                    ],
+                        )
+                        .toList(),
                   ),
                 ],
               ],
@@ -576,7 +717,7 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: _ink900.withOpacity(0.05),
+        color: _ink900.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -612,11 +753,13 @@ class _ActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 43,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: textColor, size: 17),
@@ -634,6 +777,51 @@ class _ActionButton extends StatelessWidget {
       ),
     );
   }
+}
+
+List<String> _supportedActions(List<String> actions) {
+  const supported = {
+    'accept',
+    'decline',
+    'counter',
+    'picked-up',
+    'delivered',
+    'complete',
+    'dispute',
+    'cancel',
+  };
+  return actions
+      .map((action) => action == 'picked_up' ? 'picked-up' : action)
+      .where(supported.contains)
+      .toList();
+}
+
+String _actionLabel(String action) {
+  return switch (action) {
+    'accept' => 'Qəbul et',
+    'decline' => 'Rədd et',
+    'counter' => 'Dəyiş',
+    'picked-up' => 'Mal götürüldü',
+    'delivered' => 'Çatdırıldı',
+    'complete' => 'Tamamla',
+    'dispute' => 'Problem bildir',
+    'cancel' => 'Ləğv et',
+    _ => action,
+  };
+}
+
+IconData _actionIcon(String action) {
+  return switch (action) {
+    'accept' => PhosphorIconsBold.check,
+    'decline' => PhosphorIconsRegular.x,
+    'counter' => PhosphorIconsFill.arrowsClockwise,
+    'picked-up' => PhosphorIconsFill.package,
+    'delivered' => PhosphorIconsFill.mapPinArea,
+    'complete' => PhosphorIconsFill.sealCheck,
+    'dispute' => PhosphorIconsFill.warningOctagon,
+    'cancel' => PhosphorIconsFill.prohibit,
+    _ => PhosphorIconsRegular.circle,
+  };
 }
 
 class _CardVisual {

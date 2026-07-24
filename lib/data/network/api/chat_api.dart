@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 
@@ -77,17 +78,57 @@ class ChatApi {
   Future<MessageResponse> sendMessageWithFile(
     String conversationId,
     File file,
-    String? body,
   ) async {
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(file.path),
-      if (body != null && body.trim().isNotEmpty) 'body': body.trim(),
     });
     final response = await _dio.post<Map<String, dynamic>>(
       '$_baseUrl/conversations/$conversationId/images',
       data: formData,
     );
     return MessageResponse.fromJson(response.data ?? {});
+  }
+
+  Future<MessageResponse> editMessage(
+    String messageId,
+    String body,
+  ) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '$_baseUrl/messages/$messageId',
+      data: {'body': body},
+    );
+    return MessageResponse.fromJson(response.data ?? {});
+  }
+
+  Future<void> deleteMessage(String messageId) async {
+    await _dio.delete<void>('$_baseUrl/messages/$messageId');
+  }
+
+  Future<void> markConversationRead(String conversationId) async {
+    await _dio.post<void>('$_baseUrl/conversations/$conversationId/read');
+  }
+
+  Future<void> sendTyping(
+    String conversationId, {
+    required bool typing,
+  }) async {
+    await _dio.post<void>(
+      '$_baseUrl/conversations/$conversationId/typing',
+      data: {'typing': typing},
+    );
+  }
+
+  Future<int> getUnreadCount() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_baseUrl/conversations/unread-count',
+    );
+    final data = response.data?['data'];
+    if (data is Map) {
+      final value = data['unread_count'];
+      if (value is num) return value.toInt();
+      return int.tryParse(value?.toString() ?? '') ?? 0;
+    }
+    return 0;
   }
 
   Future<void> updateConversation(
@@ -141,18 +182,49 @@ class ChatApi {
     return ShipmentResponse.fromJson(response.data ?? {});
   }
 
-  Future<void> shipmentAction(
+  Future<String?> shipmentAction(
     String shipmentId,
     String action, {
     Map<String, dynamic>? body,
   }) async {
-    await _dio.post<void>(
+    final response = await _dio.post<Map<String, dynamic>>(
       '$_baseUrl/shipments/$shipmentId/$action',
       data: body,
       options: Options(headers: {
-        'Idempotency-Key':
-            'chat-${DateTime.now().microsecondsSinceEpoch}-$shipmentId-$action',
+        'Idempotency-Key': _uuidV4(),
       }),
     );
+    return response.data?['message']?.toString();
+  }
+
+  Future<String?> submitShipmentReview(
+    String shipmentId, {
+    required int rating,
+    String? comment,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_baseUrl/shipments/$shipmentId/review',
+      data: {
+        'rating': rating,
+        if (comment != null && comment.trim().isNotEmpty)
+          'comment': comment.trim(),
+      },
+      options: Options(headers: {'Idempotency-Key': _uuidV4()}),
+    );
+    return response.data?['message']?.toString();
+  }
+
+  String _uuidV4() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    final hex = bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0'));
+    final value = hex.join();
+    return '${value.substring(0, 8)}-'
+        '${value.substring(8, 12)}-'
+        '${value.substring(12, 16)}-'
+        '${value.substring(16, 20)}-'
+        '${value.substring(20)}';
   }
 }

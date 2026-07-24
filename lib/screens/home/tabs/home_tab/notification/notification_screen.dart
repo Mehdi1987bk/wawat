@@ -46,7 +46,7 @@ class _NotificationScreenState
   void initState() {
     super.initState();
     bloc.loadNotifications();
-    WawatContent.load().then((content) {
+    WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(() {

@@ -56,34 +56,22 @@ class _AuthWelcomeScreenState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 86,
-                      height: 86,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(28),
+                      width: 238,
+                      height: 70,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 14,
                       ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'W',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 42,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Image.asset(
+                        'asset/wawatair_primary.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                     const SizedBox(height: 22),
-                    const Text(
-                      'Wawatair',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 34,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
                     const Text(
                       'Səyahət et, bağlama daşı, qazan. Etibarlı crowdshipping icması.',
                       textAlign: TextAlign.center,

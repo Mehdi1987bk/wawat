@@ -8,6 +8,7 @@ import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../listings/details/listing_details_screen.dart';
+import '../../listings/promotion/promotion_screens.dart';
 import '../../listings/widgets/listing_card.dart';
 import 'delivery_full_list_bloc.dart';
 
@@ -36,7 +37,7 @@ class _DeliveryFullListScreenState
     super.initState();
     bloc.loadPackageTypes();
     bloc.load();
-    WawatContent.load().then((content) {
+    WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(() {
@@ -107,6 +108,20 @@ class _DeliveryFullListScreenState
                                 onResumeTap: _confirmResume,
                                 onRepostTap: _confirmRepost,
                                 onDeleteTap: _confirmDelete,
+                                onVipTap: (item) => _openPromotion(item, 'vip'),
+                                onBoostTap: (item) => _openPromotion(
+                                  item,
+                                  'featured',
+                                  forceNew: (item.promotion?.type ??
+                                          item.promotionType) ==
+                                      'featured',
+                                ),
+                                onPromotionExtendTap: (item) => _openPromotion(
+                                  item,
+                                  item.promotion?.type ??
+                                      item.promotionType ??
+                                      'vip',
+                                ),
                               );
                             },
                           );
@@ -141,6 +156,21 @@ class _DeliveryFullListScreenState
       MaterialPageRoute(
         builder: (_) => ListingDetailsScreen(listingId: listing.id),
       ),
+    );
+    if (!mounted) return;
+    await bloc.loadList();
+  }
+
+  Future<void> _openPromotion(
+    Listing listing,
+    String type, {
+    bool forceNew = false,
+  }) async {
+    await openPromotionFlow(
+      context,
+      listing: listing,
+      type: type,
+      forceNew: forceNew,
     );
     if (!mounted) return;
     await bloc.loadList();

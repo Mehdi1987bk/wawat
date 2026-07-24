@@ -376,6 +376,6 @@ abstract class AuthApi {
   @GET('/notifications/unread-count')
   Future<UnreadCountResponse> notifUnread();
 
-  @GET('/api/v1/chats/unread-count')
+  @GET('/chats/unread-count')
   Future<UnreadChatCountResponse> chatUnread();
 }

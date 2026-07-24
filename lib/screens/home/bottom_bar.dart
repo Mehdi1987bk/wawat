@@ -29,20 +29,26 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   late final UnreadChatBloc _chatBloc;
+  AppLifecycleListener? _lifecycleListener;
 
   @override
   void initState() {
     super.initState();
     _chatBloc = sl.get<UnreadChatBloc>();
+    _chatBloc.fetchUnreadCount();
+    _chatBloc.reconnectRealtime();
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        _chatBloc.fetchUnreadCount();
+        _chatBloc.reconnectRealtime();
+      },
+    );
   }
 
   @override
-  void didUpdateWidget(BottomBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Обновляем счетчик при любой смене табов
-    if (oldWidget.selectedIndex != widget.selectedIndex) {
-      _chatBloc.fetchUnreadCount();
-    }
+  void dispose() {
+    _lifecycleListener?.dispose();
+    super.dispose();
   }
 
   @override

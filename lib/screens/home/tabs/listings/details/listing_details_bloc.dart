@@ -11,6 +11,7 @@ import '../../../../../data/network/response/user.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
+import '../../../../../services/wawat_content.dart';
 
 class ListingDetailsBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
@@ -23,9 +24,8 @@ class ListingDetailsBloc extends BaseBloc {
 
   Future<Map<String, String>> loadContent() async {
     if (_content != null) return _content!;
-    final response = await authRepository.getContent(group: 'listing');
-    _content = response.data;
-    return response.data;
+    _content = await WawatContent.loadDefault();
+    return _content!;
   }
 
   Future<PackageTypesResponse> loadPackageTypes() async {

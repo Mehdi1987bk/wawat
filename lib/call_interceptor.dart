@@ -22,18 +22,24 @@ class CallInterceptor extends Interceptor {
     if (token != null) {
       options.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
     }
+    options.headers[HttpHeaders.acceptHeader] = 'application/json';
 
     // Добавляем язык в header
     final locale = await _storage.getLocaleAsync();
     if (locale != null) {
-      options.headers['Accept-Language'] = locale.languageCode;
+      final languageCode =
+          locale.languageCode == 'uk' ? 'ua' : locale.languageCode;
+      options.headers['Accept-Language'] = languageCode;
     }
 
     return handler.next(options);
   }
 
   @override
-  Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     switch (err.response?.statusCode) {
       case 402:
         {
@@ -46,7 +52,9 @@ class CallInterceptor extends Interceptor {
   }
 
   Future<void> _navigateToSignInPage(
-      DioError err, ErrorInterceptorHandler handler) async {
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     handler.next(err);
     await _storage.clear();
     await navigatorKey.currentState?.pushAndRemoveUntil(

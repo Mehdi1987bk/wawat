@@ -1,19 +1,21 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
+import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../services/wawat_content.dart';
 import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_bubble.dart';
+import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -44,9 +46,13 @@ class _ChatConversationScreenState
   final TextEditingController _messageController = TextEditingController();
   File? _selectedFile;
   Map<String, String> _content = const {};
+  AppLifecycleListener? _lifecycleListener;
+  late bool _isBlockedByMe;
+  late bool _isBlockedByOther;
+  late bool _isPinned;
+  late bool _isArchived;
 
-  bool get _isBlocked =>
-      widget.conversation.isBlocked || widget.conversation.isBlockedByOther;
+  bool get _isBlocked => _isBlockedByMe || _isBlockedByOther;
 
   @override
   bool get useSystemOverlay => false;
@@ -54,12 +60,29 @@ class _ChatConversationScreenState
   @override
   void initState() {
     super.initState();
-    bloc.initChat(widget.conversation.id);
-    bloc.loadMessages();
-    WawatContent.load().then((content) {
+    _isBlockedByMe = widget.conversation.isBlocked;
+    _isBlockedByOther = widget.conversation.isBlockedByOther;
+    _isPinned = widget.conversation.isPinned;
+    _isArchived = widget.conversation.isArchived;
+    bloc.initChat(widget.conversation.id).then((_) async {
+      await bloc.loadMessages();
+      if (mounted) {
+        sl.get<UnreadChatBloc>().fetchUnreadCount();
+      }
+    });
+    WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(_onScroll);
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        bloc.reconnectRealtime();
+        sl.get<UnreadChatBloc>().fetchUnreadCount();
+      },
+      onInactive: () => bloc.stopTyping(),
+      onPause: () => bloc.stopTyping(),
+      onDetach: () => bloc.stopTyping(),
+    );
   }
 
   String _t(String key, [String? fallback]) {
@@ -78,7 +101,9 @@ class _ChatConversationScreenState
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
+    bloc.stopTyping();
     _messageController.dispose();
+    _lifecycleListener?.dispose();
     super.dispose();
   }
 
@@ -108,60 +133,78 @@ class _ChatConversationScreenState
                       stream: bloc.isLoadingStream,
                       initialData: true,
                       builder: (context, loadingSnapshot) {
-                        return StreamBuilder<List<ChatMessage>>(
-                          stream: bloc.messagesStream,
-                          initialData: const [],
-                          builder: (context, snapshot) {
-                            final messages = snapshot.data ?? const [];
-                            if (loadingSnapshot.data == true &&
-                                messages.isEmpty) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: _brand,
-                                  strokeWidth: 2,
-                                ),
-                              );
-                            }
-                            if (messages.isEmpty) {
-                              return _EmptyConversation(
-                                user: widget.conversation.user,
-                                content: _content,
-                              );
-                            }
+                        return StreamBuilder<Map<String, ShipmentData>>(
+                          stream: bloc.shipmentsStream,
+                          initialData: const {},
+                          builder: (context, shipmentSnapshot) {
+                            return StreamBuilder<List<ChatMessage>>(
+                              stream: bloc.messagesStream,
+                              initialData: const [],
+                              builder: (context, snapshot) {
+                                final messages = snapshot.data ?? const [];
+                                if (loadingSnapshot.data == true &&
+                                    messages.isEmpty) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: _brand,
+                                      strokeWidth: 2,
+                                    ),
+                                  );
+                                }
+                                if (messages.isEmpty) {
+                                  return _EmptyConversation(
+                                    user: widget.conversation.user,
+                                    content: _content,
+                                  );
+                                }
 
-                            return RefreshIndicator(
-                              color: _brand,
-                              onRefresh: bloc.loadMessages,
-                              child: ListView.builder(
-                                controller: _scrollController,
-                                reverse: true,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                padding:
-                                    const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                                itemCount: messages.length,
-                                itemBuilder: (context, index) {
-                                  final message = messages[index];
-                                  final showDate = _shouldShowDate(
-                                    messages,
-                                    index,
-                                  );
-                                  return Column(
-                                    children: [
-                                      if (showDate)
-                                        _DateSeparator(
-                                          date: _dateLabel(
-                                            message.createdAtDateTime,
+                                return RefreshIndicator(
+                                  color: _brand,
+                                  onRefresh: bloc.loadMessages,
+                                  child: ListView.builder(
+                                    controller: _scrollController,
+                                    reverse: true,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        14, 12, 14, 12),
+                                    itemCount: messages.length,
+                                    itemBuilder: (context, index) {
+                                      final message = messages[index];
+                                      final showDate = _shouldShowDate(
+                                        messages,
+                                        index,
+                                      );
+                                      return Column(
+                                        children: [
+                                          if (showDate)
+                                            _DateSeparator(
+                                              date: _dateLabel(
+                                                message.createdAtDateTime,
+                                              ),
+                                            ),
+                                          MessageBubble(
+                                            message: message,
+                                            isMyMessage:
+                                                bloc.isMyMessage(message),
+                                            shipment:
+                                                message.card?.shipmentId == null
+                                                    ? null
+                                                    : shipmentSnapshot.data?[
+                                                        message
+                                                            .card!.shipmentId],
+                                            onShipmentAction:
+                                                _handleShipmentAction,
+                                            onRetry: bloc.retryMessage,
+                                            onLongPress: _showMessageOptions,
+                                            onReview: _showReviewDialog,
                                           ),
-                                        ),
-                                      MessageBubble(
-                                        message: message,
-                                        isMyMessage: bloc.isMyMessage(message),
-                                        onShipmentAction: _handleShipmentAction,
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
                             );
                           },
                         );
@@ -169,6 +212,16 @@ class _ChatConversationScreenState
                     ),
                   ],
                 ),
+              ),
+              StreamBuilder<bool>(
+                stream: bloc.otherUserTypingStream,
+                initialData: false,
+                builder: (context, snapshot) {
+                  if (snapshot.data != true) return const SizedBox.shrink();
+                  return _TypingIndicator(
+                    user: widget.conversation.user,
+                  );
+                },
               ),
               if (_selectedFile != null)
                 _FilePreview(
@@ -180,7 +233,7 @@ class _ChatConversationScreenState
                 controller: _messageController,
                 enabled: !_isBlocked,
                 content: _content,
-                disabledText: widget.conversation.isBlocked
+                disabledText: _isBlockedByMe
                     ? _t(
                         'chat.input.blocked_by_me',
                       )
@@ -189,7 +242,7 @@ class _ChatConversationScreenState
                       ),
                 onSend: _send,
                 onAttachImage: _pickImage,
-                onAttachFile: _pickFile,
+                onChanged: bloc.onComposerChanged,
               ),
             ],
           ),
@@ -221,34 +274,56 @@ class _ChatConversationScreenState
   Future<void> _send() async {
     final text = _messageController.text.trim();
     if (text.isEmpty && _selectedFile == null) return;
-    await bloc.sendMessage(text, _selectedFile);
     _messageController.clear();
+    final image = _selectedFile;
     if (mounted) setState(() => _selectedFile = null);
+    await bloc.sendMessage(text, image);
   }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null && mounted) {
-      setState(() => _selectedFile = File(pickedFile.path));
+    if (pickedFile == null || !mounted) return;
+
+    final file = File(pickedFile.path);
+    final extension = pickedFile.path.split('.').last.toLowerCase();
+    final supported = {'jpg', 'jpeg', 'png', 'webp'}.contains(extension);
+    final size = await file.length();
+    if (!supported || size > 30 * 1024 * 1024) {
+      if (!mounted) return;
+      _showError(
+        !supported
+            ? _t(
+                'chat.image.unsupported',
+                'Yalnız JPG, PNG və WEBP şəkilləri dəstəklənir.',
+              )
+            : _t(
+                'chat.image.too_large',
+                'Şəklin ölçüsü 30 MB-dan çox ola bilməz.',
+              ),
+      );
+      return;
     }
+    setState(() => _selectedFile = file);
   }
 
-  Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
-    final path = result?.files.single.path;
-    if (path != null && mounted) {
-      setState(() => _selectedFile = File(path));
-    }
-  }
-
-  Future<void> _handleShipmentAction(String shipmentId, String action) async {
+  Future<void> _handleShipmentAction(
+    String shipmentId,
+    String action,
+  ) async {
     try {
-      await bloc.runShipmentAction(shipmentId, action);
+      final body = await _shipmentActionBody(action);
+      if (body == null && {'counter', 'dispute', 'cancel'}.contains(action)) {
+        return;
+      }
+      final message =
+          await bloc.runShipmentAction(shipmentId, action, body: body);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_t('common.operation_completed')),
+          content: Text(
+            message ?? _t('common.operation_completed'),
+          ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: _brand,
           shape:
@@ -270,10 +345,344 @@ class _ChatConversationScreenState
     }
   }
 
+  Future<Map<String, dynamic>?> _shipmentActionBody(String action) async {
+    if (action == 'counter') {
+      return _showCounterDialog();
+    }
+    if (action == 'dispute') {
+      final reason = await _showTextPrompt(
+        title: _t('chat.shipment.dispute', 'Problem bildir'),
+        hint: _t('chat.shipment.reason', 'Səbəbi yaz'),
+        minLength: 5,
+      );
+      return reason == null ? null : {'reason': reason};
+    }
+    if (action == 'cancel') {
+      final note = await _showTextPrompt(
+        title: _t('chat.shipment.cancel', 'Sövdələşməni ləğv et'),
+        hint: _t('chat.shipment.reason', 'Səbəbi yaz'),
+      );
+      return note == null
+          ? null
+          : {
+              'reason_code': 'other',
+              if (note.isNotEmpty) 'reason_note': note,
+            };
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> _showCounterDialog() async {
+    final weightController = TextEditingController();
+    final priceController = TextEditingController();
+    final noteController = TextEditingController();
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(_t('chat.shipment.counter', 'Təklifi dəyiş')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: weightController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: _t('chat.shipment.weight', 'Çəki (kq)'),
+              ),
+            ),
+            TextField(
+              controller: priceController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: _t('chat.shipment.price', 'Ümumi qiymət'),
+              ),
+            ),
+            TextField(
+              controller: noteController,
+              decoration: InputDecoration(
+                labelText: _t('chat.shipment.note', 'Qeyd'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(_t('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              final body = <String, dynamic>{};
+              final weight = double.tryParse(
+                weightController.text.replaceAll(',', '.'),
+              );
+              final price = double.tryParse(
+                priceController.text.replaceAll(',', '.'),
+              );
+              if (weight != null) body['weight_kg'] = weight;
+              if (price != null) body['price_total'] = price;
+              if (noteController.text.trim().isNotEmpty) {
+                body['note'] = noteController.text.trim();
+              }
+              Navigator.pop(context, body);
+            },
+            child: Text(_t('common.confirm')),
+          ),
+        ],
+      ),
+    );
+    weightController.dispose();
+    priceController.dispose();
+    noteController.dispose();
+    return result;
+  }
+
+  Future<String?> _showTextPrompt({
+    required String title,
+    required String hint,
+    int minLength = 0,
+    int maxLength = 1000,
+  }) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          minLines: 2,
+          maxLines: 5,
+          maxLength: maxLength,
+          decoration: InputDecoration(hintText: hint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(_t('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              final text = controller.text.trim();
+              if (text.length < minLength) return;
+              Navigator.pop(context, text);
+            },
+            child: Text(_t('common.confirm')),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
+  }
+
+  Future<void> _showReviewDialog(String shipmentId) async {
+    final commentController = TextEditingController();
+    var rating = 5;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(_t('chat.review.title', 'Rəy yaz')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  final value = index + 1;
+                  return IconButton(
+                    onPressed: () => setDialogState(() => rating = value),
+                    icon: Icon(
+                      value <= rating
+                          ? PhosphorIconsFill.star
+                          : PhosphorIconsRegular.star,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  );
+                }),
+              ),
+              TextField(
+                controller: commentController,
+                minLines: 2,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  hintText: _t('chat.review.comment', 'Şərhinizi yazın'),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(_t('common.cancel')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(_t('common.confirm')),
+            ),
+          ],
+        ),
+      ),
+    );
+    final comment = commentController.text.trim();
+    commentController.dispose();
+    if (result != true) return;
+
+    try {
+      final message = await bloc.submitShipmentReview(
+        shipmentId,
+        rating: rating,
+        comment: comment,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message ?? _t('review.submitted', 'Rəy göndərildi'),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: _brand,
+        ),
+      );
+    } catch (error) {
+      _showError(_extractError(error));
+    }
+  }
+
   String _extractError(Object error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+      if (data is Map) {
+        final errors = data['errors'];
+        if (errors is Map) {
+          for (final value in errors.values) {
+            if (value is List && value.isNotEmpty) {
+              return value.first.toString();
+            }
+          }
+        }
+        final message = data['message']?.toString();
+        if (message != null && message.isNotEmpty) return message;
+      }
+    }
     final text = error.toString();
     final messageMatch = RegExp(r'"message":"([^"]+)"').firstMatch(text);
-    return messageMatch?.group(1) ?? _t('common.error');
+    return messageMatch?.group(1) ??
+        _t('common.error', 'Xəta baş verdi. Yenidən cəhd edin.');
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFFEF4444),
+      ),
+    );
+  }
+
+  void _showMessageOptions(ChatMessage message) {
+    final isMine = bloc.isMyMessage(message);
+    final canEdit = isMine &&
+        message.type == 'text' &&
+        message.isRead != true &&
+        !message.id.startsWith('local-');
+    final canDelete =
+        message.type != 'system_card' && !message.id.startsWith('local-');
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (message.body?.isNotEmpty == true)
+                _SheetTile(
+                  icon: PhosphorIconsRegular.copy,
+                  label: _t('chat.message.copy', 'Kopyala'),
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: message.body!));
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+              if (canEdit)
+                _SheetTile(
+                  icon: PhosphorIconsRegular.pencilSimple,
+                  label: _t('chat.message.edit', 'Redaktə et'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _editMessage(message);
+                  },
+                ),
+              if (canDelete)
+                _SheetTile(
+                  icon: PhosphorIconsRegular.trash,
+                  label: _t('chat.message.delete', 'Sil'),
+                  danger: true,
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _deleteMessage(message);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editMessage(ChatMessage message) async {
+    final controller = TextEditingController(text: message.body);
+    final body = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(_t('chat.message.edit', 'Redaktə et')),
+        content: TextField(
+          controller: controller,
+          minLines: 1,
+          maxLines: 5,
+          maxLength: 5000,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(_t('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = controller.text.trim();
+              if (value.isNotEmpty) Navigator.pop(dialogContext, value);
+            },
+            child: Text(_t('common.save')),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (body == null) return;
+    try {
+      await bloc.editMessage(message.id, body);
+    } catch (error) {
+      _showError(_extractError(error));
+    }
+  }
+
+  Future<void> _deleteMessage(ChatMessage message) async {
+    try {
+      await bloc.deleteMessage(message.id);
+    } catch (error) {
+      _showError(_extractError(error));
+    }
   }
 
   void _showConversationOptions() {
@@ -328,26 +737,69 @@ class _ChatConversationScreenState
                 const SizedBox(height: 10),
                 _SheetTile(
                   icon: PhosphorIconsRegular.pushPin,
-                  label: _t('chat.action.pin'),
-                  onTap: () => Navigator.pop(context),
+                  label: _isPinned
+                      ? _t('chat.action.unpin')
+                      : _t('chat.action.pin'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _runConversationAction(() async {
+                      await bloc.setPinned(!_isPinned);
+                      if (mounted) {
+                        setState(() => _isPinned = !_isPinned);
+                      }
+                    });
+                  },
                 ),
                 _SheetTile(
                   icon: PhosphorIconsRegular.archive,
-                  label: _t('chat.action.archive'),
-                  onTap: () => Navigator.pop(context),
-                ),
-                _SheetTile(
-                  icon: PhosphorIconsRegular.bellSlash,
-                  label: _t('chat.action.mute'),
-                  onTap: () => Navigator.pop(context),
+                  label: _isArchived
+                      ? _t('chat.action.unarchive')
+                      : _t('chat.action.archive'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _runConversationAction(() async {
+                      await bloc.setArchived(!_isArchived);
+                      if (!mounted) return;
+                      setState(() => _isArchived = !_isArchived);
+                      Navigator.of(this.context).maybePop();
+                    });
+                  },
                 ),
                 _SheetTile(
                   icon: PhosphorIconsRegular.prohibit,
-                  label: widget.conversation.isBlocked
+                  label: _isBlockedByMe
                       ? _t('chat.action.unblock')
                       : _t('chat.action.block'),
                   danger: true,
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _runConversationAction(() async {
+                      await bloc.setUserBlocked(
+                        widget.conversation.user.apiId,
+                        !_isBlockedByMe,
+                      );
+                      if (mounted) {
+                        setState(() => _isBlockedByMe = !_isBlockedByMe);
+                        if (_isBlockedByMe) {
+                          bloc.stopTyping();
+                        }
+                      }
+                    });
+                  },
+                ),
+                _SheetTile(
+                  icon: PhosphorIconsRegular.trash,
+                  label: _t('chat.action.delete'),
+                  danger: true,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _runConversationAction(() async {
+                      await bloc.deleteConversation();
+                      if (mounted) {
+                        Navigator.of(this.context).maybePop();
+                      }
+                    });
+                  },
                 ),
               ],
             ),
@@ -355,6 +807,14 @@ class _ChatConversationScreenState
         );
       },
     );
+  }
+
+  Future<void> _runConversationAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (error) {
+      _showError(_extractError(error));
+    }
   }
 
   @override
@@ -378,7 +838,9 @@ class _ConversationHeader extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: _ink900.withOpacity(0.06))),
+        border: Border(
+          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
@@ -448,6 +910,158 @@ class _ConversationHeader extends StatelessWidget {
   }
 }
 
+class _TypingIndicator extends StatefulWidget {
+  final ChatUser user;
+
+  const _TypingIndicator({
+    required this.user,
+  });
+
+  @override
+  State<_TypingIndicator> createState() => _TypingIndicatorState();
+}
+
+class _TypingIndicatorState extends State<_TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: _threadBg,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            CircleAvatar(
+              radius: 12,
+              backgroundColor: _ink900.withValues(alpha: 0.08),
+              child: Text(
+                widget.user.initials,
+                style: const TextStyle(
+                  color: Color(0xFF475569),
+                  fontSize: 9,
+                  height: 1,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                  bottomLeft: Radius.circular(6),
+                  bottomRight: Radius.circular(18),
+                ),
+                border: Border.all(
+                  color: _ink900.withValues(alpha: 0.05),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _ink900.withValues(alpha: 0.07),
+                    blurRadius: 1.5,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  final elapsedSeconds =
+                      (_controller.lastElapsedDuration ?? Duration.zero)
+                              .inMicroseconds /
+                          Duration.microsecondsPerSecond;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      3,
+                      (index) => _HtmlTypingDot(
+                        state: _typingDotStateAt(
+                          elapsedSeconds,
+                          index * 0.2,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HtmlTypingDot extends StatelessWidget {
+  final (double, double) state;
+
+  const _HtmlTypingDot({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 1),
+      child: Transform.translate(
+        offset: Offset(0, state.$1),
+        child: Opacity(
+          opacity: state.$2,
+          child: const SizedBox(
+            width: 6,
+            height: 6,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Color(0xFF94A3B8),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const _typingAnimationSeconds = 1.2;
+
+(double, double) _typingDotStateAt(
+  double elapsedSeconds,
+  double delaySeconds,
+) {
+  final localTime = elapsedSeconds - delaySeconds;
+  if (localTime < 0) return (0, 1);
+  return _typingDotState((localTime / _typingAnimationSeconds) % 1);
+}
+
+(double, double) _typingDotState(double progress) {
+  if (progress <= 0.3) {
+    final value = Curves.ease.transform(progress / 0.3);
+    return (-4 * value, 0.4 + 0.6 * value);
+  }
+  if (progress <= 0.6) {
+    final value = Curves.ease.transform((progress - 0.3) / 0.3);
+    return (-4 + 4 * value, 1 - 0.6 * value);
+  }
+  return (0, 0.4);
+}
+
 class _HeaderAvatar extends StatelessWidget {
   final ChatUser user;
   final double size;
@@ -508,7 +1122,7 @@ class _DotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawColor(_threadBg, BlendMode.src);
-    final paint = Paint()..color = _ink900.withOpacity(0.035);
+    final paint = Paint()..color = _ink900.withValues(alpha: 0.035);
     for (double x = 0; x < size.width; x += 22) {
       for (double y = 0; y < size.height; y += 22) {
         canvas.drawCircle(Offset(x, y), 1, paint);
@@ -532,7 +1146,7 @@ class _DateSeparator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: _ink900.withOpacity(0.06),
+          color: _ink900.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(99),
         ),
         child: Text(
@@ -570,7 +1184,7 @@ class _EmptyConversation extends StatelessWidget {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: _ink900.withOpacity(0.08),
+                    color: _ink900.withValues(alpha: 0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 10),
                   ),

@@ -9,6 +9,7 @@ import '../../../../data/network/response/user.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_bloc.dart';
+import '../../../../services/wawat_content.dart';
 
 class CreatePostBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
@@ -40,8 +41,9 @@ class CreatePostBloc extends BaseBloc {
 
   Future<Map<String, String>> getListingContent() async {
     if (_cachedListingContent != null) return _cachedListingContent!;
-    final response = await authRepository.getContent(group: 'listing');
-    _cachedListingContent = response.data;
+    _cachedListingContent = await WawatContent.loadGroups(
+      const ['listing', 'create', 'search', 'common', 'validation', 'picker'],
+    );
     return _cachedListingContent!;
   }
 

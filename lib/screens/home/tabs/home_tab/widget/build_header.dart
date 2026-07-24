@@ -8,18 +8,18 @@ import '../notification/notification_screen.dart';
 import 'auth_modal_utils.dart';
 
 Widget BuildHeader(
-    BuildContext context, {
-      bool isDark = false,
-      int unreadCount = 0,
-      required VoidCallback onNotificationsReturned,
-    }) {
+  BuildContext context, {
+  bool isDark = false,
+  int unreadCount = 0,
+  required VoidCallback onNotificationsReturned,
+}) {
   return AnimatedContainer(
     duration: const Duration(milliseconds: 300),
     decoration: BoxDecoration(
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+          color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -29,18 +29,25 @@ Widget BuildHeader(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Image.asset(
-          'asset/mini_logo.png',
+        Container(
+          width: 138,
           height: 35,
-          color: isDark ? Colors.white : null,
-          colorBlendMode: isDark ? BlendMode.modulate : null,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Image.asset(
+            'asset/wawatair_primary.png',
+            fit: BoxFit.contain,
+            alignment: Alignment.centerLeft,
+          ),
         ),
 
         /// 🔔 Notifications
         GestureDetector(
           onTap: () async {
-            final isLogged =
-            await sl.get<AuthRepository>().isLogged();
+            final isLogged = await sl.get<AuthRepository>().isLogged();
 
             if (!isLogged) {
               return AuthModalUtils.showAuthRequiredModal(
@@ -64,17 +71,14 @@ Widget BuildHeader(
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF2A2A2A)
-                      : Colors.transparent,
+                  color: isDark ? const Color(0xFF2A2A2A) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
                   'asset/notif_aa.png',
                   height: 35,
                   color: isDark ? Colors.white : null,
-                  colorBlendMode:
-                  isDark ? BlendMode.modulate : null,
+                  colorBlendMode: isDark ? BlendMode.modulate : null,
                 ),
               ),
 
@@ -89,9 +93,7 @@ Widget BuildHeader(
                       color: Colors.red,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF1E1E1E)
-                            : Colors.white,
+                        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                         width: 2,
                       ),
                     ),
@@ -101,9 +103,7 @@ Widget BuildHeader(
                     ),
                     child: Center(
                       child: Text(
-                        unreadCount > 9
-                            ? '9+'
-                            : unreadCount.toString(),
+                        unreadCount > 9 ? '9+' : unreadCount.toString(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,

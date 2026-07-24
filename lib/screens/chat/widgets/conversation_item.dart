@@ -29,7 +29,7 @@ class ConversationItem extends StatelessWidget {
     final unread = conversation.unreadCount > 0;
 
     return Material(
-      color: unread ? _brand50.withOpacity(0.4) : Colors.white,
+      color: unread ? _brand50.withValues(alpha: 0.4) : Colors.white,
       child: InkWell(
         onTap: onTap,
         child: Padding(

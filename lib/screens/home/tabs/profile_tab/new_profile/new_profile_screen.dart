@@ -12,6 +12,7 @@ import '../../../../../data/network/response/package_types_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
+import '../../../../../services/wawat_content.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../faq/faq_screen.dart';
@@ -38,9 +39,7 @@ const _amber50 = Color(0xFFFEF6E7);
 const _emerald = Color(0xFF10B981);
 
 String _tx(Map<String, String> content, String key, String fallback) {
-  final value = content[key];
-  if (value == null || value.trim().isEmpty) return fallback;
-  return value;
+  return WawatContent.text(content, key, fallback);
 }
 
 class WawatProfileScreen extends StatefulWidget {
@@ -228,13 +227,45 @@ class WawatReviewsScreen extends StatefulWidget {
 }
 
 class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
-  late Future<WawatReviewResponse> _future = _load();
+  late bool _leftTab;
+  late Future<WawatReviewResponse> _future;
   final Set<String> _pendingReplyIds = <String>{};
+  int _receivedCount = 0;
+  int _leftCount = 0;
 
-  Future<WawatReviewResponse> _load() {
-    return widget.left
+  @override
+  void initState() {
+    super.initState();
+    _leftTab = widget.left;
+    _receivedCount = widget.user.trust.ratingCount ??
+        widget.user.stats.reviewsReceivedCount ??
+        0;
+    _future = _load();
+  }
+
+  Future<WawatReviewResponse> _load() async {
+    final loadingLeft = _leftTab;
+    final response = await (loadingLeft
         ? widget.api.reviewsLeft()
-        : widget.api.reviews(widget.user.id);
+        : widget.api.reviews(widget.user.id));
+    if (mounted) {
+      setState(() {
+        if (loadingLeft) {
+          _leftCount = response.total;
+        } else {
+          _receivedCount = response.total;
+        }
+      });
+    }
+    return response;
+  }
+
+  void _switch(bool left) {
+    if (_leftTab == left) return;
+    setState(() {
+      _leftTab = left;
+      _future = _load();
+    });
   }
 
   Future<void> _openReplySheet(WawatReview review) async {
@@ -259,16 +290,49 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titleKey =
-        widget.left ? 'menu.reviews_left' : 'menu.reviews_received';
-    final fallback = widget.left ? 'Yazdığım rəylər' : 'Aldığım rəylər';
     return Scaffold(
       backgroundColor: _screen,
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            _ProfileTopBar(title: _tx(widget.content, titleKey, fallback)),
+            _ProfileTopBar(
+              title: _tx(widget.content, 'menu.reviews', 'Rəylərim'),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: _ink900.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    _Segment(
+                      selected: !_leftTab,
+                      label: _tx(
+                        widget.content,
+                        'menu.reviews_received',
+                        'Aldığım rəylər',
+                      ),
+                      count: _receivedCount,
+                      onTap: () => _switch(false),
+                    ),
+                    _Segment(
+                      selected: _leftTab,
+                      label: _tx(
+                        widget.content,
+                        'menu.reviews_left',
+                        'Yazdığım rəylər',
+                      ),
+                      count: _leftCount,
+                      onTap: () => _switch(true),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Expanded(
               child: FutureBuilder<WawatReviewResponse>(
                 future: _future,
@@ -279,7 +343,8 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
                     );
                   }
                   if (snapshot.hasError) {
-                    return _ProfileNotFound(
+                    return _InlineLoadError(
+                      content: widget.content,
                       onRetry: () => setState(() => _future = _load()),
                     );
                   }
@@ -293,7 +358,7 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
                             ),
                         user: widget.user,
                         content: widget.content,
-                        canReply: widget.canReply && !widget.left,
+                        canReply: widget.canReply && !_leftTab,
                         pendingReplyIds: _pendingReplyIds,
                         onReply: _openReplySheet,
                       ),
@@ -1916,7 +1981,13 @@ class _FollowListScreenState extends State<_FollowListScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _ProfileTopBar(title: widget.user.safeFullName),
+            _ProfileTopBar(
+              title: _tx(
+                widget.content,
+                'menu.connections',
+                'İzləyicilər və izlədiklərim',
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
               child: Container(
@@ -1929,13 +2000,21 @@ class _FollowListScreenState extends State<_FollowListScreen> {
                   children: [
                     _Segment(
                       selected: !_followingTab,
-                      label: 'İzləyicilər',
+                      label: _tx(
+                        widget.content,
+                        'menu.followers',
+                        'İzləyicilər',
+                      ),
                       count: widget.user.followersCount,
                       onTap: () => _switch(false),
                     ),
                     _Segment(
                       selected: _followingTab,
-                      label: 'İzləyir',
+                      label: _tx(
+                        widget.content,
+                        'menu.following',
+                        'İzlədiklərim',
+                      ),
                       count: widget.user.followingCount,
                       onTap: () => _switch(true),
                     ),
@@ -1952,12 +2031,26 @@ class _FollowListScreenState extends State<_FollowListScreen> {
                       child: CircularProgressIndicator(color: _brand),
                     );
                   }
+                  if (snapshot.hasError) {
+                    return _InlineLoadError(
+                      content: widget.content,
+                      onRetry: () => setState(() => _future = _load()),
+                    );
+                  }
                   final items = snapshot.data ?? const [];
                   if (items.isEmpty) {
-                    return const _EmptyState(
+                    return _EmptyState(
                       icon: PhosphorIconsRegular.user,
-                      title: 'Siyahı boşdur',
-                      subtitle: 'Burada istifadəçilər görünəcək.',
+                      title: _tx(
+                        widget.content,
+                        'profile.list_empty',
+                        'Siyahı boşdur',
+                      ),
+                      subtitle: _tx(
+                        widget.content,
+                        'profile.users_will_appear',
+                        'Burada istifadəçilər görünəcək.',
+                      ),
                     );
                   }
                   return ListView.separated(
@@ -4356,6 +4449,65 @@ class _ProfileNotFound extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _InlineLoadError extends StatelessWidget {
+  final Map<String, String> content;
+  final VoidCallback onRetry;
+
+  const _InlineLoadError({
+    required this.content,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: _ink900.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: const Icon(
+                PhosphorIconsRegular.warningCircle,
+                color: _ink300,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _tx(
+                content,
+                'profile.load_failed',
+                'Məlumatları yükləmək alınmadı',
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: _ink900,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: 180,
+              child: _PrimaryButton(
+                label: _tx(content, 'common.retry', 'Yenidən cəhd et'),
+                onTap: onRetry,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

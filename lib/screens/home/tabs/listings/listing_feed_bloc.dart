@@ -14,6 +14,7 @@ import '../../../../domain/entities/pagination.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/paginable_bloc.dart';
+import '../../../../services/wawat_content.dart';
 
 class ListingFilterState {
   final String? type;
@@ -310,10 +311,10 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
 
   Future<Map<String, String>> loadListingContent() async {
     if (_listingContent != null) return _listingContent!;
-    final result = await authRepository.getContent(group: 'listing');
-    _listingContent = result.data;
-    listingContent.add(result.data);
-    return result.data;
+    final result = await WawatContent.loadDefault();
+    _listingContent = result;
+    listingContent.add(result);
+    return result;
   }
 
   Future<CitiesResponse> getCities(String search) {
@@ -383,6 +384,7 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
             }
           })
           .whereType<ListingFilterState>()
+          .where((item) => !_hasTechnicalCityName(item))
           .toList(),
     );
   }
@@ -438,4 +440,9 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
   Future<void> deleteSavedSearch(String id) {
     return authRepository.deleteSavedSearch(id);
   }
+}
+
+bool _hasTechnicalCityName(ListingFilterState filters) {
+  return (filters.cityFrom?.name.startsWith('#') ?? false) ||
+      (filters.cityTo?.name.startsWith('#') ?? false);
 }

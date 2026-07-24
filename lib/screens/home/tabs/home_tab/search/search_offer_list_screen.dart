@@ -13,6 +13,7 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
+import '../../../../../services/wawat_content.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../../listings/listing_feed_bloc.dart';
 import '../../listings/widgets/listing_card.dart';
@@ -32,9 +33,7 @@ const _screenBg = Color(0xFFEEF1F6);
 
 String _contentText(Map<String, String> content, String key,
     [String? fallback]) {
-  final value = content[key];
-  if (value == null || value.trim().isEmpty) return fallback ?? key;
-  return value;
+  return WawatContent.text(content, key, fallback);
 }
 
 class SearchOfferListScreen extends BaseScreen<ListingFeedBloc> {
@@ -59,6 +58,7 @@ class _SearchOfferListScreenState
     extends BaseState<SearchOfferListScreen, ListingFeedBloc> {
   final ScrollController _scrollController = ScrollController();
   bool _showResults = false;
+  bool _currentSearchSaved = false;
 
   @override
   bool get showProgressIndicator => false;
@@ -130,6 +130,7 @@ class _SearchOfferListScreenState
         SliverToBoxAdapter(
           child: SearchFormWidget(
             bloc: bloc,
+            advanced: widget.openResultsInNewPage,
             onSearch: _applySearch,
           ),
         ),
@@ -154,11 +155,9 @@ class _SearchOfferListScreenState
             child: _ResultsTopBar(
               content: content,
               filters: bloc.filters,
-              activeCount: bloc.filters.activeFilterCount,
               showBackButton: widget.showBackButton,
               onBack: _backFromResults,
               onEditRoute: () => setState(() => _showResults = false),
-              onFilterTap: _showFilters,
             ),
           ),
           SliverToBoxAdapter(
@@ -171,11 +170,21 @@ class _SearchOfferListScreenState
             ),
           ),
           SliverToBoxAdapter(
+            child: _SearchSaveActions(
+              content: content,
+              isSaved: _currentSearchSaved,
+              onSaveTap: _showSaveSearchSheet,
+              onSavedSearchesTap: _openSavedSearches,
+            ),
+          ),
+          SliverToBoxAdapter(
             child: _ResultsMetaBar(
               content: content,
               total: bloc.lastPagination?.total,
               sort: bloc.filters.sort,
+              activeFilterCount: bloc.filters.activeFilterCount,
               onSortTap: _showSortSheet,
+              onFilterTap: _showFilters,
             ),
           ),
           StreamBuilder<List<Listing>>(
@@ -229,8 +238,17 @@ class _SearchOfferListScreenState
                         isCompact: true,
                         onDetailsTap: _openDetails,
                         onFavoriteChanged: _onFavoriteChanged,
-                        onOfferTap: _requireAuth,
-                        onMessageTap: _requireAuth,
+                        onOfferTap: (listing) => showListingProposalFlow(
+                          context,
+                          listing: listing,
+                          packageNamesByCode: packageNames,
+                          content: content,
+                        ),
+                        onMessageTap: (listing) => openListingChat(
+                          context,
+                          listing: listing,
+                          content: content,
+                        ),
                       );
                     },
                   );
@@ -256,7 +274,10 @@ class _SearchOfferListScreenState
       return;
     }
     bloc.setFilters(filters);
-    setState(() => _showResults = true);
+    setState(() {
+      _showResults = true;
+      _currentSearchSaved = false;
+    });
     await bloc.saveRecentSearch(filters);
     await bloc.refreshList();
   }
@@ -283,7 +304,7 @@ class _SearchOfferListScreenState
     if (nextFilters == null) return;
     bloc.setFilters(nextFilters);
     await bloc.refreshList();
-    if (mounted) setState(() {});
+    if (mounted) setState(() => _currentSearchSaved = false);
   }
 
   Future<void> _showSortSheet() async {
@@ -298,7 +319,7 @@ class _SearchOfferListScreenState
     if (sort == null) return;
     bloc.setFilters(bloc.filters.copyWith(sort: sort));
     await bloc.refreshList();
-    if (mounted) setState(() {});
+    if (mounted) setState(() => _currentSearchSaved = false);
   }
 
   Future<void> _openSavedSearches() async {
@@ -347,6 +368,7 @@ class _SearchOfferListScreenState
       ),
     );
     if (saved == true && mounted) {
+      setState(() => _currentSearchSaved = true);
       _showSuccess(_contentText(
           bloc.listingContent.valueOrNull ?? const {}, 'search.saved_success'));
     }
@@ -392,13 +414,13 @@ class _SearchOfferListScreenState
     if (key == 'tier') filters = filters.copyWith(clearTierMin: true);
     bloc.setFilters(filters);
     bloc.refreshList();
-    setState(() {});
+    setState(() => _currentSearchSaved = false);
   }
 
   void _clearFilters() {
     bloc.setFilters(bloc.filters.routeOnly());
     bloc.refreshList();
-    setState(() {});
+    setState(() => _currentSearchSaved = false);
   }
 
   void _openDetails(Listing listing) {
@@ -414,13 +436,6 @@ class _SearchOfferListScreenState
       throw StateError('auth_required');
     }
     await bloc.setFavorite(listing, nextValue);
-  }
-
-  Future<void> _requireAuth(Listing listing) async {
-    if (!await _ensureAuth()) return;
-    if (!mounted) return;
-    _showSuccess(_contentText(bloc.listingContent.valueOrNull ?? const {},
-        'common.flow_coming_soon'));
   }
 
   Future<bool> _ensureAuth() async {
@@ -527,20 +542,16 @@ class _EntryTopBar extends StatelessWidget {
 class _ResultsTopBar extends StatelessWidget {
   final Map<String, String> content;
   final ListingFilterState filters;
-  final int activeCount;
   final bool showBackButton;
   final VoidCallback onBack;
   final VoidCallback onEditRoute;
-  final VoidCallback onFilterTap;
 
   const _ResultsTopBar({
     required this.content,
     required this.filters,
-    required this.activeCount,
     required this.showBackButton,
     required this.onBack,
     required this.onEditRoute,
-    required this.onFilterTap,
   });
 
   @override
@@ -598,50 +609,6 @@ class _ResultsTopBar extends StatelessWidget {
                       ],
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              GestureDetector(
-                onTap: onFilterTap,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: _brand50,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        PhosphorIconsRegular.slidersHorizontal,
-                        color: _brand,
-                        size: 20,
-                      ),
-                    ),
-                    if (activeCount > 0)
-                      Positioned(
-                        right: -2,
-                        top: -2,
-                        child: Container(
-                          width: 17,
-                          height: 17,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: _brand,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '$activeCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
                 ),
               ),
             ],
@@ -1014,13 +981,17 @@ class _ResultsMetaBar extends StatelessWidget {
   final Map<String, String> content;
   final int? total;
   final String sort;
+  final int activeFilterCount;
   final VoidCallback onSortTap;
+  final VoidCallback onFilterTap;
 
   const _ResultsMetaBar({
     required this.content,
     required this.total,
     required this.sort,
+    required this.activeFilterCount,
     required this.onSortTap,
+    required this.onFilterTap,
   });
 
   @override
@@ -1041,42 +1012,212 @@ class _ResultsMetaBar extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          GestureDetector(
-            onTap: onSortTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(100),
-                boxShadow: [
-                  BoxShadow(
-                    color: _ink900.withValues(alpha: 0.06),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    PhosphorIconsRegular.arrowsDownUp,
-                    color: _ink600,
-                    size: 15,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    _sortLabel(content, sort),
-                    style: const TextStyle(
-                      color: _ink700,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
+          Container(
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(100),
+              boxShadow: [
+                BoxShadow(
+                  color: _ink900.withValues(alpha: 0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onSortTap,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(11, 0, 9, 0),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          PhosphorIconsRegular.arrowsDownUp,
+                          color: _ink600,
+                          size: 15,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          _sortLabel(content, sort),
+                          style: const TextStyle(
+                            color: _ink700,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                Container(
+                  width: 1,
+                  height: 20,
+                  color: _ink900.withValues(alpha: 0.08),
+                ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onFilterTap,
+                  child: SizedBox(
+                    width: 42,
+                    height: 36,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          PhosphorIconsRegular.slidersHorizontal,
+                          color: _brand,
+                          size: 18,
+                        ),
+                        if (activeFilterCount > 0)
+                          Positioned(
+                            right: 4,
+                            top: 3,
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                minWidth: 15,
+                                minHeight: 15,
+                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 3),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                color: _brand,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '$activeFilterCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  height: 1,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SearchSaveActions extends StatelessWidget {
+  final Map<String, String> content;
+  final bool isSaved;
+  final VoidCallback onSaveTap;
+  final VoidCallback onSavedSearchesTap;
+
+  const _SearchSaveActions({
+    required this.content,
+    required this.isSaved,
+    required this.onSaveTap,
+    required this.onSavedSearchesTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _SearchSaveActionButton(
+              icon: isSaved
+                  ? PhosphorIconsFill.checkCircle
+                  : PhosphorIconsRegular.bookmarkSimple,
+              label: _contentText(
+                content,
+                isSaved ? 'search.saved_state' : 'search.save_current',
+              ),
+              foreground: _brand,
+              background: isDark
+                  ? _brand.withValues(alpha: 0.15)
+                  : const Color(0xFFEAF3FE),
+              border: _brand.withValues(alpha: 0.20),
+              onTap: isSaved ? onSavedSearchesTap : onSaveTap,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _SearchSaveActionButton(
+              icon: PhosphorIconsRegular.bookmarksSimple,
+              label: _contentText(content, 'search.saved_short'),
+              foreground: isDark ? Colors.white : _ink700,
+              background: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              border: isDark
+                  ? Colors.white.withValues(alpha: 0.10)
+                  : _ink900.withValues(alpha: 0.07),
+              onTap: onSavedSearchesTap,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SearchSaveActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color foreground;
+  final Color background;
+  final Color border;
+  final VoidCallback onTap;
+
+  const _SearchSaveActionButton({
+    required this.icon,
+    required this.label,
+    required this.foreground,
+    required this.background,
+    required this.border,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: border),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: foreground, size: 18),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1879,8 +2020,7 @@ class _SavedSearchesScreenState extends State<_SavedSearchesScreen> {
                                 deleting: _deletingIds.contains(item.id),
                                 onTap: () => Navigator.pop(
                                   context,
-                                  ListingFilterState.fromFilterMap(
-                                      item.filters),
+                                  _filtersFromSavedSearch(item),
                                 ),
                                 onDelete: () => _delete(item),
                               );
@@ -1915,7 +2055,7 @@ class _SavedSearchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filters = ListingFilterState.fromFilterMap(item.filters);
+    final filters = _filtersFromSavedSearch(item);
     final title = _savedSearchDisplayName(content, item, filters);
     return GestureDetector(
       onTap: onTap,
@@ -2072,6 +2212,7 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
   final _name = TextEditingController();
   bool _notify = true;
   bool _loading = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -2139,6 +2280,18 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
             value: _notify,
             onChanged: (value) => setState(() => _notify = value),
           ),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFFDC2626),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           _PrimaryAction(
             label: _loading
@@ -2147,7 +2300,10 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
             onTap: _loading
                 ? () {}
                 : () async {
-                    setState(() => _loading = true);
+                    setState(() {
+                      _loading = true;
+                      _error = null;
+                    });
                     try {
                       await widget.onSave(
                         _name.text.trim().isEmpty ? null : _name.text.trim(),
@@ -2157,7 +2313,13 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
                       Navigator.pop(context, true);
                     } catch (_) {
                       if (!mounted) return;
-                      setState(() => _loading = false);
+                      setState(() {
+                        _loading = false;
+                        _error = _contentText(
+                          widget.content,
+                          'search.save_error',
+                        );
+                      });
                     }
                   },
           ),
@@ -2250,6 +2412,61 @@ String _savedSearchDisplayName(
   final name = item.name?.trim() ?? '';
   if (name.isNotEmpty && !RegExp(r'^\d+$').hasMatch(name)) return name;
   return _defaultSavedSearchName(content, filters, const {});
+}
+
+ListingFilterState _filtersFromSavedSearch(SavedSearch item) {
+  final routeNames = _routeNamesFromSavedSearch(item);
+  return ListingFilterState.fromFilterMap(
+    item.filters,
+    cityFromName: _savedCityName(item.filters, 'from') ?? routeNames.$1,
+    cityFromCountry: _savedCityCountry(item.filters, 'from'),
+    cityToName: _savedCityName(item.filters, 'to') ?? routeNames.$2,
+    cityToCountry: _savedCityCountry(item.filters, 'to'),
+  );
+}
+
+(String?, String?) _routeNamesFromSavedSearch(SavedSearch item) {
+  final name = item.name?.trim() ?? '';
+  if (!name.contains('→')) return (null, null);
+  final routePart = name.split('·').first.trim();
+  final parts = routePart.split('→');
+  if (parts.length != 2) return (null, null);
+  final from = parts.first.trim();
+  final to = parts.last.trim();
+  return (
+    from.isEmpty || from.startsWith('#') ? null : from,
+    to.isEmpty || to.startsWith('#') ? null : to,
+  );
+}
+
+String? _savedCityName(Map<String, dynamic> filters, String side) {
+  final direct = filters['city_${side}_name'] ?? filters['${side}_name'];
+  if (direct != null && direct.toString().trim().isNotEmpty) {
+    return direct.toString().trim();
+  }
+  final nested = filters['city_$side'];
+  if (nested is Map) {
+    final name = nested['name'];
+    if (name != null && name.toString().trim().isNotEmpty) {
+      return name.toString().trim();
+    }
+  }
+  return null;
+}
+
+String? _savedCityCountry(Map<String, dynamic> filters, String side) {
+  final direct = filters['city_${side}_country'] ?? filters['${side}_country'];
+  if (direct != null && direct.toString().trim().isNotEmpty) {
+    return direct.toString().trim();
+  }
+  final nested = filters['city_$side'];
+  if (nested is Map) {
+    final country = nested['country_name'] ?? nested['country'];
+    if (country != null && country.toString().trim().isNotEmpty) {
+      return country.toString().trim();
+    }
+  }
+  return null;
 }
 
 List<SavedSearch> _visibleSavedSearches(List<SavedSearch> items) {

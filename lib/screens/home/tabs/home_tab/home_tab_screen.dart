@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../data/network/response/city.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/bloc/utils.dart';
+import '../../../../services/wawat_content.dart';
 import '../../../../services/theme_manager.dart';
 import '../home_tab/widget/auth_modal_utils.dart';
 import '../home_tab/widget/search_form_page.dart';
+import '../home_tab/search/search_offer_list_screen.dart';
 import '../listings/details/listing_details_screen.dart';
 import '../listings/listing_feed_bloc.dart';
 import '../listings/widgets/listing_card.dart';
@@ -26,9 +29,7 @@ const _ink400 = Color(0xFF94A3B8);
 
 String _contentText(Map<String, String> content, String key,
     [String? fallback]) {
-  final value = content[key];
-  if (value == null || value.trim().isEmpty) return fallback ?? key;
-  return value;
+  return WawatContent.text(content, key, fallback);
 }
 
 class HomeTabScreen extends BaseScreen {
@@ -95,19 +96,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                     SliverToBoxAdapter(
                         child: _PopularRoutes(
                             bloc: _listingBloc, content: content)),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 16, 14),
-                        child: Text(
-                          _contentText(content, 'home.featured_listings'),
-                          style: TextStyle(
-                            color: isDark ? Colors.white : _ink900,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ),
                     StreamBuilder<List<Listing>>(
                       stream: _listingBloc.paginableList,
                       builder: (context, snapshot) {
@@ -155,14 +143,55 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
                                   );
                                 }
                                 final listing = listings[index];
-                                return ListingCard(
-                                  listing: listing,
-                                  packageNamesByCode: packageNames,
-                                  isCompact: true,
-                                  onDetailsTap: _openDetails,
-                                  onFavoriteChanged: _onFavoriteChanged,
-                                  onOfferTap: _requireAuth,
-                                  onMessageTap: _requireAuth,
+                                final isVip = _isVipListing(listing);
+                                final previousWasVip = index > 0 &&
+                                    _isVipListing(listings[index - 1]);
+                                final showVipHeader = index == 0 && isVip;
+                                final showAllHeader =
+                                    !isVip && (index == 0 || previousWasVip);
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (showVipHeader)
+                                      _FeedSectionTitle(
+                                        label: _contentText(
+                                          content,
+                                          'promotion.section.vip',
+                                          'VİP elanlar',
+                                        ),
+                                        isDark: isDark,
+                                        vip: true,
+                                      ),
+                                    if (showAllHeader)
+                                      _FeedSectionTitle(
+                                        label: _contentText(
+                                          content,
+                                          'promotion.section.all',
+                                          'Bütün elanlar',
+                                        ),
+                                        isDark: isDark,
+                                      ),
+                                    ListingCard(
+                                      listing: listing,
+                                      packageNamesByCode: packageNames,
+                                      isCompact: true,
+                                      onDetailsTap: _openDetails,
+                                      onFavoriteChanged: _onFavoriteChanged,
+                                      onOfferTap: (listing) =>
+                                          showListingProposalFlow(
+                                        context,
+                                        listing: listing,
+                                        packageNamesByCode: packageNames,
+                                        content: content,
+                                      ),
+                                      onMessageTap: (listing) =>
+                                          openListingChat(
+                                        context,
+                                        listing: listing,
+                                        content: content,
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
                             );
@@ -199,18 +228,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
     );
   }
 
-  void _requireAuth(Listing listing) async {
-    final isLogged = await sl.get<AuthRepository>().isLogged();
-    if (!mounted) return;
-    if (!isLogged) {
-      AuthModalUtils.showAuthRequiredModal(context);
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bu axın növbəti mərhələdə qoşulacaq.')),
-    );
-  }
-
   @override
   void dispose() {
     _scrollController.dispose();
@@ -222,6 +239,49 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
   @override
   HomeTabBloc provideBloc() {
     return HomeTabBloc(const Stream.empty());
+  }
+}
+
+bool _isVipListing(Listing listing) {
+  return (listing.promotion?.type ?? listing.promotionType) == 'vip';
+}
+
+class _FeedSectionTitle extends StatelessWidget {
+  final String label;
+  final bool isDark;
+  final bool vip;
+
+  const _FeedSectionTitle({
+    required this.label,
+    required this.isDark,
+    this.vip = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 16, 14),
+      child: Row(
+        children: [
+          if (vip) ...[
+            const Icon(
+              PhosphorIconsFill.crownSimple,
+              color: Color(0xFFF59E0B),
+              size: 18,
+            ),
+            const SizedBox(width: 7),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: isDark ? Colors.white : _ink900,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -304,30 +364,13 @@ class _HeroHeader extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 34,
-                        height: 34,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: const Text(
-                          'W',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Wawatair',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                      SizedBox(
+                        width: 168,
+                        height: 40,
+                        child: Image.asset(
+                          'asset/wawatair_bluewhite.png',
+                          fit: BoxFit.contain,
+                          alignment: Alignment.centerLeft,
                         ),
                       ),
                       const Spacer(),
@@ -534,11 +577,12 @@ class _PopularRoutes extends StatefulWidget {
 }
 
 class _PopularRoutesState extends State<_PopularRoutes> {
-  List<String> _labels = const [
-    'Bakı → İstanbul',
-    'Bakı → Dubai',
-    'Gəncə → London'
+  List<_PopularRoute> _routes = const [
+    _PopularRoute(fromName: 'Bakı', toName: 'İstanbul', total: 24, minPrice: 5),
+    _PopularRoute(fromName: 'Bakı', toName: 'Dubai', total: 18, minPrice: 8),
+    _PopularRoute(fromName: 'Gəncə', toName: 'London', total: 24, minPrice: 5),
   ];
+  bool _openingRoute = false;
 
   @override
   void initState() {
@@ -548,19 +592,61 @@ class _PopularRoutesState extends State<_PopularRoutes> {
 
   Future<void> _loadRoutes() async {
     try {
-      await widget.bloc.getTrendingRoutes();
+      final response = await widget.bloc.getTrendingRoutes();
+      final routes = _parsePopularRoutes(response.data);
+      if (!mounted || routes.isEmpty) return;
+      setState(() => _routes = routes.take(3).toList());
     } catch (_) {
       try {
         final cities = await widget.bloc.getPopularCities();
         if (!mounted || cities.data.length < 2) return;
         setState(() {
-          _labels = [
+          _routes = [
             for (var i = 0; i < cities.data.length - 1 && i < 3; i++)
-              '${cities.data[i].name} → ${cities.data[i + 1].name}',
+              _PopularRoute(
+                fromName: cities.data[i].name,
+                toName: cities.data[i + 1].name,
+                from: cities.data[i],
+                to: cities.data[i + 1],
+              ),
           ];
         });
       } catch (_) {}
     }
+  }
+
+  Future<City?> _findCity(String name) async {
+    try {
+      final response = await widget.bloc.getCities(name);
+      final normalizedName = name.trim().toLowerCase();
+      for (final city in response.data) {
+        if (city.name.trim().toLowerCase() == normalizedName) return city;
+      }
+      return response.data.isEmpty ? null : response.data.first;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _openRoute(_PopularRoute route) async {
+    if (_openingRoute) return;
+    setState(() => _openingRoute = true);
+
+    final from = route.from ?? await _findCity(route.fromName);
+    final to = route.to ?? await _findCity(route.toName);
+
+    if (!mounted) return;
+    setState(() => _openingRoute = false);
+    if (from == null || to == null) return;
+
+    final filters = ListingFilterState(cityFrom: from, cityTo: to);
+    await widget.bloc.saveRecentSearch(filters);
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SearchOfferListScreen(filters: filters),
+      ),
+    );
   }
 
   @override
@@ -589,42 +675,48 @@ class _PopularRoutesState extends State<_PopularRoutes> {
             height: 108,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _labels.length,
+              itemCount: _routes.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
-                return Container(
-                  width: 178,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: isDark ? Colors.white10 : const Color(0x0F0F172A),
+                final route = _routes[index];
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _openRoute(route),
+                  child: Container(
+                    width: 178,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color:
+                            isDark ? Colors.white10 : const Color(0x0F0F172A),
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _RouteTitle(label: _labels[index], isDark: isDark),
-                      const SizedBox(height: 5),
-                      Text(
-                        index == 1 ? '18 səyahətçi' : '24 səyahətçi',
-                        style: TextStyle(
-                          color: _ink400,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _RouteTitle(label: route.label, isDark: isDark),
+                        const SizedBox(height: 5),
+                        Text(
+                          '${route.total} səyahətçi',
+                          style: const TextStyle(
+                            color: _ink400,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        index == 1 ? '8 ₼-dən' : '5 ₼-dən',
-                        style: TextStyle(
-                          color: _brand,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                        const Spacer(),
+                        Text(
+                          '${route.minPrice} ₼-dən',
+                          style: const TextStyle(
+                            color: _brand,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -634,6 +726,61 @@ class _PopularRoutesState extends State<_PopularRoutes> {
       ),
     );
   }
+}
+
+List<_PopularRoute> _parsePopularRoutes(Object? raw) {
+  if (raw is! List) return const [];
+  return raw
+      .map((value) {
+        if (value is! Map) return null;
+        final item = Map<String, dynamic>.from(value);
+        try {
+          final from =
+              City.fromJson(Map<String, dynamic>.from(item['from'] as Map));
+          final to =
+              City.fromJson(Map<String, dynamic>.from(item['to'] as Map));
+          return _PopularRoute(
+            fromName: from.name,
+            toName: to.name,
+            from: from,
+            to: to,
+            total: int.tryParse(item['total']?.toString() ?? '') ?? 0,
+            minPrice: _routePrice(item),
+          );
+        } catch (_) {
+          return null;
+        }
+      })
+      .whereType<_PopularRoute>()
+      .toList();
+}
+
+int _routePrice(Map<String, dynamic> item) {
+  final raw = item['min_price'] ??
+      item['price_from'] ??
+      item['min_price_per_kg'] ??
+      item['price_per_kg'];
+  return double.tryParse(raw?.toString() ?? '')?.round() ?? 0;
+}
+
+class _PopularRoute {
+  final String fromName;
+  final String toName;
+  final City? from;
+  final City? to;
+  final int total;
+  final int minPrice;
+
+  const _PopularRoute({
+    required this.fromName,
+    required this.toName,
+    this.from,
+    this.to,
+    this.total = 0,
+    this.minPrice = 0,
+  });
+
+  String get label => '$fromName → $toName';
 }
 
 class _RouteTitle extends StatelessWidget {

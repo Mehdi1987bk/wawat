@@ -95,8 +95,15 @@ class _FovoriteOfferListScreenState
                         isCompact: true,
                         onDetailsTap: _openDetails,
                         onFavoriteChanged: _onFavoriteChanged,
-                        onOfferTap: _requireAuth,
-                        onMessageTap: _requireAuth,
+                        onOfferTap: (listing) => showListingProposalFlow(
+                          context,
+                          listing: listing,
+                          packageNamesByCode: bloc.packageNamesByCode,
+                        ),
+                        onMessageTap: (listing) => openListingChat(
+                          context,
+                          listing: listing,
+                        ),
                       );
                     },
                   );
@@ -124,18 +131,6 @@ class _FovoriteOfferListScreenState
       MaterialPageRoute(
         builder: (_) => ListingDetailsScreen(listingId: listing.id),
       ),
-    );
-  }
-
-  void _requireAuth(Listing listing) async {
-    final isLogged = await sl.get<AuthRepository>().isLogged();
-    if (!mounted) return;
-    if (!isLogged) {
-      AuthModalUtils.showAuthRequiredModal(context);
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bu axın növbəti mərhələdə qoşulacaq.')),
     );
   }
 
@@ -195,7 +190,6 @@ class _FavoritesHeader extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );
