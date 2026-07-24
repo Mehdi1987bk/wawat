@@ -11,6 +11,8 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
@@ -23,7 +25,6 @@ import '../widget/search_form_page.dart';
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
 const _ink900 = Color(0xFF0F172A);
-const _ink800 = Color(0xFF1E293B);
 const _ink700 = Color(0xFF334155);
 const _ink600 = Color(0xFF475569);
 const _ink500 = Color(0xFF64748B);
@@ -106,31 +107,32 @@ class _SearchOfferListScreenState
         }
       },
       child: Consumer<ThemeManager>(
-      builder: (context, themeManager, _) {
-        final isDark = themeManager.isDarkMode;
-        return ThemeAwareScreen(
-          isDark: isDark,
-          lightBackgroundColor: _showResults ? _screenBg : Colors.white,
-          darkBackgroundColor: const Color(0xFF101010),
-          child: SafeArea(
-            child: StreamBuilder<Map<String, String>>(
-              stream: bloc.listingContent,
-              initialData: const {},
-              builder: (context, snapshot) {
-                final content = snapshot.data ?? const {};
-                return _showResults
-                    ? _buildResults(content)
-                    : _buildEntry(content);
-              },
+        builder: (context, themeManager, _) {
+          final isDark = themeManager.isDarkMode;
+          return ThemeAwareScreen(
+            isDark: isDark,
+            lightBackgroundColor: _showResults ? _screenBg : Colors.white,
+            darkBackgroundColor: WawatDark.bg,
+            child: SafeArea(
+              child: StreamBuilder<Map<String, String>>(
+                stream: bloc.listingContent,
+                initialData: const {},
+                builder: (context, snapshot) {
+                  final content = snapshot.data ?? const {};
+                  return _showResults
+                      ? _buildResults(content)
+                      : _buildEntry(content);
+                },
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
       ),
     );
   }
 
   Widget _buildEntry(Map<String, String> content) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
@@ -169,8 +171,8 @@ class _SearchOfferListScreenState
                 _contentText(content, 'search.applied_hint',
                     'Filtrlər tətbiq olunur · «Ətraflı»-ya yenidən basıb yığmaq olar'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: _ink400,
+                style: TextStyle(
+                  color: cMuted(isDark),
                   fontSize: 11.5,
                   fontWeight: FontWeight.w500,
                 ),
@@ -371,9 +373,11 @@ class _SearchOfferListScreenState
   }
 
   Future<void> _showSortSheet() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final sort = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (_) => _SortSheet(
         content: bloc.listingContent.valueOrNull ?? const {},
         selected: bloc.filters.sort,
@@ -404,10 +408,12 @@ class _SearchOfferListScreenState
   Future<void> _showSaveSearchSheet() async {
     if (!await _ensureAuth()) return;
     if (!mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: isDark ? WawatDark.scrim : null,
       builder: (_) => _SaveSearchSheet(
         content: bloc.listingContent.valueOrNull ?? const {},
         filters: bloc.filters,
@@ -557,18 +563,18 @@ class _SearchHero extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF14263F) : _brand50,
+              color: cBrandSoft(isDark),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(PhosphorIconsFill.airplaneTilt,
-                color: _brand, size: 27),
+            child: Icon(PhosphorIconsFill.airplaneTilt,
+                color: cBrandText(isDark), size: 27),
           ),
           const SizedBox(height: 12),
           Text(
             _contentText(content, 'search.hero_title', 'Marşrutu axtar'),
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isDark ? Colors.white : _ink900,
+              color: isDark ? WawatDark.textPrimary : _ink900,
               fontSize: 19,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
@@ -579,8 +585,8 @@ class _SearchHero extends StatelessWidget {
             _contentText(content, 'search.hero_subtitle',
                 'Haradan hara göndərmək istəyirsən?'),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _ink400,
+            style: TextStyle(
+              color: cMuted(isDark),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -607,13 +613,13 @@ class _EntryTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleColor = isDark ? Colors.white : _ink900;
+    final titleColor = cText(isDark);
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF101010) : Colors.white,
+        color: isDark ? WawatDark.bar : Colors.white,
         border: Border(
-          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+          bottom: BorderSide(color: cLine(isDark)),
         ),
       ),
       child: Row(
@@ -641,9 +647,10 @@ class _EntryTopBar extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onSavedTap,
-            child: const Padding(
-              padding: EdgeInsets.all(8),
-              child: Icon(PhosphorIconsRegular.bookmarkSimple, color: _ink500),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Icon(PhosphorIconsRegular.bookmarkSimple,
+                  color: cText2(isDark)),
             ),
           ),
         ],
@@ -669,13 +676,14 @@ class _ResultsTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final route = _routeLabel(content, filters);
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? WawatDark.bar : Colors.white,
         border: Border(
-          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+          bottom: BorderSide(color: cLine(isDark)),
         ),
       ),
       child: Column(
@@ -685,9 +693,10 @@ class _ResultsTopBar extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: onBack,
-                child: const Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: Icon(PhosphorIconsBold.arrowLeft, color: _ink700),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(PhosphorIconsBold.arrowLeft,
+                      color: isDark ? WawatDark.textSecondary : _ink700),
                 ),
               ),
               Expanded(
@@ -697,7 +706,9 @@ class _ResultsTopBar extends StatelessWidget {
                     height: 40,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: _ink900.withValues(alpha: 0.05),
+                      color: isDark
+                          ? WawatDark.surfaceAlt
+                          : _ink900.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Row(
@@ -707,16 +718,18 @@ class _ResultsTopBar extends StatelessWidget {
                             route,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _ink800,
+                            style: TextStyle(
+                              color: isDark
+                                  ? WawatDark.textPrimary
+                                  : const Color(0xFF1E293B),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           PhosphorIconsRegular.pencilSimple,
-                          color: _ink400,
+                          color: cMuted(isDark),
                           size: 18,
                         ),
                       ],
@@ -748,6 +761,7 @@ class _RecentSearchesBlock extends StatelessWidget {
         if (items.isEmpty) {
           return _SearchIntroEmpty(content: content);
         }
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: Column(
@@ -756,8 +770,8 @@ class _RecentSearchesBlock extends StatelessWidget {
                 children: [
                   Text(
                     _contentText(content, 'search.recent_title'),
-                    style: const TextStyle(
-                      color: _ink900,
+                    style: TextStyle(
+                      color: cText(isDark),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -767,8 +781,8 @@ class _RecentSearchesBlock extends StatelessWidget {
                     onTap: bloc.clearRecentSearches,
                     child: Text(
                       _contentText(content, 'common.clear'),
-                      style: const TextStyle(
-                        color: _brand,
+                      style: TextStyle(
+                        color: cBrandText(isDark),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -792,12 +806,14 @@ class _RecentSearchesBlock extends StatelessWidget {
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: _ink900.withValues(alpha: 0.04),
+                            color: isDark
+                                ? WawatDark.surfaceAlt
+                                : _ink900.withValues(alpha: 0.04),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             PhosphorIconsRegular.clockCounterClockwise,
-                            color: _ink400,
+                            color: cMuted(isDark),
                             size: 18,
                           ),
                         ),
@@ -805,16 +821,16 @@ class _RecentSearchesBlock extends StatelessWidget {
                         Expanded(
                           child: Text(
                             _routeLabel(content, item),
-                            style: const TextStyle(
-                              color: _ink800,
+                            style: TextStyle(
+                              color: cText(isDark),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           PhosphorIconsRegular.arrowUpLeft,
-                          color: _ink300,
+                          color: cFaint(isDark),
                           size: 18,
                         ),
                       ],
@@ -836,6 +852,7 @@ class _SearchIntroEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
       child: Column(
@@ -844,20 +861,20 @@ class _SearchIntroEmpty extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: _brand50,
+              color: cBrandSoft(isDark),
               borderRadius: BorderRadius.circular(22),
             ),
-            child: const Icon(
+            child: Icon(
               PhosphorIconsRegular.magnifyingGlass,
-              color: _brand,
+              color: cBrandText(isDark),
               size: 32,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             _contentText(content, 'search.intro_title'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: cText(isDark),
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -870,7 +887,7 @@ class _SearchIntroEmpty extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: _ink500,
+              color: cText2(isDark),
               fontSize: 13,
               height: 1.3,
             ),
@@ -896,6 +913,7 @@ class _TrendingRoutesBlock extends StatelessWidget {
         if (routes.isEmpty) {
           return const SizedBox.shrink();
         }
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 18, 0, 0),
           child: Column(
@@ -903,8 +921,8 @@ class _TrendingRoutesBlock extends StatelessWidget {
             children: [
               Text(
                 _contentText(content, 'home.popular_routes'),
-                style: const TextStyle(
-                  color: _ink900,
+                style: TextStyle(
+                  color: cText(isDark),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -932,18 +950,20 @@ class _TrendingRoutesBlock extends StatelessWidget {
                         width: 170,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cCard(isDark),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: _ink900.withValues(alpha: 0.06),
+                            color: cLine(isDark),
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _ink900.withValues(alpha: 0.08),
-                              blurRadius: 22,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
+                          boxShadow: isDark
+                              ? WawatDark.cardShadow
+                              : [
+                                  BoxShadow(
+                                    color: _ink900.withValues(alpha: 0.08),
+                                    blurRadius: 22,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -952,8 +972,8 @@ class _TrendingRoutesBlock extends StatelessWidget {
                               '${route.from.name} → ${route.to.name}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: _ink900,
+                              style: TextStyle(
+                                color: cText(isDark),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -964,8 +984,8 @@ class _TrendingRoutesBlock extends StatelessWidget {
                                 content,
                                 'search.route_total_template',
                               ).replaceAll('{count}', '${route.total}'),
-                              style: const TextStyle(
-                                color: _ink400,
+                              style: TextStyle(
+                                color: cMuted(isDark),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -973,8 +993,8 @@ class _TrendingRoutesBlock extends StatelessWidget {
                             const Spacer(),
                             Text(
                               _contentText(content, 'search.button'),
-                              style: const TextStyle(
-                                color: _brand,
+                              style: TextStyle(
+                                color: cBrandText(isDark),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1013,10 +1033,11 @@ class _ActiveFiltersRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final chips = _activeChips(content, filters, packageNames);
     if (chips.isEmpty) return const SizedBox.shrink();
     return Container(
-      color: Colors.white,
+      color: isDark ? WawatDark.bar : Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -1035,8 +1056,8 @@ class _ActiveFiltersRow extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                 child: Text(
                   _contentText(content, 'common.clear'),
-                  style: const TextStyle(
-                    color: _ink400,
+                  style: TextStyle(
+                    color: cMuted(isDark),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1061,28 +1082,30 @@ class _FilterChipView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: _brand50,
+          color: cBrandBadge(isDark),
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: _brand.withValues(alpha: 0.28)),
+          border: Border.all(
+              color: isDark ? WawatDark.brand : _brand.withValues(alpha: 0.28)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: _brand,
+              style: TextStyle(
+                color: cBrandText(isDark),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 6),
-            const Icon(PhosphorIconsBold.x, color: _brand, size: 11),
+            Icon(PhosphorIconsBold.x, color: cBrandText(isDark), size: 11),
           ],
         ),
       ),
@@ -1110,12 +1133,10 @@ class _ResultsMetaBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surface = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final border = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : _ink900.withValues(alpha: 0.07);
-    final labelColor = isDark ? Colors.white : _ink700;
-    final iconColor = isDark ? const Color(0xFFCBD5E1) : _ink600;
+    final surface = isDark ? WawatDark.surface : Colors.white;
+    final border = isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07);
+    final labelColor = isDark ? WawatDark.textPrimary : _ink700;
+    final iconColor = isDark ? WawatDark.icon : _ink600;
     final hasFilters = activeFilterCount > 0;
     final countText = total == null
         ? ''
@@ -1131,7 +1152,7 @@ class _ResultsMetaBar extends StatelessWidget {
             Text(
               countText,
               style: TextStyle(
-                color: isDark ? const Color(0xFF9CA3AF) : _ink500,
+                color: isDark ? WawatDark.textSecondary : _ink500,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -1175,20 +1196,24 @@ class _ResultsMetaBar extends StatelessWidget {
                 child: _MetaTile(
                   onTap: onFilterTap,
                   background: hasFilters
-                      ? (isDark ? const Color(0xFF14263F) : _brand50)
+                      ? (isDark ? WawatDark.brandBadge : _brand50)
                       : surface,
-                  borderColor: hasFilters ? _brand.withValues(alpha: 0.35) : border,
+                  borderColor: hasFilters
+                      ? (isDark
+                          ? WawatDark.brand
+                          : _brand.withValues(alpha: 0.35))
+                      : border,
                   shadow: !isDark && !hasFilters,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(PhosphorIconsRegular.slidersHorizontal,
-                          color: _brand, size: 17),
+                      Icon(PhosphorIconsRegular.slidersHorizontal,
+                          color: cBrandText(isDark), size: 17),
                       const SizedBox(width: 7),
                       Text(
                         _contentText(content, 'search.filter', 'Filtrlə'),
                         style: TextStyle(
-                          color: hasFilters ? _brand : labelColor,
+                          color: hasFilters ? cBrandText(isDark) : labelColor,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1299,11 +1324,11 @@ class _SearchSaveActions extends StatelessWidget {
                 content,
                 isSaved ? 'search.saved_state' : 'search.save_current',
               ),
-              foreground: _brand,
-              background: isDark
-                  ? _brand.withValues(alpha: 0.15)
-                  : const Color(0xFFEAF3FE),
-              border: _brand.withValues(alpha: 0.20),
+              foreground: cBrandText(isDark),
+              background: cBrandSoft(isDark),
+              border: isDark
+                  ? WawatDark.brandBadge
+                  : _brand.withValues(alpha: 0.20),
               onTap: isSaved ? onSavedSearchesTap : onSaveTap,
             ),
           ),
@@ -1312,11 +1337,10 @@ class _SearchSaveActions extends StatelessWidget {
             child: _SearchSaveActionButton(
               icon: PhosphorIconsRegular.bookmarksSimple,
               label: _contentText(content, 'search.saved_short'),
-              foreground: isDark ? Colors.white : _ink700,
-              background: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              border: isDark
-                  ? Colors.white.withValues(alpha: 0.10)
-                  : _ink900.withValues(alpha: 0.07),
+              foreground: isDark ? WawatDark.textPrimary : _ink700,
+              background: cCard(isDark),
+              border:
+                  isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07),
               onTap: onSavedSearchesTap,
             ),
           ),
@@ -1385,6 +1409,7 @@ class _SearchSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -1395,12 +1420,18 @@ class _SearchSkeleton extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(26),
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFFE7EBF1),
-                  Color(0xFFF4F6F9),
-                  Color(0xFFE7EBF1)
-                ],
+              gradient: LinearGradient(
+                colors: isDark
+                    ? const [
+                        WawatDark.skeletonBase,
+                        WawatDark.skeletonHi,
+                        WawatDark.skeletonBase,
+                      ]
+                    : const [
+                        Color(0xFFE7EBF1),
+                        Color(0xFFF4F6F9),
+                        Color(0xFFE7EBF1)
+                      ],
               ),
             ),
           ),
@@ -1448,6 +1479,7 @@ class _SearchEmpty extends StatelessWidget {
             ),
           ]
         : suggestions;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 40, 32, 24),
       child: Column(
@@ -1457,20 +1489,20 @@ class _SearchEmpty extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: _brand50,
+              color: cBrandSoft(isDark),
               borderRadius: BorderRadius.circular(26),
             ),
-            child: const Icon(
+            child: Icon(
               PhosphorIconsRegular.magnifyingGlass,
-              color: _brand,
+              color: cBrandText(isDark),
               size: 44,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             _contentText(content, 'search.empty_title'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: cText(isDark),
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
@@ -1482,7 +1514,7 @@ class _SearchEmpty extends StatelessWidget {
               'search.empty_subtitle',
             ),
             textAlign: TextAlign.center,
-            style: TextStyle(color: _ink500, fontSize: 14),
+            style: TextStyle(color: cText2(isDark), fontSize: 14),
           ),
           const SizedBox(height: 18),
           for (final item in items)
@@ -1493,14 +1525,14 @@ class _SearchEmpty extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: _brand50,
+                  color: cBrandSoft(isDark),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   item.label ?? '',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: _brand,
+                  style: TextStyle(
+                    color: cBrandText(isDark),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -1520,6 +1552,7 @@ class _NetworkError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -1529,20 +1562,20 @@ class _NetworkError extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
+              color: isDark ? WawatDark.dangerSoftBg : const Color(0xFFFEF2F2),
               borderRadius: BorderRadius.circular(26),
             ),
-            child: const Icon(
+            child: Icon(
               PhosphorIconsRegular.wifiSlash,
-              color: Color(0xFFEF4444),
+              color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
               size: 44,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             _contentText(content, 'search.network_error_title'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: cText(isDark),
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
@@ -1551,7 +1584,7 @@ class _NetworkError extends StatelessWidget {
           Text(
             _contentText(content, 'search.network_error_subtitle'),
             textAlign: TextAlign.center,
-            style: const TextStyle(color: _ink500),
+            style: TextStyle(color: cText2(isDark)),
           ),
           const SizedBox(height: 18),
           _PrimaryAction(
@@ -1570,10 +1603,12 @@ class _EndLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!isEnd) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 18),
-        child: Center(child: CircularProgressIndicator(color: _brand)),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        child:
+            Center(child: CircularProgressIndicator(color: cBrandText(isDark))),
       );
     }
     return Padding(
@@ -1583,15 +1618,15 @@ class _EndLabel extends StatelessWidget {
           Container(
             width: 44,
             height: 44,
-            decoration:
-                const BoxDecoration(color: _brand50, shape: BoxShape.circle),
-            child: const Icon(PhosphorIconsBold.check, color: _brand),
+            decoration: BoxDecoration(
+                color: cBrandSoft(isDark), shape: BoxShape.circle),
+            child: Icon(PhosphorIconsBold.check, color: cBrandText(isDark)),
           ),
           const SizedBox(height: 8),
           Text(
             _contentText(content, 'search.end_title'),
-            style: const TextStyle(
-              color: _ink700,
+            style: TextStyle(
+              color: isDark ? WawatDark.textSecondary : _ink700,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -1599,7 +1634,7 @@ class _EndLabel extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             _contentText(content, 'search.end_subtitle'),
-            style: const TextStyle(color: _ink400, fontSize: 12),
+            style: TextStyle(color: cMuted(isDark), fontSize: 12),
           ),
         ],
       ),
@@ -1631,6 +1666,7 @@ class _SortSheet extends StatelessWidget {
       _SortItem('rating_desc', _contentText(content, 'sort.rating_desc'),
           PhosphorIconsRegular.star),
     ];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1641,8 +1677,8 @@ class _SortSheet extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               _contentText(content, 'search.sort_title'),
-              style: const TextStyle(
-                color: _ink900,
+              style: TextStyle(
+                color: cText(isDark),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -1657,14 +1693,16 @@ class _SortSheet extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+                    top: BorderSide(color: cLine(isDark)),
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       item.icon,
-                      color: selected == item.value ? _brand : _ink500,
+                      color: selected == item.value
+                          ? cBrandText(isDark)
+                          : cText2(isDark),
                       size: 21,
                     ),
                     const SizedBox(width: 10),
@@ -1672,7 +1710,9 @@ class _SortSheet extends StatelessWidget {
                       child: Text(
                         item.label,
                         style: TextStyle(
-                          color: selected == item.value ? _brand : _ink800,
+                          color: selected == item.value
+                              ? cBrandText(isDark)
+                              : cText(isDark),
                           fontSize: 15,
                           fontWeight: selected == item.value
                               ? FontWeight.w700
@@ -1681,7 +1721,8 @@ class _SortSheet extends StatelessWidget {
                       ),
                     ),
                     if (selected == item.value)
-                      const Icon(PhosphorIconsFill.checkCircle, color: _brand),
+                      Icon(PhosphorIconsFill.checkCircle,
+                          color: cBrandText(isDark)),
                   ],
                 ),
               ),
@@ -1747,30 +1788,33 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.bg : Colors.white,
       body: SafeArea(
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               decoration: BoxDecoration(
+                color: isDark ? WawatDark.bar : null,
                 border: Border(
-                  bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+                  bottom: BorderSide(color: cLine(isDark)),
                 ),
               ),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(PhosphorIconsBold.x, color: _ink700),
+                    child: Icon(PhosphorIconsBold.x,
+                        color: isDark ? WawatDark.textSecondary : _ink700),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       _contentText(widget.content, 'search.filters_title'),
-                      style: const TextStyle(
-                        color: _ink900,
+                      style: TextStyle(
+                        color: cText(isDark),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1780,8 +1824,8 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                     onTap: _reset,
                     child: Text(
                       _contentText(widget.content, 'common.reset'),
-                      style: const TextStyle(
-                        color: _brand,
+                      style: TextStyle(
+                        color: cBrandText(isDark),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1987,9 +2031,9 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? WawatDark.bar : Colors.white,
             border: Border(
-              top: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+              top: BorderSide(color: cLine(isDark)),
             ),
           ),
           child: _PrimaryAction(
@@ -2058,26 +2102,36 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
       initialDate: initial,
       firstDate: firstDate,
       lastDate: lastDate,
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: _brand,
-            onPrimary: Colors.white,
-            surface: Colors.white,
-            onSurface: _ink900,
-          ),
-          textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(foregroundColor: _brand),
-          ),
-          datePickerTheme: DatePickerThemeData(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? const ColorScheme.dark(
+                    primary: _brand,
+                    onPrimary: Colors.white,
+                    surface: WawatDark.surface,
+                    onSurface: WawatDark.textPrimary,
+                  )
+                : const ColorScheme.light(
+                    primary: _brand,
+                    onPrimary: Colors.white,
+                    surface: Colors.white,
+                    onSurface: _ink900,
+                  ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: cBrandText(isDark)),
+            ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: isDark ? WawatDark.surface : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
           ),
-        ),
-        child: child ?? const SizedBox.shrink(),
-      ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -2144,8 +2198,9 @@ class _SavedSearchesScreenState extends State<_SavedSearchesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? WawatDark.bg : Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -2159,13 +2214,14 @@ class _SavedSearchesScreenState extends State<_SavedSearchesScreen> {
             ),
             Expanded(
               child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(color: _brand),
+                  ? Center(
+                      child:
+                          CircularProgressIndicator(color: cBrandText(isDark)),
                     )
                   : _items.isEmpty
                       ? _SavedEmpty(content: widget.content)
                       : RefreshIndicator(
-                          color: _brand,
+                          color: cBrandText(isDark),
                           onRefresh: _load,
                           child: ListView.separated(
                             padding: const EdgeInsets.all(16),
@@ -2212,6 +2268,7 @@ class _SavedSearchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final filters = _filtersFromSavedSearch(item);
     final title = _savedSearchDisplayName(content, item, filters);
     return GestureDetector(
@@ -2219,16 +2276,18 @@ class _SavedSearchCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cCard(isDark),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _ink900.withValues(alpha: 0.06)),
-          boxShadow: [
-            BoxShadow(
-              color: _ink900.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          border: Border.all(color: cLine(isDark)),
+          boxShadow: isDark
+              ? WawatDark.cardShadow
+              : [
+                  BoxShadow(
+                    color: _ink900.withValues(alpha: 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2237,14 +2296,18 @@ class _SavedSearchCard extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: item.notify ? _brand50 : _ink900.withValues(alpha: 0.05),
+                color: item.notify
+                    ? cBrandSoft(isDark)
+                    : (isDark
+                        ? WawatDark.surfaceAlt
+                        : _ink900.withValues(alpha: 0.05)),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 item.notify
                     ? PhosphorIconsFill.bellRinging
                     : PhosphorIconsFill.bookmarkSimple,
-                color: item.notify ? _brand : _ink500,
+                color: item.notify ? cBrandText(isDark) : cText2(isDark),
               ),
             ),
             const SizedBox(width: 12),
@@ -2258,8 +2321,8 @@ class _SavedSearchCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: _ink900,
+                        style: TextStyle(
+                          color: cText(isDark),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2269,7 +2332,9 @@ class _SavedSearchCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFECFDF5),
+                            color: isDark
+                                ? WawatDark.successBg
+                                : const Color(0xFFECFDF5),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -2278,8 +2343,10 @@ class _SavedSearchCard extends StatelessWidget {
                               'search.alert_active',
                               'Bildiriş aktiv',
                             ),
-                            style: const TextStyle(
-                              color: Color(0xFF059669),
+                            style: TextStyle(
+                              color: isDark
+                                  ? WawatDark.success
+                                  : const Color(0xFF059669),
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
@@ -2298,13 +2365,15 @@ class _SavedSearchCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 7, vertical: 4),
                           decoration: BoxDecoration(
-                            color: _ink900.withValues(alpha: 0.05),
+                            color: isDark
+                                ? WawatDark.surfaceAlt
+                                : _ink900.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             chip.label,
-                            style: const TextStyle(
-                              color: _ink600,
+                            style: TextStyle(
+                              color: cText3(isDark),
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
@@ -2321,7 +2390,7 @@ class _SavedSearchCard extends StatelessWidget {
                         'Son yoxlama: {time}',
                       ).replaceAll(
                           '{time}', _relativeTime(content, item.lastRunAt)),
-                      style: const TextStyle(color: _ink400, fontSize: 11),
+                      style: TextStyle(color: cMuted(isDark), fontSize: 11),
                     ),
                   ],
                 ],
@@ -2332,15 +2401,15 @@ class _SavedSearchCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: deleting
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: _brand,
+                          color: cBrandText(isDark),
                         ),
                       )
-                    : const Icon(PhosphorIconsRegular.trash, color: _ink400),
+                    : Icon(PhosphorIconsRegular.trash, color: cMuted(isDark)),
               ),
             ),
           ],
@@ -2379,6 +2448,7 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return _SheetShell(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -2388,20 +2458,20 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: _brand50,
+              color: cBrandSoft(isDark),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(
+            child: Icon(
               PhosphorIconsFill.bellRinging,
-              color: _brand,
+              color: cBrandText(isDark),
               size: 28,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             _contentText(widget.content, 'search.save_title'),
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: cText(isDark),
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
@@ -2410,7 +2480,7 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
           Text(
             _contentText(widget.content, 'search.save_subtitle'),
             textAlign: TextAlign.center,
-            style: const TextStyle(color: _ink500, fontSize: 13, height: 1.35),
+            style: TextStyle(color: cText2(isDark), fontSize: 13, height: 1.35),
           ),
           const SizedBox(height: 14),
           Wrap(
@@ -2427,8 +2497,10 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
           const SizedBox(height: 14),
           TextField(
             controller: _name,
+            style: TextStyle(color: cText(isDark)),
             decoration: _inputDecoration(
-                _contentText(widget.content, 'search.save_name_hint')),
+                _contentText(widget.content, 'search.save_name_hint'),
+                isDark: isDark),
           ),
           const SizedBox(height: 12),
           _SwitchRow(
@@ -2442,8 +2514,8 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFFDC2626),
+              style: TextStyle(
+                color: isDark ? WawatDark.dangerText : const Color(0xFFDC2626),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -2789,24 +2861,27 @@ class _SimpleTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
       decoration: BoxDecoration(
+        color: isDark ? WawatDark.bar : null,
         border: Border(
-          bottom: BorderSide(color: _ink900.withValues(alpha: 0.06)),
+          bottom: BorderSide(color: cLine(isDark)),
         ),
       ),
       child: Row(
         children: [
           GestureDetector(
             onTap: onBack,
-            child: const Icon(PhosphorIconsBold.arrowLeft, color: _ink700),
+            child: Icon(PhosphorIconsBold.arrowLeft,
+                color: isDark ? WawatDark.textSecondary : _ink700),
           ),
           const SizedBox(width: 12),
           Text(
             title,
-            style: const TextStyle(
-              color: _ink900,
+            style: TextStyle(
+              color: cText(isDark),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -2824,13 +2899,14 @@ class _SavedEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Text(
           _contentText(content, 'search.saved_empty'),
           textAlign: TextAlign.center,
-          style: const TextStyle(color: _ink500, fontWeight: FontWeight.w600),
+          style: TextStyle(color: cText2(isDark), fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -2844,12 +2920,13 @@ class _FilterTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 9),
       child: Text(
         label,
-        style: const TextStyle(
-          color: _ink700,
+        style: TextStyle(
+          color: isDark ? WawatDark.textSecondary : _ink700,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -2871,23 +2948,25 @@ class _Segmented extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.05),
+        color: isDark ? WawatDark.ripple : _ink900.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
-          _seg(_contentText(content, 'search.type_all'), null),
-          _seg(_contentText(content, 'search.type_trip'), 'trip'),
-          _seg(_contentText(content, 'search.type_shipment'), 'shipment_post'),
+          _seg(isDark, _contentText(content, 'search.type_all'), null),
+          _seg(isDark, _contentText(content, 'search.type_trip'), 'trip'),
+          _seg(isDark, _contentText(content, 'search.type_shipment'),
+              'shipment_post'),
         ],
       ),
     );
   }
 
-  Widget _seg(String label, String? itemValue) {
+  Widget _seg(bool isDark, String label, String? itemValue) {
     final selected = value == itemValue;
     return Expanded(
       child: GestureDetector(
@@ -2896,13 +2975,17 @@ class _Segmented extends StatelessWidget {
           height: 38,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? Colors.white : Colors.transparent,
+            color: selected
+                ? (isDark ? WawatDark.brandBadge : Colors.white)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(14),
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: selected ? _brand : _ink500,
+              color: selected
+                  ? cBrandText(isDark)
+                  : (isDark ? WawatDark.textMuted : _ink500),
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -2928,28 +3011,37 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _brand50 : Colors.white,
+          color: selected
+              ? (isDark ? WawatDark.brandBadge : _brand50)
+              : (isDark ? WawatDark.surface : Colors.white),
           borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? _brand : _ink900.withValues(alpha: 0.08),
+            color: selected
+                ? (isDark ? WawatDark.brand : _brand)
+                : cBorder(isDark),
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, color: selected ? _brand : _ink500, size: 16),
+              Icon(icon,
+                  color: selected ? cBrandText(isDark) : cText2(isDark),
+                  size: 16),
               const SizedBox(width: 6),
             ],
             Text(
               label,
               style: TextStyle(
-                color: selected ? _brand : _ink700,
+                color: selected
+                    ? cBrandText(isDark)
+                    : (isDark ? WawatDark.textSecondary : _ink700),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -2976,24 +3068,27 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Container(
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
-          color: _ink900.withValues(alpha: 0.03),
+          color:
+              isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
           children: [
-            Icon(icon, color: value ? _brand : _ink500, size: 18),
+            Icon(icon,
+                color: value ? cBrandText(isDark) : cText2(isDark), size: 18),
             const SizedBox(width: 9),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  color: _ink700,
+                style: TextStyle(
+                  color: isDark ? WawatDark.textSecondary : _ink700,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -3005,15 +3100,20 @@ class _SwitchRow extends StatelessWidget {
               height: 24,
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: value ? _brand : _ink900.withValues(alpha: 0.12),
+                color: value
+                    ? _brand
+                    : (isDark
+                        ? const Color(0x24FFFFFF)
+                        : _ink900.withValues(alpha: 0.12)),
                 borderRadius: BorderRadius.circular(100),
               ),
               alignment: value ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
                 width: 20,
                 height: 20,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color:
+                      isDark && !value ? const Color(0xFFCBD5E1) : Colors.white,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -3036,10 +3136,12 @@ class _SmallInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: _inputDecoration(hint),
+      style: TextStyle(color: cText(isDark)),
+      decoration: _inputDecoration(hint, isDark: isDark),
     );
   }
 }
@@ -3059,6 +3161,7 @@ class _DateFilterBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasValue = value != null && value!.isNotEmpty;
     return GestureDetector(
       onTap: onTap,
@@ -3066,9 +3169,9 @@ class _DateFilterBox extends StatelessWidget {
         height: 54,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: isDark ? WawatDark.surfaceAlt : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _ink900.withValues(alpha: 0.07)),
+          border: Border.all(color: cBorder(isDark)),
         ),
         child: Row(
           children: [
@@ -3078,7 +3181,9 @@ class _DateFilterBox extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: hasValue ? _ink900 : _ink400,
+                  color: hasValue
+                      ? cText(isDark)
+                      : (isDark ? WawatDark.placeholder : _ink400),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -3089,7 +3194,7 @@ class _DateFilterBox extends StatelessWidget {
               onTap: hasValue ? onClear : onTap,
               child: Icon(
                 hasValue ? PhosphorIconsBold.x : PhosphorIconsRegular.calendar,
-                color: _ink400,
+                color: cMuted(isDark),
                 size: 18,
               ),
             ),
@@ -3100,22 +3205,25 @@ class _DateFilterBox extends StatelessWidget {
   }
 }
 
-InputDecoration _inputDecoration(String hint) {
+InputDecoration _inputDecoration(String hint, {bool isDark = false}) {
   return InputDecoration(
     hintText: hint,
+    hintStyle: isDark ? const TextStyle(color: WawatDark.placeholder) : null,
     filled: true,
-    fillColor: const Color(0xFFF8FAFC),
+    fillColor: isDark ? WawatDark.surfaceAlt : const Color(0xFFF8FAFC),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
-      borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+      borderSide: BorderSide(
+          color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
-      borderSide: BorderSide(color: _ink900.withValues(alpha: 0.07)),
+      borderSide: BorderSide(
+          color: isDark ? WawatDark.border : _ink900.withValues(alpha: 0.07)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
-      borderSide: const BorderSide(color: _brand),
+      borderSide: BorderSide(color: isDark ? WawatDark.focusRing : _brand),
     ),
   );
 }
@@ -3167,16 +3275,17 @@ class _TinyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: _ink900.withValues(alpha: 0.05),
+        color: isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(7),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: _ink600,
+        style: TextStyle(
+          color: cText3(isDark),
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
@@ -3192,6 +3301,7 @@ class _SheetShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
@@ -3200,9 +3310,9 @@ class _SheetShell extends StatelessWidget {
         18,
         18 + MediaQuery.of(context).padding.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      decoration: BoxDecoration(
+        color: cCard(isDark),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: child,
     );
@@ -3214,13 +3324,14 @@ class _Grabber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Container(
         width: 40,
         height: 5,
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
-          color: _ink300,
+          color: isDark ? WawatDark.grab : _ink300,
           borderRadius: BorderRadius.circular(100),
         ),
       ),

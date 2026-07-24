@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../data/network/response/city.dart';
 import '../../../../../generated/l10n.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_manager.dart';
 
 class CitySelector extends StatefulWidget {
@@ -114,7 +116,6 @@ class _CitySelectorState extends State<CitySelector> {
           children: [
             const Icon(Icons.cloud_off, color: Colors.white, size: 20),
             const SizedBox(width: 12),
-
           ],
         ),
         backgroundColor: const Color(0xFFEF4444),
@@ -165,7 +166,7 @@ class _CitySelectorState extends State<CitySelector> {
           duration: const Duration(milliseconds: 300),
           height: MediaQuery.of(context).size.height * 0.75,
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            color: cCard(isDark),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -176,7 +177,7 @@ class _CitySelectorState extends State<CitySelector> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
+                  color: isDark ? WawatDark.grab : const Color(0xFFE5E5EA),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -192,14 +193,16 @@ class _CitySelectorState extends State<CitySelector> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: Icon(
                         Icons.close,
-                        color: isDark ? const Color(0xFFB0B0B0) : const Color(0xFF8E8E93),
+                        color: isDark
+                            ? WawatDark.iconMuted
+                            : const Color(0xFF8E8E93),
                       ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -213,7 +216,8 @@ class _CitySelectorState extends State<CitySelector> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF2F2F7),
+                    color:
+                        isDark ? WawatDark.surfaceAlt : const Color(0xFFF2F2F7),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ValueListenableBuilder<TextEditingValue>(
@@ -224,17 +228,21 @@ class _CitySelectorState extends State<CitySelector> {
                         onChanged: _onSearchChanged,
                         style: TextStyle(
                           fontSize: 15,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
                         decoration: InputDecoration(
                           hintText: S.of(context).nu6j5yhtge65h4tgre,
                           hintStyle: TextStyle(
                             fontSize: 15,
-                            color: isDark ? const Color(0xFF6B7280) : const Color(0xFF8E8E93),
+                            color: isDark
+                                ? WawatDark.placeholder
+                                : const Color(0xFF8E8E93),
                           ),
                           prefixIcon: Icon(
                             Icons.search,
-                            color: isDark ? const Color(0xFF6B7280) : const Color(0xFF8E8E93),
+                            color: isDark
+                                ? WawatDark.iconMuted
+                                : const Color(0xFF8E8E93),
                             size: 20,
                           ),
                           suffixIcon: _buildSuffixIcon(isDark, value.text),
@@ -259,13 +267,13 @@ class _CitySelectorState extends State<CitySelector> {
                     // Основной список
                     widget.isLoading && _cities.isEmpty
                         ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF5B51FF),
-                      ),
-                    )
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF5B51FF),
+                            ),
+                          )
                         : _cities.isEmpty
-                        ? _buildEmptyWidget(isDark)
-                        : _buildCitiesList(isDark),
+                            ? _buildEmptyWidget(isDark)
+                            : _buildCitiesList(isDark),
 
                     // Мини-индикатор загрузки сверху (не блокирует UI)
                     if (_isSearching)
@@ -313,7 +321,7 @@ class _CitySelectorState extends State<CitySelector> {
           padding: const EdgeInsets.all(12),
           child: Icon(
             Icons.cancel,
-            color: isDark ? const Color(0xFF6B7280) : const Color(0xFF8E8E93),
+            color: isDark ? WawatDark.iconMuted : const Color(0xFF8E8E93),
             size: 20,
           ),
         ),
@@ -331,14 +339,14 @@ class _CitySelectorState extends State<CitySelector> {
           Icon(
             Icons.search_off,
             size: 64,
-            color: isDark ? const Color(0xFF4A4A4A) : Colors.grey.shade300,
+            color: isDark ? WawatDark.iconMuted : Colors.grey.shade300,
           ),
           const SizedBox(height: 16),
           Text(
             S.of(context).nthybgtefr4terfd,
             style: TextStyle(
               fontSize: 16,
-              color: isDark ? const Color(0xFF9CA3AF) : Colors.grey.shade600,
+              color: isDark ? WawatDark.textSecondary : Colors.grey.shade600,
             ),
           ),
         ],
@@ -358,7 +366,7 @@ class _CitySelectorState extends State<CitySelector> {
           height: 1,
           indent: 20,
           endIndent: 20,
-          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5EA),
+          color: isDark ? WawatDark.divider : const Color(0xFFE5E5EA),
         ),
         itemBuilder: (context, index) {
           final city = _cities[index];
@@ -378,7 +386,9 @@ class _CitySelectorState extends State<CitySelector> {
                 vertical: 16,
               ),
               color: isSelected
-                  ? const Color(0xFF5B51FF).withOpacity(0.05)
+                  ? (isDark
+                      ? WawatDark.brandChip
+                      : const Color(0xFF5B51FF).withOpacity(0.05))
                   : Colors.transparent,
               child: Row(
                 children: [
@@ -390,10 +400,15 @@ class _CitySelectorState extends State<CitySelector> {
                           city.name,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: isSelected ? FontWeight.w500 : FontWeight.w500,
+                            fontWeight:
+                                isSelected ? FontWeight.w500 : FontWeight.w500,
                             color: isSelected
-                                ? const Color(0xFF5B51FF)
-                                : (isDark ? Colors.white : Colors.black),
+                                ? (isDark
+                                    ? WawatDark.brandText
+                                    : const Color(0xFF5B51FF))
+                                : (isDark
+                                    ? WawatDark.textPrimary
+                                    : Colors.black),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -401,16 +416,20 @@ class _CitySelectorState extends State<CitySelector> {
                           '${city.countryName} (${city.countryCode})',
                           style: TextStyle(
                             fontSize: 14,
-                            color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF8E8E93),
+                            color: isDark
+                                ? WawatDark.textMuted
+                                : const Color(0xFF8E8E93),
                           ),
                         ),
                       ],
                     ),
                   ),
                   if (isSelected)
-                    const Icon(
+                    Icon(
                       Icons.check_circle,
-                      color: Color(0xFF5B51FF),
+                      color: isDark
+                          ? WawatDark.brandText
+                          : const Color(0xFF5B51FF),
                       size: 24,
                     ),
                 ],
