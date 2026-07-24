@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 
@@ -88,11 +90,22 @@ class _ListingCardState extends State<ListingCard> {
 
   bool get _isTrip => widget.listing.isTrip;
 
-  Color get _accent =>
-      _isTrip ? const Color(0xFF0271EB) : const Color(0xFFF59E0B);
+  /// Акцент как ТЕКСТ/ИКОНКА: бренд-синий (səfər) или янтарь (göndəriş).
+  /// В dark: trip → brandText, shipment → warning.
+  Color _accentOf(bool isDark) {
+    if (isDark) {
+      return _isTrip ? WawatDark.brandText : WawatDark.warning;
+    }
+    return _isTrip ? const Color(0xFF0271EB) : const Color(0xFFF59E0B);
+  }
 
-  Color get _accentSoft =>
-      _isTrip ? const Color(0xFFEAF3FE) : const Color(0xFFFFF7ED);
+  /// Мягкая плашка под акцент. В dark: trip → brandChip, shipment → warningBg.
+  Color _accentSoftOf(bool isDark) {
+    if (isDark) {
+      return _isTrip ? WawatDark.brandChip : WawatDark.warningBg;
+    }
+    return _isTrip ? const Color(0xFFEAF3FE) : const Color(0xFFFFF7ED);
+  }
 
   String? get _promotionType =>
       widget.promotionTypeOverride ??
@@ -102,12 +115,14 @@ class _ListingCardState extends State<ListingCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
-    final mutedColor =
-        isDark ? const Color(0xFFB8B8B8) : const Color(0xFF64748B);
-    final borderColor =
-        _promotionType == 'vip' ? const Color(0xFFF59E0B) : Colors.transparent;
+    final cardColor = cCard(isDark);
+    final textColor = cText(isDark);
+    final mutedColor = isDark ? WawatDark.textMuted : const Color(0xFF64748B);
+    final isVipCard = _promotionType == 'vip';
+    // VIP → золотое кольцо, иначе тонкая обводка (в dark — карточная обводка).
+    final borderColor = isVipCard
+        ? (isDark ? WawatDark.goldRing : const Color(0xFFF59E0B))
+        : (isDark ? WawatDark.border : const Color(0x0F0F172A));
 
     return FutureBuilder<Map<String, String>>(
       future: _contentFuture,
@@ -127,27 +142,27 @@ class _ListingCardState extends State<ListingCard> {
               color: cardColor,
               borderRadius: BorderRadius.circular(26),
               border: Border.all(
-                color: borderColor == Colors.transparent
-                    ? (isDark ? Colors.white10 : const Color(0x0F0F172A))
-                    : borderColor,
-                width: _promotionType == 'vip' ? 2 : 1,
+                color: borderColor,
+                width: isVipCard ? 2 : 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              boxShadow: isDark
+                  ? WawatDark.cardShadow
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(textColor, mutedColor, content),
+                _buildHeader(textColor, mutedColor, content, isDark),
                 const SizedBox(height: 16),
-                _buildRoute(textColor, mutedColor),
+                _buildRoute(textColor, mutedColor, isDark),
                 const SizedBox(height: 14),
-                _buildMainMeta(textColor, mutedColor),
+                _buildMainMeta(textColor, mutedColor, isDark),
                 if (!widget.isCompact || _isExpanded) ...[
                   _buildDetails(textColor, mutedColor, isDark),
                 ],
@@ -162,17 +177,18 @@ class _ListingCardState extends State<ListingCard> {
                 if (widget.actionsEnabled) ...[
                   const SizedBox(height: 16),
                   widget.isOwner
-                      ? _buildOwnerActions()
-                      : _buildPublicActions(textColor),
+                      ? _buildOwnerActions(isDark)
+                      : _buildPublicActions(textColor, isDark),
                 ],
                 if (widget.isOwner &&
                     (widget.onVipTap != null ||
                         widget.onBoostTap != null ||
                         widget.onPromotionExtendTap != null)) ...[
                   const SizedBox(height: 14),
-                  _buildPromotionActions(textColor, mutedColor, content),
+                  _buildPromotionActions(
+                      textColor, mutedColor, content, isDark),
                 ],
-                if (widget.isCompact) _buildExpandButton(),
+                if (widget.isCompact) _buildExpandButton(isDark),
               ],
             ),
           ),
@@ -185,6 +201,7 @@ class _ListingCardState extends State<ListingCard> {
     Color textColor,
     Color mutedColor,
     Map<String, String> content,
+    bool isDark,
   ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,23 +219,24 @@ class _ListingCardState extends State<ListingCard> {
                     content[
                         'enum.listing_type.${_isTrip ? 'trip' : 'shipment_post'}'] ??
                     (_isTrip ? 'Səfər' : 'Göndəriş'),
-                color: _accent,
-                background: _accentSoft,
+                color: _accentOf(isDark),
+                background: _accentSoftOf(isDark),
               ),
               if (_promotionType == 'vip')
                 _Badge(
                   icon: PhosphorIconsFill.sealCheck,
                   label: content['enum.promotion_type.vip'] ?? 'VİP',
-                  color: const Color(0xFF0F172A),
-                  background: const Color(0xFFFBBF24),
+                  color: isDark ? WawatDark.onGold : const Color(0xFF0F172A),
+                  background: isDark ? WawatDark.gold : const Color(0xFFFBBF24),
                 ),
               if (_promotionType == 'featured')
                 _Badge(
                   icon: PhosphorIconsFill.rocketLaunch,
                   label: content['enum.promotion_type.featured'] ??
                       'Önə çıxarılan',
-                  color: const Color(0xFF024FA3),
-                  background: const Color(0xFFCFE3FD),
+                  color: isDark ? WawatDark.brandText : const Color(0xFF024FA3),
+                  background:
+                      isDark ? WawatDark.brandChip : const Color(0xFFCFE3FD),
                 ),
               if (widget.isOwner && widget.listing.statusLabel != null)
                 _Badge(
@@ -240,7 +258,7 @@ class _ListingCardState extends State<ListingCard> {
                 _isFavorited
                     ? PhosphorIconsFill.heart
                     : PhosphorIconsRegular.heart,
-                color: _isFavorited ? _accent : mutedColor,
+                color: _isFavorited ? _accentOf(isDark) : cFaint(isDark),
                 size: 24,
               ),
             ),
@@ -249,7 +267,7 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildRoute(Color textColor, Color mutedColor) {
+  Widget _buildRoute(Color textColor, Color mutedColor, bool isDark) {
     return Row(
       children: [
         Expanded(
@@ -261,7 +279,12 @@ class _ListingCardState extends State<ListingCard> {
           ),
         ),
         const SizedBox(width: 8),
-        _RouteLine(accent: _accent, softAccent: _accentSoft, isTrip: _isTrip),
+        _RouteLine(
+          accent: _accentOf(isDark),
+          softAccent: _accentSoftOf(isDark),
+          isTrip: _isTrip,
+          isDark: isDark,
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: _RouteCity(
@@ -275,14 +298,14 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildMainMeta(Color textColor, Color mutedColor) {
+  Widget _buildMainMeta(Color textColor, Color mutedColor, bool isDark) {
     return Row(
       children: [
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 9),
             decoration: BoxDecoration(
-              color: _accentSoft,
+              color: _accentSoftOf(isDark),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -292,7 +315,7 @@ class _ListingCardState extends State<ListingCard> {
                   _isTrip
                       ? PhosphorIconsFill.calendarDots
                       : PhosphorIconsRegular.calendarBlank,
-                  color: _accent,
+                  color: _accentOf(isDark),
                   size: 18,
                 ),
                 const SizedBox(width: 5),
@@ -349,7 +372,7 @@ class _ListingCardState extends State<ListingCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_isTrip && widget.listing.maxWeightKg != null)
-          _buildCapacity(textColor, mutedColor),
+          _buildCapacity(textColor, mutedColor, isDark),
         if (!_isTrip && widget.listing.weightKg != null)
           _InfoRow(
             icon: PhosphorIconsRegular.scales,
@@ -373,8 +396,8 @@ class _ListingCardState extends State<ListingCard> {
           _Badge(
             icon: PhosphorIconsFill.handshake,
             label: 'Qiymət razılaşma ilə',
-            color: _accent,
-            background: _accentSoft,
+            color: _accentOf(isDark),
+            background: _accentSoftOf(isDark),
           ),
         ],
         if (widget.listing.packageTypeCodes.isNotEmpty) ...[
@@ -382,8 +405,9 @@ class _ListingCardState extends State<ListingCard> {
           Wrap(
             spacing: 7,
             runSpacing: 7,
-            children:
-                widget.listing.packageTypeCodes.map(_buildPackageChip).toList(),
+            children: widget.listing.packageTypeCodes
+                .map((code) => _buildPackageChip(code, isDark))
+                .toList(),
           ),
         ],
         if (widget.listing.description != null &&
@@ -405,7 +429,7 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildCapacity(Color textColor, Color mutedColor) {
+  Widget _buildCapacity(Color textColor, Color mutedColor, bool isDark) {
     final max = widget.listing.maxWeightKg ?? 0;
     final free = widget.listing.freeWeightKg?.clamp(0, max).toDouble() ?? max;
     final reserved = (widget.listing.reservedKg ?? 0).clamp(0, max).toDouble();
@@ -419,7 +443,7 @@ class _ListingCardState extends State<ListingCard> {
             Text(
               'Boş yer',
               style: TextStyle(
-                color: mutedColor,
+                color: isDark ? cText2(true) : mutedColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -441,31 +465,39 @@ class _ListingCardState extends State<ListingCard> {
           child: LinearProgressIndicator(
             minHeight: 6,
             value: 1 - progress,
-            color: _accent,
-            backgroundColor: const Color(0xFFE2E8F0),
+            color: isDark
+                ? (_isTrip ? WawatDark.brandTextStrong : _accentOf(true))
+                : _accentOf(false),
+            backgroundColor: isDark ? cBorder(true) : const Color(0xFFE2E8F0),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPackageChip(String code) {
+  Widget _buildPackageChip(String code, bool isDark) {
     final label = widget.packageNamesByCode[code] ?? code;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF64748B).withValues(alpha: 0.08),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : const Color(0xFF64748B).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_packageIcon(code), color: const Color(0xFF64748B), size: 14),
+          Icon(
+            _packageIcon(code),
+            color: isDark ? cText2(true) : const Color(0xFF64748B),
+            size: 14,
+          ),
           const SizedBox(width: 5),
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF475569),
+            style: TextStyle(
+              color: isDark ? cText2(true) : const Color(0xFF475569),
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -503,7 +535,7 @@ class _ListingCardState extends State<ListingCard> {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: isDark ? Colors.white10 : const Color(0x0F0F172A),
+              color: isDark ? cLine(true) : const Color(0x0F0F172A),
             ),
           ),
         ),
@@ -511,11 +543,11 @@ class _ListingCardState extends State<ListingCard> {
           children: [
             CircleAvatar(
               radius: 21,
-              backgroundColor: _accentSoft,
+              backgroundColor: _accentSoftOf(isDark),
               child: Text(
                 initials,
                 style: TextStyle(
-                  color: _accent,
+                  color: _accentOf(isDark),
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -542,9 +574,11 @@ class _ListingCardState extends State<ListingCard> {
                       ),
                       if (owner.isVerified) ...[
                         const SizedBox(width: 5),
-                        const Icon(
+                        Icon(
                           PhosphorIconsFill.sealCheck,
-                          color: Color(0xFF0271EB),
+                          color: isDark
+                              ? WawatDark.brandText
+                              : const Color(0xFF0271EB),
                           size: 16,
                         ),
                       ],
@@ -635,7 +669,12 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildPublicActions(Color textColor) {
+  Widget _buildPublicActions(Color textColor, bool isDark) {
+    // Основная CTA — сплошная акцент-ЗАЛИВКА (не меняем в dark): trip синий,
+    // göndəriş янтарь. Белый текст на ней остаётся.
+    final ctaBackground = _isTrip
+        ? (isDark ? WawatDark.brand : const Color(0xFF0271EB))
+        : const Color(0xFFF59E0B);
     return Row(
       children: [
         Expanded(
@@ -643,7 +682,7 @@ class _ListingCardState extends State<ListingCard> {
           child: _ActionButton(
             label: 'Təklif göndər',
             icon: PhosphorIconsBold.paperPlaneTilt,
-            background: _accent,
+            background: ctaBackground,
             color: Colors.white,
             onTap: widget.onOfferTap == null
                 ? null
@@ -656,8 +695,8 @@ class _ListingCardState extends State<ListingCard> {
           child: _ActionButton(
             label: 'Mesaj',
             icon: PhosphorIconsRegular.chatCircle,
-            background: _accentSoft,
-            color: _accent,
+            background: _accentSoftOf(isDark),
+            color: _accentOf(isDark),
             onTap: widget.onMessageTap == null
                 ? null
                 : () => widget.onMessageTap!(widget.listing),
@@ -667,7 +706,7 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildOwnerActions() {
+  Widget _buildOwnerActions(bool isDark) {
     final canResume = widget.listing.status == 'paused';
     return Row(
       children: [
@@ -677,8 +716,8 @@ class _ListingCardState extends State<ListingCard> {
             icon: canResume
                 ? PhosphorIconsFill.arrowClockwise
                 : PhosphorIconsBold.pause,
-            background: _accentSoft,
-            color: _accent,
+            background: _accentSoftOf(isDark),
+            color: _accentOf(isDark),
             onTap: canResume
                 ? (widget.onResumeTap == null
                     ? null
@@ -693,8 +732,8 @@ class _ListingCardState extends State<ListingCard> {
           child: _ActionButton(
             label: 'Repost',
             icon: PhosphorIconsBold.arrowClockwise,
-            background: const Color(0xFFEAF3FE),
-            color: const Color(0xFF0271EB),
+            background: isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE),
+            color: isDark ? WawatDark.brandText : const Color(0xFF0271EB),
             onTap: widget.onRepostTap == null
                 ? null
                 : () => widget.onRepostTap!(widget.listing),
@@ -705,8 +744,9 @@ class _ListingCardState extends State<ListingCard> {
           child: _ActionButton(
             label: 'Sil',
             icon: PhosphorIconsRegular.trash,
-            background: const Color(0xFFFEE2E2),
-            color: const Color(0xFFDC2626),
+            background:
+                isDark ? WawatDark.dangerSoftBg : const Color(0xFFFEE2E2),
+            color: isDark ? WawatDark.dangerText : const Color(0xFFDC2626),
             onTap: widget.onDeleteTap == null
                 ? null
                 : () => widget.onDeleteTap!(widget.listing),
@@ -720,6 +760,7 @@ class _ListingCardState extends State<ListingCard> {
     Color textColor,
     Color mutedColor,
     Map<String, String> content,
+    bool isDark,
   ) {
     final promotion = widget.listing.promotion;
     final promotionType = promotion?.type ?? widget.listing.promotionType;
@@ -736,7 +777,7 @@ class _ListingCardState extends State<ListingCard> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: isDark ? cFill(true) : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(
@@ -745,8 +786,8 @@ class _ListingCardState extends State<ListingCard> {
                   'promotion.pending_activation_note',
                   'Promosyon indi alına bilər — elan təsdiqlənən kimi avtomatik aktivləşəcək.',
                 ),
-                style: const TextStyle(
-                  color: Color(0xFF64748B),
+                style: TextStyle(
+                  color: isDark ? cText2(true) : const Color(0xFF64748B),
                   fontSize: 11,
                   height: 1.3,
                   fontWeight: FontWeight.w500,
@@ -763,8 +804,8 @@ class _ListingCardState extends State<ListingCard> {
                     'VİP et',
                   ),
                   icon: PhosphorIconsFill.crownSimple,
-                  background: const Color(0xFFFBBF24),
-                  color: const Color(0xFF0F172A),
+                  background: isDark ? WawatDark.gold : const Color(0xFFFBBF24),
+                  color: isDark ? WawatDark.onGold : const Color(0xFF0F172A),
                   onTap: widget.onVipTap == null
                       ? null
                       : () => widget.onVipTap!(widget.listing),
@@ -779,7 +820,8 @@ class _ListingCardState extends State<ListingCard> {
                     'Önə çək',
                   ),
                   icon: PhosphorIconsFill.rocketLaunch,
-                  background: const Color(0xFF0271EB),
+                  background:
+                      isDark ? WawatDark.brand : const Color(0xFF0271EB),
                   color: Colors.white,
                   onTap: widget.onBoostTap == null
                       ? null
@@ -793,7 +835,14 @@ class _ListingCardState extends State<ListingCard> {
     }
 
     final remaining = _promotionRemaining(promotion);
-    final accent = isVip ? const Color(0xFFFBBF24) : const Color(0xFF0271EB);
+    // Заливка активного промо-бейджа: VIP → золото, featured → бренд.
+    final accent = isVip
+        ? (isDark ? WawatDark.gold : const Color(0xFFFBBF24))
+        : (isDark ? WawatDark.brand : const Color(0xFF0271EB));
+    // Тон текста/иконки на мягкой плашке промо.
+    final accentTint = isVip
+        ? (isDark ? WawatDark.goldSoftText : const Color(0xFFB45309))
+        : (isDark ? WawatDark.brandText : const Color(0xFF0271EB));
     return Column(
       children: [
         Container(
@@ -811,7 +860,7 @@ class _ListingCardState extends State<ListingCard> {
                     isVip
                         ? PhosphorIconsFill.crownSimple
                         : PhosphorIconsFill.rocketLaunch,
-                    color: isVip ? const Color(0xFFB45309) : accent,
+                    color: accentTint,
                     size: 18,
                   ),
                   const SizedBox(width: 7),
@@ -848,7 +897,7 @@ class _ListingCardState extends State<ListingCard> {
                   minHeight: 5,
                   value: _listingPromotionProgress(promotion),
                   color: accent,
-                  backgroundColor: Colors.white,
+                  backgroundColor: isDark ? cBorder(true) : Colors.white,
                 ),
               ),
             ],
@@ -866,7 +915,9 @@ class _ListingCardState extends State<ListingCard> {
                 ),
                 icon: PhosphorIconsFill.clockCounterClockwise,
                 background: accent,
-                color: isVip ? const Color(0xFF0F172A) : Colors.white,
+                color: isVip
+                    ? (isDark ? WawatDark.onGold : const Color(0xFF0F172A))
+                    : Colors.white,
                 onTap: widget.onPromotionExtendTap == null
                     ? null
                     : () => widget.onPromotionExtendTap!(widget.listing),
@@ -895,8 +946,8 @@ class _ListingCardState extends State<ListingCard> {
                 icon: isVip
                     ? PhosphorIconsFill.rocketLaunch
                     : PhosphorIconsBold.arrowUp,
-                background: const Color(0xFFF8FAFC),
-                color: const Color(0xFF334155),
+                background: isDark ? cFill(true) : const Color(0xFFF8FAFC),
+                color: isDark ? cText2(true) : const Color(0xFF334155),
                 onTap: widget.onBoostTap == null
                     ? null
                     : () => widget.onBoostTap!(widget.listing),
@@ -941,7 +992,8 @@ class _ListingCardState extends State<ListingCard> {
     return (elapsed / total).clamp(0.0, 1.0);
   }
 
-  Widget _buildExpandButton() {
+  Widget _buildExpandButton(bool isDark) {
+    final accent = _accentOf(isDark);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -956,7 +1008,7 @@ class _ListingCardState extends State<ListingCard> {
               Text(
                 _isExpanded ? 'Yığ' : 'Ətraflı',
                 style: TextStyle(
-                  color: _accent,
+                  color: accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -967,7 +1019,7 @@ class _ListingCardState extends State<ListingCard> {
                 duration: const Duration(milliseconds: 160),
                 child: Icon(
                   PhosphorIconsRegular.caretDown,
-                  color: _accent,
+                  color: accent,
                   size: 18,
                 ),
               ),
@@ -1111,20 +1163,30 @@ class _RouteLine extends StatelessWidget {
   final Color accent;
   final Color softAccent;
   final bool isTrip;
+  final bool isDark;
 
   const _RouteLine({
     required this.accent,
     required this.softAccent,
     required this.isTrip,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Точки-города и пунктир — усиленный бренд-текст в dark (для səfər);
+    // для göndəriş остаётся акцент (янтарь).
+    final dotColor = isDark && isTrip ? WawatDark.brandTextStrong : accent;
+    final dashColor = isDark
+        ? (isTrip
+            ? WawatDark.brandTextStrong.withValues(alpha: 0.40)
+            : accent.withValues(alpha: 0.40))
+        : accent.withValues(alpha: 0.28);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _RouteDot(color: accent, isOutlined: false),
-        _DashedLine(color: accent.withValues(alpha: 0.28)),
+        _RouteDot(color: dotColor, isOutlined: false, isDark: isDark),
+        _DashedLine(color: dashColor),
         Container(
           width: 30,
           height: 30,
@@ -1138,8 +1200,8 @@ class _RouteLine extends StatelessWidget {
             size: 17,
           ),
         ),
-        _DashedLine(color: accent.withValues(alpha: 0.28)),
-        _RouteDot(color: accent, isOutlined: true),
+        _DashedLine(color: dashColor),
+        _RouteDot(color: dotColor, isOutlined: true, isDark: isDark),
       ],
     );
   }
@@ -1148,21 +1210,26 @@ class _RouteLine extends StatelessWidget {
 class _RouteDot extends StatelessWidget {
   final Color color;
   final bool isOutlined;
+  final bool isDark;
 
   const _RouteDot({
     required this.color,
     required this.isOutlined,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Полая точка назначения: заливка карточкой + кольцо фокуса в dark.
+    final outlineFill = isDark ? cCard(true) : Colors.white;
+    final outlineRing = isDark ? WawatDark.focusRing : color;
     return Container(
       width: 7,
       height: 7,
       decoration: BoxDecoration(
-        color: isOutlined ? Colors.white : color,
+        color: isOutlined ? outlineFill : color,
         shape: BoxShape.circle,
-        border: isOutlined ? Border.all(color: color, width: 2) : null,
+        border: isOutlined ? Border.all(color: outlineRing, width: 2) : null,
       ),
     );
   }
@@ -1301,7 +1368,8 @@ class _TierBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = _tierStyle(tier);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final style = _tierStyle(tier, isDark);
     final label = _tierLabel(tier, content);
     if (label == null) return const SizedBox.shrink();
 
@@ -1330,20 +1398,33 @@ class _TierStyle {
   const _TierStyle(this.background, this.color);
 }
 
-_TierStyle _tierStyle(String tier) {
+_TierStyle _tierStyle(String tier, bool isDark) {
   switch (tier) {
     case 'new':
-      return const _TierStyle(Color(0xFFDCFCE7), Color(0xFF15803D));
+      return isDark
+          ? const _TierStyle(WawatDark.successBg, WawatDark.success)
+          : const _TierStyle(Color(0xFFDCFCE7), Color(0xFF15803D));
     case 'bronze':
-      return const _TierStyle(Color(0xFFEFE1D0), Color(0xFF9A5B2A));
+      return isDark
+          ? const _TierStyle(WawatDark.tierBronzeBg, WawatDark.tierBronzeText)
+          : const _TierStyle(Color(0xFFEFE1D0), Color(0xFF9A5B2A));
     case 'silver':
-      return const _TierStyle(Color(0xFFF1F5F9), Color(0xFF475569));
+      return isDark
+          ? const _TierStyle(WawatDark.tierSilverBg, WawatDark.tierSilverText)
+          : const _TierStyle(Color(0xFFF1F5F9), Color(0xFF475569));
     case 'gold':
-      return const _TierStyle(Color(0xFFFEF3C7), Color(0xFFB45309));
+      return isDark
+          ? const _TierStyle(WawatDark.tierGoldBg, WawatDark.tierGoldText)
+          : const _TierStyle(Color(0xFFFEF3C7), Color(0xFFB45309));
     case 'platinum':
-      return const _TierStyle(Color(0xFFE0E7FF), Color(0xFF4338CA));
+      return isDark
+          ? const _TierStyle(
+              WawatDark.tierPlatinumBg, WawatDark.tierPlatinumText)
+          : const _TierStyle(Color(0xFFE0E7FF), Color(0xFF4338CA));
     default:
-      return const _TierStyle(Color(0xFFF1F5F9), Color(0xFF475569));
+      return isDark
+          ? const _TierStyle(WawatDark.tierSilverBg, WawatDark.tierSilverText)
+          : const _TierStyle(Color(0xFFF1F5F9), Color(0xFF475569));
   }
 }
 
