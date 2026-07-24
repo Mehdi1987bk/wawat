@@ -53,9 +53,8 @@ class App extends StatelessWidget {
                       isDark ? Brightness.light : Brightness.dark,
                   statusBarBrightness:
                       isDark ? Brightness.light : Brightness.dark,
-                  systemNavigationBarColor: isDark
-                      ? const Color(0xFF000000)
-                      : const Color(0xFFFFFFFF),
+                  systemNavigationBarColor:
+                      isDark ? WawatDark.bar : const Color(0xFFFFFFFF),
                   systemNavigationBarIconBrightness:
                       isDark ? Brightness.light : Brightness.dark,
                   systemNavigationBarDividerColor: Colors.transparent,
@@ -167,7 +166,7 @@ class App extends StatelessWidget {
       ),
       useMaterial3: true,
       appBarTheme: const AppBarTheme(
-        backgroundColor: WawatDark.bg,
+        backgroundColor: WawatDark.bar,
         foregroundColor: WawatDark.textPrimary,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -191,11 +190,37 @@ class App extends StatelessWidget {
       dialogTheme: const DialogThemeData(
         backgroundColor: WawatDark.surface,
         surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          fontFamily: _appFontFamily,
+          fontFamilyFallback: _appFontFallback,
+          color: WawatDark.textPrimary,
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: TextStyle(
+          fontFamily: _appFontFamily,
+          fontFamilyFallback: _appFontFallback,
+          color: WawatDark.textSecondary,
+          fontSize: 14,
+        ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: WawatDark.surface,
         modalBackgroundColor: WawatDark.surface,
         surfaceTintColor: Colors.transparent,
+        dragHandleColor: WawatDark.grab,
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: WawatDark.surfaceAlt,
+        contentTextStyle: TextStyle(color: WawatDark.textPrimary),
+        actionTextColor: WawatDark.brandText,
+        behavior: SnackBarBehavior.floating,
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: WawatDark.brand,
+        inactiveTrackColor: WawatDark.border,
+        thumbColor: WawatDark.brand,
+        overlayColor: WawatDark.focusGlow,
       ),
       dividerTheme: const DividerThemeData(
         color: WawatDark.divider,
@@ -213,11 +238,11 @@ class App extends StatelessWidget {
         bodyColor: WawatDark.textPrimary,
         displayColor: WawatDark.textPrimary,
       ),
-      hintColor: WawatDark.textMuted,
+      hintColor: WawatDark.placeholder,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: WawatDark.surface,
-        hintStyle: const TextStyle(color: WawatDark.textMuted),
+        fillColor: WawatDark.surfaceAlt,
+        hintStyle: const TextStyle(color: WawatDark.placeholder),
         labelStyle: const TextStyle(color: WawatDark.textSecondary),
         prefixIconColor: WawatDark.iconMuted,
         suffixIconColor: WawatDark.iconMuted,
@@ -227,7 +252,7 @@ class App extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: WawatDark.brand, width: 1.4),
+          borderSide: const BorderSide(color: WawatDark.focusRing, width: 1.4),
         ),
       ),
       switchTheme: SwitchThemeData(
@@ -244,8 +269,8 @@ class App extends StatelessWidget {
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: WawatDark.surface,
-        selectedItemColor: WawatDark.brand,
+        backgroundColor: WawatDark.bar,
+        selectedItemColor: WawatDark.brandText,
         unselectedItemColor: WawatDark.textMuted,
         type: BottomNavigationBarType.fixed,
       ),

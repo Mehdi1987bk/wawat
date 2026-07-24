@@ -8,6 +8,8 @@ import '../../../../data/network/response/listing_response.dart';
 import '../../../../domain/entities/pagination.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
+import '../../../../presentation/resourses/theme_colors.dart';
+import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
 import '../fovorite/fovorite_offer_screen.dart';
@@ -25,44 +27,12 @@ import 'settings/notification_settings/notification_settings_screen.dart';
 import 'support/support_screen.dart';
 import 'verification/verification_screen.dart';
 
-const _brand = Color(0xFF017BFE);
-const _brand50 = Color(0xFFEAF3FE);
-const _ink900 = Color(0xFF0F172A);
-const _ink700 = Color(0xFF334155);
-const _ink600 = Color(0xFF475569);
-const _ink500 = Color(0xFF64748B);
-const _ink400 = Color(0xFF94A3B8);
-const _ink300 = Color(0xFFCBD5E1);
-const _ink100 = Color(0xFFF1F5F9);
-const _screen = Color(0xFFF4F6F9);
+const _brand = Color(0xFF017BFE); // бренд-заливка (кнопки/иконки) — не меняется
+const _ink900 = Color(0xFF0F172A); // светлый near-black (snackbar/danger light)
+const _ink700 = Color(0xFF334155); // светлый ink для отдельных light-веток
 
-// Тёмная палитра ТОЛЬКО для профиль-таба (локальная, ровно по ТЗ). Не трогает
-// общий [WawatDark] и другие экраны. Меняются только цвета — вёрстка 1:1 как в light.
-const _dBg = Color(0xFF0A0F1A); // фон приложения
-const _dSurface = Color(0xFF141D2E); // карточки, листы, строки, кнопки-списки
-const _dElevated = Color(0xFF1C2740); // поля ввода / приподнятые чипы
-const _dLine = Color(0x14FFFFFF); // границы / разделители ~.08
-const _dText = Color(0xFFEAF0FA); // текст основной
-const _dText2 = Color(0xFF9FB0C7); // текст вторичный
-const _dMuted = Color(0xFF6B7B93); // текст приглушённый
-const _dFaint = Color(0xFF55637A); // тусклые иконки / шевроны
-const _dBrandText = Color(0xFF7FB6FF); // бренд как ТЕКСТ/ИКОНКА
-
-// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не меняется),
-// тёмная ветка = локальная navy-палитра по ТЗ.
-Color _cScreen(bool d) => d ? _dBg : _screen;
-Color _cCard(bool d) => d ? _dSurface : Colors.white;
-Color _cFill(bool d) => d ? _dElevated : _ink100;
-Color _cText(bool d) => d ? _dText : _ink900;
-Color _cText2(bool d) => d ? _dText2 : _ink500;
-Color _cText3(bool d) => d ? _dText2 : _ink600;
-Color _cMuted(bool d) => d ? _dMuted : _ink400;
-Color _cFaint(bool d) => d ? _dFaint : _ink300;
-Color _cLine(bool d) => d ? _dLine : _ink900.withValues(alpha: .06);
-Color _cBrandSoft(bool d) => d ? _brand.withValues(alpha: .14) : _brand50;
-// Бренд-заливки (#017bfe) не трогаем; бренд как текст/иконка на тёмном → #7FB6FF.
-Color _cBrandText(bool d) => d ? _dBrandText : _brand;
-BoxBorder? _cCardBorder(bool d) => d ? Border.all(color: _dLine) : null;
+// Тема-зависимые цвета вынесены в общий theme_colors.dart (c*(isDark)) —
+// одна navy-палитра на всё приложение.
 
 String _text(Map<String, String> content, String key, String fallback) {
   return WawatContent.text(content, key, fallback);
@@ -131,7 +101,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: isDark ? _dElevated : _ink900,
+        backgroundColor: isDark ? WawatDark.surfaceAlt : _ink900,
         content: Text(
           _text(content, 'common.coming_soon', '$label tezliklə aktiv olacaq.'),
           style:
@@ -223,7 +193,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             margin: const EdgeInsets.only(top: 64),
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
             decoration: BoxDecoration(
-              color: _cCard(isDark),
+              color: cCard(isDark),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(30)),
             ),
@@ -236,7 +206,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     width: 40,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: _cFaint(isDark),
+                      color: cFaint(isDark),
                       borderRadius: BorderRadius.circular(99),
                     ),
                   ),
@@ -245,7 +215,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                 Text(
                   _text(content, 'menu.language', 'Dil'),
                   style: TextStyle(
-                    color: _cText(isDark),
+                    color: cText(isDark),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -258,7 +228,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     'Tətbiq dilini seçin.',
                   ),
                   style: TextStyle(
-                    color: _cMuted(isDark),
+                    color: cMuted(isDark),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -301,7 +271,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 22),
             decoration: BoxDecoration(
-              color: _cCard(isDark),
+              color: cCard(isDark),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(30)),
             ),
@@ -312,7 +282,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   width: 40,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: _cFaint(isDark),
+                    color: cFaint(isDark),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -321,11 +291,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: _cFill(isDark),
+                    color: cFill(isDark),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Icon(PhosphorIconsRegular.signOut,
-                      color: _cText3(isDark), size: 28),
+                      color: cText3(isDark), size: 28),
                 ),
                 const SizedBox(height: 14),
                 Text(
@@ -335,7 +305,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     'Çıxış etmək?',
                   ),
                   style: TextStyle(
-                    color: _cText(isDark),
+                    color: cText(isDark),
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
@@ -349,7 +319,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   ),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _cText2(isDark),
+                    color: cText2(isDark),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -382,7 +352,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                   child: Text(
                     'İmtina et',
                     style: TextStyle(
-                      color: _cMuted(isDark),
+                      color: cMuted(isDark),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -421,12 +391,12 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             user.stats.reviewsReceivedCount ?? bundle.reviews.data.length;
 
         return Scaffold(
-          backgroundColor: _cScreen(isDark),
+          backgroundColor: cScreen(isDark),
           body: SafeArea(
             bottom: false,
             child: RefreshIndicator(
-              color: _cBrandText(isDark),
-              backgroundColor: isDark ? _dSurface : Colors.white,
+              color: cBrandText(isDark),
+              backgroundColor: cCard(isDark),
               onRefresh: () async => _reload(),
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 112),
@@ -437,7 +407,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     child: Text(
                       _text(content, 'menu.title', 'Menyu'),
                       style: TextStyle(
-                        color: _cText(isDark),
+                        color: cText(isDark),
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
                       ),
@@ -762,7 +732,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                       'Wawatair · v1.0.0',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: _cMuted(isDark),
+                        color: cMuted(isDark),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -799,9 +769,9 @@ class _ProfileHeaderCard extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(12, 14, 12, 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: _cCard(isDark),
+          color: cCard(isDark),
           borderRadius: BorderRadius.circular(22),
-          border: _cCardBorder(isDark),
+          border: cCardBorder(isDark),
           boxShadow: isDark
               ? null
               : [
@@ -828,7 +798,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: _cText(isDark),
+                            color: cText(isDark),
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -838,7 +808,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Icon(
                           PhosphorIconsFill.sealCheck,
-                          color: _cBrandText(isDark),
+                          color: cBrandText(isDark),
                           size: 16,
                         ),
                       ],
@@ -856,7 +826,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _cMuted(isDark),
+                      color: cMuted(isDark),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -871,7 +841,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                           'Profilə bax',
                         ),
                         style: TextStyle(
-                          color: _cBrandText(isDark),
+                          color: cBrandText(isDark),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -879,7 +849,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Icon(
                         PhosphorIconsBold.arrowRight,
-                        color: _cBrandText(isDark),
+                        color: cBrandText(isDark),
                         size: 12,
                       ),
                     ],
@@ -888,7 +858,7 @@ class _ProfileHeaderCard extends StatelessWidget {
               ),
             ),
             Icon(PhosphorIconsRegular.caretRight,
-                color: _cFaint(isDark), size: 18),
+                color: cFaint(isDark), size: 18),
           ],
         ),
       ),
@@ -946,13 +916,13 @@ class _SmallTier extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _cFill(isDark),
+        color: cFill(isDark),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: _cText3(isDark),
+          color: cText3(isDark),
           fontSize: 10.5,
           fontWeight: FontWeight.w600,
         ),
@@ -974,7 +944,7 @@ class _MenuSectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: _cText2(isDark),
+          color: cText2(isDark),
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -994,9 +964,9 @@ class _MenuGroup extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: _cCard(isDark),
+        color: cCard(isDark),
         borderRadius: BorderRadius.circular(22),
-        border: _cCardBorder(isDark),
+        border: cCardBorder(isDark),
         boxShadow: isDark
             ? null
             : [
@@ -1036,7 +1006,7 @@ class _MenuRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
-      color: _cCard(isDark),
+      color: cCard(isDark),
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -1047,7 +1017,7 @@ class _MenuRow extends StatelessWidget {
                 ? null
                 : Border(
                     bottom: BorderSide(
-                      color: _cLine(isDark),
+                      color: cLine(isDark),
                       width: 1,
                     ),
                   ),
@@ -1058,10 +1028,10 @@ class _MenuRow extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: _cBrandSoft(isDark),
+                  color: cBrandSoft(isDark),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: _cBrandText(isDark), size: 19),
+                child: Icon(icon, color: cBrandText(isDark), size: 19),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1070,7 +1040,7 @@ class _MenuRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _cText(isDark),
+                    color: cText(isDark),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1086,7 +1056,7 @@ class _MenuRow extends StatelessWidget {
                         ? (isDark
                             ? const Color(0x29F5B40A)
                             : const Color(0xFFFFF7ED))
-                        : _cBrandSoft(isDark),
+                        : cBrandSoft(isDark),
                     borderRadius: BorderRadius.circular(99),
                   ),
                   child: Text(
@@ -1096,7 +1066,7 @@ class _MenuRow extends StatelessWidget {
                           ? (isDark
                               ? const Color(0xFFF4C64D)
                               : const Color(0xFFD97706))
-                          : _cBrandText(isDark),
+                          : cBrandText(isDark),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1108,7 +1078,7 @@ class _MenuRow extends StatelessWidget {
                   child: Text(
                     trailingText!,
                     style: TextStyle(
-                      color: _cMuted(isDark),
+                      color: cMuted(isDark),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1117,7 +1087,7 @@ class _MenuRow extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 PhosphorIconsRegular.caretRight,
-                color: _cFaint(isDark),
+                color: cFaint(isDark),
                 size: 16,
               ),
             ],
@@ -1139,7 +1109,7 @@ class _ThemeModeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
-      color: _cCard(isDark),
+      color: cCard(isDark),
       child: InkWell(
         onTap: () =>
             Provider.of<ThemeManager>(context, listen: false).toggleTheme(),
@@ -1148,7 +1118,7 @@ class _ThemeModeRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: _cLine(isDark), width: 1),
+              bottom: BorderSide(color: cLine(isDark), width: 1),
             ),
           ),
           child: Row(
@@ -1158,11 +1128,11 @@ class _ThemeModeRow extends StatelessWidget {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: _cBrandSoft(isDark),
+                  color: cBrandSoft(isDark),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(PhosphorIconsFill.circleHalf,
-                    color: _cBrandText(isDark), size: 19),
+                    color: cBrandText(isDark), size: 19),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1171,7 +1141,7 @@ class _ThemeModeRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: _cText(isDark),
+                    color: cText(isDark),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1333,7 +1303,7 @@ class _MenuActionButton extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final contentColor = danger
         ? (isDark ? const Color(0xFFFF9A9A) : const Color(0xFFEF4444))
-        : (isDark ? _dText : _ink700);
+        : (isDark ? WawatDark.textPrimary : _ink700);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -1342,13 +1312,13 @@ class _MenuActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: danger
               ? (isDark ? const Color(0x1FEF4444) : const Color(0xFFFFEBEE))
-              : _cCard(isDark),
+              : cCard(isDark),
           border: danger
               ? Border.all(
                   color: isDark
                       ? const Color(0x4CEF4444)
                       : const Color(0xFFFFCDD2))
-              : _cCardBorder(isDark),
+              : cCardBorder(isDark),
           borderRadius: BorderRadius.circular(18),
           boxShadow: (danger || isDark)
               ? null
@@ -1405,12 +1375,12 @@ class _LanguageRow extends StatelessWidget {
         height: 52,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: selected ? _cBrandSoft(isDark) : _cCard(isDark),
+          color: selected ? cBrandSoft(isDark) : cCard(isDark),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
                 ? (isDark ? _brand : _brand.withValues(alpha: .35))
-                : _cLine(isDark),
+                : cLine(isDark),
           ),
         ),
         child: Row(
@@ -1421,7 +1391,7 @@ class _LanguageRow extends StatelessWidget {
               child: Text(
                 option.name,
                 style: TextStyle(
-                  color: selected ? _cBrandText(isDark) : _cText(isDark),
+                  color: selected ? cBrandText(isDark) : cText(isDark),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1429,7 +1399,7 @@ class _LanguageRow extends StatelessWidget {
             ),
             if (selected)
               Icon(PhosphorIconsFill.checkCircle,
-                  color: _cBrandText(isDark), size: 20),
+                  color: cBrandText(isDark), size: 20),
           ],
         ),
       ),
@@ -1452,10 +1422,10 @@ class _MenuSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _cScreen(isDark),
+      backgroundColor: cScreen(isDark),
       body: SafeArea(
         child: Center(
-          child: CircularProgressIndicator(color: _cBrandText(isDark)),
+          child: CircularProgressIndicator(color: cBrandText(isDark)),
         ),
       ),
     );
@@ -1471,7 +1441,7 @@ class _MenuError extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _cScreen(isDark),
+      backgroundColor: cScreen(isDark),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -1480,12 +1450,12 @@ class _MenuError extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(PhosphorIconsRegular.warningCircle,
-                    color: _cBrandText(isDark), size: 42),
+                    color: cBrandText(isDark), size: 42),
                 const SizedBox(height: 12),
                 Text(
                   'Menyu yüklənmədi.',
                   style: TextStyle(
-                    color: _cText(isDark),
+                    color: cText(isDark),
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
