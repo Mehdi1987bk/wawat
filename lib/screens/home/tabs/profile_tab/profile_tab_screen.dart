@@ -18,6 +18,8 @@ import '../listings/promotion/promotion_screens.dart';
 import 'faq/faq_screen.dart';
 import 'blocked_users/blocked_users_screen.dart';
 import 'deals/deals_list_screen.dart';
+import 'promo/promo_api.dart';
+import 'promo/promo_codes_screen.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
@@ -49,12 +51,14 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   final WawatProfileApi _api = WawatProfileApi();
   late Future<WawatProfileBundle> _future;
   late Future<int> _activeDealsCountFuture;
+  late Future<int> _promoActiveCountFuture;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
     _activeDealsCountFuture = _loadActiveDealsCount();
+    _promoActiveCountFuture = _loadPromoActiveCount();
   }
 
   Future<int> _loadActiveDealsCount() async {
@@ -62,6 +66,16 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
       final page =
           await sl.get<ChatApi>().getShipments(filter: 'active', perPage: 1);
       return page.counts.active;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<int> _loadPromoActiveCount() async {
+    if (!kPromoFeatureEnabled) return 0;
+    try {
+      final page = await PromoApi().getPromoCodes(status: 'active');
+      return page.activeCount;
     } catch (_) {
       return 0;
     }
@@ -89,6 +103,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     setState(() {
       _future = _load();
       _activeDealsCountFuture = _loadActiveDealsCount();
+      _promoActiveCountFuture = _loadPromoActiveCount();
     });
   }
 
@@ -457,6 +472,20 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           );
                         },
                       ),
+                      if (kPromoFeatureEnabled)
+                        FutureBuilder<int>(
+                          future: _promoActiveCountFuture,
+                          builder: (context, snapshot) {
+                            final count = snapshot.data ?? 0;
+                            return _MenuRow(
+                              icon: PhosphorIconsFill.ticket,
+                              label: _text(
+                                  content, 'menu.promo_codes', 'Promokodlarım'),
+                              badge: count > 0 ? '$count' : null,
+                              onTap: () => _push(PromoCodesScreen()),
+                            );
+                          },
+                        ),
                       _MenuRow(
                         icon: PhosphorIconsFill.heart,
                         label: _text(content, 'menu.favorites', 'Seçilmişlər'),

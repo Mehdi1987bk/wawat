@@ -12,6 +12,7 @@ import '../../presentation/resourses/theme_colors.dart';
 import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
+import 'tabs/profile_tab/promo/app_review.dart';
 
 class HomeScreen extends BaseScreen {
   final int? orderId;
@@ -38,6 +39,11 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
+        // Backend-gated store-review reward prompt (shows only when the API
+        // says should_show; frequency/timing is decided server-side).
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (mounted) AppReviewFlow.maybePrompt(context);
+        });
         // if (widget.purchasedProduct != null) {
         //   showDialog(
         //     context: context,
