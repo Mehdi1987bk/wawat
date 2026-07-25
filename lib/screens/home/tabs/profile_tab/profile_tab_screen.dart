@@ -18,8 +18,10 @@ import '../listings/promotion/promotion_screens.dart';
 import 'faq/faq_screen.dart';
 import 'blocked_users/blocked_users_screen.dart';
 import 'deals/deals_list_screen.dart';
+import 'about/about_screen.dart';
 import 'promo/promo_api.dart';
 import 'promo/promo_codes_screen.dart';
+import 'promo/rate_app_screen.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
@@ -700,14 +702,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           'menu.rate_app',
                           'Tətbiqi qiymətləndir',
                         ),
-                        onTap: () => _openUnavailable(
-                          content,
-                          _text(
-                            content,
-                            'menu.rate_app',
-                            'Tətbiqi qiymətləndir',
-                          ),
-                        ),
+                        onTap: () => _push(const RateAppScreen()),
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.gift,
@@ -723,14 +718,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         label: _text(content, 'menu.about', 'Tətbiq haqqında'),
                         trailingText: 'v1.0.0',
                         isLast: true,
-                        onTap: () => _openUnavailable(
-                          content,
-                          _text(
-                            content,
-                            'menu.about',
-                            'Tətbiq haqqında',
-                          ),
-                        ),
+                        onTap: () => _push(const AboutScreen()),
                       ),
                     ],
                   ),

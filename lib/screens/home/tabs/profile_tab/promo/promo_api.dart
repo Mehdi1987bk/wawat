@@ -183,22 +183,39 @@ class PromoCodesPage {
 /// driven — the client only reads [shouldShow] and renders.
 class AppReviewPrompt {
   final bool shouldShow;
+  final bool alreadyRated;
   final String? promptId;
   final num rewardAmount;
   final String rewardCurrency;
+  final String? rewardCode;
   final String? storeUrlIos;
   final String? storeUrlAndroid;
   final Map<String, String> content;
 
   const AppReviewPrompt({
     required this.shouldShow,
+    required this.alreadyRated,
     required this.promptId,
     required this.rewardAmount,
     required this.rewardCurrency,
+    required this.rewardCode,
     required this.storeUrlIos,
     required this.storeUrlAndroid,
     required this.content,
   });
+
+  /// A neutral default so the standalone rate page can still function (native
+  /// review) before the backend endpoint is live. Never shows fake reward data.
+  const AppReviewPrompt.fallback()
+      : shouldShow = true,
+        alreadyRated = false,
+        promptId = null,
+        rewardAmount = 5,
+        rewardCurrency = '₼',
+        rewardCode = null,
+        storeUrlIos = null,
+        storeUrlAndroid = null,
+        content = const {};
 
   String rewardLabel() {
     final symbol = rewardCurrency == 'AZN' ? '₼' : rewardCurrency;
@@ -220,9 +237,11 @@ class AppReviewPrompt {
         : const <String, dynamic>{};
     return AppReviewPrompt(
       shouldShow: json['should_show'] == true,
+      alreadyRated: json['already_rated'] == true,
       promptId: json['prompt_id']?.toString(),
       rewardAmount: _num(reward['amount']) ?? 5,
       rewardCurrency: reward['currency']?.toString() ?? '₼',
+      rewardCode: reward['code']?.toString(),
       storeUrlIos: store['ios']?.toString(),
       storeUrlAndroid: store['android']?.toString(),
       content: rawContent.map((key, value) => MapEntry(key, '$value')),

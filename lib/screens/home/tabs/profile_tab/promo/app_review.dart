@@ -66,6 +66,42 @@ class AppReviewFlow {
       builder: (_) => _ReviewDialog(prompt: data, api: resolved),
     );
   }
+
+  /// Runs the native store-review flow (in_app_review, falling back to the
+  /// store URL) then reports `rated` to the backend. Reusable by the standalone
+  /// rate page.
+  static Future<void> requestStoreReview(
+    BuildContext context, {
+    AppReviewPrompt? prompt,
+    int? rating,
+    PromoApi? api,
+  }) async {
+    final resolved = api ?? PromoApi();
+    final review = InAppReview.instance;
+    try {
+      if (await review.isAvailable()) {
+        await review.requestReview();
+      } else if (context.mounted) {
+        await _openStore(context, prompt);
+      }
+    } catch (_) {
+      if (context.mounted) await _openStore(context, prompt);
+    }
+    resolved.markReviewRated(rating: rating);
+  }
+
+  static Future<void> _openStore(
+      BuildContext context, AppReviewPrompt? prompt) async {
+    final isIos = Theme.of(context).platform == TargetPlatform.iOS;
+    final url = (isIos ? prompt?.storeUrlIos : prompt?.storeUrlAndroid) ??
+        prompt?.storeUrlAndroid ??
+        prompt?.storeUrlIos;
+    if (url == null || url.isEmpty) return;
+    final uri = Uri.tryParse(url);
+    if (uri != null) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 }
 
 class _ReviewDialog extends StatefulWidget {
