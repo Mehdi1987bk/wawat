@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../listings/promotion/promotion_screens.dart';
+import '../referral/referral_screen.dart';
 import 'app_review.dart';
 import 'promo_api.dart';
 import 'promo_codes_bloc.dart';
@@ -121,8 +122,8 @@ class _PromoCodesScreenState
 
   void _openRate() => AppReviewFlow.show(context);
 
-  void _openReferral(Map<String, String> content) =>
-      _toast(_t(content, 'common.coming_soon', 'Tezliklə aktiv olacaq.'));
+  void _openReferral(Map<String, String> content) => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const ReferralScreen()));
 
   @override
   PreferredSizeWidget appBar() {

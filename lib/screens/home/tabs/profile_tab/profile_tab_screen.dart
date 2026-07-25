@@ -22,6 +22,7 @@ import 'about/about_screen.dart';
 import 'promo/promo_api.dart';
 import 'promo/promo_codes_screen.dart';
 import 'promo/rate_app_screen.dart';
+import 'referral/referral_screen.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
@@ -708,10 +709,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                         icon: PhosphorIconsFill.gift,
                         label:
                             _text(content, 'menu.invite', 'Dostunu dəvət et'),
-                        onTap: () => _openUnavailable(
-                          content,
-                          _text(content, 'menu.invite', 'Dostunu dəvət et'),
-                        ),
+                        onTap: () => _push(const ReferralScreen()),
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.info,
