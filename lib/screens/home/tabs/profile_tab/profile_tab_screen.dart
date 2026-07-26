@@ -895,37 +895,50 @@ class _MenuAvatar extends StatelessWidget {
 
   const _MenuAvatar({required this.user});
 
-  @override
-  Widget build(BuildContext context) {
-    final imageUrl = user.avatarThumbUrl ?? user.avatarUrl;
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: CachedNetworkImage(
-          imageUrl: imageUrl,
-          width: 56,
-          height: 56,
-          fit: BoxFit.cover,
+  Widget _initials() => Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: [_brand, Color(0xFF024FA3)]),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          user.initials,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       );
+
+  Widget _image(String url, {required Widget onError}) => CachedNetworkImage(
+        imageUrl: url,
+        width: 56,
+        height: 56,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => _initials(),
+        errorWidget: (_, __, ___) => onError,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final thumb = user.avatarThumbUrl;
+    final full = user.avatarUrl;
+    Widget child;
+    if (thumb != null && thumb.isNotEmpty) {
+      // Thumbnails may 404 (not generated) — fall back to the full image,
+      // then to initials, instead of rendering a broken-image icon.
+      final hasFull = full != null && full.isNotEmpty && full != thumb;
+      child = _image(thumb,
+          onError: hasFull ? _image(full, onError: _initials()) : _initials());
+    } else if (full != null && full.isNotEmpty) {
+      child = _image(full, onError: _initials());
+    } else {
+      child = _initials();
     }
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [_brand, Color(0xFF024FA3)]),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        user.initials,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
+    return ClipRRect(borderRadius: BorderRadius.circular(18), child: child);
   }
 }
 

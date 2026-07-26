@@ -3383,35 +3383,55 @@ class _ProfileAvatar extends StatelessWidget {
 
   const _ProfileAvatar({required this.user, required this.size});
 
+  Widget _initials() => Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [_brand, Color(0xFF024FA3)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          user.initials,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.32,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
+
+  Widget _image(String url, {required Widget onError}) => CachedNetworkImage(
+        imageUrl: url,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => _initials(),
+        errorWidget: (_, __, ___) => onError,
+      );
+
   @override
   Widget build(BuildContext context) {
-    final avatar = user.avatarThumbUrl ?? user.avatarUrl;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: avatar == null || avatar.isEmpty
-            ? const LinearGradient(
-                colors: [_brand, Color(0xFF024FA3)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : null,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: avatar != null && avatar.isNotEmpty
-          ? CachedNetworkImage(imageUrl: avatar, fit: BoxFit.cover)
-          : Center(
-              child: Text(
-                user.initials,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: size * 0.32,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+    final thumb = user.avatarThumbUrl;
+    final full = user.avatarUrl;
+    Widget child;
+    if (thumb != null && thumb.isNotEmpty) {
+      // Thumbnails may 404 (not generated) — fall back to the full image,
+      // then to initials, instead of rendering a broken-image icon.
+      final hasFull = full != null && full.isNotEmpty && full != thumb;
+      child = _image(thumb,
+          onError: hasFull ? _image(full, onError: _initials()) : _initials());
+    } else if (full != null && full.isNotEmpty) {
+      child = _image(full, onError: _initials());
+    } else {
+      child = _initials();
+    }
+    return ClipOval(
+      child: SizedBox(width: size, height: size, child: child),
     );
   }
 }
