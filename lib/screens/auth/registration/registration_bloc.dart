@@ -50,7 +50,9 @@ class RegistrationBloc extends BaseBloc {
 
     try {
       await _authRepository.registration(request);
-      await _syncFcmTokenAfterAuth();
+      // FCM-токен регистрируем в фоне: getToken()/APNs может зависать до
+      // нескольких секунд и НЕ должен блокировать переход на главную.
+      unawaited(_syncFcmTokenAfterAuth());
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);

@@ -27,7 +27,10 @@ class LoginBloc extends BaseBloc {
 
     try {
       await _authRepository.login(request);
-      await _syncFcmTokenAfterAuth();
+      // FCM-токен регистрируем в фоне: getToken()/APNs может зависать на
+      // эмуляторе/iOS до нескольких секунд и НЕ должен блокировать переход
+      // на главную. Логин уже успешен — сразу возвращаем success.
+      unawaited(_syncFcmTokenAfterAuth());
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);
