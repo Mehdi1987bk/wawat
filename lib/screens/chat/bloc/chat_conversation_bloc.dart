@@ -55,6 +55,11 @@ class ChatConversationBloc extends BaseBloc {
   bool _isLoadingMore = false;
   int? _myUserId;
   String? _myUserPublicId;
+
+  /// How far the peer has read this thread. Any of my messages at or before it
+  /// render as read (blue ✓✓). Advanced by the messages envelope and by live
+  /// `message.read` events; never moves backward.
+  DateTime? _peerLastReadAt;
   final Map<String, _PendingMessage> _pendingMessages = {};
   Timer? _typingStopTimer;
   Timer? _remoteTypingTimeout;
@@ -80,6 +85,10 @@ class ChatConversationBloc extends BaseBloc {
       await _pusherService.subscribeToConversationTyping(
         conversationId,
         _onTyping,
+      );
+      await _pusherService.subscribeToConversationRead(
+        conversationId,
+        _onMessageRead,
       );
     }
     _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
@@ -117,6 +126,42 @@ class ChatConversationBloc extends BaseBloc {
         }
       });
     }
+  }
+
+  /// Live read-receipt: the peer advanced their read cursor. Ignore my own
+  /// receipt (like typing), then repaint my messages up to the new cursor.
+  void _onMessageRead(Map<String, dynamic> data) {
+    if (_isMyUser(data['user_id'])) return;
+    final raw = data['last_read_at']?.toString();
+    final cursor = raw == null ? null : DateTime.tryParse(raw);
+    if (!_advancePeerLastReadAt(cursor)) return;
+    if (_messagesSubject.isClosed) return;
+    _messagesSubject.add(_newestFirst(_messagesSubject.value));
+  }
+
+  /// Moves the peer read cursor forward only. Returns whether it changed.
+  bool _advancePeerLastReadAt(DateTime? value) {
+    if (value == null) return false;
+    final current = _peerLastReadAt;
+    if (current != null && !value.isAfter(current)) return false;
+    _peerLastReadAt = value;
+    return true;
+  }
+
+  /// Bakes the peer cursor into [ChatMessage.isRead] so the bubble/proposal
+  /// card render blue ✓✓ through the existing `isRead == true` check — no
+  /// widget wiring needed. Only promotes my messages; never demotes.
+  List<ChatMessage> _applyPeerRead(List<ChatMessage> messages) {
+    final cursor = _peerLastReadAt;
+    if (cursor == null) return messages;
+    return messages.map((message) {
+      if (!isMyMessage(message) ||
+          message.isRead == true ||
+          message.createdAtDateTime.isAfter(cursor)) {
+        return message;
+      }
+      return message.copyWith(isRead: true);
+    }).toList();
   }
 
   void onComposerChanged(String value) {
@@ -177,6 +222,7 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
           await _chatApi.getMessages(_conversationId!, 50, _currentPage);
+      _advancePeerLastReadAt(response.meta.peerLastReadAt);
       if (!_messagesSubject.isClosed) {
         final localMessages = _messagesSubject.value
             .where((message) => message.id.startsWith('local-'));
@@ -221,6 +267,7 @@ class ChatConversationBloc extends BaseBloc {
       _currentPage++;
       final response =
           await _chatApi.getMessages(_conversationId!, 50, _currentPage);
+      _advancePeerLastReadAt(response.meta.peerLastReadAt);
 
       if (!_messagesSubject.isClosed) {
         final currentMessages = _messagesSubject.value;
@@ -426,7 +473,7 @@ class ChatConversationBloc extends BaseBloc {
     messages.sort(
       (a, b) => b.createdAtDateTime.compareTo(a.createdAtDateTime),
     );
-    return messages;
+    return _applyPeerRead(messages);
   }
 
   Future<void> _loadShipmentStates(List<ChatMessage> messages) async {
@@ -486,6 +533,10 @@ class ChatConversationBloc extends BaseBloc {
       _conversationId!,
       _onTyping,
     );
+    await _pusherService.subscribeToConversationRead(
+      _conversationId!,
+      _onMessageRead,
+    );
     await loadMessages();
   }
 
@@ -509,6 +560,12 @@ class ChatConversationBloc extends BaseBloc {
         _pusherService.unsubscribeFromConversationTyping(
           _conversationId!,
           _onTyping,
+        ),
+      );
+      unawaited(
+        _pusherService.unsubscribeFromConversationRead(
+          _conversationId!,
+          _onMessageRead,
         ),
       );
     }

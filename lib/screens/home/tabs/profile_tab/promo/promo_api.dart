@@ -59,9 +59,10 @@ class PromoApi {
       _postReview('dismissed', body: _tokenBody(promptToken));
 
   /// POST /me/app-review-prompt/rated {prompt_token, rating?}. The backend
-  /// credits the promo code once and returns it — resolves to that code, or
-  /// null when none is granted / already spent.
-  Future<String?> markReviewRated({String? promptToken, int? rating}) async {
+  /// credits the promo code once and returns the full reward (code + amount +
+  /// expiry). Resolves to that reward, or `null` when none is granted / already
+  /// spent (already-rated re-taps return `{ granted: false }` → null).
+  Future<ReviewReward?> markReviewRated({String? promptToken, int? rating}) async {
     if (!kPromoFeatureEnabled) return null;
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -72,7 +73,10 @@ class PromoApi {
         },
       );
       final data = res.data?['data'];
-      if (data is Map) return data['code']?.toString();
+      if (data is Map) {
+        final reward = ReviewReward.fromJson(Map<String, dynamic>.from(data));
+        return reward.hasCode ? reward : null;
+      }
       return null;
     } catch (_) {
       return null;
@@ -211,6 +215,8 @@ class AppReviewPrompt {
   final num rewardAmount;
   final String rewardCurrency;
   final String? rewardCode;
+  final DateTime? rewardExpiresAt;
+  final num? rewardMinOrder;
   final String? storeUrlIos;
   final String? storeUrlAndroid;
   final Map<String, String> content;
@@ -223,6 +229,8 @@ class AppReviewPrompt {
     required this.rewardAmount,
     required this.rewardCurrency,
     required this.rewardCode,
+    required this.rewardExpiresAt,
+    required this.rewardMinOrder,
     required this.storeUrlIos,
     required this.storeUrlAndroid,
     required this.content,
@@ -238,6 +246,8 @@ class AppReviewPrompt {
         rewardAmount = 5,
         rewardCurrency = '₼',
         rewardCode = null,
+        rewardExpiresAt = null,
+        rewardMinOrder = null,
         storeUrlIos = null,
         storeUrlAndroid = null,
         content = const {};
@@ -249,6 +259,18 @@ class AppReviewPrompt {
         : '$rewardAmount';
     return '$rounded $symbol';
   }
+
+  /// The reward the user already holds (already-rated, code still valid), or
+  /// `null` when there's no active code to show.
+  ReviewReward? get existingReward => (rewardCode ?? '').isEmpty
+      ? null
+      : ReviewReward(
+          code: rewardCode!,
+          amount: rewardAmount,
+          currency: rewardCurrency,
+          expiresAt: rewardExpiresAt,
+          minOrderAmount: rewardMinOrder,
+        );
 
   factory AppReviewPrompt.fromJson(Map<String, dynamic> json) {
     final reward = json['reward'] is Map
@@ -268,9 +290,58 @@ class AppReviewPrompt {
       rewardAmount: _num(reward['amount']) ?? 5,
       rewardCurrency: reward['currency']?.toString() ?? '₼',
       rewardCode: reward['code']?.toString(),
+      rewardExpiresAt: _dateTime(reward['expires_at']),
+      rewardMinOrder: _num(reward['min_order_amount']),
       storeUrlIos: store['ios']?.toString(),
       storeUrlAndroid: store['android']?.toString(),
       content: rawContent.map((key, value) => MapEntry(key, '$value')),
+    );
+  }
+}
+
+/// The promo code the backend grants for a store review — code + amount +
+/// validity window. Returned by [PromoApi.markReviewRated] and surfaced inline
+/// on the rate page so the user sees exactly how long they have to use it.
+class ReviewReward {
+  final String code;
+  final num amount;
+  final String currency;
+  final DateTime? expiresAt;
+  final num? minOrderAmount;
+
+  const ReviewReward({
+    required this.code,
+    required this.amount,
+    required this.currency,
+    this.expiresAt,
+    this.minOrderAmount,
+  });
+
+  bool get hasCode => code.isNotEmpty;
+
+  /// "5 ₼" — integer amounts drop the decimals.
+  String amountLabel() {
+    final symbol = currency == 'AZN' ? '₼' : currency;
+    final rounded = amount == amount.roundToDouble()
+        ? amount.round().toString()
+        : '$amount';
+    return '$rounded $symbol';
+  }
+
+  /// Whole days until expiry (null when no expiry). Negative → already past.
+  int? get daysLeft {
+    if (expiresAt == null) return null;
+    final now = DateTime.now();
+    return expiresAt!.difference(DateTime(now.year, now.month, now.day)).inDays;
+  }
+
+  factory ReviewReward.fromJson(Map<String, dynamic> json) {
+    return ReviewReward(
+      code: json['code']?.toString() ?? '',
+      amount: _num(json['amount']) ?? 0,
+      currency: json['currency']?.toString() ?? '₼',
+      expiresAt: _dateTime(json['expires_at']),
+      minOrderAmount: _num(json['min_order_amount']),
     );
   }
 }

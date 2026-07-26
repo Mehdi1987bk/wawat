@@ -229,8 +229,8 @@ class _DeliveryStatus extends StatelessWidget {
         return Icon(
           PhosphorIconsBold.checks,
           color: message.isRead == true
-              ? _brand
-              : (isDark ? WawatDark.textMuted : _ink400),
+              ? (isDark ? WawatDark.brandText : _brand)
+              : (isDark ? WawatDark.iconMuted : _ink400),
           size: 14,
         );
     }
@@ -637,8 +637,8 @@ class _ProposalCard extends StatelessWidget {
       trailingUnderTime: message.isMine
           ? Icon(PhosphorIconsBold.checks,
               color: message.isRead == true
-                  ? _brand
-                  : (isDark ? WawatDark.textMuted : _ink400),
+                  ? (isDark ? WawatDark.brandText : _brand)
+                  : (isDark ? WawatDark.iconMuted : _ink400),
               size: 13)
           : null,
       child: Column(

@@ -161,6 +161,11 @@ class ChatMessage {
   final String? editedAt;
   final bool isMine;
   final bool? isRead;
+
+  /// When the peer read this message (iso8601). Only meaningful for my own
+  /// messages; null for incoming ones. Kept for completeness — the blue
+  /// read-receipt is driven by [isRead].
+  final String? readAt;
   final ChatMessageDeliveryStatus deliveryStatus;
   final String? localImagePath;
 
@@ -176,6 +181,7 @@ class ChatMessage {
     this.editedAt,
     this.isMine = false,
     this.isRead,
+    this.readAt,
     this.deliveryStatus = ChatMessageDeliveryStatus.sent,
     this.localImagePath,
   });
@@ -198,6 +204,7 @@ class ChatMessage {
       editedAt: _string(json['edited_at']),
       isMine: _bool(json['is_mine']),
       isRead: json.containsKey('is_read') ? _bool(json['is_read']) : null,
+      readAt: _string(json['read_at']),
     );
   }
 
@@ -213,6 +220,7 @@ class ChatMessage {
     String? editedAt,
     bool? isMine,
     bool? isRead,
+    String? readAt,
     ChatMessageDeliveryStatus? deliveryStatus,
     String? localImagePath,
   }) {
@@ -228,6 +236,7 @@ class ChatMessage {
       editedAt: editedAt ?? this.editedAt,
       isMine: isMine ?? this.isMine,
       isRead: isRead ?? this.isRead,
+      readAt: readAt ?? this.readAt,
       deliveryStatus: deliveryStatus ?? this.deliveryStatus,
       localImagePath: localImagePath ?? this.localImagePath,
     );
@@ -382,24 +391,31 @@ class MetaData {
   final int lastPage;
   final String? locale;
 
+  /// How far the peer has read this conversation (iso8601), from the messages
+  /// list envelope. Any of my messages created at or before this are read.
+  final DateTime? peerLastReadAt;
+
   const MetaData({
     required this.page,
     required this.perPage,
     required this.total,
     required this.lastPage,
     this.locale,
+    this.peerLastReadAt,
   });
 
   factory MetaData.fromJson(Map<String, dynamic> json) {
     final currentPage = _int(json['current_page']) ?? _int(json['page']) ?? 1;
     final perPage = _int(json['per_page']) ?? 20;
     final total = _int(json['total']) ?? 0;
+    final peerRaw = _string(json['peer_last_read_at']);
     return MetaData(
       page: currentPage,
       perPage: perPage,
       total: total,
       lastPage: _int(json['last_page']) ?? currentPage,
       locale: _string(json['locale']),
+      peerLastReadAt: peerRaw == null ? null : DateTime.tryParse(peerRaw),
     );
   }
 }
@@ -512,8 +528,7 @@ class ShipmentData {
       dateFrom: _string(json['date_from']),
       dateTo: _string(json['date_to']),
       sender: senderJson == null ? null : ShipmentParty.fromJson(senderJson),
-      carrier:
-          carrierJson == null ? null : ShipmentParty.fromJson(carrierJson),
+      carrier: carrierJson == null ? null : ShipmentParty.fromJson(carrierJson),
       cancelReason: _string(json['cancel_reason']),
       cancelReasonLabel: _string(json['cancel_reason_label']),
       cancelReasonNote: _string(json['cancel_reason_note']),

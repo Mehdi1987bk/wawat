@@ -19,6 +19,7 @@ class PusherService {
 
   final Map<String, Set<PusherMessageCallback>> _conversationCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _typingCallbacks = {};
+  final Map<String, Set<PusherMessageCallback>> _readCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _userCallbacks = {};
   final Set<String> _activeChannels = {};
   final Set<String> _subscribingChannels = {};
@@ -155,13 +156,19 @@ class PusherService {
         return;
       }
 
-      if (eventName != 'message.sent' && eventName != 'user.typing') return;
+      if (eventName != 'message.sent' &&
+          eventName != 'user.typing' &&
+          eventName != 'message.read') {
+        return;
+      }
       final data = _decodeMap(envelope['data']);
       final conversationId = _conversationId(envelope, data);
       if (conversationId != null) {
-        final source = eventName == 'user.typing'
-            ? _typingCallbacks
-            : _conversationCallbacks;
+        final source = switch (eventName) {
+          'user.typing' => _typingCallbacks,
+          'message.read' => _readCallbacks,
+          _ => _conversationCallbacks,
+        };
         final callbacks = List<PusherMessageCallback>.from(
           source[conversationId] ?? const {},
         );
@@ -247,6 +254,35 @@ class PusherService {
     await _unsubscribe('private-conversation.$conversationId');
   }
 
+  /// Read-receipts ride the same `private-conversation.{id}` channel as
+  /// messages and typing — subscribing here is a no-op when already joined.
+  Future<void> subscribeToConversationRead(
+    String conversationId,
+    PusherMessageCallback onRead,
+  ) async {
+    _readCallbacks
+        .putIfAbsent(conversationId, () => <PusherMessageCallback>{})
+        .add(onRead);
+    await _subscribe('private-conversation.$conversationId');
+  }
+
+  Future<void> unsubscribeFromConversationRead(
+    String conversationId, [
+    PusherMessageCallback? onRead,
+  ]) async {
+    final callbacks = _readCallbacks[conversationId];
+    if (onRead == null) {
+      callbacks?.clear();
+    } else {
+      callbacks?.remove(onRead);
+    }
+    if (callbacks?.isEmpty != false) {
+      _readCallbacks.remove(conversationId);
+    }
+    if (_hasConversationCallbacks(conversationId)) return;
+    await _unsubscribe('private-conversation.$conversationId');
+  }
+
   Future<void> subscribeToUserChannel(
     int userId,
     PusherMessageCallback onMessage,
@@ -282,6 +318,7 @@ class PusherService {
     final conversationIds = <String>{
       ..._conversationCallbacks.keys,
       ..._typingCallbacks.keys,
+      ..._readCallbacks.keys,
     };
     final channels = <String>[
       ...conversationIds.map(
@@ -416,13 +453,15 @@ class PusherService {
     _subscribingChannels.clear();
     _conversationCallbacks.clear();
     _typingCallbacks.clear();
+    _readCallbacks.clear();
     _userCallbacks.clear();
     await _closeSocket();
   }
 
   bool _hasConversationCallbacks(String conversationId) {
     return _conversationCallbacks[conversationId]?.isNotEmpty == true ||
-        _typingCallbacks[conversationId]?.isNotEmpty == true;
+        _typingCallbacks[conversationId]?.isNotEmpty == true ||
+        _readCallbacks[conversationId]?.isNotEmpty == true;
   }
 
   String? _conversationId(
