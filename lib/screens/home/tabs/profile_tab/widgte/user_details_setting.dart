@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/user.dart';
-import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_manager.dart';
 import '../profile_tab_bloc.dart';
 import '../settings/change_password_tab/change_password_tab_screen.dart';
@@ -72,7 +72,7 @@ class _EditProfileScreenState
                                 fontWeight: FontWeight.w500,
                                 color: isDark ? cText(isDark) : Colors.black,
                               ),
-                              child: Text(S.of(context).vfgbhyujkerg3),
+                              child: Text(t('menu.edit_profile')),
                             ),
                           ],
                         ),
