@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 import '../../../../data/network/api/chat_api.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../domain/entities/pagination.dart';
+import '../../../../data/cache/cache_manager.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../services/localization_service.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
 import '../fovorite/fovorite_offer_screen.dart';
@@ -181,6 +183,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
       _LanguageOption('ru', 'Русский', '🇷🇺'),
       _LanguageOption('tr', 'Türkçe', '🇹🇷'),
       _LanguageOption('ua', 'Українська', '🇺🇦'),
+      _LanguageOption('es', 'Español', '🇪🇸'),
     ];
 
     List<_LanguageOption> options = fallback;
@@ -260,6 +263,16 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     onTap: () async {
                       Navigator.of(sheetContext).pop();
                       try {
+                        // 1) Локально сохраняем язык → Accept-Language-интерцептор
+                        //    и MaterialApp.locale переключаются (uk для украинского).
+                        final localeCode = item.code == 'ua' ? 'uk' : item.code;
+                        await sl
+                            .get<CacheManager>()
+                            .saveLocale(Locale(localeCode));
+                        // 2) Рефетч всей CMS-карты на новом языке (сброс ETag).
+                        await LocalizationService.instance
+                            .changeLocale(item.code);
+                        // 3) Сохраняем предпочтение в профиле.
                         await _api.updateProfile(
                           {'preferred_locale': item.code},
                         );
@@ -1504,6 +1517,8 @@ String _localeName(String? code) {
     case 'ua':
     case 'uk':
       return 'Українська';
+    case 'es':
+      return 'Español';
     case 'az':
     default:
       return 'Azərbaycanca';
@@ -1521,6 +1536,8 @@ String _flagForLocale(String code) {
     case 'ua':
     case 'uk':
       return '🇺🇦';
+    case 'es':
+      return '🇪🇸';
     case 'az':
     default:
       return '🇦🇿';

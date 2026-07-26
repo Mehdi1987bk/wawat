@@ -11,6 +11,7 @@ import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';
 import 'presentation/resourses/wawat_dark.dart';
 import 'screens/splesh/splesh_screen.dart';
+import 'services/localization_service.dart';
 import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -25,8 +26,11 @@ class WawatApp extends StatefulWidget {
 class _WawatAppState extends State<WawatApp> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: themeManager,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: themeManager),
+        ChangeNotifierProvider.value(value: LocalizationService.instance),
+      ],
       child: BlocProvider<AppBloc>(bloc: AppBloc(), child: App()),
     );
   }
@@ -44,6 +48,8 @@ class App extends StatelessWidget {
           }
           return Consumer<ThemeManager>(
             builder: (context, themeManager, child) {
+              // Пересобрать всё дерево, когда CMS-контент/язык загрузился/сменился.
+              context.watch<LocalizationService>();
               final isDark = themeManager.isDarkMode;
 
               SystemChrome.setSystemUIOverlayStyle(
@@ -100,7 +106,16 @@ class App extends StatelessWidget {
                   // Fallback на английский
                   return const Locale("en");
                 },
-                supportedLocales: S.delegate.supportedLocales,
+                // az, en, ru, tr, ua(uk), es — es новый; фреймворк-строки берёт
+                // из GlobalMaterialLocalizations, UI-строки — из CMS через t().
+                supportedLocales: const [
+                  Locale('az'),
+                  Locale('en'),
+                  Locale('ru'),
+                  Locale('tr'),
+                  Locale('uk'),
+                  Locale('es'),
+                ],
                 home: SpleshScreen(),
               );
             },

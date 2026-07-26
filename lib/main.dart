@@ -8,6 +8,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'dart:async';
+
 import 'call_interceptor.dart';
 import 'data/cache/cache_manager.dart';
 import 'data/cache/data_cache_manager.dart';
@@ -25,6 +27,7 @@ import 'data/network/response/user.dart';
 import 'data/repositories/data_auth_repository.dart';
 import 'domain/repositories/auth_repository.dart';
 import 'wawat_app.dart';
+import 'services/localization_service.dart';
 import 'services/theme_manager.dart';
 
 import 'firebase_options.dart';
@@ -76,6 +79,12 @@ void main() async {
   _registerDependency();
 
   themeManager = await ThemeManager.create();
+
+  // Локализация из CMS: диск-кэш грузится мгновенно, затем рефетч по ETag.
+  // Не блокируем старт — UI пересоберётся, когда карта готова (notifyListeners).
+  final savedLocale = await sl.get<CacheManager>().getLocaleAsync();
+  unawaited(
+      LocalizationService.instance.load(savedLocale?.languageCode ?? 'az'));
 
   try {
     await PushNotificationService().initialize();
