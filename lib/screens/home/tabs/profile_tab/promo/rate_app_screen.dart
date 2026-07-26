@@ -65,7 +65,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
   }
 
   Future<void> _rate(int stars) async {
-    if (_busy) return;
+    if (_busy || _rated) return;
     if (stars <= 3) {
       AppReviewFlow.show(context, prompt: _prompt);
       return;
@@ -73,7 +73,12 @@ class _RateAppScreenState extends State<RateAppScreen> {
     setState(() => _busy = true);
     await AppReviewFlow.requestStoreReview(context,
         prompt: _prompt, rating: stars);
-    if (mounted) setState(() => _rated = true);
+    // Reward code is revealed inline below, on THIS same page.
+    if (mounted)
+      setState(() {
+        _busy = false;
+        _rated = true;
+      });
   }
 
   @override
@@ -88,10 +93,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
       child: Scaffold(
         backgroundColor: _cScreen(d),
         appBar: _appBar(d),
-        body: SafeArea(
-          top: false,
-          child: _rated ? _RatedView(prompt: _prompt) : _intro(d),
-        ),
+        body: SafeArea(top: false, child: _page(d)),
       ),
     );
   }
@@ -115,44 +117,14 @@ class _RateAppScreenState extends State<RateAppScreen> {
         ),
       );
 
-  Widget _intro(bool d) {
+  Widget _page(bool d) {
     return ListView(
       padding: const EdgeInsets.only(bottom: 28),
       children: [
         const SizedBox(height: 36),
-        Center(
-          child: SizedBox(
-            width: 96,
-            height: 96,
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: _cBrandSoft(d),
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(PhosphorIconsFill.star,
-                      size: 50, color: _cBrandText(d)),
-                ),
-                const Positioned(
-                    top: -4,
-                    right: 8,
-                    child: Icon(PhosphorIconsFill.sparkle,
-                        size: 18, color: _amber)),
-                const Positioned(
-                    bottom: 8,
-                    left: -4,
-                    child: Icon(PhosphorIconsFill.sparkle,
-                        size: 12, color: _amber)),
-              ],
-            ),
-          ),
-        ),
+        Center(child: _rated ? _checkBadge(d) : _starBadge(d)),
         const SizedBox(height: 20),
-        Text('Wawatair-i bəyənirsən?',
+        Text(_rated ? 'Təşəkkür edirik! ⭐️' : 'Wawatair-i bəyənirsən?',
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 21, fontWeight: FontWeight.w800)),
@@ -160,7 +132,9 @@ class _RateAppScreenState extends State<RateAppScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.',
+            _rated
+                ? 'Dəstəyin bizə çox kömək edir. Budur hədiyyə promokodun:'
+                : '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.',
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -170,21 +144,15 @@ class _RateAppScreenState extends State<RateAppScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(5, (i) {
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _rate(i + 1),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Icon(PhosphorIconsRegular.star,
-                    size: 34, color: d ? _dFaint : _ink300),
-              ),
-            );
-          }),
-        ),
+        _stars(d),
         const SizedBox(height: 20),
+        if (!_rated) ..._introTail(d) else ..._rewardTail(d),
+      ],
+    );
+  }
+
+  // ── not rated yet ──────────────────────────────────────────────────────────
+  List<Widget> _introTail(bool d) => [
         Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -243,9 +211,89 @@ class _RateAppScreenState extends State<RateAppScreen> {
             ],
           ),
         ),
-      ],
+      ];
+
+  // ── rated → coupon inline, same page ─────────────────────────────────────────
+  List<Widget> _rewardTail(bool d) => [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _Coupon(prompt: _prompt, isDark: d),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _PrimaryButton(
+            label: 'Promokodlarıma bax',
+            icon: PhosphorIconsFill.ticket,
+            onTap: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => PromoCodesScreen()),
+            ),
+          ),
+        ),
+      ];
+
+  Widget _stars(bool d) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(5, (i) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _rated ? null : () => _rate(i + 1),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Icon(
+              _rated ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
+              size: 34,
+              color: _rated ? _amber : (d ? _dFaint : _ink300),
+            ),
+          ),
+        );
+      }),
     );
   }
+
+  Widget _starBadge(bool d) => SizedBox(
+        width: 96,
+        height: 96,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: _cBrandSoft(d),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              alignment: Alignment.center,
+              child:
+                  Icon(PhosphorIconsFill.star, size: 50, color: _cBrandText(d)),
+            ),
+            const Positioned(
+                top: -4,
+                right: 8,
+                child:
+                    Icon(PhosphorIconsFill.sparkle, size: 18, color: _amber)),
+            const Positioned(
+                bottom: 8,
+                left: -4,
+                child:
+                    Icon(PhosphorIconsFill.sparkle, size: 12, color: _amber)),
+          ],
+        ),
+      );
+
+  Widget _checkBadge(bool d) => Container(
+        width: 80,
+        height: 80,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: d ? const Color(0x2910B981) : const Color(0xFFECFDF5),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(PhosphorIconsFill.checkCircle,
+            size: 46,
+            color: d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981)),
+      );
 
   Widget _step(bool d, String n, String text) {
     return Row(
@@ -269,70 +317,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
                   color: d ? _dText : _ink700,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600)),
-        ),
-      ],
-    );
-  }
-}
-
-class _RatedView extends StatelessWidget {
-  final AppReviewPrompt prompt;
-
-  const _RatedView({required this.prompt});
-
-  @override
-  Widget build(BuildContext context) {
-    final d = _dark(context);
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 40, 16, 28),
-      children: [
-        Center(
-          child: Container(
-            width: 80,
-            height: 80,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: d ? const Color(0x2910B981) : const Color(0xFFECFDF5),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(PhosphorIconsFill.checkCircle,
-                size: 48,
-                color: d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            5,
-            (i) => const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 1),
-              child: Icon(PhosphorIconsFill.star, size: 22, color: _amber),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text('Təşəkkür edirik! ⭐️',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
-        const SizedBox(height: 8),
-        Text('Dəstəyin bizə çox kömək edir. Mükafatın hesabına əlavə olundu.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: _cMuted(d),
-                fontSize: 13.5,
-                height: 1.35,
-                fontWeight: FontWeight.w500)),
-        const SizedBox(height: 20),
-        _Coupon(prompt: prompt, isDark: d),
-        const SizedBox(height: 24),
-        _PrimaryButton(
-          label: 'Promokodlarıma bax',
-          icon: PhosphorIconsFill.ticket,
-          onTap: () => Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => PromoCodesScreen()),
-          ),
         ),
       ],
     );
@@ -379,7 +363,7 @@ class _Coupon extends StatelessWidget {
                       Text(code,
                           style: TextStyle(
                               color: d ? _dBrandText : _brand700,
-                              fontSize: 18,
+                              fontSize: 19,
                               letterSpacing: 3,
                               fontFamily: 'monospace',
                               fontWeight: FontWeight.w800)),
@@ -388,15 +372,25 @@ class _Coupon extends StatelessWidget {
                 ),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => Clipboard.setData(ClipboardData(text: code)),
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: code));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: d ? _dElevated : _ink900,
+                      content: const Text('Kod kopyalandı',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
+                    ));
+                  },
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: 44,
+                    height: 44,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                         color: d ? _dElevated : Colors.white,
                         borderRadius: BorderRadius.circular(12)),
-                    child: Icon(PhosphorIconsFill.gift,
+                    child: Icon(PhosphorIconsBold.copy,
                         size: 18, color: _cBrandText(d)),
                   ),
                 ),
