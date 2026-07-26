@@ -186,8 +186,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
         const SizedBox(height: 14),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ReferralInvitesScreen())),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) =>
+                  ReferralInvitesScreen(rewardAmount: _info.rewardAmount))),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             alignment: Alignment.center,
@@ -457,8 +458,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
           _statDivider(d),
           _statCell(d, '${_info.joined}', 'Qoşulan'),
           _statDivider(d),
-          _statCell(d, '${_info.rewarded.round()} ${_info.currencySymbol}',
-              'Qazanılan',
+          _statCell(
+              d, '${_info.earned.round()} ${_info.currencySymbol}', 'Qazanılan',
               brand: true),
         ],
       ),
@@ -491,7 +492,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
 
 // ── Invited list ─────────────────────────────────────────────────────────────
 class ReferralInvitesScreen extends StatefulWidget {
-  const ReferralInvitesScreen({super.key});
+  final num rewardAmount;
+
+  const ReferralInvitesScreen({super.key, this.rewardAmount = 5});
 
   @override
   State<ReferralInvitesScreen> createState() => _ReferralInvitesScreenState();
@@ -561,15 +564,15 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                    color: it.isJoined
+                    color: it.isRewarded
                         ? _cBrandSoft(d)
                         : (d
                             ? Colors.white.withValues(alpha: 0.06)
                             : _ink900.withValues(alpha: 0.06)),
                     shape: BoxShape.circle),
-                child: Text(it.isJoined ? it.initials : '?',
+                child: Text(it.isRewarded ? it.initials : '?',
                     style: TextStyle(
-                        color: it.isJoined ? _cBrandText(d) : _cMuted(d),
+                        color: it.isRewarded ? _cBrandText(d) : _cMuted(d),
                         fontSize: 11,
                         fontWeight: FontWeight.w800)),
               ),
@@ -579,7 +582,7 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        it.isJoined && it.name.isNotEmpty
+                        it.isRewarded && it.name.isNotEmpty
                             ? it.name
                             : 'Dəvət olunub',
                         style: TextStyle(
@@ -587,8 +590,8 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                             fontSize: 13.5,
                             fontWeight: FontWeight.w700)),
                     Text(
-                        it.isJoined
-                            ? 'Qoşulub${it.joinedAt == null ? '' : ' · ${_fmtDate(it.joinedAt!)}'}'
+                        it.isRewarded
+                            ? 'Qoşulub${it.displayDate == null ? '' : ' · ${_fmtDate(it.displayDate!)}'}'
                             : 'İlk sifariş gözlənilir',
                         style: TextStyle(
                             color: _cMuted(d),
@@ -597,11 +600,20 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                   ],
                 ),
               ),
-              if (it.isJoined)
-                _chip(d, '+${(it.rewardAmount ?? 5).round()} ₼', _cEmeraldBg(d),
+              if (it.isRewarded)
+                _chip(
+                    d,
+                    it.statusLabel.isNotEmpty
+                        ? it.statusLabel
+                        : '+${widget.rewardAmount.round()} ₼',
+                    _cEmeraldBg(d),
                     _cEmeraldText(d))
               else
-                _chip(d, 'Gözləyir', _cAmberBg(d), _cAmberText(d),
+                _chip(
+                    d,
+                    it.statusLabel.isNotEmpty ? it.statusLabel : 'Gözləyir',
+                    _cAmberBg(d),
+                    _cAmberText(d),
                     icon: PhosphorIconsFill.clock),
             ],
           ),

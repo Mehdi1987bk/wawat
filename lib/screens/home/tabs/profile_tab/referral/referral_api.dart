@@ -2,13 +2,9 @@ import 'package:dio/dio.dart';
 
 import '../../../../../main.dart';
 
-/// Feature flag for the referral feature. `true` → calls the endpoints but
-/// degrades gracefully on 404 (empty stats / empty invite list). Never fakes.
-const bool kReferralEnabled = true;
-
-/// Data-layer for the "Dostunu dəvət et" (referral) feature. Mirrors
-/// [BlockedUsersApi]: `sl.get<Dio>()`, global [baseUrl], manual `fromJson`,
-/// defensive on 404 so the UI falls back to an empty state, never fake data.
+/// Data-layer for the "Dostunu dəvət et" (referral) feature, wired to the live
+/// API. Mirrors [BlockedUsersApi]: `sl.get<Dio>()`, global [baseUrl], manual
+/// `fromJson`, defensive on 404 (empty stats / empty invite list).
 class ReferralApi {
   ReferralApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
@@ -16,7 +12,6 @@ class ReferralApi {
 
   /// GET /me/referral → code, share link, stats.
   Future<ReferralInfo> getInfo() async {
-    if (!kReferralEnabled) return const ReferralInfo.empty();
     try {
       final res = await _dio.get<Map<String, dynamic>>('$baseUrl/me/referral');
       final data = res.data?['data'] is Map
@@ -31,7 +26,6 @@ class ReferralApi {
 
   /// GET /me/referral/invites → the people this user invited.
   Future<List<ReferralInvite>> getInvites() async {
-    if (!kReferralEnabled) return const [];
     try {
       final res =
           await _dio.get<Map<String, dynamic>>('$baseUrl/me/referral/invites');
@@ -47,6 +41,21 @@ class ReferralApi {
     }
   }
 
+  /// Public pre-registration preview: GET /referral/{code} (no auth).
+  Future<ReferralInviter?> getInviter(String code) async {
+    try {
+      final res =
+          await _dio.get<Map<String, dynamic>>('$baseUrl/referral/$code');
+      final data = res.data?['data'] is Map
+          ? Map<String, dynamic>.from(res.data!['data'] as Map)
+          : (res.data ?? const {});
+      return ReferralInviter.fromJson(Map<String, dynamic>.from(data));
+    } on DioException catch (error) {
+      if (_missing(error)) return null;
+      rethrow;
+    }
+  }
+
   bool _missing(DioException error) {
     final code = error.response?.statusCode;
     return code == 404 || code == 204 || code == 501;
@@ -58,7 +67,8 @@ class ReferralInfo {
   final String shareLink;
   final int invited;
   final int joined;
-  final num rewarded;
+  final int rewarded;
+  final num earned;
   final num rewardAmount;
   final String currency;
 
@@ -68,6 +78,7 @@ class ReferralInfo {
     required this.invited,
     required this.joined,
     required this.rewarded,
+    required this.earned,
     required this.rewardAmount,
     required this.currency,
   });
@@ -78,6 +89,7 @@ class ReferralInfo {
         invited = 0,
         joined = 0,
         rewarded = 0,
+        earned = 0,
         rewardAmount = 5,
         currency = '₼';
 
@@ -91,7 +103,8 @@ class ReferralInfo {
       shareLink: json['share_link']?.toString() ?? '',
       invited: _int(json['invited']) ?? 0,
       joined: _int(json['joined']) ?? 0,
-      rewarded: _num(json['rewarded']) ?? 0,
+      rewarded: _int(json['rewarded']) ?? 0,
+      earned: _num(json['earned']) ?? 0,
       rewardAmount: _num(json['reward_amount']) ?? 5,
       currency: json['currency']?.toString() ?? '₼',
     );
@@ -99,21 +112,27 @@ class ReferralInfo {
 }
 
 class ReferralInvite {
+  final String id;
   final String name;
   final String? avatar;
-  final String status; // joined | pending
-  final DateTime? joinedAt;
-  final num? rewardAmount;
+  final String status; // rewarded | pending | joined | ...
+  final String statusLabel;
+  final DateTime? invitedAt;
+  final DateTime? rewardedAt;
 
   const ReferralInvite({
+    required this.id,
     required this.name,
     required this.avatar,
     required this.status,
-    required this.joinedAt,
-    required this.rewardAmount,
+    required this.statusLabel,
+    required this.invitedAt,
+    required this.rewardedAt,
   });
 
-  bool get isJoined => status == 'joined';
+  bool get isRewarded => status == 'rewarded' || status == 'joined';
+
+  DateTime? get displayDate => rewardedAt ?? invitedAt;
 
   String get initials {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -125,11 +144,40 @@ class ReferralInvite {
 
   factory ReferralInvite.fromJson(Map<String, dynamic> json) {
     return ReferralInvite(
+      id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       avatar: json['avatar']?.toString(),
       status: json['status']?.toString() ?? 'pending',
-      joinedAt: _dateTime(json['joined_at']),
-      rewardAmount: _num(json['reward_amount']),
+      statusLabel: json['status_label']?.toString() ?? '',
+      invitedAt: _dateTime(json['invited_at']),
+      rewardedAt: _dateTime(json['rewarded_at']),
+    );
+  }
+}
+
+/// Public inviter preview shown on the pre-registration landing.
+class ReferralInviter {
+  final String code;
+  final String referrerName;
+  final String? referrerAvatar;
+  final num rewardAmount;
+
+  const ReferralInviter({
+    required this.code,
+    required this.referrerName,
+    required this.referrerAvatar,
+    required this.rewardAmount,
+  });
+
+  factory ReferralInviter.fromJson(Map<String, dynamic> json) {
+    final referrer = json['referrer'] is Map
+        ? Map<String, dynamic>.from(json['referrer'] as Map)
+        : const <String, dynamic>{};
+    return ReferralInviter(
+      code: json['code']?.toString() ?? '',
+      referrerName: referrer['name']?.toString() ?? '',
+      referrerAvatar: referrer['avatar']?.toString(),
+      rewardAmount: _num(json['reward_amount']) ?? 5,
     );
   }
 }
