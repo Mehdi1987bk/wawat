@@ -89,8 +89,12 @@ class LocalizationService extends ChangeNotifier {
     }
   }
 
-  /// Смена языка в рантайме: сбросить ETag, рефетчить, перестроить UI.
-  Future<void> changeLocale(String locale) => load(locale, force: true);
+  /// Смена языка в рантайме: сбросить кэш контента (иначе экраны на
+  /// WawatContent.load/loadAll останутся на старом языке), рефетчить, перестроить UI.
+  Future<void> changeLocale(String locale) {
+    WawatContent.clearCache();
+    return load(locale, force: true);
+  }
 
   /// Перевод ключа `group.key`. Подстановка {placeholder} из [params].
   /// Fallback: AZ-строка из [WawatContent.fallbacks], иначе сам ключ.

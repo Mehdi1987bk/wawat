@@ -451,14 +451,12 @@ class WawatContent {
     'deals.sub.pending_me': 'Sizə yeni təklif gəlib — cavab verin',
     'deals.sub.pending_them':
         'Təklifiniz göndərildi · qarşı tərəf cavab verməlidir',
-    'deals.sub.accepted_sender':
-        'Razılaşma bağlandı · daşıyıcı malı götürəcək',
+    'deals.sub.accepted_sender': 'Razılaşma bağlandı · daşıyıcı malı götürəcək',
     'deals.sub.accepted_carrier':
         'Razılaşma bağlandı · malı göndərəndən götürün',
     'deals.sub.picked_up_sender':
         'Mal yoldadır · daşıyıcı çatdırana qədər gözləyin',
-    'deals.sub.picked_up_carrier':
-        'Təyinat şəhərinə çatanda «Çatdırdım» seçin',
+    'deals.sub.picked_up_carrier': 'Təyinat şəhərinə çatanda «Çatdırdım» seçin',
     'deals.sub.delivered_sender':
         'Malı aldınızsa təsdiqləyin — sövdələşmə tamamlanacaq',
     'deals.sub.delivered_carrier': 'Çatdırıldı · göndərənin təsdiqini gözləyin',
@@ -501,7 +499,8 @@ class WawatContent {
     'deals.action.chat': 'Söhbətə keç',
     'deals.note_optional': 'Qeyd (istəyə bağlı)',
     'deals.counter.title': 'Qarşı təklif',
-    'deals.counter.hint': 'Şərtləri dəyişib göndər — qarşı tərəf təsdiqləyəcək.',
+    'deals.counter.hint':
+        'Şərtləri dəyişib göndər — qarşı tərəf təsdiqləyəcək.',
     'deals.counter.submit': 'Qarşı təklifi göndər',
     'deals.cancel.title': 'Sövdələşməni ləğv et',
     'deals.cancel.hint': 'Səbəbi seçin — qarşı tərəfə bildiriləcək.',
@@ -513,8 +512,7 @@ class WawatContent {
     'deals.dispute_reason.damaged': 'Mal zədəli / əskik',
     'deals.dispute_reason.lost_contact': 'Əlaqə kəsildi',
     'deals.dispute_reason.other': 'Digər',
-    'deals.confirm.picked_up.title':
-        'Malı götürdüyünüzü təsdiqləyirsiniz?',
+    'deals.confirm.picked_up.title': 'Malı götürdüyünüzü təsdiqləyirsiniz?',
     'deals.confirm.delivered.title': 'Çatdırdığınızı təsdiqləyirsiniz?',
     'deals.confirm.complete.title': 'Malı aldığınızı təsdiqləyirsiniz?',
     'deals.confirm.irreversible_body':
@@ -528,6 +526,13 @@ class WawatContent {
     'deals.review.trait.careful': 'Diqqətli',
     'deals.review.submit': 'Rəyi göndər',
   };
+
+  /// Сбросить кэш контента (все группы + loadAll). Вызывать при смене языка,
+  /// иначе экраны, читающие через [load]/[loadAll], останутся на старом языке.
+  static void clearCache() {
+    _cache.clear();
+    _futures.clear();
+  }
 
   static Future<Map<String, String>> load({String group = 'listing'}) {
     final cached = _cache[group];
