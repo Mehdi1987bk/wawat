@@ -59,7 +59,7 @@ class AppReviewFlow {
     final resolved = api ?? PromoApi();
     final data = prompt ?? await resolved.getReviewPrompt();
     if (data == null || !context.mounted) return;
-    resolved.markReviewShown();
+    resolved.markReviewShown(promptToken: data.promptToken);
     await showDialog<void>(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.62),
@@ -70,7 +70,7 @@ class AppReviewFlow {
   /// Runs the native store-review flow (in_app_review, falling back to the
   /// store URL) then reports `rated` to the backend. Reusable by the standalone
   /// rate page.
-  static Future<void> requestStoreReview(
+  static Future<String?> requestStoreReview(
     BuildContext context, {
     AppReviewPrompt? prompt,
     int? rating,
@@ -87,7 +87,8 @@ class AppReviewFlow {
     } catch (_) {
       if (context.mounted) await _openStore(context, prompt);
     }
-    resolved.markReviewRated(rating: rating);
+    return resolved.markReviewRated(
+        promptToken: prompt?.promptToken, rating: rating);
   }
 
   static Future<void> _openStore(
@@ -149,7 +150,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     } catch (_) {
       await _openStoreUrl();
     }
-    widget.api.markReviewRated(rating: _rating);
+    widget.api.markReviewRated(
+        promptToken: widget.prompt.promptToken, rating: _rating);
     if (mounted) setState(() => _stage = _Stage.thanks);
   }
 
@@ -165,12 +167,13 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   }
 
   Future<void> _sendFeedback() async {
-    widget.api.markReviewRated(rating: _rating);
+    widget.api.markReviewRated(
+        promptToken: widget.prompt.promptToken, rating: _rating);
     if (mounted) Navigator.of(context).maybePop();
   }
 
   void _later() {
-    widget.api.markReviewDismissed();
+    widget.api.markReviewDismissed(promptToken: widget.prompt.promptToken);
     Navigator.of(context).maybePop();
   }
 

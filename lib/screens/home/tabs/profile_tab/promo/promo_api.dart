@@ -50,15 +50,37 @@ class PromoApi {
     }
   }
 
-  /// POST /me/app-review-prompt/{shown|dismissed|rated}. Fire-and-forget:
-  /// telemetry must never block or break the UI, so failures are swallowed.
-  Future<void> markReviewShown() => _postReview('shown');
+  /// POST /me/app-review-prompt/{shown|dismissed}. Fire-and-forget: telemetry
+  /// must never block or break the UI, so failures are swallowed.
+  Future<void> markReviewShown({String? promptToken}) =>
+      _postReview('shown', body: _tokenBody(promptToken));
 
-  Future<void> markReviewDismissed() => _postReview('dismissed');
+  Future<void> markReviewDismissed({String? promptToken}) =>
+      _postReview('dismissed', body: _tokenBody(promptToken));
 
-  /// Signals the backend the user rated → it credits the promo code (once).
-  Future<void> markReviewRated({int? rating}) =>
-      _postReview('rated', body: rating == null ? null : {'rating': rating});
+  /// POST /me/app-review-prompt/rated {prompt_token, rating?}. The backend
+  /// credits the promo code once and returns it — resolves to that code, or
+  /// null when none is granted / already spent.
+  Future<String?> markReviewRated({String? promptToken, int? rating}) async {
+    if (!kPromoFeatureEnabled) return null;
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '$baseUrl/me/app-review-prompt/rated',
+        data: {
+          if (promptToken != null) 'prompt_token': promptToken,
+          if (rating != null) 'rating': rating,
+        },
+      );
+      final data = res.data?['data'];
+      if (data is Map) return data['code']?.toString();
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Map<String, dynamic>? _tokenBody(String? token) =>
+      token == null ? null : {'prompt_token': token};
 
   Future<void> _postReview(String action, {Map<String, dynamic>? body}) async {
     if (!kPromoFeatureEnabled) return;
@@ -185,6 +207,7 @@ class AppReviewPrompt {
   final bool shouldShow;
   final bool alreadyRated;
   final String? promptId;
+  final String? promptToken;
   final num rewardAmount;
   final String rewardCurrency;
   final String? rewardCode;
@@ -196,6 +219,7 @@ class AppReviewPrompt {
     required this.shouldShow,
     required this.alreadyRated,
     required this.promptId,
+    required this.promptToken,
     required this.rewardAmount,
     required this.rewardCurrency,
     required this.rewardCode,
@@ -210,6 +234,7 @@ class AppReviewPrompt {
       : shouldShow = true,
         alreadyRated = false,
         promptId = null,
+        promptToken = null,
         rewardAmount = 5,
         rewardCurrency = '₼',
         rewardCode = null,
@@ -239,6 +264,7 @@ class AppReviewPrompt {
       shouldShow: json['should_show'] == true,
       alreadyRated: json['already_rated'] == true,
       promptId: json['prompt_id']?.toString(),
+      promptToken: json['prompt_token']?.toString(),
       rewardAmount: _num(reward['amount']) ?? 5,
       rewardCurrency: reward['currency']?.toString() ?? '₼',
       rewardCode: reward['code']?.toString(),

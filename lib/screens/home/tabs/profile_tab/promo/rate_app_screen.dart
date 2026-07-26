@@ -50,6 +50,9 @@ class _RateAppScreenState extends State<RateAppScreen> {
   AppReviewPrompt _prompt = const AppReviewPrompt.fallback();
   bool _rated = false;
   bool _busy = false;
+  String? _awardedCode;
+
+  bool get _hasCoupon => (_awardedCode ?? '').isNotEmpty;
 
   @override
   void initState() {
@@ -59,6 +62,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
         setState(() {
           _prompt = p;
           _rated = p.alreadyRated;
+          _awardedCode = p.rewardCode;
         });
       }
     });
@@ -71,13 +75,14 @@ class _RateAppScreenState extends State<RateAppScreen> {
       return;
     }
     setState(() => _busy = true);
-    await AppReviewFlow.requestStoreReview(context,
+    final code = await AppReviewFlow.requestStoreReview(context,
         prompt: _prompt, rating: stars);
-    // Reward code is revealed inline below, on THIS same page.
+    // Reward code (if the backend granted one) is revealed inline below.
     if (mounted)
       setState(() {
         _busy = false;
         _rated = true;
+        _awardedCode = code ?? _prompt.rewardCode;
       });
   }
 
@@ -132,9 +137,11 @@ class _RateAppScreenState extends State<RateAppScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            _rated
-                ? 'Dəstəyin bizə çox kömək edir. Budur hədiyyə promokodun:'
-                : '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.',
+            !_rated
+                ? '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.'
+                : _hasCoupon
+                    ? 'Dəstəyin bizə çox kömək edir. Budur hədiyyə promokodun:'
+                    : 'Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.',
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -214,23 +221,28 @@ class _RateAppScreenState extends State<RateAppScreen> {
       ];
 
   // ── rated → coupon inline, same page ─────────────────────────────────────────
-  List<Widget> _rewardTail(bool d) => [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _Coupon(prompt: _prompt, isDark: d),
-        ),
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _PrimaryButton(
-            label: 'Promokodlarıma bax',
-            icon: PhosphorIconsFill.ticket,
-            onTap: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => PromoCodesScreen()),
-            ),
+  List<Widget> _rewardTail(bool d) {
+    // 13b — already rated but the reward code is spent/absent: thanks only,
+    // no coupon and no "Promokodlarıma bax".
+    if (!_hasCoupon) return const [];
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: _Coupon(code: _awardedCode!, prompt: _prompt, isDark: d),
+      ),
+      const SizedBox(height: 20),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: _PrimaryButton(
+          label: 'Promokodlarıma bax',
+          icon: PhosphorIconsFill.ticket,
+          onTap: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => PromoCodesScreen()),
           ),
         ),
-      ];
+      ),
+    ];
+  }
 
   Widget _stars(bool d) {
     return Row(
@@ -324,15 +336,16 @@ class _RateAppScreenState extends State<RateAppScreen> {
 }
 
 class _Coupon extends StatelessWidget {
+  final String code;
   final AppReviewPrompt prompt;
   final bool isDark;
 
-  const _Coupon({required this.prompt, required this.isDark});
+  const _Coupon(
+      {required this.code, required this.prompt, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     final d = isDark;
-    final code = prompt.rewardCode ?? 'WAWA5';
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Column(
