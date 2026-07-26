@@ -6,6 +6,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../domain/entities/pagination.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
+import '../../services/push_notification_service.dart';
 import '../cache/cache_manager.dart';
 import '../network/api/auth_api.dart';
 import '../network/request/create_listing_request.dart';
@@ -327,7 +328,19 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> logout() {
+  Future<void> logout() async {
+    // Снять токен пуша с бэка, чтобы на разлогиненное устройство не шли пуши.
+    final token = PushNotificationService().fcmToken;
+    if (token != null && token.isNotEmpty) {
+      try {
+        await sl.get<Dio>().delete<void>(
+          '$baseUrl/fcm-tokens',
+          data: {'token': token},
+        );
+      } catch (_) {
+        // best-effort — не блокируем выход из аккаунта.
+      }
+    }
     return _cacheManager.clear();
   }
 

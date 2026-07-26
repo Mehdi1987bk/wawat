@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
+
+import 'notification_router.dart';
 
 /// Background FCM handler — MUST be a top-level function, registered in main()
 /// via FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler).
@@ -24,8 +27,12 @@ class PushNotificationService {
   final _messaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
 
-  static const _androidChannelId = 'wawat_high_importance';
+  // Новый id канала (v2) — чтобы применился кастомный звук: Android кэширует
+  // настройки канала по id, поэтому смена звука требует НОВОГО id.
+  static const _androidChannelId = 'wawat_alerts';
   static const _androidChannelName = 'Wawat Air';
+  static const _androidSound =
+      'airplane'; // android/app/src/main/res/raw/airplane.mp3
 
   /// FCM token для отправки на бэкенд (обновляется при refresh).
   String? get fcmToken => _fcmToken;
@@ -59,6 +66,7 @@ class PushNotificationService {
   void setOnTokenUpdated(void Function(String token)? callback) {
     _onTokenUpdated = callback;
   }
+
   void Function(String token)? _onTokenUpdated;
 
   Future<void> _initLocalNotifications() async {
@@ -75,13 +83,14 @@ class PushNotificationService {
     );
 
     final androidPlugin =
-        _localNotifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        _localNotifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
     if (androidPlugin != null) {
       await androidPlugin.requestNotificationsPermission();
     }
 
-    final iosPlugin =
-        _localNotifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin = _localNotifications.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
     if (iosPlugin != null) {
       await iosPlugin.requestPermissions(alert: true, badge: true, sound: true);
     }
@@ -89,9 +98,14 @@ class PushNotificationService {
 
   void _onNotificationTapped(NotificationResponse response) {
     final payload = response.payload;
-    if (payload != null && payload.isNotEmpty) {
-      _logger.d('Notification tapped, payload: $payload');
-      // При необходимости можно открыть экран по payload (например, чат по id).
+    if (payload == null || payload.isEmpty) return;
+    try {
+      final decoded = jsonDecode(payload);
+      if (decoded is Map) {
+        handleNotificationNavigation(Map<String, dynamic>.from(decoded));
+      }
+    } catch (e) {
+      _logger.d('Notification payload parse failed: $e');
     }
   }
 
@@ -103,9 +117,11 @@ class PushNotificationService {
       description: 'Уведомления Wawat Air',
       importance: Importance.high,
       playSound: true,
+      sound: const RawResourceAndroidNotificationSound(_androidSound),
     );
     await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 
@@ -131,7 +147,7 @@ class PushNotificationService {
         id: message.hashCode,
         title: notification.title ?? '',
         body: notification.body ?? '',
-        payload: message.data.isEmpty ? null : message.data.toString(),
+        payload: message.data.isEmpty ? null : jsonEncode(message.data),
         channelId: android?.channelId ?? _androidChannelId,
       );
     }
@@ -145,27 +161,28 @@ class PushNotificationService {
     String channelId = _androidChannelId,
   }) async {
     const androidDetails = AndroidNotificationDetails(
-      'wawat_high_importance',
-      'Wawat Air',
+      _androidChannelId,
+      _androidChannelName,
       channelDescription: 'Уведомления Wawat Air',
       importance: Importance.high,
       priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound(_androidSound),
     );
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _localNotifications.show(id, title, body, details, payload: payload);
   }
 
   void _handleMessageOpened(RemoteMessage message) {
     _logger.d('Notification opened: ${message.messageId}');
-    final data = message.data;
-    if (data.isNotEmpty) {
-      // Навигация по данным (например, открыть чат или оффер).
-      // navigatorKey.currentState?.push(...);
+    if (message.data.isNotEmpty) {
+      handleNotificationNavigation(Map<String, dynamic>.from(message.data));
     }
   }
 
@@ -176,8 +193,9 @@ class PushNotificationService {
       badge: true,
       sound: true,
     );
-    final granted = settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional;
+    final granted =
+        settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional;
     _logger.d('Notification permission: ${settings.authorizationStatus}');
     return granted;
   }
