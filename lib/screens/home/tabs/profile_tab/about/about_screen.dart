@@ -4,7 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../privacy_policy/privacy_policy_screen.dart';
+import '../legal/legal_doc_screen.dart';
 import '../promo/rate_app_screen.dart';
 
 // ── palette ──────────────────────────────────────────────────────────────────
@@ -128,9 +128,11 @@ class _AboutScreenState extends State<AboutScreen> {
                   _row(d, PhosphorIconsFill.globe, 'Veb sayt',
                       trailing: 'wawatair.com', onTap: () => _open(_website)),
                   _row(d, PhosphorIconsFill.fileText, 'İstifadə şərtləri',
-                      onTap: () => _push(PrivacyPolicyScreen())),
+                      onTap: () => _push(const LegalDocScreen(
+                          slug: 'terms', title: 'İstifadə şərtləri'))),
                   _row(d, PhosphorIconsFill.shieldCheck, 'Məxfilik siyasəti',
-                      onTap: () => _push(PrivacyPolicyScreen())),
+                      onTap: () => _push(const LegalDocScreen(
+                          slug: 'privacy', title: 'Məxfilik siyasəti'))),
                   _row(d, PhosphorIconsFill.scroll, 'Lisenziyalar',
                       last: true,
                       onTap: () => showLicensePage(

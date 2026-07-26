@@ -19,6 +19,7 @@ import 'faq/faq_screen.dart';
 import 'blocked_users/blocked_users_screen.dart';
 import 'deals/deals_list_screen.dart';
 import 'about/about_screen.dart';
+import 'legal/legal_doc_screen.dart';
 import 'promo/promo_api.dart';
 import 'promo/promo_codes_screen.dart';
 import 'promo/rate_app_screen.dart';
@@ -27,7 +28,6 @@ import 'reports/reports_screen.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
-import 'privacy_policy/privacy_policy_screen.dart';
 import 'see_more_offers/delivery_full_list_screen.dart';
 import 'settings/notification_settings/notification_settings_screen.dart';
 import 'support/support_screen.dart';
@@ -679,7 +679,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           'menu.rules',
                           'Qaydalar & şərtlər',
                         ),
-                        onTap: () => _push(PrivacyPolicyScreen()),
+                        onTap: () => _push(const LegalDocScreen(
+                            slug: 'terms', title: 'Qaydalar & şərtlər')),
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.shieldCheck,
@@ -688,7 +689,8 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                           'menu.privacy_policy',
                           'Məxfilik siyasəti',
                         ),
-                        onTap: () => _push(PrivacyPolicyScreen()),
+                        onTap: () => _push(const LegalDocScreen(
+                            slug: 'privacy', title: 'Məxfilik siyasəti')),
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.heartStraight,
