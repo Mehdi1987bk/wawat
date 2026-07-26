@@ -20,7 +20,12 @@ const _ink500 = Color(0xFF64748B);
 const _ink400 = Color(0xFF94A3B8);
 
 class DeliveryFullListScreen extends BaseScreen<DeliveryFullListBloc> {
-  DeliveryFullListScreen({super.key});
+  final bool detailsReturnToHome;
+
+  DeliveryFullListScreen({
+    super.key,
+    this.detailsReturnToHome = false,
+  });
 
   @override
   State<DeliveryFullListScreen> createState() => _DeliveryFullListScreenState();
@@ -158,7 +163,10 @@ class _DeliveryFullListScreenState
   Future<void> _openDetails(Listing listing) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ListingDetailsScreen(listingId: listing.id),
+        builder: (_) => ListingDetailsScreen(
+          listingId: listing.id,
+          returnToHomeOnBack: widget.detailsReturnToHome,
+        ),
       ),
     );
     if (!mounted) return;

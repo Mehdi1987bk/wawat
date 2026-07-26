@@ -6,14 +6,36 @@ import '../screens/home/tabs/profile_tab/deals/deal_detail_screen.dart';
 import '../screens/home/tabs/profile_tab/new_profile/new_profile_screen.dart';
 import '../wawat_app.dart';
 
+Map<String, dynamic>? _pendingNotificationData;
+
 /// Навигация по нажатию на пуш (см. §4 спецификации). Маршрут выбирается по
 /// data['type'] и присутствующим id. Открывает экран через глобальный
 /// navigatorKey; для чата без сделки / аккаунт-системных / неизвестных типов —
 /// лента уведомлений (GET /notifications).
 void handleNotificationNavigation(Map<String, dynamic> data) {
   final nav = navigatorKey.currentState;
-  if (nav == null) return;
+  if (nav == null) {
+    _pendingNotificationData = Map<String, dynamic>.from(data);
+    return;
+  }
 
+  _openNotification(nav, data);
+}
+
+/// Cold-start push taps can arrive before MaterialApp creates its Navigator.
+/// Call this after the first frame so the tap is not silently lost.
+void flushPendingNotificationNavigation() {
+  final data = _pendingNotificationData;
+  final nav = navigatorKey.currentState;
+  if (data == null || nav == null) return;
+  _pendingNotificationData = null;
+  _openNotification(nav, data);
+}
+
+void _openNotification(
+  NavigatorState nav,
+  Map<String, dynamic> data,
+) {
   String? val(String key) {
     final s = data[key]?.toString().trim() ?? '';
     return s.isEmpty ? null : s;

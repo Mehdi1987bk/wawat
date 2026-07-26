@@ -34,6 +34,8 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
+import 'services/notification_router.dart';
+import 'services/network_status_service.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
@@ -79,6 +81,7 @@ void main() async {
   _registerDependency();
 
   themeManager = await ThemeManager.create();
+  await NetworkStatusService.instance.initialize();
 
   // Локализация из CMS: диск-кэш грузится мгновенно, затем рефетч по ETag.
   // Не блокируем старт — UI пересоберётся, когда карта готова (notifyListeners).
@@ -87,24 +90,22 @@ void main() async {
       LocalizationService.instance.load(savedLocale?.languageCode ?? 'az'));
 
   try {
-    await PushNotificationService().initialize();
-    PushNotificationService().setOnTokenUpdated((token) {
+    final pushService = PushNotificationService();
+    pushService.setOnTokenUpdated((token) {
       sl.get<AuthRepository>().registerFcmToken(token).catchError((e, st) {
         logger.d('FCM token send to backend failed: $e');
       });
     });
-    final fcmToken = await PushNotificationService().refreshToken();
-    if (fcmToken != null) {
-      sl.get<AuthRepository>().registerFcmToken(fcmToken).catchError((e, st) {
-        logger.d('FCM mock send to backend failed: $e');
-      });
-    }
+    await pushService.initialize();
   } catch (e) {
     logger.w(
         'Push notifications init failed (Google Play Services may be missing): $e');
   }
 
   runApp(WawatApp());
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    flushPendingNotificationNavigation();
+  });
 }
 
 void _registerDependency() {

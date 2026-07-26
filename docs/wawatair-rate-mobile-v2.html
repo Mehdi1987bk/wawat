@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wawatair · Tətbiqi qiymətləndir (v2 — Store-first)</title>
+<style>
+  :root{
+    --brand:#017BFE; --brand700:#024FA3; --brandSoft:#EAF3FE; --accent:#F2FC2A;
+    --ink900:#0F172A; --ink800:#1E293B; --ink700:#334155; --ink500:#64748B; --ink300:#CBD5E1;
+    --amber:#FBBF24; --ok:#10B981; --okSoft:#ECFDF5;
+    /* navy dark */
+    --dBg:#0A0F1A; --dSurface:#141D2E; --dElevated:#1C2740; --dBar:#0F1728;
+    --dLine:rgba(255,255,255,.08); --dText:#EAF0FA; --dMuted:#6B7B93; --dBrandText:#7FB6FF;
+    --dOk:#4FD6A0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Segoe UI',Roboto,system-ui,sans-serif}
+  body{background:#0b1220;color:#e5eefc;padding:32px;display:flex;flex-direction:column;gap:28px;align-items:center}
+  h1{font-size:20px;font-weight:800;text-align:center}
+  .sub{color:#93a4bd;font-size:13px;text-align:center;max-width:720px;line-height:1.5}
+  .row{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+
+  /* phone frame */
+  .phone{width:340px;border-radius:38px;padding:10px;background:#000;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .screen{border-radius:30px;overflow:hidden;height:720px;position:relative;display:flex;flex-direction:column}
+  .cap{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:110px;height:24px;background:#000;border-radius:0 0 16px 16px;z-index:40}
+  .label{font-size:12px;color:#8aa0bd;text-align:center;margin-top:10px;font-weight:600}
+
+  /* app bar */
+  .bar{display:flex;align-items:center;gap:8px;padding:44px 12px 12px;border-bottom:1px solid transparent}
+  .bar .back{font-size:20px;font-weight:800}
+  .bar .title{font-size:17px;font-weight:800}
+
+  .body{flex:1;padding:0 0 24px;overflow:auto}
+  .center{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 22px}
+
+  /* hero badge */
+  .badge{width:96px;height:96px;border-radius:28px;display:flex;align-items:center;justify-content:center;position:relative;margin-top:34px}
+  .badge svg{width:50px;height:50px}
+  .spark{position:absolute;color:var(--amber)}
+  .spark.a{top:-4px;right:8px;font-size:18px}
+  .spark.b{bottom:8px;left:-2px;font-size:12px}
+  .badge.ok{width:80px;height:80px;border-radius:50%}
+  .badge.ok svg{width:46px;height:46px}
+
+  h2{font-size:21px;font-weight:800;margin-top:20px}
+  .lead{font-size:13.5px;line-height:1.35;margin-top:8px;font-weight:500;max-width:280px}
+
+  /* reward pill */
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:800;margin-top:24px}
+
+  /* primary button */
+  .btn{width:calc(100% - 32px);margin:28px 16px 0;height:52px;border-radius:16px;background:var(--brand);color:#fff;
+       display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;
+       box-shadow:0 8px 18px rgba(1,123,254,.5);border:none}
+  .btn.ghost{background:transparent;box-shadow:none;color:var(--brand)}
+  .hint{font-size:11px;font-weight:500;margin-top:8px}
+
+  /* steps card */
+  .steps{margin:24px 16px 0;padding:16px;border-radius:16px}
+  .step{display:flex;gap:12px;align-items:flex-start}
+  .step+.step{margin-top:12px}
+  .snum{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto}
+  .stxt{font-size:12.5px;font-weight:600;line-height:1.3;text-align:left;padding-top:4px}
+
+  /* coupon */
+  .coupon{margin:22px 16px 0;border-radius:16px;overflow:hidden}
+  .coupon .top{border:2px solid rgba(1,123,254,.4);border-bottom:none;border-radius:16px 16px 0 0;padding:14px 16px}
+  .coupon .cap-lbl{font-size:10px;letter-spacing:1px;font-weight:700;opacity:.75}
+  .coupon .code{font-family:ui-monospace,monospace;font-size:19px;letter-spacing:3px;font-weight:800;margin-top:2px}
+  .coupon .head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .copy{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .valid{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:12px;font-weight:700}
+  .coupon .foot{background:var(--brand);color:#fff;padding:8px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700}
+
+  /* thanks toast overlay */
+  .toast{position:absolute;top:44px;left:16px;right:16px;z-index:60;display:flex;gap:12px;align-items:center;
+         padding:12px 14px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.18)}
+  .toast .ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .toast .tt{font-size:14px;font-weight:800}
+  .toast .ts{font-size:12px;font-weight:500;margin-top:2px}
+  .scrim{position:absolute;inset:0;background:rgba(0,0,0,.02);z-index:50}
+
+  /* ── LIGHT ── */
+  .light .screen{background:#fff}
+  .light .bar{background:#fff;border-color:rgba(15,23,42,.06);color:var(--ink900)}
+  .light .title{color:var(--ink900)} .light .back{color:var(--ink800)}
+  .light h2{color:var(--ink900)} .light .lead{color:var(--ink500)}
+  .light .badge{background:var(--brandSoft)} .light .badge svg{color:var(--brand)}
+  .light .badge.ok{background:var(--okSoft)} .light .badge.ok svg{color:var(--ok)}
+  .light .pill{background:rgba(242,252,42,.2);color:var(--ink800)} .light .pill svg{color:var(--brand)}
+  .light .hint{color:var(--ink500)}
+  .light .steps{background:rgba(15,23,42,.02)}
+  .light .snum{background:var(--brandSoft);color:var(--brand)} .light .stxt{color:var(--ink700)}
+  .light .coupon .top{background:var(--brandSoft)} .light .cap-lbl,.light .code{color:var(--brand700)}
+  .light .copy{background:#fff;color:var(--brand)} .light .valid{color:var(--brand)}
+  .light .toast{background:var(--okSoft);border:1px solid rgba(16,185,129,.35)}
+  .light .toast .ic{background:rgba(16,185,129,.14);color:var(--ok)}
+  .light .toast .tt{color:var(--ink900)} .light .toast .ts{color:var(--ink500)}
+
+  /* ── DARK ── (colors only; layout identical) */
+  .dark .screen{background:var(--dBg)}
+  .dark .bar{background:var(--dBar);border-color:var(--dLine);color:var(--dText)}
+  .dark .title{color:var(--dText)} .dark .back{color:var(--dText)}
+  .dark h2{color:var(--dText)} .dark .lead{color:var(--dMuted)}
+  .dark .badge{background:rgba(1,123,254,.14)} .dark .badge svg{color:var(--dBrandText)}
+  .dark .badge.ok{background:rgba(16,185,129,.16)} .dark .badge.ok svg{color:var(--dOk)}
+  .dark .pill{background:rgba(242,252,42,.16);color:var(--dText)} .dark .pill svg{color:var(--dBrandText)}
+  .dark .hint{color:var(--dMuted)}
+  .dark .steps{background:var(--dSurface);border:1px solid var(--dLine)}
+  .dark .snum{background:rgba(1,123,254,.14);color:var(--dBrandText)} .dark .stxt{color:var(--dText)}
+  .dark .coupon .top{background:rgba(1,123,254,.14)} .dark .cap-lbl,.dark .code{color:var(--dBrandText)}
+  .dark .copy{background:var(--dElevated);color:var(--dBrandText)} .dark .valid{color:var(--dBrandText)}
+  .dark .toast{background:#13251C;border:1px solid rgba(79,214,160,.35)}
+  .dark .toast .ic{background:rgba(79,214,160,.18);color:var(--dOk)}
+  .dark .toast .tt{color:var(--dText)} .dark .toast .ts{color:var(--dMuted)}
+</style>
+</head>
+<body>
+  <h1>Tətbiqi qiymətləndir — Store-first redesign (v2)</h1>
+  <p class="sub">Səhifədə in-app ulduz YOXDUR. Yalnız informativ mətn + bir düymə. Düyməyə basanda Store-un
+  native qiymətləndirmə pəncərəsi açılır → backend ilk dəfə üçün promokod verir → kod validlik müddəti ilə
+  eyni səhifədə görünür + 5 saniyəlik "təşəkkür" toast-ı çıxır (köhnə ayrıca "təşəkkür" səhifəsi silinib).</p>
+
+  <!-- ── LIGHT ── -->
+  <div class="row">
+
+    <!-- 1: intro -->
+    <div>
+      <div class="phone light"><div class="screen"><div class="cap"></div>
+        <div class="bar"><span class="back">←</span><span class="title">Tətbiqi qiymətləndir</span></div>
+        <div class="body"><div class="center">
+          <div class="badge"><span class="spark a">✦</span><span class="spark b">✦</span>
+            <svg viewBox="0 0 256 256" fill="currentColor"><path d="M239.2 97.4A16.4 16.4 0 0 0 225 86l-59-8.6-26.4-53.4a16.5 16.5 0 0 0-29.6 0L83.6 77.4 24.6 86A16.5 16.5 0 0 0 15.4 114l42.7 41.6-10.1 58.8a16.5 16.5 0 0 0 23.9 17.4L128 202l47.2 24.8a16.5 16.5 0 0 0 23.9-17.4l-10.1-58.8L231.6 114a16.4 16.4 0 0 0 7.6-16.6Z"/></svg>
+          </div>
+          <h2>Wawatair-i bəyənirsən?</h2>
+          <p class="lead">1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.</p>
+          <span class="pill">🎁 5 ₼ promokod hədiyyə</span>
+        </div>
+        <button class="btn">★ Store-da qiymətləndir</button>
+        <p class="hint" style="text-align:center">Bir dəqiqədən az çəkir</p>
+        <div class="steps">
+          <div class="step"><span class="snum">1</span><span class="stxt">Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır</span></div>
+          <div class="step"><span class="snum">2</span><span class="stxt">5 ₼ promokod avtomatik hesabına gəlir</span></div>
+          <div class="step"><span class="snum">3</span><span class="stxt">Elanı VİP/önə çəkərkən tətbiq et</span></div>
+        </div>
+        </div>
+      </div></div>
+      <div class="label">1 · Intro (Light)</div>
+    </div>
+
+    <!-- 2: rated + coupon + validity -->
+    <div>
+      <div class="phone light"><div class="screen"><div class="cap"></div>
+        <div class="bar"><span class="back">←</span><span class="title">Tətbiqi qiymətləndir</span></div>
+        <div class="body"><div class="center">
+          <div class="badge"><span class="spark a">✦</span><span class="spark b">✦</span>
+            <svg viewBox="0 0 256 256" fill="currentColor"><path d="M216 72h-34.6A32 32 0 0 0 128 30.7 32 32 0 0 0 74.6 72H40a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16v56a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16v-56a16 16 0 0 0 16-16V88a16 16 0 0 0-16-16Zm-64-24a16 16 0 1 1-16 16h16Z"/></svg>
+          </div>
+          <h2>Hədiyyə promokodun hazırdır 🎁</h2>
+          <p class="lead">Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:</p>
+        </div>
+        <div class="coupon">
+          <div class="top">
+            <div class="head">
+              <div><div class="cap-lbl">PROMOKODUN</div><div class="code">WAWA5</div></div>
+              <div class="copy">⧉</div>
+            </div>
+            <div class="valid">⏳ 14 gün qalıb · son tarix 9 Avqust 2026</div>
+          </div>
+          <div class="foot">🏷 5 ₼ endirim · VİP/önə çəkmə</div>
+        </div>
+        <button class="btn">🎟 Promokodlarıma bax</button>
+        </div>
+      </div></div>
+      <div class="label">2 · Rated + coupon (Light)</div>
+    </div>
+
+    <!-- 3: thanks toast over intro -->
+    <div>
+      <div class="phone light"><div class="screen"><div class="cap"></div>
+        <div class="scrim"></div>
+        <div class="toast">
+          <div class="ic">✓</div>
+          <div><div class="tt">Təşəkkür edirik! ⭐️</div><div class="ts">Rəyin bizə çox kömək edir.</div></div>
+        </div>
+        <div class="bar"><span class="back">←</span><span class="title">Tətbiqi qiymətləndir</span></div>
+        <div class="body"><div class="center">
+          <div class="badge"><span class="spark a">✦</span><span class="spark b">✦</span>
+            <svg viewBox="0 0 256 256" fill="currentColor"><path d="M239.2 97.4A16.4 16.4 0 0 0 225 86l-59-8.6-26.4-53.4a16.5 16.5 0 0 0-29.6 0L83.6 77.4 24.6 86A16.5 16.5 0 0 0 15.4 114l42.7 41.6-10.1 58.8a16.5 16.5 0 0 0 23.9 17.4L128 202l47.2 24.8a16.5 16.5 0 0 0 23.9-17.4l-10.1-58.8L231.6 114a16.4 16.4 0 0 0 7.6-16.6Z"/></svg>
+          </div>
+          <h2>Wawatair-i bəyənirsən?</h2>
+          <p class="lead">1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.</p>
+        </div>
+        </div>
+      </div></div>
+      <div class="label">3 · 5s Thanks toast (Light)</div>
+    </div>
+  </div>
+
+  <!-- ── DARK ── -->
+  <div class="row">
+
+    <!-- 4: intro dark -->
+    <div>
+      <div class="phone dark"><div class="screen"><div class="cap"></div>
+        <div class="bar"><span class="back">←</span><span class="title">Tətbiqi qiymətləndir</span></div>
+        <div class="body"><div class="center">
+          <div class="badge"><span class="spark a">✦</span><span class="spark b">✦</span>
+            <svg viewBox="0 0 256 256" fill="currentColor"><path d="M239.2 97.4A16.4 16.4 0 0 0 225 86l-59-8.6-26.4-53.4a16.5 16.5 0 0 0-29.6 0L83.6 77.4 24.6 86A16.5 16.5 0 0 0 15.4 114l42.7 41.6-10.1 58.8a16.5 16.5 0 0 0 23.9 17.4L128 202l47.2 24.8a16.5 16.5 0 0 0 23.9-17.4l-10.1-58.8L231.6 114a16.4 16.4 0 0 0 7.6-16.6Z"/></svg>
+          </div>
+          <h2>Wawatair-i bəyənirsən?</h2>
+          <p class="lead">1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.</p>
+          <span class="pill">🎁 5 ₼ promokod hədiyyə</span>
+        </div>
+        <button class="btn">★ Store-da qiymətləndir</button>
+        <p class="hint" style="text-align:center">Bir dəqiqədən az çəkir</p>
+        <div class="steps">
+          <div class="step"><span class="snum">1</span><span class="stxt">Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır</span></div>
+          <div class="step"><span class="snum">2</span><span class="stxt">5 ₼ promokod avtomatik hesabına gəlir</span></div>
+          <div class="step"><span class="snum">3</span><span class="stxt">Elanı VİP/önə çəkərkən tətbiq et</span></div>
+        </div>
+        </div>
+      </div></div>
+      <div class="label">4 · Intro (Dark)</div>
+    </div>
+
+    <!-- 5: rated coupon dark -->
+    <div>
+      <div class="phone dark"><div class="screen"><div class="cap"></div>
+        <div class="bar"><span class="back">←</span><span class="title">Tətbiqi qiymətləndir</span></div>
+        <div class="body"><div class="center">
+          <div class="badge"><span class="spark a">✦</span><span class="spark b">✦</span>
+            <svg viewBox="0 0 256 256" fill="currentColor"><path d="M216 72h-34.6A32 32 0 0 0 128 30.7 32 32 0 0 0 74.6 72H40a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16v56a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16v-56a16 16 0 0 0 16-16V88a16 16 0 0 0-16-16Z"/></svg>
+          </div>
+          <h2>Hədiyyə promokodun hazırdır 🎁</h2>
+          <p class="lead">Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:</p>
+        </div>
+        <div class="coupon">
+          <div class="top">
+            <div class="head">
+              <div><div class="cap-lbl">PROMOKODUN</div><div class="code">WAWA5</div></div>
+              <div class="copy">⧉</div>
+            </div>
+            <div class="valid">⏳ 14 gün qalıb · son tarix 9 Avqust 2026</div>
+          </div>
+          <div class="foot">🏷 5 ₼ endirim · VİP/önə çəkmə</div>
+        </div>
+        <button class="btn">🎟 Promokodlarıma bax</button>
+        </div>
+      </div></div>
+      <div class="label">5 · Rated + coupon (Dark)</div>
+    </div>
+
+    <!-- 6: already rated, code spent (13b) dark -->
+    <div>
+      <div class="phone dark"><div class="screen"><div class="cap"></div>
+        <div class="bar"><span class="back">←</span><span class="title">Tətbiqi qiymətləndir</span></div>
+        <div class="body"><div class="center">
+          <div class="badge ok"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128 24a104 104 0 1 0 104 104A104.1 104.1 0 0 0 128 24Zm45.7 85.7-56 56a8 8 0 0 1-11.4 0l-24-24a8 8 0 0 1 11.4-11.4L112 148.7l50.3-50.4a8 8 0 0 1 11.4 11.4Z"/></svg></div>
+          <h2>Təşəkkür edirik! ⭐️</h2>
+          <p class="lead">Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.</p>
+        </div>
+        </div>
+      </div></div>
+      <div class="label">6 · Already rated / code spent — 13b (Dark)</div>
+    </div>
+  </div>
+</body>
+</html>

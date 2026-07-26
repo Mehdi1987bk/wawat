@@ -68,9 +68,9 @@ class AppReviewFlow {
   }
 
   /// Runs the native store-review flow (in_app_review, falling back to the
-  /// store URL) then reports `rated` to the backend. Reusable by the standalone
-  /// rate page.
-  static Future<String?> requestStoreReview(
+  /// store URL) then reports `rated` to the backend. Resolves to the granted
+  /// reward (code + amount + expiry) or `null`. Reusable by the rate page.
+  static Future<ReviewReward?> requestStoreReview(
     BuildContext context, {
     AppReviewPrompt? prompt,
     int? rating,

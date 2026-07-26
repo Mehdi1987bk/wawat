@@ -1173,6 +1173,7 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                     MaterialPageRoute(
                       builder: (_) => ListingDetailsScreen(
                         listingId: widget.listing.id,
+                        returnToHomeOnBack: true,
                       ),
                     ),
                   ),

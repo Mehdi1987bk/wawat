@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 
 import '../../../data/network/api/auth_api.dart';
@@ -50,9 +49,9 @@ class RegistrationBloc extends BaseBloc {
 
     try {
       await _authRepository.registration(request);
-      // FCM-токен регистрируем в фоне: getToken()/APNs может зависать до
-      // нескольких секунд и НЕ должен блокировать переход на главную.
-      unawaited(_syncFcmTokenAfterAuth());
+      // Access token уже сохранён репозиторием. До завершения регистрации сразу
+      // отправляем актуальный FCM token авторизованным запросом.
+      await _syncFcmTokenAfterAuth();
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);

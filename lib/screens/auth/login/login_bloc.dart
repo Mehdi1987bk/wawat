@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 
 import '../../../data/network/request/login_request.dart';
@@ -27,10 +26,9 @@ class LoginBloc extends BaseBloc {
 
     try {
       await _authRepository.login(request);
-      // FCM-токен регистрируем в фоне: getToken()/APNs может зависать на
-      // эмуляторе/iOS до нескольких секунд и НЕ должен блокировать переход
-      // на главную. Логин уже успешен — сразу возвращаем success.
-      unawaited(_syncFcmTokenAfterAuth());
+      // Access token уже сохранён репозиторием. До завершения login flow сразу
+      // регистрируем актуальный FCM token авторизованным запросом.
+      await _syncFcmTokenAfterAuth();
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);

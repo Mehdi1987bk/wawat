@@ -1,19 +1,117 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 
+import '../firebase_options.dart';
 import 'notification_router.dart';
+
+// Android не позволяет менять звук уже созданного notification channel.
+// Новый id гарантирует, что после обновления канал создастся именно с
+// airplane.mp3, даже если старый high_importance_channel был с default sound.
+const _androidChannelId = 'wawat_airplane_v2';
+const _legacyAndroidChannelIds = [
+  'high_importance_channel',
+  'wawat_high_importance',
+  'wawat_alerts',
+];
+const _androidChannelName = 'Wawat Air';
+const _androidChannelDescription = 'Уведомления Wawat Air';
+const _androidSound = 'airplane';
 
 /// Background FCM handler — MUST be a top-level function, registered in main()
 /// via FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler).
 /// Runs in a separate isolate; do NOT import main.dart state here.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   debugPrint('FCM background: ${message.messageId}');
+
+  // notification + data payloads are displayed by Android/iOS themselves.
+  // A data-only push needs a local notification to remain visible.
+  if (!Platform.isAndroid || message.notification != null) return;
+
+  final title = _firstNonEmpty([
+    message.data['title'],
+    message.data['notification_title'],
+  ]);
+  final body = _firstNonEmpty([
+    message.data['body'],
+    message.data['message'],
+    message.data['notification_body'],
+  ]);
+  if (title == null && body == null) return;
+
+  final localNotifications = FlutterLocalNotificationsPlugin();
+  await localNotifications.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    ),
+  );
+  await _createAndroidNotificationChannels(localNotifications);
+  await localNotifications.show(
+    message.messageId?.hashCode ??
+        DateTime.now().millisecondsSinceEpoch.remainder(1 << 31),
+    title ?? 'Wawat Air',
+    body ?? '',
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        _androidChannelId,
+        _androidChannelName,
+        channelDescription: _androidChannelDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(_androidSound),
+      ),
+    ),
+    payload: message.data.isEmpty ? null : jsonEncode(message.data),
+  );
+}
+
+String? _firstNonEmpty(Iterable<Object?> values) {
+  for (final value in values) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isNotEmpty) return text;
+  }
+  return null;
+}
+
+Future<void> _createAndroidNotificationChannels(
+  FlutterLocalNotificationsPlugin plugin,
+) async {
+  final android = plugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>();
+  if (android == null) return;
+
+  const primaryChannel = AndroidNotificationChannel(
+    _androidChannelId,
+    _androidChannelName,
+    description: _androidChannelDescription,
+    importance: Importance.high,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound(_androidSound),
+  );
+  await android.createNotificationChannel(primaryChannel);
+
+  // Keep old ids alive for queued pushes and older backend payloads.
+  for (final channelId in _legacyAndroidChannelIds) {
+    final legacyChannel = AndroidNotificationChannel(
+      channelId,
+      _androidChannelName,
+      description: _androidChannelDescription,
+      importance: Importance.high,
+      playSound: true,
+      sound: const RawResourceAndroidNotificationSound(_androidSound),
+    );
+    await android.createNotificationChannel(legacyChannel);
+  }
 }
 
 /// Сервис Firebase Push Notifications: инициализация, права, показ в foreground,
@@ -27,13 +125,6 @@ class PushNotificationService {
   final _messaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
 
-  // Новый id канала (v2) — чтобы применился кастомный звук: Android кэширует
-  // настройки канала по id, поэтому смена звука требует НОВОГО id.
-  static const _androidChannelId = 'wawat_alerts';
-  static const _androidChannelName = 'Wawat Air';
-  static const _androidSound =
-      'airplane'; // android/app/src/main/res/raw/airplane.mp3
-
   /// FCM token для отправки на бэкенд (обновляется при refresh).
   String? get fcmToken => _fcmToken;
   String? _fcmToken;
@@ -42,8 +133,17 @@ class PushNotificationService {
   Future<void> initialize() async {
     await _initLocalNotifications();
     await _createAndroidChannel();
-    _setForegroundPresentationOptions();
+    await _setForegroundPresentationOptions();
     // onBackgroundMessage is registered in main() before runApp() — do not register again here.
+
+    final launchDetails =
+        await _localNotifications.getNotificationAppLaunchDetails();
+    final launchPayload = launchDetails?.notificationResponse?.payload;
+    if (launchDetails?.didNotificationLaunchApp == true &&
+        launchPayload != null &&
+        launchPayload.isNotEmpty) {
+      _handleLocalNotificationPayload(launchPayload);
+    }
 
     _messaging.getInitialMessage().then((message) {
       if (message != null) _handleMessageOpened(message);
@@ -99,6 +199,10 @@ class PushNotificationService {
   void _onNotificationTapped(NotificationResponse response) {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
+    _handleLocalNotificationPayload(payload);
+  }
+
+  void _handleLocalNotificationPayload(String payload) {
     try {
       final decoded = jsonDecode(payload);
       if (decoded is Map) {
@@ -111,22 +215,11 @@ class PushNotificationService {
 
   Future<void> _createAndroidChannel() async {
     if (!Platform.isAndroid) return;
-    final channel = AndroidNotificationChannel(
-      _androidChannelId,
-      _androidChannelName,
-      description: 'Уведомления Wawat Air',
-      importance: Importance.high,
-      playSound: true,
-      sound: const RawResourceAndroidNotificationSound(_androidSound),
-    );
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    await _createAndroidNotificationChannels(_localNotifications);
   }
 
-  void _setForegroundPresentationOptions() {
-    _messaging.setForegroundNotificationPresentationOptions(
+  Future<void> _setForegroundPresentationOptions() {
+    return _messaging.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -136,19 +229,36 @@ class PushNotificationService {
   void _onForegroundMessage(RemoteMessage message) {
     _logger.d('FCM foreground: ${message.messageId}');
     final notification = message.notification;
-    if (notification == null) return;
+    final title = notification?.title ??
+        _firstNonEmpty([
+          message.data['title'],
+          message.data['notification_title'],
+        ]);
+    final body = notification?.body ??
+        _firstNonEmpty([
+          message.data['body'],
+          message.data['message'],
+          message.data['notification_body'],
+        ]);
+    if (title == null && body == null) return;
 
     // On iOS, setForegroundNotificationPresentationOptions already handles
     // displaying the notification natively — using flutter_local_notifications
-    // on top would cause duplicates. Only show local notification on Android.
+    // on top would cause duplicates for notification payloads. Data-only pushes
+    // still need a local notification.
     if (Platform.isAndroid) {
-      final android = message.notification?.android;
       _showLocalNotification(
         id: message.hashCode,
-        title: notification.title ?? '',
-        body: notification.body ?? '',
+        title: title ?? 'Wawat Air',
+        body: body ?? '',
         payload: message.data.isEmpty ? null : jsonEncode(message.data),
-        channelId: android?.channelId ?? _androidChannelId,
+      );
+    } else if (Platform.isIOS && notification == null) {
+      _showLocalNotification(
+        id: message.hashCode,
+        title: title ?? 'Wawat Air',
+        body: body ?? '',
+        payload: message.data.isEmpty ? null : jsonEncode(message.data),
       );
     }
   }
@@ -158,12 +268,11 @@ class PushNotificationService {
     required String title,
     required String body,
     String? payload,
-    String channelId = _androidChannelId,
   }) async {
     const androidDetails = AndroidNotificationDetails(
       _androidChannelId,
       _androidChannelName,
-      channelDescription: 'Уведомления Wawat Air',
+      channelDescription: _androidChannelDescription,
       importance: Importance.high,
       priority: Priority.high,
       playSound: true,
@@ -173,6 +282,7 @@ class PushNotificationService {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      sound: 'airplane.mp3',
     );
     const details =
         NotificationDetails(android: androidDetails, iOS: iosDetails);

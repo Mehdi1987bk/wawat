@@ -32,10 +32,10 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- Default notification channel for FCM (Android 8+) — custom airplane sound -->
+        <!-- Default high-importance channel for FCM (Android 8+). -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="wawat_alerts" />
+            android:value="wawat_airplane_v2" />
     </application>
 
     <queries>

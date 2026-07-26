@@ -439,7 +439,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/profile/personal',
+          '/profile/personal',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -465,7 +465,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/profile/privacy',
+          '/profile/privacy',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -543,7 +543,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/offers',
+          '/offers',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -569,7 +569,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/profile/professional',
+          '/profile/professional',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -627,7 +627,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/dictionaries/package-types',
+          '/dictionaries/package-types',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -666,7 +666,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/geo/cities',
+          '/geo/cities',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -699,7 +699,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/dictionaries/offer-types',
+          '/dictionaries/offer-types',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -732,7 +732,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/offers/my',
+          '/offers/my',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -769,7 +769,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/offers/${id}/status',
+          '/offers/${id}/status',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -813,7 +813,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/offers',
+          '/offers',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -846,7 +846,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/offers/favorites',
+          '/offers/favorites',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1659,7 +1659,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/support',
+          '/support',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1684,7 +1684,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/users/${date}',
+          '/users/${date}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1835,7 +1835,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/favorites/toggle',
+          '/favorites/toggle',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1860,7 +1860,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/verification/status',
+          '/verification/status',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1900,7 +1900,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/profile/avatar',
+          '/profile/avatar',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1926,7 +1926,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/reviews',
+          '/reviews',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1968,7 +1968,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/verification/submit',
+          '/verification/submit',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -1993,7 +1993,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/reviews/received',
+          '/reviews/received',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -2026,7 +2026,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/reviews/left',
+          '/reviews/left',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -2171,7 +2171,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/geo/countries',
+          '/geo/countries',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -2205,7 +2205,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/auth/change-password',
+          '/auth/change-password',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -2230,7 +2230,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/privacy-policy',
+          '/privacy-policy',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -2263,7 +2263,7 @@ class _AuthApi implements AuthApi {
     )
         .compose(
           _dio.options,
-          '/api/v1/faqs',
+          '/faqs',
           queryParameters: queryParameters,
           data: _data,
         )

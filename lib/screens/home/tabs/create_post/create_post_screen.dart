@@ -908,7 +908,11 @@ class _CreatePostScreenState
       listing: response.data,
       onSkip: () {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => DeliveryFullListScreen()),
+          MaterialPageRoute(
+            builder: (_) => DeliveryFullListScreen(
+              detailsReturnToHome: true,
+            ),
+          ),
         );
       },
     );

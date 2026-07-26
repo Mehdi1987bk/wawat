@@ -12,6 +12,8 @@ import 'presentation/resourses/app_colors.dart';
 import 'presentation/resourses/wawat_dark.dart';
 import 'screens/splesh/splesh_screen.dart';
 import 'services/localization_service.dart';
+import 'services/network_status_service.dart';
+import 'services/notification_router.dart';
 import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -30,6 +32,7 @@ class _WawatAppState extends State<WawatApp> {
       providers: [
         ChangeNotifierProvider.value(value: themeManager),
         ChangeNotifierProvider.value(value: LocalizationService.instance),
+        ChangeNotifierProvider.value(value: NetworkStatusService.instance),
       ],
       child: BlocProvider<AppBloc>(bloc: AppBloc(), child: App()),
     );
@@ -69,10 +72,39 @@ class App extends StatelessWidget {
 
               return MaterialApp(
                 builder: (context, child) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    flushPendingNotificationNavigation();
+                  });
+                  final isOffline =
+                      context.watch<NetworkStatusService>().isOffline;
                   return MediaQuery(
                     data: MediaQuery.of(context)
                         .copyWith(textScaler: TextScaler.noScaling),
-                    child: child!,
+                    child: Stack(
+                      children: [
+                        child!,
+                        Positioned(
+                          top: MediaQuery.of(context).padding.top + 8,
+                          left: 16,
+                          right: 16,
+                          child: IgnorePointer(
+                            child: AnimatedSlide(
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOut,
+                              offset:
+                                  isOffline ? Offset.zero : const Offset(0, -2),
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 180),
+                                opacity: isOffline ? 1 : 0,
+                                child: _OfflineBanner(
+                                  message: S.of(context).noInternetConnection,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
                 color: AppColors.appBarbgColor,
@@ -293,6 +325,62 @@ class App extends StatelessWidget {
         backgroundColor: WawatDark.surfaceAlt,
         labelStyle: const TextStyle(color: WawatDark.textPrimary),
         side: const BorderSide(color: WawatDark.border),
+      ),
+    );
+  }
+}
+
+class _OfflineBanner extends StatelessWidget {
+  final String message;
+
+  const _OfflineBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF3A2024) : const Color(0xFFFEF2F2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFECACA),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 21,
+              color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFFDC2626),
+            ),
+            const SizedBox(width: 9),
+            Flexible(
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isDark
+                      ? const Color(0xFFFECACA)
+                      : const Color(0xFF991B1B),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

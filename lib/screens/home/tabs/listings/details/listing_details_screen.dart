@@ -204,11 +204,13 @@ void _showListingActionError(BuildContext context, String message) {
 class ListingDetailsScreen extends BaseScreen<ListingDetailsBloc> {
   final String listingId;
   final ListingDetailsInitialAction? initialAction;
+  final bool returnToHomeOnBack;
 
   ListingDetailsScreen({
     super.key,
     required this.listingId,
     this.initialAction,
+    this.returnToHomeOnBack = false,
   });
 
   @override
@@ -220,9 +222,29 @@ class _ListingDetailsScreenState
   late Future<_DetailsBundle> _detailsFuture;
   Map<String, String> _content = const {};
   bool _initialActionHandled = false;
+  bool _allowRoutePop = false;
 
   @override
   bool get showProgressIndicator => false;
+
+  void _handleBack() {
+    if (widget.returnToHomeOnBack) {
+      _returnToHome();
+      return;
+    }
+    Navigator.of(context).maybePop();
+  }
+
+  void _returnToHome() {
+    if (!mounted) return;
+    if (!_allowRoutePop) {
+      setState(() => _allowRoutePop = true);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    });
+  }
 
   @override
   void initState() {
@@ -252,7 +274,7 @@ class _ListingDetailsScreenState
 
   @override
   Widget body() {
-    return Consumer<ThemeManager>(
+    final content = Consumer<ThemeManager>(
       builder: (context, themeManager, _) {
         final isDark = themeManager.isDarkMode;
         return ThemeAwareScreen(
@@ -298,6 +320,7 @@ class _ListingDetailsScreenState
                           isDark: isDark,
                           isOwner: isOwner,
                           content: bundle?.content ?? const {},
+                          onBack: _handleBack,
                           onShare: listing == null
                               ? null
                               : () => _shareListing(listing),
@@ -365,6 +388,14 @@ class _ListingDetailsScreenState
           ),
         );
       },
+    );
+    if (!widget.returnToHomeOnBack) return content;
+    return PopScope(
+      canPop: _allowRoutePop,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _returnToHome();
+      },
+      child: content,
     );
   }
 
@@ -847,6 +878,7 @@ class _TopBar extends StatelessWidget {
   final bool isDark;
   final bool isOwner;
   final Map<String, String> content;
+  final VoidCallback onBack;
   final VoidCallback? onShare;
   final VoidCallback? onFavorite;
   final VoidCallback? onReport;
@@ -856,6 +888,7 @@ class _TopBar extends StatelessWidget {
     required this.isDark,
     required this.isOwner,
     required this.content,
+    required this.onBack,
     this.onShare,
     this.onFavorite,
     this.onReport,
@@ -878,7 +911,7 @@ class _TopBar extends StatelessWidget {
         children: [
           GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => Navigator.of(context).maybePop(),
+            onTap: onBack,
             child: Icon(
               PhosphorIconsBold.arrowLeft,
               color: titleColor,

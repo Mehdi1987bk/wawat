@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'data/cache/cache_manager.dart';
+import 'services/network_status_service.dart';
 import 'wawat_app.dart';
 import 'main.dart';
 
@@ -36,10 +37,17 @@ class CallInterceptor extends Interceptor {
   }
 
   @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    NetworkStatusService.instance.markOnline();
+    handler.next(response);
+  }
+
+  @override
   Future<void> onError(
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
+    NetworkStatusService.instance.handleDioError(err);
     switch (err.response?.statusCode) {
       case 402:
         {

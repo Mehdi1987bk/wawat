@@ -112,10 +112,10 @@ abstract class AuthApi {
   @GET('/languages')
   Future<LanguageResponse> getLanguages();
 
-  @PUT('/api/v1/profile/personal')
+  @PUT('/profile/personal')
   Future<void> profileEdit(@Body() UserRequest request);
 
-  @PUT('/api/v1/profile/privacy')
+  @PUT('/profile/privacy')
   Future<void> privacyProfile(@Body() PrivacySettings request);
 
   @PUT('/profile/notifications')
@@ -124,39 +124,39 @@ abstract class AuthApi {
   @POST('/fcm-tokens')
   Future<void> registerFcmToken(@Body() FcmTokenRequest request);
 
-  @POST('/api/v1/offers')
+  @POST('/offers')
   Future<void> createOffers(@Body() CourierOfferModel request);
 
-  @PUT('/api/v1/profile/professional')
+  @PUT('/profile/professional')
   Future<void> createProfessional(@Body() CourierProfile request);
 
   @GET('/api/packages')
   Future<PackagesResponse> packages();
 
-  @GET('/api/v1/dictionaries/package-types')
+  @GET('/dictionaries/package-types')
   Future<PackageTypesResponse> getPackageType();
 
-  @GET('/api/v1/geo/cities')
+  @GET('/geo/cities')
   Future<CitiesResponse> getCities(
     @Query("q") String search,
     @Query("limit") int limit,
   );
 
-  @GET('/api/v1/dictionaries/offer-types')
+  @GET('/dictionaries/offer-types')
   Future<OfferTypeResponse> getOfferTypes();
 
-  @GET('/api/v1/offers/my')
+  @GET('/offers/my')
   Future<Pagination<OfferModel>> myOffers(
     @Query('page') int page,
   );
 
-  @PATCH('/api/v1/offers/{id}/status')
+  @PATCH('/offers/{id}/status')
   Future<void> editStatusOffer(
     @Path() String id,
     @Body() EditStatusOfferRequest request,
   );
 
-  @GET('/api/v1/offers')
+  @GET('/offers')
   Future<Pagination<OfferModel>> searchOffers(
     @Query('offer_type') String? offerType,
     @Query('package_type') String? packageType,
@@ -168,7 +168,7 @@ abstract class AuthApi {
     @Query('page') int page,
   );
 
-  @GET('/api/v1/offers/favorites')
+  @GET('/offers/favorites')
   Future<Pagination<OfferModel>> getFavorites(
     @Query('page') int page,
   );
@@ -287,12 +287,12 @@ abstract class AuthApi {
   @DELETE('/saved-searches/{id}')
   Future<void> deleteSavedSearch(@Path() String id);
 
-  @POST('/api/v1/support')
+  @POST('/support')
   Future<void> support(
     @Body() SupportRequest request,
   );
 
-  @GET('/api/v1/users/{date}')
+  @GET('/users/{date}')
   Future<PartnerUserResponse> getUserById(
     @Path() int date,
   );
@@ -315,32 +315,32 @@ abstract class AuthApi {
     @Query('per_page') int perPage,
   );
 
-  @POST('/api/v1/favorites/toggle')
+  @POST('/favorites/toggle')
   Future<void> setFavorites(@Body() OfferResponse request);
 
-  @GET('/api/v1/verification/status')
+  @GET('/verification/status')
   Future<VerificationResponse> verificationStatus();
 
-  @POST('/api/v1/profile/avatar')
+  @POST('/profile/avatar')
   Future<void> addAvatar(
     @Part(name: 'avatar') File avatar,
   );
 
-  @POST('/api/v1/reviews')
+  @POST('/reviews')
   Future<void> sendReviews(
     @Body() CreateReviewRequest request,
   );
 
-  @POST('/api/v1/verification/submit')
+  @POST('/verification/submit')
   Future<void> submitVerification({
     @Part(name: 'documents[passport]') required File passport,
     @Part(name: 'documents[selfie]') required File selfie,
   });
 
-  @GET('/api/v1/reviews/received')
+  @GET('/reviews/received')
   Future<ReviewsResponse> myAboutReviev();
 
-  @GET('/api/v1/reviews/left')
+  @GET('/reviews/left')
   Future<ReviewsResponse> myAboutLeft();
 
   @POST('/auth/forgot-password/request')
@@ -361,16 +361,16 @@ abstract class AuthApi {
   @POST('/auth/email/resend')
   Future<void> resendEmailVerification();
 
-  @GET('/api/v1/geo/countries')
+  @GET('/geo/countries')
   Future<CountriesResponse> getCountries();
 
-  @POST('/api/v1/auth/change-password')
+  @POST('/auth/change-password')
   Future<void> changePassword(@Body() ChangePasswordRequest request);
 
-  @GET('/api/v1/privacy-policy')
+  @GET('/privacy-policy')
   Future<PrivacyPolicyResponse> privacyPolicy();
 
-  @GET('/api/v1/faqs')
+  @GET('/faqs')
   Future<FaqResponse> faqs();
 
   @GET('/notifications/unread-count')
