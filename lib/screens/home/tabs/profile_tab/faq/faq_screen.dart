@@ -7,6 +7,7 @@ import '../../../../../data/network/response/faq_response.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../services/theme_manager.dart';
+import '../support/support_screen.dart';
 import 'faq_bloc.dart';
 
 class FaqScreen extends BaseScreen {
@@ -19,6 +20,7 @@ class FaqScreen extends BaseScreen {
 class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
   // Для отслеживания раскрытых элементов
   final Set<int> _expandedItems = {};
+  String _query = '';
 
   @override
   PreferredSizeWidget? appBar() {
@@ -36,7 +38,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
-        'FAQ',
+        'Kömək & FAQ',
         style: TextStyle(
           color: isDark ? cText(isDark) : Colors.black,
           fontSize: 18,
@@ -97,7 +99,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Часто задаваемые вопросы',
+                              'Kömək & FAQ',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -106,7 +108,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Найдите ответы на популярные вопросы',
+                              'Suallarına cavab tap',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isDark
@@ -118,6 +120,51 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              // Поиск (клиентская фильтрация)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: TextField(
+                    onChanged: (v) => setState(() => _query = v),
+                    style: TextStyle(
+                        color: isDark ? cText(isDark) : Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      hintText: 'Sualını axtar…',
+                      hintStyle: TextStyle(
+                          color: isDark
+                              ? const Color(0xFF6B7B93)
+                              : const Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w500),
+                      prefixIcon: Icon(Icons.search,
+                          color: isDark
+                              ? const Color(0xFF6B7B93)
+                              : const Color(0xFF94A3B8),
+                          size: 20),
+                      filled: true,
+                      fillColor: isDark
+                          ? const Color(0xFF1C2740)
+                          : const Color(0x0D0F172A),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                            color: isDark
+                                ? const Color(0x14FFFFFF)
+                                : const Color(0x120F172A)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                            color: WawatColors.primary, width: 1.4),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -153,7 +200,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Ошибка загрузки FAQ',
+                              'FAQ yüklənmədi',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isDark
@@ -182,7 +229,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Пока нет вопросов',
+                              'Hələ sual yoxdur',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isDark
@@ -196,7 +243,49 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                     );
                   }
 
-                  final faqs = snapshot.data!.data;
+                  final q = _query.trim().toLowerCase();
+                  final faqs = q.isEmpty
+                      ? snapshot.data!.data
+                      : snapshot.data!.data
+                          .where((f) =>
+                              f.question.toLowerCase().contains(q) ||
+                              f.answer.toLowerCase().contains(q))
+                          .toList();
+
+                  if (faqs.isEmpty) {
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 40, 24, 12),
+                        child: Column(
+                          children: [
+                            Icon(Icons.search_off,
+                                size: 54,
+                                color: isDark
+                                    ? cFaint(isDark)
+                                    : const Color(0xFFCBD5E1)),
+                            const SizedBox(height: 12),
+                            Text('«${_query.trim()}» üzrə nəticə yoxdur',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color:
+                                        isDark ? cText(isDark) : Colors.black)),
+                            const SizedBox(height: 4),
+                            Text('Başqa açar sözlə yoxla və ya dəstəyə yaz.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 12.5,
+                                    color: isDark
+                                        ? cText2(isDark)
+                                        : const Color(0xFF64748B))),
+                            const SizedBox(height: 16),
+                            _supportButton(isDark),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
 
                   return SliverPadding(
                     padding: const EdgeInsets.all(16),
@@ -204,7 +293,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final faq = faqs[index];
-                          final isExpanded = _expandedItems.contains(index);
+                          final isExpanded = _expandedItems.contains(faq.id);
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
@@ -216,9 +305,9 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                               onTap: () {
                                 setState(() {
                                   if (isExpanded) {
-                                    _expandedItems.remove(index);
+                                    _expandedItems.remove(faq.id);
                                   } else {
-                                    _expandedItems.add(index);
+                                    _expandedItems.add(faq.id);
                                   }
                                 });
                               },
@@ -232,14 +321,72 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                 },
               ),
 
-              // Нижний отступ
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 20),
+              // «Cavab tapmadın? → Dəstəyə yaz»
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0x24017BFE)
+                          : const Color(0xFFEAF3FE),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Text('Cavab tapmadın?',
+                            style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? cText(isDark) : Colors.black)),
+                        const SizedBox(height: 2),
+                        Text('Komandamız kömək etməyə hazırdır.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: isDark
+                                    ? cText2(isDark)
+                                    : const Color(0xFF64748B))),
+                        const SizedBox(height: 12),
+                        _supportButton(isDark),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _supportButton(bool isDark) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => SupportScreen())),
+      child: Container(
+        width: double.infinity,
+        height: 46,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: WawatColors.primary,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.headset_mic, color: Colors.white, size: 18),
+            SizedBox(width: 8),
+            Text('Dəstəyə yaz',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700)),
+          ],
+        ),
+      ),
     );
   }
 
