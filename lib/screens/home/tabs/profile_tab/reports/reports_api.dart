@@ -2,23 +2,23 @@ import 'package:dio/dio.dart';
 
 import '../../../../../main.dart';
 
-/// Feature flag. `true` → calls the endpoints but degrades gracefully on 404
-/// (empty list / null detail). Never fabricates reports.
-const bool kReportsEnabled = true;
-
-/// Data-layer for "Şikayətlərim" (my reports). Mirrors [BlockedUsersApi]:
-/// `sl.get<Dio>()`, global [baseUrl], manual `fromJson`, defensive on 404.
-/// Creating a report happens from listing/user/chat screens — this only reads.
+/// Data-layer for "Şikayətlərim" (my reports), wired to the live API.
+/// GET /reports returns full objects, so the detail screen reuses the list item
+/// (no extra fetch). Mirrors [BlockedUsersApi]: `sl.get<Dio>()`, global
+/// [baseUrl], manual `fromJson`, defensive on 404 (empty list). Creating a
+/// report happens from listing/user/chat screens (POST /reports).
 class ReportsApi {
   ReportsApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
   final Dio _dio;
 
-  /// GET /me/reports → the reports this user has filed.
-  Future<List<Report>> getReports() async {
-    if (!kReportsEnabled) return const [];
+  /// GET /reports → the reports the current user has filed.
+  Future<List<Report>> getReports({int page = 1}) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>('$baseUrl/me/reports');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '$baseUrl/reports',
+        queryParameters: {'page': page},
+      );
       final raw = res.data?['data'];
       if (raw is! List) return const [];
       return raw
@@ -27,53 +27,31 @@ class ReportsApi {
           .where((r) => r.id.isNotEmpty)
           .toList();
     } on DioException catch (error) {
-      if (_missing(error)) return const [];
+      final code = error.response?.statusCode;
+      if (code == 404 || code == 204) return const [];
       rethrow;
     }
-  }
-
-  /// GET /me/reports/{id} → detail with description, timeline, admin response.
-  Future<ReportDetail?> getReport(String id) async {
-    if (!kReportsEnabled) return null;
-    try {
-      final res =
-          await _dio.get<Map<String, dynamic>>('$baseUrl/me/reports/$id');
-      final data = res.data?['data'] is Map
-          ? Map<String, dynamic>.from(res.data!['data'] as Map)
-          : (res.data ?? const {});
-      return ReportDetail.fromJson(Map<String, dynamic>.from(data));
-    } on DioException catch (error) {
-      if (_missing(error)) return null;
-      rethrow;
-    }
-  }
-
-  bool _missing(DioException error) {
-    final code = error.response?.statusCode;
-    return code == 404 || code == 204 || code == 501;
   }
 }
 
 class Report {
   final String id;
   final String targetType; // listing | user | message
-  final String targetLabel;
-  final String? targetSubtitle;
-  final String reason;
-  final String reasonLabel;
-  final String status; // reviewing | pending | resolved | rejected
-  final String statusLabel;
+  final String reasonCode;
+  final String note; // the user's explanation ("İzah")
+  final String status; // pending | reviewing | resolved | rejected
+  final String resolutionNote; // moderation response
+  final bool hasEvidence;
   final DateTime? createdAt;
 
   const Report({
     required this.id,
     required this.targetType,
-    required this.targetLabel,
-    required this.targetSubtitle,
-    required this.reason,
-    required this.reasonLabel,
+    required this.reasonCode,
+    required this.note,
     required this.status,
-    required this.statusLabel,
+    required this.resolutionNote,
+    required this.hasEvidence,
     required this.createdAt,
   });
 
@@ -81,85 +59,42 @@ class Report {
     return Report(
       id: json['id']?.toString() ?? '',
       targetType: json['target_type']?.toString() ?? 'listing',
-      targetLabel: json['target_label']?.toString() ?? '',
-      targetSubtitle: json['target_subtitle']?.toString(),
-      reason: json['reason']?.toString() ?? '',
-      reasonLabel:
-          json['reason_label']?.toString() ?? json['reason']?.toString() ?? '',
-      status: json['status']?.toString() ?? 'reviewing',
-      statusLabel: json['status_label']?.toString() ?? '',
+      reasonCode: json['reason_code']?.toString() ?? '',
+      note: json['note']?.toString() ?? '',
+      status: json['status']?.toString() ?? 'pending',
+      resolutionNote: json['resolution_note']?.toString() ?? '',
+      hasEvidence: json['has_evidence'] == true,
       createdAt: _dateTime(json['created_at']),
     );
   }
-}
 
-class ReportDetail extends Report {
-  final String? description;
-  final String? targetOwner;
-  final List<ReportTimelineStep> timeline;
-  final String? adminResponse;
-
-  const ReportDetail({
-    required super.id,
-    required super.targetType,
-    required super.targetLabel,
-    required super.targetSubtitle,
-    required super.reason,
-    required super.reasonLabel,
-    required super.status,
-    required super.statusLabel,
-    required super.createdAt,
-    required this.description,
-    required this.targetOwner,
-    required this.timeline,
-    required this.adminResponse,
-  });
-
-  factory ReportDetail.fromJson(Map<String, dynamic> json) {
-    final base = Report.fromJson(json);
-    final rawTimeline = json['timeline'];
-    final timeline = rawTimeline is List
-        ? rawTimeline
-            .whereType<Map>()
-            .map((e) =>
-                ReportTimelineStep.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
-        : <ReportTimelineStep>[];
-    return ReportDetail(
-      id: base.id,
-      targetType: base.targetType,
-      targetLabel: base.targetLabel,
-      targetSubtitle: base.targetSubtitle,
-      reason: base.reason,
-      reasonLabel: base.reasonLabel,
-      status: base.status,
-      statusLabel: base.statusLabel,
-      createdAt: base.createdAt,
-      description: json['description']?.toString(),
-      targetOwner: json['target_owner']?.toString(),
-      timeline: timeline,
-      adminResponse: json['admin_response']?.toString(),
-    );
-  }
-}
-
-class ReportTimelineStep {
-  final String title;
-  final String? subtitle;
-  final String state; // done | active | future
-
-  const ReportTimelineStep({
-    required this.title,
-    required this.subtitle,
-    required this.state,
-  });
-
-  factory ReportTimelineStep.fromJson(Map<String, dynamic> json) {
-    return ReportTimelineStep(
-      title: json['title']?.toString() ?? '',
-      subtitle: json['subtitle']?.toString(),
-      state: json['state']?.toString() ?? 'future',
-    );
+  /// reason_code → Azerbaijani label (codes aren't localized by the backend).
+  String get reasonLabel {
+    switch (reasonCode) {
+      case 'wrong_info':
+      case 'misleading':
+        return 'Yanlış / aldadıcı məlumat';
+      case 'spam':
+        return 'Spam';
+      case 'offensive':
+      case 'insult':
+      case 'abuse':
+        return 'Təhqir';
+      case 'fraud':
+      case 'scam':
+        return 'Fırıldaqçılıq';
+      case 'prohibited':
+      case 'prohibited_item':
+        return 'Qadağan olunmuş əşya';
+      case 'inappropriate':
+        return 'Uyğunsuz məzmun';
+      case 'other':
+        return 'Digər';
+      default:
+        if (reasonCode.isEmpty) return '';
+        final s = reasonCode.replaceAll('_', ' ');
+        return s[0].toUpperCase() + s.substring(1);
+    }
   }
 }
 

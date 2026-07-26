@@ -113,17 +113,17 @@ class _StatusStyle {
 _StatusStyle _statusStyle(bool d, Report r) {
   switch (r.status) {
     case 'resolved':
-      return _StatusStyle(r.statusLabel.isEmpty ? 'Həll olundu' : r.statusLabel,
-          PhosphorIconsFill.checkCircle, _cEmeraldBg(d), _cEmeraldText(d));
+      return _StatusStyle('Həll olundu', PhosphorIconsFill.checkCircle,
+          _cEmeraldBg(d), _cEmeraldText(d));
     case 'rejected':
-      return _StatusStyle(r.statusLabel.isEmpty ? 'Rədd edildi' : r.statusLabel,
-          PhosphorIconsFill.xCircle, _cGrayBg(d), _cMuted(d));
+      return _StatusStyle(
+          'Rədd edildi', PhosphorIconsFill.xCircle, _cGrayBg(d), _cMuted(d));
     case 'pending':
-      return _StatusStyle(r.statusLabel.isEmpty ? 'Gözləyir' : r.statusLabel,
-          PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
+      return _StatusStyle(
+          'Gözləyir', PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
     default:
-      return _StatusStyle(r.statusLabel.isEmpty ? 'Baxılır' : r.statusLabel,
-          PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
+      return _StatusStyle(
+          'Baxılır', PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
   }
 }
 
@@ -284,8 +284,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                               color: _cText(d),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w700)),
-                      if ((r.targetLabel).isNotEmpty)
-                        Text(r.targetLabel,
+                      if (r.note.isNotEmpty)
+                        Text(r.note,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -388,21 +388,10 @@ class ReportDetailScreen extends StatefulWidget {
 }
 
 class _ReportDetailScreenState extends State<ReportDetailScreen> {
-  final ReportsApi _api = ReportsApi();
-  ReportDetail? _detail;
-
-  @override
-  void initState() {
-    super.initState();
-    _api.getReport(widget.report.id).then((d) {
-      if (d != null && mounted) setState(() => _detail = d);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final d = _dark(context);
-    final r = _detail ?? widget.report;
+    final r = widget.report;
     final s = _statusStyle(d, r);
     final idLabel = r.id.length > 6 ? r.id.substring(0, 6).toUpperCase() : r.id;
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -458,18 +447,15 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                  r.targetLabel.isEmpty
-                                      ? _reportTitle(r.targetType)
-                                      : r.targetLabel,
+                              Text(_reportTitle(r.targetType),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       color: _cText(d),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700)),
-                              if ((_detail?.targetOwner ?? '').isNotEmpty)
-                                Text('Sahib: ${_detail!.targetOwner}',
+                              if (r.hasEvidence)
+                                Text('Sübut əlavə edilib',
                                     style: TextStyle(
                                         color: _cFaint(d),
                                         fontSize: 11.5,
@@ -488,11 +474,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           color: _cText(d),
                           fontSize: 13,
                           fontWeight: FontWeight.w600)),
-                  if ((_detail?.description ?? '').isNotEmpty) ...[
+                  if (r.note.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     _label(d, 'İzah'),
                     const SizedBox(height: 4),
-                    Text(_detail!.description!,
+                    Text(r.note,
                         style: TextStyle(
                             color: _cText2(d),
                             fontSize: 12.7,
@@ -506,7 +492,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             _label(d, 'Vəziyyət'),
             const SizedBox(height: 12),
             _Timeline(steps: _steps(r), isDark: d),
-            if ((_detail?.adminResponse ?? '').isNotEmpty) ...[
+            if (r.resolutionNote.isNotEmpty) ...[
               const SizedBox(height: 18),
               Container(
                 padding: const EdgeInsets.all(14),
@@ -530,7 +516,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(_detail!.adminResponse!,
+                    Text(r.resolutionNote,
                         style: TextStyle(
                             color: _cText2(d),
                             fontSize: 12.7,
@@ -550,35 +536,32 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       style: TextStyle(
           color: _cText2(d), fontSize: 12, fontWeight: FontWeight.w700));
 
-  List<ReportTimelineStep> _steps(Report r) {
-    if (_detail != null && _detail!.timeline.isNotEmpty) {
-      return _detail!.timeline;
-    }
-    final done = r.status == 'resolved' || r.status == 'rejected';
+  List<_Step> _steps(Report r) {
+    final resolved = r.status == 'resolved';
+    final done = resolved || r.status == 'rejected';
     return [
-      ReportTimelineStep(
-        title: 'Göndərildi',
-        subtitle: r.createdAt == null ? null : _fmtDateTime(r.createdAt!),
-        state: 'done',
-      ),
-      ReportTimelineStep(
-        title: 'Baxılır',
-        subtitle: 'Moderasiya komandası yoxlayır',
-        state: done ? 'done' : 'active',
-      ),
-      ReportTimelineStep(
-        title: 'Nəticə',
-        subtitle: done
-            ? (r.status == 'resolved' ? 'Həll olundu' : 'Rədd edildi')
-            : 'Gözlənilir',
-        state: done ? 'done' : 'future',
+      _Step('Göndərildi',
+          r.createdAt == null ? null : _fmtDateTime(r.createdAt!), 'done'),
+      _Step(
+          'Baxılır', 'Moderasiya komandası yoxlayır', done ? 'done' : 'active'),
+      _Step(
+        'Nəticə',
+        done ? (resolved ? 'Həll olundu' : 'Rədd edildi') : 'Gözlənilir',
+        done ? 'done' : 'future',
       ),
     ];
   }
 }
 
+class _Step {
+  final String title;
+  final String? subtitle;
+  final String state; // done | active | future
+  const _Step(this.title, this.subtitle, this.state);
+}
+
 class _Timeline extends StatelessWidget {
-  final List<ReportTimelineStep> steps;
+  final List<_Step> steps;
   final bool isDark;
 
   const _Timeline({required this.steps, required this.isDark});
