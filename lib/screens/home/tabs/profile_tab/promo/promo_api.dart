@@ -50,19 +50,25 @@ class PromoApi {
     }
   }
 
-  /// POST /me/app-review-prompt/{shown|dismissed}. Fire-and-forget: telemetry
-  /// must never block or break the UI, so failures are swallowed.
+  /// POST /me/app-review-prompt/{shown|dismissed}. `prompt_token` is OPTIONAL —
+  /// sent only when we have one (e.g. the "Rate app" page may have none).
+  /// Fire-and-forget: telemetry must never block or break the UI, so failures
+  /// are swallowed.
   Future<void> markReviewShown({String? promptToken}) =>
       _postReview('shown', body: _tokenBody(promptToken));
 
   Future<void> markReviewDismissed({String? promptToken}) =>
       _postReview('dismissed', body: _tokenBody(promptToken));
 
-  /// POST /me/app-review-prompt/rated {prompt_token, rating?}. The backend
-  /// credits the promo code once and returns the full reward (code + amount +
-  /// expiry). Resolves to that reward, or `null` when none is granted / already
-  /// spent (already-rated re-taps return `{ granted: false }` → null).
-  Future<ReviewReward?> markReviewRated({String? promptToken, int? rating}) async {
+  /// POST /me/app-review-prompt/rated {prompt_token?, rating?}. `prompt_token`
+  /// is OPTIONAL: the backend grants the reward without it (used by the standalone
+  /// "Rate app" page); when present it additionally rejects a stale in-flight
+  /// prompt. The backend credits the promo code once and returns the full reward
+  /// (code + amount + expiry). Resolves to that reward, or `null` when none is
+  /// granted / already spent (already-rated re-taps return `{ granted: false }` →
+  /// null — the "one reward per user" guarantee is enforced server-side).
+  Future<ReviewReward?> markReviewRated(
+      {String? promptToken, int? rating}) async {
     if (!kPromoFeatureEnabled) return null;
     try {
       final res = await _dio.post<Map<String, dynamic>>(
