@@ -43,6 +43,41 @@ class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
 
   void markOffline() => _setOffline(true);
 
+  /// Active re-probe for the manual "retry" button. The OS interface status can
+  /// report "connected" on a Wi‑Fi that actually has no internet, so when an
+  /// interface exists we confirm with a real reachability probe to the API host.
+  /// Returns the resolved online state and updates [isOffline] accordingly.
+  Future<bool> recheck() async {
+    try {
+      final results = await _connectivity.checkConnectivity();
+      final noInterface = results.isEmpty ||
+          (results.length == 1 && results.first == ConnectivityResult.none);
+      if (noInterface) {
+        _setOffline(true);
+        return false;
+      }
+    } catch (_) {
+      // Ignore and fall through to the real reachability probe.
+    }
+    final online = await _hasRealInternet();
+    _setOffline(!online);
+    return online;
+  }
+
+  Future<bool> _hasRealInternet() async {
+    try {
+      final result = await InternetAddress.lookup('api.wawatair.com')
+          .timeout(const Duration(seconds: 5));
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    } on TimeoutException catch (_) {
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void handleDioError(DioException error) {
     if (_isNetworkError(error)) {
       markOffline();

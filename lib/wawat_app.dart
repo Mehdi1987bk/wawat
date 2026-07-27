@@ -83,26 +83,12 @@ class App extends StatelessWidget {
                     child: Stack(
                       children: [
                         child!,
-                        Positioned(
-                          top: MediaQuery.of(context).padding.top + 8,
-                          left: 16,
-                          right: 16,
-                          child: IgnorePointer(
-                            child: AnimatedSlide(
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.easeOut,
-                              offset:
-                                  isOffline ? Offset.zero : const Offset(0, -2),
-                              child: AnimatedOpacity(
-                                duration: const Duration(milliseconds: 180),
-                                opacity: isOffline ? 1 : 0,
-                                child: _OfflineBanner(
-                                  message: S.of(context).noInternetConnection,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Full-screen offline gate: covers the app while there's
+                        // no connection and disappears the moment it's restored,
+                        // so the user resumes exactly where they left off — the
+                        // Navigator underneath is never touched.
+                        if (isOffline)
+                          const Positioned.fill(child: _OfflineScreen()),
                       ],
                     ),
                   );
@@ -330,56 +316,119 @@ class App extends StatelessWidget {
   }
 }
 
-class _OfflineBanner extends StatelessWidget {
-  final String message;
+/// Full-screen "no internet" gate. Rendered as an overlay above the app's
+/// Navigator while offline; restoring the connection simply removes it and the
+/// user continues from wherever they were. The retry button actively re-probes
+/// the network (not just the OS interface flag), so it also recovers from a
+/// Wi‑Fi that reports "connected" but has no real internet.
+class _OfflineScreen extends StatefulWidget {
+  const _OfflineScreen();
 
-  const _OfflineBanner({required this.message});
+  @override
+  State<_OfflineScreen> createState() => _OfflineScreenState();
+}
+
+class _OfflineScreenState extends State<_OfflineScreen> {
+  bool _checking = false;
+
+  Future<void> _retry() async {
+    if (_checking) return;
+    setState(() => _checking = true);
+    final online = await NetworkStatusService.instance.recheck();
+    if (!mounted) return;
+    setState(() => _checking = false);
+    // If online, the app root rebuilds (isOffline=false) and this overlay is
+    // removed automatically — the user stays exactly where they were. If still
+    // offline, nudge them so the tap doesn't feel unresponsive.
+    if (!online) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(S.of(context).noInternetConnection),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? WawatDark.bg : Colors.white;
+    final titleColor = isDark ? WawatDark.textPrimary : const Color(0xFF0F172A);
+    final subColor = isDark ? WawatDark.textSecondary : const Color(0xFF64748B);
+    final iconBg = isDark ? const Color(0xFF3A2024) : const Color(0xFFFEF2F2);
+    final iconColor =
+        isDark ? const Color(0xFFFCA5A5) : const Color(0xFFDC2626);
+
     return Material(
-      color: Colors.transparent,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF3A2024) : const Color(0xFFFEF2F2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFECACA),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              size: 21,
-              color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFFDC2626),
-            ),
-            const SizedBox(width: 9),
-            Flexible(
-              child: Text(
-                message,
+      color: bg,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                decoration:
+                    BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                child: Icon(Icons.wifi_off_rounded, size: 44, color: iconColor),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                S.of(context).noInternetConnection,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: isDark
-                      ? const Color(0xFFFECACA)
-                      : const Color(0xFF991B1B),
-                  fontSize: 14,
+                  color: titleColor,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              Text(
+                'İnternet bağlantını yoxla və yenidən cəhd et.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: subColor,
+                  fontSize: 14,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _checking ? null : _retry,
+                  child: Container(
+                    height: 52,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF017BFE),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: _checking
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.4, color: Colors.white),
+                          )
+                        : Text(
+                            S.of(context).retry,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
