@@ -23,7 +23,7 @@ FCM HTTP v1, per push. Values in `data` **must be strings**.
     "android": {
       "priority": "high",
       "notification": {
-        "channel_id": "wawat_airplane_v3",   // matches the app channel (or omit → manifest default is v3)
+        "channel_id": "wawat_airplane_v4",   // best: OMIT this line → manifest default (v4) is used
         "sound": "airplane"                    // Android < 8 only; on 8+ the channel sound wins
       }
     },
@@ -43,7 +43,7 @@ FCM HTTP v1, per push. Values in `data` **must be strings**.
 ```
 
 The **two fields that fix the reported bugs**: `data.target_type` (routing) and
-`android.notification.channel_id = wawat_airplane_v3` / correct `data` for sound.
+`android.notification.channel_id = wawat_airplane_v4` (or omit) / correct `data` for sound.
 
 ---
 
@@ -92,14 +92,14 @@ channel is first created, forever. The trap: if a **notification-type** push arr
 killed/freshly-installed and the channel doesn't exist yet, `FirebaseMessagingService` **auto-creates
 it with the default sound**, which then can never be changed → default/silent forever.
 
-**Client fix already shipped (this is the definitive one):** the app now creates the channel
-**natively in `Application.onCreate()`** — before the messaging service can handle anything — with the
-airplane sound and proper audio attributes. The id was bumped to **`wawat_airplane_v3`** so devices
-that already have a poisoned `wawat_airplane_v2` get a fresh, correct channel. Legacy channels are
-deleted on startup.
+**Client fix already shipped (this is the definitive one):** the app creates the channel **natively in
+`Application.onCreate()`** — before the messaging service can handle anything — with the airplane sound
+and proper audio attributes. The id is now **`wawat_airplane_v4`**: a channel's sound is immutable, so
+any device that ended up with a poisoned `wawat_airplane_v2`/`v3` (default sound baked in by an earlier
+build) can only be escaped by a fresh id. Those old ids are deleted on startup.
 
 ```
-id:    wawat_airplane_v3
+id:    wawat_airplane_v4
 sound: android.resource://az.buking.buking/raw/airplane   (airplane.mp3)
 importance: high
 ```
@@ -108,14 +108,19 @@ Manifest default (used when a notification push omits `channel_id`):
 
 ```xml
 <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id"
-           android:value="wawat_airplane_v3" />
+           android:value="wawat_airplane_v4" />
 ```
 
-**Backend requirement:**
+**Backend requirement — the simplest, future-proof option is to OMIT `channel_id` entirely** so the
+manifest default (`wawat_airplane_v4`) always wins and the backend never has to track the app's channel
+id again:
 
-- Set `android.notification.channel_id = "wawat_airplane_v3"` **or omit it** (manifest default is v3).
+- **Preferred:** do **not** send `android.notification.channel_id` at all → the app's default channel
+  (v4, airplane sound) is used.
+- If you must send it, send exactly `"wawat_airplane_v4"` — nothing else.
 - **Never** send the old ids: `high_importance_channel`, `wawat_high_importance`, `wawat_alerts`,
-  `wawat_airplane_v2`.
+  `wawat_airplane_v2`, `wawat_airplane_v3` (posting to a deleted id makes Android resurrect it with the
+  **default** sound → the exact bug).
 - **Never** force `android.notification.sound: "default"`.
 - Always `android.priority: "high"`.
 
@@ -153,7 +158,7 @@ with a supported extension**. **iOS does not support `.mp3` for notification sou
 
 | State | Renders | Sound source | Routing |
 | --- | --- | --- | --- |
-| **Foreground** (Android/iOS) | client | `wawat_airplane_v3` channel / `aps.sound` | local-notif payload |
+| **Foreground** (Android/iOS) | client | `wawat_airplane_v4` channel / `aps.sound` | local-notif payload |
 | **Background/warm** | OS | channel / `aps.sound` | `onMessageOpenedApp` reads `data` |
 | **Killed/cold** | OS | channel / `aps.sound` | `getInitialMessage` → deferred to Home |
 
@@ -165,12 +170,12 @@ Android:
 
 ```bash
 adb shell dumpsys notification --noredact | grep -A25 'az.buking.buking'
-#   effectiveNotificationChannel=wawat_airplane_v3
+#   effectiveNotificationChannel=wawat_airplane_v4
 #   mSound=android.resource://az.buking.buking/raw/airplane
 ```
 
 **Done when:** a background/**killed** push (a) plays airplane.mp3, (b) shows on channel
-`wawat_airplane_v3`, and (c) tapping it opens the exact target screen (chat/deal/listing), not the
+`wawat_airplane_v4`, and (c) tapping it opens the exact target screen (chat/deal/listing), not the
 generic notifications feed. Test from a **fully swiped-away** app — that is the state where both bugs
 reproduced. If notifications never arrive at all on a specific phone, first confirm the tester granted
 the notification permission (Android 13+) and disabled battery optimization for the app.

@@ -17,12 +17,13 @@ import 'notification_router.dart';
 // FirebaseMessagingService успеет обработать пуш, — чтобы звук был правильным
 // даже для notification-пушей, пришедших пока приложение убито. Держи этот id в
 // синхроне с WawatApplication.kt и default_notification_channel_id в манифесте.
-const _androidChannelId = 'wawat_airplane_v3';
+const _androidChannelId = 'wawat_airplane_v4';
 const _legacyAndroidChannelIds = [
   'high_importance_channel',
   'wawat_high_importance',
   'wawat_alerts',
   'wawat_airplane_v2',
+  'wawat_airplane_v3',
 ];
 const _androidChannelName = 'Wawat Air';
 const _androidChannelDescription = 'Уведомления Wawat Air';
@@ -36,7 +37,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  debugPrint('FCM background: ${message.messageId}');
+  _logIncomingMessage('background', message);
 
   // notification + data payloads are displayed by Android/iOS themselves.
   // A data-only push needs a local notification to remain visible.
@@ -88,6 +89,22 @@ String? _firstNonEmpty(Iterable<Object?> values) {
   return null;
 }
 
+/// TEMP push diagnostics — prints the channel/sound the backend actually routed
+/// this push to, plus its lifecycle phase. This is how we see the real on-device
+/// payload without backend access: if `android.channelId` is a legacy id (or
+/// `android.sound` is "default"), the backend is the fault, not the app. Never
+/// logs the FCM token. Remove once the sound is confirmed.
+void _logIncomingMessage(String phase, RemoteMessage message) {
+  final android = message.notification?.android;
+  debugPrint(
+    'FCM[$phase] id=${message.messageId} '
+    'hasNotification=${message.notification != null} '
+    'android.channelId=${android?.channelId} '
+    'android.sound=${android?.sound} '
+    'data=${message.data}',
+  );
+}
+
 Future<void> _createAndroidNotificationChannels(
   FlutterLocalNotificationsPlugin plugin,
 ) async {
@@ -108,7 +125,7 @@ Future<void> _createAndroidNotificationChannels(
   // The legacy channels have an IMMUTABLE sound on devices where they were first
   // created with the system default (old builds / FCM auto-create) — recreating
   // them can never change it. Delete them so any push the backend still routes
-  // to an old id falls back to the manifest default channel (wawat_airplane_v3),
+  // to an old id falls back to the manifest default channel (wawat_airplane_v4),
   // which carries the airplane sound. The definitive fix is native creation in
   // WawatApplication.onCreate() (runs before FirebaseMessagingService); this is
   // the Flutter-side mirror of the same channel.
@@ -230,7 +247,7 @@ class PushNotificationService {
   }
 
   void _onForegroundMessage(RemoteMessage message) {
-    _logger.d('FCM foreground: ${message.messageId}');
+    _logIncomingMessage('foreground', message);
     final notification = message.notification;
     final title = notification?.title ??
         _firstNonEmpty([
@@ -293,7 +310,7 @@ class PushNotificationService {
   }
 
   void _handleMessageOpened(RemoteMessage message) {
-    _logger.d('Notification opened: ${message.messageId}');
+    _logIncomingMessage('opened', message);
     if (message.data.isNotEmpty) {
       handleNotificationNavigation(Map<String, dynamic>.from(message.data));
     }

@@ -45,7 +45,7 @@
              Notification-type pushes with no explicit channel_id land here. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="wawat_airplane_v3" />
+            android:value="wawat_airplane_v4" />
     </application>
 
     <queries>
