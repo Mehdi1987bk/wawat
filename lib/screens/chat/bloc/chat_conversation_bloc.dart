@@ -36,6 +36,11 @@ class ChatConversationBloc extends BaseBloc {
       _activeShipmentSubject.stream;
   Stream<bool> get otherUserTypingStream => _otherUserTypingSubject.stream;
 
+  /// Surfaces the server error when a send fails (e.g. the peer blocked you),
+  /// so the UI can show its message instead of failing silently.
+  final PublishSubject<Object> _sendErrorsSubject = PublishSubject<Object>();
+  Stream<Object> get sendErrorsStream => _sendErrorsSubject.stream;
+
   /// Statuses that keep a deal "active" for the pinned bar (§3A.2).
   /// completed/auto_completed stay (review nudge); terminal declined/cancelled/
   /// expired do not.
@@ -338,13 +343,14 @@ class ChatConversationBloc extends BaseBloc {
             );
       _pendingMessages.remove(pending.localId);
       _replaceMessage(pending.localId, response.data);
-    } catch (_) {
+    } catch (e) {
       _replaceMessage(
         pending.localId,
         pending.optimisticMessage(
           status: ChatMessageDeliveryStatus.failed,
         ),
       );
+      if (!_sendErrorsSubject.isClosed) _sendErrorsSubject.add(e);
     }
   }
 
@@ -575,6 +581,7 @@ class ChatConversationBloc extends BaseBloc {
     _shipmentsSubject.close();
     _activeShipmentSubject.close();
     _otherUserTypingSubject.close();
+    _sendErrorsSubject.close();
     super.dispose();
   }
 }

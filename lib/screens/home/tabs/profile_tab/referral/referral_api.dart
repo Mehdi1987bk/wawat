@@ -91,11 +91,11 @@ class ReferralInfo {
         rewarded = 0,
         earned = 0,
         rewardAmount = 5,
-        currency = '₼';
+        currency = '\$';
 
   bool get isReady => code.isNotEmpty;
 
-  String get currencySymbol => currency == 'AZN' ? '₼' : currency;
+  String get currencySymbol => currency == 'AZN' ? '\$' : currency;
 
   factory ReferralInfo.fromJson(Map<String, dynamic> json) {
     return ReferralInfo(
@@ -106,7 +106,7 @@ class ReferralInfo {
       rewarded: _int(json['rewarded']) ?? 0,
       earned: _num(json['earned']) ?? 0,
       rewardAmount: _num(json['reward_amount']) ?? 5,
-      currency: json['currency']?.toString() ?? '₼',
+      currency: json['currency']?.toString() ?? '\$',
     );
   }
 }

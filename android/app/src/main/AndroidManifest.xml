@@ -4,7 +4,7 @@
 
     <application
         android:label="Wawat Air"
-        android:name="${applicationName}"
+        android:name=".WawatApplication"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:allowBackup="true"
@@ -27,15 +27,25 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Notification taps whose click_action is FLUTTER_NOTIFICATION_CLICK
+                 must resolve to this activity, otherwise the tap opens nothing.
+                 firebase_messaging then delivers the message via
+                 onMessageOpenedApp / getInitialMessage. -->
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- Default high-importance channel for FCM (Android 8+). -->
+        <!-- Default high-importance channel for FCM (Android 8+). Must match the
+             channel id created in WawatApplication.kt / push_notification_service.dart.
+             Notification-type pushes with no explicit channel_id land here. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="wawat_airplane_v2" />
+            android:value="wawat_airplane_v3" />
     </application>
 
     <queries>

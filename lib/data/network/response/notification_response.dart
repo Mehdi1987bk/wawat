@@ -66,6 +66,11 @@ class NotificationItem {
   final String? body;
   final bool isInteractive;
   final NotificationData data;
+
+  /// Unified navigation object — the single source of truth for where a tap
+  /// on this notification should go (same shape as the push payload). Drive
+  /// navigation from [target], never from [type] or [data].
+  final NotificationTarget target;
   final String? readAt;
   final String createdAt;
 
@@ -76,6 +81,7 @@ class NotificationItem {
     this.body,
     required this.isInteractive,
     required this.data,
+    this.target = const NotificationTarget(),
     this.readAt,
     required this.createdAt,
   });
@@ -93,6 +99,7 @@ class NotificationItem {
       body: body,
       isInteractive: isInteractive,
       data: data,
+      target: target,
       readAt: clearReadAt ? null : readAt ?? this.readAt,
       createdAt: createdAt,
     );
@@ -111,6 +118,11 @@ class NotificationItem {
               Map<String, dynamic>.from(json['data'] as Map),
             )
           : const NotificationData(),
+      target: json['target'] is Map
+          ? NotificationTarget.fromJson(
+              Map<String, dynamic>.from(json['target'] as Map),
+            )
+          : const NotificationTarget(),
       readAt: json['read_at']?.toString() ??
           (json['is_read'] == true ? DateTime.now().toIso8601String() : null),
       createdAt: json['created_at']?.toString() ?? '',
@@ -124,8 +136,42 @@ class NotificationItem {
         'body': body,
         'is_interactive': isInteractive,
         'data': data.toJson(),
+        'target': target.toJson(),
         'read_at': readAt,
         'created_at': createdAt,
+      };
+}
+
+/// Unified navigation descriptor present on every notification (in-app + push).
+/// [type] is one of the 14 target kinds; [id] is a public_id/username or null
+/// (null ⇒ open a screen, not an entity); [params] holds secondary navigation
+/// (e.g. conversation_id, saved_search_id).
+class NotificationTarget {
+  final String type;
+  final String? id;
+  final Map<String, dynamic> params;
+
+  const NotificationTarget({
+    this.type = 'none',
+    this.id,
+    this.params = const {},
+  });
+
+  factory NotificationTarget.fromJson(Map<String, dynamic> json) {
+    final id = json['id']?.toString();
+    return NotificationTarget(
+      type: json['type']?.toString() ?? 'none',
+      id: (id == null || id.isEmpty) ? null : id,
+      params: json['params'] is Map
+          ? Map<String, dynamic>.from(json['params'] as Map)
+          : const {},
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        if (id != null) 'id': id,
+        if (params.isNotEmpty) 'params': params,
       };
 }
 

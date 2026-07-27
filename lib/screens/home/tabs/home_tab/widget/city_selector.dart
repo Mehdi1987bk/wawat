@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../../../../data/network/response/city.dart';
 import '../../../../../generated/l10n.dart';
@@ -450,7 +451,7 @@ Future<City?> showCitySelector({
   required Future<List<City>> Function(String search) onSearch,
   bool isLoading = false,
 }) {
-  return showModalBottomSheet<City>(
+  return showAppBottomSheet<City>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,

@@ -51,7 +51,9 @@ class DealCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: ringColor ??
-                  (isDark ? WawatDark.border : dealInk900.withValues(alpha: 0.06)),
+                  (isDark
+                      ? WawatDark.border
+                      : dealInk900.withValues(alpha: 0.06)),
               width: ringColor != null ? 2 : 1,
             ),
             boxShadow: isDark
@@ -74,9 +76,11 @@ class DealCard extends StatelessWidget {
                     icon: visual.icon,
                     color: visual.color,
                     background: visual.background,
-                    label: dealStatusLabel(content, shipment.status, shipment.statusLabel),
+                    label: dealStatusLabel(
+                        content, shipment.status, shipment.statusLabel),
                   ),
-                  if (shipment.myRole != null) _RoleChip(role: shipment.myRole!, content: content),
+                  if (shipment.myRole != null)
+                    _RoleChip(role: shipment.myRole!, content: content),
                 ],
               ),
               const SizedBox(height: 10),
@@ -105,14 +109,18 @@ class DealCard extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 14,
-                              backgroundColor: isDark ? WawatDark.surfaceAlt : dealInk100,
+                              backgroundColor:
+                                  isDark ? WawatDark.surfaceAlt : dealInk100,
                               backgroundImage: counterpart.avatar != null
-                                  ? CachedNetworkImageProvider(counterpart.avatar!)
+                                  ? CachedNetworkImageProvider(
+                                      counterpart.avatar!)
                                   : null,
                               child: counterpart.avatar == null
                                   ? Icon(PhosphorIconsFill.user,
                                       size: 14,
-                                      color: isDark ? WawatDark.iconMuted : dealInk400)
+                                      color: isDark
+                                          ? WawatDark.iconMuted
+                                          : dealInk400)
                                   : null,
                             ),
                             const SizedBox(width: 8),
@@ -126,7 +134,9 @@ class DealCard extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        color: isDark ? WawatDark.textSecondary : dealInk700,
+                                        color: isDark
+                                            ? WawatDark.textSecondary
+                                            : dealInk700,
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -134,7 +144,8 @@ class DealCard extends StatelessWidget {
                                   ),
                                   if (counterpart.isVerified) ...[
                                     const SizedBox(width: 3),
-                                    Icon(PhosphorIconsFill.sealCheck, size: 13, color: dealBrand),
+                                    Icon(PhosphorIconsFill.sealCheck,
+                                        size: 13, color: dealBrand),
                                   ],
                                 ],
                               ),
@@ -147,16 +158,18 @@ class DealCard extends StatelessWidget {
                       children: [
                         if (shipment.priceTotal != null)
                           Text(
-                            '${shipment.priceTotal!.toStringAsFixed(0)} ₼',
+                            '${shipment.priceTotal!.toStringAsFixed(0)} \$',
                             style: TextStyle(
-                              color: isDark ? WawatDark.textPrimary : dealInk900,
+                              color:
+                                  isDark ? WawatDark.textPrimary : dealInk900,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         Text(
                           [
-                            if (shipment.weightKg != null) '${shipment.weightKg} kq',
+                            if (shipment.weightKg != null)
+                              '${shipment.weightKg} kq',
                             dealPackageLabel(shipment.packageTypeCode),
                           ].where((e) => e.isNotEmpty).join(' · '),
                           style: TextStyle(
@@ -187,7 +200,8 @@ class DealCard extends StatelessWidget {
           icon: PhosphorIconsFill.handPointing,
           color: isDark ? WawatDark.warning : dealAmber700,
           background: isDark ? WawatDark.surfaceAlt : dealAmber100,
-          text: WawatContent.text(content, 'deals.your_turn', 'Sizin növbəniz — cavab verin'),
+          text: WawatContent.text(
+              content, 'deals.your_turn', 'Sizin növbəniz — cavab verin'),
         ),
       ];
     }
@@ -218,12 +232,14 @@ class DealCard extends StatelessWidget {
               foregroundColor: isDark ? WawatDark.brand : dealBrand700,
               side: BorderSide.none,
               padding: const EdgeInsets.symmetric(vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
             ),
             icon: const Icon(PhosphorIconsFill.star, size: 15),
             label: Text(
               WawatContent.text(content, 'deals.action.review', 'Rəy yaz'),
-              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+              style:
+                  const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -258,7 +274,8 @@ class DealCard extends StatelessWidget {
         _MutedLine(
           icon: PhosphorIconsRegular.clockCounterClockwise,
           text: [
-            WawatContent.text(content, 'deals.expired_unanswered', 'Cavabsız qaldı'),
+            WawatContent.text(
+                content, 'deals.expired_unanswered', 'Cavabsız qaldı'),
             dealShortDate(shipment.createdAt),
           ].where((e) => e.isNotEmpty).join(' · '),
         ),
@@ -269,7 +286,8 @@ class DealCard extends StatelessWidget {
         const SizedBox(height: 10),
         _MutedLine(
           icon: PhosphorIconsRegular.calendarBlank,
-          text: '${WawatContent.text(content, 'deals.terms.trip_date', 'Səfər')}: '
+          text:
+              '${WawatContent.text(content, 'deals.terms.trip_date', 'Səfər')}: '
               '${dealShortDate(shipment.travelDate)}',
         ),
       ];
@@ -295,7 +313,8 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(
+          color: background, borderRadius: BorderRadius.circular(999)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -303,7 +322,8 @@ class _StatusBadge extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: color, fontSize: 11, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -324,14 +344,17 @@ class _RoleChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: isDark ? WawatDark.surfaceAlt : dealInk900.withValues(alpha: 0.05),
+        color:
+            isDark ? WawatDark.surfaceAlt : dealInk900.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isSender ? PhosphorIconsFill.paperPlaneTilt : PhosphorIconsFill.airplaneTilt,
+            isSender
+                ? PhosphorIconsFill.paperPlaneTilt
+                : PhosphorIconsFill.airplaneTilt,
             size: 11,
             color: isDark ? WawatDark.textSecondary : dealInk700,
           ),
@@ -371,7 +394,8 @@ class _HintBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(
+          color: background, borderRadius: BorderRadius.circular(14)),
       child: Row(
         children: [
           Icon(icon, size: 14, color: color),
@@ -379,7 +403,8 @@ class _HintBanner extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: color, fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -405,7 +430,8 @@ class _MutedLine extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(color: color, fontSize: 11.5, fontWeight: FontWeight.w500),
+            style: TextStyle(
+                color: color, fontSize: 11.5, fontWeight: FontWeight.w500),
           ),
         ),
       ],

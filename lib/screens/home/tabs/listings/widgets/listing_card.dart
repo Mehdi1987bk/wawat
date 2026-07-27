@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -7,11 +9,47 @@ import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
+import '../../profile_tab/new_profile/profile_api.dart';
 
 Future<Map<String, String>>? _listingContentFuture;
 
 Future<Map<String, String>> _loadListingContent() {
   return _listingContentFuture ??= WawatContent.loadDefault();
+}
+
+/// The listing-feed API doesn't always embed the owner's avatar (name, rating
+/// and tier come through, but the photo is often missing). This resolves the
+/// avatar on demand from `GET /users/{id}` and caches it for the session so a
+/// given owner is fetched at most once, no matter how many cards show them.
+class _OwnerAvatarCache {
+  static final Map<String, String> _resolved = {}; // id -> url ('' = none)
+  static final Map<String, Future<String>> _inFlight = {};
+
+  /// Session-cached result, or null if this owner hasn't been resolved yet.
+  static String? cached(String id) => _resolved[id];
+
+  static Future<String> resolve(String id) {
+    final done = _resolved[id];
+    if (done != null) return Future.value(done);
+    return _inFlight[id] ??= _load(id);
+  }
+
+  static Future<String> _load(String id) async {
+    try {
+      final user = await WawatProfileApi().user(id);
+      final full = user.avatarUrl?.trim() ?? '';
+      final thumb = user.avatarThumbUrl?.trim() ?? '';
+      final url = full.isNotEmpty ? full : thumb;
+      _resolved[id] = url;
+      return url;
+    } catch (_) {
+      _resolved[id] =
+          ''; // remember the miss so we don't refetch on every scroll
+      return '';
+    } finally {
+      _inFlight.remove(id);
+    }
+  }
 }
 
 typedef ListingFavoriteCallback = Future<void> Function(
@@ -71,11 +109,15 @@ class _ListingCardState extends State<ListingCard> {
   bool _isFavoriteBusy = false;
   late final Future<Map<String, String>> _contentFuture;
 
+  /// Owner avatar resolved lazily when the feed payload omits it.
+  String? _resolvedOwnerAvatar;
+
   @override
   void initState() {
     super.initState();
     _isFavorited = widget.listing.isFavorited;
     _contentFuture = _loadListingContent();
+    _resolveOwnerAvatar();
   }
 
   @override
@@ -86,6 +128,37 @@ class _ListingCardState extends State<ListingCard> {
       _isFavorited = widget.listing.isFavorited;
       _isFavoriteBusy = false;
     }
+    if (oldWidget.listing.id != widget.listing.id) {
+      _resolvedOwnerAvatar = null;
+      _resolveOwnerAvatar();
+    }
+  }
+
+  /// Fills in a missing owner photo from the user endpoint (see
+  /// [_OwnerAvatarCache]). No-op when the feed already provided the avatar.
+  void _resolveOwnerAvatar() {
+    final owner = widget.listing.owner;
+    if (owner == null || owner.avatarUrl.isNotEmpty) return;
+    final id = (owner.id ?? widget.listing.ownerId ?? '').trim();
+    if (id.isEmpty) return;
+
+    final cached = _OwnerAvatarCache.cached(id);
+    if (cached != null) {
+      if (cached.isNotEmpty) _resolvedOwnerAvatar = cached;
+      return;
+    }
+    _OwnerAvatarCache.resolve(id).then((url) {
+      if (mounted && url.isNotEmpty) {
+        setState(() => _resolvedOwnerAvatar = url);
+      }
+    });
+  }
+
+  /// The avatar URL to render: the feed's own value, else the lazily resolved
+  /// one, else '' (initials fallback).
+  String _ownerAvatarUrl(ListingOwner owner) {
+    if (owner.avatarUrl.isNotEmpty) return owner.avatarUrl;
+    return _resolvedOwnerAvatar ?? '';
   }
 
   bool get _isTrip => widget.listing.isTrip;
@@ -248,22 +321,56 @@ class _ListingCardState extends State<ListingCard> {
             ],
           ),
         ),
-        if (!widget.isOwner)
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: _toggleFavorite,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Icon(
-                _isFavorited
-                    ? PhosphorIconsFill.heart
-                    : PhosphorIconsRegular.heart,
-                color: _isFavorited ? _accentOf(isDark) : cFaint(isDark),
-                size: 24,
+        Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Share sits to the left of the like on every listing.
+              _headerIcon(
+                icon: PhosphorIconsRegular.shareNetwork,
+                color: cFaint(isDark),
+                onTap: _shareListing,
+                size: 22,
               ),
-            ),
+              if (!widget.isOwner) ...[
+                const SizedBox(width: 10),
+                _headerIcon(
+                  icon: _isFavorited
+                      ? PhosphorIconsFill.heart
+                      : PhosphorIconsRegular.heart,
+                  color: _isFavorited ? _accentOf(isDark) : cFaint(isDark),
+                  onTap: _toggleFavorite,
+                ),
+              ],
+            ],
           ),
+        ),
       ],
+    );
+  }
+
+  Widget _headerIcon({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    double size = 24,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: Icon(icon, color: color, size: size),
+    );
+  }
+
+  void _shareListing() {
+    final link = 'https://wawatair.com/l/${widget.listing.id}';
+    Clipboard.setData(ClipboardData(text: link));
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      const SnackBar(
+        content: Text('Link kopyalandı.'),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -348,7 +455,7 @@ class _ListingCardState extends State<ListingCard> {
               ),
               children: [
                 TextSpan(
-                  text: ' ₼',
+                  text: ' \$',
                   style: TextStyle(fontSize: 18, color: textColor),
                 ),
                 TextSpan(
@@ -541,17 +648,29 @@ class _ListingCardState extends State<ListingCard> {
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 21,
-              backgroundColor: _accentSoftOf(isDark),
-              child: Text(
-                initials,
-                style: TextStyle(
-                  color: _accentOf(isDark),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
+            Builder(
+              builder: (context) {
+                final avatarUrl = _ownerAvatarUrl(owner);
+                return CircleAvatar(
+                  radius: 21,
+                  backgroundColor: _accentSoftOf(isDark),
+                  backgroundImage: avatarUrl.isEmpty
+                      ? null
+                      : CachedNetworkImageProvider(avatarUrl),
+                  // Initials stay as the fallback until (or unless) the photo
+                  // loads (either from the feed or the lazy user fetch).
+                  child: avatarUrl.isEmpty
+                      ? Text(
+                          initials,
+                          style: TextStyle(
+                            color: _accentOf(isDark),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        )
+                      : null,
+                );
+              },
             ),
             const SizedBox(width: 11),
             Expanded(

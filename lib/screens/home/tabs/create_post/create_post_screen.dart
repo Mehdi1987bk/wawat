@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
@@ -239,7 +240,12 @@ Future<TimeOfDay?> _showWawatTimePicker({
 class CreatePostScreen extends BaseScreen<CreatePostBloc> {
   final String? initialType;
 
-  CreatePostScreen({super.key, this.initialType});
+  /// When set, the screen edits this listing instead of creating a new one:
+  /// the type picker is skipped, the form is pre-filled, and submit does a full
+  /// PATCH /listings/{id} (which sends the listing back to moderation).
+  final Listing? editListing;
+
+  CreatePostScreen({super.key, this.initialType, this.editListing});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -280,6 +286,8 @@ class _CreatePostScreenState
 
   bool get _isTrip => _type == 'trip';
 
+  bool get _isEditing => widget.editListing != null;
+
   Color get _accent => _isTrip ? _brand : _amber;
 
   Color get _accentSoft => _isTrip ? _brand50 : _amber50;
@@ -291,8 +299,72 @@ class _CreatePostScreenState
   void initState() {
     super.initState();
     _type = widget.initialType;
+    if (widget.editListing != null) {
+      _prefillFromListing(widget.editListing!);
+    }
     _loadRefs();
     _refreshCurrentUser();
+  }
+
+  /// Seed every form field from the listing being edited. Only the id is sent
+  /// for cities, so the display-only country fields can be blank.
+  void _prefillFromListing(Listing l) {
+    _type = l.type;
+    _step = 0;
+    if (l.cityFromId != null) {
+      _fromCity = City(
+        id: l.cityFromId!,
+        name: l.cityFrom ?? '',
+        countryId: 0,
+        countryCode: '',
+        countryName: '',
+      );
+    }
+    if (l.cityToId != null) {
+      _toCity = City(
+        id: l.cityToId!,
+        name: l.cityTo ?? '',
+        countryId: 0,
+        countryCode: '',
+        countryName: '',
+      );
+    }
+    _selectedPackages
+      ..clear()
+      ..addAll(l.packageTypeCodes);
+    _description.text = l.description ?? '';
+    if (l.type == 'trip') {
+      _flightDate = _parseIsoDate(l.flightDate);
+      _flightTime = _parseHmTime(l.flightTime);
+      _flightNumber.text = l.flightNumber ?? '';
+      _maxWeight.text = _numText(l.maxWeightKg);
+      _price.text = _numText(l.pricePerKg);
+      _allowNegotiation = l.allowPriceNegotiation ?? false;
+    } else {
+      _deliveryFrom = _parseIsoDate(l.deliveryDateFrom);
+      _deliveryTo = _parseIsoDate(l.deliveryDateTo);
+      _shipmentWeight.text = _numText(l.weightKg);
+    }
+  }
+
+  DateTime? _parseIsoDate(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    return DateTime.tryParse(value.trim());
+  }
+
+  TimeOfDay? _parseHmTime(String? value) {
+    if (value == null) return null;
+    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(value.trim());
+    if (match == null) return null;
+    return TimeOfDay(
+      hour: int.parse(match.group(1)!),
+      minute: int.parse(match.group(2)!),
+    );
+  }
+
+  String _numText(double? value) {
+    if (value == null) return '';
+    return value % 1 == 0 ? value.toInt().toString() : value.toString();
   }
 
   Future<void> _refreshCurrentUser() async {
@@ -415,10 +487,15 @@ class _CreatePostScreenState
           title: _title,
           onBack: () {
             if (_step == 0) {
-              setState(() {
-                _type = null;
-                _clearFormFields();
-              });
+              if (_isEditing) {
+                // No type picker to fall back to when editing — leave the form.
+                Navigator.of(context).maybePop();
+              } else {
+                setState(() {
+                  _type = null;
+                  _clearFormFields();
+                });
+              }
             } else {
               setState(() => _step--);
             }
@@ -455,6 +532,7 @@ class _CreatePostScreenState
           secondaryLabel: _step == 2 ? _listingText('common.edit') : null,
           onPrimary: _isSubmitting ? null : _next,
           onSecondary: _step == 2 ? () => setState(() => _step = 1) : null,
+          loading: _isSubmitting,
         ),
       ],
     );
@@ -725,7 +803,7 @@ class _CreatePostScreenState
                 'create.price_per_kg_label',
               ),
               hint: '8',
-              suffix: '₼ / kq',
+              suffix: '\$ / kq',
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               labelIcon: PhosphorIconsRegular.tag,
@@ -952,7 +1030,7 @@ class _CreatePostScreenState
 
   Future<void> _showPackageSheet() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await showModalBottomSheet<void>(
+    await showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -1108,6 +1186,18 @@ class _CreatePostScreenState
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
     try {
+      if (widget.editListing != null) {
+        final response = await bloc.updateListing(
+          widget.editListing!.id,
+          _request(),
+          _idempotencyKey(),
+        );
+        if (!mounted) return;
+        // Return the updated listing so the caller can show the "back to
+        // moderation" message and refresh.
+        Navigator.of(context).pop(response);
+        return;
+      }
       final response = await bloc.createListing(
         _request(),
         _idempotencyKey(),
@@ -1115,14 +1205,26 @@ class _CreatePostScreenState
       if (!mounted) return;
       setState(() => _successResponse = response);
     } catch (error) {
+      if (!mounted) return;
       final parsed = bloc.parseValidationErrors(error);
-      if (mounted && parsed.isNotEmpty) {
+      if (parsed.isNotEmpty) {
         setState(() {
           _errors
             ..clear()
             ..addAll(parsed);
           _step = parsed.keys.any(_isRouteField) ? 0 : 1;
         });
+      } else {
+        // 403 (not owner / wrong status) or a domain error (e.g. weight over the
+        // verification-tier limit) — only a message, so surface it.
+        final message = bloc.extractErrorMessage(error) ??
+            _listingText('common.error', 'Xəta baş verdi. Yenidən cəhd edin.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -3098,7 +3200,7 @@ class _TripPreviewCard extends StatelessWidget {
                     ),
                     children: [
                       const TextSpan(
-                          text: ' ₼', style: TextStyle(fontSize: 20)),
+                          text: ' \$', style: TextStyle(fontSize: 20)),
                       TextSpan(
                         text: '/kq',
                         style: TextStyle(
@@ -4176,6 +4278,7 @@ class _BottomCta extends StatelessWidget {
   final String? secondaryLabel;
   final VoidCallback? onPrimary;
   final VoidCallback? onSecondary;
+  final bool loading;
 
   const _BottomCta({
     required this.primaryKey,
@@ -4184,6 +4287,7 @@ class _BottomCta extends StatelessWidget {
     required this.secondaryLabel,
     required this.onPrimary,
     required this.onSecondary,
+    this.loading = false,
   });
 
   @override
@@ -4197,11 +4301,11 @@ class _BottomCta extends StatelessWidget {
               color: isDark ? WawatDark.divider : const Color(0x0F0F172A)),
         ),
       ),
-      child: SafeArea(
-        top: false,
-        // Reserve the system nav-bar / home-indicator inset so the buttons are
-        // never hidden behind the OS bar; falls back to 18 when there is none.
-        minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+      child: Padding(
+        // Reserve the OS nav-bar / home-indicator inset (paddingOf), then add
+        // breathing room above it so the buttons never hug the system bar.
+        padding: EdgeInsets.fromLTRB(
+            16, 12, 16, MediaQuery.paddingOf(context).bottom + 24),
         child: Row(
           children: [
             if (secondaryLabel != null) ...[
@@ -4222,6 +4326,7 @@ class _BottomCta extends StatelessWidget {
                 icon: _primaryCtaIcon(primaryKey),
                 accent: _brand,
                 onTap: onPrimary,
+                loading: loading,
               ),
             ),
           ],
@@ -4251,21 +4356,23 @@ class _PrimaryAction extends StatelessWidget {
   final IconData? icon;
   final Color accent;
   final VoidCallback? onTap;
+  final bool loading;
 
   const _PrimaryAction({
     required this.label,
     this.icon,
     required this.accent,
     required this.onTap,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Opacity(
-        opacity: onTap == null ? 0.55 : 1,
+        opacity: onTap == null && !loading ? 0.55 : 1,
         child: Container(
           height: 52,
           alignment: Alignment.center,
@@ -4273,23 +4380,32 @@ class _PrimaryAction extends StatelessWidget {
             color: accent,
             borderRadius: BorderRadius.circular(17),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+          child: loading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );

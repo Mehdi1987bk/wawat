@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -16,6 +17,7 @@ class ChatInput extends StatefulWidget {
   final VoidCallback onAttachImage;
   final ValueChanged<String>? onChanged;
   final bool enabled;
+  final bool hasAttachment;
   final String? disabledText;
   final Map<String, String> content;
 
@@ -26,6 +28,7 @@ class ChatInput extends StatefulWidget {
     required this.onAttachImage,
     this.onChanged,
     this.enabled = true,
+    this.hasAttachment = false,
     this.disabledText,
     this.content = const {},
   });
@@ -36,17 +39,25 @@ class ChatInput extends StatefulWidget {
 
 class _ChatInputState extends State<ChatInput> {
   bool _hasText = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_syncText);
+    _focusNode.addListener(_onFocusChange);
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_syncText);
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
     super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) setState(() {});
   }
 
   void _syncText() {
@@ -104,6 +115,11 @@ class _ChatInputState extends State<ChatInput> {
       );
     }
 
+    // Send is available with typed text OR a pending attachment (e.g. a picked
+    // image sitting in the preview bar above). Attaching is reached only via the
+    // "+" button, so the right slot is purely a send affordance now.
+    final canSend = _hasText || widget.hasAttachment;
+
     return ColoredBox(
       color: isDark ? WawatDark.surface : Colors.white,
       child: SafeArea(
@@ -134,10 +150,20 @@ class _ChatInputState extends State<ChatInput> {
                         ? WawatDark.surfaceAlt
                         : _ink900.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(22),
+                    // Focus highlight on the pill itself, so the blue outline
+                    // lands on the visual edge (radius 22) — not inset like the
+                    // theme's default InputDecorator border.
+                    border: Border.all(
+                      color: _focusNode.hasFocus
+                          ? (isDark ? WawatDark.focusRing : _brand)
+                          : Colors.transparent,
+                      width: 1.5,
+                    ),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: TextField(
                     controller: widget.controller,
+                    focusNode: _focusNode,
                     onChanged: widget.onChanged,
                     minLines: 1,
                     maxLines: 4,
@@ -156,7 +182,15 @@ class _ChatInputState extends State<ChatInput> {
                         color: isDark ? WawatDark.textMuted : _ink400,
                         fontWeight: FontWeight.w500,
                       ),
+                      // Drop the theme's filled/outline borders — the container
+                      // owns the fill, shape and focus outline now.
+                      filled: false,
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
                       isCollapsed: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -165,14 +199,14 @@ class _ChatInputState extends State<ChatInput> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: _hasText ? widget.onSend : widget.onAttachImage,
+                onTap: canSend ? widget.onSend : null,
                 child: Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _hasText ? _brand : Colors.transparent,
+                    color: canSend ? _brand : Colors.transparent,
                     shape: BoxShape.circle,
-                    boxShadow: _hasText
+                    boxShadow: canSend
                         ? [
                             BoxShadow(
                               color: _brand.withValues(alpha: 0.35),
@@ -183,13 +217,11 @@ class _ChatInputState extends State<ChatInput> {
                         : null,
                   ),
                   child: Icon(
-                    _hasText
-                        ? PhosphorIconsFill.paperPlaneTilt
-                        : PhosphorIconsRegular.camera,
-                    color: _hasText
+                    PhosphorIconsFill.paperPlaneTilt,
+                    color: canSend
                         ? Colors.white
-                        : (isDark ? WawatDark.icon : _ink500),
-                    size: _hasText ? 19 : 28,
+                        : (isDark ? WawatDark.iconMuted : _ink400),
+                    size: 19,
                   ),
                 ),
               ),
@@ -202,7 +234,7 @@ class _ChatInputState extends State<ChatInput> {
 
   void _showAttachOptions() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: isDark ? WawatDark.surface : Colors.white,
       barrierColor: isDark ? WawatDark.scrim : null,

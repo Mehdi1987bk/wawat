@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -6,8 +7,8 @@ import '../../../../../data/network/response/notification_response.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/notification_router.dart';
 import '../../../../../services/wawat_content.dart';
-import '../../listings/details/listing_details_screen.dart';
 import '../search/search_offer_list_screen.dart';
 import 'notification_bloc.dart';
 
@@ -178,23 +179,17 @@ class _NotificationScreenState
   }
 
   Future<void> _openNotification(NotificationItem item) async {
+    // Mark read + refresh the unread badge, then route by the unified target
+    // (same router the push path uses). Navigation is driven strictly by
+    // target — never by type or raw data.
     if (item.isUnread) await bloc.markAsRead(item.id);
     if (!mounted) return;
-    final listingId = item.data.listingId;
-    if (listingId != null && listingId.isNotEmpty) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ListingDetailsScreen(listingId: listingId),
-        ),
-      );
-      return;
-    }
-    _showMessage(_t('notifications.opened'));
+    openNotification(item.target.type, item.target.id, item.target.params);
   }
 
   Future<void> _showActions(NotificationItem item) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await showModalBottomSheet<void>(
+    await showAppBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: isDark ? WawatDark.scrim : null,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -265,7 +266,7 @@ class _PromoCodesScreenState
 
   void _showDetail(PromoCode promo, Map<String, String> content) {
     final d = _dark(context);
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.62),
@@ -975,7 +976,7 @@ class _EarnCard extends StatelessWidget {
               decoration: BoxDecoration(
                   color: _cBrandSoft(d),
                   borderRadius: BorderRadius.circular(99)),
-              child: Text('+5 ₼',
+              child: Text('+5 \$',
                   style: TextStyle(
                       color: _cBrandText(d),
                       fontSize: 11,
@@ -1080,7 +1081,7 @@ class _DetailSheet extends StatelessWidget {
   String _minLabel() {
     final m = promo.minOrderAmount;
     if (m == null) return '—';
-    final symbol = promo.currency == 'AZN' ? '₼' : promo.currency;
+    final symbol = promo.currency == 'AZN' ? '\$' : promo.currency;
     final rounded = m == m.roundToDouble() ? m.round().toString() : '$m';
     return '$rounded $symbol';
   }

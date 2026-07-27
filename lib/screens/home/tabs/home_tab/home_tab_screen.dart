@@ -715,7 +715,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                         ),
                         const Spacer(),
                         Text(
-                          '${route.minPrice} ₼-dən',
+                          '${route.minPrice} \$-dən',
                           style: TextStyle(
                             color: isDark ? cBrandText(true) : _brand,
                             fontSize: 16,

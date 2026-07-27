@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:buking/presentation/resourses/wawat_dark.dart';
 import '../../../../../generated/l10n.dart';
@@ -12,7 +13,7 @@ class StartChatModal {
     required String userName,
     Function(String message)? onSuccess,
   }) {
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -87,9 +88,7 @@ class _StartChatContentState extends State<_StartChatContent> {
             FocusScope.of(context).unfocus();
           },
           child: Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
+            padding: EdgeInsets.zero, // keyboard inset via showAppBottomSheet
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(

@@ -1,6 +1,7 @@
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/api/chat_api.dart';
 import '../../../../../../data/network/request/create_review_request.dart';
@@ -382,7 +383,7 @@ class CourierProfileCard extends StatelessWidget {
       return AuthModalUtils.showAuthRequiredModal(context);
     }
 
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -535,9 +536,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.zero, // keyboard inset handled by showAppBottomSheet
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {

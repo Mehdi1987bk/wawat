@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -27,6 +28,8 @@ import 'promo/promo_codes_screen.dart';
 import 'promo/rate_app_screen.dart';
 import 'referral/referral_screen.dart';
 import 'reports/reports_screen.dart';
+import '../../home_screen.dart';
+import 'new_profile/avatar_viewer.dart';
 import 'new_profile/new_profile_screen.dart';
 import 'new_profile/profile_api.dart';
 import 'new_profile/profile_models.dart';
@@ -163,7 +166,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   }
 
   Future<void> _openDeleteAccount(WawatProfileBundle bundle) async {
-    await showModalBottomSheet<void>(
+    await showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -204,7 +207,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
     if (!mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -294,7 +297,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   Future<void> _confirmLogout(Map<String, String> content) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final confirmed = await showModalBottomSheet<bool>(
+    final confirmed = await showAppBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
@@ -400,6 +403,12 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     if (confirmed != true) return;
     await _api.logout();
     await sl.get<AuthRepository>().logout();
+    if (!mounted) return;
+    // Clear the whole stack and drop back to a fresh (guest) home page.
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => HomeScreen()),
+      (route) => false,
+    );
   }
 
   @override
@@ -938,7 +947,26 @@ class _MenuAvatar extends StatelessWidget {
     } else {
       child = _initials();
     }
-    return ClipRRect(borderRadius: BorderRadius.circular(18), child: child);
+    final avatar =
+        ClipRRect(borderRadius: BorderRadius.circular(18), child: child);
+
+    // Tapping the photo opens it full-screen; the rest of the card still opens
+    // the profile (this inner gesture wins the tap over the card's).
+    final viewUrl = (full != null && full.isNotEmpty)
+        ? full
+        : (thumb != null && thumb.isNotEmpty ? thumb : null);
+    if (viewUrl == null) return avatar;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.of(context).push(
+        PageRouteBuilder<void>(
+          opaque: false,
+          barrierColor: Colors.black,
+          pageBuilder: (_, __, ___) => AvatarViewer(url: viewUrl),
+        ),
+      ),
+      child: avatar,
+    );
   }
 }
 

@@ -376,13 +376,13 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
           color: WawatColors.primary,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.headset_mic, color: Colors.white, size: 18),
-            SizedBox(width: 8),
+            const Icon(Icons.headset_mic, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
             Text(t('menu.contact_support'),
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700)),

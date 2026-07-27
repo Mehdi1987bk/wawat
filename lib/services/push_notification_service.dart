@@ -12,12 +12,17 @@ import 'notification_router.dart';
 
 // Android не позволяет менять звук уже созданного notification channel.
 // Новый id гарантирует, что после обновления канал создастся именно с
-// airplane.mp3, даже если старый high_importance_channel был с default sound.
-const _androidChannelId = 'wawat_airplane_v2';
+// airplane.mp3, даже если старый канал был создан с default sound.
+// Канал ТАКЖЕ создаётся нативно в WawatApplication.onCreate() — до того как
+// FirebaseMessagingService успеет обработать пуш, — чтобы звук был правильным
+// даже для notification-пушей, пришедших пока приложение убито. Держи этот id в
+// синхроне с WawatApplication.kt и default_notification_channel_id в манифесте.
+const _androidChannelId = 'wawat_airplane_v3';
 const _legacyAndroidChannelIds = [
   'high_importance_channel',
   'wawat_high_importance',
   'wawat_alerts',
+  'wawat_airplane_v2',
 ];
 const _androidChannelName = 'Wawat Air';
 const _androidChannelDescription = 'Уведомления Wawat Air';
@@ -100,17 +105,15 @@ Future<void> _createAndroidNotificationChannels(
   );
   await android.createNotificationChannel(primaryChannel);
 
-  // Keep old ids alive for queued pushes and older backend payloads.
+  // The legacy channels have an IMMUTABLE sound on devices where they were first
+  // created with the system default (old builds / FCM auto-create) — recreating
+  // them can never change it. Delete them so any push the backend still routes
+  // to an old id falls back to the manifest default channel (wawat_airplane_v3),
+  // which carries the airplane sound. The definitive fix is native creation in
+  // WawatApplication.onCreate() (runs before FirebaseMessagingService); this is
+  // the Flutter-side mirror of the same channel.
   for (final channelId in _legacyAndroidChannelIds) {
-    final legacyChannel = AndroidNotificationChannel(
-      channelId,
-      _androidChannelName,
-      description: _androidChannelDescription,
-      importance: Importance.high,
-      playSound: true,
-      sound: const RawResourceAndroidNotificationSound(_androidSound),
-    );
-    await android.createNotificationChannel(legacyChannel);
+    await android.deleteNotificationChannel(channelId);
   }
 }
 

@@ -31,6 +31,9 @@ class MessageBubble extends StatelessWidget {
   final ValueChanged<String>? onReview;
   final VoidCallback? onSupport;
 
+  /// Tapping the incoming peer's avatar opens their profile.
+  final VoidCallback? onOpenProfile;
+
   const MessageBubble({
     super.key,
     required this.message,
@@ -42,6 +45,7 @@ class MessageBubble extends StatelessWidget {
     this.onLongPress,
     this.onReview,
     this.onSupport,
+    this.onOpenProfile,
   });
 
   @override
@@ -74,7 +78,7 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (!isMyMessage) ...[
-              _SmallAvatar(user: message.user),
+              _SmallAvatar(user: message.user, onTap: onOpenProfile),
               const SizedBox(width: 8),
             ],
             Flexible(
@@ -239,13 +243,14 @@ class _DeliveryStatus extends StatelessWidget {
 
 class _SmallAvatar extends StatelessWidget {
   final ChatUser? user;
+  final VoidCallback? onTap;
 
-  const _SmallAvatar({this.user});
+  const _SmallAvatar({this.user, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return CircleAvatar(
+    final avatar = CircleAvatar(
       radius: 12,
       backgroundColor: isDark ? WawatDark.brandSoft : _brand50,
       backgroundImage: user?.avatarUrl.isNotEmpty == true
@@ -261,6 +266,12 @@ class _SmallAvatar extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+    );
+    if (onTap == null) return avatar;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: avatar,
     );
   }
 }
@@ -611,7 +622,7 @@ class _ProposalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final payload = card.payload;
     final weight = _formatValue(payload['weight_kg'], suffix: ' kq');
-    final price = _formatValue(payload['price_total'], suffix: ' ₼');
+    final price = _formatValue(payload['price_total'], suffix: ' \$');
     final from = _formatCity(payload['city_from'], payload['city_from_name']);
     final to = _formatCity(payload['city_to'], payload['city_to_name']);
     final route = [from, to].where((e) => e.isNotEmpty).join(' → ');
@@ -799,7 +810,7 @@ class _CompletedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final payload = card.payload;
-    final price = _formatValue(payload['price_total'], suffix: ' ₼');
+    final price = _formatValue(payload['price_total'], suffix: ' \$');
     final from = _formatCity(payload['city_from'], payload['city_from_name']);
     final to = _formatCity(payload['city_to'], payload['city_to_name']);
     final subtitle = [

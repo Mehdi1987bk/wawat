@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/country.dart';
@@ -96,7 +97,7 @@ class CountryCodeSelector extends StatelessWidget {
   }
 
   void _showCountryPicker(BuildContext context, bool isDark) {
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

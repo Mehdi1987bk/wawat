@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
+import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
@@ -23,15 +24,6 @@ class EmailVerifyScreen extends BaseScreen<EmailVerifyBloc> {
 class _EmailVerifyScreenState
     extends BaseState<EmailVerifyScreen, EmailVerifyBloc> {
   static const _brand = Color(0xFF0271EB);
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    bloc.loadingStream.listen((value) {
-      if (mounted) setState(() => _isLoading = value);
-    });
-  }
 
   Future<void> _resend() async {
     final result = await bloc.resendVerificationLink();
@@ -108,8 +100,8 @@ class _EmailVerifyScreenState
                   ),
                   const SizedBox(height: 28),
                   _PrimaryButton(
-                    text: _isLoading ? 'Göndərilir...' : 'Linki yenidən göndər',
-                    onPressed: _isLoading ? null : _resend,
+                    text: 'Linki yenidən göndər',
+                    onPressed: _resend,
                   ),
                   const SizedBox(height: 12),
                   TextButton(
@@ -151,7 +143,7 @@ class _EmailVerifyScreenState
 
 class _PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
+  final Future<void> Function()? onPressed;
 
   const _PrimaryButton({
     required this.text,
@@ -160,24 +152,16 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
+    return AsyncActionButton(
       height: 48,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _EmailVerifyScreenState._brand,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              _EmailVerifyScreenState._brand.withValues(alpha: 0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          elevation: 0,
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+      borderRadius: 14,
+      color: _EmailVerifyScreenState._brand,
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
       ),
     );

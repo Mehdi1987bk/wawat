@@ -34,7 +34,9 @@ class DealPinBar extends StatelessWidget {
     final hintColor = isDark ? _darkHint(visual.hintColor) : visual.hintColor;
     final tileColor = isDark ? _darkHint(visual.tileColor) : visual.tileColor;
     final title = [
-      shipment.statusLabel.isNotEmpty ? shipment.statusLabel : _statusFallback(),
+      shipment.statusLabel.isNotEmpty
+          ? shipment.statusLabel
+          : _statusFallback(),
       if (shipment.route.isNotEmpty) shipment.route,
     ].join(' · ');
 
@@ -143,7 +145,7 @@ class DealPinBar extends StatelessWidget {
     }
   }
 
-  String _money(double value) => '${value.toStringAsFixed(0)} ₼';
+  String _money(double value) => '${value.toStringAsFixed(0)} \$';
 
   /// Maps a light-mode status hue to its graphite-palette equivalent so text
   /// and icons stay legible on the dark surface. Brand blue stays brand blue.

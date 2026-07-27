@@ -672,7 +672,7 @@ class _MoneyChip extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: const Text(
-              '₼',
+              '\$',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 11,
@@ -683,7 +683,7 @@ class _MoneyChip extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           const Text(
-            '5 ₼-dən',
+            '5 \$-dən',
             style: TextStyle(
               color: _IntroPageState._ink900,
               fontSize: 12,

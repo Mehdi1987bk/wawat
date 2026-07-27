@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -81,7 +82,7 @@ class _SearchOfferListScreenState
     }
     if (widget.openSavedOnStart) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _openSavedSearches();
+        if (mounted) _openSavedSearchesAsEntry();
       });
     }
     _scrollController.addListener(() {
@@ -374,7 +375,7 @@ class _SearchOfferListScreenState
 
   Future<void> _showSortSheet() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sort = await showModalBottomSheet<String>(
+    final sort = await showAppBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: isDark ? WawatDark.scrim : null,
@@ -405,11 +406,37 @@ class _SearchOfferListScreenState
     }
   }
 
+  /// Saved searches opened as the entry point (from the profile menu): this
+  /// search form is only scaffolding for it. If the user backs out without
+  /// picking a search, pop the form too so we return straight to the profile
+  /// instead of exposing an empty search screen.
+  Future<void> _openSavedSearchesAsEntry() async {
+    if (!await _ensureAuth()) {
+      if (mounted) Navigator.of(context).maybePop();
+      return;
+    }
+    if (!mounted) return;
+    final filters = await Navigator.of(context).push<ListingFilterState>(
+      MaterialPageRoute(
+        builder: (_) => _SavedSearchesScreen(
+          bloc: bloc,
+          content: bloc.listingContent.valueOrNull ?? const {},
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (filters != null) {
+      await _applySearch(filters);
+    } else {
+      Navigator.of(context).maybePop();
+    }
+  }
+
   Future<void> _showSaveSearchSheet() async {
     if (!await _ensureAuth()) return;
     if (!mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showAppBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -649,8 +676,8 @@ class _EntryTopBar extends StatelessWidget {
             onTap: onSavedTap,
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: Icon(PhosphorIconsRegular.bookmarkSimple,
-                  color: cText2(isDark)),
+              child:
+                  Icon(PhosphorIconsBold.bookmarkSimple, color: cText2(isDark)),
             ),
           ),
         ],
@@ -2409,7 +2436,10 @@ class _SavedSearchCard extends StatelessWidget {
                           color: cBrandText(isDark),
                         ),
                       )
-                    : Icon(PhosphorIconsRegular.trash, color: cMuted(isDark)),
+                    : Icon(PhosphorIconsRegular.trash,
+                        color: isDark
+                            ? WawatDark.dangerText
+                            : const Color(0xFFEF4444)),
               ),
             ),
           ],
@@ -2523,34 +2553,31 @@ class _SaveSearchSheetState extends State<_SaveSearchSheet> {
           ],
           const SizedBox(height: 12),
           _PrimaryAction(
-            label: _loading
-                ? _contentText(widget.content, 'common.wait')
-                : _contentText(widget.content, 'common.save'),
-            onTap: _loading
-                ? () {}
-                : () async {
-                    setState(() {
-                      _loading = true;
-                      _error = null;
-                    });
-                    try {
-                      await widget.onSave(
-                        _name.text.trim().isEmpty ? null : _name.text.trim(),
-                        _notify,
-                      );
-                      if (!mounted) return;
-                      Navigator.pop(context, true);
-                    } catch (_) {
-                      if (!mounted) return;
-                      setState(() {
-                        _loading = false;
-                        _error = _contentText(
-                          widget.content,
-                          'search.save_error',
-                        );
-                      });
-                    }
-                  },
+            label: _contentText(widget.content, 'common.save'),
+            loading: _loading,
+            onTap: () async {
+              setState(() {
+                _loading = true;
+                _error = null;
+              });
+              try {
+                await widget.onSave(
+                  _name.text.trim().isEmpty ? null : _name.text.trim(),
+                  _notify,
+                );
+                if (!mounted) return;
+                Navigator.pop(context, true);
+              } catch (_) {
+                if (!mounted) return;
+                setState(() {
+                  _loading = false;
+                  _error = _contentText(
+                    widget.content,
+                    'search.save_error',
+                  );
+                });
+              }
+            },
           ),
         ],
       ),
@@ -2592,7 +2619,7 @@ List<_SearchFilterChip> _activeChips(
   }
   if (filters.priceMin != null || filters.priceMax != null) {
     chips.add(_SearchFilterChip(
-        'price', _rangeLabel(filters.priceMin, filters.priceMax, '₼')));
+        'price', _rangeLabel(filters.priceMin, filters.priceMax, '\$')));
   }
   if (filters.weightMin != null || filters.weightMax != null) {
     chips.add(_SearchFilterChip(
@@ -2949,46 +2976,81 @@ class _Segmented extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // The primary filter of the whole app — framed in a brand-tinted track so
+    // the whole element reads as important, not a muted neutral toggle.
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: isDark ? WawatDark.ripple : _ink900.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(18),
+        color: isDark ? WawatDark.brandSoft : _brand50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark
+              ? WawatDark.brand.withValues(alpha: 0.30)
+              : _brand.withValues(alpha: 0.14),
+        ),
       ),
       child: Row(
         children: [
-          _seg(isDark, _contentText(content, 'search.type_all'), null),
-          _seg(isDark, _contentText(content, 'search.type_trip'), 'trip'),
+          _seg(isDark, _contentText(content, 'search.type_all'), null,
+              PhosphorIconsBold.squaresFour),
+          _seg(isDark, _contentText(content, 'search.type_trip'), 'trip',
+              PhosphorIconsBold.airplaneTilt),
           _seg(isDark, _contentText(content, 'search.type_shipment'),
-              'shipment_post'),
+              'shipment_post', PhosphorIconsBold.package),
         ],
       ),
     );
   }
 
-  Widget _seg(bool isDark, String label, String? itemValue) {
+  Widget _seg(bool isDark, String label, String? itemValue, IconData icon) {
     final selected = value == itemValue;
+    final fg =
+        selected ? Colors.white : (isDark ? WawatDark.textMuted : _ink500);
     return Expanded(
       child: GestureDetector(
         onTap: () => onChanged(itemValue),
-        child: Container(
-          height: 38,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: 44,
           alignment: Alignment.center,
           decoration: BoxDecoration(
+            // Selected = solid brand fill → the whole control pops.
             color: selected
-                ? (isDark ? WawatDark.brandBadge : Colors.white)
+                ? (isDark ? WawatDark.brand : _brand)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: (isDark ? WawatDark.brand : _brand)
+                          .withValues(alpha: isDark ? 0.45 : 0.35),
+                      blurRadius: 14,
+                      spreadRadius: -2,
+                      offset: const Offset(0, 5),
+                    )
+                  ]
+                : null,
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected
-                  ? cBrandText(isDark)
-                  : (isDark ? WawatDark.textMuted : _ink500),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 13.5,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -3231,16 +3293,18 @@ InputDecoration _inputDecoration(String hint, {bool isDark = false}) {
 class _PrimaryAction extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final bool loading;
 
   const _PrimaryAction({
     required this.label,
     required this.onTap,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Container(
         height: 52,
         alignment: Alignment.center,
@@ -3255,14 +3319,23 @@ class _PrimaryAction extends StatelessWidget {
             ),
           ],
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        child: loading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }

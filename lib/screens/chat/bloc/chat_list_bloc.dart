@@ -19,11 +19,16 @@ class ChatListBloc extends BaseBloc {
   final BehaviorSubject<bool> _isLoadingMoreSubject =
       BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _isLoadingSubject = BehaviorSubject.seeded(true);
+  final PublishSubject<Object> _actionErrorsSubject = PublishSubject<Object>();
 
   Stream<List<Conversation>> get conversationsStream =>
       _conversationsSubject.stream;
   Stream<bool> get isLoadingMoreStream => _isLoadingMoreSubject.stream;
   Stream<bool> get isLoadingStream => _isLoadingSubject.stream;
+
+  /// Block/unblock failures (e.g. 422 "can't block yourself", missing id).
+  /// Surfaced so the list screen can show them instead of failing silently.
+  Stream<Object> get actionErrorsStream => _actionErrorsSubject.stream;
 
   int _currentPage = 1;
   int _lastPage = 1;
@@ -97,7 +102,7 @@ class ChatListBloc extends BaseBloc {
       await _chatApi.blockUser({'user_id': userId});
       await loadConversations();
     } catch (e) {
-      print('Error blocking user: $e');
+      _actionErrorsSubject.add(e);
     }
   }
 
@@ -106,7 +111,7 @@ class ChatListBloc extends BaseBloc {
       await _chatApi.unblockUser({'user_id': userId});
       await loadConversations();
     } catch (e) {
-      print('Error unblocking user: $e');
+      _actionErrorsSubject.add(e);
     }
   }
 
@@ -273,6 +278,7 @@ class ChatListBloc extends BaseBloc {
     _conversationsSubject.close();
     _isLoadingMoreSubject.close();
     _isLoadingSubject.close();
+    _actionErrorsSubject.close();
     super.dispose();
   }
 }

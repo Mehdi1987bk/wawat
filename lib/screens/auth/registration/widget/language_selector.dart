@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/language.dart';
@@ -86,7 +87,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     final isDark = themeManager.isDarkMode;
     final localSelectedCodes = Set<String>.from(widget.selectedLanguageCodes);
 
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: isDark ? WawatDark.scrim : null,

@@ -162,13 +162,24 @@ class ChatApi {
   }
 
   Future<void> blockUser(Map<String, dynamic> body) async {
-    final userId = body['user_id'] ?? body['target_user_id'] ?? body['id'];
-    await _dio.post<void>('$_baseUrl/users/$userId/block');
+    await _dio.post<void>('$_baseUrl/users/${_moderationId(body)}/block');
   }
 
   Future<void> unblockUser(Map<String, dynamic> body) async {
-    final userId = body['user_id'] ?? body['target_user_id'] ?? body['id'];
-    await _dio.delete<void>('$_baseUrl/users/$userId/block');
+    await _dio.delete<void>('$_baseUrl/users/${_moderationId(body)}/block');
+  }
+
+  /// Resolve the target user id (public_id/ULID) for block/unblock, refusing
+  /// empty or `0` values so we never post to `/users//block` or `/users/0/block`.
+  String _moderationId(Map<String, dynamic> body) {
+    final raw = (body['user_id'] ?? body['target_user_id'] ?? body['id'])
+            ?.toString()
+            .trim() ??
+        '';
+    if (raw.isEmpty || raw == '0') {
+      throw ArgumentError('Missing target user id for block/unblock');
+    }
+    return raw;
   }
 
   Future<void> sendReviews(TargetUserRequest request) async {

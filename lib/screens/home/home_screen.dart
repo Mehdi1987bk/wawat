@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/bloc/base_screen.dart';
+import '../../services/notification_router.dart';
 import '../../presentation/resourses/theme_colors.dart';
 import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
@@ -39,6 +40,10 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
+        // Route a cold-start push tap now that Home is mounted. main() cannot
+        // flush it (SpleshScreen would replace the pushed route on its way to
+        // Home); doing it here pushes the target on TOP of Home instead.
+        flushPendingNotificationNavigation();
         // Backend-gated store-review reward prompt (shows only when the API
         // says should_show; frequency/timing is decided server-side).
         Future.delayed(const Duration(milliseconds: 1500), () {

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/chat_response.dart';
@@ -24,7 +25,7 @@ const _disputeReasons = [
 
 Future<T?> _showSheet<T>(BuildContext context, WidgetBuilder builder) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  return showModalBottomSheet<T>(
+  return showAppBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -41,8 +42,9 @@ class _SheetShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Keyboard inset is provided by showAppBottomSheet — don't double-pad here.
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.zero,
       child: SafeArea(
         top: false,
         child: Container(
@@ -206,7 +208,7 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
           _SheetField(
             isDark: isDark,
             label:
-                '${WawatContent.text(content, 'deals.terms.price', 'Qiymət')} (₼)',
+                '${WawatContent.text(content, 'deals.terms.price', 'Qiymət')} (\$)',
             controller: priceController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),

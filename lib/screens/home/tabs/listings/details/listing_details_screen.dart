@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
+import '../../create_post/create_post_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import 'listing_details_bloc.dart';
@@ -73,7 +75,7 @@ Future<void> showListingProposalFlow(
     if (!context.mounted) return;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sent = await showModalBottomSheet<_ProposalSuccessData>(
+    final sent = await showAppBottomSheet<_ProposalSuccessData>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -375,7 +377,7 @@ class _ListingDetailsScreenState
                         content: bundle?.content ?? const {},
                         onMessage: () => _openMessage(listing),
                         onOffer: () => _showProposalSheet(listing),
-                        onEdit: () => _showComingSoon('Redaktə'),
+                        onEdit: () => _openEdit(listing),
                         onPause: () => _pause(listing),
                         onResume: () => _resume(listing),
                         onRepost: () => _repost(listing),
@@ -574,6 +576,23 @@ class _ListingDetailsScreenState
     }
   }
 
+  Future<void> _openEdit(Listing listing) async {
+    final result = await Navigator.of(context).push<ListingResponse>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => CreatePostScreen(editListing: listing),
+      ),
+    );
+    if (!mounted || result == null) return;
+    // Any edit re-runs moderation — surface that and reload the fresh state.
+    _showSuccess(
+      result.message ??
+          _t(_content, 'listing.updated_moderation',
+              'Elan yeniləndi və yenidən moderasiyaya göndərildi.'),
+    );
+    _reload();
+  }
+
   Future<void> _openMessage(Listing listing) async {
     await openListingChat(context, listing: listing, content: _content);
   }
@@ -582,10 +601,6 @@ class _ListingDetailsScreenState
     final link = 'https://wawatair.com/l/${listing.id}';
     Clipboard.setData(ClipboardData(text: link));
     _snack('Link kopyalandı.');
-  }
-
-  void _showComingSoon(String label) {
-    _snack('$label növbəti mərhələdə qoşulacaq.');
   }
 
   void _openOwnerProfile(ListingOwner owner) {
@@ -622,7 +637,7 @@ class _ListingDetailsScreenState
     );
     if (!confirmed) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final deleted = await showModalBottomSheet<bool>(
+    final deleted = await showAppBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -657,7 +672,7 @@ class _ListingDetailsScreenState
       return;
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -1811,7 +1826,7 @@ class _OwnerDetailsCard extends StatelessWidget {
                   label: 'Qiymət',
                   value: listing.allowPriceNegotiation == true
                       ? 'Razılaşma'
-                      : '${_num(listing.pricePerKg)} ₼/kq',
+                      : '${_num(listing.pricePerKg)} \$/kq',
                 ),
               if (listing.isTrip)
                 _OwnerDetailRow(
@@ -1974,7 +1989,7 @@ class _FactsGrid extends StatelessWidget {
               'Qiymət',
               listing.allowPriceNegotiation == true
                   ? 'Razılaşma'
-                  : '${_num(listing.pricePerKg)} ₼',
+                  : '${_num(listing.pricePerKg)} \$',
               suffix: listing.allowPriceNegotiation == true ? null : '/kq',
             ),
             _FactData(
@@ -2427,7 +2442,7 @@ class _SimilarListCard extends StatelessWidget {
             const SizedBox(width: 10),
             if (listing.isTrip)
               Text(
-                '${_num(listing.pricePerKg)} ₼/kq',
+                '${_num(listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText(isDark),
                   fontSize: 14,
@@ -2525,7 +2540,7 @@ class _SimilarCard extends StatelessWidget {
             ),
             if (listing.isTrip)
               Text(
-                '${_num(listing.pricePerKg)} ₼/kq',
+                '${_num(listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText(isDark),
                   fontSize: 14,
@@ -2728,12 +2743,14 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final _ActionVariant variant;
   final VoidCallback onTap;
+  final bool loading;
 
   const _ActionButton({
     required this.label,
     required this.icon,
     required this.variant,
     required this.onTap,
+    this.loading = false,
   });
 
   @override
@@ -2755,7 +2772,7 @@ class _ActionButton extends StatelessWidget {
     };
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Container(
         height: 52,
         alignment: Alignment.center,
@@ -2772,25 +2789,34 @@ class _ActionButton extends StatelessWidget {
                 ]
               : null,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: fg, size: 20),
-            const SizedBox(width: 7),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: fg,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+        child: loading
+            ? SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  valueColor: AlwaysStoppedAnimation<Color>(fg),
                 ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: fg, size: 20),
+                  const SizedBox(width: 7),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: fg,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -2846,7 +2872,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final inset = MediaQuery.of(context).viewInsets.bottom;
+    const inset = 0.0; // keyboard inset handled by showAppBottomSheet
     final free = widget.listing.freeWeightKg;
     return Padding(
       padding: EdgeInsets.only(bottom: inset),
@@ -2917,7 +2943,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                   child: _SheetInput(
                     controller: _priceController,
                     label: 'Ümumi qiymət',
-                    hint: '₼',
+                    hint: '\$',
                     keyboardType: TextInputType.number,
                   ),
                 ),
@@ -2933,7 +2959,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
             if (widget.listing.isTrip && widget.listing.pricePerKg != null) ...[
               const SizedBox(height: 9),
               Text(
-                'Təxmini qiyməti çəkiyə görə hesablaya bilərsən: ${_num(widget.listing.pricePerKg)} ₼/kq',
+                'Təxmini qiyməti çəkiyə görə hesablaya bilərsən: ${_num(widget.listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText2(isDark),
                   fontSize: 12,
@@ -2954,10 +2980,11 @@ class _ProposalSheetState extends State<_ProposalSheet> {
             ],
             const SizedBox(height: 16),
             _ActionButton(
-              label: _loading ? 'Göndərilir...' : 'Təklif göndər',
+              label: 'Təklif göndər',
               icon: PhosphorIconsFill.paperPlaneTilt,
               variant: _ActionVariant.primary,
-              onTap: _loading ? () {} : _submit,
+              onTap: _submit,
+              loading: _loading,
             ),
           ],
         ),
@@ -3252,7 +3279,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                       const SizedBox(height: 18),
                       _SuccessSummaryRow(
                         label: 'Ümumi qiymət',
-                        value: '${_num(data.priceTotal)} ₼',
+                        value: '${_num(data.priceTotal)} \$',
                       ),
                     ],
                   ],
@@ -3433,7 +3460,7 @@ class _ReasonSheetState extends State<_ReasonSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final inset = MediaQuery.of(context).viewInsets.bottom;
+    const inset = 0.0; // keyboard inset handled by showAppBottomSheet
     return Padding(
       padding: EdgeInsets.only(bottom: inset),
       child: _SheetShell(
@@ -3475,14 +3502,15 @@ class _ReasonSheetState extends State<_ReasonSheet> {
             ),
             const SizedBox(height: 14),
             _ActionButton(
-              label: _loading ? 'Gözlə...' : widget.actionLabel,
+              label: widget.actionLabel,
               icon: widget.isDanger
                   ? PhosphorIconsRegular.trash
                   : PhosphorIconsFill.flag,
               variant: widget.isDanger
                   ? _ActionVariant.danger
                   : _ActionVariant.primary,
-              onTap: _loading ? () {} : _submit,
+              onTap: _submit,
+              loading: _loading,
             ),
           ],
         ),

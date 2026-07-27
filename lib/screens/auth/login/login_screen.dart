@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
@@ -30,17 +31,8 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
 
   bool _remember = true;
   bool _obscurePassword = true;
-  bool _isLoading = false;
   String? _message;
   Map<String, String> _fieldErrors = {};
-
-  @override
-  void initState() {
-    super.initState();
-    bloc.loadingStream.listen((value) {
-      if (mounted) setState(() => _isLoading = value);
-    });
-  }
 
   @override
   void dispose() {
@@ -212,8 +204,8 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
             ),
             const SizedBox(height: 12),
             _PrimaryButton(
-              text: _isLoading ? 'Daxil olunur...' : 'Daxil ol',
-              onPressed: _isLoading ? null : _login,
+              text: 'Daxil ol',
+              onPressed: _login,
             ),
             if (_isSuspendedMessage) ...[
               const SizedBox(height: 12),
@@ -393,7 +385,7 @@ class _AuthField extends StatelessWidget {
 
 class _PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
+  final Future<void> Function()? onPressed;
 
   const _PrimaryButton({
     required this.text,
@@ -402,24 +394,16 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
+    return AsyncActionButton(
       height: 48,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _LoginScreenState._brand,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              _LoginScreenState._brand.withValues(alpha: 0.5),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+      borderRadius: 14,
+      color: _LoginScreenState._brand,
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
       ),
     );

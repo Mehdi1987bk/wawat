@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -586,7 +587,7 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                       '${vip ? _tx(widget.content, 'enum.promotion_type.vip', 'VİP') : _tierLabel(widget.tier, widget.content)} · ${_formatContent(widget.content, 'promotion.duration_template', '{days} gün', {
                         'days': widget.duration
                       })}',
-                  value: '${widget.amount.toStringAsFixed(2)} ₼',
+                  value: '${widget.amount.toStringAsFixed(2)} \$',
                 ),
                 _CheckoutRow(
                   label: _tx(
@@ -594,12 +595,12 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                     'promotion.checkout.discount',
                     'Endirim',
                   ),
-                  value: '0.00 ₼',
+                  value: '0.00 \$',
                   valueColor: isDark ? WawatDark.success : _emerald,
                 ),
                 _CheckoutRow(
                   label: _tx(widget.content, 'promotion.total', 'Yekun'),
-                  value: '${widget.amount.toStringAsFixed(2)} ₼',
+                  value: '${widget.amount.toStringAsFixed(2)} \$',
                   emphasized: true,
                   topBorder: true,
                 ),
@@ -614,12 +615,12 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
       ),
       bottomNavigationBar: _StickyBottom(
         child: _PrimaryButton(
-          label: _loading
-              ? _tx(widget.content, 'common.wait', 'Gözləyin...')
-              : '${_tx(widget.content, 'promotion.cta.checkout', 'Ödənişə keç')} · ${_money(widget.amount)} ₼',
+          label:
+              '${_tx(widget.content, 'promotion.cta.checkout', 'Ödənişə keç')} · ${_money(widget.amount)} \$',
           icon: PhosphorIconsBold.arrowRight,
           iconAfter: true,
-          onTap: _loading ? null : _continue,
+          onTap: _continue,
+          loading: _loading,
         ),
       ),
     );
@@ -758,11 +759,12 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
           label: _formatContent(
             widget.content,
             'promotion.payment.pay_template',
-            'Ödə · {amount} ₼',
+            'Ödə · {amount} \$',
             {'amount': _money(widget.promotion.amount)},
           ),
           icon: PhosphorIconsFill.lockSimple,
-          onTap: _openingPayment ? null : _pay,
+          onTap: _pay,
+          loading: _openingPayment,
         ),
       ),
     );
@@ -943,7 +945,8 @@ class _PromotionProcessingScreenState
                       'Yenidən cəhd et',
                     ),
                     icon: PhosphorIconsBold.arrowClockwise,
-                    onTap: _submitting ? null : _submitPayment,
+                    onTap: _submitPayment,
+                    loading: _submitting,
                   ),
                   const SizedBox(height: 8),
                   TextButton(
@@ -1130,7 +1133,7 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                         'promotion.status.amount',
                         'Məbləğ',
                       ),
-                      value: '${_money(_promotion.amount)} ₼',
+                      value: '${_money(_promotion.amount)} \$',
                     ),
                   ],
                 ),
@@ -1404,7 +1407,7 @@ class _BoostTierPage extends StatelessWidget {
                     ),
                     value: defaultDuration == null
                         ? ''
-                        : '${_money(tier.prices[defaultDuration] ?? 0)} ₼',
+                        : '${_money(tier.prices[defaultDuration] ?? 0)} \$',
                     onTap: () => onChanged(tier.tier),
                   ),
                   const SizedBox(height: 10),
@@ -1548,7 +1551,7 @@ class _DurationPage extends StatelessWidget {
                                 'promotion.duration.best_value',
                                 'Ən sərfəli paket',
                               ),
-                    value: '${_money(prices[duration] ?? 0)} ₼',
+                    value: '${_money(prices[duration] ?? 0)} \$',
                     onTap: () => onChanged(duration),
                   ),
                   const SizedBox(height: 10),
@@ -1674,7 +1677,7 @@ class _PromotionPurchaseBottomBar extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${_money(selectedPrice)} ₼',
+                '${_money(selectedPrice)} \$',
                 style: TextStyle(
                   color: _cText(isDark),
                   fontSize: 18,
@@ -1686,7 +1689,7 @@ class _PromotionPurchaseBottomBar extends StatelessWidget {
           const SizedBox(height: 8),
           _PrimaryButton(
             label: existing
-                ? '${_tx(content, 'promotion.cta.extend', 'Uzat')} · ${_money(selectedPrice)} ₼'
+                ? '${_tx(content, 'promotion.cta.extend', 'Uzat')} · ${_money(selectedPrice)} \$'
                 : _tx(
                     content,
                     'promotion.cta.checkout',
@@ -1717,7 +1720,7 @@ class _PromotionListingPreview extends StatelessWidget {
   });
 
   void _showFullPreview(BuildContext context, bool isDark) {
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -2009,7 +2012,7 @@ class _UpsellCard extends StatelessWidget {
                     style: TextStyle(color: _cMuted(isDark), fontSize: 10),
                   ),
                   Text(
-                    price == null ? '...' : '${_money(price!)} ₼',
+                    price == null ? '...' : '${_money(price!)} \$',
                     style: TextStyle(
                       color: _cText(isDark),
                       fontSize: 16,
@@ -2640,7 +2643,7 @@ class _PromotionHistoryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${_remainingLabel(promotion, content)} · ${_money(promotion.amount)} ₼',
+                      '${_remainingLabel(promotion, content)} · ${_money(promotion.amount)} \$',
                       style: TextStyle(color: _cMuted(isDark), fontSize: 11),
                     ),
                   ],
@@ -3178,6 +3181,7 @@ class _PrimaryButton extends StatelessWidget {
   final bool amber;
   final bool iconAfter;
   final VoidCallback? onTap;
+  final bool loading;
 
   const _PrimaryButton({
     required this.label,
@@ -3185,15 +3189,17 @@ class _PrimaryButton extends StatelessWidget {
     this.amber = false,
     this.iconAfter = false,
     this.onTap,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final foreground = amber ? _ink900 : Colors.white;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Opacity(
-        opacity: onTap == null ? 0.5 : 1,
+        opacity: onTap == null && !loading ? 0.5 : 1,
         child: Container(
           height: 48,
           alignment: Alignment.center,
@@ -3210,39 +3216,40 @@ class _PrimaryButton extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null && !iconAfter) ...[
-                Icon(
-                  icon,
-                  color: amber ? _ink900 : Colors.white,
-                  size: 19,
-                ),
-                const SizedBox(width: 7),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: amber ? _ink900 : Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+          child: loading
+              ? SizedBox(
+                  width: 21,
+                  height: 21,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    valueColor: AlwaysStoppedAnimation<Color>(foreground),
                   ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null && !iconAfter) ...[
+                      Icon(icon, color: foreground, size: 19),
+                      const SizedBox(width: 7),
+                    ],
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: foreground,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (icon != null && iconAfter) ...[
+                      const SizedBox(width: 7),
+                      Icon(icon, color: foreground, size: 19),
+                    ],
+                  ],
                 ),
-              ),
-              if (icon != null && iconAfter) ...[
-                const SizedBox(width: 7),
-                Icon(
-                  icon,
-                  color: amber ? _ink900 : Colors.white,
-                  size: 19,
-                ),
-              ],
-            ],
-          ),
         ),
       ),
     );

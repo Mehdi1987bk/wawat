@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../presentation/bloc/base_screen.dart';
@@ -278,7 +279,7 @@ class _BlockedUsersScreenState
     Map<String, String> content,
   ) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final message = await showModalBottomSheet<String>(
+    final message = await showAppBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       isDismissible: false,
@@ -360,8 +361,9 @@ class _BlockedUserRow extends StatelessWidget {
         border: showDivider
             ? Border(
                 bottom: BorderSide(
-                  color:
-                      isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
+                  color: isDark
+                      ? WawatDark.divider
+                      : _ink900.withValues(alpha: 0.05),
                 ),
               )
             : null,
@@ -555,8 +557,7 @@ class _UnblockSheetState extends State<_UnblockSheet> {
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
         decoration: BoxDecoration(
           color: isDark ? WawatDark.surface : Colors.white,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(26)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -624,37 +625,28 @@ class _UnblockSheetState extends State<_UnblockSheet> {
                       ),
                     ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (_loading) ...[
-                        const _SpinningIcon(
-                          icon: PhosphorIconsRegular.spinnerGap,
-                          color: Colors.white,
-                          size: 18,
+                  child: _loading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          _text(
+                            widget.content,
+                            'block.confirm.action',
+                            'Bloku aç',
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        const SizedBox(width: 8),
-                      ],
-                      Text(
-                        _loading
-                            ? _text(
-                                widget.content,
-                                'block.unblocking',
-                                'Açılır…',
-                              )
-                            : _text(
-                                widget.content,
-                                'block.confirm.action',
-                                'Bloku aç',
-                              ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ),
@@ -970,8 +962,9 @@ class _SkeletonRow extends StatelessWidget {
         border: showDivider
             ? Border(
                 bottom: BorderSide(
-                  color:
-                      isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
+                  color: isDark
+                      ? WawatDark.divider
+                      : _ink900.withValues(alpha: 0.05),
                 ),
               )
             : null,

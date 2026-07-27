@@ -51,6 +51,10 @@ class DealDetailScreen extends BaseScreen<DealDetailBloc> {
 
 class _DealDetailScreenState
     extends BaseState<DealDetailScreen, DealDetailBloc> {
+  /// UI id of the deal action currently being sent to the backend (null = idle).
+  /// Drives the in-button loader and blocks repeat taps on the action bar.
+  String? _busyAction;
+
   @override
   DealDetailBloc provideBloc() => DealDetailBloc(widget.shipmentId);
 
@@ -368,7 +372,11 @@ class _DealDetailScreenState
         return _ActionBar(
           shipment: shipment,
           content: content,
-          onAction: (action) => _handleAction(action, shipment, content),
+          busyAction: _busyAction,
+          onAction: (action) {
+            if (_busyAction != null) return;
+            _handleAction(action, shipment, content);
+          },
         );
       },
     );
@@ -394,7 +402,9 @@ class _DealDetailScreenState
       case 'withdraw':
       case 'cancel':
         final body = await showDealCancelSheet(context, content: content);
-        if (body != null) await _runAction('cancel', body: body);
+        if (body != null) {
+          await _runAction('cancel', body: body, uiAction: action);
+        }
         break;
       case 'picked-up':
         final confirmed = await showDealConfirmDialog(
@@ -460,12 +470,20 @@ class _DealDetailScreenState
     }
   }
 
-  Future<void> _runAction(String action, {Map<String, dynamic>? body}) async {
+  Future<void> _runAction(
+    String action, {
+    Map<String, dynamic>? body,
+    String? uiAction,
+  }) async {
+    if (_busyAction != null) return;
+    setState(() => _busyAction = uiAction ?? action);
     try {
       final message = await bloc.runAction(action, body: body);
       if (mounted && message != null) _toast(message);
     } catch (error) {
       if (mounted) _toast(_extractError(error), isError: true);
+    } finally {
+      if (mounted) setState(() => _busyAction = null);
     }
   }
 
@@ -742,7 +760,7 @@ class _TermsCard extends StatelessWidget {
       if (shipment.priceTotal != null)
         [
           WawatContent.text(content, 'deals.terms.price', 'Qiymət'),
-          '${shipment.priceTotal!.toStringAsFixed(0)} ₼',
+          '${shipment.priceTotal!.toStringAsFixed(0)} \$',
         ],
       if (shipment.note != null && shipment.note!.isNotEmpty)
         [
@@ -1094,7 +1112,8 @@ class _ReviewPromptCard extends StatefulWidget {
 }
 
 class _ReviewPromptCardState extends State<_ReviewPromptCard> {
-  int _rating = 5;
+  // No stars pre-selected — the user must pick.
+  int _rating = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -1259,9 +1278,29 @@ class _ActionBar extends StatelessWidget {
   final ShipmentData shipment;
   final Map<String, String> content;
   final ValueChanged<String> onAction;
+  final String? busyAction;
 
-  const _ActionBar(
-      {required this.shipment, required this.content, required this.onAction});
+  const _ActionBar({
+    required this.shipment,
+    required this.content,
+    required this.onAction,
+    this.busyAction,
+  });
+
+  bool get _anyBusy => busyAction != null;
+
+  /// While any action is in flight, only the tapped button reacts (as a
+  /// spinner) and the rest go inert — one tap, one request.
+  VoidCallback? _tap(String action) => _anyBusy ? null : () => onAction(action);
+
+  static Widget _spinner(Color color) => SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.4,
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -1272,8 +1311,8 @@ class _ActionBar extends StatelessWidget {
       return _bar(isDark, [
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => onAction('withdraw'),
+          child: OutlinedButton(
+            onPressed: _tap('withdraw'),
             style: OutlinedButton.styleFrom(
               backgroundColor: isDark ? WawatDark.surfaceAlt : dealRed50,
               foregroundColor: isDark ? WawatDark.danger : dealRed600,
@@ -1282,13 +1321,21 @@ class _ActionBar extends StatelessWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
             ),
-            icon: const Icon(PhosphorIconsFill.x, size: 16),
-            label: Text(
-              WawatContent.text(
-                  content, 'deals.action.withdraw', 'Təklifi geri götür'),
-              style:
-                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
-            ),
+            child: busyAction == 'withdraw'
+                ? _spinner(isDark ? WawatDark.danger : dealRed600)
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(PhosphorIconsBold.arrowUUpLeft, size: 17),
+                      const SizedBox(width: 8),
+                      Text(
+                        WawatContent.text(content, 'deals.action.withdraw',
+                            'Təklifi geri götür'),
+                        style: const TextStyle(
+                            fontSize: 13.5, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ]);
@@ -1300,8 +1347,8 @@ class _ActionBar extends StatelessWidget {
           children: [
             if (actions.contains('counter'))
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => onAction('counter'),
+                child: OutlinedButton(
+                  onPressed: _tap('counter'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: _cInk700(isDark),
                     side: BorderSide(color: _cLine(isDark)),
@@ -1309,12 +1356,21 @@ class _ActionBar extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                   ),
-                  icon: const Icon(PhosphorIconsBold.arrowUUpLeft, size: 16),
-                  label: Text(
-                    dealActionLabel(content, 'counter'),
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600),
-                  ),
+                  child: busyAction == 'counter'
+                      ? _spinner(_cInk700(isDark))
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(PhosphorIconsBold.arrowUUpLeft,
+                                size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              dealActionLabel(content, 'counter'),
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             if (actions.contains('counter') && actions.contains('accept'))
@@ -1322,8 +1378,8 @@ class _ActionBar extends StatelessWidget {
             if (actions.contains('accept'))
               Expanded(
                 flex: 2,
-                child: ElevatedButton.icon(
-                  onPressed: () => onAction('accept'),
+                child: ElevatedButton(
+                  onPressed: _tap('accept'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: dealBrand,
                     foregroundColor: Colors.white,
@@ -1331,12 +1387,20 @@ class _ActionBar extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                   ),
-                  icon: const Icon(PhosphorIconsBold.check, size: 16),
-                  label: Text(
-                    dealActionLabel(content, 'accept'),
-                    style: const TextStyle(
-                        fontSize: 13.5, fontWeight: FontWeight.w600),
-                  ),
+                  child: busyAction == 'accept'
+                      ? _spinner(Colors.white)
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(PhosphorIconsBold.check, size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              dealActionLabel(content, 'accept'),
+                              style: const TextStyle(
+                                  fontSize: 13.5, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
                 ),
               ),
           ],
@@ -1345,14 +1409,16 @@ class _ActionBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: TextButton(
-              onPressed: () => onAction('decline'),
-              child: Text(
-                dealActionLabel(content, 'decline'),
-                style: TextStyle(
-                    color: isDark ? WawatDark.danger : dealRed600,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600),
-              ),
+              onPressed: _tap('decline'),
+              child: busyAction == 'decline'
+                  ? _spinner(isDark ? WawatDark.danger : dealRed600)
+                  : Text(
+                      dealActionLabel(content, 'decline'),
+                      style: TextStyle(
+                          color: isDark ? WawatDark.danger : dealRed600,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600),
+                    ),
             ),
           ),
       ]);
@@ -1361,24 +1427,23 @@ class _ActionBar extends StatelessWidget {
     Widget? primary;
     if (shipment.status == 'accepted' && actions.contains('picked-up')) {
       primary = _primaryButton(PhosphorIconsFill.package,
-          dealActionLabel(content, 'picked_up'), () => onAction('picked-up'));
+          dealActionLabel(content, 'picked_up'), 'picked-up');
     } else if (shipment.status == 'picked_up' &&
         actions.contains('delivered')) {
       primary = _primaryButton(PhosphorIconsFill.mapPinLine,
-          dealActionLabel(content, 'delivered'), () => onAction('delivered'));
+          dealActionLabel(content, 'delivered'), 'delivered');
     } else if (shipment.status == 'delivered' && actions.contains('complete')) {
       primary = _primaryButton(PhosphorIconsFill.sealCheck,
-          dealActionLabel(content, 'complete'), () => onAction('complete'));
+          dealActionLabel(content, 'complete'), 'complete');
     }
 
     final textLinks = <Widget>[];
     if (actions.contains('dispute')) {
-      textLinks.add(_textLink(
-          content, 'dispute', _cInk500(isDark), () => onAction('dispute')));
+      textLinks.add(_textLink(content, 'dispute', _cInk500(isDark)));
     }
     if (actions.contains('cancel')) {
-      textLinks.add(_textLink(content, 'cancel',
-          isDark ? WawatDark.danger : dealRed600, () => onAction('cancel')));
+      textLinks.add(
+          _textLink(content, 'cancel', isDark ? WawatDark.danger : dealRed600));
     }
 
     if (primary == null && textLinks.isEmpty) return const SizedBox.shrink();
@@ -1401,25 +1466,39 @@ class _ActionBar extends StatelessWidget {
     ]);
   }
 
-  Widget _primaryButton(IconData icon, String label, VoidCallback onTap) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
+  Widget _primaryButton(IconData icon, String label, String action) {
+    return ElevatedButton(
+      onPressed: _tap(action),
       style: ElevatedButton.styleFrom(
         backgroundColor: dealBrand,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      icon: Icon(icon, size: 17),
-      label: Text(label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+      child: busyAction == action
+          ? _spinner(Colors.white)
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 17),
+                const SizedBox(width: 8),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600)),
+              ],
+            ),
     );
   }
 
-  Widget _textLink(Map<String, String> content, String action, Color color,
-      VoidCallback onTap) {
+  Widget _textLink(Map<String, String> content, String action, Color color) {
+    if (busyAction == action) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: _spinner(color),
+      );
+    }
     return TextButton.icon(
-      onPressed: onTap,
+      onPressed: _tap(action),
       icon: Icon(
           action == 'dispute'
               ? PhosphorIconsRegular.warningOctagon

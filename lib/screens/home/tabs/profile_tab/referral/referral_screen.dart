@@ -605,7 +605,7 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                     d,
                     it.statusLabel.isNotEmpty
                         ? it.statusLabel
-                        : '+${widget.rewardAmount.round()} ₼',
+                        : '+${widget.rewardAmount.round()} \$',
                     _cEmeraldBg(d),
                     _cEmeraldText(d))
               else

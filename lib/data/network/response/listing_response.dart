@@ -27,6 +27,22 @@ String? _stringFromJson(Object? value) {
   return result == null || result.isEmpty ? null : result;
 }
 
+/// Pulls a usable URL/path out of a raw JSON value that may be a plain string
+/// or a nested media object like `{"url": ...}` / `{"path": ...}`.
+String? _unwrapUrl(Object? raw) {
+  if (raw is String) {
+    final trimmed = raw.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+  if (raw is Map) {
+    for (final key in const ['url', 'path', 'src', 'original', 'full']) {
+      final value = raw[key];
+      if (value is String && value.trim().isNotEmpty) return value.trim();
+    }
+  }
+  return null;
+}
+
 @JsonSerializable()
 class ListingResponse {
   final Listing data;
@@ -281,6 +297,8 @@ class ListingOwner {
   @JsonKey(name: 'is_verified')
   final bool isVerified;
 
+  final String? avatar;
+
   final String? tier;
 
   @JsonKey(name: 'rating_avg', fromJson: _doubleFromJson)
@@ -302,6 +320,7 @@ class ListingOwner {
     this.lastName,
     this.fullName,
     this.isVerified = false,
+    this.avatar,
     this.tier,
     this.ratingAvg,
     this.ratingCount,
@@ -318,6 +337,15 @@ class ListingOwner {
         .join(' ');
     if (parts.isNotEmpty) return parts;
     return username ?? '';
+  }
+
+  /// Full avatar URL, or '' when the owner has no photo. Relative paths are
+  /// resolved against the storage base — same rule as the chat avatar.
+  String get avatarUrl {
+    final value = avatar?.trim() ?? '';
+    if (value.isEmpty) return '';
+    if (value.startsWith('http')) return value;
+    return 'https://api.wawatair.com/storage/$value';
   }
 
   factory ListingOwner.fromJson(Map<String, dynamic> json) {
@@ -338,6 +366,17 @@ class ListingOwner {
       ..['last_name'] = _stringFromJson(value('last_name'))
       ..['full_name'] = _stringFromJson(value('full_name') ?? value('fullname'))
       ..['is_verified'] = _boolFromJson(value('is_verified'))
+      ..['avatar'] = _unwrapUrl(value('avatar_url')) ??
+          _unwrapUrl(value('avatar')) ??
+          _unwrapUrl(value('avatar_thumb_url')) ??
+          _unwrapUrl(value('photo_url')) ??
+          _unwrapUrl(value('photo')) ??
+          _unwrapUrl(value('profile_photo_url')) ??
+          _unwrapUrl(value('profile_photo')) ??
+          _unwrapUrl(value('profile_photo_path')) ??
+          _unwrapUrl(value('picture_url')) ??
+          _unwrapUrl(value('picture')) ??
+          _unwrapUrl(value('image_url'))
       ..['tier'] = _stringFromJson(value('tier'))
       ..['rating_avg'] = value('rating_avg')
       ..['rating_count'] = value('rating_count')

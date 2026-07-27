@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/package_types_response.dart';
@@ -82,7 +83,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     final localSelectedCodes =
         Set<String>.from(widget.selectedPackageTypeCodes);
 
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       backgroundColor: isDark ? WawatDark.surface : Colors.white,
       barrierColor: isDark ? WawatDark.scrim : null,

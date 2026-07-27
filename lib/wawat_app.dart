@@ -13,7 +13,6 @@ import 'presentation/resourses/wawat_dark.dart';
 import 'screens/splesh/splesh_screen.dart';
 import 'services/localization_service.dart';
 import 'services/network_status_service.dart';
-import 'services/notification_router.dart';
 import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -72,9 +71,10 @@ class App extends StatelessWidget {
 
               return MaterialApp(
                 builder: (context, child) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    flushPendingNotificationNavigation();
-                  });
+                  // Cold-start push routing is flushed from HomeScreen.initState,
+                  // NOT here: at frame 1 the top route is SpleshScreen, and the
+                  // splash replaces the top route on its way to Home — which would
+                  // destroy any target pushed now. See notification_router.dart.
                   final isOffline =
                       context.watch<NetworkStatusService>().isOffline;
                   return MediaQuery(

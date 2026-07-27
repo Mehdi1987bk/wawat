@@ -40,7 +40,10 @@ class ConversationItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Row(
             children: [
-              _Avatar(user: conversation.user),
+              _Avatar(
+                user: conversation.user,
+                blocked: conversation.isBlocked,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -138,13 +141,16 @@ class ConversationItem extends StatelessWidget {
                   else
                     GestureDetector(
                       onTap: onTapMenu,
-                      behavior: HitTestBehavior.translucent,
+                      behavior: HitTestBehavior.opaque,
                       child: SizedBox(
-                        width: 28,
-                        height: 22,
-                        child: Icon(PhosphorIconsBold.dotsThreeVertical,
-                            color: isDark ? WawatDark.iconMuted : _ink400,
-                            size: 18),
+                        width: 44,
+                        height: 30,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(PhosphorIconsBold.dotsThreeVertical,
+                              color: isDark ? WawatDark.iconMuted : _ink400,
+                              size: 20),
+                        ),
                       ),
                     ),
                 ],
@@ -159,35 +165,61 @@ class ConversationItem extends StatelessWidget {
 
 class _Avatar extends StatelessWidget {
   final ChatUser user;
+  final bool blocked;
 
-  const _Avatar({required this.user});
+  const _Avatar({required this.user, this.blocked = false});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ringColor = isDark ? WawatDark.surface : Colors.white;
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: user.avatarUrl.isEmpty
-              ? (isDark ? WawatDark.brandSoft : _brand100)
-              : (isDark ? WawatDark.surface : Colors.white),
-          backgroundImage: user.avatarUrl.isEmpty
-              ? null
-              : CachedNetworkImageProvider(user.avatarUrl),
-          child: user.avatarUrl.isEmpty
-              ? Text(
-                  user.initials,
-                  style: TextStyle(
-                    color: isDark ? WawatDark.brandText : _brand,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-              : null,
+        // Dim the avatar a touch when the peer is blocked, so the row reads as
+        // muted even before the badge registers.
+        Opacity(
+          opacity: blocked ? 0.55 : 1,
+          child: CircleAvatar(
+            radius: 24,
+            backgroundColor: user.avatarUrl.isEmpty
+                ? (isDark ? WawatDark.brandSoft : _brand100)
+                : (isDark ? WawatDark.surface : Colors.white),
+            backgroundImage: user.avatarUrl.isEmpty
+                ? null
+                : CachedNetworkImageProvider(user.avatarUrl),
+            child: user.avatarUrl.isEmpty
+                ? Text(
+                    user.initials,
+                    style: TextStyle(
+                      color: isDark ? WawatDark.brandText : _brand,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                : null,
+          ),
         ),
-        if (user.isOnline)
+        // Blocked takes precedence over the online dot — a blocked peer must not
+        // read as "online".
+        if (blocked)
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEF4444),
+                shape: BoxShape.circle,
+                border: Border.all(color: ringColor, width: 2),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(PhosphorIconsBold.prohibit,
+                  color: Colors.white, size: 10),
+            ),
+          )
+        else if (user.isOnline)
           Positioned(
             right: -1,
             bottom: -1,
@@ -197,8 +229,7 @@ class _Avatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _emerald,
                 shape: BoxShape.circle,
-                border: Border.all(
-                    color: isDark ? WawatDark.surface : Colors.white, width: 2),
+                border: Border.all(color: ringColor, width: 2),
               ),
             ),
           ),

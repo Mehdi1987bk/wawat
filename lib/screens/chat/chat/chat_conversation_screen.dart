@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -110,6 +112,10 @@ class _ChatConversationScreenState
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(_onScroll);
+    // Surface send failures (e.g. blocked by the peer) with the server message.
+    bloc.sendErrorsStream.listen((error) {
+      if (mounted) _showError(_extractError(error));
+    });
     _lifecycleListener = AppLifecycleListener(
       onResume: () {
         bloc.reconnectRealtime();
@@ -261,6 +267,7 @@ class _ChatConversationScreenState
                                         onLongPress: _showMessageOptions,
                                         onReview: _showReviewDialog,
                                         onSupport: _openSupport,
+                                        onOpenProfile: _openProfile,
                                       ),
                                     ],
                                   );
@@ -295,6 +302,7 @@ class _ChatConversationScreenState
           ChatInput(
             controller: _messageController,
             enabled: !_isBlocked,
+            hasAttachment: _selectedFile != null,
             content: _content,
             disabledText: _isBlockedByMe
                 ? _t(
@@ -435,7 +443,7 @@ class _ChatConversationScreenState
 
   Future<Map<String, dynamic>?> _showCounterDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return showModalBottomSheet<Map<String, dynamic>>(
+    return showAppBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -484,7 +492,7 @@ class _ChatConversationScreenState
 
   Future<void> _showReviewDialog(String shipmentId) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final result = await showModalBottomSheet<_ReviewResult>(
+    final result = await showAppBottomSheet<_ReviewResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -557,7 +565,7 @@ class _ChatConversationScreenState
         message.type != 'system_card' && !message.id.startsWith('local-');
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: _cSurface(isDark),
       barrierColor: isDark ? WawatDark.scrim : null,
@@ -661,7 +669,7 @@ class _ChatConversationScreenState
 
   void _showConversationOptions() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: _cSurface(isDark),
       barrierColor: isDark ? WawatDark.scrim : null,
@@ -795,11 +803,27 @@ class _ChatConversationScreenState
 
   void _openProfile() {
     final user = widget.conversation.user;
-    final userId = user.publicId ?? (user.id > 0 ? user.id.toString() : null);
-    if (userId == null || userId.isEmpty) return;
+    // Prefer the public id (ULID), then username — both resolve on the profile
+    // endpoint; a bare numeric id is only a last resort (it can 404).
+    final userId = _firstNonEmpty([
+      user.publicId,
+      user.username,
+      user.id > 0 ? user.id.toString() : null,
+    ]);
+    if (userId == null) {
+      _showError(_t('chat.profile.unavailable', 'Profil məlumatı tapılmadı.'));
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PublicProfileScreen(userId: userId)),
     );
+  }
+
+  String? _firstNonEmpty(List<String?> values) {
+    for (final value in values) {
+      if (value != null && value.trim().isNotEmpty) return value.trim();
+    }
+    return null;
   }
 
   Future<void> _openDeal(String shipmentId) async {
@@ -820,7 +844,7 @@ class _ChatConversationScreenState
   ChatConversationBloc provideBloc() => ChatConversationBloc();
 }
 
-class _ConversationHeader extends StatelessWidget {
+class _ConversationHeader extends StatefulWidget {
   final Conversation conversation;
   final VoidCallback onBack;
   final VoidCallback onMenu;
@@ -834,9 +858,34 @@ class _ConversationHeader extends StatelessWidget {
   });
 
   @override
+  State<_ConversationHeader> createState() => _ConversationHeaderState();
+}
+
+class _ConversationHeaderState extends State<_ConversationHeader> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    // Presence text is time-relative ("onlayn" → "3 dəq əvvəl"): tick so it
+    // decays on its own while the screen stays open, without new data.
+    _ticker = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final conversation = widget.conversation;
     final user = conversation.user;
+    final lastSeen = user.getLastSeenText(context);
     return Container(
       decoration: BoxDecoration(
         color: _cSurface(isDark),
@@ -849,7 +898,7 @@ class _ConversationHeader extends StatelessWidget {
         children: [
           GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: onBack,
+            onTap: widget.onBack,
             child: SizedBox(
               width: 36,
               height: 40,
@@ -860,13 +909,15 @@ class _ConversationHeader extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: onOpenProfile,
+              onTap: widget.onOpenProfile,
               child: Row(
                 children: [
                   _HeaderAvatar(user: user, size: 36),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
@@ -890,15 +941,45 @@ class _ConversationHeader extends StatelessWidget {
                             ],
                           ],
                         ),
-                        Text(
-                          user.getLastSeenText(context),
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: user.isOnline ? _emerald : _cMuted(isDark),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                        // Only render the status line when there is one — an
+                        // empty line would push the name off the avatar's
+                        // vertical centre. Green dot + "onlayn" when online,
+                        // muted last-seen otherwise.
+                        if (lastSeen.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (user.isOnline) ...[
+                                  Container(
+                                    width: 7,
+                                    height: 7,
+                                    decoration: const BoxDecoration(
+                                      color: _emerald,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                ],
+                                Flexible(
+                                  child: Text(
+                                    lastSeen,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: user.isOnline
+                                          ? _emerald
+                                          : _cMuted(isDark),
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.05,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -908,7 +989,7 @@ class _ConversationHeader extends StatelessWidget {
           ),
           GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: onMenu,
+            onTap: widget.onMenu,
             child: SizedBox(
               width: 36,
               height: 40,
@@ -1400,7 +1481,7 @@ class _CounterSheetState extends State<_CounterSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.zero, // keyboard inset handled by showAppBottomSheet
       child: SafeArea(
         top: false,
         child: Container(
@@ -1471,7 +1552,7 @@ class _CounterSheetState extends State<_CounterSheet> {
               const SizedBox(height: 6),
               _CounterField(
                 controller: _price,
-                suffix: '₼',
+                suffix: '\$',
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
               ),
@@ -1681,7 +1762,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const amber = Color(0xFFF59E0B);
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.zero, // keyboard inset handled by showAppBottomSheet
       child: SafeArea(
         top: false,
         child: Container(

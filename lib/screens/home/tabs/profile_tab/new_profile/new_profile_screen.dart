@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../../../../../data/cache/cache_manager.dart';
 import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/language_response.dart';
 import '../../../../../data/network/response/package_types_response.dart';
@@ -14,6 +16,7 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
+import '../../../home_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../faq/faq_screen.dart';
@@ -21,6 +24,7 @@ import '../privacy_policy/privacy_policy_screen.dart';
 import '../settings/notification_settings/notification_settings_screen.dart';
 import '../support/support_screen.dart';
 import '../verification/verification_screen.dart';
+import 'avatar_viewer.dart';
 import 'profile_api.dart';
 import 'profile_models.dart';
 
@@ -61,11 +65,15 @@ class WawatProfileScreen extends StatefulWidget {
   final ListingOwner? initialOwner;
   final bool isSelf;
 
+  /// Tab to open on: 0 = listings, 1 = reviews.
+  final int initialTab;
+
   const WawatProfileScreen({
     super.key,
     this.userId,
     this.initialOwner,
     this.isSelf = false,
+    this.initialTab = 0,
   });
 
   @override
@@ -77,7 +85,13 @@ class PublicProfileScreen extends WawatProfileScreen {
     super.key,
     required String userId,
     ListingOwner? initialOwner,
-  }) : super(userId: userId, initialOwner: initialOwner, isSelf: false);
+    int initialTab = 0,
+  }) : super(
+          userId: userId,
+          initialOwner: initialOwner,
+          isSelf: false,
+          initialTab: initialTab,
+        );
 }
 
 class WawatSettingsScreen extends StatelessWidget {
@@ -283,7 +297,7 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
   }
 
   Future<void> _openReplySheet(WawatReview review) async {
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -397,17 +411,48 @@ class _WawatReviewsScreenState extends State<WawatReviewsScreen> {
 class _WawatProfileScreenState extends State<WawatProfileScreen> {
   final WawatProfileApi _api = WawatProfileApi();
   late Future<WawatProfileBundle> _future;
-  int _tab = 0;
+  late int _tab = widget.initialTab;
   WawatProfileUser? _userOverride;
   Map<String, String> _content = const {};
   final Set<String> _pendingReplyIds = <String>{};
 
   bool get _isSelf => widget.isSelf || widget.userId == null;
 
+  /// The signed-in user's identity, read from cache. Used to recognise our own
+  /// profile when it is opened through the public route (by id), so the
+  /// follow/message bar stays hidden — you can't follow or message yourself.
+  String? _myProfileId;
+  String? _myUsername;
+
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _loadIdentity();
+  }
+
+  Future<void> _loadIdentity() async {
+    if (_isSelf) return;
+    try {
+      final me = await sl.get<CacheManager>().userDetails.first;
+      if (!mounted || me == null) return;
+      setState(() {
+        _myProfileId = me.id?.toString();
+        _myUsername = me.username;
+      });
+    } catch (_) {
+      // Not signed in / no cached user — treat as a public profile.
+    }
+  }
+
+  /// Whether the viewed profile belongs to the signed-in user. True for the
+  /// self tab, and also when a public profile resolves to our own id/username.
+  bool _isOwnProfile(WawatProfileUser user) {
+    if (_isSelf) return true;
+    final id = _myProfileId;
+    if (id != null && id.isNotEmpty && user.id == id) return true;
+    final username = _myUsername;
+    return username != null && username.isNotEmpty && user.username == username;
   }
 
   Future<WawatProfileBundle> _load() async {
@@ -479,12 +524,18 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
                     _ProfileTopBar(
                       title: _isSelf ? 'Profil' : user.safeFullName,
                       showBack: !_isSelf,
+                      // On our own profile (incl. via the public route) show an
+                      // edit-profile action instead of the report/block menu.
                       trailingIcon: _isSelf
                           ? PhosphorIconsRegular.gearSix
-                          : PhosphorIconsBold.dotsThreeVertical,
+                          : (_isOwnProfile(user)
+                              ? PhosphorIconsRegular.pencilSimple
+                              : PhosphorIconsBold.dotsThreeVertical),
                       onTrailing: _isSelf
                           ? () => _openSettings(bundle)
-                          : () => _showUserMenu(user, bundle.content),
+                          : (_isOwnProfile(user)
+                              ? () => _openEditProfile(user, bundle)
+                              : () => _showUserMenu(user, bundle.content)),
                     ),
                     Expanded(
                       child: RefreshIndicator(
@@ -570,7 +621,7 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
                     ),
                   ],
                 ),
-                if (!_isSelf)
+                if (!_isOwnProfile(user))
                   Positioned(
                     left: 0,
                     right: 0,
@@ -710,7 +761,7 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
     WawatReview review,
     Map<String, String> content,
   ) async {
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -735,7 +786,7 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
     WawatProfileUser user,
     Map<String, String> content,
   ) async {
-    await showModalBottomSheet<void>(
+    await showAppBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Theme.of(context).brightness == Brightness.dark
@@ -764,7 +815,7 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
     WawatProfileUser user,
     Map<String, String> content,
   ) async {
-    final sent = await showModalBottomSheet<bool>(
+    final sent = await showAppBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -875,7 +926,7 @@ class _ProfileHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              _ProfileAvatar(user: user, size: 68),
+              _ProfileAvatar(user: user, size: 68, tappable: true),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -1420,7 +1471,7 @@ class _ProfileListingRow extends StatelessWidget {
             if (listing.allowPriceNegotiation == true)
               'Razılaşma'
             else if (listing.pricePerKg != null)
-              '${_num(listing.pricePerKg)} ₼/kq',
+              '${_num(listing.pricePerKg)} \$/kq',
           ].where((e) => e.isNotEmpty).join(' · ')
         : [
             _dateRange(listing.deliveryDateFrom, listing.deliveryDateTo),
@@ -2398,12 +2449,18 @@ class _SettingsHubScreen extends StatelessWidget {
                 onTap: () async {
                   await api.logout();
                   await sl.get<AuthRepository>().logout();
-                  if (context.mounted) Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context, rootNavigator: true)
+                        .pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => HomeScreen()),
+                      (route) => false,
+                    );
+                  }
                 },
               ),
             ),
             GestureDetector(
-              onTap: () => showModalBottomSheet<void>(
+              onTap: () => showAppBottomSheet<void>(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
@@ -2465,11 +2522,17 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
       TextEditingController(text: widget.user.lastName ?? '');
   late final TextEditingController _bio =
       TextEditingController(text: widget.user.bio ?? '');
-  late String _locale = widget.user.preferredLocale ?? 'az';
+  late final String _locale = widget.user.preferredLocale ?? 'az';
   late final Set<String> _languages =
       widget.user.languages.map((language) => language.code).toSet();
   late Future<LanguageResponse> _languageFuture = widget.api.languages();
+  late WawatProfileUser _user = widget.user;
   bool _busy = false;
+  bool _dirty = false;
+
+  /// Bumped on every avatar change to force the preview to rebuild — a same-URL
+  /// overwrite would otherwise keep the old image even after cache eviction.
+  int _avatarVersion = 0;
 
   @override
   void dispose() {
@@ -2511,6 +2574,7 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     if (file == null) return;
     try {
       await widget.api.uploadAvatar(File(file.path));
+      await _syncAfterAvatarChange();
       if (mounted) {
         _showSnack(
           context,
@@ -2529,6 +2593,41 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     }
   }
 
+  /// After changing the avatar: drop stale cached image bytes (the server may
+  /// reuse the same URL), pull the fresh profile so this screen updates, and
+  /// refresh the cached [User] so every `userDetails` listener (menu tab, etc.)
+  /// shows the new photo immediately.
+  Future<void> _syncAfterAvatarChange() async {
+    await _evictAvatar(_user);
+    WawatProfileUser fresh;
+    try {
+      fresh = await widget.api.me();
+    } catch (_) {
+      fresh = _user;
+    }
+    await _evictAvatar(fresh);
+    if (mounted) {
+      setState(() {
+        _user = fresh;
+        _dirty = true;
+        _avatarVersion++;
+      });
+    }
+    try {
+      await sl.get<AuthRepository>().customersMe();
+    } catch (_) {
+      // Cache refresh is best-effort; the upload already succeeded.
+    }
+  }
+
+  Future<void> _evictAvatar(WawatProfileUser user) async {
+    for (final url in [user.avatarUrl, user.avatarThumbUrl]) {
+      if (url != null && url.isNotEmpty) {
+        await CachedNetworkImage.evictFromCache(url);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -2541,7 +2640,10 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
             _ProfileTopBar(
               title: _tx(widget.content, 'profile.edit', 'Profili redaktə et'),
               trailingIcon: PhosphorIconsBold.x,
-              onTrailing: () => Navigator.of(context).maybePop(),
+              // Return the refreshed user when the avatar changed so the parent
+              // profile reloads even if nothing else was saved.
+              onTrailing: () =>
+                  Navigator.of(context).maybePop(_dirty ? _user : null),
             ),
             Expanded(
               child: ListView(
@@ -2555,7 +2657,11 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                       children: [
                         Stack(
                           children: [
-                            _ProfileAvatar(user: widget.user, size: 88),
+                            _ProfileAvatar(
+                              key: ValueKey(_avatarVersion),
+                              user: _user,
+                              size: 88,
+                            ),
                             Positioned(
                               right: 0,
                               bottom: 0,
@@ -2600,6 +2706,9 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
+                      // Left-align so the languages section lines up with the
+                      // fields instead of being centred (it is content-width).
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -2626,11 +2735,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                           controller: _bio,
                           maxLines: 4,
                           maxLength: 200,
-                        ),
-                        const SizedBox(height: 14),
-                        _SelectLocale(
-                          value: _locale,
-                          onChanged: (value) => setState(() => _locale = value),
                         ),
                         const SizedBox(height: 14),
                         FutureBuilder<LanguageResponse>(
@@ -2660,11 +2764,10 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
             ),
             _BottomCta(
               child: _PrimaryButton(
-                label: _busy
-                    ? '...'
-                    : _tx(widget.content, 'common.save', 'Yadda saxla'),
+                label: _tx(widget.content, 'common.save', 'Yadda saxla'),
                 icon: PhosphorIconsFill.check,
-                onTap: _busy ? null : _save,
+                onTap: _save,
+                loading: _busy,
               ),
             ),
           ],
@@ -2674,7 +2777,7 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   }
 
   void _showAvatarSheet() {
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Theme.of(context).brightness == Brightness.dark
@@ -2693,6 +2796,7 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
           Navigator.pop(context);
           try {
             await widget.api.deleteAvatar();
+            await _syncAfterAvatarChange();
             if (mounted) {
               _showSnack(
                 context,
@@ -2964,15 +3068,14 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
             ),
             _BottomCta(
               child: _PrimaryButton(
-                label: _busy
-                    ? '...'
-                    : _tx(
-                        widget.content,
-                        'profile.password_update',
-                        'Parolu yenilə',
-                      ),
+                label: _tx(
+                  widget.content,
+                  'profile.password_update',
+                  'Parolu yenilə',
+                ),
                 icon: PhosphorIconsFill.check,
-                onTap: _busy ? null : _submit,
+                onTap: _submit,
+                loading: _busy,
               ),
             ),
           ],
@@ -3102,11 +3205,10 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
           ),
           const SizedBox(height: 12),
           _DangerButton(
-            label: _busy
-                ? '...'
-                : _tx(widget.content, 'profile.delete_account', 'Hesabı sil'),
+            label: _tx(widget.content, 'profile.delete_account', 'Hesabı sil'),
             icon: PhosphorIconsFill.trash,
-            onTap: _confirmed && !_busy ? _delete : null,
+            onTap: _confirmed ? _delete : null,
+            loading: _busy,
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -3225,9 +3327,10 @@ class _ReportUserSheetState extends State<_ReportUserSheet> {
           ),
           const SizedBox(height: 12),
           _PrimaryButton(
-            label: _busy ? '...' : 'Şikayəti göndər',
+            label: 'Şikayəti göndər',
             icon: PhosphorIconsFill.flag,
-            onTap: _busy ? null : _submit,
+            onTap: _submit,
+            loading: _busy,
           ),
           Center(
             child: TextButton(
@@ -3328,11 +3431,10 @@ class _ReplyReviewSheetState extends State<_ReplyReviewSheet> {
           ),
           const SizedBox(height: 10),
           _PrimaryButton(
-            label: _busy
-                ? '...'
-                : _tx(widget.content, 'review.reply_submit', 'Cavabı göndər'),
+            label: _tx(widget.content, 'review.reply_submit', 'Cavabı göndər'),
             icon: PhosphorIconsFill.arrowBendUpLeft,
-            onTap: _busy ? null : _submit,
+            onTap: _submit,
+            loading: _busy,
           ),
         ],
       ),
@@ -3381,7 +3483,15 @@ class _ProfileAvatar extends StatelessWidget {
   final WawatProfileUser user;
   final double size;
 
-  const _ProfileAvatar({required this.user, required this.size});
+  /// When true and a photo exists, tapping opens it full-screen.
+  final bool tappable;
+
+  const _ProfileAvatar({
+    super.key,
+    required this.user,
+    required this.size,
+    this.tappable = false,
+  });
 
   Widget _initials() => Container(
         width: size,
@@ -3430,8 +3540,23 @@ class _ProfileAvatar extends StatelessWidget {
     } else {
       child = _initials();
     }
-    return ClipOval(
+    final avatar = ClipOval(
       child: SizedBox(width: size, height: size, child: child),
+    );
+
+    final viewUrl = (full != null && full.isNotEmpty)
+        ? full
+        : (thumb != null && thumb.isNotEmpty ? thumb : null);
+    if (!tappable || viewUrl == null) return avatar;
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        PageRouteBuilder<void>(
+          opaque: false,
+          barrierColor: Colors.black,
+          pageBuilder: (_, __, ___) => AvatarViewer(url: viewUrl),
+        ),
+      ),
+      child: avatar,
     );
   }
 }
@@ -3585,11 +3710,13 @@ class _PrimaryButton extends StatelessWidget {
   final String label;
   final IconData? icon;
   final VoidCallback? onTap;
+  final bool loading;
 
   const _PrimaryButton({
     required this.label,
     this.icon,
     this.onTap,
+    this.loading = false,
   });
 
   @override
@@ -3598,6 +3725,7 @@ class _PrimaryButton extends StatelessWidget {
       label: label,
       icon: icon,
       onTap: onTap,
+      loading: loading,
       background: _brand,
       foreground: Colors.white,
       shadow: true,
@@ -3658,11 +3786,13 @@ class _DangerButton extends StatelessWidget {
   final String label;
   final IconData? icon;
   final VoidCallback? onTap;
+  final bool loading;
 
   const _DangerButton({
     required this.label,
     this.icon,
     this.onTap,
+    this.loading = false,
   });
 
   @override
@@ -3672,6 +3802,7 @@ class _DangerButton extends StatelessWidget {
       label: label,
       icon: icon,
       onTap: onTap,
+      loading: loading,
       background: isDark ? WawatDark.danger : const Color(0xFFEF4444),
       foreground: Colors.white,
     );
@@ -3685,6 +3816,7 @@ class _ButtonBase extends StatelessWidget {
   final Color background;
   final Color foreground;
   final bool shadow;
+  final bool loading;
 
   const _ButtonBase({
     required this.label,
@@ -3693,15 +3825,16 @@ class _ButtonBase extends StatelessWidget {
     required this.foreground,
     this.icon,
     this.shadow = false,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Opacity(
-        opacity: onTap == null ? 0.55 : 1,
+        opacity: onTap == null && !loading ? 0.55 : 1,
         child: Container(
           height: 50,
           alignment: Alignment.center,
@@ -3718,23 +3851,32 @@ class _ButtonBase extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: foreground, size: 20),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                label,
-                style: TextStyle(
-                  color: foreground,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+          child: loading
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    valueColor: AlwaysStoppedAnimation<Color>(foreground),
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: foreground, size: 20),
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: foreground,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -3965,66 +4107,6 @@ class _PasswordStrength extends StatelessWidget {
                 : _cMuted(isDark),
             fontSize: 11,
             fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SelectLocale extends StatelessWidget {
-  final String value;
-  final ValueChanged<String> onChanged;
-
-  const _SelectLocale({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Tətbiq dili',
-          style: TextStyle(
-            color: _cText(isDark),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 7),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color:
-                isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.02),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-                color: isDark
-                    ? WawatDark.border
-                    : _ink900.withValues(alpha: 0.07)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              dropdownColor: isDark ? WawatDark.surface : null,
-              style: isDark
-                  ? const TextStyle(color: WawatDark.textPrimary, fontSize: 16)
-                  : null,
-              icon:
-                  Icon(PhosphorIconsRegular.caretDown, color: _cMuted(isDark)),
-              items: const [
-                DropdownMenuItem(value: 'az', child: Text('Azərbaycanca')),
-                DropdownMenuItem(value: 'en', child: Text('English')),
-                DropdownMenuItem(value: 'ru', child: Text('Русский')),
-                DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
-                DropdownMenuItem(value: 'ua', child: Text('Українська')),
-              ],
-              onChanged: (value) {
-                if (value != null) onChanged(value);
-              },
-            ),
           ),
         ),
       ],

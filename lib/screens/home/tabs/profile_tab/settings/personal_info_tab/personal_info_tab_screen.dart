@@ -51,6 +51,7 @@ class _PersonalInfoTabState
   Country? _selectedCountry;
   Country? _initialCountry;
   bool _isLoadingCountries = false;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -251,15 +252,26 @@ class _PersonalInfoTabState
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               elevation: 0,
                             ),
-                            onPressed: isValid ? _addEmployer : null,
-                            child: Text(
-                              S.of(context).grvge3g5,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                            ),
+                            onPressed:
+                                (isValid && !_saving) ? _addEmployer : null,
+                            child: _saving
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.4,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    S.of(context).grvge3g5,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                           );
                         },
                       ),
@@ -555,7 +567,8 @@ class _PersonalInfoTabState
     _isFormValid.value = isRequiredFieldsFilled && isAnythingChanged;
   }
 
-  void _addEmployer() {
+  Future<void> _addEmployer() async {
+    if (_saving) return;
     // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
     FocusScope.of(context).unfocus();
 
@@ -565,36 +578,31 @@ class _PersonalInfoTabState
     // final String location = _locationController.text.trim();
     final String about = _aboutController.text.trim();
 
-    bloc
-        .profileEdit(
-      name: name,
-      email: email,
-      phone: phone,
-      location: /*location*/ "",
-      about: about,
-      callingCode: _selectedCountry?.callingCode,
-    )
-        .then(
-      (onValue) {
-        // 🔥 Проверяем что виджет еще существует
-        if (!mounted) return;
+    setState(() => _saving = true);
+    try {
+      await bloc.profileEdit(
+        name: name,
+        email: email,
+        phone: phone,
+        location: /*location*/ "",
+        about: about,
+        callingCode: _selectedCountry?.callingCode,
+      );
+      if (!mounted) return;
 
-        // Обновляем initial значение после сохранения
-        _initialCountry = _selectedCountry;
-        bloc.customersMe();
+      // Обновляем initial значение после сохранения
+      _initialCountry = _selectedCountry;
+      bloc.customersMe();
 
-        // 🔥 Показываем алерт только если виджет еще mounted
-        if (mounted) {
-          showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
-        }
-        _validateForm(); // Пересчитываем валидацию
-      },
-    ).catchError((error) {
-      // 🔥 Обрабатываем ошибки
+      showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
+      _validateForm(); // Пересчитываем валидацию
+    } catch (error) {
       if (mounted) {
         showIOSStyleMessage(context, "Error: $error");
       }
-    });
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override

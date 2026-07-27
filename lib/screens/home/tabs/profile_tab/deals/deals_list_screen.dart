@@ -85,26 +85,6 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
                   ),
                 ),
               ),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => _toast(
-                  WawatContent.text(
-                      content, 'common.coming_soon', 'Tezliklə aktiv olacaq.'),
-                ),
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? WawatDark.surfaceAlt
-                        : dealInk900.withValues(alpha: 0.04),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(PhosphorIconsRegular.magnifyingGlass,
-                      color: isDark ? WawatDark.iconMuted : dealInk500,
-                      size: 18),
-                ),
-              ),
             ],
           );
         },
@@ -191,18 +171,6 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
           builder: (_) => DealDetailScreen(shipmentId: shipment.id)),
     );
     if (mounted) bloc.loadInitial();
-  }
-
-  void _toast(String message) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: isDark ? WawatDark.elevated : dealInk900,
-        content:
-            Text(message, style: const TextStyle(fontWeight: FontWeight.w600)),
-      ),
-    );
   }
 
   @override

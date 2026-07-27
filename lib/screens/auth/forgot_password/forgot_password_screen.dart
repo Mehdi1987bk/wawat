@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../login/login_screen.dart';
@@ -290,8 +291,8 @@ class _ForgotPasswordScreenState
         ),
         const SizedBox(height: 24),
         _PrimaryButton(
-          text: _isLoading ? 'Göndərilir...' : 'Kod göndər',
-          onPressed: _isLoading ? null : _requestOtp,
+          text: 'Kod göndər',
+          onPressed: _requestOtp,
         ),
       ],
     );
@@ -343,12 +344,12 @@ class _ForgotPasswordScreenState
         if (isExpired)
           _PrimaryButton(
             text: 'Yeni kod göndər',
-            onPressed: _isLoading ? null : () => _requestOtp(isResend: true),
+            onPressed: () => _requestOtp(isResend: true),
           )
         else
           _PrimaryButton(
-            text: _isLoading ? 'Yoxlanılır...' : 'Təsdiqlə',
-            onPressed: _isLoading ? null : _verifyOtp,
+            text: 'Təsdiqlə',
+            onPressed: _verifyOtp,
           ),
         const SizedBox(height: 18),
         Text(
@@ -426,8 +427,8 @@ class _ForgotPasswordScreenState
         ),
         const SizedBox(height: 24),
         _PrimaryButton(
-          text: _isLoading ? 'Yenilənir...' : 'Şifrəni yenilə',
-          onPressed: _isLoading ? null : _resetPassword,
+          text: 'Şifrəni yenilə',
+          onPressed: _resetPassword,
         ),
       ],
     );
@@ -708,7 +709,7 @@ class _OtpBox extends StatelessWidget {
 
 class _PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
+  final FutureOr<void> Function()? onPressed;
 
   const _PrimaryButton({
     required this.text,
@@ -717,27 +718,17 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return AsyncActionButton(
       height: 52,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          foregroundColor: Colors.white,
-          disabledForegroundColor: Colors.white70,
-          disabledBackgroundColor:
-              _ForgotPasswordScreenState._brand.withValues(alpha: 0.5),
-          backgroundColor: _ForgotPasswordScreenState._brand,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+      borderRadius: 14,
+      color: _ForgotPasswordScreenState._brand,
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
       ),
     );

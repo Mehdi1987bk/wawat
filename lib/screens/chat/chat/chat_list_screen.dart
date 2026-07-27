@@ -1,10 +1,15 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/wawat_content.dart';
 import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
@@ -28,8 +33,12 @@ class ChatListScreen extends BaseScreen {
 class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
   final ScrollController _scrollController = ScrollController();
   bool _showArchived = false;
+  bool _searchActive = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   Map<String, String> _content = const {};
   AppLifecycleListener? _lifecycleListener;
+  StreamSubscription<Object>? _actionErrorSubscription;
 
   @override
   bool get useSystemOverlay => false;
@@ -41,6 +50,10 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
     bloc.loadConversations();
     WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
+    });
+    // Surface block/unblock failures (422, missing id, network) to the user.
+    _actionErrorSubscription = bloc.actionErrorsStream.listen((error) {
+      if (mounted) showTopSnackbar(_extractError(error), false, context);
     });
     _scrollController.addListener(_onScroll);
     _lifecycleListener = AppLifecycleListener(
@@ -71,11 +84,55 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
   @override
   void dispose() {
+    _actionErrorSubscription?.cancel();
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
+    _searchController.dispose();
     _lifecycleListener?.dispose();
     super.dispose();
+  }
+
+  /// Pull a human message out of a Dio/validation error, mirroring the
+  /// conversation screen's extractor.
+  String _extractError(Object error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+      if (data is Map) {
+        final errors = data['errors'];
+        if (errors is Map) {
+          for (final value in errors.values) {
+            if (value is List && value.isNotEmpty) {
+              return value.first.toString();
+            }
+          }
+        }
+        final message = data['message']?.toString();
+        if (message != null && message.isNotEmpty) return message;
+      }
+    }
+    return _t('common.error', 'Xəta baş verdi. Yenidən cəhd edin.');
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _searchActive = !_searchActive;
+      if (!_searchActive) {
+        _searchController.clear();
+        _searchQuery = '';
+      }
+    });
+  }
+
+  /// Client-side filter over the loaded conversations by name / username.
+  List<Conversation> _applySearch(List<Conversation> source) {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return source;
+    return source.where((c) {
+      final name = c.user.fullname.toLowerCase();
+      final username = (c.user.username ?? '').toLowerCase();
+      return name.contains(query) || username.contains(query);
+    }).toList();
   }
 
   @override
@@ -93,7 +150,11 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
           child: Column(
             children: [
               _Header(
-                onSearch: () {},
+                searchActive: _searchActive,
+                searchController: _searchController,
+                onSearchToggle: _toggleSearch,
+                onSearchChanged: (value) =>
+                    setState(() => _searchQuery = value),
                 showArchived: _showArchived,
                 content: _content,
                 isDark: isDark,
@@ -118,13 +179,29 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                           snapshot.data ?? const <Conversation>[],
                         );
                         conversations.sort(_sortConversations);
+                        final visible = _applySearch(conversations);
 
                         if (loadingSnapshot.data == true &&
                             conversations.isEmpty) {
                           return _ChatSkeleton(isDark: isDark);
                         }
 
-                        if (conversations.isEmpty) {
+                        if (visible.isEmpty) {
+                          if (_searchQuery.trim().isNotEmpty) {
+                            return Center(
+                              child: Text(
+                                WawatContent.text(_content, 'chat.search.empty',
+                                    'Heç nə tapılmadı'),
+                                style: TextStyle(
+                                  color: isDark
+                                      ? WawatDark.textSecondary
+                                      : _ink500,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }
                           return _EmptyState(
                             showArchived: _showArchived,
                             content: _content,
@@ -141,9 +218,9 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                             controller: _scrollController,
                             physics: const AlwaysScrollableScrollPhysics(),
                             padding: const EdgeInsets.only(bottom: 96),
-                            itemCount: conversations.length + 1,
+                            itemCount: visible.length + 1,
                             separatorBuilder: (_, index) =>
-                                index >= conversations.length - 1
+                                index >= visible.length - 1
                                     ? const SizedBox.shrink()
                                     : Divider(
                                         height: 1,
@@ -153,7 +230,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                             : _ink900.withValues(alpha: 0.04),
                                       ),
                             itemBuilder: (context, index) {
-                              if (index == conversations.length) {
+                              if (index == visible.length) {
                                 return StreamBuilder<bool>(
                                   stream: bloc.isLoadingMoreStream,
                                   initialData: false,
@@ -174,7 +251,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                                 );
                               }
 
-                              final conversation = conversations[index];
+                              final conversation = visible[index];
                               return ConversationItem(
                                 conversation: conversation,
                                 onTap: () => _openConversation(conversation),
@@ -224,7 +301,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 
   void _showConversationMenu(Conversation conversation) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: isDark ? WawatDark.surface : Colors.white,
       barrierColor: isDark ? WawatDark.scrim : null,
@@ -317,6 +394,15 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
                   isDark: isDark,
                   onTap: () {
                     Navigator.pop(context);
+                    if (!conversation.user.hasApiId) {
+                      showTopSnackbar(
+                        _t('chat.profile.unavailable',
+                            'İstifadəçi məlumatı tapılmadı.'),
+                        false,
+                        context,
+                      );
+                      return;
+                    }
                     conversation.isBlocked
                         ? bloc.unblockUser(conversation.user.apiId)
                         : bloc.blockUser(conversation.user.apiId);
@@ -345,14 +431,20 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
 }
 
 class _Header extends StatelessWidget {
-  final VoidCallback onSearch;
+  final bool searchActive;
+  final TextEditingController searchController;
+  final VoidCallback onSearchToggle;
+  final ValueChanged<String> onSearchChanged;
   final bool showArchived;
   final Map<String, String> content;
   final bool isDark;
   final ValueChanged<bool> onTabChanged;
 
   const _Header({
-    required this.onSearch,
+    required this.searchActive,
+    required this.searchController,
+    required this.onSearchToggle,
+    required this.onSearchChanged,
     required this.showArchived,
     required this.content,
     required this.isDark,
@@ -367,31 +459,93 @@ class _Header extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
           child: Row(
             children: [
-              Expanded(
-                child: Text(
-                  WawatContent.text(content, 'chat.list.title'),
-                  style: TextStyle(
-                    color: isDark ? WawatDark.textPrimary : _ink900,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
+              if (searchActive) ...[
+                Expanded(
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? WawatDark.surfaceAlt
+                          : _ink900.withValues(alpha: 0.04),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(PhosphorIconsRegular.magnifyingGlass,
+                            color: isDark ? WawatDark.icon : _ink500, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: searchController,
+                            autofocus: true,
+                            onChanged: onSearchChanged,
+                            style: TextStyle(
+                              color: isDark ? WawatDark.textPrimary : _ink900,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              hintText: WawatContent.text(
+                                  content, 'chat.search.hint', 'Axtar...'),
+                              hintStyle: TextStyle(
+                                color: isDark ? WawatDark.textMuted : _ink400,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: onSearch,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? WawatDark.surfaceAlt
-                        : _ink900.withValues(alpha: 0.04),
-                    shape: BoxShape.circle,
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onSearchToggle,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? WawatDark.surfaceAlt
+                          : _ink900.withValues(alpha: 0.04),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(PhosphorIconsBold.x,
+                        color: isDark ? WawatDark.icon : _ink900, size: 20),
                   ),
-                  child: Icon(PhosphorIconsRegular.magnifyingGlass,
-                      color: isDark ? WawatDark.icon : _ink900, size: 20),
                 ),
-              ),
+              ] else ...[
+                Expanded(
+                  child: Text(
+                    WawatContent.text(content, 'chat.list.title'),
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textPrimary : _ink900,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: onSearchToggle,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? WawatDark.surfaceAlt
+                          : _ink900.withValues(alpha: 0.04),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(PhosphorIconsRegular.magnifyingGlass,
+                        color: isDark ? WawatDark.icon : _ink900, size: 20),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

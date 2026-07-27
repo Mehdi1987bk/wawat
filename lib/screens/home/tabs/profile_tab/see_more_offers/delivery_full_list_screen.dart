@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/listing_response.dart';
@@ -256,7 +257,7 @@ class _DeliveryFullListScreenState
     );
     if (!confirmed) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final reason = await showModalBottomSheet<String>(
+    final reason = await showAppBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: isDark ? WawatDark.scrim : null,

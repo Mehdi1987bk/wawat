@@ -798,31 +798,39 @@ class _AdvancedToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final brand = cBrandText(isDark);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(PhosphorIconsBold.slidersHorizontal, color: brand, size: 16),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: brand,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+    // Soft-brand pill so the "open more filters" toggle reads as an emphasised
+    // button rather than a plain text link.
+    return Center(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+          decoration: BoxDecoration(
+            color: cBrandSoft(isDark),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(PhosphorIconsBold.slidersHorizontal, color: brand, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: brand,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Icon(
-              open ? PhosphorIconsBold.caretUp : PhosphorIconsBold.caretDown,
-              color: brand,
-              size: 12,
-            ),
-          ],
+              const SizedBox(width: 8),
+              Icon(
+                open ? PhosphorIconsBold.caretUp : PhosphorIconsBold.caretDown,
+                color: brand,
+                size: 14,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1025,10 +1033,10 @@ class _ListingFilterSheetState extends State<ListingFilterSheet> {
             Row(
               children: [
                 Expanded(
-                    child: _NumberBox(controller: _priceMin, label: 'Min ₼')),
+                    child: _NumberBox(controller: _priceMin, label: 'Min \$')),
                 const SizedBox(width: 10),
                 Expanded(
-                    child: _NumberBox(controller: _priceMax, label: 'Max ₼')),
+                    child: _NumberBox(controller: _priceMax, label: 'Max \$')),
               ],
             ),
             const SizedBox(height: 22),
@@ -1186,60 +1194,87 @@ class _TypeSegment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // The primary filter of the whole app — framed in a brand-tinted track so
+    // the whole element reads as important, not a muted neutral toggle.
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: isDark ? WawatDark.ripple : const Color(0x0D0F172A),
-        borderRadius: BorderRadius.circular(18),
+        color: isDark ? WawatDark.brandSoft : _brand50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark
+              ? WawatDark.brand.withValues(alpha: 0.30)
+              : _brand.withValues(alpha: 0.14),
+        ),
       ),
       child: Row(
         children: [
-          _segment(context, _contentText(content, 'search.type_all'), null),
-          _segment(
-              context, content['enum.listing_type.trip'] ?? 'Səfər', 'trip'),
+          _segment(context, _contentText(content, 'search.type_all'), null,
+              PhosphorIconsBold.squaresFour),
+          _segment(context, content['enum.listing_type.trip'] ?? 'Səfər',
+              'trip', PhosphorIconsBold.airplaneTilt),
           _segment(
               context,
               content['enum.listing_type.shipment_post'] ?? 'Göndəriş',
-              'shipment_post'),
+              'shipment_post',
+              PhosphorIconsBold.package),
         ],
       ),
     );
   }
 
-  Widget _segment(BuildContext context, String label, String? itemValue) {
+  Widget _segment(
+      BuildContext context, String label, String? itemValue, IconData icon) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selected = value == itemValue;
+    final fg =
+        selected ? Colors.white : (isDark ? WawatDark.textMuted : _ink500);
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => onChanged(itemValue),
-        child: Container(
-          height: 36,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: 44,
           alignment: Alignment.center,
           decoration: BoxDecoration(
+            // Selected = solid brand fill → the whole control pops.
             color: selected
-                ? (isDark ? WawatDark.brandBadge : Colors.white)
+                ? (isDark ? WawatDark.brand : _brand)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: selected && !isDark
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: (isDark ? WawatDark.brand : _brand)
+                          .withValues(alpha: isDark ? 0.45 : 0.35),
+                      blurRadius: 14,
+                      spreadRadius: -2,
+                      offset: const Offset(0, 5),
                     )
                   ]
                 : null,
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected
-                  ? cBrandText(isDark)
-                  : (isDark ? WawatDark.textMuted : _ink500),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 13.5,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

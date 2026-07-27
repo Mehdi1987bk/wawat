@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/network/response/language.dart';
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
@@ -35,7 +36,6 @@ class _RegistrationScreenState
 
   bool _obscurePassword = true;
   bool _termsAccepted = false;
-  bool _isLoading = false;
   String? _message;
   Map<String, String> _fieldErrors = {};
   List<Language> _languages = const [];
@@ -44,9 +44,6 @@ class _RegistrationScreenState
   @override
   void initState() {
     super.initState();
-    bloc.loadingStream.listen((value) {
-      if (mounted) setState(() => _isLoading = value);
-    });
     _loadLanguages();
   }
 
@@ -339,8 +336,8 @@ class _RegistrationScreenState
             ],
             const SizedBox(height: 22),
             _PrimaryButton(
-              text: _isLoading ? 'Qeydiyyat edilir...' : 'Qeydiyyatdan keç',
-              onPressed: _isLoading ? null : _register,
+              text: 'Qeydiyyatdan keç',
+              onPressed: _register,
             ),
             const SizedBox(height: 24),
             _DividerLabel(text: 'və ya', isDark: isDark),
@@ -489,7 +486,7 @@ class _AuthField extends StatelessWidget {
 
 class _PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
+  final Future<void> Function()? onPressed;
 
   const _PrimaryButton({
     required this.text,
@@ -498,24 +495,16 @@ class _PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
+    return AsyncActionButton(
       height: 48,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _RegistrationScreenState._brand,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              _RegistrationScreenState._brand.withValues(alpha: 0.5),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+      borderRadius: 14,
+      color: _RegistrationScreenState._brand,
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
       ),
     );

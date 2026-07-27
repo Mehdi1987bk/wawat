@@ -115,7 +115,7 @@ class PromoCode {
   final String id;
   final String code;
   final num amount;
-  final String currency; // e.g. "₼" or "AZN"
+  final String currency; // e.g. "$" or "AZN"
   final String status; // active | used | expired
   final String source; // rate_review | referral | welcome | admin
   final String sourceLabel; // localized, straight from backend
@@ -142,9 +142,9 @@ class PromoCode {
   bool get isUsed => status == 'used';
   bool get isExpired => status == 'expired';
 
-  /// "5₼" — integer amounts drop the decimals.
+  /// "5$" — integer amounts drop the decimals.
   String get amountLabel {
-    final symbol = currency == 'AZN' ? '₼' : currency;
+    final symbol = currency == 'AZN' ? '\$' : currency;
     final rounded = amount == amount.roundToDouble()
         ? amount.round().toString()
         : '$amount';
@@ -168,7 +168,7 @@ class PromoCode {
       id: json['id']?.toString() ?? '',
       code: json['code']?.toString() ?? '',
       amount: _num(json['amount']) ?? 0,
-      currency: json['currency']?.toString() ?? '₼',
+      currency: json['currency']?.toString() ?? '\$',
       status: json['status']?.toString() ?? 'active',
       source: json['source']?.toString() ?? 'admin',
       sourceLabel: json['source_label']?.toString() ?? '',
@@ -250,7 +250,7 @@ class AppReviewPrompt {
         promptId = null,
         promptToken = null,
         rewardAmount = 5,
-        rewardCurrency = '₼',
+        rewardCurrency = '\$',
         rewardCode = null,
         rewardExpiresAt = null,
         rewardMinOrder = null,
@@ -259,7 +259,7 @@ class AppReviewPrompt {
         content = const {};
 
   String rewardLabel() {
-    final symbol = rewardCurrency == 'AZN' ? '₼' : rewardCurrency;
+    final symbol = rewardCurrency == 'AZN' ? '\$' : rewardCurrency;
     final rounded = rewardAmount == rewardAmount.roundToDouble()
         ? rewardAmount.round().toString()
         : '$rewardAmount';
@@ -294,7 +294,7 @@ class AppReviewPrompt {
       promptId: json['prompt_id']?.toString(),
       promptToken: json['prompt_token']?.toString(),
       rewardAmount: _num(reward['amount']) ?? 5,
-      rewardCurrency: reward['currency']?.toString() ?? '₼',
+      rewardCurrency: reward['currency']?.toString() ?? '\$',
       rewardCode: reward['code']?.toString(),
       rewardExpiresAt: _dateTime(reward['expires_at']),
       rewardMinOrder: _num(reward['min_order_amount']),
@@ -325,9 +325,9 @@ class ReviewReward {
 
   bool get hasCode => code.isNotEmpty;
 
-  /// "5 ₼" — integer amounts drop the decimals.
+  /// "5 $" — integer amounts drop the decimals.
   String amountLabel() {
-    final symbol = currency == 'AZN' ? '₼' : currency;
+    final symbol = currency == 'AZN' ? '\$' : currency;
     final rounded = amount == amount.roundToDouble()
         ? amount.round().toString()
         : '$amount';
@@ -345,7 +345,7 @@ class ReviewReward {
     return ReviewReward(
       code: json['code']?.toString() ?? '',
       amount: _num(json['amount']) ?? 0,
-      currency: json['currency']?.toString() ?? '₼',
+      currency: json['currency']?.toString() ?? '\$',
       expiresAt: _dateTime(json['expires_at']),
       minOrderAmount: _num(json['min_order_amount']),
     );

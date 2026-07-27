@@ -16,6 +16,10 @@ class ChatUser {
   final String? lastActiveAt;
   final bool isBlocked;
 
+  /// Server-reported presence (`is_online`). Null when the field is absent —
+  /// then presence is derived from [lastActiveAt].
+  final bool? isOnlineRaw;
+
   const ChatUser({
     required this.id,
     this.publicId,
@@ -25,6 +29,7 @@ class ChatUser {
     this.isVerified = false,
     this.lastActiveAt,
     this.isBlocked = false,
+    this.isOnlineRaw,
   });
 
   factory ChatUser.fromJson(Map<String, dynamic> json) {
@@ -44,10 +49,19 @@ class ChatUser {
       lastActiveAt:
           _string(json['last_active_at']) ?? _string(json['last_seen_at']),
       isBlocked: _bool(json['is_blocked']),
+      isOnlineRaw: json['is_online'] == null ? null : _bool(json['is_online']),
     );
   }
 
+  /// Server id for moderation/profile/follow calls. Prefers the public_id
+  /// (ULID string the backend now sends in `other_user.id`); falls back to the
+  /// numeric id only when it is a real (> 0) value.
   Object get apiId => publicId ?? id;
+
+  /// Whether [apiId] points at a real user. Guards against firing
+  /// `/users//block` or `/users/0/block` when the conversation carries no id.
+  bool get hasApiId =>
+      (publicId != null && publicId!.trim().isNotEmpty) || id > 0;
 
   String get avatarUrl {
     if (avatar == null || avatar!.isEmpty) return '';
@@ -63,23 +77,44 @@ class ChatUser {
         .toUpperCase();
   }
 
+  DateTime? get _lastActive =>
+      lastActiveAt == null ? null : DateTime.tryParse(lastActiveAt!)?.toLocal();
+
+  /// Online when the last activity is within the server's 3-minute window.
+  /// Deriving it from [lastActiveAt] lets the badge decay on its own while the
+  /// screen stays open; [isOnlineRaw] is only a fallback when no timestamp came
+  /// through. Privacy off → both are absent → offline.
   bool get isOnline {
-    if (lastActiveAt == null) return false;
-    final lastSeen = DateTime.tryParse(lastActiveAt!)?.toLocal();
-    if (lastSeen == null) return false;
-    return DateTime.now().difference(lastSeen).inMinutes < 2;
+    final lastSeen = _lastActive;
+    if (lastSeen != null) {
+      return DateTime.now().difference(lastSeen).inMinutes < 3;
+    }
+    return isOnlineRaw ?? false;
   }
 
+  /// Whether there is anything to show. Respects the privacy rule: no
+  /// timestamp and not online → render nothing (see [getLastSeenText]).
+  bool get hasPresence => isOnline || _lastActive != null;
+
+  /// Relative "last seen" line: onlayn / indicə / N dəq əvvəl / bu gün HH:mm /
+  /// dünən HH:mm / dd.MM.yyyy. Empty string when there's nothing to show.
   String getLastSeenText(BuildContext context) {
     if (isOnline) return 'onlayn';
-    final lastSeen = lastActiveAt == null
-        ? null
-        : DateTime.tryParse(lastActiveAt!)?.toLocal();
+    final lastSeen = _lastActive;
     if (lastSeen == null) return '';
-    final diff = DateTime.now().difference(lastSeen);
+    final now = DateTime.now();
+    final diff = now.difference(lastSeen);
+    if (diff.inMinutes < 1) return 'indicə aktiv idi';
     if (diff.inMinutes < 60) return '${diff.inMinutes} dəq əvvəl aktiv';
-    if (diff.inHours < 24) return '${diff.inHours} saat əvvəl aktiv';
-    return '${diff.inDays} gün əvvəl aktiv';
+
+    String two(int v) => v.toString().padLeft(2, '0');
+    final time = '${two(lastSeen.hour)}:${two(lastSeen.minute)}';
+    final today = DateTime(now.year, now.month, now.day);
+    final thatDay = DateTime(lastSeen.year, lastSeen.month, lastSeen.day);
+    final dayGap = today.difference(thatDay).inDays;
+    if (dayGap == 0) return 'bu gün $time';
+    if (dayGap == 1) return 'dünən $time';
+    return '${two(lastSeen.day)}.${two(lastSeen.month)}.${lastSeen.year}';
   }
 }
 

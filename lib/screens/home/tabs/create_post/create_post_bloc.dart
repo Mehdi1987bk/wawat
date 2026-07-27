@@ -54,6 +54,29 @@ class CreatePostBloc extends BaseBloc {
     return run(authRepository.createListing(request, idempotencyKey));
   }
 
+  /// Full update of an existing listing (PATCH /listings/{id}). The backend
+  /// re-runs moderation, so the returned listing comes back in `moderation`.
+  Future<ListingResponse> updateListing(
+    String id,
+    CreateListingRequest request,
+    String idempotencyKey,
+  ) {
+    return run(authRepository.updateListing(id, request, idempotencyKey));
+  }
+
+  /// Top-level server `message` (403 permission/status, or a domain error such
+  /// as the verification-tier weight limit) — shown when there are no
+  /// field-level validation errors to attach.
+  String? extractErrorMessage(Object error) {
+    if (error is! DioException) return null;
+    final data = error.response?.data;
+    if (data is Map) {
+      final message = data['message'];
+      if (message is String && message.trim().isNotEmpty) return message;
+    }
+    return null;
+  }
+
   Map<String, String> parseValidationErrors(Object error) {
     if (error is! DioException) return const {};
     final data = error.response?.data;

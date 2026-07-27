@@ -250,8 +250,13 @@ class _ChangePasswordTabState
                                 : null,
                             child: _isLoading
                                 ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.4,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
                                   )
                                 : Text(
                                     S.of(context).jt676676756jhr,

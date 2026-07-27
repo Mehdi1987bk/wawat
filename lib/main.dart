@@ -34,7 +34,6 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
-import 'services/notification_router.dart';
 import 'services/network_status_service.dart';
 
 final GetIt sl = GetIt.instance;
@@ -103,9 +102,11 @@ void main() async {
   }
 
   runApp(WawatApp());
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    flushPendingNotificationNavigation();
-  });
+  // NOTE: a cold-start push tap is NOT flushed here. At first frame the only
+  // route is SpleshScreen, and SpleshScreen replaces the top route with Home
+  // after its delay — which would destroy any screen pushed now. The pending
+  // tap is flushed from HomeScreen.initState instead, so the target lands on
+  // top of Home. See flushPendingNotificationNavigation() / notification_router.
 }
 
 void _registerDependency() {
