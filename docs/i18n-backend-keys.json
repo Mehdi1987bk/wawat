@@ -1,0 +1,905 @@
+{
+ "common.coming_soon": {
+  "az": "{label} tezliklə aktiv olacaq."
+ },
+ "menu.promotions": {
+  "az": "Promosyonlarım"
+ },
+ "deals.active_badge_template": {
+  "az": "{count} aktiv"
+ },
+ "menu.promo_codes": {
+  "az": "Promokodlarım"
+ },
+ "menu.connections": {
+  "az": "İzləyicilər və izlədiklərim"
+ },
+ "menu.appearance": {
+  "az": "Görünüş"
+ },
+ "deals.title_short": {
+  "az": "Sövdələşmə"
+ },
+ "deals.pending_expires_template": {
+  "az": "Təklifin vaxtı: {date}-a qədər"
+ },
+ "deals.auto_completed_note": {
+  "az": "Mal çatdırıldıqdan 3 gün sonra göndərən təsdiq etmədiyi üçün sövdələşmə avtomatik tamamlandı. Rəy yaza bilərsiniz."
+ },
+ "deals.expired_note": {
+  "az": "Təklifin cavab müddəti bitdi. Yenidən təklif göndərə bilərsiniz."
+ },
+ "deals.confirm.picked_up.title": {
+  "az": "Malı götürdüyünüzü təsdiqləyirsiniz?"
+ },
+ "deals.confirm.irreversible_body": {
+  "az": "Bu əməldən sonra sövdələşmə tamamlanmış sayılacaq və geri qaytarıla bilməz."
+ },
+ "deals.confirm.delivered.title": {
+  "az": "Çatdırdığınızı təsdiqləyirsiniz?"
+ },
+ "deals.detail_title.picked_up": {
+  "az": "Mal yoldadır"
+ },
+ "deals.terms.trip_date": {
+  "az": "Səfər"
+ },
+ "deals.cancel.reason_label": {
+  "az": "Ləğv səbəbi"
+ },
+ "deals.review.question_template": {
+  "az": "{name} ilə təcrübən necə idi?"
+ },
+ "common.cancel": {
+  "az": "İmtina et"
+ },
+ "common.back": {
+  "az": "Geri"
+ },
+ "deals.reason_prefix": {
+  "az": "Səbəb"
+ },
+ "deals.expired_unanswered": {
+  "az": "Cavabsız qaldı"
+ },
+ "profile.load_failed": {
+  "az": "Məlumat yüklənmədi."
+ },
+ "profile.verification_unavailable": {
+  "az": "Təsdiqləmə məlumatı yüklənmədi."
+ },
+ "profile.verify_account": {
+  "az": "Hesabınızı təsdiqləyin"
+ },
+ "profile.rating": {
+  "az": "Reytinq"
+ },
+ "profile.deliveries": {
+  "az": "Çatdırılma"
+ },
+ "profile.response": {
+  "az": "Cavab"
+ },
+ "profile.followers": {
+  "az": "İzləyici"
+ },
+ "profile.following": {
+  "az": "İzləyir"
+ },
+ "profile.my_listings": {
+  "az": "Elanlarım"
+ },
+ "profile.listings": {
+  "az": "Elanlar"
+ },
+ "profile.empty_listings_title": {
+  "az": "Hələ elan yoxdur"
+ },
+ "profile.empty_listings_subtitle": {
+  "az": "Yeni elan yaratdıqdan sonra burada görünəcək."
+ },
+ "profile.settings.account": {
+  "az": "Hesab"
+ },
+ "profile.edit": {
+  "az": "Profili redaktə et"
+ },
+ "profile.verified": {
+  "az": "Təsdiqlənib"
+ },
+ "profile.not_verified": {
+  "az": "Təsdiqlənməyib"
+ },
+ "profile.change_password": {
+  "az": "Parolu dəyiş"
+ },
+ "profile.settings.preferences": {
+  "az": "Tərcihlər"
+ },
+ "profile.notification_settings": {
+  "az": "Bildiriş ayarları"
+ },
+ "profile.privacy": {
+  "az": "Məxfilik"
+ },
+ "profile.language": {
+  "az": "Dil"
+ },
+ "profile.settings.support": {
+  "az": "Dəstək"
+ },
+ "profile.help_faq": {
+  "az": "Kömək & FAQ"
+ },
+ "profile.terms_privacy": {
+  "az": "Qaydalar & məxfilik siyasəti"
+ },
+ "profile.support": {
+  "az": "Dəstək"
+ },
+ "profile.logout": {
+  "az": "Çıxış"
+ },
+ "profile.delete_account": {
+  "az": "Hesabı sil"
+ },
+ "profile.avatar_title": {
+  "az": "Profil şəkli"
+ },
+ "profile.avatar_camera": {
+  "az": "Kameradan çək"
+ },
+ "profile.avatar_gallery": {
+  "az": "Qalereyadan seç"
+ },
+ "profile.avatar_delete": {
+  "az": "Şəkli sil"
+ },
+ "profile.avatar_hint": {
+  "az": "JPG/PNG/WEBP · maks 10 MB"
+ },
+ "common.retry": {
+  "az": "Yenidən cəhd et"
+ },
+ "promo.copied": {
+  "az": "Kod kopyalandı"
+ },
+ "promo.title": {
+  "az": "Promokodlarım"
+ },
+ "promo.hint": {
+  "az": "Kodu elanı VİP edərkən və ya önə çəkərkən ödənişdə tətbiq et."
+ },
+ "promo.error_title": {
+  "az": "Bağlantı yoxdur"
+ },
+ "promo.error_body": {
+  "az": "Promokodları yükləyə bilmədik. İnternet bağlantını yoxla."
+ },
+ "promotion.created_title": {
+  "az": "Elanın yoxlamaya göndərildi"
+ },
+ "promotion.created_subtitle": {
+  "az": "Adətən 1–2 saat ərzində təsdiqlənir. Təsdiqdən sonra lentdə görünəcək."
+ },
+ "promotion.upsell_title": {
+  "az": "Elanını daha çox insana çatdır"
+ },
+ "promotion.pricing_unavailable": {
+  "az": "Promosyon paketlərini yükləmək alınmadı."
+ },
+ "promotion.vip_short": {
+  "az": "Ən yuxarıda, ayrıca bölmədə"
+ },
+ "promotion.boost_short": {
+  "az": "İlk 10 / 50 / 100 mövqe"
+ },
+ "promotion.skip": {
+  "az": "İndi yox, elanlarıma keç"
+ },
+ "promotion.my_title": {
+  "az": "Promosyonlarım"
+ },
+ "promotion.boost_description": {
+  "az": "Elanın axtarış və lentdə seçdiyin mövqe zolağında görünəcək."
+ },
+ "promotion.step.position": {
+  "az": "Mövqe zolağını seç"
+ },
+ "promotion.position_description_template": {
+  "az": "Nəticələrin ilk {count}-liyində daha çox baxış"
+ },
+ "promotion.tier_note": {
+  "az": "VİP elanlar həmişə önə çəkilmiş elanların da üstündədir."
+ },
+ "promotion.cta.continue_duration": {
+  "az": "Davam et — müddət seç"
+ },
+ "promotion.vip_description": {
+  "az": "Elanın lentin ən yuxarısında, ayrıca «VİP elanlar» bölməsində görünəcək."
+ },
+ "promotion.step.extend_duration": {
+  "az": "Müddəti artır"
+ },
+ "promotion.step.duration": {
+  "az": "Müddət seç"
+ },
+ "promotion.duration_template": {
+  "az": "{days} gün"
+ },
+ "promotion.duration.popular": {
+  "az": "Populyar seçim"
+ },
+ "promotion.duration.short_trial": {
+  "az": "Qısa sınaq"
+ },
+ "promotion.duration.best_value": {
+  "az": "Ən sərfəli paket"
+ },
+ "promotion.vip_benefits_title": {
+  "az": "VİP nə qazandırır?"
+ },
+ "promotion.vip_benefit.section": {
+  "az": "Ayrıca «VİP elanlar» bölməsində üst sıra"
+ },
+ "promotion.vip_benefit.badge": {
+  "az": "Tac nişanı və qızılı çərçivə"
+ },
+ "promotion.vip_benefit.views": {
+  "az": "Orta hesabla daha çox baxış"
+ },
+ "promotion.preview_title": {
+  "az": "Lentdə belə görünəcək"
+ },
+ "promotion.summary.vip_template": {
+  "az": "{days} gün VİP"
+ },
+ "promotion.summary.boost_template": {
+  "az": "{tier} · {days} gün"
+ },
+ "promotion.preview_full_title": {
+  "az": "Elanın lentdə görünüşü"
+ },
+ "promotion.starting_from": {
+  "az": "başlanğıc"
+ },
+ "promotion.checkout.vip_title": {
+  "az": "VİP promosyon"
+ },
+ "promotion.checkout.boost_title_template": {
+  "az": "Önə çək · {tier}"
+ },
+ "promotion.checkout.package": {
+  "az": "Paket"
+ },
+ "promotion.checkout.duration": {
+  "az": "Müddət"
+ },
+ "promotion.checkout.start": {
+  "az": "Başlama"
+ },
+ "promotion.checkout.starts_after_approval": {
+  "az": "Təsdiqdən dərhal sonra"
+ },
+ "promotion.checkout.end": {
+  "az": "Bitmə"
+ },
+ "promotion.listing_template": {
+  "az": "Elan #{id}"
+ },
+ "promotion.action.renew": {
+  "az": "Yenilə"
+ },
+ "promotion.action.extend": {
+  "az": "Uzat"
+ },
+ "promotion.tabs.active_template": {
+  "az": "Aktiv ({count})"
+ },
+ "promotion.tabs.expired_template": {
+  "az": "Bitmiş ({count})"
+ },
+ "promotion.empty": {
+  "az": "Bu bölmədə promosyon yoxdur."
+ },
+ "promotion.active_template": {
+  "az": "{type} artıq aktivdir"
+ },
+ "promotion.remaining.expired": {
+  "az": "Müddəti bitib"
+ },
+ "promotion.remaining.days_template": {
+  "az": "{days} gün {hours} saat qalıb"
+ },
+ "promotion.remaining.hours_template": {
+  "az": "{hours} saat qalıb"
+ },
+ "promotion.status.active_vip": {
+  "az": "Elanın indi VİP-dir və lentin ən yuxarısında görünəcək."
+ },
+ "promotion.status.active_boost": {
+  "az": "Elanın indi seçilmiş mövqe zolağında önə çıxarılır."
+ },
+ "promotion.status.failed": {
+  "az": "Kartından məbləğ tutulmadı. Yenidən cəhd edə bilərsən."
+ },
+ "promotion.status.pending": {
+  "az": "Bankın və ya ödəniş provayderinin təsdiqini gözləyirik. Nəticə hazır olanda bildiriş alacaqsan."
+ },
+ "chat.user_not_found": {
+  "az": "İstifadəçi məlumatı tapılmadı."
+ },
+ "chat.open_error": {
+  "az": "Söhbəti açmaq alınmadı."
+ },
+ "listing.detail_title": {
+  "az": "Elan"
+ },
+ "promotion.vip_active": {
+  "az": "VİP aktiv"
+ },
+ "promotion.cta.boost_too": {
+  "az": "Önə də çək"
+ },
+ "promotion.cta.upgrade_tier": {
+  "az": "Zolağı yüksəlt"
+ },
+ "picker.date_help": {
+  "az": "Tarix seç"
+ },
+ "common.confirm": {
+  "az": "Təsdiq et"
+ },
+ "picker.time_help": {
+  "az": "Saat seç"
+ },
+ "create.step_template": {
+  "az": "Addım {step}/{total}"
+ },
+ "create.free_after_review": {
+  "az": "Pulsuz · yoxlanışdan sonra dərc olunur"
+ },
+ "create.step_route": {
+  "az": "Marşrut"
+ },
+ "create.step_details": {
+  "az": "Detallar"
+ },
+ "create.step_preview": {
+  "az": "Önizləmə"
+ },
+ "create.quick_select": {
+  "az": "Tez seçim"
+ },
+ "create.package_select": {
+  "az": "Bağlama növü"
+ },
+ "create.package_selected_count": {
+  "az": "{count} seçildi"
+ },
+ "create.negotiable": {
+  "az": "Qiymətdə danışıq olar"
+ },
+ "promotion.section.all": {
+  "az": "Bütün elanlar"
+ },
+ "home.hero_title": {
+  "az": "Bağlamanı kim aparsın?"
+ },
+ "home.hero_subtitle": {
+  "az": "Səyahət edənlərlə göndərənləri birləşdiririk"
+ },
+ "home.stats_prefix": {
+  "az": "Bu ay"
+ },
+ "feed.end": {
+  "az": "Hamısı bu qədər"
+ },
+ "search.advanced": {
+  "az": "Ətraflı axtarış"
+ },
+ "search.filters_title": {
+  "az": "Ətraflı axtarış"
+ },
+ "common.reset": {
+  "az": "Sıfırla"
+ },
+ "search.filter_package_type": {
+  "az": "Bağlama növləri"
+ },
+ "search.filter_date": {
+  "az": "Tarix aralığı"
+ },
+ "search.date_from": {
+  "az": "Başlanğıc"
+ },
+ "search.date_to": {
+  "az": "Son"
+ },
+ "search.filter_weight": {
+  "az": "Çəki aralığı"
+ },
+ "search.weight_min": {
+  "az": "Min kq"
+ },
+ "search.weight_max": {
+  "az": "Maks kq"
+ },
+ "search.filter_price": {
+  "az": "Qiymət aralığı"
+ },
+ "search.price_min": {
+  "az": "Min ₼"
+ },
+ "search.price_max": {
+  "az": "Maks ₼"
+ },
+ "search.filter_rating": {
+  "az": "Reytinq"
+ },
+ "search.filter_any": {
+  "az": "Fərqi yoxdur"
+ },
+ "search.filter_tier": {
+  "az": "İstifadəçi səviyyəsi"
+ },
+ "search.verified_only": {
+  "az": "Yalnız təsdiqlənmiş istifadəçilər"
+ },
+ "search.following_only": {
+  "az": "Yalnız izlədiyim istifadəçilər"
+ },
+ "search.filter_type": {
+  "az": "Elan tipi"
+ },
+ "search.applied_hint": {
+  "az": "Filtrlər tətbiq olunur · «Ətraflı»-ya yenidən basıb yığmaq olar"
+ },
+ "search.hero_title": {
+  "az": "Marşrutu axtar"
+ },
+ "search.hero_subtitle": {
+  "az": "Haradan hara göndərmək istəyirsən?"
+ },
+ "search.results_count_template": {
+  "az": "{count} nəticə"
+ },
+ "search.filter": {
+  "az": "Filtrlə"
+ },
+ "search.saved_short": {
+  "az": "Saxlanmışlar"
+ },
+ "search.network_error_title": {
+  "az": "Bağlantı yoxdur"
+ },
+ "search.network_error_subtitle": {
+  "az": "İnternet bağlantını yoxla"
+ },
+ "search.end_title": {
+  "az": "Nəticələrin sonu"
+ },
+ "search.end_subtitle": {
+  "az": "Başqa marşrutu yoxla"
+ },
+ "sort.relevance": {
+  "az": "Uyğunluq"
+ },
+ "sort.date_desc": {
+  "az": "Ən yeni"
+ },
+ "sort.date_asc": {
+  "az": "Ən köhnə"
+ },
+ "sort.price_asc": {
+  "az": "Qiymət: aşağıdan"
+ },
+ "sort.price_desc": {
+  "az": "Qiymət: yuxarıdan"
+ },
+ "sort.weight_desc": {
+  "az": "Çəki: çoxdan"
+ },
+ "sort.rating_desc": {
+  "az": "Ən yüksək reytinq"
+ },
+ "search.sort_title": {
+  "az": "Sıralama"
+ },
+ "search.alert_active": {
+  "az": "Bildiriş aktiv"
+ },
+ "search.last_check_template": {
+  "az": "Son yoxlama: {time}"
+ },
+ "search.type_trip": {
+  "az": "Səfər"
+ },
+ "search.type_shipment": {
+  "az": "Göndəriş"
+ },
+ "search.verified": {
+  "az": "Təsdiqlənmiş"
+ },
+ "search.following": {
+  "az": "İzləyirsiniz"
+ },
+ "sort.weight_asc": {
+  "az": "Çəki: azdan"
+ },
+ "time.now": {
+  "az": "indi"
+ },
+ "time.hours_ago_template": {
+  "az": "{count} saat əvvəl"
+ },
+ "time.days_ago_template": {
+  "az": "{count} gün əvvəl"
+ },
+ "search.saved_empty": {
+  "az": "Hələ saxlanmış axtarış yoxdur."
+ },
+ "settings.notif_saved": {
+  "az": "Ayarlar saxlandı."
+ },
+ "settings.notif_group_channels": {
+  "az": "Kanallar"
+ },
+ "settings.notif_push_title": {
+  "az": "Push bildirişlər"
+ },
+ "settings.notif_push_subtitle": {
+  "az": "Telefona anında bildiriş"
+ },
+ "settings.notif_email_subtitle": {
+  "az": "Vacib yeniliklər e-poçtla"
+ },
+ "settings.notif_group_categories": {
+  "az": "Kateqoriyalar"
+ },
+ "settings.notif_shipments_title": {
+  "az": "Sövdələşmə & təkliflər"
+ },
+ "settings.notif_shipments_subtitle": {
+  "az": "Təklif, çatdırılma, sifariş"
+ },
+ "settings.notif_listings_title": {
+  "az": "Elanlar"
+ },
+ "settings.notif_listings_subtitle": {
+  "az": "Təsdiq, rədd, vaxt, uyğun elan"
+ },
+ "settings.notif_messages_title": {
+  "az": "Mesajlar"
+ },
+ "settings.notif_messages_subtitle": {
+  "az": "Yeni və cavabsız mesajlar"
+ },
+ "settings.notif_reviews_subtitle": {
+  "az": "Yeni rəy və xatırlatma"
+ },
+ "settings.notif_follows_title": {
+  "az": "İzləmə"
+ },
+ "settings.notif_follows_subtitle": {
+  "az": "Yeni izləyici və elanları"
+ },
+ "settings.notif_saved_search_subtitle": {
+  "az": "Axtarışınıza uyğun yeni elan"
+ },
+ "settings.notif_marketing_title": {
+  "az": "Yeniliklər & təkliflər"
+ },
+ "settings.notif_marketing_subtitle": {
+  "az": "Kampaniya və elanlar"
+ },
+ "settings.notif_group_quiet": {
+  "az": "Sakit saatlar"
+ },
+ "settings.notif_quiet_title": {
+  "az": "Push-u sakitləşdir"
+ },
+ "settings.notif_quiet_subtitle": {
+  "az": "Seçilən saatlarda push gəlməz"
+ },
+ "settings.notif_quiet_range_label": {
+  "az": "Başlanğıc — son"
+ },
+ "settings.notif_critical_note": {
+  "az": "Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz."
+ },
+ "referral.share_link": {
+  "az": "Linki paylaş"
+ },
+ "referral.share_link_hint": {
+  "az": "dostuna dəvət linkini göndər."
+ },
+ "referral.friend_joins": {
+  "az": "Dostun qoşulur"
+ },
+ "referral.friend_joins_hint": {
+  "az": "link ilə qeydiyyatdan keçir."
+ },
+ "referral.both_earn": {
+  "az": "İkiniz də qazanırsınız"
+ },
+ "referral.both_earn_hint": {
+  "az": "ilk sifarişdən sonra {amount} promokod."
+ },
+ "referral.hero_prefix": {
+  "az": "Dostunu dəvət et, hər ikiniz"
+ },
+ "referral.hero_suffix": {
+  "az": "qazanın"
+ },
+ "referral.hero_note": {
+  "az": "Dostun ilk sifarişini tamamlayanda promokod hər ikinizə gedir."
+ },
+ "referral.code_label": {
+  "az": "DƏVƏT KODUN"
+ },
+ "referral.code_copied": {
+  "az": "Kod kopyalandı"
+ },
+ "referral.link_copied": {
+  "az": "Link kopyalandı"
+ },
+ "referral.share_invite_link": {
+  "az": "Dəvət linkini paylaş"
+ },
+ "referral.my_invites": {
+  "az": "Dəvət etdiklərim"
+ },
+ "referral.stat_invited": {
+  "az": "Dəvət"
+ },
+ "referral.stat_joined": {
+  "az": "Qoşulan"
+ },
+ "referral.stat_earned": {
+  "az": "Qazanılan"
+ },
+ "referral.item_invited": {
+  "az": "Dəvət olunub"
+ },
+ "referral.item_waiting_first_order": {
+  "az": "İlk sifariş gözlənilir"
+ },
+ "referral.empty_title": {
+  "az": "Hələ heç kimi dəvət etməmisən"
+ },
+ "referral.empty_subtitle": {
+  "az": "Linki paylaş — dostların burada görünəcək."
+ },
+ "referral.share_text": {
+  "az": "Wawatair-ə qoşul, hər ikimiz {amount} qazanaq! Kod: {code}. {link}"
+ },
+ "support.response_time_prefix": {
+  "az": "Adətən"
+ },
+ "support.response_time_value": {
+  "az": "24 saat"
+ },
+ "support.response_time_suffix": {
+  "az": "ərzində cavablayırıq. Sorğunu ətraflı yaz."
+ },
+ "support.topic_label": {
+  "az": "Mövzu"
+ },
+ "support.topic_general": {
+  "az": "Ümumi"
+ },
+ "support.subject_label": {
+  "az": "Başlıq"
+ },
+ "support.subject_hint": {
+  "az": "Qısa başlıq"
+ },
+ "support.message_hint": {
+  "az": "Problemi və ya sualını ətraflı yaz…"
+ },
+ "support.attach_image": {
+  "az": "Şəkil əlavə et (ops.)"
+ },
+ "support.attach_image_soon": {
+  "az": "Şəkil əlavə etmə tezliklə"
+ },
+ "support.submit": {
+  "az": "Göndər"
+ },
+ "support.validation_required": {
+  "az": "Başlıq və mesajı doldur."
+ },
+ "support.send_failed": {
+  "az": "Göndərilmədi. Yenidən yoxla."
+ },
+ "support.sent_title": {
+  "az": "Mesajın göndərildi"
+ },
+ "support.sent_ref_prefix": {
+  "az": "Müraciət nömrən"
+ },
+ "support.sent_ref_suffix": {
+  "az": ". Cavabı e-poçt və bildirişlə alacaqsan."
+ },
+ "support.close": {
+  "az": "Bağla"
+ },
+ "faq.subtitle": {
+  "az": "Suallarına cavab tap"
+ },
+ "faq.search_hint": {
+  "az": "Sualını axtar…"
+ },
+ "faq.load_failed": {
+  "az": "FAQ yüklənmədi"
+ },
+ "faq.empty": {
+  "az": "Hələ sual yoxdur"
+ },
+ "faq.no_results": {
+  "az": "«{query}» üzrə nəticə yoxdur"
+ },
+ "faq.no_results_hint": {
+  "az": "Başqa açar sözlə yoxla və ya dəstəyə yaz."
+ },
+ "faq.contact_title": {
+  "az": "Cavab tapmadın?"
+ },
+ "faq.contact_subtitle": {
+  "az": "Komandamız kömək etməyə hazırdır."
+ },
+ "about.website": {
+  "az": "Veb sayt"
+ },
+ "about.terms": {
+  "az": "İstifadə şərtləri"
+ },
+ "about.follow_us": {
+  "az": "Bizi izlə"
+ },
+ "about.copyright": {
+  "az": "© 2026 Wawatair · Bütün hüquqlar qorunur"
+ },
+ "about.version": {
+  "az": "Versiya {version}"
+ },
+ "about.up_to_date": {
+  "az": "Ən son versiyadasan"
+ },
+ "reports.empty_title": {
+  "az": "Şikayətin yoxdur"
+ },
+ "reports.empty_subtitle": {
+  "az": "Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək."
+ },
+ "reports.subject_user": {
+  "az": "İstifadəçi barədə şikayət"
+ },
+ "reports.subject_message": {
+  "az": "Mesaj barədə şikayət"
+ },
+ "reports.subject_listing": {
+  "az": "Elan barədə şikayət"
+ },
+ "reports.id_template": {
+  "az": "Şikayət #{id}"
+ },
+ "reports.evidence_attached": {
+  "az": "Sübut əlavə edilib"
+ },
+ "reports.explanation_label": {
+  "az": "İzah"
+ },
+ "reports.status_label": {
+  "az": "Vəziyyət"
+ },
+ "reports.moderation_response": {
+  "az": "Moderasiya cavabı"
+ },
+ "reports.step_sent": {
+  "az": "Göndərildi"
+ },
+ "reports.step_reviewing_hint": {
+  "az": "Moderasiya komandası yoxlayır"
+ },
+ "reports.step_result": {
+  "az": "Nəticə"
+ },
+ "reports.result_resolved": {
+  "az": "Həll olundu"
+ },
+ "reports.status_resolved": {
+  "az": "Həll olundu"
+ },
+ "enum.report_reason.misleading": {
+  "az": "Yanlış / aldadıcı məlumat"
+ },
+ "enum.report_reason.abuse": {
+  "az": "Təhqir"
+ },
+ "enum.report_reason.fraud": {
+  "az": "Fırıldaqçılıq"
+ },
+ "enum.report_reason.prohibited_item": {
+  "az": "Qadağan olunmuş əşya"
+ },
+ "enum.report_reason.inappropriate": {
+  "az": "Uyğunsuz məzmun"
+ },
+ "favorites.title": {
+  "az": "Sevimlilər"
+ },
+ "favorites.subtitle": {
+  "az": "Yadda saxladığın elanlar"
+ },
+ "favorites.empty_title": {
+  "az": "Hələ sevimli elan yoxdur"
+ },
+ "favorites.empty_subtitle": {
+  "az": "Bəyəndiyin elanları ürək işarəsi ilə burada saxla."
+ },
+ "search.filter_weight_price": {
+  "az": "Çəki və qiymət"
+ },
+ "search.show_results": {
+  "az": "Nəticələri göstər"
+ },
+ "chat.proposal.decline": {
+  "az": "Rədd"
+ },
+ "chat.proposal.counter": {
+  "az": "Dəyiş"
+ },
+ "chat.card.cancel_reason": {
+  "az": "Səbəb: {reason}"
+ },
+ "chat.message.edited": {
+  "az": "redaktə edildi"
+ },
+ "chat.message.retry": {
+  "az": "Yenidən cəhd"
+ },
+ "deals.review_sent": {
+  "az": "Rəy göndərildi"
+ },
+ "deals.operation_failed": {
+  "az": "Əməliyyat alınmadı. Yenidən cəhd edin."
+ },
+ "deals.coming_soon": {
+  "az": "Tezliklə aktiv olacaq."
+ },
+ "notification.group_this_week": {
+  "az": "Bu həftə"
+ },
+ "notification.group_old": {
+  "az": "Köhnə"
+ },
+ "notification.time_now": {
+  "az": "indi"
+ },
+ "notification.time_minutes_ago": {
+  "az": "{count} dəqiqə əvvəl"
+ },
+ "notification.time_hours_ago": {
+  "az": "{count} saat əvvəl"
+ },
+ "notification.time_days_ago": {
+  "az": "{count} gün əvvəl"
+ },
+ "common.no_connection": {
+  "az": "Bağlantı yoxdur"
+ },
+ "common.load_failed_generic": {
+  "az": "Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla."
+ },
+ "common.close": {
+  "az": "Bağla"
+ },
+ "privacy_policy.load_error": {
+  "az": "Məxfilik siyasətini yükləmək olmadı"
+ },
+ "privacy_policy.empty": {
+  "az": "Məzmun yoxdur"
+ }
+}
