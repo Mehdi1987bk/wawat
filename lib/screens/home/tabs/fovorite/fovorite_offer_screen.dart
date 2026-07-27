@@ -8,6 +8,7 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../home_tab/notification/unread_notif_bloc.dart';
@@ -170,7 +171,7 @@ class _FavoritesHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sevimlilər',
+                  t('favorites.title'),
                   style: TextStyle(
                     color: titleColor,
                     fontSize: 22,
@@ -179,7 +180,7 @@ class _FavoritesHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Yadda saxladığın elanlar',
+                  t('favorites.subtitle'),
                   style: TextStyle(
                     color: cMuted(isDark),
                     fontSize: 12,
@@ -233,7 +234,7 @@ class _EmptyFavorites extends StatelessWidget {
           Icon(Icons.favorite_border, size: 64, color: cBrandText(isDark)),
           const SizedBox(height: 14),
           Text(
-            'Hələ sevimli elan yoxdur',
+            t('favorites.empty_title'),
             style: TextStyle(
               color: cText(isDark),
               fontSize: 20,
@@ -244,7 +245,7 @@ class _EmptyFavorites extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 42),
             child: Text(
-              'Bəyəndiyin elanları ürək işarəsi ilə burada saxla.',
+              t('favorites.empty_subtitle'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? cText2(isDark) : _ink500,
