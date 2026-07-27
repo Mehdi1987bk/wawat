@@ -4,6 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import '../legal/legal_doc_screen.dart';
 import '../promo/rate_app_screen.dart';
 
@@ -99,7 +101,7 @@ class _AboutScreenState extends State<AboutScreen> {
             icon:
                 Icon(PhosphorIconsBold.arrowLeft, color: _cText2(d), size: 21),
           ),
-          title: Text('Tətbiq haqqında',
+          title: Text(t('menu.about'),
               style: TextStyle(
                   color: _cText(d), fontSize: 17, fontWeight: FontWeight.w800)),
           bottom: PreferredSize(
@@ -123,17 +125,18 @@ class _AboutScreenState extends State<AboutScreen> {
               clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
-                  _row(d, PhosphorIconsFill.star, 'Tətbiqi qiymətləndir',
+                  _row(d, PhosphorIconsFill.star, t('menu.rate_app'),
                       onTap: () => _push(const RateAppScreen())),
-                  _row(d, PhosphorIconsFill.globe, 'Veb sayt',
+                  _row(d, PhosphorIconsFill.globe, t('about.website'),
                       trailing: 'wawatair.com', onTap: () => _open(_website)),
-                  _row(d, PhosphorIconsFill.fileText, 'İstifadə şərtləri',
-                      onTap: () => _push(const LegalDocScreen(
-                          slug: 'terms', title: 'İstifadə şərtləri'))),
-                  _row(d, PhosphorIconsFill.shieldCheck, 'Məxfilik siyasəti',
-                      onTap: () => _push(const LegalDocScreen(
-                          slug: 'privacy', title: 'Məxfilik siyasəti'))),
-                  _row(d, PhosphorIconsFill.scroll, 'Lisenziyalar',
+                  _row(d, PhosphorIconsFill.fileText, t('about.terms'),
+                      onTap: () => _push(LegalDocScreen(
+                          slug: 'terms', title: t('about.terms')))),
+                  _row(d, PhosphorIconsFill.shieldCheck,
+                      t('legal.privacy.title'),
+                      onTap: () => _push(LegalDocScreen(
+                          slug: 'privacy', title: t('legal.privacy.title')))),
+                  _row(d, PhosphorIconsFill.scroll, t('about.licenses'),
                       last: true,
                       onTap: () => showLicensePage(
                             context: context,
@@ -144,7 +147,7 @@ class _AboutScreenState extends State<AboutScreen> {
               ),
             ),
             const SizedBox(height: 26),
-            Text('Bizi izlə',
+            Text(t('about.follow_us'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cMuted(d),
@@ -164,7 +167,7 @@ class _AboutScreenState extends State<AboutScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Text('© 2026 Wawatair · Bütün hüquqlar qorunur',
+            Text(t('about.copyright'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cMuted(d),
@@ -205,7 +208,7 @@ class _AboutScreenState extends State<AboutScreen> {
             style: TextStyle(
                 color: _cText(d), fontSize: 18, fontWeight: FontWeight.w800)),
         const SizedBox(height: 2),
-        Text('Versiya $_version$buildLabel',
+        Text(t('about.version', {'version': '$_version$buildLabel'}),
             style: TextStyle(
                 color: _cMuted(d), fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 12),
@@ -222,7 +225,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   size: 14,
                   color: d ? const Color(0xFF4FD6A0) : const Color(0xFF059669)),
               const SizedBox(width: 6),
-              Text('Ən son versiyadasan',
+              Text(t('about.up_to_date'),
                   style: TextStyle(
                       color:
                           d ? const Color(0xFF4FD6A0) : const Color(0xFF059669),

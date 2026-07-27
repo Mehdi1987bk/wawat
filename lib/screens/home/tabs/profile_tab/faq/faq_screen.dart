@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:provider/provider.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import '../../../../../data/network/response/faq_response.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_colors.dart';
@@ -38,7 +40,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
-        'Kömək & FAQ',
+        t('menu.help'),
         style: TextStyle(
           color: isDark ? cText(isDark) : Colors.black,
           fontSize: 18,
@@ -99,7 +101,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Kömək & FAQ',
+                              t('menu.help'),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -108,7 +110,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Suallarına cavab tap',
+                              t('faq.subtitle'),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isDark
@@ -135,7 +137,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         fontSize: 14,
                         fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
-                      hintText: 'Sualını axtar…',
+                      hintText: t('faq.search_hint'),
                       hintStyle: TextStyle(
                           color: isDark
                               ? const Color(0xFF6B7B93)
@@ -200,7 +202,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'FAQ yüklənmədi',
+                              t('faq.load_failed'),
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isDark
@@ -229,7 +231,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Hələ sual yoxdur',
+                              t('faq.empty'),
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isDark
@@ -264,7 +266,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                                     ? cFaint(isDark)
                                     : const Color(0xFFCBD5E1)),
                             const SizedBox(height: 12),
-                            Text('«${_query.trim()}» üzrə nəticə yoxdur',
+                            Text(t('faq.no_results', {'query': _query.trim()}),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 14,
@@ -272,7 +274,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                                     color:
                                         isDark ? cText(isDark) : Colors.black)),
                             const SizedBox(height: 4),
-                            Text('Başqa açar sözlə yoxla və ya dəstəyə yaz.',
+                            Text(t('faq.no_results_hint'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 12.5,
@@ -335,13 +337,13 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                     ),
                     child: Column(
                       children: [
-                        Text('Cavab tapmadın?',
+                        Text(t('faq.contact_title'),
                             style: TextStyle(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w700,
                                 color: isDark ? cText(isDark) : Colors.black)),
                         const SizedBox(height: 2),
-                        Text('Komandamız kömək etməyə hazırdır.',
+                        Text(t('faq.contact_subtitle'),
                             style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
@@ -379,7 +381,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
           children: [
             Icon(Icons.headset_mic, color: Colors.white, size: 18),
             SizedBox(width: 8),
-            Text('Dəstəyə yaz',
+            Text(t('menu.contact_support'),
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 13.5,

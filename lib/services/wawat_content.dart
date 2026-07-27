@@ -528,6 +528,7 @@ class WawatContent {
     // --- i18n sweep: keys pending backend (AZ fallback) ---
     'about.copyright': '© 2026 Wawatair · Bütün hüquqlar qorunur',
     'about.follow_us': 'Bizi izlə',
+    'about.licenses': 'Lisenziyalar',
     'about.terms': 'İstifadə şərtləri',
     'about.up_to_date': 'Ən son versiyadasan',
     'about.version': 'Versiya {version}',
@@ -539,7 +540,8 @@ class WawatContent {
     'chat.proposal.decline': 'Rədd',
     'common.close': 'Bağla',
     'common.coming_soon': '{label} tezliklə aktiv olacaq.',
-    'common.load_failed_generic': 'Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.',
+    'common.load_failed_generic':
+        'Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.',
     'common.no_connection': 'Bağlantı yoxdur',
     'deals.coming_soon': 'Tezliklə aktiv olacaq.',
     'deals.operation_failed': 'Əməliyyat alınmadı. Yenidən cəhd edin.',
@@ -557,7 +559,8 @@ class WawatContent {
     'faq.no_results_hint': 'Başqa açar sözlə yoxla və ya dəstəyə yaz.',
     'faq.search_hint': 'Sualını axtar…',
     'faq.subtitle': 'Suallarına cavab tap',
-    'favorites.empty_subtitle': 'Bəyəndiyin elanları ürək işarəsi ilə burada saxla.',
+    'favorites.empty_subtitle':
+        'Bəyəndiyin elanları ürək işarəsi ilə burada saxla.',
     'favorites.empty_title': 'Hələ sevimli elan yoxdur',
     'favorites.subtitle': 'Yadda saxladığın elanlar',
     'favorites.title': 'Sevimlilər',
@@ -585,7 +588,8 @@ class WawatContent {
     'profile.delete_account': 'Hesabı sil',
     'profile.deliveries': 'Çatdırılma',
     'profile.edit': 'Profili redaktə et',
-    'profile.empty_listings_subtitle': 'Yeni elan yaratdıqdan sonra burada görünəcək.',
+    'profile.empty_listings_subtitle':
+        'Yeni elan yaratdıqdan sonra burada görünəcək.',
     'profile.empty_listings_title': 'Hələ elan yoxdur',
     'profile.followers': 'İzləyici',
     'profile.following': 'İzləyir',
@@ -609,9 +613,11 @@ class WawatContent {
     'profile.verified': 'Təsdiqlənib',
     'profile.verify_account': 'Hesabınızı təsdiqləyin',
     'promo.copied': 'Kod kopyalandı',
-    'promo.error_body': 'Promokodları yükləyə bilmədik. İnternet bağlantını yoxla.',
+    'promo.error_body':
+        'Promokodları yükləyə bilmədik. İnternet bağlantını yoxla.',
     'promo.error_title': 'Bağlantı yoxdur',
-    'promo.hint': 'Kodu elanı VİP edərkən və ya önə çəkərkən ödənişdə tətbiq et.',
+    'promo.hint':
+        'Kodu elanı VİP edərkən və ya önə çəkərkən ödənişdə tətbiq et.',
     'promo.title': 'Promokodlarım',
     'referral.both_earn': 'İkiniz də qazanırsınız',
     'referral.both_earn_hint': 'ilk sifarişdən sonra {amount} promokod.',
@@ -621,7 +627,8 @@ class WawatContent {
     'referral.empty_title': 'Hələ heç kimi dəvət etməmisən',
     'referral.friend_joins': 'Dostun qoşulur',
     'referral.friend_joins_hint': 'link ilə qeydiyyatdan keçir.',
-    'referral.hero_note': 'Dostun ilk sifarişini tamamlayanda promokod hər ikinizə gedir.',
+    'referral.hero_note':
+        'Dostun ilk sifarişini tamamlayanda promokod hər ikinizə gedir.',
     'referral.hero_prefix': 'Dostunu dəvət et, hər ikiniz',
     'referral.hero_suffix': 'qazanın',
     'referral.item_invited': 'Dəvət olunub',
@@ -631,11 +638,13 @@ class WawatContent {
     'referral.share_invite_link': 'Dəvət linkini paylaş',
     'referral.share_link': 'Linki paylaş',
     'referral.share_link_hint': 'dostuna dəvət linkini göndər.',
-    'referral.share_text': 'Wawatair-ə qoşul, hər ikimiz {amount} qazanaq! Kod: {code}. {link}',
+    'referral.share_text':
+        'Wawatair-ə qoşul, hər ikimiz {amount} qazanaq! Kod: {code}. {link}',
     'referral.stat_earned': 'Qazanılan',
     'referral.stat_invited': 'Dəvət',
     'referral.stat_joined': 'Qoşulan',
-    'reports.empty_subtitle': 'Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək.',
+    'reports.empty_subtitle':
+        'Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək.',
     'reports.empty_title': 'Şikayətin yoxdur',
     'reports.evidence_attached': 'Sübut əlavə edilib',
     'reports.explanation_label': 'İzah',
@@ -663,7 +672,8 @@ class WawatContent {
     'search.type_shipment': 'Göndəriş',
     'search.type_trip': 'Səfər',
     'search.verified': 'Təsdiqlənmiş',
-    'settings.notif_critical_note': 'Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.',
+    'settings.notif_critical_note':
+        'Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.',
     'settings.notif_email_subtitle': 'Vacib yeniliklər e-poçtla',
     'settings.notif_follows_subtitle': 'Yeni izləyici və elanları',
     'settings.notif_follows_title': 'İzləmə',
@@ -691,7 +701,8 @@ class WawatContent {
     'support.close': 'Bağla',
     'support.message_hint': 'Problemi və ya sualını ətraflı yaz…',
     'support.response_time_prefix': 'Adətən',
-    'support.response_time_suffix': 'ərzində cavablayırıq. Sorğunu ətraflı yaz.',
+    'support.response_time_suffix':
+        'ərzində cavablayırıq. Sorğunu ətraflı yaz.',
     'support.response_time_value': '24 saat',
     'support.send_failed': 'Göndərilmədi. Yenidən yoxla.',
     'support.sent_ref_prefix': 'Müraciət nömrən',
