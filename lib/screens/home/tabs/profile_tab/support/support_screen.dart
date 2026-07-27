@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import 'support_api.dart';
 
 // ── palette (light from mock + navy dark) ────────────────────────────────────
@@ -36,13 +38,13 @@ class _Topic {
   const _Topic(this.label, this.code);
 }
 
-const _topics = [
-  _Topic('Ümumi', 'general'),
-  _Topic('Ödəniş', 'payment'),
-  _Topic('Hesab', 'account'),
-  _Topic('Texniki', 'technical'),
-  _Topic('Təklif', 'suggestion'),
-];
+List<_Topic> _topicsList() => [
+      _Topic(t('support.topic_general'), 'general'),
+      _Topic(t('support.topic_payment'), 'payment'),
+      _Topic(t('support.topic_account'), 'account'),
+      _Topic(t('support.topic_technical'), 'technical'),
+      _Topic(t('support.topic_suggestion'), 'suggestion'),
+    ];
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
@@ -83,7 +85,7 @@ class _SupportScreenState extends State<SupportScreen> {
     final subject = _subject.text.trim();
     final body = _body.text.trim();
     if (subject.isEmpty || body.isEmpty) {
-      _toast('Başlıq və mesajı doldur.');
+      _toast(t('support.validation_required'));
       return;
     }
     setState(() => _submitting = true);
@@ -100,7 +102,7 @@ class _SupportScreenState extends State<SupportScreen> {
         _ticket = ticket ?? _localTicket();
       });
     } catch (_) {
-      if (mounted) _toast('Göndərilmədi. Yenidən yoxla.');
+      if (mounted) _toast(t('support.send_failed'));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -124,7 +126,7 @@ class _SupportScreenState extends State<SupportScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
           icon: Icon(PhosphorIconsBold.arrowLeft, color: _cText2(d), size: 21),
         ),
-        title: Text('Dəstəyə yaz',
+        title: Text(t('menu.contact_support'),
             style: TextStyle(
                 color: _cText(d), fontSize: 17, fontWeight: FontWeight.w800)),
         bottom: PreferredSize(
@@ -161,14 +163,13 @@ class _SupportScreenState extends State<SupportScreen> {
               Expanded(
                 child: Text.rich(
                   TextSpan(children: [
-                    const TextSpan(text: 'Adətən '),
+                    TextSpan(text: '${t('support.response_time_prefix')} '),
                     TextSpan(
-                        text: '24 saat',
+                        text: t('support.response_time_value'),
                         style: TextStyle(
                             fontWeight: FontWeight.w800,
                             color: d ? _dBrandText : _brand700)),
-                    const TextSpan(
-                        text: ' ərzində cavablayırıq. Sorğunu ətraflı yaz.'),
+                    TextSpan(text: ' ${t('support.response_time_suffix')}'),
                   ]),
                   style: TextStyle(
                       color: d ? _dBrandText : _brand700,
@@ -181,25 +182,25 @@ class _SupportScreenState extends State<SupportScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        _label(d, 'Mövzu'),
+        _label(d, t('support.topic_label')),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _topics.map((t) => _pill(d, t)).toList(),
+          children: _topicsList().map((tp) => _pill(d, tp)).toList(),
         ),
         const SizedBox(height: 16),
-        _label(d, 'Başlıq'),
+        _label(d, t('support.subject_label')),
         const SizedBox(height: 8),
-        _field(d, _subject, 'Qısa başlıq'),
+        _field(d, _subject, t('support.subject_hint')),
         const SizedBox(height: 16),
-        _label(d, 'Mesaj'),
+        _label(d, t('support.message_label')),
         const SizedBox(height: 8),
-        _field(d, _body, 'Problemi və ya sualını ətraflı yaz…', lines: 5),
+        _field(d, _body, t('support.message_hint'), lines: 5),
         const SizedBox(height: 16),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => _toast('Şəkil əlavə etmə tezliklə'),
+          onTap: () => _toast(t('support.attach_image_soon')),
           child: Container(
             height: 48,
             alignment: Alignment.center,
@@ -217,7 +218,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 Icon(PhosphorIconsRegular.paperclip,
                     size: 16, color: _cMuted(d)),
                 const SizedBox(width: 8),
-                Text('Şəkil əlavə et (ops.)',
+                Text(t('support.attach_image'),
                     style: TextStyle(
                         color: _cMuted(d),
                         fontSize: 13,
@@ -228,7 +229,7 @@ class _SupportScreenState extends State<SupportScreen> {
         ),
         const SizedBox(height: 16),
         _primaryButton(
-          label: 'Göndər',
+          label: t('support.submit'),
           icon: PhosphorIconsBold.paperPlaneTilt,
           busy: _submitting,
           onTap: _submit,
@@ -312,7 +313,7 @@ class _SupportScreenState extends State<SupportScreen> {
                   color: d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981)),
             ),
             const SizedBox(height: 16),
-            Text('Mesajın göndərildi',
+            Text(t('support.sent_title'),
                 style: TextStyle(
                     color: _cText(d),
                     fontSize: 18,
@@ -320,13 +321,12 @@ class _SupportScreenState extends State<SupportScreen> {
             const SizedBox(height: 6),
             Text.rich(
               TextSpan(children: [
-                const TextSpan(text: 'Müraciət nömrən '),
+                TextSpan(text: '${t('support.sent_ref_prefix')} '),
                 TextSpan(
                     text: '#$_ticket',
                     style: TextStyle(
                         fontWeight: FontWeight.w800, color: _cText2(d))),
-                const TextSpan(
-                    text: '. Cavabı e-poçt və bildirişlə alacaqsan.'),
+                TextSpan(text: t('support.sent_ref_suffix')),
               ]),
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -339,7 +339,7 @@ class _SupportScreenState extends State<SupportScreen> {
             SizedBox(
               width: 200,
               child: _primaryButton(
-                label: 'Bağla',
+                label: t('support.close'),
                 onTap: () => Navigator.of(context).maybePop(),
               ),
             ),
