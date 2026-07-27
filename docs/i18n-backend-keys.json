@@ -812,21 +812,6 @@
  "reports.status_resolved": {
   "az": "Həll olundu"
  },
- "enum.report_reason.misleading": {
-  "az": "Yanlış / aldadıcı məlumat"
- },
- "enum.report_reason.abuse": {
-  "az": "Təhqir"
- },
- "enum.report_reason.fraud": {
-  "az": "Fırıldaqçılıq"
- },
- "enum.report_reason.prohibited_item": {
-  "az": "Qadağan olunmuş əşya"
- },
- "enum.report_reason.inappropriate": {
-  "az": "Uyğunsuz məzmun"
- },
  "favorites.title": {
   "az": "Sevimlilər"
  },
@@ -901,5 +886,23 @@
  },
  "privacy_policy.empty": {
   "az": "Məzmun yoxdur"
+ },
+ "enum.report_reason_code.spam": {
+  "az": "Spam"
+ },
+ "enum.report_reason_code.fraud": {
+  "az": "Fırıldaq"
+ },
+ "enum.report_reason_code.abuse": {
+  "az": "Təhqir"
+ },
+ "enum.report_reason_code.fake": {
+  "az": "Saxta"
+ },
+ "enum.report_reason_code.inappropriate": {
+  "az": "Uyğunsuz"
+ },
+ "enum.report_reason_code.other": {
+  "az": "Digər"
  }
 }

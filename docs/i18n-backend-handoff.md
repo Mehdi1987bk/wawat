@@ -314,12 +314,20 @@ The **Azerbaijani** text is the source of truth; translate the rest.
 - `promo.hint` — Kodu elanı VİP edərkən və ya önə çəkərkən ödənişdə tətbiq et.
 - `promo.title` — Promokodlarım
 
-## enum — extra labels  (5)
-- `enum.report_reason.abuse` — Təhqir
-- `enum.report_reason.fraud` — Fırıldaqçılıq
-- `enum.report_reason.inappropriate` — Uyğunsuz məzmun
-- `enum.report_reason.misleading` — Yanlış / aldadıcı məlumat
-- `enum.report_reason.prohibited_item` — Qadağan olunmuş əşya
+## enum — report reasons  (6)
+> **CORRECTION (supersedes earlier `enum.report_reason.*` request).** The canonical
+> taxonomy is the existing backend `App\Enums\ReportReasonCode`:
+> `spam, fraud, abuse, fake, inappropriate, other`. The app's report pickers (listing
+> report + user report) already send exactly these codes; it never sends `misleading`
+> or `prohibited_item`. Please add the CMS keys below and **drop the earlier
+> `enum.report_reason.*` keys** (abuse/fraud/inappropriate/misleading/prohibited_item)
+> — those came from a stale display map and are not used. Keep `fraud` = "Fırıldaq".
+- `enum.report_reason_code.spam` — Spam
+- `enum.report_reason_code.fraud` — Fırıldaq
+- `enum.report_reason_code.abuse` — Təhqir
+- `enum.report_reason_code.fake` — Saxta
+- `enum.report_reason_code.inappropriate` — Uyğunsuz
+- `enum.report_reason_code.other` — Digər
 
 ## common — shared states  (9)
 - `common.back` — Geri

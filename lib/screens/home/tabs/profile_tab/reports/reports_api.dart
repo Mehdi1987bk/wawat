@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import '../../../../../main.dart';
 
 /// Data-layer for "Şikayətlərim" (my reports), wired to the live API.
@@ -68,33 +70,23 @@ class Report {
     );
   }
 
-  /// reason_code → Azerbaijani label (codes aren't localized by the backend).
+  /// reason_code → localized label via the canonical CMS keys
+  /// `enum.report_reason_code.*` (matches backend App\Enums\ReportReasonCode:
+  /// spam, fraud, abuse, fake, inappropriate, other). Legacy aliases from older
+  /// data are folded into the canonical set; unknown codes fall back to the key.
   String get reasonLabel {
-    switch (reasonCode) {
-      case 'wrong_info':
-      case 'misleading':
-        return 'Yanlış / aldadıcı məlumat';
-      case 'spam':
-        return 'Spam';
-      case 'offensive':
-      case 'insult':
-      case 'abuse':
-        return 'Təhqir';
-      case 'fraud':
-      case 'scam':
-        return 'Fırıldaqçılıq';
-      case 'prohibited':
-      case 'prohibited_item':
-        return 'Qadağan olunmuş əşya';
-      case 'inappropriate':
-        return 'Uyğunsuz məzmun';
-      case 'other':
-        return 'Digər';
-      default:
-        if (reasonCode.isEmpty) return '';
-        final s = reasonCode.replaceAll('_', ' ');
-        return s[0].toUpperCase() + s.substring(1);
-    }
+    if (reasonCode.isEmpty) return '';
+    const legacy = {
+      'wrong_info': 'fake',
+      'misleading': 'fake',
+      'offensive': 'abuse',
+      'insult': 'abuse',
+      'scam': 'fraud',
+      'prohibited': 'other',
+      'prohibited_item': 'other',
+    };
+    final code = legacy[reasonCode] ?? reasonCode;
+    return t('enum.report_reason_code.$code');
   }
 }
 
