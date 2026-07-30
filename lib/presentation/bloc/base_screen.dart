@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../services/localization_service.dart';
 import '../../services/theme_manager.dart';
 import '../resourses/app_colors.dart';
 import '../resourses/wawat_dark.dart';
@@ -36,6 +35,9 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    // Перестраиваем только виджеты текущего экрана при смене языка. State,
+    // Navigator, скролл и введённые пользователем данные остаются на месте.
+    context.watch<LocalizationService>();
     return BlocProvider<Bloc>(
       bloc: bloc,
       child: Consumer<ThemeManager>(

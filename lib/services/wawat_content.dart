@@ -6,6 +6,7 @@ class WawatContent {
 
   static final Map<String, Future<Map<String, String>>> _futures = {};
   static final Map<String, Map<String, String>> _cache = {};
+  static Map<String, String> _runtimeTranslations = const {};
   static const List<String> defaultGroups = [
     'common',
     'listing',
@@ -732,6 +733,15 @@ class WawatContent {
     _futures.clear();
   }
 
+  /// Актуальная глобальная карта выбранного языка.
+  ///
+  /// Экраны могут продолжать хранить загруженный ранее [content], но [text]
+  /// всегда сначала читает эту карту. Поэтому смена языка не требует повторной
+  /// загрузки данных экрана или пересоздания его State.
+  static void setRuntimeTranslations(Map<String, String> translations) {
+    _runtimeTranslations = Map<String, String>.unmodifiable(translations);
+  }
+
   static Future<Map<String, String>> load({String group = 'listing'}) {
     final cached = _cache[group];
     if (cached != null) return Future.value(cached);
@@ -768,7 +778,12 @@ class WawatContent {
     String key, [
     String? fallback,
   ]) {
-    final value = content[key];
+    final runtimeValue = _runtimeTranslations[key];
+    final value = runtimeValue == null ||
+            runtimeValue.trim().isEmpty ||
+            runtimeValue == key
+        ? content[key]
+        : runtimeValue;
     if (value == null || value.trim().isEmpty || value == key) {
       return fallback ?? fallbacks[key] ?? _humanizeKey(key);
     }

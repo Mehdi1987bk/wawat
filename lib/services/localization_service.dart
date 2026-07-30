@@ -47,6 +47,7 @@ class LocalizationService extends ChangeNotifier {
     final cached = prefs.getString('$_mapPrefix$_locale');
     if (cached != null && cached.isNotEmpty) {
       _map = _decode(cached);
+      WawatContent.setRuntimeTranslations(_map);
       _loaded = true;
       notifyListeners();
     }
@@ -75,6 +76,7 @@ class LocalizationService extends ChangeNotifier {
       final raw = res.data?['data'];
       if (raw is Map) {
         _map = raw.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''));
+        WawatContent.setRuntimeTranslations(_map);
         _loaded = true;
         await prefs.setString('$_mapPrefix$_locale', jsonEncode(_map));
         final newEtag = res.headers.value('etag');

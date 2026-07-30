@@ -61,6 +61,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   late Future<WawatProfileBundle> _future;
   late Future<int> _activeDealsCountFuture;
   late Future<int> _promoActiveCountFuture;
+  String? _preferredLocaleOverride;
 
   @override
   void initState() {
@@ -179,7 +180,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   Future<void> _openLanguageSheet(WawatProfileBundle bundle) async {
     final content = bundle.content;
-    final current = bundle.user.preferredLocale ?? 'az';
+    final current = LocalizationService.normalize(
+      _preferredLocaleOverride ??
+          bundle.user.preferredLocale ??
+          LocalizationService.instance.locale,
+    );
     final fallback = const [
       _LanguageOption('az', 'Azərbaycanca', '🇦🇿'),
       _LanguageOption('en', 'English', '🇬🇧'),
@@ -265,25 +270,32 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                     selected: item.code == current,
                     onTap: () async {
                       Navigator.of(sheetContext).pop();
+                      final localeCode = item.code == 'ua' ? 'uk' : item.code;
                       try {
                         // 1) Локально сохраняем язык → Accept-Language-интерцептор
                         //    и MaterialApp.locale переключаются (uk для украинского).
-                        final localeCode = item.code == 'ua' ? 'uk' : item.code;
                         await sl
                             .get<CacheManager>()
                             .saveLocale(Locale(localeCode));
                         // 2) Рефетч всей CMS-карты на новом языке (сброс ETag).
                         await LocalizationService.instance
                             .changeLocale(item.code);
-                        // 3) Сохраняем предпочтение в профиле.
-                        await _api.updateProfile(
-                          {'preferred_locale': item.code},
-                        );
-                        _reload();
+                        if (mounted) {
+                          setState(() => _preferredLocaleOverride = item.code);
+                        }
                       } catch (_) {
                         if (!mounted) return;
                         _openUnavailable(content, item.name);
+                        return;
                       }
+
+                      // 3) Сохраняем предпочтение в профиле. Ошибка синхронизации
+                      // не должна отменять уже применённый локально язык.
+                      try {
+                        await _api.updateProfile(
+                          {'preferred_locale': item.code},
+                        );
+                      } catch (_) {}
                     },
                   ),
                 ),
@@ -413,6 +425,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Смена языка обновляет строки, но не меняет _future: профиль не уходит в
+    // skeleton и не загружает заново пользовательские данные.
+    context.watch<LocalizationService>();
     return FutureBuilder<WawatProfileBundle>(
       future: _future,
       builder: (context, snapshot) {
@@ -650,7 +665,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
                       _MenuRow(
                         icon: PhosphorIconsFill.translate,
                         label: _text(content, 'menu.language', 'Dil'),
-                        trailingText: _localeName(user.preferredLocale),
+                        trailingText: _localeName(
+                          _preferredLocaleOverride ?? user.preferredLocale,
+                        ),
                         onTap: () => _openLanguageSheet(bundle),
                       ),
                       _ThemeModeRow(

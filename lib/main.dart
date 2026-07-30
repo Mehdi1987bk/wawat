@@ -35,6 +35,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
 import 'services/network_status_service.dart';
+import 'services/notification_socket_service.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
@@ -121,6 +122,11 @@ void _registerDependency() {
     bloc.init();
     return bloc;
   });
+
+  // Global new-message banner + badge over the shared Reverb socket. Adds the
+  // app-resume observer and makes the first (idempotent) connect attempt; the
+  // realtime loop keeps the personal channel joined after login.
+  NotificationSocketService.instance.init();
 }
 
 Dio _initDio() {

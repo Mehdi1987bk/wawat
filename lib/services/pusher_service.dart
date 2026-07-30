@@ -21,6 +21,9 @@ class PusherService {
   final Map<String, Set<PusherMessageCallback>> _typingCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _readCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _userCallbacks = {};
+  // Global per-user notifications channel (private-notifications.{public_id}),
+  // event `new_message_notification`. Keyed by public_id.
+  final Map<String, Set<PusherMessageCallback>> _notificationCallbacks = {};
   final Set<String> _activeChannels = {};
   final Set<String> _subscribingChannels = {};
 
@@ -152,6 +155,22 @@ class PusherService {
           _subscribingChannels.remove(channel);
           _activeChannels.add(channel);
           _log('Subscribed to $channel');
+        }
+        return;
+      }
+
+      if (eventName == 'new_message_notification') {
+        final channel = envelope['channel']?.toString();
+        const prefix = 'private-notifications.';
+        if (channel != null && channel.startsWith(prefix)) {
+          final publicId = channel.substring(prefix.length);
+          final data = _decodeMap(envelope['data']);
+          final callbacks = List<PusherMessageCallback>.from(
+            _notificationCallbacks[publicId] ?? const {},
+          );
+          for (final callback in callbacks) {
+            callback(data);
+          }
         }
         return;
       }
@@ -311,6 +330,33 @@ class PusherService {
     await _unsubscribe('private-user.$userId');
   }
 
+  /// Global per-user notifications channel. Only ONE public_id is ever active,
+  /// but callbacks are keyed by it so a user switch stays clean.
+  Future<void> subscribeToNotifications(
+    String publicId,
+    PusherMessageCallback onNotification,
+  ) async {
+    _notificationCallbacks
+        .putIfAbsent(publicId, () => <PusherMessageCallback>{})
+        .add(onNotification);
+    await _subscribe('private-notifications.$publicId');
+  }
+
+  Future<void> unsubscribeFromNotifications(
+    String publicId, [
+    PusherMessageCallback? onNotification,
+  ]) async {
+    final callbacks = _notificationCallbacks[publicId];
+    if (onNotification == null) {
+      callbacks?.clear();
+    } else {
+      callbacks?.remove(onNotification);
+    }
+    if (callbacks?.isNotEmpty == true) return;
+    _notificationCallbacks.remove(publicId);
+    await _unsubscribe('private-notifications.$publicId');
+  }
+
   Future<void> _resubscribeAll() async {
     _activeChannels.clear();
     _subscribingChannels.clear();
@@ -325,6 +371,7 @@ class PusherService {
         (id) => 'private-conversation.$id',
       ),
       ..._userCallbacks.keys.map((id) => 'private-user.$id'),
+      ..._notificationCallbacks.keys.map((id) => 'private-notifications.$id'),
     ];
     for (final channel in channels) {
       await _subscribe(channel);
@@ -455,6 +502,7 @@ class PusherService {
     _typingCallbacks.clear();
     _readCallbacks.clear();
     _userCallbacks.clear();
+    _notificationCallbacks.clear();
     await _closeSocket();
   }
 

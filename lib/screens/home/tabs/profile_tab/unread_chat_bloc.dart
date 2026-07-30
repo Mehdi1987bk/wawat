@@ -6,6 +6,7 @@ import '../../../../../data/cache/cache_manager.dart';
 import '../../../../../data/network/api/chat_api.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
+import '../../../../../services/notification_socket_service.dart';
 import '../../../../../services/pusher_service.dart';
 
 class UnreadChatBloc extends BaseBloc {
@@ -23,6 +24,15 @@ class UnreadChatBloc extends BaseBloc {
   Stream<int> get unreadCountStream => _unreadCountSubject.stream;
 
   int get unreadCount => _unreadCountSubject.value;
+
+  /// Single source of truth for the badge — pushed here from the realtime
+  /// `new_message_notification` payload (`unreadCount`) so every screen updates
+  /// instantly without an extra API round-trip.
+  void setUnreadCount(int value) {
+    if (!_unreadCountSubject.isClosed) {
+      _unreadCountSubject.add(value < 0 ? 0 : value);
+    }
+  }
 
   @override
   void init() {
@@ -71,6 +81,9 @@ class UnreadChatBloc extends BaseBloc {
           _onRealtimeEvent,
         );
       }
+
+      // Keep the global new-message banner channel joined on the same cadence.
+      unawaited(NotificationSocketService.instance.ensureConnected());
 
       final response = await _chatApi.getConversations(50, 1);
       await _syncConversationSubscriptions(
