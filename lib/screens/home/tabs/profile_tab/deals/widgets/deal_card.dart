@@ -111,11 +111,12 @@ class DealCard extends StatelessWidget {
                               radius: 14,
                               backgroundColor:
                                   isDark ? WawatDark.surfaceAlt : dealInk100,
-                              backgroundImage: counterpart.avatar != null
-                                  ? CachedNetworkImageProvider(
-                                      counterpart.avatar!)
-                                  : null,
-                              child: counterpart.avatar == null
+                              backgroundImage:
+                                  counterpart.avatarThumbUrl.isEmpty
+                                      ? null
+                                      : CachedNetworkImageProvider(
+                                          counterpart.avatarThumbUrl),
+                              child: counterpart.avatarThumbUrl.isEmpty
                                   ? Icon(PhosphorIconsFill.user,
                                       size: 14,
                                       color: isDark

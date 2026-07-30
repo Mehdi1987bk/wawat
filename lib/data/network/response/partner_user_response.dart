@@ -57,6 +57,8 @@ class UserResponse {
   final int id;
   final String fullname;
   final String? avatar;
+  @JsonKey(name: 'avatar_thumb_url')
+  final String? avatarThumbUrl;
   @JsonKey(name: 'is_verified')
   final bool isVerified;
   @JsonKey(name: 'preferred_locale')
@@ -73,6 +75,7 @@ class UserResponse {
     required this.id,
     required this.fullname,
     this.avatar,
+    this.avatarThumbUrl,
     required this.isVerified,
     required this.preferredLocale,
     this.email,
@@ -426,6 +429,8 @@ class ReviewAuthor {
   final int id;
   final String fullname;
   final String? avatar;
+  @JsonKey(name: 'avatar_thumb_url')
+  final String? avatarThumbUrl;
   @JsonKey(name: 'city_name')
   final String? cityName;
   @JsonKey(name: 'country_name')
@@ -436,6 +441,7 @@ class ReviewAuthor {
     required this.id,
     required this.fullname,
     this.avatar,
+    this.avatarThumbUrl,
     this.cityName,
     this.countryName,
     required this.languages,

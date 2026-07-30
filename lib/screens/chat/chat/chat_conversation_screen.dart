@@ -273,6 +273,7 @@ class _ChatConversationScreenState
                                         onLongPress: _showMessageOptions,
                                         onReview: _showReviewDialog,
                                         onSupport: _openSupport,
+                                        onReply: _startReply,
                                         onOpenProfile: _openProfile,
                                       ),
                                     ],
@@ -321,6 +322,8 @@ class _ChatConversationScreenState
             onSend: _send,
             onAttachImage: _pickImage,
             onChanged: bloc.onComposerChanged,
+            replyTo: _replyTarget,
+            onCancelReply: () => setState(() => _replyTarget = null),
           ),
         ],
       ),
@@ -355,13 +358,29 @@ class _ChatConversationScreenState
     return '${date.day}.${date.month}.${date.year}';
   }
 
+  /// Swipe (or long-press → reply) starts quoting [message] in the composer.
+  void _startReply(ChatMessage message) {
+    setState(() {
+      _replyTarget = ChatReplyRef.fromMessage(
+        message,
+        quotedIsMine: bloc.isMyMessage(message),
+        peerName: widget.conversation.user.fullname,
+      );
+    });
+  }
+
   Future<void> _send() async {
     final text = _messageController.text.trim();
     if (text.isEmpty && _selectedFile == null) return;
     _messageController.clear();
     final image = _selectedFile;
-    if (mounted) setState(() => _selectedFile = null);
-    await bloc.sendMessage(text, image);
+    final reply = _replyTarget;
+    if (mounted)
+      setState(() {
+        _selectedFile = null;
+        _replyTarget = null;
+      });
+    await bloc.sendMessage(text, image, replyTo: reply);
   }
 
   Future<void> _pickImage() async {
@@ -601,6 +620,14 @@ class _ChatConversationScreenState
                   color: _cGrip(isDark),
                   borderRadius: BorderRadius.circular(99),
                 ),
+              ),
+              _SheetTile(
+                icon: PhosphorIconsRegular.arrowBendUpLeft,
+                label: _t('chat.message.reply', 'Cavabla'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _startReply(message);
+                },
               ),
               if (message.body?.isNotEmpty == true)
                 _SheetTile(
@@ -1198,10 +1225,10 @@ class _HeaderAvatar extends StatelessWidget {
         CircleAvatar(
           radius: size / 2,
           backgroundColor: isDark ? WawatDark.surfaceAlt : _brand100,
-          backgroundImage: user.avatarUrl.isEmpty
+          backgroundImage: user.avatarThumbUrl.isEmpty
               ? null
-              : CachedNetworkImageProvider(user.avatarUrl),
-          child: user.avatarUrl.isEmpty
+              : CachedNetworkImageProvider(user.avatarThumbUrl),
+          child: user.avatarThumbUrl.isEmpty
               ? Text(
                   user.initials,
                   style: TextStyle(

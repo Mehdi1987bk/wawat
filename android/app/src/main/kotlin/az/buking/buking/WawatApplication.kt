@@ -64,20 +64,24 @@ class WawatApplication : Application() {
     private companion object {
         // Keep in sync with _androidChannelId in push_notification_service.dart
         // and default_notification_channel_id in AndroidManifest.xml.
-        const val CHANNEL_ID = "wawat_airplane_v4"
+        const val CHANNEL_ID = "wawat_airplane_v5"
         const val CHANNEL_NAME = "Wawat Air"
         const val CHANNEL_DESC = "Wawat Air bildirişləri"
         const val SOUND = "airplane"
 
-        // v3 is listed here because it may have been created with the default
-        // sound on already-updated devices (a channel's sound is immutable once
-        // set). Bumping to v4 gives those devices a fresh, correct channel.
+        // Older ids may have been created with the default sound on already-
+        // updated devices (a channel's sound is immutable once set). v4 in
+        // particular was pinned by the backend before native creation was
+        // guaranteed, so FCM auto-created it with the default sound on devices
+        // that got a push first. Bumping to v5 — an id the backend never sent —
+        // gives every device a fresh, correct channel. Delete the burned ones.
         val LEGACY_CHANNEL_IDS = listOf(
             "high_importance_channel",
             "wawat_high_importance",
             "wawat_alerts",
             "wawat_airplane_v2",
             "wawat_airplane_v3",
+            "wawat_airplane_v4",
         )
     }
 }

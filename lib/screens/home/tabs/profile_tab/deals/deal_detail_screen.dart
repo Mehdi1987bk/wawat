@@ -329,7 +329,9 @@ class _DealDetailScreenState
       context,
       content: content,
       counterpartName: counterpart?.fullname ?? '',
-      counterpartAvatar: counterpart?.avatar,
+      counterpartAvatar: (counterpart?.avatarThumbUrl.isNotEmpty ?? false)
+          ? counterpart!.avatarThumbUrl
+          : null,
       initialRating: initialRating,
     );
     if (result == null || !mounted) return;
@@ -1042,10 +1044,10 @@ class _CounterpartCard extends StatelessWidget {
             CircleAvatar(
               radius: 22,
               backgroundColor: _cFill(isDark),
-              backgroundImage: counterpart.avatar != null
-                  ? CachedNetworkImageProvider(counterpart.avatar!)
-                  : null,
-              child: counterpart.avatar == null
+              backgroundImage: counterpart.avatarThumbUrl.isEmpty
+                  ? null
+                  : CachedNetworkImageProvider(counterpart.avatarThumbUrl),
+              child: counterpart.avatarThumbUrl.isEmpty
                   ? Icon(PhosphorIconsFill.user,
                       color: _cMuted(isDark), size: 20)
                   : null,

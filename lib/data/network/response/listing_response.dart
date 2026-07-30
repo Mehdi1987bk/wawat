@@ -299,6 +299,10 @@ class ListingOwner {
 
   final String? avatar;
 
+  /// 96×96 thumbnail url (`avatar_thumb_url`) — for the small card avatar.
+  @JsonKey(name: 'avatar_thumb')
+  final String? avatarThumb;
+
   final String? tier;
 
   @JsonKey(name: 'rating_avg', fromJson: _doubleFromJson)
@@ -321,6 +325,7 @@ class ListingOwner {
     this.fullName,
     this.isVerified = false,
     this.avatar,
+    this.avatarThumb,
     this.tier,
     this.ratingAvg,
     this.ratingCount,
@@ -339,13 +344,21 @@ class ListingOwner {
     return username ?? '';
   }
 
-  /// Full avatar URL, or '' when the owner has no photo. Relative paths are
-  /// resolved against the storage base — same rule as the chat avatar.
-  String get avatarUrl {
-    final value = avatar?.trim() ?? '';
+  static String _resolve(String? raw) {
+    final value = raw?.trim() ?? '';
     if (value.isEmpty) return '';
     if (value.startsWith('http')) return value;
     return 'https://api.wawatair.com/storage/$value';
+  }
+
+  /// Full avatar URL — use ONLY for a large/tap-to-open avatar.
+  String get avatarUrl => _resolve(avatar);
+
+  /// 96×96 thumbnail — use for the small card/list avatar. Falls back to the
+  /// full url when the backend didn't send a thumb.
+  String get avatarThumbUrl {
+    final thumb = _resolve(avatarThumb);
+    return thumb.isNotEmpty ? thumb : avatarUrl;
   }
 
   factory ListingOwner.fromJson(Map<String, dynamic> json) {
@@ -377,6 +390,9 @@ class ListingOwner {
           _unwrapUrl(value('picture_url')) ??
           _unwrapUrl(value('picture')) ??
           _unwrapUrl(value('image_url'))
+      ..['avatar_thumb'] = _unwrapUrl(value('avatar_thumb_url')) ??
+          _unwrapUrl(value('avatar_thumb')) ??
+          _unwrapUrl(value('thumb_url'))
       ..['tier'] = _stringFromJson(value('tier'))
       ..['rating_avg'] = value('rating_avg')
       ..['rating_count'] = value('rating_count')

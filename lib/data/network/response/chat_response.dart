@@ -11,7 +11,15 @@ class ChatUser {
   final String? publicId;
   final String? username;
   final String fullname;
+
+  /// Legacy raw path or url (`avatar`). Old resources send a bare `avatar_path`.
   final String? avatar;
+
+  /// Ready full-size url (`avatar_url`, up to 1080px) — for the big/tap avatar.
+  final String? avatarFull;
+
+  /// Ready 96×96 thumbnail url (`avatar_thumb_url`) — for list/bubble/header.
+  final String? avatarThumb;
   final bool isVerified;
   final String? lastActiveAt;
   final bool isBlocked;
@@ -26,6 +34,8 @@ class ChatUser {
     this.username,
     required this.fullname,
     this.avatar,
+    this.avatarFull,
+    this.avatarThumb,
     this.isVerified = false,
     this.lastActiveAt,
     this.isBlocked = false,
@@ -45,6 +55,8 @@ class ChatUser {
       username: _string(json['username']),
       fullname: name,
       avatar: _string(json['avatar']),
+      avatarFull: _string(json['avatar_url']),
+      avatarThumb: _string(json['avatar_thumb_url']),
       isVerified: _bool(json['is_verified']),
       lastActiveAt:
           _string(json['last_active_at']) ?? _string(json['last_seen_at']),
@@ -63,10 +75,24 @@ class ChatUser {
   bool get hasApiId =>
       (publicId != null && publicId!.trim().isNotEmpty) || id > 0;
 
+  static String _resolveAvatar(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return '';
+    if (v.startsWith('http')) return v;
+    return 'https://api.wawatair.com/storage/$v';
+  }
+
+  /// Full-size avatar — use ONLY for a large/tap-to-open avatar.
   String get avatarUrl {
-    if (avatar == null || avatar!.isEmpty) return '';
-    if (avatar!.startsWith('http')) return avatar!;
-    return 'https://api.wawatair.com/storage/$avatar';
+    final full = _resolveAvatar(avatarFull);
+    return full.isNotEmpty ? full : _resolveAvatar(avatar);
+  }
+
+  /// Small 96×96 thumbnail — use for list rows, bubbles and headers. Falls back
+  /// to the full url when the backend didn't send a thumb.
+  String get avatarThumbUrl {
+    final thumb = _resolveAvatar(avatarThumb);
+    return thumb.isNotEmpty ? thumb : avatarUrl;
   }
 
   String get initials {
@@ -667,13 +693,20 @@ class ShipmentData {
 class ShipmentParty {
   final String? username;
   final String fullname;
+
+  /// Legacy raw path (shipment resources send `avatar` = avatar_path, NOT a
+  /// url) — never bind [avatar] directly; use [avatarUrl] / [avatarThumbUrl].
   final String? avatar;
+  final String? avatarFull;
+  final String? avatarThumb;
   final bool isVerified;
 
   const ShipmentParty({
     this.username,
     required this.fullname,
     this.avatar,
+    this.avatarFull,
+    this.avatarThumb,
     this.isVerified = false,
   });
 
@@ -682,8 +715,22 @@ class ShipmentParty {
       username: _string(json['username']),
       fullname: _string(json['fullname']) ?? _string(json['full_name']) ?? '',
       avatar: _string(json['avatar']),
+      avatarFull: _string(json['avatar_url']),
+      avatarThumb: _string(json['avatar_thumb_url']),
       isVerified: _bool(json['is_verified']),
     );
+  }
+
+  /// Full avatar url (resolves the raw path against storage). Empty when none.
+  String get avatarUrl {
+    final full = ChatUser._resolveAvatar(avatarFull);
+    return full.isNotEmpty ? full : ChatUser._resolveAvatar(avatar);
+  }
+
+  /// Thumbnail url — for the small counterpart avatar on deal cards/sheets.
+  String get avatarThumbUrl {
+    final thumb = ChatUser._resolveAvatar(avatarThumb);
+    return thumb.isNotEmpty ? thumb : avatarUrl;
   }
 }
 

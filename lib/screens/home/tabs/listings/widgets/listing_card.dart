@@ -37,9 +37,10 @@ class _OwnerAvatarCache {
   static Future<String> _load(String id) async {
     try {
       final user = await WawatProfileApi().user(id);
+      // Card avatar is small — prefer the 96×96 thumbnail.
       final full = user.avatarUrl?.trim() ?? '';
       final thumb = user.avatarThumbUrl?.trim() ?? '';
-      final url = full.isNotEmpty ? full : thumb;
+      final url = thumb.isNotEmpty ? thumb : full;
       _resolved[id] = url;
       return url;
     } catch (_) {
@@ -138,7 +139,7 @@ class _ListingCardState extends State<ListingCard> {
   /// [_OwnerAvatarCache]). No-op when the feed already provided the avatar.
   void _resolveOwnerAvatar() {
     final owner = widget.listing.owner;
-    if (owner == null || owner.avatarUrl.isNotEmpty) return;
+    if (owner == null || owner.avatarThumbUrl.isNotEmpty) return;
     final id = (owner.id ?? widget.listing.ownerId ?? '').trim();
     if (id.isEmpty) return;
 
@@ -157,7 +158,8 @@ class _ListingCardState extends State<ListingCard> {
   /// The avatar URL to render: the feed's own value, else the lazily resolved
   /// one, else '' (initials fallback).
   String _ownerAvatarUrl(ListingOwner owner) {
-    if (owner.avatarUrl.isNotEmpty) return owner.avatarUrl;
+    // Thumbnail for the small card avatar (falls back to full when no thumb).
+    if (owner.avatarThumbUrl.isNotEmpty) return owner.avatarThumbUrl;
     return _resolvedOwnerAvatar ?? '';
   }
 

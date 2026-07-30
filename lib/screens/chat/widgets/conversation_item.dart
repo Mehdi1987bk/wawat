@@ -185,9 +185,9 @@ class _Avatar extends StatelessWidget {
             backgroundColor: user.avatarUrl.isEmpty
                 ? (isDark ? WawatDark.brandSoft : _brand100)
                 : (isDark ? WawatDark.surface : Colors.white),
-            backgroundImage: user.avatarUrl.isEmpty
+            backgroundImage: user.avatarThumbUrl.isEmpty
                 ? null
-                : CachedNetworkImageProvider(user.avatarUrl),
+                : CachedNetworkImageProvider(user.avatarThumbUrl),
             child: user.avatarUrl.isEmpty
                 ? Text(
                     user.initials,

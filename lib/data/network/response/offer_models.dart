@@ -9,7 +9,7 @@ class OfferListResponse {
 
   OfferListResponse({
     required this.data,
-   });
+  });
 
   factory OfferListResponse.fromJson(Map<String, dynamic> json) =>
       _$OfferListResponseFromJson(json);
@@ -217,6 +217,9 @@ class UserModel {
   @JsonKey(name: 'avatar')
   final String? avatar;
 
+  @JsonKey(name: 'avatar_thumb_url')
+  final String? avatarThumbUrl;
+
   @JsonKey(name: 'is_verified')
   final bool isVerified;
 
@@ -230,6 +233,7 @@ class UserModel {
     required this.id,
     required this.fullname,
     this.avatar,
+    this.avatarThumbUrl,
     required this.isVerified,
     required this.ratingAvg,
     required this.ratingCount,

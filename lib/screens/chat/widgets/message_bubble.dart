@@ -150,9 +150,7 @@ class MessageBubble extends StatelessWidget {
                             style: TextStyle(
                               color: isMyMessage
                                   ? Colors.white
-                                  : (isDark
-                                      ? WawatDark.textPrimary
-                                      : _ink900),
+                                  : (isDark ? WawatDark.textPrimary : _ink900),
                               fontSize: 14,
                               height: 1.25,
                               fontWeight: FontWeight.w500,
@@ -430,10 +428,10 @@ class _SmallAvatar extends StatelessWidget {
     final avatar = CircleAvatar(
       radius: 12,
       backgroundColor: isDark ? WawatDark.brandSoft : _brand50,
-      backgroundImage: user?.avatarUrl.isNotEmpty == true
-          ? CachedNetworkImageProvider(user!.avatarUrl)
+      backgroundImage: user?.avatarThumbUrl.isNotEmpty == true
+          ? CachedNetworkImageProvider(user!.avatarThumbUrl)
           : null,
-      child: user?.avatarUrl.isNotEmpty == true
+      child: user?.avatarThumbUrl.isNotEmpty == true
           ? null
           : Text(
               user?.initials ?? '?',

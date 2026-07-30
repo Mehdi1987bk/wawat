@@ -1,4 +1,5 @@
 import 'package:buking/presentation/resourses/app_colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
@@ -76,8 +77,10 @@ class CourierProfileCard extends StatelessWidget {
                           child: user.avatar != null && user.avatar!.isNotEmpty
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
-                                  child: Image.network(
-                                    user.avatar!,
+                                  // Card avatar (80px) → cached thumbnail.
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        user.avatarThumbUrl ?? user.avatar!,
                                     width: 80,
                                     height: 80,
                                     fit: BoxFit.cover,

@@ -55,6 +55,7 @@ AuthorModel _$AuthorModelFromJson(Map<String, dynamic> json) => AuthorModel(
       id: (json['id'] as num).toInt(),
       fullname: json['fullname'] as String,
       avatar: json['avatar'] as String?,
+      avatarThumbUrl: json['avatar_thumb_url'] as String?,
       cityName: json['city_name'] as String?,
       countryName: json['country_name'] as String?,
       languages: (json['languages'] as List<dynamic>)
@@ -67,6 +68,7 @@ Map<String, dynamic> _$AuthorModelToJson(AuthorModel instance) =>
       'id': instance.id,
       'fullname': instance.fullname,
       'avatar': instance.avatar,
+      'avatar_thumb_url': instance.avatarThumbUrl,
       'city_name': instance.cityName,
       'country_name': instance.countryName,
       'languages': instance.languages,

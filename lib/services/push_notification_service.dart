@@ -17,13 +17,17 @@ import 'notification_router.dart';
 // FirebaseMessagingService успеет обработать пуш, — чтобы звук был правильным
 // даже для notification-пушей, пришедших пока приложение убито. Держи этот id в
 // синхроне с WawatApplication.kt и default_notification_channel_id в манифесте.
-const _androidChannelId = 'wawat_airplane_v4';
+const _androidChannelId = 'wawat_airplane_v5';
 const _legacyAndroidChannelIds = [
   'high_importance_channel',
   'wawat_high_importance',
   'wawat_alerts',
   'wawat_airplane_v2',
   'wawat_airplane_v3',
+  // v4 was PINNED by the backend before the app guaranteed native channel
+  // creation, so on devices that received a v4 push first Android auto-created
+  // it with the DEFAULT sound (immutable). Escape to v5 and delete v4.
+  'wawat_airplane_v4',
 ];
 const _androidChannelName = 'Wawat Air';
 const _androidChannelDescription = 'Уведомления Wawat Air';
@@ -125,7 +129,7 @@ Future<void> _createAndroidNotificationChannels(
   // The legacy channels have an IMMUTABLE sound on devices where they were first
   // created with the system default (old builds / FCM auto-create) — recreating
   // them can never change it. Delete them so any push the backend still routes
-  // to an old id falls back to the manifest default channel (wawat_airplane_v4),
+  // to an old id falls back to the manifest default channel (wawat_airplane_v5),
   // which carries the airplane sound. The definitive fix is native creation in
   // WawatApplication.onCreate() (runs before FirebaseMessagingService); this is
   // the Flutter-side mirror of the same channel.
@@ -302,7 +306,10 @@ class PushNotificationService {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
-      sound: 'airplane.mp3',
+      // iOS only plays caf/aiff/wav for notifications (never mp3) and matches
+      // the file by exact name — this is the same airplane.caf the backend puts
+      // in apns.payload.aps.sound, bundled in the Runner target.
+      sound: 'airplane.caf',
     );
     const details =
         NotificationDetails(android: androidDetails, iOS: iosDetails);

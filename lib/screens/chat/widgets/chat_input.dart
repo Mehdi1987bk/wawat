@@ -201,95 +201,96 @@ class _ChatInputState extends State<ChatInput> {
                 children: [
                   IconButton(
                     onPressed: _showAttachOptions,
-                icon: Icon(PhosphorIconsRegular.plusCircle,
-                    color: isDark ? WawatDark.icon : _ink500, size: 28),
-              ),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 44),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? WawatDark.surfaceAlt
-                        : _ink900.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(22),
-                    // Focus highlight on the pill itself, so the blue outline
-                    // lands on the visual edge (radius 22) — not inset like the
-                    // theme's default InputDecorator border.
-                    border: Border.all(
-                      color: _focusNode.hasFocus
-                          ? (isDark ? WawatDark.focusRing : _brand)
-                          : Colors.transparent,
-                      width: 1.5,
-                    ),
+                    icon: Icon(PhosphorIconsRegular.plusCircle,
+                        color: isDark ? WawatDark.icon : _ink500, size: 28),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextField(
-                    controller: widget.controller,
-                    focusNode: _focusNode,
-                    onChanged: widget.onChanged,
-                    minLines: 1,
-                    maxLines: 4,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(5000),
-                    ],
-                    textInputAction: TextInputAction.newline,
-                    style: TextStyle(
-                      color: isDark ? WawatDark.textPrimary : _ink900,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _t('chat.input.placeholder'),
-                      hintStyle: TextStyle(
-                        color: isDark ? WawatDark.textMuted : _ink400,
-                        fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 44),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? WawatDark.surfaceAlt
+                            : _ink900.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(22),
+                        // Focus highlight on the pill itself, so the blue outline
+                        // lands on the visual edge (radius 22) — not inset like the
+                        // theme's default InputDecorator border.
+                        border: Border.all(
+                          color: _focusNode.hasFocus
+                              ? (isDark ? WawatDark.focusRing : _brand)
+                              : Colors.transparent,
+                          width: 1.5,
+                        ),
                       ),
-                      // Drop the theme's filled/outline borders — the container
-                      // owns the fill, shape and focus outline now.
-                      filled: false,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      focusedErrorBorder: InputBorder.none,
-                      isCollapsed: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: TextField(
+                        controller: widget.controller,
+                        focusNode: _focusNode,
+                        onChanged: widget.onChanged,
+                        minLines: 1,
+                        maxLines: 4,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(5000),
+                        ],
+                        textInputAction: TextInputAction.newline,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textPrimary : _ink900,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: _t('chat.input.placeholder'),
+                          hintStyle: TextStyle(
+                            color: isDark ? WawatDark.textMuted : _ink400,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          // Drop the theme's filled/outline borders — the container
+                          // owns the fill, shape and focus outline now.
+                          filled: false,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          isCollapsed: true,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: canSend ? widget.onSend : null,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: canSend ? _brand : Colors.transparent,
-                    shape: BoxShape.circle,
-                    boxShadow: canSend
-                        ? [
-                            BoxShadow(
-                              color: _brand.withValues(alpha: 0.35),
-                              blurRadius: 18,
-                              offset: const Offset(0, 8),
-                            ),
-                          ]
-                        : null,
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: canSend ? widget.onSend : null,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: canSend ? _brand : Colors.transparent,
+                        shape: BoxShape.circle,
+                        boxShadow: canSend
+                            ? [
+                                BoxShadow(
+                                  color: _brand.withValues(alpha: 0.35),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        PhosphorIconsFill.paperPlaneTilt,
+                        color: canSend
+                            ? Colors.white
+                            : (isDark ? WawatDark.iconMuted : _ink400),
+                        size: 19,
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    PhosphorIconsFill.paperPlaneTilt,
-                    color: canSend
-                        ? Colors.white
-                        : (isDark ? WawatDark.iconMuted : _ink400),
-                    size: 19,
-                  ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
           ],
         ),
       ),
@@ -367,7 +368,8 @@ class _ChatInputState extends State<ChatInput> {
                 width: 36,
                 height: 36,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => const SizedBox(width: 36, height: 36),
+                errorWidget: (_, __, ___) =>
+                    const SizedBox(width: 36, height: 36),
               ),
             ),
           ],

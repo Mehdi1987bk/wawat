@@ -136,7 +136,8 @@ class _PersonalInfoTabState
                 child: Column(
                   children: [
                     ProfileImageWidget(
-                      imageUrl: widget.user.avatar,
+                      imageUrl:
+                          widget.user.avatarThumbUrl ?? widget.user.avatar,
                       localFile: _selectedImage,
                       onCameraPressed: _selectImage,
                       size: 120,

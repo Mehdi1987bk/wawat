@@ -59,6 +59,8 @@ class AuthorModel {
   final int id;
   final String fullname;
   final String? avatar;
+  @JsonKey(name: 'avatar_thumb_url')
+  final String? avatarThumbUrl;
   @JsonKey(name: 'city_name')
   final String? cityName;
   @JsonKey(name: 'country_name')
@@ -69,6 +71,7 @@ class AuthorModel {
     required this.id,
     required this.fullname,
     this.avatar,
+    this.avatarThumbUrl,
     this.cityName,
     this.countryName,
     required this.languages,

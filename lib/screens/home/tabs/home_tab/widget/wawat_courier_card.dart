@@ -1,4 +1,5 @@
 import 'package:buking/presentation/resourses/wawat_colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -251,10 +252,13 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                         ),
                         child: widget.courier.user?.avatar != null
                             ? ClipOval(
-                                child: Image.network(
-                                  widget.courier.user!.avatar!,
+                                // Card avatar → cached thumbnail.
+                                child: CachedNetworkImage(
+                                  imageUrl:
+                                      widget.courier.user!.avatarThumbUrl ??
+                                          widget.courier.user!.avatar!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
+                                  errorWidget: (context, url, error) {
                                     return Center(
                                       child: Icon(
                                         Icons.person,

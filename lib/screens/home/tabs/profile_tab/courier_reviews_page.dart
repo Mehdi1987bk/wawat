@@ -286,8 +286,11 @@ class _MyRevievsScreenState
             _buildEmptyState(S.of(context).bvfdgb43, isDark)
           else
             ...reviews.map((review) {
-              return _buildLeftReviewCard(review, review.author?.id ?? 0,
-                  review.author?.avatar, isDark);
+              return _buildLeftReviewCard(
+                  review,
+                  review.author?.id ?? 0,
+                  review.author?.avatarThumbUrl ?? review.author?.avatar,
+                  isDark);
             }).toList(),
         ],
       ),
@@ -307,8 +310,11 @@ class _MyRevievsScreenState
             _buildEmptyState(S.of(context).bfdtw4ew4, isDark)
           else
             ...reviews.map((review) {
-              return _buildLeftReviewCard(review, review.target?.id ?? 0,
-                  review.target?.avatar, isDark);
+              return _buildLeftReviewCard(
+                  review,
+                  review.target?.id ?? 0,
+                  review.target?.avatarThumbUrl ?? review.target?.avatar,
+                  isDark);
             }).toList(),
         ],
       ),
