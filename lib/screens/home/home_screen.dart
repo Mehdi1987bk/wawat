@@ -13,6 +13,7 @@ import '../../presentation/resourses/theme_colors.dart';
 import '../chat/chat/chat_list_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
+import 'scrollable_tab.dart';
 import 'tabs/profile_tab/promo/app_review.dart';
 
 class HomeScreen extends BaseScreen {
@@ -26,6 +27,7 @@ class HomeScreen extends BaseScreen {
 
 class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<__TabsState> _tabsKey = GlobalKey<__TabsState>();
   final ValueNotifier<bool> optionsNotifier = ValueNotifier(false);
   int _selectedIndex = 0;
 
@@ -84,6 +86,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
       children: [
         if (isDark) Positioned.fill(child: ColoredBox(color: cScreen(isDark))),
         _Tabs(
+          key: _tabsKey,
           selectedIndex: _selectedIndex,
         ),
         Positioned.fill(
@@ -91,6 +94,14 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
             alignment: Alignment.bottomCenter,
             child: BottomBar(
               onChanged: (index) async {
+                // Re-tapping the already-active tab scrolls it back to the top.
+                // Switching to a different tab just restores where you left off
+                // (the tabs live in an IndexedStack, so offset is preserved) —
+                // only a second tap on that tab scrolls it up.
+                if (index == _selectedIndex && index != 2) {
+                  _tabsKey.currentState?.scrollActiveTabToTop();
+                  return;
+                }
                 final isLogged = await sl.get<AuthRepository>().isLogged();
                 if ((index != 0 && index != 1) && !isLogged) {
                   return AuthModalUtils.showAuthRequiredModal(context);
@@ -137,23 +148,50 @@ class _Tabs extends StatefulWidget {
 class __TabsState extends State<_Tabs> {
   late List<Widget> _tabs;
   final Set<int> _visitedTabs = {0};
+  final GlobalKey _homeKey = GlobalKey();
+  final GlobalKey _searchKey = GlobalKey();
   final GlobalKey<ChatListScreenState> _chatKey =
       GlobalKey<ChatListScreenState>();
+  final GlobalKey _profileKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
 
     _tabs = <Widget>[
-      HomeTabScreen(),
+      HomeTabScreen(key: _homeKey),
       SearchOfferListScreen(
+        key: _searchKey,
         showBackButton: false,
         openResultsInNewPage: true,
       ),
       const SizedBox.shrink(),
       ChatListScreen(key: _chatKey),
-      ProfileTabScreen(),
+      ProfileTabScreen(key: _profileKey),
     ];
+  }
+
+  /// Scrolls the currently-selected tab back to the top (used when its own tab
+  /// button is tapped again). Tabs implement [ScrollableTab].
+  void scrollActiveTabToTop() {
+    State? state;
+    switch (widget.selectedIndex) {
+      case 0:
+        state = _homeKey.currentState;
+        break;
+      case 1:
+        state = _searchKey.currentState;
+        break;
+      case 3:
+        state = _chatKey.currentState;
+        break;
+      case 4:
+        state = _profileKey.currentState;
+        break;
+    }
+    // `state` is typed as State, so `is` doesn't promote to the unrelated
+    // ScrollableTab mixin — cast explicitly (guarded by the check).
+    if (state is ScrollableTab) (state as ScrollableTab).scrollToTop();
   }
 
   @override

@@ -199,9 +199,9 @@ class _DeliveryFullListScreenState
     );
     if (!confirmed) return;
     try {
-      await bloc.pauseListing(listing);
+      final message = await bloc.pauseListing(listing);
       if (!mounted) return;
-      _showSuccess(_t('listing.paused'));
+      _showSuccess(message ?? _t('listing.paused'));
     } catch (_) {
       if (!mounted) return;
       _showError(_t('common.operation_failed'));
@@ -218,9 +218,11 @@ class _DeliveryFullListScreenState
     );
     if (!confirmed) return;
     try {
-      await bloc.resumeListing(listing);
+      // Resume may return to moderation (not active) — show the backend's
+      // localized message; loadList() already refreshes the shown status.
+      final message = await bloc.resumeListing(listing);
       if (!mounted) return;
-      _showSuccess(_t('listing.resumed'));
+      _showSuccess(message ?? _t('listing.resumed'));
     } catch (_) {
       if (!mounted) return;
       _showError(_t('common.operation_failed'));

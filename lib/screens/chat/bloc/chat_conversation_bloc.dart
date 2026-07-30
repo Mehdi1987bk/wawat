@@ -295,7 +295,8 @@ class ChatConversationBloc extends BaseBloc {
     }
   }
 
-  Future<void> sendMessage(String? body, File? file) async {
+  Future<void> sendMessage(String? body, File? file,
+      {ChatReplyRef? replyTo}) async {
     if (_conversationId == null) return;
     final text = body?.trim() ?? '';
     if (text.isEmpty && file == null) return;
@@ -303,26 +304,29 @@ class ChatConversationBloc extends BaseBloc {
 
     final futures = <Future<void>>[];
     if (file != null) {
-      futures.add(_queueImage(file));
+      // Attach the reply to the image only when there's no accompanying text.
+      futures.add(_queueImage(file, replyTo: text.isEmpty ? replyTo : null));
     }
     if (text.isNotEmpty) {
-      futures.add(_queueText(text));
+      futures.add(_queueText(text, replyTo: replyTo));
     }
     await Future.wait(futures);
   }
 
-  Future<void> _queueText(String body) {
+  Future<void> _queueText(String body, {ChatReplyRef? replyTo}) {
     final pending = _PendingMessage(
       localId: _localId(),
       body: body,
+      replyTo: replyTo,
     );
     return _sendPending(pending);
   }
 
-  Future<void> _queueImage(File file) {
+  Future<void> _queueImage(File file, {ChatReplyRef? replyTo}) {
     final pending = _PendingMessage(
       localId: _localId(),
       image: file,
+      replyTo: replyTo,
     );
     return _sendPending(pending);
   }
@@ -335,14 +339,25 @@ class ChatConversationBloc extends BaseBloc {
       final response = pending.image == null
           ? await _chatApi.sendTextMessage(
               _conversationId!,
-              {'body': pending.body},
+              {
+                'body': pending.body,
+                if (pending.replyTo != null)
+                  'reply_to_message_id': pending.replyTo!.messageId,
+              },
             )
           : await _chatApi.sendMessageWithFile(
               _conversationId!,
               pending.image!,
             );
       _pendingMessages.remove(pending.localId);
-      _replaceMessage(pending.localId, response.data);
+      // Keep the quote visible even though the API doesn't echo reply_to yet.
+      final saved = response.data;
+      _replaceMessage(
+        pending.localId,
+        pending.replyTo != null && saved.replyTo == null
+            ? saved.copyWith(replyTo: pending.replyTo)
+            : saved,
+      );
     } catch (e) {
       _replaceMessage(
         pending.localId,
@@ -597,11 +612,13 @@ class _PendingMessage {
   final String localId;
   final String? body;
   final File? image;
+  final ChatReplyRef? replyTo;
 
   const _PendingMessage({
     required this.localId,
     this.body,
     this.image,
+    this.replyTo,
   });
 
   ChatMessage optimisticMessage({
@@ -615,6 +632,7 @@ class _PendingMessage {
       isMine: true,
       deliveryStatus: status,
       localImagePath: image?.path,
+      replyTo: replyTo,
     );
   }
 }

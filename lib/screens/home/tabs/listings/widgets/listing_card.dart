@@ -333,8 +333,7 @@ class _ListingCardState extends State<ListingCard> {
                 onTap: _shareListing,
                 size: 22,
               ),
-              if (!widget.isOwner) ...[
-                const SizedBox(width: 10),
+              if (!widget.isOwner)
                 _headerIcon(
                   icon: _isFavorited
                       ? PhosphorIconsFill.heart
@@ -342,7 +341,6 @@ class _ListingCardState extends State<ListingCard> {
                   color: _isFavorited ? _accentOf(isDark) : cFaint(isDark),
                   onTap: _toggleFavorite,
                 ),
-              ],
             ],
           ),
         ),
@@ -357,9 +355,15 @@ class _ListingCardState extends State<ListingCard> {
     double size = 24,
   }) {
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Icon(icon, color: color, size: size),
+      // 44×44 comfortable touch target — the bare glyph (~24px) was too small
+      // to hit reliably. The icon itself is unchanged; only the tap area grew.
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(child: Icon(icon, color: color, size: size)),
+      ),
     );
   }
 

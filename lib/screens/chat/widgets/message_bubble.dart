@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
@@ -31,6 +32,9 @@ class MessageBubble extends StatelessWidget {
   final ValueChanged<String>? onReview;
   final VoidCallback? onSupport;
 
+  /// Swipe (or menu) reply — quote this message in the composer.
+  final ValueChanged<ChatMessage>? onReply;
+
   /// Tapping the incoming peer's avatar opens their profile.
   final VoidCallback? onOpenProfile;
 
@@ -45,6 +49,7 @@ class MessageBubble extends StatelessWidget {
     this.onLongPress,
     this.onReview,
     this.onSupport,
+    this.onReply,
     this.onOpenProfile,
   });
 
@@ -66,7 +71,7 @@ class MessageBubble extends StatelessWidget {
     final hasImage = imageUrl != null && imageUrl.isNotEmpty;
     final localImagePath = message.localImagePath;
 
-    return GestureDetector(
+    final bubble = GestureDetector(
       onLongPress: message.deliveryStatus == ChatMessageDeliveryStatus.sent
           ? () => onLongPress?.call(message)
           : null,
@@ -130,16 +135,30 @@ class MessageBubble extends StatelessWidget {
                                 ),
                               ],
                       ),
-                      child: Text(
-                        message.body ?? '',
-                        style: TextStyle(
-                          color: isMyMessage
-                              ? Colors.white
-                              : (isDark ? WawatDark.textPrimary : _ink900),
-                          fontSize: 14,
-                          height: 1.25,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (message.replyTo != null)
+                            _ReplyQuote(
+                              reply: message.replyTo!,
+                              onMyBubble: isMyMessage,
+                              isDark: isDark,
+                            ),
+                          Text(
+                            message.body ?? '',
+                            style: TextStyle(
+                              color: isMyMessage
+                                  ? Colors.white
+                                  : (isDark
+                                      ? WawatDark.textPrimary
+                                      : _ink900),
+                              fontSize: 14,
+                              height: 1.25,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   const SizedBox(height: 3),
@@ -180,6 +199,164 @@ class MessageBubble extends StatelessWidget {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+
+    // Swipe-right-to-reply (WhatsApp-style) on delivered text/image messages.
+    if (onReply == null ||
+        message.deliveryStatus != ChatMessageDeliveryStatus.sent) {
+      return bubble;
+    }
+    return _SwipeToReply(
+      messageId: message.id,
+      isDark: isDark,
+      onReply: () => onReply!(message),
+      child: bubble,
+    );
+  }
+}
+
+/// Wraps a bubble so dragging it right past a threshold triggers a reply and
+/// snaps back (via [Dismissible] with `confirmDismiss` returning false).
+class _SwipeToReply extends StatelessWidget {
+  final Widget child;
+  final String messageId;
+  final bool isDark;
+  final VoidCallback onReply;
+
+  const _SwipeToReply({
+    required this.child,
+    required this.messageId,
+    required this.isDark,
+    required this.onReply,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: ValueKey('reply-$messageId'),
+      direction: DismissDirection.startToEnd,
+      dismissThresholds: const {DismissDirection.startToEnd: 0.28},
+      movementDuration: const Duration(milliseconds: 180),
+      confirmDismiss: (_) async {
+        HapticFeedback.selectionClick();
+        onReply();
+        return false; // never actually dismiss — just bounce back
+      },
+      background: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: isDark ? WawatDark.surfaceAlt : _brand50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(PhosphorIconsBold.arrowBendUpLeft,
+                size: 17, color: isDark ? WawatDark.brandText : _brand),
+          ),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// The quoted-message block shown at the top of a reply bubble (design §7).
+class _ReplyQuote extends StatelessWidget {
+  final ChatReplyRef reply;
+  final bool onMyBubble;
+  final bool isDark;
+
+  const _ReplyQuote({
+    required this.reply,
+    required this.onMyBubble,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final barColor = onMyBubble ? Colors.white : _brand;
+    final nameColor = onMyBubble ? Colors.white : _brand;
+    final previewColor = onMyBubble
+        ? Colors.white.withValues(alpha: 0.78)
+        : (isDark ? WawatDark.textSecondary : _ink500);
+    final bg = onMyBubble
+        ? Colors.white.withValues(alpha: 0.16)
+        : (isDark ? WawatDark.surfaceAlt : _brand.withValues(alpha: 0.07));
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.fromLTRB(7, 5, 7, 5),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: barColor,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    reply.authorName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: nameColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (reply.isImage) ...[
+                        Icon(PhosphorIconsFill.image,
+                            size: 12, color: previewColor),
+                        const SizedBox(width: 3),
+                      ],
+                      Flexible(
+                        child: Text(
+                          reply.previewText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: previewColor, fontSize: 11),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (reply.isImage) ...[
+              const SizedBox(width: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: CachedNetworkImage(
+                  imageUrl: reply.imageUrl!,
+                  width: 30,
+                  height: 30,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) =>
+                      const SizedBox(width: 30, height: 30),
+                ),
+              ),
+            ],
           ],
         ),
       ),

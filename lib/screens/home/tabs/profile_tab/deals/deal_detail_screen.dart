@@ -841,31 +841,41 @@ class _CancelReasonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Soft red treatment so the cancellation reads clearly as "cancelled".
+    final redFg = isDark ? WawatDark.danger : dealRed600;
+    final redBg = isDark ? WawatDark.surfaceAlt : dealRed50;
+    final redBorder = isDark
+        ? WawatDark.danger.withValues(alpha: 0.35)
+        : dealRed600.withValues(alpha: 0.16);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: _cCard(isDark),
+          color: redBg,
           borderRadius: BorderRadius.circular(20),
-          border: _cCardBorder(isDark),
-          boxShadow:
-              _cCardShadow(isDark) == null ? null : [_cCardShadow(isDark)!],
+          border: Border.all(color: redBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              WawatContent.text(
-                  content, 'deals.cancel.reason_label', 'Ləğv səbəbi'),
-              style: TextStyle(
-                color: _cMuted(isDark),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.4,
-              ),
+            Row(
+              children: [
+                Icon(PhosphorIconsFill.prohibit, color: redFg, size: 15),
+                const SizedBox(width: 6),
+                Text(
+                  WawatContent.text(
+                      content, 'deals.cancel.reason_label', 'Ləğv səbəbi'),
+                  style: TextStyle(
+                    color: redFg,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               shipment.cancelReasonLabel ?? '',
               style: TextStyle(

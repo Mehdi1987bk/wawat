@@ -526,9 +526,11 @@ class _ListingDetailsScreenState
     );
     if (!confirmed) return;
     try {
-      await bloc.pauseListing(listing.id);
+      final response = await bloc.pauseListing(listing.id);
       if (!mounted) return;
-      _showSuccess(_t(_content, 'listing.paused', 'Elan dayandırıldı.'));
+      // Show the backend's (localized) message; reload picks up the new status.
+      _showSuccess(response.message ??
+          _t(_content, 'listing.paused', 'Elan dayandırıldı.'));
       _reload();
     } catch (_) {
       if (!mounted) return;
@@ -544,10 +546,14 @@ class _ListingDetailsScreenState
     );
     if (!confirmed) return;
     try {
-      await bloc.resumeListing(listing.id);
+      // Resume does NOT always go back to `active`: a listing paused while on
+      // moderation returns to `moderation`. Trust the response — show its
+      // message and let _reload() refresh the UI by the real returned status.
+      final response = await bloc.resumeListing(listing.id);
       if (!mounted) return;
       _showSuccess(
-        _t(_content, 'listing.resumed', 'Elan yenidən aktivləşdirildi.'),
+        response.message ??
+            _t(_content, 'listing.resumed', 'Elan yenidən aktivləşdirildi.'),
       );
       _reload();
     } catch (_) {

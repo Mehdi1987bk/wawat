@@ -14,6 +14,7 @@ import '../../../../../data/network/response/package_types_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
+import '../../../../../services/notification_socket_service.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../home_screen.dart';
@@ -2449,6 +2450,7 @@ class _SettingsHubScreen extends StatelessWidget {
                 onTap: () async {
                   await api.logout();
                   await sl.get<AuthRepository>().logout();
+                  await NotificationSocketService.instance.onLogout();
                   if (context.mounted) {
                     Navigator.of(context, rootNavigator: true)
                         .pushAndRemoveUntil(

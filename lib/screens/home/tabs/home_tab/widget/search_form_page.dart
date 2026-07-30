@@ -1260,8 +1260,8 @@ class _TypeSegment extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: fg),
-              const SizedBox(width: 6),
+              Icon(icon, size: 15, color: fg),
+              const SizedBox(width: 5),
               Flexible(
                 child: Text(
                   label,
@@ -1269,8 +1269,8 @@ class _TypeSegment extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: fg,
-                    fontSize: 13.5,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

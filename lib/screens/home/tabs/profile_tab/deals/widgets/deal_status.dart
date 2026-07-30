@@ -44,7 +44,8 @@ class DealVisual {
 
 DealVisual dealStatusVisual(String status, [bool isDark = false]) {
   // Тёмный режим: пастельные подложки → мягкий графит-акцент, тёмно-синие/зелёные
-  // акценты → яркие читаемые. Нейтральные (declined/cancelled/expired) → графит.
+  // акценты → яркие читаемые. cancelled → красный (явно «отменено»); declined/
+  // expired остаются нейтральным графитом.
   final Color brandColor = isDark ? WawatDark.brand : dealBrand700;
   final Color brandBg = isDark ? WawatDark.brandSoft : dealBrand50;
   final Color amberColor = isDark ? WawatDark.warning : dealAmber700;
@@ -60,19 +61,24 @@ DealVisual dealStatusVisual(String status, [bool isDark = false]) {
       DealVisual(PhosphorIconsFill.hourglassMedium, amberColor, amberBg),
     'accepted' => DealVisual(PhosphorIconsFill.handshake, brandColor, brandBg),
     'picked_up' => DealVisual(PhosphorIconsFill.package, brandColor, brandBg),
-    'delivered' => DealVisual(PhosphorIconsFill.mapPinLine, brandColor, brandBg),
-    'completed' => DealVisual(PhosphorIconsFill.sealCheck, emeraldColor, emeraldBg),
+    'delivered' =>
+      DealVisual(PhosphorIconsFill.mapPinLine, brandColor, brandBg),
+    'completed' =>
+      DealVisual(PhosphorIconsFill.sealCheck, emeraldColor, emeraldBg),
     'auto_completed' =>
       DealVisual(PhosphorIconsFill.checkCircle, emeraldColor, emeraldBg),
     'disputed' => DealVisual(PhosphorIconsFill.warningOctagon, redColor, redBg),
-    'declined' => DealVisual(PhosphorIconsFill.xCircle, neutralColor, neutralBg),
-    'cancelled' => DealVisual(PhosphorIconsFill.prohibit, neutralColor, neutralBg),
-    'expired' => DealVisual(PhosphorIconsFill.clockCountdown, neutralColor, neutralBg),
+    'declined' =>
+      DealVisual(PhosphorIconsFill.xCircle, neutralColor, neutralBg),
+    'cancelled' => DealVisual(PhosphorIconsFill.prohibit, redColor, redBg),
+    'expired' =>
+      DealVisual(PhosphorIconsFill.clockCountdown, neutralColor, neutralBg),
     _ => DealVisual(PhosphorIconsFill.paperPlaneTilt, brandColor, brandBg),
   };
 }
 
-String dealStatusLabel(Map<String, String> content, String status, [String? apiLabel]) {
+String dealStatusLabel(Map<String, String> content, String status,
+    [String? apiLabel]) {
   if (apiLabel != null && apiLabel.isNotEmpty) return apiLabel;
   return WawatContent.text(content, 'enum.shipment_status.$status', status);
 }
@@ -118,8 +124,18 @@ String dealNormalizeAction(String action) =>
     action == 'picked_up' ? 'picked-up' : action;
 
 const _azMonths = [
-  'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
-  'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr',
+  'yanvar',
+  'fevral',
+  'mart',
+  'aprel',
+  'may',
+  'iyun',
+  'iyul',
+  'avqust',
+  'sentyabr',
+  'oktyabr',
+  'noyabr',
+  'dekabr',
 ];
 
 /// Formats an ISO date/datetime string as "24 iyul", matching the mockup's date style.

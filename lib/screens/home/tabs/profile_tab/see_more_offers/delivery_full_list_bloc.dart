@@ -37,12 +37,18 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
     return userRepository.getMyListings(page: page, perPage: 20);
   }
 
-  Future<void> pauseListing(Listing listing) async {
-    await _mutate(() => userRepository.pauseListing(listing.id));
+  /// Returns the backend's (localized) message so the UI can surface it —
+  /// resume in particular may report a return to moderation, not `active`.
+  Future<String?> pauseListing(Listing listing) async {
+    final response =
+        await _mutate(() => userRepository.pauseListing(listing.id));
+    return response.message;
   }
 
-  Future<void> resumeListing(Listing listing) async {
-    await _mutate(() => userRepository.resumeListing(listing.id));
+  Future<String?> resumeListing(Listing listing) async {
+    final response =
+        await _mutate(() => userRepository.resumeListing(listing.id));
+    return response.message;
   }
 
   Future<void> repostListing(Listing listing) async {
@@ -71,11 +77,12 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
     );
   }
 
-  Future<void> _mutate(Future<void> Function() action) async {
+  Future<T> _mutate<T>(Future<T> Function() action) async {
     _isUpdating.add(true);
     try {
-      await action();
+      final result = await action();
       await loadList();
+      return result;
     } finally {
       _isUpdating.add(false);
     }

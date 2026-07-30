@@ -12,6 +12,7 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../../../scrollable_tab.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
@@ -57,10 +58,22 @@ class SearchOfferListScreen extends BaseScreen<ListingFeedBloc> {
 }
 
 class _SearchOfferListScreenState
-    extends BaseState<SearchOfferListScreen, ListingFeedBloc> {
+    extends BaseState<SearchOfferListScreen, ListingFeedBloc>
+    with ScrollableTab {
   final ScrollController _scrollController = ScrollController();
   bool _showResults = false;
   bool _currentSearchSaved = false;
+
+  @override
+  void scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   bool _advancedOpen = false;
   // True while editing the route from an existing results view — so the
   // back button returns to those results instead of leaving the screen.
@@ -135,6 +148,9 @@ class _SearchOfferListScreenState
   Widget _buildEntry(Map<String, String> content) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return CustomScrollView(
+      // Same controller as the results view — only one is mounted at a time,
+      // so re-tapping the Search tab scrolls whichever is showing to the top.
+      controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
@@ -1481,7 +1497,11 @@ class _SearchEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = suggestions.isEmpty
+    // Only the "create alert" suggestion is offered here — the reverse-listing
+    // ('post_opposite') and broaden-search ('broaden') actions were dropped.
+    final filtered =
+        suggestions.where((s) => s.action == 'create_alert').toList();
+    final items = filtered.isEmpty
         ? [
             PaginationSuggestion(
               action: 'create_alert',
@@ -1490,22 +1510,8 @@ class _SearchEmpty extends StatelessWidget {
                 'search.suggestion_create_alert',
               ),
             ),
-            PaginationSuggestion(
-              action: 'post_opposite',
-              label: _contentText(
-                content,
-                'search.suggestion_post_opposite',
-              ),
-            ),
-            PaginationSuggestion(
-              action: 'broaden',
-              label: _contentText(
-                content,
-                'search.suggestion_broaden',
-              ),
-            ),
           ]
-        : suggestions;
+        : filtered;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 40, 32, 24),
@@ -3036,8 +3042,8 @@ class _Segmented extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: fg),
-              const SizedBox(width: 6),
+              Icon(icon, size: 15, color: fg),
+              const SizedBox(width: 5),
               Flexible(
                 child: Text(
                   label,
@@ -3045,8 +3051,8 @@ class _Segmented extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: fg,
-                    fontSize: 13.5,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

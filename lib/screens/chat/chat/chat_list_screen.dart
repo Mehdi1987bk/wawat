@@ -10,6 +10,7 @@ import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
+import '../../home/scrollable_tab.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/wawat_content.dart';
 import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
@@ -30,8 +31,20 @@ class ChatListScreen extends BaseScreen {
   State<ChatListScreen> createState() => ChatListScreenState();
 }
 
-class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc> {
+class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
+    with ScrollableTab {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   bool _showArchived = false;
   bool _searchActive = false;
   final TextEditingController _searchController = TextEditingController();

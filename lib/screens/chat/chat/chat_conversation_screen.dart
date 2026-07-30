@@ -14,6 +14,7 @@ import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/notification_socket_service.dart';
 import '../../../services/wawat_content.dart';
 import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
@@ -84,6 +85,7 @@ class _ChatConversationScreenState
   final TextEditingController _messageController = TextEditingController();
   File? _selectedFile;
   Map<String, String> _content = const {};
+  ChatReplyRef? _replyTarget;
   AppLifecycleListener? _lifecycleListener;
   late bool _isBlockedByMe;
   late bool _isBlockedByOther;
@@ -98,6 +100,9 @@ class _ChatConversationScreenState
   @override
   void initState() {
     super.initState();
+    // Suppress the global new-message banner while this thread is open.
+    NotificationSocketService.instance
+        .setActiveConversation(widget.conversation.id);
     _isBlockedByMe = widget.conversation.isBlocked;
     _isBlockedByOther = widget.conversation.isBlockedByOther;
     _isPinned = widget.conversation.isPinned;
@@ -140,6 +145,7 @@ class _ChatConversationScreenState
 
   @override
   void dispose() {
+    NotificationSocketService.instance.setActiveConversation(null);
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
@@ -311,6 +317,7 @@ class _ChatConversationScreenState
                 : _t(
                     'chat.input.blocked',
                   ),
+            onDisabledTap: _isBlockedByMe ? _unblockUser : null,
             onSend: _send,
             onAttachImage: _pickImage,
             onChanged: bloc.onComposerChanged,
@@ -318,6 +325,14 @@ class _ChatConversationScreenState
         ],
       ),
     );
+  }
+
+  /// Unblock straight from the composer banner — direct, no confirmation.
+  void _unblockUser() {
+    _runConversationAction(() async {
+      await bloc.setUserBlocked(widget.conversation.user.apiId, false);
+      if (mounted) setState(() => _isBlockedByMe = false);
+    });
   }
 
   bool _shouldShowDate(List<ChatMessage> messages, int index) {

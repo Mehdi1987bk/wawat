@@ -12,7 +12,9 @@ import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
+import '../../scrollable_tab.dart';
 import '../../../../services/localization_service.dart';
+import '../../../../services/notification_socket_service.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
 import '../fovorite/fovorite_offer_screen.dart';
@@ -56,8 +58,10 @@ class ProfileTabScreen extends StatefulWidget {
   State<ProfileTabScreen> createState() => _ProfileTabScreenState();
 }
 
-class _ProfileTabScreenState extends State<ProfileTabScreen> {
+class _ProfileTabScreenState extends State<ProfileTabScreen>
+    with ScrollableTab {
   final WawatProfileApi _api = WawatProfileApi();
+  final ScrollController _scrollController = ScrollController();
   late Future<WawatProfileBundle> _future;
   late Future<int> _activeDealsCountFuture;
   late Future<int> _promoActiveCountFuture;
@@ -69,6 +73,22 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     _future = _load();
     _activeDealsCountFuture = _loadActiveDealsCount();
     _promoActiveCountFuture = _loadPromoActiveCount();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<int> _loadActiveDealsCount() async {
@@ -415,6 +435,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
     if (confirmed != true) return;
     await _api.logout();
     await sl.get<AuthRepository>().logout();
+    await NotificationSocketService.instance.onLogout();
     if (!mounted) return;
     // Clear the whole stack and drop back to a fresh (guest) home page.
     Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
@@ -455,6 +476,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               backgroundColor: cCard(isDark),
               onRefresh: () async => _reload(),
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.only(bottom: 112),
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [

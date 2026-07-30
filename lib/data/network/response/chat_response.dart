@@ -184,6 +184,80 @@ class ChatCard {
   }
 }
 
+/// Lightweight reference to a quoted message (WhatsApp-style reply).
+///
+/// The backend does not yet return `reply_to` (see chat guide §12); this is
+/// populated optimistically when the user sends a reply, and parsed from
+/// `reply_to` / `reply_to_message` as soon as the API starts sending it.
+class ChatReplyRef {
+  final String messageId;
+
+  /// Display name of the quoted message's author ("Sən" when it was mine).
+  final String authorName;
+  final bool authorIsMine;
+
+  /// `text` | `image` | `system_card`.
+  final String type;
+  final String? body;
+  final String? imageUrl;
+
+  const ChatReplyRef({
+    required this.messageId,
+    required this.authorName,
+    required this.authorIsMine,
+    required this.type,
+    this.body,
+    this.imageUrl,
+  });
+
+  bool get isImage => type == 'image' && (imageUrl?.isNotEmpty ?? false);
+
+  /// One-line preview for the quote / reply bar.
+  String get previewText {
+    if (type == 'image') return 'Şəkil';
+    if (type == 'system_card') return body ?? 'Sövdələşmə';
+    return body ?? '';
+  }
+
+  /// Build a quote from a message the user is replying to.
+  factory ChatReplyRef.fromMessage(
+    ChatMessage message, {
+    required bool quotedIsMine,
+    String? peerName,
+  }) {
+    final img = message.image?.url ?? message.file?.url;
+    final name = quotedIsMine
+        ? 'Sən'
+        : (message.user?.fullname.trim().isNotEmpty ?? false
+            ? message.user!.fullname
+            : (peerName ?? ''));
+    return ChatReplyRef(
+      messageId: message.id,
+      authorName: name,
+      authorIsMine: quotedIsMine,
+      type: message.type,
+      body: message.type == 'system_card' ? message.card?.label : message.body,
+      imageUrl: (img?.isNotEmpty ?? false) ? img : null,
+    );
+  }
+
+  factory ChatReplyRef.fromJson(Map<String, dynamic> json) {
+    final senderJson = _map(json['sender']) ?? _map(json['user']);
+    final imageJson = _map(json['image']);
+    return ChatReplyRef(
+      messageId: _string(json['id']) ?? '',
+      authorName: _string(senderJson?['fullname']) ??
+          _string(senderJson?['name']) ??
+          _string(senderJson?['username']) ??
+          '',
+      authorIsMine: _bool(json['is_mine']),
+      type: _string(json['type']) ?? 'text',
+      body: _string(json['body']),
+      imageUrl: imageJson == null ? null : _string(imageJson['url']),
+    );
+  }
+}
+
 class ChatMessage {
   final String id;
   final String type;
@@ -196,6 +270,7 @@ class ChatMessage {
   final String? editedAt;
   final bool isMine;
   final bool? isRead;
+  final ChatReplyRef? replyTo;
 
   /// When the peer read this message (iso8601). Only meaningful for my own
   /// messages; null for incoming ones. Kept for completeness — the blue
@@ -216,6 +291,7 @@ class ChatMessage {
     this.editedAt,
     this.isMine = false,
     this.isRead,
+    this.replyTo,
     this.readAt,
     this.deliveryStatus = ChatMessageDeliveryStatus.sent,
     this.localImagePath,
@@ -226,6 +302,7 @@ class ChatMessage {
     final imageJson = _map(json['image']);
     final fileJson = _map(json['file']);
     final cardJson = _map(json['card']);
+    final replyJson = _map(json['reply_to']) ?? _map(json['reply_to_message']);
     return ChatMessage(
       id: _string(json['id']) ?? '${json['id'] ?? ''}',
       type: _string(json['type']) ?? 'text',
@@ -239,6 +316,7 @@ class ChatMessage {
       editedAt: _string(json['edited_at']),
       isMine: _bool(json['is_mine']),
       isRead: json.containsKey('is_read') ? _bool(json['is_read']) : null,
+      replyTo: replyJson == null ? null : ChatReplyRef.fromJson(replyJson),
       readAt: _string(json['read_at']),
     );
   }
@@ -255,6 +333,7 @@ class ChatMessage {
     String? editedAt,
     bool? isMine,
     bool? isRead,
+    ChatReplyRef? replyTo,
     String? readAt,
     ChatMessageDeliveryStatus? deliveryStatus,
     String? localImagePath,
@@ -271,6 +350,7 @@ class ChatMessage {
       editedAt: editedAt ?? this.editedAt,
       isMine: isMine ?? this.isMine,
       isRead: isRead ?? this.isRead,
+      replyTo: replyTo ?? this.replyTo,
       readAt: readAt ?? this.readAt,
       deliveryStatus: deliveryStatus ?? this.deliveryStatus,
       localImagePath: localImagePath ?? this.localImagePath,

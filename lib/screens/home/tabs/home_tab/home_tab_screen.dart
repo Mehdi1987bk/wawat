@@ -9,6 +9,7 @@ import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/bloc/utils.dart';
+import '../../scrollable_tab.dart';
 import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/wawat_content.dart';
@@ -35,12 +36,26 @@ String _contentText(Map<String, String> content, String key,
 }
 
 class HomeTabScreen extends BaseScreen {
+  HomeTabScreen({super.key});
+
   @override
   _HomeTabScreenState createState() => _HomeTabScreenState();
 }
 
-class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc> {
+class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
+    with ScrollableTab {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   late final UnreadNotificationBloc _notificationBloc;
   late final ListingFeedBloc _listingBloc;
 
