@@ -666,6 +666,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "n13vdf43": MessageLookupByLibrary.simpleMessage(
       "Your verification application has been successfully submitted.\nWe will review your documents within 1-3 business days.",
     ),
+    "navDiscover": MessageLookupByLibrary.simpleMessage("Discover"),
     "nbgf3": MessageLookupByLibrary.simpleMessage("Enter your name"),
     "nbhty3": MessageLookupByLibrary.simpleMessage("Saving..."),
     "nbtynt7": MessageLookupByLibrary.simpleMessage("Select country"),

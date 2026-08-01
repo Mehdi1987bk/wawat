@@ -1,4 +1,5 @@
 import 'package:buking/data/network/response/type_option.dart';
+import 'package:buking/screens/home/tabs/home_tab/notification/unread_notif_bloc.dart';
 import 'package:buking/screens/home/tabs/profile_tab/unread_chat_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -119,6 +120,11 @@ void _registerDependency() {
   sl.get<AuthRepository>().getOfferTypes();
   sl.registerLazySingleton<UnreadChatBloc>(() {
     final bloc = UnreadChatBloc();
+    bloc.init();
+    return bloc;
+  });
+  sl.registerLazySingleton<UnreadNotificationBloc>(() {
+    final bloc = UnreadNotificationBloc();
     bloc.init();
     return bloc;
   });

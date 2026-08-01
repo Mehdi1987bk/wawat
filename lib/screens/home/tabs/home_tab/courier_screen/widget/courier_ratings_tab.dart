@@ -117,7 +117,9 @@ class CourierRatingsTab extends StatelessWidget {
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: review.author.avatar != null
+                  child: (review.author.avatarThumbUrl ??
+                              review.author.avatar) !=
+                          null
                       ? ClipOval(
                           child: CachedNetworkImage(
                             imageUrl: review.author.avatarThumbUrl ??

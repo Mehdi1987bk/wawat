@@ -361,7 +361,13 @@ class _CitySelectorState extends State<CitySelector> {
       opacity: _isSearching ? 0.6 : 1.0,
       child: ListView.separated(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Reserve the Android system-nav inset so the last city clears the
+        // gesture bar (the sheet's bottom edge sits on the screen bottom;
+        // showAppBottomSheet only pads for the keyboard, not this inset).
+        padding: EdgeInsets.only(
+          top: 8,
+          bottom: 8 + MediaQuery.of(context).viewPadding.bottom,
+        ),
         itemCount: _cities.length,
         separatorBuilder: (context, index) => Divider(
           height: 1,

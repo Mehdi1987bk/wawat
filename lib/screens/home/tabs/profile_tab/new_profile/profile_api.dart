@@ -5,7 +5,10 @@ import 'package:dio/dio.dart';
 
 import '../../../../../data/network/response/language_response.dart';
 import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../data/network/response/my_listings_result.dart';
 import '../../../../../data/network/response/package_types_response.dart';
+import '../../../../../data/network/response/tier_status_response.dart';
+import '../../../../../data/network/response/user_search_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../main.dart';
 import '../../../../../services/wawat_content.dart';
@@ -23,6 +26,12 @@ class WawatProfileApi {
     return WawatProfileResponse.fromJson(response.data ?? const {}).data;
   }
 
+  Future<TierStatusResponse> tierStatus() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('$baseUrl/me/tier-status');
+    return TierStatusResponse.fromJson(response.data ?? const {});
+  }
+
   Future<WawatProfileUser> user(String id) async {
     final response = await _dio.get<Map<String, dynamic>>('$baseUrl/users/$id');
     return WawatProfileResponse.fromJson(response.data ?? const {}).data;
@@ -34,6 +43,24 @@ class WawatProfileApi {
       queryParameters: {'page': page, 'per_page': 20},
     );
     return Pagination<Listing>.fromJson(response.data ?? const {});
+  }
+
+  /// `/listings/my` with the data-driven filter. Returns the page plus the
+  /// (page-1-only) `meta.filters` / `meta.active_filter`. An empty/`all` filter
+  /// is simply omitted → the server returns everything.
+  Future<MyListingsResult> myListingsFiltered({
+    int page = 1,
+    String? filter,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$baseUrl/listings/my',
+      queryParameters: {
+        'page': page,
+        'per_page': 20,
+        if (filter != null && filter.isNotEmpty) 'filter': filter,
+      },
+    );
+    return MyListingsResult.fromJson(response.data ?? const {});
   }
 
   Future<Pagination<Listing>> userListings(String userId,
@@ -89,6 +116,20 @@ class WawatProfileApi {
         .map((item) =>
             WawatProfileUser.fromJson(Map<String, dynamic>.from(item)))
         .toList();
+  }
+
+  /// Elastic people search. `q` must already be ≥ 2 chars (caller-enforced).
+  /// The backend excludes self/system/blocked/inactive and sorts verified→rating.
+  Future<UserSearchPage> searchUsers(
+    String q, {
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$baseUrl/users/search',
+      queryParameters: {'q': q, 'page': page, 'per_page': perPage},
+    );
+    return UserSearchPage.fromJson(response.data ?? const {});
   }
 
   Future<String> follow(String userId) async {

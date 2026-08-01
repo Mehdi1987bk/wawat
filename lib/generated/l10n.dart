@@ -55,6 +55,11 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Discover`
+  String get navDiscover {
+    return Intl.message('Discover', name: 'navDiscover', desc: '', args: []);
+  }
+
   /// `Something went wrong`
   String get somethingWentWrong {
     return Intl.message(

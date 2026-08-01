@@ -10,6 +10,8 @@ import '../../../../../data/network/api/promotion_api.dart';
 import '../../../../../data/network/request/promotion_request.dart';
 import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/promotion_response.dart';
+import '../../../../../data/network/response/receipt.dart';
+import '../../../../payments/receipt_screen.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
@@ -812,12 +814,13 @@ class _PromotionProcessingScreenState
     });
 
     try {
-      var promotion = (await widget.api.payPromotion(
+      final payResponse = await widget.api.payPromotion(
         widget.promotion.id,
         PromotionPayRequest(method: widget.method),
         idempotencyKey: _idempotencyKey,
-      ))
-          .data;
+      );
+      var promotion = payResponse.data;
+      Receipt? receipt = payResponse.receipt;
 
       final payment = promotion.payment;
       if (payment != null && !payment.isMock) {
@@ -834,7 +837,9 @@ class _PromotionProcessingScreenState
               ),
             );
           }
-          promotion = await _pollProviderResult(promotion);
+          final polled = await _pollProviderResult(promotion);
+          promotion = polled.data;
+          receipt = polled.receipt ?? receipt;
         }
       }
 
@@ -846,6 +851,7 @@ class _PromotionProcessingScreenState
             listing: widget.listing,
             content: widget.content,
             initialPromotion: promotion,
+            receipt: receipt,
           ),
         ),
       );
@@ -858,18 +864,20 @@ class _PromotionProcessingScreenState
     }
   }
 
-  Future<Promotion> _pollProviderResult(Promotion promotion) async {
+  Future<PromotionResponse> _pollProviderResult(Promotion promotion) async {
+    PromotionResponse? last;
     var current = promotion;
     for (var attempt = 0; attempt < 12; attempt++) {
       await Future<void>.delayed(const Duration(milliseconds: 1500));
       try {
-        current = (await widget.api.getPromotion(current.id)).data;
+        last = await widget.api.getPromotion(current.id);
+        current = last.data;
       } catch (_) {
         continue;
       }
       if (_isResolvedPromotionStatus(current.status)) break;
     }
-    return current;
+    return last ?? PromotionResponse(data: promotion);
   }
 
   @override
@@ -979,12 +987,16 @@ class PromotionStatusScreen extends StatefulWidget {
   final Map<String, String> content;
   final Promotion initialPromotion;
 
+  /// Unified payment receipt — the "Qəbz" button shows only when it's paid.
+  final Receipt? receipt;
+
   const PromotionStatusScreen({
     super.key,
     required this.api,
     required this.listing,
     required this.content,
     required this.initialPromotion,
+    this.receipt,
   });
 
   @override
@@ -993,14 +1005,26 @@ class PromotionStatusScreen extends StatefulWidget {
 
 class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
   late Promotion _promotion = widget.initialPromotion;
+  Receipt? _receipt;
   bool _refreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _receipt = widget.receipt;
+  }
 
   Future<void> _refresh() async {
     if (_refreshing) return;
     setState(() => _refreshing = true);
     try {
       final response = await widget.api.getPromotion(_promotion.id);
-      if (mounted) setState(() => _promotion = response.data);
+      if (mounted) {
+        setState(() {
+          _promotion = response.data;
+          if (response.receipt != null) _receipt = response.receipt;
+        });
+      }
     } finally {
       if (mounted) setState(() => _refreshing = false);
     }
@@ -1177,6 +1201,21 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                       builder: (_) => ListingDetailsScreen(
                         listingId: widget.listing.id,
                         returnToHomeOnBack: true,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+              if (_receipt?.isPaid ?? false) ...[
+                _OutlineButton(
+                  label: _tx(widget.content, 'receipt.view', 'Qəbz'),
+                  icon: PhosphorIconsBold.receipt,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ReceiptScreen(
+                        receipt: _receipt!,
+                        content: widget.content,
                       ),
                     ),
                   ),

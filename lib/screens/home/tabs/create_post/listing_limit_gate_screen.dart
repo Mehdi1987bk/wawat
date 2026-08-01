@@ -9,6 +9,7 @@ import '../../../../services/wawat_content.dart';
 import '../profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'create_post_screen.dart';
 import 'listing_limit_gate_bloc.dart';
+import 'quota/listing_quota_screens.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -138,7 +139,11 @@ class _ListingLimitGateScreenState
                 ),
               ),
             ),
-            _BottomCta(onTap: _openMyListings, content: _content),
+            _BottomCta(
+              onIncrease: _increaseLimit,
+              onTap: _openMyListings,
+              content: _content,
+            ),
             StreamBuilder<bool>(
               stream: bloc.isPausing,
               initialData: false,
@@ -171,6 +176,14 @@ class _ListingLimitGateScreenState
   void _openMyListings() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => DeliveryFullListScreen()),
+    );
+  }
+
+  void _increaseLimit() {
+    openListingQuotaFlow(
+      context,
+      type: widget.type,
+      currentLimit: widget.quota.limit,
     );
   }
 
@@ -465,10 +478,15 @@ class _InfoBox extends StatelessWidget {
 }
 
 class _BottomCta extends StatelessWidget {
+  final VoidCallback onIncrease;
   final VoidCallback onTap;
   final Map<String, String> content;
 
-  const _BottomCta({required this.onTap, required this.content});
+  const _BottomCta({
+    required this.onIncrease,
+    required this.onTap,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -481,37 +499,83 @@ class _BottomCta extends StatelessWidget {
             top: BorderSide(
                 color: isDark ? WawatDark.divider : const Color(0x0F0F172A))),
       ),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: onTap,
-        child: Container(
-          height: 54,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color:
-                isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(PhosphorIconsBold.listBullets,
-                  color: isDark ? WawatDark.icon : _ink700, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                WawatContent.text(
-                  content,
-                  'limit.view_all_my_listings',
-                ),
-                style: TextStyle(
-                  color: isDark ? WawatDark.textSecondary : _ink700,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Primary paid path — "increase limit".
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: onIncrease,
+            child: Container(
+              height: 54,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _brand,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: _brand.withValues(alpha: 0.34),
+                    blurRadius: 18,
+                    spreadRadius: -8,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-            ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(PhosphorIconsFill.rocketLaunch,
+                      color: Colors.white, size: 19),
+                  const SizedBox(width: 8),
+                  Text(
+                    WawatContent.text(
+                        content, 'limit.increase_cta', 'Limiti artır'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 10),
+          // Secondary — free path to pause a listing from "my listings".
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: onTap,
+            child: Container(
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? WawatDark.surfaceAlt
+                    : _ink900.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(PhosphorIconsBold.listBullets,
+                      color: isDark ? WawatDark.icon : _ink700, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    WawatContent.text(
+                      content,
+                      'limit.view_all_my_listings',
+                    ),
+                    style: TextStyle(
+                      color: isDark ? WawatDark.textSecondary : _ink700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

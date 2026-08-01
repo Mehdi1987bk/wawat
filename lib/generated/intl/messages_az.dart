@@ -684,6 +684,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "n13vdf43": MessageLookupByLibrary.simpleMessage(
       "Verifikasiya müraciətiniz uğurla göndərildi.\nSənədlərinizi 1-3 iş günü ərzində yoxlayacağıq.",
     ),
+    "navDiscover": MessageLookupByLibrary.simpleMessage("Kəşf"),
     "nbgf3": MessageLookupByLibrary.simpleMessage("Adınızı daxil edin"),
     "nbhty3": MessageLookupByLibrary.simpleMessage("Saxlanılır..."),
     "nbtynt7": MessageLookupByLibrary.simpleMessage("Ölkə seçin"),

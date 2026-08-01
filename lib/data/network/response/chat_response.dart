@@ -12,9 +12,6 @@ class ChatUser {
   final String? username;
   final String fullname;
 
-  /// Legacy raw path or url (`avatar`). Old resources send a bare `avatar_path`.
-  final String? avatar;
-
   /// Ready full-size url (`avatar_url`, up to 1080px) — for the big/tap avatar.
   final String? avatarFull;
 
@@ -33,7 +30,6 @@ class ChatUser {
     this.publicId,
     this.username,
     required this.fullname,
-    this.avatar,
     this.avatarFull,
     this.avatarThumb,
     this.isVerified = false,
@@ -54,7 +50,6 @@ class ChatUser {
           (_int(rawId) == null ? _string(rawId) : null),
       username: _string(json['username']),
       fullname: name,
-      avatar: _string(json['avatar']),
       avatarFull: _string(json['avatar_url']),
       avatarThumb: _string(json['avatar_thumb_url']),
       isVerified: _bool(json['is_verified']),
@@ -83,10 +78,7 @@ class ChatUser {
   }
 
   /// Full-size avatar — use ONLY for a large/tap-to-open avatar.
-  String get avatarUrl {
-    final full = _resolveAvatar(avatarFull);
-    return full.isNotEmpty ? full : _resolveAvatar(avatar);
-  }
+  String get avatarUrl => _resolveAvatar(avatarFull);
 
   /// Small 96×96 thumbnail — use for list rows, bubbles and headers. Falls back
   /// to the full url when the backend didn't send a thumb.
@@ -536,6 +528,11 @@ class MetaData {
   /// list envelope. Any of my messages created at or before this are read.
   final DateTime? peerLastReadAt;
 
+  /// Chat header shipped alongside the messages list (`meta.conversation`) — the
+  /// source of truth for the other user's name/avatar/presence, so the header
+  /// fills in from one request even when the conversation list isn't loaded.
+  final Conversation? conversation;
+
   const MetaData({
     required this.page,
     required this.perPage,
@@ -543,6 +540,7 @@ class MetaData {
     required this.lastPage,
     this.locale,
     this.peerLastReadAt,
+    this.conversation,
   });
 
   factory MetaData.fromJson(Map<String, dynamic> json) {
@@ -550,6 +548,7 @@ class MetaData {
     final perPage = _int(json['per_page']) ?? 20;
     final total = _int(json['total']) ?? 0;
     final peerRaw = _string(json['peer_last_read_at']);
+    final convJson = _map(json['conversation']);
     return MetaData(
       page: currentPage,
       perPage: perPage,
@@ -557,6 +556,7 @@ class MetaData {
       lastPage: _int(json['last_page']) ?? currentPage,
       locale: _string(json['locale']),
       peerLastReadAt: peerRaw == null ? null : DateTime.tryParse(peerRaw),
+      conversation: convJson == null ? null : Conversation.fromJson(convJson),
     );
   }
 }
@@ -691,20 +691,18 @@ class ShipmentData {
 }
 
 class ShipmentParty {
+  final String? id;
   final String? username;
   final String fullname;
 
-  /// Legacy raw path (shipment resources send `avatar` = avatar_path, NOT a
-  /// url) — never bind [avatar] directly; use [avatarUrl] / [avatarThumbUrl].
-  final String? avatar;
   final String? avatarFull;
   final String? avatarThumb;
   final bool isVerified;
 
   const ShipmentParty({
+    this.id,
     this.username,
     required this.fullname,
-    this.avatar,
     this.avatarFull,
     this.avatarThumb,
     this.isVerified = false,
@@ -712,20 +710,25 @@ class ShipmentParty {
 
   factory ShipmentParty.fromJson(Map<String, dynamic> json) {
     return ShipmentParty(
+      id: json['id']?.toString(),
       username: _string(json['username']),
       fullname: _string(json['fullname']) ?? _string(json['full_name']) ?? '',
-      avatar: _string(json['avatar']),
       avatarFull: _string(json['avatar_url']),
       avatarThumb: _string(json['avatar_thumb_url']),
       isVerified: _bool(json['is_verified']),
     );
   }
 
-  /// Full avatar url (resolves the raw path against storage). Empty when none.
-  String get avatarUrl {
-    final full = ChatUser._resolveAvatar(avatarFull);
-    return full.isNotEmpty ? full : ChatUser._resolveAvatar(avatar);
+  /// Identifier for opening this user's public profile. The /users/{id}
+  /// endpoint accepts either a numeric id or a username, so fall back to the
+  /// username when the backend omits the id. Null when neither is present.
+  String? get profileId {
+    final resolved = (id ?? username ?? '').trim();
+    return resolved.isEmpty ? null : resolved;
   }
+
+  /// Full avatar url. Empty when none.
+  String get avatarUrl => ChatUser._resolveAvatar(avatarFull);
 
   /// Thumbnail url — for the small counterpart avatar on deal cards/sheets.
   String get avatarThumbUrl {

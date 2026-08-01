@@ -38,6 +38,8 @@ import 'new_profile/profile_models.dart';
 import 'see_more_offers/delivery_full_list_screen.dart';
 import 'settings/notification_settings/notification_settings_screen.dart';
 import 'support/support_screen.dart';
+import 'tier/tier_badge.dart';
+import 'tier/tier_status_screen.dart';
 import 'verification/verification_screen.dart';
 
 const _brand = Color(0xFF017BFE); // бренд-заливка (кнопки/иконки) — не меняется
@@ -502,6 +504,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                   _MenuGroup(
                     children: [
                       _MenuRow(
+                        icon: PhosphorIconsFill.medal,
+                        label: _text(content, 'menu.tier_status', 'Statusum'),
+                        onTap: () => _push(const TierStatusScreen()),
+                      ),
+                      _MenuRow(
                         icon: PhosphorIconsFill.note,
                         label: _text(content, 'menu.my_listings', 'Elanlarım'),
                         badge: activeListings > 0 ? '$activeListings' : null,
@@ -886,7 +893,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                       ],
                       if ((user.tier ?? '').isNotEmpty) ...[
                         const SizedBox(width: 6),
-                        _SmallTier(label: user.tier!),
+                        TierBadge(tier: user.tier!, content: content),
                       ],
                     ],
                   ),
@@ -1005,32 +1012,6 @@ class _MenuAvatar extends StatelessWidget {
         ),
       ),
       child: avatar,
-    );
-  }
-}
-
-class _SmallTier extends StatelessWidget {
-  final String label;
-
-  const _SmallTier({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: cFill(isDark),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: cText3(isDark),
-          fontSize: 10.5,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
     );
   }
 }

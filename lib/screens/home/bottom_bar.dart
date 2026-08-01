@@ -87,7 +87,7 @@ class _BottomBarState extends State<BottomBar> {
                       BottomNavigationItem(
                         index: 0,
                         selectedIndex: widget.selectedIndex,
-                        label: 'Kəşf',
+                        label: S.of(context).navDiscover,
                         icon: PhosphorIconsFill.compass,
                         onChanged: widget.onChanged,
                         isDark: isDark,

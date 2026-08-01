@@ -59,6 +59,34 @@ class NotificationMeta {
       };
 }
 
+/// The person who caused a notification (proposals, deals, reviews, follows, …).
+/// Null for system notifications — the banner/list then falls back to the
+/// type icon. In push payloads the same fields arrive flat as actor_name /
+/// actor_avatar_thumb_url.
+class NotificationActor {
+  final String? id;
+  final String? name;
+  final String? avatarThumbUrl;
+
+  const NotificationActor({this.id, this.name, this.avatarThumbUrl});
+
+  factory NotificationActor.fromJson(Map<String, dynamic> json) {
+    String? s(Object? v) {
+      final t = v?.toString().trim() ?? '';
+      return t.isEmpty ? null : t;
+    }
+
+    return NotificationActor(
+      id: s(json['id']),
+      name: s(json['name']),
+      avatarThumbUrl: s(json['avatar_thumb_url']),
+    );
+  }
+
+  bool get hasValue =>
+      (name?.isNotEmpty ?? false) || (avatarThumbUrl?.isNotEmpty ?? false);
+}
+
 class NotificationItem {
   final String id;
   final String type;
@@ -66,6 +94,9 @@ class NotificationItem {
   final String? body;
   final bool isInteractive;
   final NotificationData data;
+
+  /// Who triggered this notification (avatar+name). Null for system types.
+  final NotificationActor? actor;
 
   /// Unified navigation object — the single source of truth for where a tap
   /// on this notification should go (same shape as the push payload). Drive
@@ -81,6 +112,7 @@ class NotificationItem {
     this.body,
     required this.isInteractive,
     required this.data,
+    this.actor,
     this.target = const NotificationTarget(),
     this.readAt,
     required this.createdAt,
@@ -88,17 +120,33 @@ class NotificationItem {
 
   bool get isUnread => readAt == null || readAt!.isEmpty;
 
+  /// review_received extras — the star rating (1–5) and the comment text, read
+  /// from the notification `data`.
+  int? get reviewRating {
+    final r = data.raw['rating'];
+    if (r is int) return r;
+    if (r is num) return r.toInt();
+    return int.tryParse(r?.toString() ?? '');
+  }
+
+  String? get reviewComment {
+    final c = data.raw['comment']?.toString().trim();
+    return (c == null || c.isEmpty) ? null : c;
+  }
+
   NotificationItem copyWith({
     String? readAt,
     bool clearReadAt = false,
+    bool? isInteractive,
   }) {
     return NotificationItem(
       id: id,
       type: type,
       title: title,
       body: body,
-      isInteractive: isInteractive,
+      isInteractive: isInteractive ?? this.isInteractive,
       data: data,
+      actor: actor,
       target: target,
       readAt: clearReadAt ? null : readAt ?? this.readAt,
       createdAt: createdAt,
@@ -113,6 +161,11 @@ class NotificationItem {
       body: json['body']?.toString(),
       isInteractive: json['is_interactive'] == true ||
           json['is_interactive']?.toString() == 'true',
+      actor: json['actor'] is Map
+          ? NotificationActor.fromJson(
+              Map<String, dynamic>.from(json['actor'] as Map),
+            )
+          : null,
       data: json['data'] is Map
           ? NotificationData.fromJson(
               Map<String, dynamic>.from(json['data'] as Map),

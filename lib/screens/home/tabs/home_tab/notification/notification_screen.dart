@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +11,8 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/notification_router.dart';
+import '../../../../../services/notification_socket_service.dart';
+import '../../../../../services/notification_visual.dart';
 import '../../../../../services/wawat_content.dart';
 import '../search/search_offer_list_screen.dart';
 import 'notification_bloc.dart';
@@ -22,13 +27,7 @@ const _ink500 = Color(0xFF64748B);
 const _ink400 = Color(0xFF94A3B8);
 const _ink200 = Color(0xFFE2E8F0);
 const _screenBg = Colors.white;
-const _emerald = Color(0xFF059669);
-const _emerald50 = Color(0xFFECFDF5);
 const _red = Color(0xFFEF4444);
-const _red50 = Color(0xFFFEF2F2);
-const _amber = Color(0xFFB67C00);
-const _amber50 = Color(0xFFFEF6E7);
-const _accent50 = Color(0x4DF2FC2A);
 
 class NotificationScreen extends BaseScreen<NotificationBloc> {
   NotificationScreen({super.key});
@@ -38,9 +37,15 @@ class NotificationScreen extends BaseScreen<NotificationBloc> {
 }
 
 class _NotificationScreenState
-    extends BaseState<NotificationScreen, NotificationBloc> {
+    extends BaseState<NotificationScreen, NotificationBloc>
+    with WidgetsBindingObserver {
   final _scrollController = ScrollController();
   Map<String, String> _content = const {};
+  StreamSubscription<void>? _notifChangedSub;
+
+  /// Notifications whose inline accept/decline is mid-flight — their buttons
+  /// dim, ignore taps (no double-submit), and show a spinner.
+  final Set<String> _actingItemIds = {};
 
   @override
   bool get showProgressIndicator => false;
@@ -48,6 +53,7 @@ class _NotificationScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     bloc.loadNotifications();
     WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
@@ -58,6 +64,22 @@ class _NotificationScreenState
       }
     });
     bloc.errors.listen(_showError);
+    // A deal accepted/declined/confirmed elsewhere arrives as a general
+    // notification → refresh the live is_interactive flag IN PLACE so the inline
+    // buttons hide, without truncating the paginated list or jumping the scroll.
+    _notifChangedSub =
+        NotificationSocketService.instance.onNotificationsChanged.listen((_) {
+      if (mounted) bloc.refreshInteractiveFlags();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Returning to the app refreshes is_interactive in place (non-destructive),
+    // so resolved deals hide their buttons without collapsing the loaded list.
+    if (state == AppLifecycleState.resumed && mounted) {
+      bloc.refreshInteractiveFlags();
+    }
   }
 
   String _t(String key, [String? fallback]) {
@@ -66,6 +88,8 @@ class _NotificationScreenState
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _notifChangedSub?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -172,6 +196,7 @@ class _NotificationScreenState
         onTap: () => _openNotification(item),
         onLongPress: () => _showActions(item),
         onAction: (action) => _handleInlineAction(item, action),
+        busy: _actingItemIds.contains(item.id),
         content: _content,
         isDark: isDark,
       ),
@@ -220,18 +245,52 @@ class _NotificationScreenState
   }
 
   void _handleInlineAction(NotificationItem item, _InlineAction action) {
-    bloc.markAsRead(item.id);
     switch (action) {
       case _InlineAction.accept:
-        _showMessage(_t('notifications.request_accepted'));
+        _runInlineDealAction(item, 'accept');
         break;
       case _InlineAction.decline:
-        _showMessage(_t('notifications.request_declined'));
+        _runInlineDealAction(item, 'decline');
         break;
       case _InlineAction.view:
       case _InlineAction.complete:
+        // Confirm-receipt is irreversible and counter/other flows need the full
+        // deal UI (confirmation dialog, extra fields) — route to the deal screen
+        // where those live, rather than firing a bare one-tap action.
         _openNotification(item);
         break;
+    }
+  }
+
+  /// Runs the real proposal accept/decline for an inline button: the same
+  /// `shipmentAction` the chat deal card uses (no body needed). The button shows
+  /// a spinner while in flight; on success the item is resolved server-side so
+  /// its now-false is_interactive hides the buttons. If the notification has no
+  /// shipment id we open the deal screen instead of failing.
+  Future<void> _runInlineDealAction(
+    NotificationItem item,
+    String action,
+  ) async {
+    if (_actingItemIds.contains(item.id)) return;
+    setState(() => _actingItemIds.add(item.id));
+    try {
+      final message = await bloc.runInlineShipmentAction(item, action);
+      if (!mounted) return;
+      _showMessage(message ??
+          _t(action == 'accept'
+              ? 'notifications.request_accepted'
+              : 'notifications.request_declined'));
+    } on MissingShipmentException {
+      if (mounted) _openNotification(item);
+    } catch (_) {
+      if (mounted) {
+        _showMessage(
+          _t('common.something_went_wrong',
+              'Xəta baş verdi. Yenidən cəhd edin.'),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _actingItemIds.remove(item.id));
     }
   }
 
@@ -497,6 +556,7 @@ class _NotificationTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final ValueChanged<_InlineAction> onAction;
+  final bool busy;
   final Map<String, String> content;
   final bool isDark;
 
@@ -505,13 +565,41 @@ class _NotificationTile extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     required this.onAction,
+    required this.busy,
     required this.content,
     required this.isDark,
   });
 
+  /// Human types (with an actor) show the actor's avatar; system types show the
+  /// rounded type-icon chip. Falls back to the icon if the image fails.
+  Widget _leadingVisual(NotificationVisual meta) {
+    final iconChip = Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: meta.background,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(meta.icon, color: meta.color, size: 20),
+    );
+    final avatar = item.actor?.avatarThumbUrl;
+    if (avatar == null || avatar.isEmpty) return iconChip;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: CachedNetworkImage(
+        imageUrl: avatar,
+        width: 40,
+        height: 40,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => iconChip,
+        errorWidget: (_, __, ___) => iconChip,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final meta = _notificationVisual(item.type, isDark);
+    final meta = notificationVisual(item.type, isDark);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -534,15 +622,7 @@ class _NotificationTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: meta.background,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(meta.icon, color: meta.color, size: 20),
-            ),
+            _leadingVisual(meta),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -604,6 +684,7 @@ class _NotificationTile extends StatelessWidget {
                     _InlineActions(
                       type: item.type,
                       onAction: onAction,
+                      busy: busy,
                       content: content,
                       isDark: isDark,
                     ),
@@ -621,12 +702,14 @@ class _NotificationTile extends StatelessWidget {
 class _InlineActions extends StatelessWidget {
   final String type;
   final ValueChanged<_InlineAction> onAction;
+  final bool busy;
   final Map<String, String> content;
   final bool isDark;
 
   const _InlineActions({
     required this.type,
     required this.onAction,
+    required this.busy,
     required this.content,
     required this.isDark,
   });
@@ -679,31 +762,43 @@ class _InlineActions extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         for (final action in actions)
-          GestureDetector(
-            onTap: () => onAction(action.$2),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: action.$3
-                    ? _brand
-                    : (isDark
-                        ? WawatDark.surfaceAlt
-                        : _ink900.withValues(alpha: 0.06)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                action.$1,
-                style: TextStyle(
+          Opacity(
+            opacity: busy ? 0.45 : 1,
+            child: GestureDetector(
+              // Disable taps while an action is in flight — no double-submit.
+              onTap: busy ? null : () => onAction(action.$2),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
                   color: action.$3
-                      ? Colors.white
-                      : (isDark ? WawatDark.textSecondary : _ink600),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                      ? _brand
+                      : (isDark
+                          ? WawatDark.surfaceAlt
+                          : _ink900.withValues(alpha: 0.06)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  action.$1,
+                  style: TextStyle(
+                    color: action.$3
+                        ? Colors.white
+                        : (isDark ? WawatDark.textSecondary : _ink600),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
+          ),
+        if (busy)
+          const SizedBox(
+            height: 16,
+            width: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
           ),
       ],
     );
@@ -753,7 +848,7 @@ class _ActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final meta = _notificationVisual(item.type, isDark);
+    final meta = notificationVisual(item.type, isDark);
     return Container(
       padding: EdgeInsets.fromLTRB(
         18,
@@ -1066,113 +1161,6 @@ class _Skeleton extends StatelessWidget {
 }
 
 enum _InlineAction { accept, decline, view, complete }
-
-class _NotificationVisual {
-  final IconData icon;
-  final Color color;
-  final Color background;
-
-  const _NotificationVisual(this.icon, this.color, this.background);
-}
-
-_NotificationVisual _notificationVisual(String type, [bool isDark = false]) {
-  // Тёмный режим: пастельные подложки → графит (акцент — мягкая синяя),
-  // акцентные цвета иконок остаются яркими и читаемыми на #1E1E1E.
-  final Color brandFg = isDark ? WawatDark.brandText : _brand;
-  final Color brandBg = isDark ? WawatDark.brandChip : _brand50;
-  final Color emeraldFg = isDark ? WawatDark.success : _emerald;
-  final Color emeraldBg = isDark ? WawatDark.successBg : _emerald50;
-  final Color redFg = isDark ? WawatDark.dangerText : _red;
-  final Color redBg = isDark ? WawatDark.dangerSoftBg : _red50;
-  final Color amberFg = isDark ? WawatDark.warning : _amber;
-  final Color amberBg = isDark ? WawatDark.warningBg : _amber50;
-  final Color neutralFg = isDark ? WawatDark.textSecondary : _ink500;
-  final Color neutralBg =
-      isDark ? WawatDark.surfaceAlt : const Color(0x0D0F172A);
-  final Color accentBg = isDark ? WawatDark.goldSoftBg : _accent50;
-  return switch (type) {
-    'proposal_received' =>
-      _NotificationVisual(PhosphorIconsFill.handshake, brandFg, brandBg),
-    'proposal_countered' =>
-      _NotificationVisual(PhosphorIconsFill.arrowsClockwise, brandFg, brandBg),
-    'proposal_accepted' ||
-    'shipment_auto_completed' ||
-    'listing_approved' =>
-      _NotificationVisual(PhosphorIconsFill.checkCircle, emeraldFg, emeraldBg),
-    'proposal_declined' ||
-    'listing_rejected' ||
-    'verification_rejected' =>
-      _NotificationVisual(PhosphorIconsFill.xCircle, redFg, redBg),
-    'shipment_picked_up' =>
-      _NotificationVisual(PhosphorIconsFill.package, brandFg, brandBg),
-    'shipment_delivered' =>
-      _NotificationVisual(PhosphorIconsFill.shoppingBag, brandFg, brandBg),
-    'shipment_completed' ||
-    'account_verified' =>
-      _NotificationVisual(PhosphorIconsFill.sealCheck, emeraldFg, emeraldBg),
-    'shipment_disputed' =>
-      _NotificationVisual(PhosphorIconsFill.warningOctagon, redFg, redBg),
-    'shipment_cancelled' ||
-    'account_suspended' =>
-      _NotificationVisual(PhosphorIconsFill.prohibit, redFg, redBg),
-    'shipment_expired' || 'listing_expired' => _NotificationVisual(
-        PhosphorIconsFill.clockCountdown, neutralFg, neutralBg),
-    'dispute_resolved' =>
-      _NotificationVisual(PhosphorIconsFill.scales, emeraldFg, emeraldBg),
-    'counterparty_account_issue' =>
-      _NotificationVisual(PhosphorIconsFill.warningCircle, amberFg, amberBg),
-    'proposal_expiring' ||
-    'verification_processing' =>
-      _NotificationVisual(PhosphorIconsFill.hourglass, amberFg, amberBg),
-    'listing_expiring' =>
-      _NotificationVisual(PhosphorIconsFill.hourglassMedium, amberFg, amberBg),
-    'delivery_confirm_reminder' =>
-      _NotificationVisual(PhosphorIconsFill.bellRinging, amberFg, amberBg),
-    'trip_reminder' =>
-      _NotificationVisual(PhosphorIconsFill.airplaneTakeoff, brandFg, brandBg),
-    'matching_listing' =>
-      _NotificationVisual(PhosphorIconsFill.sparkle, brandFg, brandBg),
-    'new_message' =>
-      _NotificationVisual(PhosphorIconsFill.chatCircle, brandFg, brandBg),
-    'message_awaiting_reply' =>
-      _NotificationVisual(PhosphorIconsFill.chatsCircle, amberFg, amberBg),
-    'review_received' ||
-    'review_reminder' =>
-      _NotificationVisual(PhosphorIconsFill.star, amberFg, amberBg),
-    'review_prompt' =>
-      _NotificationVisual(PhosphorIconsFill.star, brandFg, brandBg),
-    'review_request' =>
-      _NotificationVisual(PhosphorIconsFill.starHalf, brandFg, brandBg),
-    'new_follower' =>
-      _NotificationVisual(PhosphorIconsFill.userPlus, brandFg, brandBg),
-    'followed_user_listing' =>
-      _NotificationVisual(PhosphorIconsFill.bell, brandFg, brandBg),
-    'saved_search_match' =>
-      _NotificationVisual(PhosphorIconsFill.bookmarkSimple, brandFg, brandBg),
-    'system_announcement' =>
-      _NotificationVisual(PhosphorIconsFill.megaphone, brandFg, brandBg),
-    'milestone_reached' =>
-      _NotificationVisual(PhosphorIconsFill.trophy, amberFg, accentBg),
-    'inactive_winback' ||
-    'welcome' =>
-      _NotificationVisual(PhosphorIconsFill.handWaving, brandFg, brandBg),
-    'account_warning' =>
-      _NotificationVisual(PhosphorIconsFill.warning, amberFg, amberBg),
-    'content_removed' =>
-      _NotificationVisual(PhosphorIconsFill.trash, redFg, redBg),
-    'report_received_ack' =>
-      _NotificationVisual(PhosphorIconsFill.shieldCheck, brandFg, brandBg),
-    'new_device_login' =>
-      _NotificationVisual(PhosphorIconsFill.deviceMobile, amberFg, amberBg),
-    'password_changed' =>
-      _NotificationVisual(PhosphorIconsFill.lockKey, brandFg, brandBg),
-    'email_changed' =>
-      _NotificationVisual(PhosphorIconsFill.envelopeSimple, brandFg, brandBg),
-    'app_update_required' =>
-      _NotificationVisual(PhosphorIconsFill.downloadSimple, brandFg, brandBg),
-    _ => _NotificationVisual(PhosphorIconsFill.bell, brandFg, brandBg),
-  };
-}
 
 String _groupLabel(String createdAt) {
   final date = DateTime.tryParse(createdAt)?.toLocal();

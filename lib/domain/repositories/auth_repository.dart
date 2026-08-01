@@ -37,6 +37,7 @@ import '../../data/network/response/trending_routes_response.dart';
 import '../../data/network/response/unread_chat_count_response.dart';
 import '../../data/network/response/unread_count_response.dart';
 import '../../data/network/response/user.dart';
+import '../../data/network/response/document_type.dart';
 import '../../data/network/response/verification_response.dart';
 import '../entities/pagination.dart';
 
@@ -133,6 +134,17 @@ abstract class AuthRepository {
 
   Future<void> submitVerification(
       {required File passport, required File selfie});
+
+  /// KYC document types (id_card/passport/driver_license/selfie) with localized
+  /// names — never hardcode the list.
+  Future<List<DocumentType>> getDocumentTypes();
+
+  /// Submit an ID document of the chosen [idType] + a selfie in one request.
+  Future<void> submitVerificationDocs({
+    required String idType,
+    required File idFile,
+    required File selfie,
+  });
 
   Future<Pagination<OfferModel>> getFavorites(int page);
 

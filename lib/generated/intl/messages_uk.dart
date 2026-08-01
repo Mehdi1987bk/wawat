@@ -706,6 +706,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "n13vdf43": MessageLookupByLibrary.simpleMessage(
       "Вашу заявку на верифікацію успішно надіслано.\nМи перевіримо ваші документи протягом 1-3 робочих днів.",
     ),
+    "navDiscover": MessageLookupByLibrary.simpleMessage("Огляд"),
     "nbgf3": MessageLookupByLibrary.simpleMessage("Введіть ваше ім\'я"),
     "nbhty3": MessageLookupByLibrary.simpleMessage("Збереження..."),
     "nbtynt7": MessageLookupByLibrary.simpleMessage("Виберіть країну"),

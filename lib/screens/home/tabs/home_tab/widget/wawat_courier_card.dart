@@ -250,13 +250,16 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                           ),
                           shape: BoxShape.circle,
                         ),
-                        child: widget.courier.user?.avatar != null
+                        child: (widget.courier.user?.avatarThumbUrl ??
+                                    widget.courier.user?.avatar) !=
+                                null
                             ? ClipOval(
                                 // Card avatar → cached thumbnail.
                                 child: CachedNetworkImage(
                                   imageUrl:
                                       widget.courier.user!.avatarThumbUrl ??
-                                          widget.courier.user!.avatar!,
+                                          widget.courier.user!.avatar ??
+                                          '',
                                   fit: BoxFit.cover,
                                   errorWidget: (context, url, error) {
                                     return Center(

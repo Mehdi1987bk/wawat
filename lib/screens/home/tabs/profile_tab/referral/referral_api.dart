@@ -146,7 +146,9 @@ class ReferralInvite {
     return ReferralInvite(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
-      avatar: json['avatar']?.toString(),
+      // Ready thumbnail url (the old raw `avatar` path never rendered).
+      avatar: json['avatar_thumb_url']?.toString() ??
+          json['avatar_url']?.toString(),
       status: json['status']?.toString() ?? 'pending',
       statusLabel: json['status_label']?.toString() ?? '',
       invitedAt: _dateTime(json['invited_at']),
@@ -176,7 +178,8 @@ class ReferralInviter {
     return ReferralInviter(
       code: json['code']?.toString() ?? '',
       referrerName: referrer['name']?.toString() ?? '',
-      referrerAvatar: referrer['avatar']?.toString(),
+      referrerAvatar: referrer['avatar_thumb_url']?.toString() ??
+          referrer['avatar_url']?.toString(),
       rewardAmount: _num(json['reward_amount']) ?? 5,
     );
   }

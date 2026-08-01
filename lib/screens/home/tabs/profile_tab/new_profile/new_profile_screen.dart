@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/cache/cache_manager.dart';
+import '../../../../../data/network/api/chat_api.dart';
 import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/language_response.dart';
 import '../../../../../data/network/response/package_types_response.dart';
@@ -18,12 +19,14 @@ import '../../../../../services/notification_socket_service.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../home_screen.dart';
+import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../faq/faq_screen.dart';
 import '../privacy_policy/privacy_policy_screen.dart';
 import '../settings/notification_settings/notification_settings_screen.dart';
 import '../support/support_screen.dart';
+import '../tier/tier_badge.dart';
 import '../verification/verification_screen.dart';
 import 'avatar_viewer.dart';
 import 'profile_api.dart';
@@ -631,9 +634,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
                       user: user,
                       content: bundle.content,
                       onFollow: () => _toggleFollow(user, bundle.content),
-                      onMessage: () => _requireAuthThen(() async {
-                        _toast('Mesaj növbəti mərhələdə qoşulacaq.');
-                      }),
+                      onMessage: () => _requireAuthThen(
+                        () => _openChat(user, bundle.content),
+                      ),
                     ),
                   ),
               ],
@@ -667,6 +670,52 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
       }
     });
   }
+
+  /// Opens (or creates) the 1:1 conversation with [user] and pushes the chat —
+  /// same start-chat contract the listing detail uses. Guarded against
+  /// double-taps while the request is in flight.
+  Future<void> _openChat(
+    WawatProfileUser user,
+    Map<String, String> content,
+  ) async {
+    final userId = user.id;
+    if (userId.isEmpty) {
+      _toast(
+        _tx(content, 'chat.user_not_found', 'İstifadəçi məlumatı tapılmadı.'),
+        error: true,
+      );
+      return;
+    }
+    if (_openingChatUserIds.contains(userId)) return;
+    _openingChatUserIds.add(userId);
+    try {
+      final response = await sl.get<ChatApi>().startChat({'user_id': userId});
+      if (!mounted) return;
+      final conversation = response.data;
+      if (conversation == null) {
+        _toast(
+          _tx(content, 'chat.open_error', 'Söhbəti açmaq alınmadı.'),
+          error: true,
+        );
+        return;
+      }
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ChatConversationScreen(conversation: conversation),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      _toast(
+        _tx(content, 'chat.open_error', 'Söhbəti açmaq alınmadı.'),
+        error: true,
+      );
+    } finally {
+      _openingChatUserIds.remove(userId);
+    }
+  }
+
+  final Set<String> _openingChatUserIds = {};
 
   Future<void> _requireAuthThen(Future<void> Function() action) async {
     final isLogged = await sl.get<AuthRepository>().isLogged();
@@ -969,8 +1018,8 @@ class _ProfileHeader extends StatelessWidget {
                     const SizedBox(height: 5),
                     Row(
                       children: [
-                        if (user.tier != null && user.tier != 'standard')
-                          _TierBadge(tier: user.tier!, content: content),
+                        if (user.tier != null && user.tier!.isNotEmpty)
+                          TierBadge(tier: user.tier!, content: content),
                         if (user.memberSince != null) ...[
                           const SizedBox(width: 8),
                           Text(
@@ -2536,6 +2585,11 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   /// overwrite would otherwise keep the old image even after cache eviction.
   int _avatarVersion = 0;
 
+  /// The just-picked file — shown instantly as a local preview so the new photo
+  /// appears the moment it's chosen, independent of upload latency or whether
+  /// the server reuses the same avatar URL. Cleared only on delete or failure.
+  File? _localAvatar;
+
   @override
   void dispose() {
     _firstName.dispose();
@@ -2574,8 +2628,12 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     final picker = ImagePicker();
     final file = await picker.pickImage(source: source, imageQuality: 88);
     if (file == null) return;
+    final picked = File(file.path);
+    // Show the chosen photo immediately — no waiting on the upload, no reliance
+    // on the server changing the avatar URL.
+    setState(() => _localAvatar = picked);
     try {
-      await widget.api.uploadAvatar(File(file.path));
+      await widget.api.uploadAvatar(picked);
       await _syncAfterAvatarChange();
       if (mounted) {
         _showSnack(
@@ -2585,6 +2643,8 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
       }
     } catch (_) {
       if (mounted) {
+        // Upload failed → drop the local preview, fall back to the real avatar.
+        setState(() => _localAvatar = null);
         _showSnack(
           context,
           _tx(widget.content, 'profile.avatar_update_failed',
@@ -2625,7 +2685,12 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   Future<void> _evictAvatar(WawatProfileUser user) async {
     for (final url in [user.avatarUrl, user.avatarThumbUrl]) {
       if (url != null && url.isNotEmpty) {
+        // Clear BOTH cache layers: evictFromCache drops the on-disk bytes, but
+        // Flutter keeps a decoded copy in PaintingBinding.imageCache keyed by
+        // the provider — without evicting that too, a rebuild with the same URL
+        // repaints the old photo.
         await CachedNetworkImage.evictFromCache(url);
+        await CachedNetworkImageProvider(url).evict();
       }
     }
   }
@@ -2663,6 +2728,7 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                               key: ValueKey(_avatarVersion),
                               user: _user,
                               size: 88,
+                              localFile: _localAvatar,
                             ),
                             Positioned(
                               right: 0,
@@ -2798,6 +2864,8 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
           Navigator.pop(context);
           try {
             await widget.api.deleteAvatar();
+            // Drop any local preview so the avatar reverts to initials.
+            if (mounted) setState(() => _localAvatar = null);
             await _syncAfterAvatarChange();
             if (mounted) {
               _showSnack(
@@ -3463,6 +3531,7 @@ class _UserActionSheet extends StatelessWidget {
           _SheetAction(
             icon: PhosphorIconsRegular.prohibit,
             label: 'İstifadəçini blokla',
+            color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
             onTap: onBlock,
           ),
           _SheetAction(
@@ -3488,11 +3557,15 @@ class _ProfileAvatar extends StatelessWidget {
   /// When true and a photo exists, tapping opens it full-screen.
   final bool tappable;
 
+  /// A just-picked local file to preview instead of the network avatar.
+  final File? localFile;
+
   const _ProfileAvatar({
     super.key,
     required this.user,
     required this.size,
     this.tappable = false,
+    this.localFile,
   });
 
   Widget _initials() => Container(
@@ -3531,7 +3604,16 @@ class _ProfileAvatar extends StatelessWidget {
     final thumb = user.avatarThumbUrl;
     final full = user.avatarUrl;
     Widget child;
-    if (thumb != null && thumb.isNotEmpty) {
+    if (localFile != null) {
+      // Instant local preview — takes priority over any network/cache state.
+      child = Image.file(
+        localFile!,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _initials(),
+      );
+    } else if (thumb != null && thumb.isNotEmpty) {
       // Thumbnails may 404 (not generated) — fall back to the full image,
       // then to initials, instead of rendering a broken-image icon.
       final hasFull = full != null && full.isNotEmpty && full != thumb;
@@ -3584,53 +3666,6 @@ class _ReviewAvatar extends StatelessWidget {
           color: Colors.white,
           fontSize: 13,
           fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _TierBadge extends StatelessWidget {
-  final String tier;
-  final Map<String, String> content;
-
-  const _TierBadge({required this.tier, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final palette = isDark
-        ? switch (tier) {
-            'bronze' => (WawatDark.tierBronzeBg, WawatDark.tierBronzeText),
-            'silver' => (WawatDark.tierSilverBg, WawatDark.tierSilverText),
-            'gold' => (WawatDark.tierGoldBg, WawatDark.tierGoldText),
-            'platinum' => (
-                WawatDark.tierPlatinumBg,
-                WawatDark.tierPlatinumText
-              ),
-            _ => (WawatDark.successBg, WawatDark.success),
-          }
-        : switch (tier) {
-            'bronze' => (const Color(0xFFEFE1D0), const Color(0xFF9A5B2A)),
-            'silver' => (const Color(0xFFF1F5F9), _ink600),
-            'gold' => (const Color(0xFFFDECC8), const Color(0xFFB67C00)),
-            'platinum' => (const Color(0xFFE0E7FF), const Color(0xFF3730A3)),
-            _ => (const Color(0xFFDCFCE7), const Color(0xFF15803D)),
-          };
-    final label = _tx(content, 'enum.user_tier.$tier', _tierLabel(tier));
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: palette.$1,
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: palette.$2,
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
         ),
       ),
     );
@@ -3730,7 +3765,7 @@ class _PrimaryButton extends StatelessWidget {
       loading: loading,
       background: _brand,
       foreground: Colors.white,
-      shadow: true,
+      shadow: false,
     );
   }
 }
@@ -4992,17 +5027,6 @@ String _relativeDate(DateTime? date) {
   if (diff.inDays > 0) return '${diff.inDays} gün';
   if (diff.inHours > 0) return '${diff.inHours} saat';
   return 'indi';
-}
-
-String _tierLabel(String tier) {
-  return switch (tier) {
-    'bronze' => 'Bürünc',
-    'silver' => 'Gümüş',
-    'gold' => 'Qızıl',
-    'platinum' => 'Platin',
-    'new' => 'Yeni',
-    _ => tier,
-  };
 }
 
 String _errorMessage(Object error) {

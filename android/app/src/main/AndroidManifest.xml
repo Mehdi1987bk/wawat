@@ -8,6 +8,8 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:supportsRtl="true"
         android:theme="@style/LaunchTheme"
         android:enableOnBackInvokedCallback="true">
@@ -46,6 +48,16 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="wawat_airplane_v5" />
+
+        <!-- Small status-bar icon for FCM notifications: a white silhouette of
+             the Wawat double-check mark. Without this, Firebase falls back to
+             ic_launcher, which the OS renders as a tiny tinted blob. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_wawat" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_color" />
     </application>
 
     <queries>

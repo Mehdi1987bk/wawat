@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tint applied by the system to the notification small icon and the app
+         name in the notification header (Wawat brand blue). -->
+    <color name="notification_color">#FF007AFE</color>
+</resources>

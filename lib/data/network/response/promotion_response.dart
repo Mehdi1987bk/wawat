@@ -1,3 +1,5 @@
+import 'receipt.dart';
+
 class PromotionPricingResponse {
   final PromotionPricing data;
   final String? message;
@@ -105,13 +107,15 @@ class PromotionTierPricing {
 class PromotionResponse {
   final Promotion data;
   final String? message;
+  final Receipt? receipt;
 
-  const PromotionResponse({required this.data, this.message});
+  const PromotionResponse({required this.data, this.message, this.receipt});
 
   factory PromotionResponse.fromJson(Map<String, dynamic> json) {
     return PromotionResponse(
       data: Promotion.fromJson(_map(json['data'])),
       message: json['message']?.toString(),
+      receipt: Receipt.fromResponse(json),
     );
   }
 }

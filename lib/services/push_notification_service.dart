@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
@@ -32,6 +34,14 @@ const _legacyAndroidChannelIds = [
 const _androidChannelName = 'Wawat Air';
 const _androidChannelDescription = 'Уведомления Wawat Air';
 const _androidSound = 'airplane';
+// White silhouette shown as the (small) status-bar icon; res/drawable-*.
+const _androidSmallIcon = 'ic_stat_wawat';
+// Full-colour brand mark shown large on the right of app-built notifications;
+// res/drawable-nodpi. Only applies when the app builds the notification
+// (foreground, or every state once the backend switches to data-only pushes).
+const _androidLargeIcon = 'ic_notification_large';
+// Brand blue the system tints the small icon / header with.
+const _brandColor = Color(0xFF007AFE);
 
 /// Background FCM handler — MUST be a top-level function, registered in main()
 /// via FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler).
@@ -61,7 +71,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final localNotifications = FlutterLocalNotificationsPlugin();
   await localNotifications.initialize(
     const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings(_androidSmallIcon),
     ),
   );
   await _createAndroidNotificationChannels(localNotifications);
@@ -79,6 +89,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         priority: Priority.high,
         playSound: true,
         sound: RawResourceAndroidNotificationSound(_androidSound),
+        icon: _androidSmallIcon,
+        largeIcon: DrawableResourceAndroidBitmap(_androidLargeIcon),
+        color: _brandColor,
       ),
     ),
     payload: message.data.isEmpty ? null : jsonEncode(message.data),
@@ -194,7 +207,7 @@ class PushNotificationService {
   void Function(String token)? _onTokenUpdated;
 
   Future<void> _initLocalNotifications() async {
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings(_androidSmallIcon);
     const ios = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -301,6 +314,9 @@ class PushNotificationService {
       priority: Priority.high,
       playSound: true,
       sound: RawResourceAndroidNotificationSound(_androidSound),
+      icon: _androidSmallIcon,
+      largeIcon: DrawableResourceAndroidBitmap(_androidLargeIcon),
+      color: _brandColor,
     );
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,

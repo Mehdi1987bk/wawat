@@ -71,8 +71,11 @@ void openNotification(
     case 'shipment':
     case 'review_compose':
       // Deal details / order — the review-compose flow lives on the deal too.
-      _push(nav,
-          id == null ? NotificationScreen() : DealDetailScreen(shipmentId: id));
+      _push(
+        nav,
+        id == null ? NotificationScreen() : DealDetailScreen(shipmentId: id),
+        identity: id == null ? 'notifications' : 'shipment:$id',
+      );
       break;
     case 'conversation':
       final conversationId = id ?? extra('conversation_id');
@@ -80,16 +83,25 @@ void openNotification(
         nav,
         conversationId == null
             ? NotificationScreen()
-            : _chatScreen(conversationId),
+            : _chatScreen(
+                conversationId,
+                // Push new-message payload carries the sender so the header
+                // shows instantly (snake_case in FCM data).
+                name: extra('actor_name'),
+                avatarThumb: extra('actor_avatar_thumb_url'),
+              ),
+        identity: conversationId == null
+            ? 'notifications'
+            : 'conversation:$conversationId',
       );
       break;
     case 'listing':
       // saved_search_match also maps here; params.saved_search_id is optional.
       _push(
-          nav,
-          id == null
-              ? NotificationScreen()
-              : ListingDetailsScreen(listingId: id));
+        nav,
+        id == null ? NotificationScreen() : ListingDetailsScreen(listingId: id),
+        identity: id == null ? 'notifications' : 'listing:$id',
+      );
       break;
     case 'review':
       // My profile → reviews tab.
@@ -100,11 +112,11 @@ void openNotification(
       if (id == null) {
         _openMyProfile(nav);
       } else {
-        _push(nav, PublicProfileScreen(userId: id));
+        _push(nav, PublicProfileScreen(userId: id), identity: 'profile:$id');
       }
       break;
     case 'report':
-      _push(nav, const ReportsScreen());
+      _push(nav, const ReportsScreen(), identity: 'reports');
       break;
     case 'verification':
       _openVerification(nav);
@@ -112,34 +124,59 @@ void openNotification(
     case 'security':
     case 'account':
       // No dedicated security/account screen yet → support is the closest hub.
-      _push(nav, const SupportScreen());
+      _push(nav, const SupportScreen(), identity: 'support');
       break;
     case 'announcement':
     case 'app_update':
       // Inbox / no in-app store screen yet → notifications feed.
-      _push(nav, NotificationScreen());
+      _push(nav, NotificationScreen(), identity: 'notifications');
       break;
     case 'home':
       nav.popUntil((route) => route.isFirst);
       break;
     case 'none':
     default:
-      _push(nav, NotificationScreen());
+      _push(nav, NotificationScreen(), identity: 'notifications');
       break;
   }
 }
 
-void _push(NavigatorState nav, Widget screen) {
-  nav.push(MaterialPageRoute(builder: (_) => screen));
+/// Pushes [screen], tagging the route with [identity]. If the route already on
+/// top carries the same identity (e.g. tapping a banner for the screen you are
+/// already viewing, from an in-app banner or an FCM tap), the push is skipped so
+/// an identical screen is never stacked twice.
+void _push(NavigatorState nav, Widget screen, {String? identity}) {
+  if (identity != null && _topRouteName(nav) == identity) return;
+  nav.push(MaterialPageRoute(
+    builder: (_) => screen,
+    settings: RouteSettings(name: identity),
+  ));
 }
 
-/// Chat opened from a bare conversation id — a minimal [Conversation] is enough:
-/// the screen loads messages from the id and the header fills in as they arrive.
-Widget _chatScreen(String conversationId) {
+/// Reads the top route's name without popping (the `popUntil((_) => true)`
+/// idiom visits only the topmost route and stops).
+String? _topRouteName(NavigatorState nav) {
+  String? name;
+  nav.popUntil((route) {
+    name = route.settings.name;
+    return true;
+  });
+  return name;
+}
+
+/// Chat opened from a bare conversation id. The screen loads messages from the
+/// id and the header upgrades to `meta.conversation` as they arrive; [name] and
+/// [avatarThumb] (from the push's `actor_name` / `actor_avatar_thumb_url`) seed
+/// the header so the sender shows INSTANTLY, before /messages returns.
+Widget _chatScreen(String conversationId, {String? name, String? avatarThumb}) {
   return ChatConversationScreen(
     conversation: Conversation(
       id: conversationId,
-      user: const ChatUser(id: 0, fullname: ''),
+      user: ChatUser(
+        id: 0,
+        fullname: name?.trim() ?? '',
+        avatarThumb: avatarThumb?.trim(),
+      ),
       unreadCount: 0,
       isPinned: false,
       isArchived: false,

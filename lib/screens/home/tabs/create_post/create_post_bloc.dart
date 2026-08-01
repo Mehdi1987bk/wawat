@@ -64,6 +64,25 @@ class CreatePostBloc extends BaseBloc {
     return run(authRepository.updateListing(id, request, idempotencyKey));
   }
 
+  /// Re-publish an expired/rejected listing (POST /listings/{id}/repost). Clones
+  /// a brand-new listing in `moderation` from the supplied request (which MUST
+  /// carry a fresh, future date); the old listing stays as history. Counts
+  /// against the active-listing quota — a 4xx `message` surfaces via [_submit].
+  Future<ListingResponse> repostListing(
+    String id,
+    CreateListingRequest request,
+    String idempotencyKey,
+  ) {
+    return run(authRepository.repostListing(id, request, idempotencyKey));
+  }
+
+  /// Fetch the full listing to pre-fill the repost form — list payloads can omit
+  /// flight_time / description. No `run()` wrapper: the screen keeps the fields
+  /// it already pre-filled from the passed-in listing if this fails.
+  Future<ListingResponse> getListingDetails(String id) {
+    return authRepository.getListingDetails(id);
+  }
+
   /// Top-level server `message` (403 permission/status, or a domain error such
   /// as the verification-tier weight limit) — shown when there are no
   /// field-level validation errors to attach.

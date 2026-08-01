@@ -698,6 +698,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "n13vdf43": MessageLookupByLibrary.simpleMessage(
       "Ваша заявка на верификацию была успешно отправлена.\nМы проверим ваши документы в течение 1-3 рабочих дней.",
     ),
+    "navDiscover": MessageLookupByLibrary.simpleMessage("Обзор"),
     "nbgf3": MessageLookupByLibrary.simpleMessage("Введите ваше имя"),
     "nbhty3": MessageLookupByLibrary.simpleMessage("Сохранение..."),
     "nbtynt7": MessageLookupByLibrary.simpleMessage("Выберите страну"),

@@ -68,13 +68,20 @@ class CourierProfileCard extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          if (user.avatar != null && user.avatar!.isNotEmpty) {
-                            _openFullScreenImage(context, user.avatar!);
+                          // Large view → full-size avatar_url (falls back to
+                          // thumb/legacy). `avatar` may be null now.
+                          final full = user.avatarUrl ??
+                              user.avatarThumbUrl ??
+                              user.avatar;
+                          if (full != null && full.isNotEmpty) {
+                            _openFullScreenImage(context, full);
                           }
                         },
                         child: Hero(
                           tag: 'courier_avatar_${user.id}',
-                          child: user.avatar != null && user.avatar!.isNotEmpty
+                          child: (user.avatarThumbUrl ?? user.avatar)
+                                      ?.isNotEmpty ==
+                                  true
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   // Card avatar (80px) → cached thumbnail.

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../data/network/response/my_listings_result.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
@@ -10,6 +12,7 @@ import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
+import '../../create_post/create_post_screen.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../../listings/promotion/promotion_screens.dart';
 import '../../listings/widgets/listing_card.dart';
@@ -61,6 +64,25 @@ class _DeliveryFullListScreenState
     return WawatContent.text(_content, key, fallback);
   }
 
+  Future<void> _onFilterSelected(String key) async {
+    final ok = await bloc.setFilter(key);
+    if (!ok && mounted) {
+      _showError(
+          _t('common.operation_failed', 'Xəta baş verdi. Yenidən cəhd et.'));
+    }
+  }
+
+  /// Label of the active filter when it is a specific (non-`all`) one — used to
+  /// tailor the empty state ("no listings under <filter>"). Null for `all`.
+  String? _activeFilterLabel() {
+    final key = bloc.activeFilterKey;
+    if (key == 'all') return null;
+    for (final f in bloc.currentFilters) {
+      if (f.key == key) return f.label;
+    }
+    return null;
+  }
+
   @override
   Widget body() {
     return Consumer<ThemeManager>(
@@ -84,6 +106,28 @@ class _DeliveryFullListScreenState
                       SliverToBoxAdapter(
                         child: _Header(isDark: isDark, content: _content),
                       ),
+                      SliverToBoxAdapter(
+                        child: StreamBuilder<List<ListingFilterOption>>(
+                          stream: bloc.filters,
+                          builder: (context, filtersSnap) {
+                            final filters = filtersSnap.data ?? const [];
+                            if (filters.isEmpty) return const SizedBox.shrink();
+                            return StreamBuilder<String>(
+                              stream: bloc.activeFilter,
+                              initialData: bloc.activeFilterKey,
+                              builder: (context, activeSnap) {
+                                return _FilterDropdown(
+                                  isDark: isDark,
+                                  content: _content,
+                                  filters: filters,
+                                  activeKey: activeSnap.data ?? 'all',
+                                  onSelect: _onFilterSelected,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
                       StreamBuilder<List<Listing>>(
                         stream: bloc.paginableList,
                         builder: (context, snapshot) {
@@ -96,7 +140,10 @@ class _DeliveryFullListScreenState
                           if (listings.isEmpty) {
                             return SliverFillRemaining(
                               hasScrollBody: false,
-                              child: _EmptyMine(content: _content),
+                              child: _EmptyMine(
+                                content: _content,
+                                filterLabel: _activeFilterLabel(),
+                              ),
                             );
                           }
                           return SliverList.builder(
@@ -230,22 +277,16 @@ class _DeliveryFullListScreenState
   }
 
   Future<void> _confirmRepost(Listing listing) async {
-    final confirmed = await _confirmAction(
-      title: _t('my_listings.repost_confirm_title'),
-      message: _t(
-        'my_listings.repost_confirm_message',
+    // Don't fire /repost with the old (past) date — it 422s. Open the publish
+    // form pre-filled from this listing (minus the date); it submits POST
+    // /listings/{id}/repost with the new future date, creating a fresh listing
+    // in moderation, and surfaces any 4xx `message` (past date, quota limit).
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => CreatePostScreen(repostListing: listing),
       ),
-      confirmLabel: _t('my_listings.repost'),
     );
-    if (!confirmed) return;
-    try {
-      await bloc.repostListing(listing);
-      if (!mounted) return;
-      _showSuccess(_t('listing.reposted'));
-    } catch (_) {
-      if (!mounted) return;
-      _showError(_t('common.operation_failed'));
-    }
   }
 
   Future<void> _confirmDelete(Listing listing) async {
@@ -387,6 +428,307 @@ class _Header extends StatelessWidget {
   }
 }
 
+/// Data-driven filter trigger. Fully rendered from `meta.filters`: the active
+/// option's label + count and a chevron; tapping opens the picker sheet.
+class _FilterDropdown extends StatelessWidget {
+  final bool isDark;
+  final Map<String, String> content;
+  final List<ListingFilterOption> filters;
+  final String activeKey;
+  final ValueChanged<String> onSelect;
+
+  const _FilterDropdown({
+    required this.isDark,
+    required this.content,
+    required this.filters,
+    required this.activeKey,
+    required this.onSelect,
+  });
+
+  ListingFilterOption get _active => filters.firstWhere(
+        (f) => f.key == activeKey,
+        orElse: () => filters.first,
+      );
+
+  Future<void> _open(BuildContext context) async {
+    final selected = await showAppBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _FilterSheet(
+        content: content,
+        filters: filters,
+        activeKey: activeKey,
+      ),
+    );
+    if (selected != null) onSelect(selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final active = _active;
+    final brandFg = isDark ? cBrandText(isDark) : _brand;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? cCard(isDark) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? WawatDark.border : _brand.withValues(alpha: 0.16),
+          ),
+          boxShadow: cCardShadow(
+            isDark,
+            const [
+              BoxShadow(
+                color: Color(0x14017BFE),
+                blurRadius: 18,
+                offset: Offset(0, 8),
+                spreadRadius: -8,
+              ),
+            ],
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _open(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  // Brand icon chip — gives the control visual weight.
+                  Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cBrandSoft(isDark),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(PhosphorIconsFill.funnelSimple,
+                        size: 20, color: brandFg),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          WawatContent.text(
+                                  content, 'my_listings.filter_title', 'Filtr')
+                              .toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? cMuted(isDark) : _ink400,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                active.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: isDark ? cText(isDark) : _ink900Local,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 7),
+                            _CountBadge(count: active.count, isDark: isDark),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Caret chip — clear "opens a dropdown" affordance.
+                  Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cBrandSoft(isDark),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(PhosphorIconsBold.caretDown,
+                        size: 15, color: brandFg),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom-sheet picker listing every option from `meta.filters` — label +
+/// count badge, the active one highlighted. Returns the chosen key.
+class _FilterSheet extends StatelessWidget {
+  final Map<String, String> content;
+  final List<ListingFilterOption> filters;
+  final String activeKey;
+
+  const _FilterSheet({
+    required this.content,
+    required this.filters,
+    required this.activeKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? cCard(isDark) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      // Reserve the OS navigation-bar inset (the sheet helper doesn't).
+      padding: EdgeInsets.fromLTRB(
+          20, 10, 20, 20 + MediaQuery.paddingOf(context).bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 6,
+              decoration: BoxDecoration(
+                color: isDark ? WawatDark.grab : const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            WawatContent.text(content, 'my_listings.filter_title', 'Filtr'),
+            style: TextStyle(
+              color: isDark ? cText(isDark) : _ink900Local,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (final option in filters)
+            _FilterRow(
+              option: option,
+              selected: option.key == activeKey,
+              isDark: isDark,
+              onTap: () => Navigator.pop(context, option.key),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterRow extends StatelessWidget {
+  final ListingFilterOption option;
+  final bool selected;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _FilterRow({
+    required this.option,
+    required this.selected,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final brandFg = isDark ? cBrandText(isDark) : _brand;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        decoration: BoxDecoration(
+          color: selected
+              ? cBrandSoft(isDark)
+              : (isDark ? cFill(isDark) : const Color(0xFFF8FAFC)),
+          borderRadius: BorderRadius.circular(16),
+          border: selected
+              ? Border.all(color: cBrandFill.withValues(alpha: 0.9), width: 1.4)
+              : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                option.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: selected
+                      ? brandFg
+                      : (isDark ? cText(isDark) : _ink900Local),
+                  fontSize: 14.5,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _CountBadge(count: option.count, isDark: isDark, strong: selected),
+            if (selected) ...[
+              const SizedBox(width: 8),
+              Icon(PhosphorIconsFill.checkCircle, size: 18, color: brandFg),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Small brand-tinted count pill (e.g. the «(2)» after a filter label).
+class _CountBadge extends StatelessWidget {
+  final int count;
+  final bool isDark;
+  final bool strong;
+
+  const _CountBadge({
+    required this.count,
+    required this.isDark,
+    this.strong = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: strong
+            ? cBrandFill
+            : (isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE)),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        '$count',
+        style: TextStyle(
+          color: strong ? Colors.white : (isDark ? cBrandText(isDark) : _brand),
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
 class _DeleteReasonSheet extends StatelessWidget {
   final Map<String, String> content;
 
@@ -412,7 +754,10 @@ class _DeleteReasonSheet extends StatelessWidget {
         color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 26),
+      // Reserve the OS navigation-bar inset so the last reason clears the
+      // gesture/back bar (showAppBottomSheet doesn't apply bottom safe-area).
+      padding: EdgeInsets.fromLTRB(
+          20, 10, 20, 26 + MediaQuery.paddingOf(context).bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,22 +955,45 @@ class _MyListingsSkeleton extends StatelessWidget {
 class _EmptyMine extends StatelessWidget {
   final Map<String, String> content;
 
-  const _EmptyMine({required this.content});
+  /// When a specific (non-`all`) filter is active but yields nothing, this is
+  /// its label — the copy then reads "no listings under <filter>" instead of
+  /// the first-time "create your first listing" prompt.
+  final String? filterLabel;
+
+  const _EmptyMine({required this.content, this.filterLabel});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final filtered = filterLabel != null;
+    final title = filtered
+        ? WawatContent.text(
+            content, 'my_listings.filter_empty_title', 'Elan yoxdur')
+        : WawatContent.text(content, 'my_listings.empty_title');
+    final subtitle = filtered
+        ? WawatContent.text(
+            content,
+            'my_listings.filter_empty_subtitle',
+            'Bu filter üzrə elan tapılmadı.',
+          )
+        : WawatContent.text(content, 'my_listings.empty_subtitle');
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_outlined,
-                color: isDark ? cBrandText(isDark) : _brand, size: 64),
+            Icon(
+              filtered
+                  ? PhosphorIconsRegular.funnelSimple
+                  : Icons.inbox_outlined,
+              color: isDark ? cBrandText(isDark) : _brand,
+              size: 64,
+            ),
             const SizedBox(height: 14),
             Text(
-              WawatContent.text(content, 'my_listings.empty_title'),
+              title,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? cText(isDark) : _ink900Local,
                 fontSize: 20,
@@ -634,10 +1002,7 @@ class _EmptyMine extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              WawatContent.text(
-                content,
-                'my_listings.empty_subtitle',
-              ),
+              subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? cText2(isDark) : _ink500,

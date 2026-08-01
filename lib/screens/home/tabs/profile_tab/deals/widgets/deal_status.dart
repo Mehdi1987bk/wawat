@@ -44,8 +44,8 @@ class DealVisual {
 
 DealVisual dealStatusVisual(String status, [bool isDark = false]) {
   // Тёмный режим: пастельные подложки → мягкий графит-акцент, тёмно-синие/зелёные
-  // акценты → яркие читаемые. cancelled → красный (явно «отменено»); declined/
-  // expired остаются нейтральным графитом.
+  // акценты → яркие читаемые. cancelled и declined → красный (явно «отменено/
+  // отклонено»); expired остаётся нейтральным графитом (истёк срок, не отказ).
   final Color brandColor = isDark ? WawatDark.brand : dealBrand700;
   final Color brandBg = isDark ? WawatDark.brandSoft : dealBrand50;
   final Color amberColor = isDark ? WawatDark.warning : dealAmber700;
@@ -68,8 +68,7 @@ DealVisual dealStatusVisual(String status, [bool isDark = false]) {
     'auto_completed' =>
       DealVisual(PhosphorIconsFill.checkCircle, emeraldColor, emeraldBg),
     'disputed' => DealVisual(PhosphorIconsFill.warningOctagon, redColor, redBg),
-    'declined' =>
-      DealVisual(PhosphorIconsFill.xCircle, neutralColor, neutralBg),
+    'declined' => DealVisual(PhosphorIconsFill.xCircle, redColor, redBg),
     'cancelled' => DealVisual(PhosphorIconsFill.prohibit, redColor, redBg),
     'expired' =>
       DealVisual(PhosphorIconsFill.clockCountdown, neutralColor, neutralBg),

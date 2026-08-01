@@ -57,6 +57,8 @@ class UserResponse {
   final int id;
   final String fullname;
   final String? avatar;
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
   @JsonKey(name: 'avatar_thumb_url')
   final String? avatarThumbUrl;
   @JsonKey(name: 'is_verified')
@@ -75,6 +77,7 @@ class UserResponse {
     required this.id,
     required this.fullname,
     this.avatar,
+    this.avatarUrl,
     this.avatarThumbUrl,
     required this.isVerified,
     required this.preferredLocale,

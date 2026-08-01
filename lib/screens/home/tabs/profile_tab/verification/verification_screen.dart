@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../data/network/response/document_type.dart';
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_response.dart';
 import '../../../../../generated/l10n.dart';
@@ -27,11 +28,17 @@ class VerificationScreen extends BaseScreen {
 class _VerificationScreenState
     extends BaseState<VerificationScreen, VerificationBloc>
     with ErrorDispatcher {
-  File? _passportImage;
+  File? _idImage;
   File? _selfieImage;
   bool _isLoading = false;
   bool _isLoadingStatus = true;
   VerificationData? _verificationData;
+
+  /// ID-document types from /document-types (selfie excluded — it's a separate
+  /// slot). Never hardcoded; the picker renders from this.
+  List<DocumentType> _idDocTypes = const [];
+  String? _selectedType;
+  bool _typesLoadFailed = false;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -39,6 +46,22 @@ class _VerificationScreenState
   void initState() {
     super.initState();
     _loadVerificationStatus();
+    _loadDocumentTypes();
+  }
+
+  Future<void> _loadDocumentTypes() async {
+    try {
+      final types = await bloc.loadDocumentTypes();
+      if (!mounted) return;
+      final idTypes = types.where((t) => !t.isSelfie).toList();
+      setState(() {
+        _idDocTypes = idTypes;
+        _selectedType ??= idTypes.isNotEmpty ? idTypes.first.code : null;
+        _typesLoadFailed = idTypes.isEmpty;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _typesLoadFailed = true);
+    }
   }
 
   Future<void> _loadVerificationStatus() async {
@@ -598,20 +621,23 @@ class _VerificationScreenState
                 ),
               ),
               const SizedBox(height: 16),
+              if (_idDocTypes.isNotEmpty)
+                _buildTypePicker(isDark)
+              else if (_typesLoadFailed)
+                _buildTypesRetry(isDark),
               _buildDocumentCard(
                 icon: Icons.description_outlined,
                 iconColor: const Color(0xFF4A90D9),
                 iconBgColor: const Color(0xFFE8F2FC),
-                title: S.of(context).vfd43vfd,
+                title: _selectedTypeName(),
                 subtitle: S.of(context).vdfvbfd34,
-                status: _passportImage != null
+                status: _idImage != null
                     ? S.of(context).gdf43gf
                     : S.of(context).fbdbdf3434,
-                statusColor:
-                    _passportImage != null ? Colors.green : Colors.grey,
+                statusColor: _idImage != null ? Colors.green : Colors.grey,
                 uploadText: S.of(context).bdf234rffd,
-                image: _passportImage,
-                onTap: _pickPassportImage,
+                image: _idImage,
+                onTap: _pickIdImage,
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -702,11 +728,11 @@ class _VerificationScreenState
     return VerificationBloc();
   }
 
-  Future<void> _pickPassportImage() async {
+  Future<void> _pickIdImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
-        _passportImage = File(image.path);
+        _idImage = File(image.path);
       });
     }
   }
@@ -720,16 +746,75 @@ class _VerificationScreenState
     }
   }
 
-  Future<void> _submitVerification() async {
-    if (_passportImage == null || _selfieImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).bgfbgd3ttgtebdsdf),
-          backgroundColor: Colors.orange,
-        ),
-      );
+  String _selectedTypeName() {
+    for (final t in _idDocTypes) {
+      if (t.code == _selectedType) return t.name;
+    }
+    return S.of(context).vfd43vfd;
+  }
 
+  Widget _buildTypePicker(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: _idDocTypes.map((t) {
+          final selected = t.code == _selectedType;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => setState(() => _selectedType = t.code),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: selected
+                    ? (isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE))
+                    : (isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9)),
+                borderRadius: BorderRadius.circular(12),
+                border: selected
+                    ? Border.all(
+                        color: const Color(0xFF017BFE).withValues(alpha: 0.6),
+                        width: 1.4)
+                    : null,
+              ),
+              child: Text(
+                t.name,
+                style: TextStyle(
+                  color: selected
+                      ? (isDark ? WawatDark.brandText : const Color(0xFF017BFE))
+                      : (isDark
+                          ? WawatDark.textSecondary
+                          : const Color(0xFF475569)),
+                  fontSize: 13.5,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _snack(String message, Color color) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  }
+
+  Future<void> _submitVerification() async {
+    if (_idImage == null || _selfieImage == null) {
+      _snack(S.of(context).bgfbgd3ttgtebdsdf, Colors.orange);
       return;
+    }
+    // Document type may be missing only because /document-types didn't load —
+    // retry once, then surface a clear (not "upload both") message.
+    if (_selectedType == null) {
+      await _loadDocumentTypes();
+      if (_selectedType == null) {
+        _snack('Sənəd növləri yüklənə bilmədi. Yenidən cəhd et.', Colors.red);
+        return;
+      }
     }
 
     setState(() {
@@ -738,7 +823,8 @@ class _VerificationScreenState
 
     try {
       await bloc.submitVerification(
-        passport: _passportImage!,
+        idType: _selectedType!,
+        idFile: _idImage!,
         selfie: _selfieImage!,
       );
 
@@ -747,7 +833,11 @@ class _VerificationScreenState
 
         await _loadVerificationStatus();
       }
-    } catch (e) {
+    } catch (_) {
+      // ErrorDispatcher only surfaces 422 (validation) — show the rest too.
+      if (mounted) {
+        _snack('Göndərmək alınmadı. Yenidən cəhd et.', Colors.red);
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -755,6 +845,44 @@ class _VerificationScreenState
         });
       }
     }
+  }
+
+  Widget _buildTypesRetry(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _loadDocumentTypes,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            color: isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.refresh,
+                  size: 18,
+                  color:
+                      isDark ? WawatDark.brandText : const Color(0xFF017BFE)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Sənəd növləri yüklənmədi. Yenidən cəhd et.',
+                  style: TextStyle(
+                    color: isDark
+                        ? WawatDark.textSecondary
+                        : const Color(0xFF475569),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildDocumentCard({

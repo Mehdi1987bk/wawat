@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -245,7 +246,19 @@ class CreatePostScreen extends BaseScreen<CreatePostBloc> {
   /// PATCH /listings/{id} (which sends the listing back to moderation).
   final Listing? editListing;
 
-  CreatePostScreen({super.key, this.initialType, this.editListing});
+  /// When set, the screen RE-PUBLISHES this expired/rejected listing: the form
+  /// is pre-filled from it (route, type, weight, price, flight time/number,
+  /// description) — but NOT the date, which must be picked anew (future only) —
+  /// and submit calls POST /listings/{id}/repost, cloning a NEW listing in
+  /// moderation. The old date is in the past and would 422, so it is dropped.
+  final Listing? repostListing;
+
+  CreatePostScreen({
+    super.key,
+    this.initialType,
+    this.editListing,
+    this.repostListing,
+  });
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -288,6 +301,12 @@ class _CreatePostScreenState
 
   bool get _isEditing => widget.editListing != null;
 
+  bool get _isReposting => widget.repostListing != null;
+
+  /// Both edit and repost open with a known type and pre-filled fields, so the
+  /// type picker is skipped and back at step 0 leaves the screen.
+  bool get _isPrefilled => _isEditing || _isReposting;
+
   Color get _accent => _isTrip ? _brand : _amber;
 
   Color get _accentSoft => _isTrip ? _brand50 : _amber50;
@@ -301,14 +320,35 @@ class _CreatePostScreenState
     _type = widget.initialType;
     if (widget.editListing != null) {
       _prefillFromListing(widget.editListing!);
+    } else if (widget.repostListing != null) {
+      // Pre-fill from what we already have (usable instantly), then hydrate from
+      // the full listing since a feed item can omit flight_time / description.
+      // Dates are intentionally left empty — the old date is in the past.
+      _prefillFromListing(widget.repostListing!, keepDates: false);
+      _hydrateRepostSource(widget.repostListing!.id);
     }
     _loadRefs();
     _refreshCurrentUser();
   }
 
-  /// Seed every form field from the listing being edited. Only the id is sent
-  /// for cities, so the display-only country fields can be blank.
-  void _prefillFromListing(Listing l) {
+  /// Re-fill the form from the authoritative full listing (GET /listings/{id}).
+  /// Only applies while the user is still on step 0 so it never overwrites edits;
+  /// dates stay empty. Silent on failure — the initial pre-fill remains.
+  Future<void> _hydrateRepostSource(String id) async {
+    try {
+      final response = await bloc.getListingDetails(id);
+      if (!mounted || _step != 0) return;
+      setState(() => _prefillFromListing(response.data, keepDates: false));
+    } catch (_) {
+      // Keep the fields already pre-filled from the passed-in listing.
+    }
+  }
+
+  /// Seed every form field from the listing being edited/reposted. Only the id
+  /// is sent for cities, so the display-only country fields can be blank. When
+  /// [keepDates] is false (repost), the date fields are left empty so the user
+  /// must pick a fresh future date (the old one is in the past → 422).
+  void _prefillFromListing(Listing l, {bool keepDates = true}) {
     _type = l.type;
     _step = 0;
     if (l.cityFromId != null) {
@@ -334,15 +374,17 @@ class _CreatePostScreenState
       ..addAll(l.packageTypeCodes);
     _description.text = l.description ?? '';
     if (l.type == 'trip') {
-      _flightDate = _parseIsoDate(l.flightDate);
+      if (keepDates) _flightDate = _parseIsoDate(l.flightDate);
       _flightTime = _parseHmTime(l.flightTime);
       _flightNumber.text = l.flightNumber ?? '';
       _maxWeight.text = _numText(l.maxWeightKg);
       _price.text = _numText(l.pricePerKg);
       _allowNegotiation = l.allowPriceNegotiation ?? false;
     } else {
-      _deliveryFrom = _parseIsoDate(l.deliveryDateFrom);
-      _deliveryTo = _parseIsoDate(l.deliveryDateTo);
+      if (keepDates) {
+        _deliveryFrom = _parseIsoDate(l.deliveryDateFrom);
+        _deliveryTo = _parseIsoDate(l.deliveryDateTo);
+      }
       _shipmentWeight.text = _numText(l.weightKg);
     }
   }
@@ -487,8 +529,8 @@ class _CreatePostScreenState
           title: _title,
           onBack: () {
             if (_step == 0) {
-              if (_isEditing) {
-                // No type picker to fall back to when editing — leave the form.
+              if (_isPrefilled) {
+                // No type picker to fall back to when editing/reposting — leave.
                 Navigator.of(context).maybePop();
               } else {
                 setState(() {
@@ -902,15 +944,22 @@ class _CreatePostScreenState
                 ),
           maxLines: _isTrip ? 4 : 3,
           error: _errors['description'],
+          // Hard cap at 2000 characters — the field can't exceed it.
+          inputFormatters: [LengthLimitingTextInputFormatter(2000)],
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: Text(
-            '${_description.text.length} / 2000',
-            style: const TextStyle(
-              color: _ink400,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+          // Rebuild only the counter as the user types (the parent step build
+          // does not run on every keystroke, which is why it was stuck at 0).
+          child: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _description,
+            builder: (context, value, _) => Text(
+              '${value.text.characters.length} / 2000',
+              style: const TextStyle(
+                color: _ink400,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
@@ -1196,6 +1245,19 @@ class _CreatePostScreenState
         // Return the updated listing so the caller can show the "back to
         // moderation" message and refresh.
         Navigator.of(context).pop(response);
+        return;
+      }
+      if (widget.repostListing != null) {
+        // Clone a fresh listing (with the new date) via /repost, then show the
+        // same success screen as a normal creation — it lands in moderation and
+        // the user can promote it right away.
+        final response = await bloc.repostListing(
+          widget.repostListing!.id,
+          _request(),
+          _idempotencyKey(),
+        );
+        if (!mounted) return;
+        setState(() => _successResponse = response);
         return;
       }
       final response = await bloc.createListing(
@@ -2571,6 +2633,7 @@ class _Input extends StatelessWidget {
   final TextInputType? keyboardType;
   final int maxLines;
   final String? error;
+  final List<TextInputFormatter>? inputFormatters;
 
   const _Input({
     required this.controller,
@@ -2582,6 +2645,7 @@ class _Input extends StatelessWidget {
     this.keyboardType,
     this.maxLines = 1,
     this.error,
+    this.inputFormatters,
   });
 
   @override
@@ -2598,6 +2662,7 @@ class _Input extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          inputFormatters: inputFormatters,
           style: TextStyle(
             color: cText(isDark),
             fontWeight: FontWeight.w700,

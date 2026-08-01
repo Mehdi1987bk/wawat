@@ -27,6 +27,15 @@ class ChatConversationBloc extends BaseBloc {
   final BehaviorSubject<bool> _otherUserTypingSubject =
       BehaviorSubject.seeded(false);
 
+  /// Chat header from `meta.conversation` of the messages response — the source
+  /// of truth for the other user's name/avatar/presence. Emitted after each
+  /// load so the screen can fill/refresh the header (esp. when opened from a
+  /// push with only the sender's name+avatar).
+  final BehaviorSubject<Conversation?> _conversationSubject =
+      BehaviorSubject.seeded(null);
+  Stream<Conversation?> get conversationHeaderStream =>
+      _conversationSubject.stream;
+
   Stream<List<ChatMessage>> get messagesStream => _messagesSubject.stream;
   Stream<bool> get isLoadingMoreStream => _isLoadingMoreSubject.stream;
   Stream<bool> get isLoadingStream => _isLoadingSubject.stream;
@@ -228,6 +237,11 @@ class ChatConversationBloc extends BaseBloc {
       final response =
           await _chatApi.getMessages(_conversationId!, 50, _currentPage);
       _advancePeerLastReadAt(response.meta.peerLastReadAt);
+      // Header source of truth — fills/refreshes name, avatar and presence.
+      if (response.meta.conversation != null &&
+          !_conversationSubject.isClosed) {
+        _conversationSubject.add(response.meta.conversation);
+      }
       if (!_messagesSubject.isClosed) {
         final localMessages = _messagesSubject.value
             .where((message) => message.id.startsWith('local-'));
@@ -302,15 +316,14 @@ class ChatConversationBloc extends BaseBloc {
     if (text.isEmpty && file == null) return;
     unawaited(stopTyping());
 
-    final futures = <Future<void>>[];
+    // WhatsApp-style: an image + text is ONE message — the text becomes the
+    // image's caption (sent in the same request). Only text (no file) stays a
+    // plain text message. Never split a captioned photo into two bubbles.
     if (file != null) {
-      // Attach the reply to the image only when there's no accompanying text.
-      futures.add(_queueImage(file, replyTo: text.isEmpty ? replyTo : null));
+      await _queueImage(file, caption: text.isEmpty ? null : text, replyTo: replyTo);
+    } else if (text.isNotEmpty) {
+      await _queueText(text, replyTo: replyTo);
     }
-    if (text.isNotEmpty) {
-      futures.add(_queueText(text, replyTo: replyTo));
-    }
-    await Future.wait(futures);
   }
 
   Future<void> _queueText(String body, {ChatReplyRef? replyTo}) {
@@ -322,10 +335,11 @@ class ChatConversationBloc extends BaseBloc {
     return _sendPending(pending);
   }
 
-  Future<void> _queueImage(File file, {ChatReplyRef? replyTo}) {
+  Future<void> _queueImage(File file, {String? caption, ChatReplyRef? replyTo}) {
     final pending = _PendingMessage(
       localId: _localId(),
       image: file,
+      body: caption, // rendered as the caption under the photo
       replyTo: replyTo,
     );
     return _sendPending(pending);
@@ -348,6 +362,7 @@ class ChatConversationBloc extends BaseBloc {
           : await _chatApi.sendMessageWithFile(
               _conversationId!,
               pending.image!,
+              caption: pending.body,
             );
       _pendingMessages.remove(pending.localId);
       // Keep the quote visible even though the API doesn't echo reply_to yet.
@@ -596,6 +611,7 @@ class ChatConversationBloc extends BaseBloc {
     _shipmentsSubject.close();
     _activeShipmentSubject.close();
     _otherUserTypingSubject.close();
+    _conversationSubject.close();
     _sendErrorsSubject.close();
     super.dispose();
   }

@@ -22,7 +22,9 @@ import '../../listings/details/listing_details_screen.dart';
 import '../../listings/listing_feed_bloc.dart';
 import '../../listings/widgets/listing_card.dart';
 import '../widget/auth_modal_utils.dart';
+import '../widget/listing_type_filter.dart';
 import '../widget/search_form_page.dart';
+import 'user_search_tab.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -63,6 +65,13 @@ class _SearchOfferListScreenState
   final ScrollController _scrollController = ScrollController();
   bool _showResults = false;
   bool _currentSearchSaved = false;
+  // 0 = route search (untouched), 1 = people search.
+  int _topTab = 0;
+
+  void _onTopTabChanged(int i) {
+    if (i == _topTab) return;
+    setState(() => _topTab = i);
+  }
 
   @override
   void scrollToTop() {
@@ -125,7 +134,8 @@ class _SearchOfferListScreenState
           final isDark = themeManager.isDarkMode;
           return ThemeAwareScreen(
             isDark: isDark,
-            lightBackgroundColor: _showResults ? _screenBg : Colors.white,
+            lightBackgroundColor:
+                (_showResults && _topTab == 0) ? _screenBg : Colors.white,
             darkBackgroundColor: WawatDark.bg,
             child: SafeArea(
               child: StreamBuilder<Map<String, String>>(
@@ -133,6 +143,14 @@ class _SearchOfferListScreenState
                 initialData: const {},
                 builder: (context, snapshot) {
                   final content = snapshot.data ?? const {};
+                  if (_topTab == 1) {
+                    return UserSearchTab(
+                      tabsBar: SearchSegmentTabs(
+                        index: 1,
+                        onChanged: _onTopTabChanged,
+                      ),
+                    );
+                  }
                   return _showResults
                       ? _buildResults(content)
                       : _buildEntry(content);
@@ -153,6 +171,11 @@ class _SearchOfferListScreenState
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
+        // Tabs sit at the very top; the "Поиск" header is now part of the first
+        // tab's content (below the tabs), not above them.
+        SliverToBoxAdapter(
+          child: SearchSegmentTabs(index: 0, onChanged: _onTopTabChanged),
+        ),
         SliverToBoxAdapter(
           child: _EntryTopBar(
             content: content,
@@ -1556,18 +1579,50 @@ class _SearchEmpty extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                // Horizontal padding gives the label breathing room so long
+                // (localized) text wraps to a second line instead of running to
+                // the rounded edges.
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: cBrandSoft(isDark),
+                  // Solid brand fill → a prominent primary CTA, not a soft chip.
+                  color: cBrandFill,
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cBrandFill.withValues(alpha: isDark ? 0.45 : 0.32),
+                      blurRadius: 16,
+                      spreadRadius: -2,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  item.label ?? '',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: cBrandText(isDark),
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      PhosphorIconsFill.bellRinging,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        item.label ?? '',
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -1875,9 +1930,9 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                   children: [
                     _FilterTitle(
                         _contentText(widget.content, 'search.filter_type')),
-                    _Segmented(
-                      content: widget.content,
+                    ListingTypeFilter(
                       value: _filters.type,
+                      content: widget.content,
                       onChanged: (value) => setState(
                         () => _filters = _filters.copyWith(
                           type: value,
@@ -2962,102 +3017,6 @@ class _FilterTitle extends StatelessWidget {
           color: isDark ? WawatDark.textSecondary : _ink700,
           fontSize: 13,
           fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _Segmented extends StatelessWidget {
-  final Map<String, String> content;
-  final String? value;
-  final ValueChanged<String?> onChanged;
-
-  const _Segmented({
-    required this.content,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // The primary filter of the whole app — framed in a brand-tinted track so
-    // the whole element reads as important, not a muted neutral toggle.
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: isDark ? WawatDark.brandSoft : _brand50,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? WawatDark.brand.withValues(alpha: 0.30)
-              : _brand.withValues(alpha: 0.14),
-        ),
-      ),
-      child: Row(
-        children: [
-          _seg(isDark, _contentText(content, 'search.type_all'), null,
-              PhosphorIconsBold.squaresFour),
-          _seg(isDark, _contentText(content, 'search.type_trip'), 'trip',
-              PhosphorIconsBold.airplaneTilt),
-          _seg(isDark, _contentText(content, 'search.type_shipment'),
-              'shipment_post', PhosphorIconsBold.package),
-        ],
-      ),
-    );
-  }
-
-  Widget _seg(bool isDark, String label, String? itemValue, IconData icon) {
-    final selected = value == itemValue;
-    final fg =
-        selected ? Colors.white : (isDark ? WawatDark.textMuted : _ink500);
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => onChanged(itemValue),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            // Selected = solid brand fill → the whole control pops.
-            color: selected
-                ? (isDark ? WawatDark.brand : _brand)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: (isDark ? WawatDark.brand : _brand)
-                          .withValues(alpha: isDark ? 0.45 : 0.35),
-                      blurRadius: 14,
-                      spreadRadius: -2,
-                      offset: const Offset(0, 5),
-                    )
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 15, color: fg),
-              const SizedBox(width: 5),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: fg,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

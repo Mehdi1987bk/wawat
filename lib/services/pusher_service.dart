@@ -159,12 +159,17 @@ class PusherService {
         return;
       }
 
-      if (eventName == 'new_message_notification') {
+      // Personal notification channel: chat banner (new_message_notification)
+      // and the unified all-types banner (new_notification) share one callback
+      // set — the event name is tagged so the handler can branch.
+      if (eventName == 'new_message_notification' ||
+          eventName == 'new_notification') {
         final channel = envelope['channel']?.toString();
         const prefix = 'private-notifications.';
         if (channel != null && channel.startsWith(prefix)) {
           final publicId = channel.substring(prefix.length);
           final data = _decodeMap(envelope['data']);
+          data['_event'] = eventName;
           final callbacks = List<PusherMessageCallback>.from(
             _notificationCallbacks[publicId] ?? const {},
           );
@@ -552,6 +557,7 @@ class PusherService {
     if (decoded is Map) {
       return decoded.map((key, value) => MapEntry('$key', value));
     }
-    return const {};
+    // Mutable (not `const {}`): callers may add keys (e.g. the `_event` tag).
+    return <String, dynamic>{};
   }
 }

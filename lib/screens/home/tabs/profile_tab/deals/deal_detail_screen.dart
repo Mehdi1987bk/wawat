@@ -8,6 +8,7 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
+import '../new_profile/new_profile_screen.dart';
 import 'deal_action_sheets.dart';
 import 'deal_detail_bloc.dart';
 import 'widgets/deal_flightpath.dart';
@@ -163,17 +164,7 @@ class _DealDetailScreenState
                     shipment: shipment,
                     content: state.content,
                     onChat: () => _openChat(shipment),
-                  ),
-                ],
-                if (shipment.status == 'completed' ||
-                    shipment.status == 'auto_completed') ...[
-                  const SizedBox(height: 12),
-                  _ReviewPromptCard(
-                    shipment: shipment,
-                    content: state.content,
-                    highlighted: shipment.status == 'completed',
-                    onReview: (rating) =>
-                        _openReview(shipment, state.content, rating),
+                    onOpenProfile: () => _openProfile(shipment),
                   ),
                 ],
                 if (shipment.status == 'disputed') ...[
@@ -202,12 +193,6 @@ class _DealDetailScreenState
                       ),
                     ),
                   ),
-                ],
-                if (shipment.status == 'declined' ||
-                    shipment.status == 'expired') ...[
-                  const SizedBox(height: 16),
-                  _TerminalRetryActions(
-                      status: shipment.status, content: state.content),
                 ],
                 const SizedBox(height: 8),
               ],
@@ -306,7 +291,8 @@ class _DealDetailScreenState
         id: 0,
         fullname: counterpart?.fullname ?? '',
         username: counterpart?.username,
-        avatar: counterpart?.avatar,
+        avatarFull: counterpart?.avatarFull,
+        avatarThumb: counterpart?.avatarThumb,
         isVerified: counterpart?.isVerified ?? false,
       ),
       unreadCount: 0,
@@ -316,6 +302,18 @@ class _DealDetailScreenState
     await Navigator.of(context).push(
       MaterialPageRoute(
           builder: (_) => ChatConversationScreen(conversation: conversation)),
+    );
+  }
+
+  void _openProfile(ShipmentData shipment) {
+    final counterpart = shipment.isCarrier ? shipment.sender : shipment.carrier;
+    final userId = counterpart?.profileId;
+    if (userId == null) {
+      _toast('Profil məlumatı tapılmadı.', isError: true);
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => PublicProfileScreen(userId: userId)),
     );
   }
 
@@ -369,8 +367,18 @@ class _DealDetailScreenState
       builder: (context, snapshot) {
         final shipment = snapshot.data?.shipment;
         final content = snapshot.data?.content ?? const {};
-        if (shipment == null || dealIsTerminal(shipment.status))
-          return const SizedBox.shrink();
+        if (shipment == null) return const SizedBox.shrink();
+        // Completed deals: pin the star-rating prompt at the bottom. Tapping a
+        // star opens the review sheet directly (no separate submit button).
+        if (shipment.status == 'completed' ||
+            shipment.status == 'auto_completed') {
+          return _ReviewBar(
+            shipment: shipment,
+            content: content,
+            onReview: (rating) => _openReview(shipment, content, rating),
+          );
+        }
+        if (dealIsTerminal(shipment.status)) return const SizedBox.shrink();
         return _ActionBar(
           shipment: shipment,
           content: content,
@@ -1014,9 +1022,13 @@ class _CounterpartCard extends StatelessWidget {
   final ShipmentData shipment;
   final Map<String, String> content;
   final VoidCallback onChat;
+  final VoidCallback onOpenProfile;
 
   const _CounterpartCard(
-      {required this.shipment, required this.content, required this.onChat});
+      {required this.shipment,
+      required this.content,
+      required this.onChat,
+      required this.onOpenProfile});
 
   @override
   Widget build(BuildContext context) {
@@ -1041,50 +1053,61 @@ class _CounterpartCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: _cFill(isDark),
-              backgroundImage: counterpart.avatarThumbUrl.isEmpty
-                  ? null
-                  : CachedNetworkImageProvider(counterpart.avatarThumbUrl),
-              child: counterpart.avatarThumbUrl.isEmpty
-                  ? Icon(PhosphorIconsFill.user,
-                      color: _cMuted(isDark), size: 20)
-                  : null,
-            ),
-            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    roleLabel,
-                    style: TextStyle(
-                        color: _cMuted(isDark),
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500),
-                  ),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          counterpart.fullname,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              color: _cTitle(isDark),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600),
-                        ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onOpenProfile,
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: _cFill(isDark),
+                      backgroundImage: counterpart.avatarThumbUrl.isEmpty
+                          ? null
+                          : CachedNetworkImageProvider(
+                              counterpart.avatarThumbUrl),
+                      child: counterpart.avatarThumbUrl.isEmpty
+                          ? Icon(PhosphorIconsFill.user,
+                              color: _cMuted(isDark), size: 20)
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            roleLabel,
+                            style: TextStyle(
+                                color: _cMuted(isDark),
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  counterpart.fullname,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: _cTitle(isDark),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              if (counterpart.isVerified) ...[
+                                const SizedBox(width: 4),
+                                const Icon(PhosphorIconsFill.sealCheck,
+                                    size: 14, color: dealBrand),
+                              ],
+                            ],
+                          ),
+                        ],
                       ),
-                      if (counterpart.isVerified) ...[
-                        const SizedBox(width: 4),
-                        const Icon(PhosphorIconsFill.sealCheck,
-                            size: 14, color: dealBrand),
-                      ],
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
             GestureDetector(
@@ -1106,72 +1129,61 @@ class _CounterpartCard extends StatelessWidget {
   }
 }
 
-class _ReviewPromptCard extends StatefulWidget {
+/// Pinned bottom bar for completed deals: a star row that submits directly —
+/// tapping a star opens the review sheet with that rating pre-selected (no
+/// separate submit button).
+class _ReviewBar extends StatefulWidget {
   final ShipmentData shipment;
   final Map<String, String> content;
-  final bool highlighted;
   final ValueChanged<int> onReview;
 
-  const _ReviewPromptCard({
+  const _ReviewBar({
     required this.shipment,
     required this.content,
-    required this.highlighted,
     required this.onReview,
   });
 
   @override
-  State<_ReviewPromptCard> createState() => _ReviewPromptCardState();
+  State<_ReviewBar> createState() => _ReviewBarState();
 }
 
-class _ReviewPromptCardState extends State<_ReviewPromptCard> {
-  // No stars pre-selected — the user must pick.
+class _ReviewBarState extends State<_ReviewBar> {
+  // Reflects the last tapped rating (kept if the user backs out of the sheet).
   int _rating = 0;
 
   @override
   Widget build(BuildContext context) {
     final shipment = widget.shipment;
     final content = widget.content;
-    final highlighted = widget.highlighted;
-    final counterpart = shipment.isCarrier ? shipment.sender : shipment.carrier;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fg =
-        highlighted ? Colors.white : (isDark ? WawatDark.brand : dealBrand700);
+    final counterpart = shipment.isCarrier ? shipment.sender : shipment.carrier;
     final question = WawatContent.text(
       content,
       'deals.review.question_template',
       '{name} ilə təcrübən necə idi?',
     ).replaceAll('{name}', counterpart?.fullname ?? '');
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark
-              ? WawatDark.surfaceAlt
-              : dealAmber100.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isDark ? WawatDark.border : dealAmber100),
-        ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? WawatDark.surface.withValues(alpha: 0.96)
+            : Colors.white.withValues(alpha: 0.96),
+        border: Border(top: BorderSide(color: _cLine(isDark))),
+      ),
+      child: SafeArea(
+        top: false,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (highlighted)
-              Text(
-                question,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: _cTitle(isDark),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600),
-              )
-            else
-              Text(
-                WawatContent.text(content, 'deals.action.review', 'Rəy yaz'),
-                style: TextStyle(
-                    color: _cTitle(isDark),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600),
-              ),
-            const SizedBox(height: 12),
+            Text(
+              question,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: _cTitle(isDark),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (i) {
@@ -1179,108 +1191,26 @@ class _ReviewPromptCardState extends State<_ReviewPromptCard> {
                 final active = value <= _rating;
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => _rating = value),
+                  onTap: () {
+                    setState(() => _rating = value);
+                    widget.onReview(value);
+                  },
                   child: Padding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                     child: Icon(
                       active
                           ? PhosphorIconsFill.star
                           : PhosphorIconsRegular.star,
                       color: const Color(0xFFF5B301),
-                      size: 32,
+                      size: 36,
                     ),
                   ),
                 );
               }),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => widget.onReview(_rating),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: highlighted
-                      ? dealBrand
-                      : (isDark ? WawatDark.brandSoft : dealBrand50),
-                  foregroundColor: fg,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                ),
-                icon: Icon(PhosphorIconsFill.star, size: 16, color: fg),
-                label: Text(
-                  WawatContent.text(content, 'deals.action.review', 'Rəy yaz'),
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _TerminalRetryActions extends StatelessWidget {
-  final String status;
-  final Map<String, String> content;
-
-  const _TerminalRetryActions({required this.status, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).maybePop(),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: _cBrandSoft(isDark),
-                foregroundColor: isDark ? WawatDark.brand : dealBrand700,
-                side: BorderSide.none,
-                padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-              ),
-              icon: const Icon(PhosphorIconsFill.arrowClockwise, size: 17),
-              label: Text(
-                WawatContent.text(
-                    content, 'deals.action.repropose', 'Yenidən təklif et'),
-                style: const TextStyle(
-                    fontSize: 13.5, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-          if (status == 'declined') ...[
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => Navigator.of(context).maybePop(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: _cInk700(isDark),
-                  side: BorderSide(color: _cLine(isDark)),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-                icon: const Icon(PhosphorIconsFill.magnifyingGlass, size: 16),
-                label: Text(
-                  WawatContent.text(
-                      content, 'deals.action.browse', 'Digər daşıyıcılara bax'),
-                  style: const TextStyle(
-                      fontSize: 13.5, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ],
-        ],
       ),
     );
   }

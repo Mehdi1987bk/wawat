@@ -82,11 +82,17 @@ class _ChatConversationScreenState
     extends BaseState<ChatConversationScreen, ChatConversationBloc>
     with ErrorDispatcher {
   final ScrollController _scrollController = ScrollController();
+  int _lastMessageCount = 0;
   final TextEditingController _messageController = TextEditingController();
   File? _selectedFile;
   Map<String, String> _content = const {};
   ChatReplyRef? _replyTarget;
   AppLifecycleListener? _lifecycleListener;
+
+  /// Header source: starts from what opened the screen (list row, or the push's
+  /// sender name+avatar), then upgraded to the authoritative `meta.conversation`
+  /// once the messages load.
+  late Conversation _conversation;
   late bool _isBlockedByMe;
   late bool _isBlockedByOther;
   late bool _isPinned;
@@ -100,6 +106,12 @@ class _ChatConversationScreenState
   @override
   void initState() {
     super.initState();
+    _conversation = widget.conversation;
+    // Upgrade the header to meta.conversation once messages load (keeps the
+    // instant push-supplied name/avatar until the authoritative one arrives).
+    bloc.conversationHeaderStream.listen((conv) {
+      if (conv != null && mounted) setState(() => _conversation = conv);
+    });
     // Suppress the global new-message banner while this thread is open.
     NotificationSocketService.instance
         .setActiveConversation(widget.conversation.id);
@@ -117,6 +129,10 @@ class _ChatConversationScreenState
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(_onScroll);
+    // Auto-scroll to the newest message: always when it's my own message (e.g.
+    // I just sent one while scrolled up), and for incoming messages only when
+    // I'm already near the bottom — so reading older history isn't interrupted.
+    bloc.messagesStream.listen(_onMessagesChanged);
     // Surface send failures (e.g. blocked by the peer) with the server message.
     bloc.sendErrorsStream.listen((error) {
       if (mounted) _showError(_extractError(error));
@@ -141,6 +157,35 @@ class _ChatConversationScreenState
         _scrollController.position.maxScrollExtent - 200) {
       bloc.loadMore();
     }
+  }
+
+  void _onMessagesChanged(List<ChatMessage> messages) {
+    if (!mounted || messages.isEmpty) return;
+    final grew = messages.length > _lastMessageCount;
+    _lastMessageCount = messages.length;
+    if (!grew) return;
+    // reverse:true → messages.first is the newest (rendered at the bottom).
+    final newestIsMine = bloc.isMyMessage(messages.first);
+    if (newestIsMine || _isNearBottom()) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _scrollToBottom());
+    }
+  }
+
+  /// In a reverse:true list the newest message sits at scroll offset 0, so
+  /// "near the bottom" means a small pixel offset, not near maxScrollExtent.
+  bool _isNearBottom() {
+    if (!_scrollController.hasClients) return true;
+    return _scrollController.position.pixels <= 300;
+  }
+
+  void _scrollToBottom() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -174,7 +219,7 @@ class _ChatConversationScreenState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _ConversationHeader(
-                    conversation: widget.conversation,
+                    conversation: _conversation,
                     onBack: () => Navigator.of(context).maybePop(),
                     onMenu: _showConversationOptions,
                     onOpenProfile: _openProfile,
@@ -224,7 +269,7 @@ class _ChatConversationScreenState
                             }
                             if (messages.isEmpty) {
                               return _EmptyConversation(
-                                user: widget.conversation.user,
+                                user: _conversation.user,
                                 content: _content,
                               );
                             }
@@ -249,6 +294,12 @@ class _ChatConversationScreenState
                                     index,
                                   );
                                   return Column(
+                                    // Stable identity so the list survives
+                                    // rebuilds/reorders on every WS or poll
+                                    // response without re-binding elements — this
+                                    // is what stops photo bubbles from flashing
+                                    // their placeholder and re-loading each time.
+                                    key: ValueKey(message.id),
                                     children: [
                                       if (showDate)
                                         _DateSeparator(
@@ -296,7 +347,7 @@ class _ChatConversationScreenState
             builder: (context, snapshot) {
               if (snapshot.data != true) return const SizedBox.shrink();
               return _TypingIndicator(
-                user: widget.conversation.user,
+                user: _conversation.user,
               );
             },
           ),
@@ -333,7 +384,7 @@ class _ChatConversationScreenState
   /// Unblock straight from the composer banner — direct, no confirmation.
   void _unblockUser() {
     _runConversationAction(() async {
-      await bloc.setUserBlocked(widget.conversation.user.apiId, false);
+      await bloc.setUserBlocked(_conversation.user.apiId, false);
       if (mounted) setState(() => _isBlockedByMe = false);
     });
   }
@@ -364,7 +415,7 @@ class _ChatConversationScreenState
       _replyTarget = ChatReplyRef.fromMessage(
         message,
         quotedIsMine: bloc.isMyMessage(message),
-        peerName: widget.conversation.user.fullname,
+        peerName: _conversation.user.fullname,
       );
     });
   }
@@ -736,14 +787,14 @@ class _ChatConversationScreenState
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    _HeaderAvatar(user: widget.conversation.user, size: 44),
+                    _HeaderAvatar(user: _conversation.user, size: 44),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.conversation.user.fullname,
+                            _conversation.user.fullname,
                             style: TextStyle(
                               color: _cText(isDark),
                               fontSize: 15,
@@ -801,7 +852,7 @@ class _ChatConversationScreenState
                     Navigator.pop(context);
                     _runConversationAction(() async {
                       await bloc.setUserBlocked(
-                        widget.conversation.user.apiId,
+                        _conversation.user.apiId,
                         !_isBlockedByMe,
                       );
                       if (mounted) {
@@ -844,7 +895,10 @@ class _ChatConversationScreenState
   }
 
   void _openProfile() {
-    final user = widget.conversation.user;
+    final user = _conversation.user;
+    // Push/WS-seeded header carries only name+avatar (no id) until
+    // meta.conversation loads — stay inert rather than flashing a false error.
+    if (!user.hasApiId) return;
     // Prefer the public id (ULID), then username — both resolve on the profile
     // endpoint; a bare numeric id is only a last resort (it can 404).
     final userId = _firstNonEmpty([

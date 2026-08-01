@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
-import 'package:flutter/services.dart';
+import 'package:buking/presentation/common/listing_share.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +21,7 @@ import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../../create_post/create_post_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
+import '../../profile_tab/tier/tier_badge.dart';
 import 'listing_details_bloc.dart';
 
 const _brand = Color(0xFF0271EB);
@@ -225,6 +226,10 @@ class _ListingDetailsScreenState
   Map<String, String> _content = const {};
   bool _initialActionHandled = false;
   bool _allowRoutePop = false;
+  // Optimistic favorite state, so tapping the heart re-renders only the icon
+  // instead of re-running _detailsFuture (which would reload the whole page).
+  // Null = follow the loaded listing; cleared on every real _reload().
+  bool? _favoritedOverride;
 
   @override
   bool get showProgressIndicator => false;
@@ -321,6 +326,8 @@ class _ListingDetailsScreenState
                           listing: listing,
                           isDark: isDark,
                           isOwner: isOwner,
+                          isFavorited:
+                              _favoritedOverride ?? (listing?.isFavorited ?? false),
                           content: bundle?.content ?? const {},
                           onBack: _handleBack,
                           onShare: listing == null
@@ -505,8 +512,19 @@ class _ListingDetailsScreenState
       AuthModalUtils.showAuthRequiredModal(context);
       return;
     }
-    final nextValue = !listing.isFavorited;
-    await bloc.setFavorite(listing, nextValue);
+    final current = _favoritedOverride ?? listing.isFavorited;
+    final nextValue = !current;
+    // Flip the heart instantly and keep the loaded page as-is — no _reload(),
+    // which would re-run _detailsFuture and rebuild the whole screen.
+    setState(() => _favoritedOverride = nextValue);
+    try {
+      await bloc.setFavorite(listing, nextValue);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _favoritedOverride = current); // revert on failure
+      _showError('Əməliyyat alınmadı.');
+      return;
+    }
     if (!mounted) return;
     _snack(
       nextValue
@@ -514,7 +532,6 @@ class _ListingDetailsScreenState
           : _t(_content, 'listing.unfavorited',
               'Elan seçilmişlərdən çıxarıldı.'),
     );
-    _reload();
   }
 
   Future<void> _pause(Listing listing) async {
@@ -563,23 +580,17 @@ class _ListingDetailsScreenState
   }
 
   Future<void> _repost(Listing listing) async {
-    final confirmed = await _confirmAction(
-      title: 'Yenidən paylaş?',
-      message: 'Elan yeni tarixlə yenidən dərc olunacaq. Davam edək?',
-      confirmLabel: 'Yenidən paylaş',
+    // Repost needs a NEW future date, so we don't fire /repost with the old
+    // (expired) date — that 422s. Instead open the publish form pre-filled from
+    // this listing (everything but the date); it submits POST /listings/{id}/
+    // repost and shows its own success (new listing → moderation). The form also
+    // surfaces the localized 4xx `message` (past date, quota limit, …).
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => CreatePostScreen(repostListing: listing),
+      ),
     );
-    if (!confirmed) return;
-    try {
-      await bloc.repostListing(listing);
-      if (!mounted) return;
-      _showSuccess(
-        _t(_content, 'listing.reposted', 'Elan yenidən paylaşıldı.'),
-      );
-      _reload();
-    } catch (_) {
-      if (!mounted) return;
-      _showError('Əməliyyat alınmadı.');
-    }
   }
 
   Future<void> _openEdit(Listing listing) async {
@@ -604,9 +615,8 @@ class _ListingDetailsScreenState
   }
 
   void _shareListing(Listing listing) {
-    final link = 'https://wawatair.com/l/${listing.id}';
-    Clipboard.setData(ClipboardData(text: link));
-    _snack('Link kopyalandı.');
+    // Open the OS share sheet (WhatsApp, Telegram, …) instead of a bare copy.
+    shareListing(listing);
   }
 
   void _openOwnerProfile(ListingOwner owner) {
@@ -626,6 +636,13 @@ class _ListingDetailsScreenState
   }
 
   Future<void> _showProposalSheet(Listing listing) async {
+    // Full listing has no space left — block the flow even if it was reached via
+    // a deep-link initial action, not just the (already disabled) CTA.
+    if (listing.isFull) {
+      _snack(listing.statusLabel ??
+          _t(_content, 'listing.fully_booked', 'Yer yoxdur.'));
+      return;
+    }
     await showListingProposalFlow(
       context,
       listing: listing,
@@ -703,6 +720,7 @@ class _ListingDetailsScreenState
 
   void _reload() {
     setState(() {
+      _favoritedOverride = null;
       _detailsFuture = _load();
     });
   }
@@ -898,6 +916,7 @@ class _TopBar extends StatelessWidget {
   final Listing? listing;
   final bool isDark;
   final bool isOwner;
+  final bool isFavorited;
   final Map<String, String> content;
   final VoidCallback onBack;
   final VoidCallback? onShare;
@@ -908,6 +927,7 @@ class _TopBar extends StatelessWidget {
     required this.listing,
     required this.isDark,
     required this.isOwner,
+    required this.isFavorited,
     required this.content,
     required this.onBack,
     this.onShare,
@@ -964,10 +984,10 @@ class _TopBar extends StatelessWidget {
               onLongPress: onReport,
             ),
             _TopIcon(
-              icon: listing?.isFavorited == true
+              icon: isFavorited
                   ? PhosphorIconsFill.heart
                   : PhosphorIconsRegular.heart,
-              color: listing?.isFavorited == true
+              color: isFavorited
                   ? Colors.red
                   : (isDark ? WawatDark.icon : _ink500),
               onTap: onFavorite,
@@ -1480,9 +1500,9 @@ class _TrustBlock extends StatelessWidget {
                             Icon(PhosphorIconsFill.sealCheck,
                                 color: cBrandText(isDark), size: 18),
                           ],
-                          if (tier != null && tier != 'standard') ...[
+                          if (tier != null && tier.isNotEmpty) ...[
                             const SizedBox(width: 5),
-                            _TierBadge(tier: tier, content: content),
+                            TierBadge(tier: tier, content: content),
                           ],
                         ],
                       ),
@@ -2448,7 +2468,9 @@ class _SimilarListCard extends StatelessWidget {
             const SizedBox(width: 10),
             if (listing.isTrip)
               Text(
-                '${_num(listing.pricePerKg)} \$/kq',
+                listing.allowPriceNegotiation == true
+                    ? 'Razılaşma ilə'
+                    : '${_num(listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText(isDark),
                   fontSize: 14,
@@ -2546,7 +2568,9 @@ class _SimilarCard extends StatelessWidget {
             ),
             if (listing.isTrip)
               Text(
-                '${_num(listing.pricePerKg)} \$/kq',
+                listing.allowPriceNegotiation == true
+                    ? 'Razılaşma ilə'
+                    : '${_num(listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText(isDark),
                   fontSize: 14,
@@ -2624,12 +2648,20 @@ class _ActionBar extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 2,
-                  child: _ActionButton(
-                    label: 'Təklif göndər',
-                    icon: PhosphorIconsFill.paperPlaneTilt,
-                    variant: _ActionVariant.primary,
-                    onTap: onOffer,
-                  ),
+                  // No space left on a full listing → the offer CTA is disabled.
+                  child: listing.isFull
+                      ? _ActionButton(
+                          label: listing.statusLabel ?? 'Yer yoxdur',
+                          icon: PhosphorIconsFill.prohibit,
+                          variant: _ActionVariant.disabled,
+                          onTap: () {},
+                        )
+                      : _ActionButton(
+                          label: 'Təklif göndər',
+                          icon: PhosphorIconsFill.paperPlaneTilt,
+                          variant: _ActionVariant.primary,
+                          onTap: onOffer,
+                        ),
                 ),
               ],
             ),
@@ -2742,7 +2774,7 @@ class _ActionBar extends StatelessWidget {
   }
 }
 
-enum _ActionVariant { primary, secondary, ghost, danger }
+enum _ActionVariant { primary, secondary, ghost, danger, disabled }
 
 class _ActionButton extends StatelessWidget {
   final String label;
@@ -2769,16 +2801,20 @@ class _ActionButton extends StatelessWidget {
         isDark ? WawatDark.surfaceAlt : const Color(0xFFF3F4F6),
       _ActionVariant.danger =>
         isDark ? WawatDark.danger : const Color(0xFFEF4444),
+      _ActionVariant.disabled =>
+        isDark ? WawatDark.surfaceAlt : const Color(0xFFEDF1F5),
     };
     final fg = switch (variant) {
       _ActionVariant.primary => Colors.white,
       _ActionVariant.secondary => isDark ? WawatDark.brandText : _brand,
       _ActionVariant.ghost => isDark ? WawatDark.textSecondary : _ink600,
       _ActionVariant.danger => Colors.white,
+      _ActionVariant.disabled =>
+        isDark ? WawatDark.textMuted : const Color(0xFF94A3B8),
     };
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: loading ? null : onTap,
+      onTap: (loading || variant == _ActionVariant.disabled) ? null : onTap,
       child: Container(
         height: 52,
         alignment: Alignment.center,
@@ -2962,7 +2998,9 @@ class _ProposalSheetState extends State<_ProposalSheet> {
               hint: 'Qısa mesaj yaz...',
               maxLines: 3,
             ),
-            if (widget.listing.isTrip && widget.listing.pricePerKg != null) ...[
+            if (widget.listing.isTrip &&
+                widget.listing.pricePerKg != null &&
+                widget.listing.allowPriceNegotiation != true) ...[
               const SizedBox(height: 9),
               Text(
                 'Təxmini qiyməti çəkiyə görə hesablaya bilərsən: ${_num(widget.listing.pricePerKg)} \$/kq',
@@ -3821,39 +3859,6 @@ class _Chip extends StatelessWidget {
   }
 }
 
-class _TierBadge extends StatelessWidget {
-  final String tier;
-  final Map<String, String> content;
-
-  const _TierBadge({
-    required this.tier,
-    required this.content,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg =
-        isDark ? _tierBgDark(tier) : _tierColor(tier).withValues(alpha: 0.12);
-    final fg = isDark ? _tierTextDark(tier) : _tierColor(tier);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Text(
-        _t(content, 'enum.user_tier.$tier', tier).toUpperCase(),
-        style: TextStyle(
-          color: fg,
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
 class _Avatar extends StatelessWidget {
   final String initials;
   final Color color;
@@ -4062,49 +4067,6 @@ IconData _packageIcon(String code) {
       return PhosphorIconsRegular.forkKnife;
     default:
       return PhosphorIconsRegular.package;
-  }
-}
-
-Color _tierColor(String tier) {
-  switch (tier) {
-    case 'platinum':
-      return _brand;
-    case 'gold':
-      return _amber;
-    case 'silver':
-      return _ink500;
-    case 'bronze':
-      return const Color(0xFFB45309);
-    default:
-      return _ink500;
-  }
-}
-
-Color _tierBgDark(String tier) {
-  switch (tier) {
-    case 'platinum':
-      return WawatDark.tierPlatinumBg;
-    case 'gold':
-      return WawatDark.tierGoldBg;
-    case 'bronze':
-      return WawatDark.tierBronzeBg;
-    case 'silver':
-    default:
-      return WawatDark.tierSilverBg;
-  }
-}
-
-Color _tierTextDark(String tier) {
-  switch (tier) {
-    case 'platinum':
-      return WawatDark.tierPlatinumText;
-    case 'gold':
-      return WawatDark.tierGoldText;
-    case 'bronze':
-      return WawatDark.tierBronzeText;
-    case 'silver':
-    default:
-      return WawatDark.tierSilverText;
   }
 }
 

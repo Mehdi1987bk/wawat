@@ -95,6 +95,11 @@ class MessageBubble extends StatelessWidget {
                   if (hasImage || localImagePath != null)
                     _ImageBubble(
                       imageUrl: imageUrl,
+                      // Stable cache identity tied to the message, not the URL:
+                      // if the backend re-signs the same image on every fetch,
+                      // the query string changes but the cache key does not — so
+                      // it serves cached bytes instead of re-downloading.
+                      cacheKey: 'chat-img-${message.id}',
                       localFile:
                           localImagePath == null ? null : File(localImagePath),
                       isMine: isMyMessage,
@@ -453,6 +458,7 @@ class _SmallAvatar extends StatelessWidget {
 
 class _ImageBubble extends StatelessWidget {
   final String? imageUrl;
+  final String? cacheKey;
   final File? localFile;
   final bool isMine;
   final String? caption;
@@ -460,6 +466,7 @@ class _ImageBubble extends StatelessWidget {
 
   const _ImageBubble({
     required this.imageUrl,
+    this.cacheKey,
     this.localFile,
     required this.isMine,
     this.caption,
@@ -474,6 +481,7 @@ class _ImageBubble extends StatelessWidget {
         MaterialPageRoute(
           builder: (_) => _ImageViewer(
             imageUrl: imageUrl,
+            cacheKey: cacheKey,
             localFile: localFile,
             title: time,
           ),
@@ -505,6 +513,8 @@ class _ImageBubble extends StatelessWidget {
               else
                 CachedNetworkImage(
                   imageUrl: imageUrl!,
+                  cacheKey: cacheKey,
+                  useOldImageOnUrlChange: true,
                   height: 180,
                   width: 220,
                   fit: BoxFit.cover,
@@ -547,11 +557,13 @@ class _ImageBubble extends StatelessWidget {
 
 class _ImageViewer extends StatelessWidget {
   final String? imageUrl;
+  final String? cacheKey;
   final File? localFile;
   final String title;
 
   const _ImageViewer({
     this.imageUrl,
+    this.cacheKey,
     this.localFile,
     required this.title,
   });
@@ -571,6 +583,8 @@ class _ImageViewer extends StatelessWidget {
               ? Image.file(localFile!, fit: BoxFit.contain)
               : CachedNetworkImage(
                   imageUrl: imageUrl!,
+                  cacheKey: cacheKey,
+                  useOldImageOnUrlChange: true,
                   fit: BoxFit.contain,
                 ),
         ),
@@ -1131,10 +1145,24 @@ class _CancelledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reasonLabel = shipment?.cancelReasonLabel ??
-        card.payload['reason_label']?.toString() ??
-        card.payload['reason_note']?.toString() ??
-        card.payload['reason']?.toString();
+    // Reason = localized label by cancel_reason_code (falls back to the
+    // backend-localized label / shipment). The free-text comment is a SEPARATE
+    // field — never fold it into the reason.
+    final code = card.payload['cancel_reason_code']?.toString() ??
+        card.payload['reason_code']?.toString();
+    // Blank-as-absent: the backend can send cancel_reason_label:"" (NOT NULL
+    // default / not-yet-backfilled), which a plain `??` chain would treat as
+    // present and then the isNotEmpty render guard would suppress — leaving a
+    // cancelled card with no reason despite a valid code. Skip blanks so the
+    // code-derived label is reached.
+    final reasonLabel = _nonBlank(shipment?.cancelReasonLabel) ??
+        _nonBlank(card.payload['reason_label']?.toString()) ??
+        _cancelReasonLabel(code) ??
+        _nonBlank(card.payload['reason']?.toString());
+    final note =
+        (card.payload['cancel_reason_note'] ?? card.payload['reason_note'])
+            ?.toString()
+            .trim();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return _DealCardShell(
       time: message.timeString(context),
@@ -1169,12 +1197,50 @@ class _CancelledCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                if (note != null && note.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      '«$note»',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textSecondary : _ink500,
+                        fontSize: 11.5,
+                        fontStyle: FontStyle.italic,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+/// Returns [s] only when it holds visible text; null for null/blank so a `??`
+/// fallback chain skips empty backend values instead of latching onto them.
+String? _nonBlank(String? s) => (s != null && s.trim().isNotEmpty) ? s : null;
+
+/// Local AZ labels for the cancel-reason codes (backend also sends a localized
+/// label; this covers the code-only payload).
+String? _cancelReasonLabel(String? code) {
+  switch (code) {
+    case 'plans_changed':
+      return 'Planlar dəyişdi';
+    case 'terms_disagreement':
+      return 'Şərtlərlə razılaşmadıq';
+    case 'counterpart_unresponsive':
+      return 'Qarşı tərəf cavab vermir';
+    case 'found_another':
+      return 'Başqa variant tapdım';
+    case 'other':
+      return 'Digər';
+    default:
+      return null;
   }
 }
 

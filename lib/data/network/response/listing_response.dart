@@ -217,6 +217,14 @@ class Listing {
     return maxWeightKg! - (reservedKg ?? 0);
   }
 
+  /// No space left. The backend sends is_full=true only when
+  /// status == 'fully_booked', so deriving it keeps the model in sync with the
+  /// server contract without a separate JSON field / codegen run.
+  bool get isFull => status == 'fully_booked';
+
+  /// Some space taken but offers are still possible.
+  bool get isPartiallyBooked => status == 'partially_booked';
+
   factory Listing.fromJson(Map<String, dynamic> json) =>
       _$ListingFromJson(json);
 

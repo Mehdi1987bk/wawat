@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import '../../../../../data/network/request/create_listing_request.dart';
 import '../../../../../data/network/request/delete_listing_request.dart';
 import '../../../../../data/network/request/listing_proposal_request.dart';
 import '../../../../../data/network/request/report_request.dart';
@@ -77,16 +76,6 @@ class ListingDetailsBloc extends BaseBloc {
     return run(authRepository.resumeListing(id));
   }
 
-  Future<ListingResponse> repostListing(Listing listing) {
-    return run(
-      authRepository.repostListing(
-        listing.id,
-        _requestFromListing(listing),
-        _idempotencyKey('repost'),
-      ),
-    );
-  }
-
   Future<void> deleteListing({
     required String id,
     required String reasonCode,
@@ -145,31 +134,4 @@ class ListingDetailsBloc extends BaseBloc {
     return 'listing-$scope-$now-$random';
   }
 
-  CreateListingRequest _requestFromListing(Listing listing) {
-    if (listing.isTrip) {
-      return CreateListingRequest(
-        type: listing.type,
-        cityFromId: listing.cityFromId ?? 0,
-        cityToId: listing.cityToId ?? 0,
-        packageTypeCodes: listing.packageTypeCodes,
-        description: listing.description,
-        allowPriceNegotiation: listing.allowPriceNegotiation,
-        flightDate: listing.flightDate,
-        flightTime: listing.flightTime,
-        flightNumber: listing.flightNumber,
-        maxWeightKg: listing.maxWeightKg,
-        pricePerKg: listing.pricePerKg,
-      );
-    }
-    return CreateListingRequest(
-      type: listing.type,
-      cityFromId: listing.cityFromId ?? 0,
-      cityToId: listing.cityToId ?? 0,
-      packageTypeCodes: listing.packageTypeCodes,
-      description: listing.description,
-      deliveryDateFrom: listing.deliveryDateFrom,
-      deliveryDateTo: listing.deliveryDateTo,
-      weightKg: listing.weightKg,
-    );
-  }
 }

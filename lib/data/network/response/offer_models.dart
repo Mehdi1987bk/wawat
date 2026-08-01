@@ -217,6 +217,10 @@ class UserModel {
   @JsonKey(name: 'avatar')
   final String? avatar;
 
+  /// Full-size avatar (`avatar_url`) — for the large/tap-to-open view.
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
+
   @JsonKey(name: 'avatar_thumb_url')
   final String? avatarThumbUrl;
 
@@ -233,6 +237,7 @@ class UserModel {
     required this.id,
     required this.fullname,
     this.avatar,
+    this.avatarUrl,
     this.avatarThumbUrl,
     required this.isVerified,
     required this.ratingAvg,

@@ -77,10 +77,14 @@ class ChatApi {
 
   Future<MessageResponse> sendMessageWithFile(
     String conversationId,
-    File file,
-  ) async {
+    File file, {
+    String? caption,
+  }) async {
+    final trimmedCaption = caption?.trim() ?? '';
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(file.path),
+      // Optional photo caption (≤1000). Saved as the image message's body.
+      if (trimmedCaption.isNotEmpty) 'caption': trimmedCaption,
     });
     final response = await _dio.post<Map<String, dynamic>>(
       '$_baseUrl/conversations/$conversationId/images',

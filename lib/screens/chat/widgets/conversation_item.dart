@@ -36,6 +36,8 @@ class ConversationItem extends StatelessWidget {
           : (isDark ? WawatDark.surface : Colors.white),
       child: InkWell(
         onTap: onTap,
+        // Long-press anywhere on the row opens the same options as the 3-dots.
+        onLongPress: onTapMenu,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Row(

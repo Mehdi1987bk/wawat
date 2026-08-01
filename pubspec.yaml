@@ -71,6 +71,7 @@ dependencies:
   photo_view: ^0.15.0
   smooth_page_indicator: ^1.0.0+2
   google_fonts: ^6.0.1
+  pdf: ^3.11.1
   share_plus: ^10.0.2
   flutter_web_auth_2: 4.1.0
   flutter_staggered_grid_view: ^0.7.0
@@ -160,6 +161,8 @@ flutter:
     - asset/add_offer.png
     - asset/icon.jpeg
     - assets/icon.png
+    - assets/fonts/NotoSans-Regular.ttf
+    - assets/fonts/NotoSans-Bold.ttf
     - asset/icon.png
 
   fonts:

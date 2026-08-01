@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 and below (Auto Backup). Exclude the Flutter SharedPreferences file
+  so a previously-saved theme choice ("isDarkMode") is NOT restored on reinstall
+  — a fresh install then follows the phone's current light/dark setting.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="FlutterSharedPreferences.xml" />
+</full-backup-content>

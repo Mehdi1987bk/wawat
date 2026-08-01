@@ -11,6 +11,7 @@ import '../../../../../services/wawat_content.dart';
 import '../../listings/listing_feed_bloc.dart';
 import '../search/search_offer_list_screen.dart';
 import 'city_selector.dart';
+import 'listing_type_filter.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -374,7 +375,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   const SizedBox(height: 8),
                 ] else ...[
                   const SizedBox(height: 11),
-                  _TypeSegment(
+                  ListingTypeFilter(
                     value: _type,
                     content: content,
                     onChanged: (value) => setState(() => _type = value),
@@ -635,7 +636,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
         children: [
           _SectionTitle(
               _contentText(content, 'search.filter_type', 'Elan tipi')),
-          _TypeSegment(
+          ListingTypeFilter(
             value: _type,
             content: content,
             onChanged: (value) => setState(() => _type = value),
@@ -837,262 +838,6 @@ class _AdvancedToggle extends StatelessWidget {
   }
 }
 
-class ListingFilterSheet extends StatefulWidget {
-  final ListingFeedBloc bloc;
-  final ListingFilterState initialFilters;
-
-  const ListingFilterSheet({
-    super.key,
-    required this.bloc,
-    required this.initialFilters,
-  });
-
-  @override
-  State<ListingFilterSheet> createState() => _ListingFilterSheetState();
-}
-
-class _ListingFilterSheetState extends State<ListingFilterSheet> {
-  late ListingFilterState _filters;
-  List<PackageType> _packages = [];
-  final _weightMin = TextEditingController();
-  final _weightMax = TextEditingController();
-  final _priceMin = TextEditingController();
-  final _priceMax = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _filters = widget.initialFilters;
-    _weightMin.text = _filters.weightMin?.toString() ?? '';
-    _weightMax.text = _filters.weightMax?.toString() ?? '';
-    _priceMin.text = _filters.priceMin?.toString() ?? '';
-    _priceMax.text = _filters.priceMax?.toString() ?? '';
-    _loadPackages();
-  }
-
-  Future<void> _loadPackages() async {
-    try {
-      final response = await widget.bloc.loadPackageTypes();
-      if (!mounted) return;
-      setState(() => _packages = response.data);
-    } catch (_) {}
-  }
-
-  @override
-  void dispose() {
-    _weightMin.dispose();
-    _weightMax.dispose();
-    _priceMin.dispose();
-    _priceMax.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = cCard(isDark);
-    final title = cText(isDark);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 10,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 22,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: isDark ? WawatDark.grab : const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Text(
-                  'Filtrlər',
-                  style: TextStyle(
-                    color: title,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(PhosphorIconsBold.x, color: title, size: 26),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            _SectionTitle('Növ'),
-            _TypeSegment(
-              value: _filters.type,
-              onChanged: (value) => setState(
-                () => _filters = _filters.copyWith(
-                  type: value,
-                  clearType: value == null,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            _SectionTitle('Sıralama'),
-            _ChoiceWrap(
-              selected: _filters.sort,
-              values: const {
-                'relevance': 'Uyğunluq',
-                'date_asc': 'Tarix ↑',
-                'date_desc': 'Tarix ↓',
-                'price_asc': 'Qiymət ↑',
-                'price_desc': 'Qiymət ↓',
-                'weight_desc': 'Çəki ↓',
-                'rating_desc': 'Reytinq',
-              },
-              onChanged: (value) => setState(
-                () => _filters = _filters.copyWith(sort: value),
-              ),
-            ),
-            const SizedBox(height: 18),
-            _SectionTitle('Bağlama növləri'),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _packages.map((package) {
-                final selected = _filters.packageTypes.contains(package.code);
-                return _FilterChip(
-                  label: package.name,
-                  selected: selected,
-                  onTap: () {
-                    final next = [..._filters.packageTypes];
-                    selected
-                        ? next.remove(package.code)
-                        : next.add(package.code);
-                    setState(
-                        () => _filters = _filters.copyWith(packageTypes: next));
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 18),
-            _SectionTitle('Tarix'),
-            Row(
-              children: [
-                Expanded(
-                  child: _DateBox(
-                    label: 'Başlanğıc',
-                    value: _filters.dateFrom,
-                    onChanged: (value) => setState(
-                      () => _filters = _filters.copyWith(
-                        dateFrom: value,
-                        clearDateFrom: value == null,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _DateBox(
-                    label: 'Son',
-                    value: _filters.dateTo,
-                    onChanged: (value) => setState(
-                      () => _filters = _filters.copyWith(
-                        dateTo: value,
-                        clearDateTo: value == null,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            _SectionTitle('Çəki və qiymət'),
-            Row(
-              children: [
-                Expanded(
-                    child: _NumberBox(controller: _weightMin, label: 'Min kq')),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: _NumberBox(controller: _weightMax, label: 'Max kq')),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                    child: _NumberBox(controller: _priceMin, label: 'Min \$')),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: _NumberBox(controller: _priceMax, label: 'Max \$')),
-              ],
-            ),
-            const SizedBox(height: 22),
-            Row(
-              children: [
-                Expanded(
-                  child: _SecondaryButton(
-                    label: 'Sıfırla',
-                    onTap: () => setState(() {
-                      _filters = ListingFilterState(
-                        cityFrom: widget.initialFilters.cityFrom,
-                        cityTo: widget.initialFilters.cityTo,
-                      );
-                      _weightMin.clear();
-                      _weightMax.clear();
-                      _priceMin.clear();
-                      _priceMax.clear();
-                    }),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 2,
-                  child: _PrimaryButton(
-                    label: 'Nəticələri göstər',
-                    onTap: () {
-                      Navigator.pop(
-                        context,
-                        _filters.copyWith(
-                          weightMin: _parse(_weightMin.text),
-                          weightMax: _parse(_weightMax.text),
-                          priceMin: _parse(_priceMin.text),
-                          priceMax: _parse(_priceMax.text),
-                          clearWeightMin: _weightMin.text.trim().isEmpty,
-                          clearWeightMax: _weightMax.text.trim().isEmpty,
-                          clearPriceMin: _priceMin.text.trim().isEmpty,
-                          clearPriceMax: _priceMax.text.trim().isEmpty,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  double? _parse(String value) {
-    if (value.trim().isEmpty) return null;
-    return double.tryParse(value.replaceAll(',', '.'));
-  }
-}
-
 class _CityField extends StatelessWidget {
   final IconData icon;
   final double iconSize;
@@ -1180,108 +925,6 @@ class _CityField extends StatelessWidget {
   }
 }
 
-class _TypeSegment extends StatelessWidget {
-  final String? value;
-  final Map<String, String> content;
-  final ValueChanged<String?> onChanged;
-
-  const _TypeSegment({
-    required this.value,
-    this.content = const {},
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // The primary filter of the whole app — framed in a brand-tinted track so
-    // the whole element reads as important, not a muted neutral toggle.
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: isDark ? WawatDark.brandSoft : _brand50,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark
-              ? WawatDark.brand.withValues(alpha: 0.30)
-              : _brand.withValues(alpha: 0.14),
-        ),
-      ),
-      child: Row(
-        children: [
-          _segment(context, _contentText(content, 'search.type_all'), null,
-              PhosphorIconsBold.squaresFour),
-          _segment(context, content['enum.listing_type.trip'] ?? 'Səfər',
-              'trip', PhosphorIconsBold.airplaneTilt),
-          _segment(
-              context,
-              content['enum.listing_type.shipment_post'] ?? 'Göndəriş',
-              'shipment_post',
-              PhosphorIconsBold.package),
-        ],
-      ),
-    );
-  }
-
-  Widget _segment(
-      BuildContext context, String label, String? itemValue, IconData icon) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selected = value == itemValue;
-    final fg =
-        selected ? Colors.white : (isDark ? WawatDark.textMuted : _ink500);
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => onChanged(itemValue),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            // Selected = solid brand fill → the whole control pops.
-            color: selected
-                ? (isDark ? WawatDark.brand : _brand)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: (isDark ? WawatDark.brand : _brand)
-                          .withValues(alpha: isDark ? 0.45 : 0.35),
-                      blurRadius: 14,
-                      spreadRadius: -2,
-                      offset: const Offset(0, 5),
-                    )
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 15, color: fg),
-              const SizedBox(width: 5),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: fg,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _SectionTitle extends StatelessWidget {
   final String text;
 
@@ -1299,33 +942,6 @@ class _SectionTitle extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-    );
-  }
-}
-
-class _ChoiceWrap extends StatelessWidget {
-  final String selected;
-  final Map<String, String> values;
-  final ValueChanged<String> onChanged;
-
-  const _ChoiceWrap({
-    required this.selected,
-    required this.values,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: values.entries.map((entry) {
-        return _FilterChip(
-          label: entry.value,
-          selected: selected == entry.key,
-          onTap: () => onChanged(entry.key),
-        );
-      }).toList(),
     );
   }
 }
@@ -1532,75 +1148,6 @@ class _AdvancedSwitchRow extends StatelessWidget {
             onChanged: onChanged,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _PrimaryButton({
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _brand,
-          borderRadius: BorderRadius.circular(17),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SecondaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _SecondaryButton({
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: cBrandSoft(isDark),
-          borderRadius: BorderRadius.circular(17),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: cBrandText(isDark),
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
       ),
     );
   }

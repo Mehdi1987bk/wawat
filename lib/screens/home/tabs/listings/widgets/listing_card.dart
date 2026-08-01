@@ -1,15 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/listing_response.dart';
+import '../../../../../presentation/common/listing_share.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import '../../profile_tab/new_profile/profile_api.dart';
+import '../../profile_tab/tier/tier_badge.dart';
 
 Future<Map<String, String>>? _listingContentFuture;
 
@@ -165,9 +166,17 @@ class _ListingCardState extends State<ListingCard> {
 
   bool get _isTrip => widget.listing.isTrip;
 
+  /// Fully booked (no space) AND not my own listing → render read-only/greyed:
+  /// muted accents, grey card, disabled "send offer". Owners still see their
+  /// full listing in the normal style so they can manage it.
+  bool get _readonly => widget.listing.isFull && !widget.isOwner;
+
   /// Акцент как ТЕКСТ/ИКОНКА: бренд-синий (səfər) или янтарь (göndəriş).
-  /// В dark: trip → brandText, shipment → warning.
+  /// В dark: trip → brandText, shipment → warning. Read-only → серый.
   Color _accentOf(bool isDark) {
+    if (_readonly) {
+      return isDark ? WawatDark.textMuted : const Color(0xFF94A3B8);
+    }
     if (isDark) {
       return _isTrip ? WawatDark.brandText : WawatDark.warning;
     }
@@ -175,7 +184,11 @@ class _ListingCardState extends State<ListingCard> {
   }
 
   /// Мягкая плашка под акцент. В dark: trip → brandChip, shipment → warningBg.
+  /// Read-only → серая.
   Color _accentSoftOf(bool isDark) {
+    if (_readonly) {
+      return isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9);
+    }
     if (isDark) {
       return _isTrip ? WawatDark.brandChip : WawatDark.warningBg;
     }
@@ -190,14 +203,25 @@ class _ListingCardState extends State<ListingCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = cCard(isDark);
-    final textColor = cText(isDark);
+    final readonly = _readonly;
+    // Fully-booked (read-only) card: grey fill, muted title text, no gold ring.
+    final cardColor = readonly
+        ? (isDark ? WawatDark.surfaceAlt : const Color(0xFFF8FAFC))
+        : cCard(isDark);
+    final textColor = readonly
+        ? (isDark ? WawatDark.textSecondary : const Color(0xFF64748B))
+        : cText(isDark);
     final mutedColor = isDark ? WawatDark.textMuted : const Color(0xFF64748B);
-    final isVipCard = _promotionType == 'vip';
+    final isVipCard = _promotionType == 'vip' && !readonly;
     // VIP → золотое кольцо, иначе тонкая обводка (в dark — карточная обводка).
     final borderColor = isVipCard
-        ? (isDark ? WawatDark.goldRing : const Color(0xFFF59E0B))
-        : (isDark ? WawatDark.border : const Color(0x0F0F172A));
+        // Border matches the VIP badge fill exactly in both themes:
+        // dark → WawatDark.gold, light → 0xFFFBBF24 (same as the "VIP" chip),
+        // not the dimmer 0xFFF59E0B / 55% goldRing used before.
+        ? (isDark ? WawatDark.gold : const Color(0xFFFBBF24))
+        : readonly
+            ? (isDark ? WawatDark.border : const Color(0x14000000))
+            : (isDark ? WawatDark.border : const Color(0x0F0F172A));
 
     return FutureBuilder<Map<String, String>>(
       future: _contentFuture,
@@ -297,14 +321,24 @@ class _ListingCardState extends State<ListingCard> {
                 color: _accentOf(isDark),
                 background: _accentSoftOf(isDark),
               ),
-              if (_promotionType == 'vip')
+              if (_readonly)
+                _Badge(
+                  icon: PhosphorIconsFill.prohibit,
+                  label: widget.listing.statusLabel ??
+                      content['enum.listing_status.fully_booked'] ??
+                      content['listing.fully_booked'] ??
+                      'Yer yoxdur',
+                  color: isDark ? WawatDark.textSecondary : const Color(0xFF475569),
+                  background: isDark ? WawatDark.elevated : const Color(0xFFE2E8F0),
+                ),
+              if (_promotionType == 'vip' && !_readonly)
                 _Badge(
                   icon: PhosphorIconsFill.sealCheck,
                   label: content['enum.promotion_type.vip'] ?? 'VİP',
                   color: isDark ? WawatDark.onGold : const Color(0xFF0F172A),
                   background: isDark ? WawatDark.gold : const Color(0xFFFBBF24),
                 ),
-              if (_promotionType == 'featured')
+              if (_promotionType == 'featured' && !_readonly)
                 _Badge(
                   icon: PhosphorIconsFill.rocketLaunch,
                   label: content['enum.promotion_type.featured'] ??
@@ -370,14 +404,8 @@ class _ListingCardState extends State<ListingCard> {
   }
 
   void _shareListing() {
-    final link = 'https://wawatair.com/l/${widget.listing.id}';
-    Clipboard.setData(ClipboardData(text: link));
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-      const SnackBar(
-        content: Text('Link kopyalandı.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    // Open the OS share sheet (WhatsApp, Telegram, …) instead of a bare copy.
+    shareListing(widget.listing);
   }
 
   Widget _buildRoute(Color textColor, Color mutedColor, bool isDark) {
@@ -449,7 +477,33 @@ class _ListingCardState extends State<ListingCard> {
           ),
         ),
         Spacer(),
-        if (_isTrip && widget.listing.pricePerKg != null) ...[
+        if (_isTrip && widget.listing.allowPriceNegotiation == true) ...[
+          const SizedBox(width: 12),
+          // Negotiable pricing → show a label instead of the meaningless "0.0 $"
+          // (a negotiable trip is stored with a ~0 price on the backend).
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(PhosphorIconsFill.handshake,
+                    size: 15, color: _accentOf(isDark)),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    'Razılaşma ilə',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _accentOf(isDark),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ] else if (_isTrip && widget.listing.pricePerKg != null) ...[
           const SizedBox(width: 12),
           Text.rich(
             TextSpan(
@@ -707,9 +761,9 @@ class _ListingCardState extends State<ListingCard> {
                           size: 16,
                         ),
                       ],
-                      if (_tierLabel(owner.tier, content) != null) ...[
+                      if (owner.tier != null && owner.tier!.isNotEmpty) ...[
                         const SizedBox(width: 6),
-                        _TierBadge(tier: owner.tier!, content: content),
+                        TierBadge(tier: owner.tier!, content: content),
                       ],
                     ],
                   ),
@@ -797,19 +851,29 @@ class _ListingCardState extends State<ListingCard> {
   Widget _buildPublicActions(Color textColor, bool isDark) {
     // Основная CTA — сплошная акцент-ЗАЛИВКА (не меняем в dark): trip синий,
     // göndəriş янтарь. Белый текст на ней остаётся.
-    final ctaBackground = _isTrip
-        ? (isDark ? WawatDark.brand : const Color(0xFF0271EB))
-        : const Color(0xFFF59E0B);
+    // Полностью занятое объявление: CTA задизейблена (мест нет), «Mesaj» жив.
+    final offerDisabled = _readonly;
+    final ctaBackground = offerDisabled
+        ? (isDark ? WawatDark.surfaceAlt : const Color(0xFFEDF1F5))
+        : _isTrip
+            ? (isDark ? WawatDark.brand : const Color(0xFF0271EB))
+            : const Color(0xFFF59E0B);
     return Row(
       children: [
         Expanded(
           flex: 3,
           child: _ActionButton(
-            label: 'Təklif göndər',
-            icon: PhosphorIconsBold.paperPlaneTilt,
+            label: offerDisabled
+                ? (widget.listing.statusLabel ?? 'Yer yoxdur')
+                : 'Təklif göndər',
+            icon: offerDisabled
+                ? PhosphorIconsBold.prohibit
+                : PhosphorIconsBold.paperPlaneTilt,
             background: ctaBackground,
-            color: Colors.white,
-            onTap: widget.onOfferTap == null
+            color: offerDisabled
+                ? (isDark ? WawatDark.textMuted : const Color(0xFF94A3B8))
+                : Colors.white,
+            onTap: offerDisabled || widget.onOfferTap == null
                 ? null
                 : () => widget.onOfferTap!(widget.listing),
           ),
@@ -1479,99 +1543,6 @@ class _Badge extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _TierBadge extends StatelessWidget {
-  final String tier;
-  final Map<String, String> content;
-
-  const _TierBadge({
-    required this.tier,
-    required this.content,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final style = _tierStyle(tier, isDark);
-    final label = _tierLabel(tier, content);
-    if (label == null) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: style.background,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: style.color,
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _TierStyle {
-  final Color background;
-  final Color color;
-
-  const _TierStyle(this.background, this.color);
-}
-
-_TierStyle _tierStyle(String tier, bool isDark) {
-  switch (tier) {
-    case 'new':
-      return isDark
-          ? const _TierStyle(WawatDark.successBg, WawatDark.success)
-          : const _TierStyle(Color(0xFFDCFCE7), Color(0xFF15803D));
-    case 'bronze':
-      return isDark
-          ? const _TierStyle(WawatDark.tierBronzeBg, WawatDark.tierBronzeText)
-          : const _TierStyle(Color(0xFFEFE1D0), Color(0xFF9A5B2A));
-    case 'silver':
-      return isDark
-          ? const _TierStyle(WawatDark.tierSilverBg, WawatDark.tierSilverText)
-          : const _TierStyle(Color(0xFFF1F5F9), Color(0xFF475569));
-    case 'gold':
-      return isDark
-          ? const _TierStyle(WawatDark.tierGoldBg, WawatDark.tierGoldText)
-          : const _TierStyle(Color(0xFFFEF3C7), Color(0xFFB45309));
-    case 'platinum':
-      return isDark
-          ? const _TierStyle(
-              WawatDark.tierPlatinumBg, WawatDark.tierPlatinumText)
-          : const _TierStyle(Color(0xFFE0E7FF), Color(0xFF4338CA));
-    default:
-      return isDark
-          ? const _TierStyle(WawatDark.tierSilverBg, WawatDark.tierSilverText)
-          : const _TierStyle(Color(0xFFF1F5F9), Color(0xFF475569));
-  }
-}
-
-String? _tierLabel(String? tier, Map<String, String> content) {
-  if (tier == null || tier.trim().isEmpty) return null;
-  final cmsLabel = content['enum.user_tier.$tier'];
-  if (cmsLabel != null && cmsLabel.trim().isNotEmpty) return cmsLabel;
-  switch (tier) {
-    case 'new':
-      return 'Yeni';
-    case 'standard':
-      return 'Standart';
-    case 'bronze':
-      return 'Bürünc';
-    case 'silver':
-      return 'Gümüş';
-    case 'gold':
-      return 'Qızıl';
-    case 'platinum':
-      return 'Platin';
-    default:
-      return tier;
   }
 }
 

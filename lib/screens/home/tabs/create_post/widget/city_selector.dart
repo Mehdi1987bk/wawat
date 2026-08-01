@@ -215,7 +215,12 @@ class _CitySelectorState extends State<CitySelector> {
                         ),
                       )
                     : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        // Reserve the Android system-nav inset so the last city
+                        // clears the gesture bar at the sheet's bottom edge.
+                        padding: EdgeInsets.only(
+                          top: 8,
+                          bottom: 8 + MediaQuery.of(context).viewPadding.bottom,
+                        ),
                         itemCount: widget.cities.length,
                         separatorBuilder: (context, index) => Divider(
                           height: 1,

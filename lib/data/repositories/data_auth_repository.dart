@@ -48,6 +48,7 @@ import '../network/response/trending_routes_response.dart';
 import '../network/response/unread_chat_count_response.dart';
 import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
+import '../network/response/document_type.dart';
 import '../network/response/verification_response.dart';
 
 const tokenRefreshTimeOut = 60 * 60 * 1000;
@@ -305,6 +306,37 @@ class DataAuthRepository implements AuthRepository {
       passport: passport,
       selfie: selfie,
     );
+  }
+
+  @override
+  Future<List<DocumentType>> getDocumentTypes() async {
+    final response =
+        await sl.get<Dio>().get<dynamic>('$baseUrl/document-types');
+    final body = response.data;
+    final list = body is Map ? body['data'] : body;
+    if (list is! List) return const [];
+    return list
+        .whereType<Map>()
+        .map((e) => DocumentType.fromJson(Map<String, dynamic>.from(e)))
+        .toList(growable: false);
+  }
+
+  @override
+  Future<void> submitVerificationDocs({
+    required String idType,
+    required File idFile,
+    required File selfie,
+  }) async {
+    // Dynamic document-type key — `documents[<code>]` — so any /document-types
+    // code (id_card/passport/driver_license) works without hardcoding.
+    final form = FormData.fromMap({
+      'documents[$idType]': await MultipartFile.fromFile(idFile.path),
+      'documents[selfie]': await MultipartFile.fromFile(selfie.path),
+    });
+    await sl.get<Dio>().post<dynamic>(
+          '$baseUrl/verification/submit',
+          data: form,
+        );
   }
 
   Future<Pagination<OfferModel>> getFavorites(int page) {
