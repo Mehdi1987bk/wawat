@@ -19,18 +19,28 @@ RegistrationRequest _$RegistrationRequestFromJson(Map<String, dynamic> json) =>
       preferredLocale: json['preferred_locale'] as String?,
       termsAccepted: json['terms_accepted'] as bool,
       deviceName: json['device_name'] as String?,
+      referralCode: json['referral_code'] as String?,
     );
 
-Map<String, dynamic> _$RegistrationRequestToJson(
-        RegistrationRequest instance) =>
-    <String, dynamic>{
-      'first_name': instance.firstName,
-      'last_name': instance.lastName,
-      'email': instance.email,
-      'password': instance.password,
-      'password_confirmation': instance.passwordConfirmation,
-      'languages': instance.languages,
-      'preferred_locale': instance.preferredLocale,
-      'terms_accepted': instance.termsAccepted,
-      'device_name': instance.deviceName,
-    };
+Map<String, dynamic> _$RegistrationRequestToJson(RegistrationRequest instance) {
+  final val = <String, dynamic>{
+    'first_name': instance.firstName,
+    'last_name': instance.lastName,
+    'email': instance.email,
+    'password': instance.password,
+    'password_confirmation': instance.passwordConfirmation,
+    'languages': instance.languages,
+    'preferred_locale': instance.preferredLocale,
+    'terms_accepted': instance.termsAccepted,
+    'device_name': instance.deviceName,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('referral_code', instance.referralCode);
+  return val;
+}

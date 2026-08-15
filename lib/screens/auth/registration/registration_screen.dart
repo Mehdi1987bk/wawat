@@ -9,15 +9,24 @@ import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
 import '../../home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
+import '../../../services/localization_service.dart';
+import '../../../wawat_app.dart';
+import '../../home/tabs/profile_tab/promo/promo_api.dart';
+import '../../home/tabs/profile_tab/referral/referral_api.dart';
 import '../login/login_screen.dart';
 import 'registration_bloc.dart';
 
 class RegistrationScreen extends BaseScreen<RegistrationBloc> {
   final VoidCallback? onLogin;
 
+  /// Optional friend's invite code to prefill (e.g. resolved from an invite
+  /// deep link). Left null for a normal registration.
+  final String? initialReferralCode;
+
   RegistrationScreen({
     Key? key,
     this.onLogin,
+    this.initialReferralCode,
   }) : super(key: key);
 
   @override
@@ -33,6 +42,7 @@ class _RegistrationScreenState
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _referralController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _termsAccepted = false;
@@ -40,11 +50,29 @@ class _RegistrationScreenState
   Map<String, String> _fieldErrors = {};
   List<Language> _languages = const [];
   final Set<String> _selectedLanguages = {};
+  ReferralInviter? _inviter;
 
   @override
   void initState() {
     super.initState();
     _loadLanguages();
+    final code = widget.initialReferralCode?.trim();
+    if (code != null && code.isNotEmpty) {
+      _referralController.text = code;
+      _resolveInviter(code);
+    }
+  }
+
+  /// Resolve who invited (public GET /referral/{code}) to show a friendly
+  /// banner and confirm the code. Best-effort: an unknown code (404) just shows
+  /// no banner and never blocks registration.
+  Future<void> _resolveInviter(String code) async {
+    try {
+      final inviter = await ReferralApi().getInviter(code);
+      if (mounted && inviter != null && inviter.referrerName.isNotEmpty) {
+        setState(() => _inviter = inviter);
+      }
+    } catch (_) {}
   }
 
   @override
@@ -54,6 +82,7 @@ class _RegistrationScreenState
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _referralController.dispose();
     super.dispose();
   }
 
@@ -86,6 +115,7 @@ class _RegistrationScreenState
 
     final locale = Localizations.localeOf(context).languageCode;
     final preferredLocale = locale == 'uk' ? 'ua' : locale;
+    final referral = _referralController.text.trim();
     final result = await bloc.registerWithResult(
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
@@ -95,6 +125,7 @@ class _RegistrationScreenState
       termsAccepted: _termsAccepted,
       communicationLanguageCodes: _selectedLanguages.toList(),
       preferredLocale: preferredLocale,
+      referralCode: referral.length > 40 ? referral.substring(0, 40) : referral,
     );
 
     if (!mounted) return;
@@ -104,6 +135,9 @@ class _RegistrationScreenState
         MaterialPageRoute(builder: (_) => HomeScreen()),
         (route) => false,
       );
+      // The reward promo is granted server-side the instant registration
+      // succeeds — surface it once we've landed on Home.
+      if (referral.isNotEmpty) _showReferralPromoToast();
       return;
     }
 
@@ -111,6 +145,31 @@ class _RegistrationScreenState
       _message = result.message;
       _fieldErrors = result.fieldErrors;
     });
+  }
+
+  /// After a referral registration the new user already owns a promo code.
+  /// Fetch the wallet and toast the referral reward. Best-effort, never blocks.
+  Future<void> _showReferralPromoToast() async {
+    try {
+      final page = await PromoApi().getPromoCodes(status: 'active');
+      PromoCode? promo;
+      for (final p in page.data) {
+        if (p.source == 'referral') {
+          promo = p;
+          break;
+        }
+      }
+      if (promo == null) return;
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            t('auth.referral_promo_received', {'amount': promo.amountLabel}),
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      );
+    } catch (_) {}
   }
 
   void _openLogin() {
@@ -169,6 +228,37 @@ class _RegistrationScreenState
             if (_message != null) ...[
               const SizedBox(height: 20),
               _AlertBox(message: _message!, isDark: isDark),
+            ],
+            if (_inviter != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.card_giftcard,
+                        color: isDark ? WawatDark.brandText : _brand, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        t('auth.referral_invited_by', {
+                          'name': _inviter!.referrerName,
+                          'reward': '${_inviter!.rewardAmount.round()} ₼',
+                        }),
+                        style: TextStyle(
+                          color: isDark ? WawatDark.brandText : _brand,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
             const SizedBox(height: 22),
             Row(
@@ -231,6 +321,14 @@ class _RegistrationScreenState
               controller: _confirmPasswordController,
               obscureText: true,
               error: _fieldErrors['password_confirmation'],
+              isDark: isDark,
+            ),
+            const SizedBox(height: 16),
+            _AuthField(
+              label: t('auth.referral_code_label'),
+              hint: t('auth.referral_code_hint'),
+              controller: _referralController,
+              error: _fieldErrors['referral_code'],
               isDark: isDark,
             ),
             const SizedBox(height: 18),

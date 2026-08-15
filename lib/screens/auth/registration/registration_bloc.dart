@@ -30,9 +30,11 @@ class RegistrationBloc extends BaseBloc {
     required bool termsAccepted,
     List<String>? communicationLanguageCodes,
     String? preferredLocale,
+    String? referralCode,
   }) async {
     loadingSink.add(true);
 
+    final code = referralCode?.trim();
     final request = RegistrationRequest(
       firstName: firstName,
       lastName: lastName,
@@ -45,6 +47,7 @@ class RegistrationBloc extends BaseBloc {
           : communicationLanguageCodes,
       preferredLocale: preferredLocale,
       deviceName: _deviceName,
+      referralCode: (code == null || code.isEmpty) ? null : code,
     );
 
     try {

@@ -19,6 +19,12 @@ class RegistrationRequest {
   @JsonKey(name: 'device_name')
   final String? deviceName;
 
+  /// Optional friend's invite code entered at registration. Sent as
+  /// `referral_code`; omitted entirely when null/empty. An unknown code never
+  /// breaks registration — the backend silently ignores it.
+  @JsonKey(name: 'referral_code', includeIfNull: false)
+  final String? referralCode;
+
   RegistrationRequest({
     required this.firstName,
     required this.lastName,
@@ -29,6 +35,7 @@ class RegistrationRequest {
     this.preferredLocale,
     required this.termsAccepted,
     this.deviceName,
+    this.referralCode,
   });
 
   factory RegistrationRequest.fromJson(Map<String, dynamic> json) =>

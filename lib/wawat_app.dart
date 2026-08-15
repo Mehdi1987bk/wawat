@@ -16,6 +16,7 @@ import 'services/network_status_service.dart';
 import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 const _appFontFamily = 'Instrument Sans';
 const _appFontFallback = <String>['Noto Sans'];
 
@@ -96,6 +97,7 @@ class App extends StatelessWidget {
                 color: AppColors.appBarbgColor,
                 debugShowCheckedModeBanner: false,
                 navigatorKey: navigatorKey,
+                scaffoldMessengerKey: scaffoldMessengerKey,
                 navigatorObservers: [routeObserver],
                 theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
                 darkTheme: _buildDarkTheme(),

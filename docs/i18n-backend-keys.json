@@ -904,5 +904,17 @@
  },
  "enum.report_reason_code.other": {
   "az": "Digər"
+ },
+ "auth.referral_code_label": {
+  "az": "Dəvət kodu (istəyə bağlı)"
+ },
+ "auth.referral_code_hint": {
+  "az": "Dostunun kodu"
+ },
+ "auth.referral_invited_by": {
+  "az": "Sizi {name} dəvət etdi — qeydiyyatdan sonra hər ikiniz {reward} qazanacaqsınız"
+ },
+ "auth.referral_promo_received": {
+  "az": "Sizə {amount} promokod verildi 🎁"
  }
 }

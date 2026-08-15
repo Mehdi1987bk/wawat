@@ -329,6 +329,12 @@ The **Azerbaijani** text is the source of truth; translate the rest.
 - `enum.report_reason_code.inappropriate` — Uyğunsuz
 - `enum.report_reason_code.other` — Digər
 
+## auth — referral at registration  (4)
+- `auth.referral_code_label` — Dəvət kodu (istəyə bağlı)
+- `auth.referral_code_hint` — Dostunun kodu
+- `auth.referral_invited_by` — Sizi {name} dəvət etdi — qeydiyyatdan sonra hər ikiniz {reward} qazanacaqsınız
+- `auth.referral_promo_received` — Sizə {amount} promokod verildi 🎁
+
 ## common — shared states  (9)
 - `common.back` — Geri
 - `common.cancel` — İmtina et

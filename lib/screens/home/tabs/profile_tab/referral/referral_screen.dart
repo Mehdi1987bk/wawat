@@ -176,7 +176,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
         _step(d, 2, 'Dostun qoşulur', 'link ilə qeydiyyatdan keçir.'),
         const SizedBox(height: 12),
         _step(d, 3, 'İkiniz də qazanırsınız',
-            'ilk sifarişdən sonra ${_info.rewardAmount.round()} ${_info.currencySymbol} promokod.'),
+            'qeydiyyatdan keçən kimi ${_info.rewardAmount.round()} ${_info.currencySymbol} promokod.'),
         const SizedBox(height: 20),
         _codeCard(d),
         const SizedBox(height: 16),
@@ -266,7 +266,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Dostun ilk sifarişini tamamlayanda promokod hər ikinizə gedir.',
+                  'Dostun qeydiyyatdan keçən kimi promokod hər ikinizə gedir.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
