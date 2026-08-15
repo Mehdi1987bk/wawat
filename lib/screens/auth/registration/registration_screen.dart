@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -51,11 +53,15 @@ class _RegistrationScreenState
   List<Language> _languages = const [];
   final Set<String> _selectedLanguages = {};
   ReferralInviter? _inviter;
+  Timer? _inviteDebounce;
+  String? _resolvedCode;
 
   @override
   void initState() {
     super.initState();
     _loadLanguages();
+    // Manual entry: resolve "who invited" as the user types the code (debounced).
+    _referralController.addListener(_onReferralChanged);
     final code = widget.initialReferralCode?.trim();
     if (code != null && code.isNotEmpty) {
       _referralController.text = code;
@@ -63,16 +69,35 @@ class _RegistrationScreenState
     }
   }
 
+  void _onReferralChanged() {
+    final code = _referralController.text.trim();
+    if (code == _resolvedCode) return;
+    _inviteDebounce?.cancel();
+    if (code.length < 4) {
+      _resolvedCode = null;
+      if (_inviter != null) setState(() => _inviter = null);
+      return;
+    }
+    _inviteDebounce = Timer(const Duration(milliseconds: 600), () {
+      _resolvedCode = code;
+      _resolveInviter(code);
+    });
+  }
+
   /// Resolve who invited (public GET /referral/{code}) to show a friendly
-  /// banner and confirm the code. Best-effort: an unknown code (404) just shows
-  /// no banner and never blocks registration.
+  /// banner and confirm the code. Best-effort: an unknown code (404) clears the
+  /// banner and never blocks registration.
   Future<void> _resolveInviter(String code) async {
     try {
       final inviter = await ReferralApi().getInviter(code);
-      if (mounted && inviter != null && inviter.referrerName.isNotEmpty) {
-        setState(() => _inviter = inviter);
-      }
-    } catch (_) {}
+      if (!mounted) return;
+      // Ignore a stale response if the field has moved on to another code.
+      if (_referralController.text.trim() != code) return;
+      final show = inviter != null && inviter.referrerName.isNotEmpty;
+      setState(() => _inviter = show ? inviter : null);
+    } catch (_) {
+      if (mounted && _inviter != null) setState(() => _inviter = null);
+    }
   }
 
   @override
@@ -82,6 +107,7 @@ class _RegistrationScreenState
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _inviteDebounce?.cancel();
     _referralController.dispose();
     super.dispose();
   }
