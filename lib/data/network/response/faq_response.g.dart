@@ -7,8 +7,8 @@ part of 'faq_response.dart';
 // **************************************************************************
 
 FaqResponse _$FaqResponseFromJson(Map<String, dynamic> json) => FaqResponse(
-      success: json['success'] as bool,
-      message: json['message'] as String,
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
       data: (json['data'] as List<dynamic>)
           .map((e) => FaqItem.fromJson(e as Map<String, dynamic>))
           .toList(),

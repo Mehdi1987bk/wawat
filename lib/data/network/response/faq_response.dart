@@ -4,13 +4,15 @@ part 'faq_response.g.dart';
 
 @JsonSerializable()
 class FaqResponse {
+  // The /faqs endpoint returns only { data: [...] } — success/message are
+  // optional so their absence never breaks parsing.
   final bool success;
   final String message;
   final List<FaqItem> data;
 
   FaqResponse({
-    required this.success,
-    required this.message,
+    this.success = false,
+    this.message = '',
     required this.data,
   });
 

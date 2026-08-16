@@ -103,8 +103,9 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             Text(
                               t('menu.help'),
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.2,
                                 color: isDark ? cText(isDark) : Colors.black,
                               ),
                             ),
