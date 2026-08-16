@@ -226,13 +226,13 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
           bundle.user.preferredLocale ??
           LocalizationService.instance.locale,
     );
-    final fallback = const [
-      _LanguageOption('az', 'Azərbaycanca', '🇦🇿'),
-      _LanguageOption('en', 'English', '🇬🇧'),
-      _LanguageOption('ru', 'Русский', '🇷🇺'),
-      _LanguageOption('tr', 'Türkçe', '🇹🇷'),
-      _LanguageOption('ua', 'Українська', '🇺🇦'),
-      _LanguageOption('es', 'Español', '🇪🇸'),
+    final fallback = [
+      _LanguageOption('az', tr('common.lang_az', 'Azərbaycanca'), '🇦🇿'),
+      _LanguageOption('en', tr('common.lang_en', 'English'), '🇬🇧'),
+      _LanguageOption('ru', tr('common.lang_ru', 'Русский'), '🇷🇺'),
+      _LanguageOption('tr', tr('common.lang_tr', 'Türkçe'), '🇹🇷'),
+      _LanguageOption('ua', tr('common.lang_ua', 'Українська'), '🇺🇦'),
+      _LanguageOption('es', tr('common.lang_es', 'Español'), '🇪🇸'),
     ];
 
     List<_LanguageOption> options = fallback;
@@ -1599,19 +1599,19 @@ class _MenuError extends StatelessWidget {
 String _localeName(String? code) {
   switch (code) {
     case 'en':
-      return 'English';
+      return tr('common.lang_en', 'English');
     case 'ru':
-      return 'Русский';
+      return tr('common.lang_ru', 'Русский');
     case 'tr':
-      return 'Türkçe';
+      return tr('common.lang_tr', 'Türkçe');
     case 'ua':
     case 'uk':
-      return 'Українська';
+      return tr('common.lang_ua', 'Українська');
     case 'es':
-      return 'Español';
+      return tr('common.lang_es', 'Español');
     case 'az':
     default:
-      return 'Azərbaycanca';
+      return tr('common.lang_az', 'Azərbaycanca');
   }
 }
 

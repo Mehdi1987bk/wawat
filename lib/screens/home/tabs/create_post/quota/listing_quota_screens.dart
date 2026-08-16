@@ -36,7 +36,7 @@ String _money(double v) {
 
 String _price(double v) => '${_money(v)} $_kCurrency';
 
-String _apiError(Object error, Map<String, String> content) {
+String _apiError(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
     if (data is Map && data['message'] is String) {
@@ -44,8 +44,7 @@ String _apiError(Object error, Map<String, String> content) {
       if (m.isNotEmpty) return m;
     }
   }
-  return WawatContent.text(
-      content, 'common.error', 'Xəta baş verdi. Yenidən cəhd edin.');
+  return tr('common.error', 'Xəta baş verdi. Yenidən cəhd edin.');
 }
 
 String _qt(Map<String, String> content, String key, String fallback) =>
@@ -144,7 +143,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
             return Column(
               children: [
                 _QuotaAppBar(
-                  title: _qt(_content, 'listing_quota.title', 'Limiti artır'),
+                  title: tr('listing_quota.title', 'Limiti artır'),
                   onClose: () => Navigator.of(context).maybePop(),
                 ),
                 Expanded(
@@ -174,10 +173,10 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        _qt(
-                          _content,
+                        tr(
                           'listing_quota.limit_full_title.${widget.type}',
-                          'Aktiv $typeLabel limitin dolub',
+                          'Aktiv {type} limitin dolub',
+                          {'type': typeLabel},
                         ),
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -203,8 +202,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                               color: cBrandText(isDark), size: 16),
                           const SizedBox(width: 6),
                           Text(
-                            _qt(_content, 'listing_quota.plans_header',
-                                    'Limiti artır')
+                            tr('listing_quota.plans_header', 'Limiti artır')
                                 .toUpperCase(),
                             style: TextStyle(
                               color: cText2(isDark),
@@ -255,9 +253,8 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                           const SizedBox(width: 7),
                           Text(
                             selected == null
-                                ? _qt(_content, 'listing_quota.pay_cta_empty',
-                                    'Plan seç')
-                                : '${_price(selected.price)} ${_qt(_content, 'listing_quota.pay_cta', 'ödə və limiti artır')}',
+                                ? tr('listing_quota.pay_cta_empty', 'Plan seç')
+                                : '${_price(selected.price)} ${tr('listing_quota.pay_cta', 'ödə və limiti artır')}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14.5,
@@ -281,7 +278,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                                 color: cText2(isDark), size: 17),
                             const SizedBox(width: 7),
                             Text(
-                              _qt(_content, 'listing_quota.pause_instead',
+                              tr('listing_quota.pause_instead',
                                   'və ya bir elanı dayandır'),
                               style: TextStyle(
                                 color: cText2(isDark),
@@ -306,7 +303,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
   Widget _loading(bool isDark) => Column(
         children: [
           _QuotaAppBar(
-            title: _qt(_content, 'listing_quota.title', 'Limiti artır'),
+            title: tr('listing_quota.title', 'Limiti artır'),
             onClose: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
@@ -320,7 +317,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
   Widget _error(bool isDark) => Column(
         children: [
           _QuotaAppBar(
-            title: _qt(_content, 'listing_quota.title', 'Limiti artır'),
+            title: tr('listing_quota.title', 'Limiti artır'),
             onClose: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
@@ -336,7 +333,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                         size: 34),
                     const SizedBox(height: 12),
                     Text(
-                      _qt(_content, 'listing_quota.load_error',
+                      tr('listing_quota.load_error',
                           'Planlar yüklənmədi. Yenidən cəhd et.'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -352,7 +349,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                       onPressed: () async =>
                           setState(() => _future = _api.getPricing()),
                       child: Text(
-                        _qt(_content, 'common.retry', 'Yenidən'),
+                        tr('common.retry', 'Yenidən'),
                         style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.w700),
                       ),
@@ -497,7 +494,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
       if (!mounted) return;
       setState(() {
         _paying = false;
-        _error = _apiError(e, _content);
+        _error = _apiError(e);
       });
     }
   }
@@ -527,7 +524,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
     );
   }
 
-  String _failedText() => _qt(_content, 'listing_quota.payment_failed_sub',
+  String _failedText() => tr('listing_quota.payment_failed_sub',
       'Məbləğ tutulmadı və limit dəyişmədi. Yenidən cəhd et.');
 
   Future<void> _refreshStatus() async {
@@ -549,7 +546,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
       if (!mounted) return;
       setState(() {
         _paying = false;
-        _error = _apiError(e, _content);
+        _error = _apiError(e);
       });
     }
   }
@@ -568,7 +565,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
           child: Column(
             children: [
               _QuotaAppBar(
-                title: _qt(_content, 'listing_quota.title', 'Limiti artır'),
+                title: tr('listing_quota.title', 'Limiti artır'),
                 onClose:
                     _paying ? null : () => Navigator.of(context).maybePop(),
               ),
@@ -590,7 +587,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                           ),
                           const SizedBox(height: 22),
                           Text(
-                            _qt(_content, 'listing_quota.payment_pending',
+                            tr('listing_quota.payment_pending',
                                 'Ödəniş gözlənilir…'),
                             style: TextStyle(
                               color: cText(isDark),
@@ -629,7 +626,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            _qt(_content, 'listing_quota.payment_failed',
+                            tr('listing_quota.payment_failed',
                                 'Ödəniş keçmədi'),
                             style: TextStyle(
                               color: cText(isDark),
@@ -658,7 +655,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                           ),
                           const SizedBox(height: 22),
                           Text(
-                            _qt(_content, 'listing_quota.payment_pending',
+                            tr('listing_quota.payment_pending',
                                 'Ödəniş gözlənilir…'),
                             style: TextStyle(
                               color: cText(isDark),
@@ -692,8 +689,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                                     color: Colors.white, size: 18),
                                 const SizedBox(width: 7),
                                 Text(
-                                  _qt(_content, 'listing_quota.retry',
-                                      'Yenidən cəhd et'),
+                                  tr('listing_quota.retry', 'Yenidən cəhd et'),
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 14.5,
@@ -704,7 +700,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                           ),
                           const SizedBox(height: 8),
                           _GhostButton(
-                            label: _qt(_content, 'common.close', 'Bağla'),
+                            label: tr('common.close', 'Bağla'),
                             isDark: isDark,
                             onTap: () => Navigator.of(context)
                                 .popUntil((r) => r.isFirst),
@@ -724,7 +720,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                                     color: cBrandText(isDark), size: 18),
                                 const SizedBox(width: 7),
                                 Text(
-                                  _qt(_content, 'listing_quota.refresh_status',
+                                  tr('listing_quota.refresh_status',
                                       'Statusu yenilə'),
                                   style: TextStyle(
                                       color: cBrandText(isDark),
@@ -736,7 +732,7 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
                           ),
                           const SizedBox(height: 8),
                           _GhostButton(
-                            label: _qt(_content, 'listing_quota.cancel_payment',
+                            label: tr('listing_quota.cancel_payment',
                                 'Ödənişi ləğv et'),
                             isDark: isDark,
                             onTap: () => Navigator.of(context)
@@ -800,7 +796,7 @@ class QuotaSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                _qt(content, 'listing_quota.success_title', 'Limitin artdı!'),
+                tr('listing_quota.success_title', 'Limitin artdı!'),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -810,10 +806,10 @@ class QuotaSuccessScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 [
-                  _qt(content, 'listing_quota.success_sub_prefix', 'İndi daha'),
+                  tr('listing_quota.success_sub_prefix', 'İndi daha'),
                   '${order.extraListings}',
                   order.typeLabel,
-                  _qt(content, 'listing_quota.success_sub_suffix',
+                  tr('listing_quota.success_sub_suffix',
                       'aktiv elan yarada bilərsən.'),
                 ].where((s) => s.trim().isNotEmpty).join(' '),
                 textAlign: TextAlign.center,
@@ -837,7 +833,7 @@ class QuotaSuccessScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _qt(content, 'listing_quota.new_limit', 'Yeni limit'),
+                      tr('listing_quota.new_limit', 'Yeni limit'),
                       style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.85),
                           fontSize: 13,
@@ -888,8 +884,7 @@ class QuotaSuccessScreen extends StatelessWidget {
                                 color: cBrandFill, size: 18),
                             const SizedBox(width: 7),
                             Text(
-                              _qt(content, 'listing_quota.create_listing',
-                                  'Elan yarat'),
+                              tr('listing_quota.create_listing', 'Elan yarat'),
                               style: TextStyle(
                                 color: cBrandFill,
                                 fontSize: 15,
@@ -921,8 +916,7 @@ class QuotaSuccessScreen extends StatelessWidget {
                                   size: 17),
                               const SizedBox(width: 7),
                               Text(
-                                _qt(content, 'listing_quota.view_receipt',
-                                    'Qəbzə bax'),
+                                tr('listing_quota.view_receipt', 'Qəbzə bax'),
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 13.5,
@@ -1099,7 +1093,7 @@ class _PlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final perLabel = plan.perListing == null
-        ? _qt(content, 'listing_quota.one_time', 'bir dəfəlik · daimi limit')
+        ? tr('listing_quota.one_time', 'bir dəfəlik · daimi limit')
         : '${_qt(content, 'listing_quota.per_listing_prefix', 'elan başına')} ${_price(plan.perListing!)}';
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -1193,7 +1187,7 @@ class _PlanCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  _qt(content, 'listing_quota.badge.best_value', 'Ən sərfəli'),
+                  tr('listing_quota.badge.best_value', 'Ən sərfəli'),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 9.5,
@@ -1253,7 +1247,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
       if (!mounted) return;
       setState(() {
         _creating = false;
-        _error = _apiError(e, content);
+        _error = _apiError(e);
       });
     }
   }
@@ -1288,7 +1282,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                 ),
               ),
               Text(
-                _qt(content, 'listing_quota.confirm_title', 'Ödənişi təsdiqlə'),
+                tr('listing_quota.confirm_title', 'Ödənişi təsdiqlə'),
                 style: TextStyle(
                   color: cText(isDark),
                   fontSize: 17,
@@ -1312,8 +1306,8 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                     ),
                     const SizedBox(height: 8),
                     _KV(
-                      label: _qt(content, 'listing_quota.receipt.type', 'Növ'),
-                      value: _qt(content, 'listing_quota.permanent_increase',
+                      label: tr('listing_quota.receipt.type', 'Növ'),
+                      value: tr('listing_quota.permanent_increase',
                           'Daimi limit artımı'),
                       isDark: isDark,
                     ),
@@ -1325,7 +1319,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          _qt(content, 'listing_quota.total', 'Ümumi'),
+                          tr('listing_quota.total', 'Ümumi'),
                           style: TextStyle(
                               color: cText(isDark),
                               fontSize: 14,
@@ -1401,7 +1395,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                         color: Colors.white, size: 18),
                     const SizedBox(width: 7),
                     Text(
-                      '${_price(plan.price)} — ${_qt(content, 'listing_quota.go_to_payment', 'ödənişə keç')}',
+                      '${_price(plan.price)} — ${tr('listing_quota.go_to_payment', 'ödənişə keç')}',
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14.5,
@@ -1412,14 +1406,14 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
               ),
               const SizedBox(height: 4),
               _GhostButton(
-                label: _qt(content, 'common.cancel', 'İmtina et'),
+                label: tr('common.cancel', 'İmtina et'),
                 isDark: isDark,
                 onTap:
                     _creating ? () {} : () => Navigator.of(context).maybePop(),
               ),
               Center(
                 child: Text(
-                  _qt(content, 'listing_quota.test_mode',
+                  tr('listing_quota.test_mode',
                       'Test rejimi — real məbləğ tutulmur (mock)'),
                   style: TextStyle(color: cMuted(isDark), fontSize: 10.5),
                 ),

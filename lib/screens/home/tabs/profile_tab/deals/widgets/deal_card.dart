@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../../data/network/response/chat_response.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
 import '../../../../../../services/wawat_content.dart';
 import 'deal_flightpath.dart';
 import 'deal_status.dart';
@@ -201,8 +202,8 @@ class DealCard extends StatelessWidget {
           icon: PhosphorIconsFill.handPointing,
           color: isDark ? WawatDark.warning : dealAmber700,
           background: isDark ? WawatDark.surfaceAlt : dealAmber100,
-          text: WawatContent.text(
-              content, 'deals.your_turn', 'Sizin növbəniz — cavab verin'),
+          text: WawatContent.text(content, 'deals.your_turn',
+              tr('deals.your_turn', 'Sizin növbəniz — cavab verin')),
         ),
       ];
     }
@@ -216,7 +217,7 @@ class DealCard extends StatelessWidget {
           text: WawatContent.text(
             content,
             'deals.confirm_receipt_hint',
-            'Malı aldınız? Təsdiqləyin',
+            tr('deals.confirm_receipt_hint', 'Malı aldınız? Təsdiqləyin'),
           ),
         ),
       ];
@@ -238,7 +239,8 @@ class DealCard extends StatelessWidget {
             ),
             icon: const Icon(PhosphorIconsFill.star, size: 15),
             label: Text(
-              WawatContent.text(content, 'deals.action.review', 'Rəy yaz'),
+              WawatContent.text(content, 'deals.action.review',
+                  tr('deals.action.review', 'Rəy yaz')),
               style:
                   const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
             ),
@@ -254,7 +256,7 @@ class DealCard extends StatelessWidget {
           icon: PhosphorIconsRegular.info,
           text: [
             if (reason != null && reason.isNotEmpty)
-              '${WawatContent.text(content, 'deals.reason_prefix', 'Səbəb')}: $reason',
+              '${WawatContent.text(content, 'deals.reason_prefix', tr('deals.reason_prefix', 'Səbəb'))}: $reason',
             dealShortDate(shipment.createdAt),
           ].where((e) => e.isNotEmpty).join(' · '),
         ),
@@ -275,8 +277,8 @@ class DealCard extends StatelessWidget {
         _MutedLine(
           icon: PhosphorIconsRegular.clockCounterClockwise,
           text: [
-            WawatContent.text(
-                content, 'deals.expired_unanswered', 'Cavabsız qaldı'),
+            WawatContent.text(content, 'deals.expired_unanswered',
+                tr('deals.expired_unanswered', 'Cavabsız qaldı')),
             dealShortDate(shipment.createdAt),
           ].where((e) => e.isNotEmpty).join(' · '),
         ),
@@ -288,7 +290,7 @@ class DealCard extends StatelessWidget {
         _MutedLine(
           icon: PhosphorIconsRegular.calendarBlank,
           text:
-              '${WawatContent.text(content, 'deals.terms.trip_date', 'Səfər')}: '
+              '${WawatContent.text(content, 'deals.terms.trip_date', tr('deals.terms.trip_date', 'Səfər'))}: '
               '${dealShortDate(shipment.travelDate)}',
         ),
       ];
@@ -364,7 +366,9 @@ class _RoleChip extends StatelessWidget {
             WawatContent.text(
               content,
               isSender ? 'deals.role.sender' : 'deals.role.carrier',
-              isSender ? 'Göndərən' : 'Daşıyıcı',
+              isSender
+                  ? tr('deals.role.sender', 'Göndərən')
+                  : tr('deals.role.carrier', 'Daşıyıcı'),
             ),
             style: TextStyle(
               color: isDark ? WawatDark.textSecondary : dealInk700,

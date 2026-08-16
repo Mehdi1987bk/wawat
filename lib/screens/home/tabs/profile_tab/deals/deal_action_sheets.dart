@@ -177,8 +177,7 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
                   color: dealBrand, size: 18),
               const SizedBox(width: 8),
               Text(
-                WawatContent.text(
-                    content, 'deals.counter.title', 'Qarşı təklif'),
+                tr('deals.counter.title', 'Qarşı təklif'),
                 style: TextStyle(
                     color: isDark ? WawatDark.textPrimary : dealInk900,
                     fontSize: 16,
@@ -215,8 +214,7 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
           ),
           _SheetField(
             isDark: isDark,
-            label: WawatContent.text(
-                content, 'deals.note_optional', 'Qeyd (istəyə bağlı)'),
+            label: tr('deals.note_optional', 'Qeyd (istəyə bağlı)'),
             controller: noteController,
             maxLines: 2,
           ),
@@ -243,8 +241,7 @@ Future<Map<String, dynamic>?> showDealCounterOfferSheet(
               icon: const Icon(PhosphorIconsFill.paperPlaneTilt,
                   size: 17, color: Colors.white),
               label: Text(
-                WawatContent.text(
-                    content, 'deals.counter.submit', 'Qarşı təklifi göndər'),
+                tr('deals.counter.submit', 'Qarşı təklifi göndər'),
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
@@ -289,8 +286,7 @@ Future<Map<String, dynamic>?> showDealCancelSheet(
                     color: dealRed600, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  WawatContent.text(
-                      content, 'deals.cancel.title', 'Sövdələşməni ləğv et'),
+                  tr('deals.cancel.title', 'Sövdələşməni ləğv et'),
                   style: TextStyle(
                       color: isDark ? WawatDark.textPrimary : dealInk900,
                       fontSize: 16,
@@ -325,8 +321,7 @@ Future<Map<String, dynamic>?> showDealCancelSheet(
             const SizedBox(height: 4),
             _SheetField(
               isDark: isDark,
-              label: WawatContent.text(
-                  content, 'deals.note_optional', 'Qeyd (istəyə bağlı)'),
+              label: tr('deals.note_optional', 'Qeyd (istəyə bağlı)'),
               controller: noteController,
               maxLines: 2,
             ),
@@ -396,8 +391,7 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
                     color: dealRed600, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  WawatContent.text(
-                      content, 'deals.dispute.title', 'Problem bildir'),
+                  tr('deals.dispute.title', 'Problem bildir'),
                   style: TextStyle(
                       color: isDark ? WawatDark.textPrimary : dealInk900,
                       fontSize: 16,
@@ -423,8 +417,7 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: _ReasonOption(
                   isDark: isDark,
-                  label: WawatContent.text(
-                      content, 'deals.dispute_reason.${entry[0]}', entry[1]),
+                  label: tr('deals.dispute_reason.${entry[0]}', entry[1]),
                   selected: selected == entry[0],
                   onTap: () => setState(() => selected = entry[0]),
                 ),
@@ -458,8 +451,7 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
                 icon: const Icon(PhosphorIconsFill.flag,
                     size: 17, color: Colors.white),
                 label: Text(
-                  WawatContent.text(
-                      content, 'deals.dispute.submit', 'Problemi göndər'),
+                  tr('deals.dispute.submit', 'Problemi göndər'),
                   style: const TextStyle(
                       fontSize: 14, fontWeight: FontWeight.w600),
                 ),
@@ -543,8 +535,7 @@ Future<bool> showDealConfirmDialog(
                       borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(
-                  WawatContent.text(
-                      content, 'deals.confirm.yes', 'Bəli, təsdiqlə'),
+                  tr('deals.confirm.yes', 'Bəli, təsdiqlə'),
                   style: const TextStyle(
                       fontSize: 14, fontWeight: FontWeight.w600),
                 ),
@@ -643,8 +634,7 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
               isDark: isDark,
               label: '',
               controller: commentController,
-              hint: WawatContent.text(content, 'deals.review.prompt',
-                  'Təcrübəni bir neçə sözlə yaz…'),
+              hint: tr('deals.review.prompt', 'Təcrübəni bir neçə sözlə yaz…'),
               maxLines: 3,
             ),
             Wrap(
@@ -667,8 +657,7 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        WawatContent.text(content,
-                            'deals.review.trait.${trait[0]}', trait[1]),
+                        tr('deals.review.trait.${trait[0]}', trait[1]),
                         style: TextStyle(
                           color: selectedTraits.contains(trait[0])
                               ? (isDark ? WawatDark.success : dealEmerald600)
@@ -749,8 +738,7 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                         icon: const Icon(PhosphorIconsFill.paperPlaneTilt,
                             size: 17, color: Colors.white),
                         label: Text(
-                          WawatContent.text(
-                              content, 'deals.review.submit', 'Rəyi göndər'),
+                          tr('deals.review.submit', 'Rəyi göndər'),
                           style: const TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w600),
                         ),

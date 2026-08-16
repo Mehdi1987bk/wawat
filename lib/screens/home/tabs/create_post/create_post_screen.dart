@@ -91,17 +91,17 @@ String? _userTierLabel(String? tier, Map<String, String> content) {
   if (cmsLabel != null && cmsLabel.trim().isNotEmpty) return cmsLabel;
   switch (tier) {
     case 'new':
-      return 'Yeni';
+      return tr('enum.user_tier_new', 'Yeni');
     case 'standard':
-      return 'Standart';
+      return tr('enum.user_tier_standard', 'Standart');
     case 'bronze':
-      return 'Bürünc';
+      return tr('enum.user_tier_bronze', 'Bürünc');
     case 'silver':
-      return 'Gümüş';
+      return tr('enum.user_tier_silver', 'Gümüş');
     case 'gold':
-      return 'Qızıl';
+      return tr('enum.user_tier_gold', 'Qızıl');
     case 'platinum':
-      return 'Platin';
+      return tr('enum.user_tier_platinum', 'Platin');
   }
   return tier;
 }
@@ -3624,7 +3624,9 @@ class _ShipmentPreviewCard extends StatelessWidget {
   }
 
   String _shipmentDateRange(DateTime? from, DateTime? to) {
-    if (from == null || to == null) return '5–12 İyul';
+    if (from == null || to == null) {
+      return tr('create.shipment_date_placeholder', '5–12 İyul');
+    }
     final month = _azMonth(to.month);
     return '${from.day}–${to.day} $month';
   }
@@ -3938,8 +3940,9 @@ class _DateTimePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date =
-        flightDate == null ? '15 Jul' : DateFormat('d MMM').format(flightDate!);
+    final date = flightDate == null
+        ? tr('create.flight_date_placeholder', '15 Jul')
+        : DateFormat('d MMM').format(flightDate!);
     final time = flightTime == null
         ? '17:10'
         : '${flightTime!.hour.toString().padLeft(2, '0')}:${flightTime!.minute.toString().padLeft(2, '0')}';

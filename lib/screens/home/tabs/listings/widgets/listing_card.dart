@@ -318,7 +318,9 @@ class _ListingCardState extends State<ListingCard> {
                 label: widget.listing.typeLabel ??
                     content[
                         'enum.listing_type.${_isTrip ? 'trip' : 'shipment_post'}'] ??
-                    (_isTrip ? 'Səfər' : 'Göndəriş'),
+                    (_isTrip
+                        ? tr('enum.listing_type.trip', 'Səfər')
+                        : tr('enum.listing_type.shipment_post', 'Göndəriş')),
                 color: _accentOf(isDark),
                 background: _accentSoftOf(isDark),
               ),
@@ -328,7 +330,7 @@ class _ListingCardState extends State<ListingCard> {
                   label: widget.listing.statusLabel ??
                       content['enum.listing_status.fully_booked'] ??
                       content['listing.fully_booked'] ??
-                      'Yer yoxdur',
+                      tr('listing.fully_booked', 'Yer yoxdur'),
                   color: isDark
                       ? WawatDark.textSecondary
                       : const Color(0xFF475569),
@@ -338,7 +340,8 @@ class _ListingCardState extends State<ListingCard> {
               if (_promotionType == 'vip' && !_readonly)
                 _Badge(
                   icon: PhosphorIconsFill.sealCheck,
-                  label: content['enum.promotion_type.vip'] ?? 'VİP',
+                  label: content['enum.promotion_type.vip'] ??
+                      tr('enum.promotion_type.vip', 'VİP'),
                   color: isDark ? WawatDark.onGold : const Color(0xFF0F172A),
                   background: isDark ? WawatDark.gold : const Color(0xFFFBBF24),
                 ),
@@ -346,7 +349,7 @@ class _ListingCardState extends State<ListingCard> {
                 _Badge(
                   icon: PhosphorIconsFill.rocketLaunch,
                   label: content['enum.promotion_type.featured'] ??
-                      'Önə çıxarılan',
+                      tr('enum.promotion_type.featured', 'Önə çıxarılan'),
                   color: isDark ? WawatDark.brandText : const Color(0xFF024FA3),
                   background:
                       isDark ? WawatDark.brandChip : const Color(0xFFCFE3FD),

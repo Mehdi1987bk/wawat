@@ -6,6 +6,7 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import '../new_profile/profile_api.dart';
 import '../verification/verification_screen.dart';
@@ -125,8 +126,11 @@ class _TierStatusScreenState extends State<TierStatusScreen> {
           d: d,
           text: _t(
             'tier.note',
-            'Səviyyə reytinqindən asılıdır — reytinqin düşsə səviyyə dəyişə '
-                'bilər, qalxsa geri qayıdır.',
+            tr(
+              'tier.note',
+              'Səviyyə reytinqindən asılıdır — reytinqin düşsə səviyyə dəyişə '
+                  'bilər, qalxsa geri qayıdır.',
+            ),
           ),
         ),
       ],
@@ -450,8 +454,10 @@ class _ProgressSection extends StatelessWidget {
 
     if (onlyRatingNoValue) {
       icon = PhosphorIconsFill.handWaving;
-      text = t('tier.footer_first_review',
-          'İlk rəyini al — yüksəlmək üçün reytinq lazımdır');
+      text = t(
+          'tier.footer_first_review',
+          tr('tier.footer_first_review',
+              'İlk rəyini al — yüksəlmək üçün reytinq lazımdır'));
       color = cBrandText(d);
     } else if (firstDelivery) {
       icon = PhosphorIconsFill.rocketLaunch;
@@ -559,8 +565,11 @@ class _DemotionSection extends StatelessWidget {
                     Text(
                       t(
                         'tier.demoted_body_template',
-                        'Reytinqin dəyişdiyi üçün səviyyən {from} → {to} oldu. '
-                            'Tələbləri tamamlayaraq geri qayıda bilərsən.',
+                        tr(
+                          'tier.demoted_body_template',
+                          'Reytinqin dəyişdiyi üçün səviyyən {from} → {to} oldu. '
+                              'Tələbləri tamamlayaraq geri qayıda bilərsən.',
+                        ),
                       ).replaceAll('{from}', from).replaceAll('{to}', to),
                       style: TextStyle(
                         color: cText3(d),
@@ -627,8 +636,10 @@ class _ReqBar extends StatelessWidget {
         ? t('tier.deliveries_done', 'Çatdırılma kifayətdir ✓')
         : (need <= 1 && cur == 0
             ? t('tier.deliveries_first', 'İlk çatdırılmanı tamamla')
-            : t('tier.deliveries_remaining_template',
-                    '{count} çatdırılma qalıb')
+            : t(
+                    'tier.deliveries_remaining_template',
+                    tr('tier.deliveries_remaining_template',
+                        '{count} çatdırılma qalıb'))
                 .replaceAll('{count}', '$gap'));
 
     return _row(

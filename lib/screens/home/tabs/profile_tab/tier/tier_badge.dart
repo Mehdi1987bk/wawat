@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 
 /// Compact tier badge — a mini gradient medal + the (localized) tier label,
@@ -114,21 +115,22 @@ List<Color> tierGradient(String key) {
   }
 }
 
-/// AZ fallback labels; CMS `enum.user_tier.{key}` overrides per language.
+/// Localized tier labels via CMS `enum.user_tier.{key}`, with the AZ text as
+/// inline fallback (same keys the badge resolves at its render site).
 String tierLabel(String key) {
   switch (key) {
     case 'new':
-      return 'Yeni';
+      return tr('enum.user_tier.new', 'Yeni');
     case 'standard':
-      return 'Standart';
+      return tr('enum.user_tier.standard', 'Standart');
     case 'bronze':
-      return 'Bürünc';
+      return tr('enum.user_tier.bronze', 'Bürünc');
     case 'silver':
-      return 'Gümüş';
+      return tr('enum.user_tier.silver', 'Gümüş');
     case 'gold':
-      return 'Qızıl';
+      return tr('enum.user_tier.gold', 'Qızıl');
     case 'platinum':
-      return 'Platin';
+      return tr('enum.user_tier.platinum', 'Platin');
     default:
       return key;
   }

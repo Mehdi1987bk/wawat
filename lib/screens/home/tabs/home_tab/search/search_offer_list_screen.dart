@@ -18,6 +18,7 @@ import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
+import '../../../../../services/localization_service.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../../listings/listing_feed_bloc.dart';
 import '../../listings/widgets/listing_card.dart';
@@ -214,8 +215,11 @@ class _SearchOfferListScreenState
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
               child: Text(
-                _contentText(content, 'search.applied_hint',
-                    'Filtrlər tətbiq olunur · «Ətraflı»-ya yenidən basıb yığmaq olar'),
+                _contentText(
+                    content,
+                    'search.applied_hint',
+                    tr('search.applied_hint',
+                        'Filtrlər tətbiq olunur · «Ətraflı»-ya yenidən basıb yığmaq olar')),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: cMuted(isDark),
@@ -643,7 +647,8 @@ class _SearchHero extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            _contentText(content, 'search.hero_title', 'Marşrutu axtar'),
+            _contentText(content, 'search.hero_title',
+                tr('search.hero_title', 'Marşrutu axtar')),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: isDark ? WawatDark.textPrimary : _ink900,
@@ -654,8 +659,11 @@ class _SearchHero extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            _contentText(content, 'search.hero_subtitle',
-                'Haradan hara göndərmək istəyirsən?'),
+            _contentText(
+                content,
+                'search.hero_subtitle',
+                tr('search.hero_subtitle',
+                    'Haradan hara göndərmək istəyirsən?')),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: cMuted(isDark),
@@ -1283,7 +1291,8 @@ class _ResultsMetaBar extends StatelessWidget {
                           color: cBrandText(isDark), size: 17),
                       const SizedBox(width: 7),
                       Text(
-                        _contentText(content, 'search.filter', 'Filtrlə'),
+                        _contentText(content, 'search.filter',
+                            tr('search.filter', 'Filtrlə')),
                         style: TextStyle(
                           color: hasFilters ? cBrandText(isDark) : labelColor,
                           fontSize: 13,
@@ -2307,7 +2316,7 @@ class _SavedSearchesScreenState extends State<_SavedSearchesScreen> {
               title: _contentText(
                 widget.content,
                 'search.saved_title',
-                'Saxlanmış axtarışlar',
+                tr('search.saved_title', 'Saxlanmış axtarışlar'),
               ),
               onBack: () => Navigator.pop(context),
             ),
@@ -2440,7 +2449,7 @@ class _SavedSearchCard extends StatelessWidget {
                             _contentText(
                               content,
                               'search.alert_active',
-                              'Bildiriş aktiv',
+                              tr('search.alert_active', 'Bildiriş aktiv'),
                             ),
                             style: TextStyle(
                               color: isDark
@@ -2486,7 +2495,7 @@ class _SavedSearchCard extends StatelessWidget {
                       _contentText(
                         content,
                         'search.last_check_template',
-                        'Son yoxlama: {time}',
+                        tr('search.last_check_template', 'Son yoxlama: {time}'),
                       ).replaceAll(
                           '{time}', _relativeTime(content, item.lastRunAt)),
                       style: TextStyle(color: cMuted(isDark), fontSize: 11),

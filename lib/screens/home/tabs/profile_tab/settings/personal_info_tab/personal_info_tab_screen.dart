@@ -432,7 +432,8 @@ class _PersonalInfoTabState
         } catch (e) {
           print('Error processing image: $e');
           if (mounted) {
-            showIOSStyleMessage(context, "Failed to process image");
+            showIOSStyleMessage(context,
+                tr('profile.image_process_failed', 'Failed to process image'));
           }
         }
       }

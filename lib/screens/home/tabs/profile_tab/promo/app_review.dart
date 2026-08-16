@@ -368,8 +368,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
         Text(
-          _t('subtitle',
-              '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.'),
+          _t(
+              'subtitle',
+              tr('app_review.subtitle',
+                  '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.')),
           textAlign: TextAlign.center,
           style: TextStyle(
               color: _cMuted(d),

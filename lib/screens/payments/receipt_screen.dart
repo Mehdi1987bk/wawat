@@ -289,7 +289,9 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       await Share.shareXFiles(
         [XFile(file.path)],
         subject: _t('receipt.title', 'Qəbz'),
-        text: 'Wawatair · ${_r.title} · ${_money(_r.amount, _r.currency)}',
+        text: _t('receipt.share_text', 'Wawatair · {title} · {amount}')
+            .replaceAll('{title}', _r.title)
+            .replaceAll('{amount}', _money(_r.amount, _r.currency)),
       );
     } catch (_) {
       if (!mounted) return;

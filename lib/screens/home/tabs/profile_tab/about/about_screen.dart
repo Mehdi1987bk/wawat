@@ -180,7 +180,9 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Widget _header(bool d) {
-    final buildLabel = _build.isEmpty ? '' : ' (build $_build)';
+    final buildLabel = _build.isEmpty
+        ? ''
+        : tr('about.build_suffix', ' (build {build})', {'build': _build});
     return Column(
       children: [
         Container(

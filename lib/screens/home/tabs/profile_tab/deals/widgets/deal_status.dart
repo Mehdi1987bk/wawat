@@ -84,17 +84,17 @@ String dealStatusLabel(Map<String, String> content, String status,
 }
 
 String dealActionLabel(Map<String, String> content, String action) {
-  const fallbacks = {
-    'accept': 'Qəbul et',
-    'decline': 'Rədd et',
-    'counter': 'Qarşı təklif',
-    'picked_up': 'Malı götürdüm',
-    'picked-up': 'Malı götürdüm',
-    'delivered': 'Çatdırdım',
-    'complete': 'Malı aldım, təsdiqlə',
-    'dispute': 'Problem bildir',
-    'cancel': 'Ləğv et',
-    'review': 'Rəy yaz',
+  final fallbacks = {
+    'accept': tr('deals.action.accept', 'Qəbul et'),
+    'decline': tr('deals.action.decline', 'Rədd et'),
+    'counter': tr('deals.action.counter', 'Qarşı təklif'),
+    'picked_up': tr('deals.action.picked_up', 'Malı götürdüm'),
+    'picked-up': tr('deals.action.picked_up', 'Malı götürdüm'),
+    'delivered': tr('deals.action.delivered', 'Çatdırdım'),
+    'complete': tr('deals.action.complete', 'Malı aldım, təsdiqlə'),
+    'dispute': tr('deals.action.dispute', 'Problem bildir'),
+    'cancel': tr('deals.action.cancel', 'Ləğv et'),
+    'review': tr('deals.action.review', 'Rəy yaz'),
   };
   final key = action == 'picked-up' ? 'picked_up' : action;
   return WawatContent.text(
