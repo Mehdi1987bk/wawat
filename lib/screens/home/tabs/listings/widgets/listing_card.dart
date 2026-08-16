@@ -449,93 +449,81 @@ class _ListingCardState extends State<ListingCard> {
   Widget _buildMainMeta(Color textColor, Color mutedColor, bool isDark) {
     return Row(
       children: [
-        Flexible(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 9),
+        // Date chip: natural width on the left (no flex, so the time is never
+        // truncated). The Spacer eats the free space so the price pill is pinned
+        // to the right edge — neither pill is flexible, so nothing gets capped.
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 9),
+          decoration: BoxDecoration(
+            color: _accentSoftOf(isDark),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _isTrip
+                    ? PhosphorIconsFill.calendarDots
+                    : PhosphorIconsRegular.calendarBlank,
+                color: _accentOf(isDark),
+                size: 18,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                _dateText(context),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        const Spacer(),
+        if (_isTrip && widget.listing.allowPriceNegotiation == true)
+          // Negotiable price → a polished accent pill (handshake + "$/kq"), so
+          // "by agreement" reads as a deliberate per-kg state, not a missing price.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
             decoration: BoxDecoration(
-              color: _accentSoftOf(isDark),
-              borderRadius: BorderRadius.circular(14),
+              gradient: LinearGradient(
+                colors: [
+                  _accentOf(isDark).withValues(alpha: isDark ? 0.24 : 0.13),
+                  _accentOf(isDark).withValues(alpha: isDark ? 0.12 : 0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color:
+                    _accentOf(isDark).withValues(alpha: isDark ? 0.45 : 0.28),
+                width: 1,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  _isTrip
-                      ? PhosphorIconsFill.calendarDots
-                      : PhosphorIconsRegular.calendarBlank,
-                  color: _accentOf(isDark),
-                  size: 18,
-                ),
-                const SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    _dateText(context),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
+                Icon(PhosphorIconsFill.handshake,
+                    size: 16, color: _accentOf(isDark)),
+                const SizedBox(width: 7),
+                Text(
+                  '\$/kq',
+                  style: TextStyle(
+                    color: _accentOf(isDark),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.1,
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-        // Date chip hugs its content on the left; the Spacer pushes the price
-        // pill to the right edge. Safe now that the price side is the short
-        // "$/kq" pill (not the long "Razılaşma" label a Spacer used to crush).
-        const Spacer(),
-        const SizedBox(width: 10),
-        if (_isTrip && widget.listing.allowPriceNegotiation == true) ...[
-          // Negotiable pricing → show a label instead of the meaningless "0.0 $"
-          // (a negotiable trip is stored with a ~0 price on the backend). Still
-          // prefix the per-kg unit ("$/kq") so it reads like the fixed-price
-          // cards — the agreement is over a per-kilogram rate.
-          // Negotiable price → a polished accent pill (handshake + bold label +
-          // the per-kg unit), so "by agreement" reads as a deliberate state and
-          // not a missing price.
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    _accentOf(isDark).withValues(alpha: isDark ? 0.24 : 0.13),
-                    _accentOf(isDark).withValues(alpha: isDark ? 0.12 : 0.05),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color:
-                      _accentOf(isDark).withValues(alpha: isDark ? 0.45 : 0.28),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(PhosphorIconsFill.handshake,
-                      size: 16, color: _accentOf(isDark)),
-                  const SizedBox(width: 7),
-                  Text(
-                    '\$/kq',
-                    style: TextStyle(
-                      color: _accentOf(isDark),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ] else if (_isTrip && widget.listing.pricePerKg != null) ...[
-          const SizedBox(width: 12),
+          )
+        else if (_isTrip && widget.listing.pricePerKg != null)
           Text.rich(
             TextSpan(
               text: _formatNumber(widget.listing.pricePerKg!),
@@ -560,7 +548,6 @@ class _ListingCardState extends State<ListingCard> {
               ],
             ),
           ),
-        ],
       ],
     );
   }
