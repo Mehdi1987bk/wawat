@@ -111,6 +111,15 @@ class LocalizationService extends ChangeNotifier {
     return value;
   }
 
+  /// Raw CMS value for [key], or null when the key isn't in the loaded map.
+  /// Unlike [t], never returns a humanized key or the [WawatContent.fallbacks]
+  /// entry — so callers can supply their own inline fallback.
+  String? rawValue(String key) {
+    final v = _map[key];
+    if (v == null || v.trim().isEmpty || v == key) return null;
+    return v;
+  }
+
   Map<String, String> _decode(String json) {
     try {
       final m = jsonDecode(json);
@@ -126,3 +135,24 @@ class LocalizationService extends ChangeNotifier {
 /// `t('create.step_template', {'step': '2', 'total': '3'})`.
 String t(String key, [Map<String, String>? params]) =>
     LocalizationService.instance.t(key, params);
+
+/// CMS translation with an INLINE fallback — the primitive for migrating a
+/// hardcoded string. Returns the CMS value for [key] when the content is
+/// loaded, otherwise [fallback] (the original hardcoded text). Any
+/// `{placeholder}` tokens in the resulting string are filled from [params].
+///
+/// Migration examples:
+///   Text('Ləğv et')                    → Text(tr('common.cancel', 'Ləğv et'))
+///   Text('Salam, $name')               → Text(tr('home.greeting', 'Salam, {name}', {'name': name}))
+///   hintText: 'Axtar…'                  → hintText: tr('search.hint', 'Axtar…')
+///
+/// Because the fallback equals the original text, the screen looks identical
+/// before AND after the backend adds the key — only the localization improves.
+String tr(String key, String fallback, [Map<String, String>? params]) {
+  final raw = LocalizationService.instance.rawValue(key);
+  var value = raw ?? fallback;
+  if (params != null && params.isNotEmpty) {
+    params.forEach((k, v) => value = value.replaceAll('{$k}', v));
+  }
+  return value;
+}
