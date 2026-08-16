@@ -422,8 +422,25 @@ class _RegistrationScreenState
                         ),
                         children: [
                           TextSpan(
-                              text: tr('auth.terms_prefix',
-                                  'İstifadə qaydaları və ')),
+                            text: tr('auth.terms_link', 'İstifadə qaydaları'),
+                            style: TextStyle(
+                              color: isDark ? WawatDark.brandText : _brand,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => LegalDocScreen(
+                                      slug: 'terms',
+                                      title: tr('legal.terms.title',
+                                          'İstifadə şərtləri'),
+                                    ),
+                                  ),
+                                );
+                              },
+                          ),
+                          TextSpan(text: tr('auth.terms_connector', ' və ')),
                           TextSpan(
                             text: tr('auth.privacy_policy_link',
                                 'Məxfilik siyasəti'),
