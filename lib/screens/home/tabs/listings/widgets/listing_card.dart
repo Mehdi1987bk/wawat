@@ -449,7 +449,7 @@ class _ListingCardState extends State<ListingCard> {
   Widget _buildMainMeta(Color textColor, Color mutedColor, bool isDark) {
     return Row(
       children: [
-        Expanded(
+        Flexible(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 9),
             decoration: BoxDecoration(
@@ -483,45 +483,55 @@ class _ListingCardState extends State<ListingCard> {
             ),
           ),
         ),
-        // A fixed gap instead of a flex Spacer — the Spacer used to eat a third
-        // of the row and crush the price side (the label truncated to "Razılaşma
-        // …"). Letting the date chip expand pushes the price to the right edge
-        // and frees the room the unit hint below needs.
+        // Date chip hugs its content on the left; the Spacer pushes the price
+        // pill to the right edge. Safe now that the price side is the short
+        // "$/kq" pill (not the long "Razılaşma" label a Spacer used to crush).
+        const Spacer(),
         const SizedBox(width: 10),
         if (_isTrip && widget.listing.allowPriceNegotiation == true) ...[
           // Negotiable pricing → show a label instead of the meaningless "0.0 $"
           // (a negotiable trip is stored with a ~0 price on the backend). Still
           // prefix the per-kg unit ("$/kq") so it reads like the fixed-price
           // cards — the agreement is over a per-kilogram rate.
+          // Negotiable price → a polished accent pill (handshake + bold label +
+          // the per-kg unit), so "by agreement" reads as a deliberate state and
+          // not a missing price.
           Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '\$/kq',
-                  style: TextStyle(
-                    color: mutedColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _accentOf(isDark).withValues(alpha: isDark ? 0.24 : 0.13),
+                    _accentOf(isDark).withValues(alpha: isDark ? 0.12 : 0.05),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                const SizedBox(width: 6),
-                Icon(PhosphorIconsFill.handshake,
-                    size: 15, color: _accentOf(isDark)),
-                const SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    tr('listing.negotiable', 'Razılaşma ilə'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color:
+                      _accentOf(isDark).withValues(alpha: isDark ? 0.45 : 0.28),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(PhosphorIconsFill.handshake,
+                      size: 16, color: _accentOf(isDark)),
+                  const SizedBox(width: 7),
+                  Text(
+                    '\$/kq',
                     style: TextStyle(
                       color: _accentOf(isDark),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
+                      letterSpacing: 0.1,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ] else if (_isTrip && widget.listing.pricePerKg != null) ...[
