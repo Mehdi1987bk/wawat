@@ -11,6 +11,7 @@ import '../screens/home/tabs/profile_tab/deals/deal_detail_screen.dart';
 import '../screens/home/tabs/profile_tab/new_profile/new_profile_screen.dart';
 import '../screens/home/tabs/profile_tab/reports/reports_screen.dart';
 import '../screens/home/tabs/profile_tab/support/support_screen.dart';
+import '../screens/home/tabs/profile_tab/tier/tier_status_screen.dart';
 import '../screens/home/tabs/profile_tab/verification/verification_screen.dart';
 import '../wawat_app.dart';
 
@@ -120,6 +121,15 @@ void openNotification(
       break;
     case 'verification':
       _openVerification(nav);
+      break;
+    case 'tier':
+    case 'status':
+    case 'level':
+    // Push may fall back to the notification type when target_type is absent.
+    case 'milestone_reached':
+    case 'new_level':
+    case 'tier_upgraded':
+      _push(nav, const TierStatusScreen(), identity: 'tier');
       break;
     case 'security':
     case 'account':

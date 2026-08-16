@@ -15,6 +15,7 @@ import '../../../../../services/notification_socket_service.dart';
 import '../../../../../services/notification_visual.dart';
 import 'package:buking/services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
+import '../../profile_tab/tier/tier_status_screen.dart';
 import '../search/search_offer_list_screen.dart';
 import 'notification_bloc.dart';
 
@@ -210,6 +211,20 @@ class _NotificationScreenState
     // target — never by type or raw data.
     if (item.isUnread) await bloc.markAsRead(item.id);
     if (!mounted) return;
+    // Level-up / milestone notifications carry no entity target — they open the
+    // Statusum (tier) page.
+    const tierTypes = {
+      'milestone_reached',
+      'new_level',
+      'tier_upgraded',
+      'level_up',
+    };
+    if (tierTypes.contains(item.type) ||
+        {'tier', 'status', 'level'}.contains(item.target.type)) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const TierStatusScreen()));
+      return;
+    }
     openNotification(item.target.type, item.target.id, item.target.params);
   }
 
