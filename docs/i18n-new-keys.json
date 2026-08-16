@@ -1,0 +1,5982 @@
+[
+  {
+    "key": "about.build_suffix",
+    "group": "about",
+    "az": " (build {build})",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "about.licenses",
+    "group": "about",
+    "az": "Lisenziyalar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.already_rated_body",
+    "group": "app_review",
+    "az": "Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.coupon_footer_next",
+    "group": "app_review",
+    "az": "{amount} endirim · növbəti sifarişə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.coupon_footer_vip",
+    "group": "app_review",
+    "az": "{amount} endirim · VİP/önə çəkmə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.feedback_hint",
+    "group": "app_review",
+    "az": "Təcrübən barədə bir neçə söz yaz…",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.high_body_prefix",
+    "group": "app_review",
+    "az": "Rəyini App Store-da paylaş — sənə ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.high_body_reward",
+    "group": "app_review",
+    "az": "{reward} promokod",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.high_body_suffix",
+    "group": "app_review",
+    "az": " göndərək.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.high_title",
+    "group": "app_review",
+    "az": "Çox sağ ol! 🎉",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.less_than_minute",
+    "group": "app_review",
+    "az": "Bir dəqiqədən az çəkir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.like_subtitle",
+    "group": "app_review",
+    "az": "1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.like_title",
+    "group": "app_review",
+    "az": "Wawatair-i bəyənirsən?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.low_body",
+    "group": "app_review",
+    "az": "Fikrin birbaşa komandamıza gedir. Promokod yenə də səninlədir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.low_title",
+    "group": "app_review",
+    "az": "Bizə kömək et — nəyi dəyişək?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.opening_store",
+    "group": "app_review",
+    "az": "App Store açılır…",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.opening_store_body",
+    "group": "app_review",
+    "az": "Rəyini orada paylaş, sonra tətbiqə qayıt.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.rate_in_store",
+    "group": "app_review",
+    "az": "Store-da qiymətləndir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.reward_chip",
+    "group": "app_review",
+    "az": "{reward} promokod hədiyyə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.reward_ready_body",
+    "group": "app_review",
+    "az": "Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.reward_ready_title",
+    "group": "app_review",
+    "az": "Hədiyyə promokodun hazırdır 🎁",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.send_feedback",
+    "group": "app_review",
+    "az": "Rəy göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.step_apply",
+    "group": "app_review",
+    "az": "Elanı VİP/önə çəkərkən tətbiq et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.step_open",
+    "group": "app_review",
+    "az": "Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.step_reward",
+    "group": "app_review",
+    "az": "{reward} promokod avtomatik hesabına gəlir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.thanks_body_short",
+    "group": "app_review",
+    "az": "Dəstəyin bizə çox kömək edir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.validity_days",
+    "group": "app_review",
+    "az": "{days} gün qalıb · son tarix {date}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.validity_expired",
+    "group": "app_review",
+    "az": "Müddəti bitib",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.validity_today",
+    "group": "app_review",
+    "az": "Bu gün bitir · {date}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.view_my_promos",
+    "group": "app_review",
+    "az": "Promokodlarıma bax",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.write_review_appstore",
+    "group": "app_review",
+    "az": "App Store-da rəy yaz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "app_review.your_promo_label",
+    "group": "app_review",
+    "az": "PROMOKODUN",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.apple",
+    "group": "auth",
+    "az": "Apple",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.check_spam",
+    "group": "auth",
+    "az": "Məktub gəlmədi? Spam qovluğunu yoxla.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.code_expired",
+    "group": "auth",
+    "az": "Kodun vaxtı bitib.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.code_not_received_resend",
+    "group": "auth",
+    "az": "Kod gəlmədi? Yenidən göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.code_time_left",
+    "group": "auth",
+    "az": "Kodun vaxtı: {time}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.confirm_password_label",
+    "group": "auth",
+    "az": "Şifrəni təsdiqlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.continue_as_guest",
+    "group": "auth",
+    "az": "Qonaq kimi davam et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.continue_with_apple",
+    "group": "auth",
+    "az": "Apple ilə davam et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.continue_with_google",
+    "group": "auth",
+    "az": "Google ilə davam et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.create_account_title",
+    "group": "auth",
+    "az": "Hesab yarat",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.email_hint",
+    "group": "auth",
+    "az": "ad@nümunə.com",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.email_label",
+    "group": "auth",
+    "az": "Email",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.email_required",
+    "group": "auth",
+    "az": "Email mütləqdir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.enter_code_title",
+    "group": "auth",
+    "az": "Kodu yaz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.first_name_hint",
+    "group": "auth",
+    "az": "Tahir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.first_name_label",
+    "group": "auth",
+    "az": "Ad",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.forgot_password_link",
+    "group": "auth",
+    "az": "Şifrənizi unutmusunuz?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.forgot_subtitle",
+    "group": "auth",
+    "az": "Email-ini yaz - təsdiq kodu göndərək.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.forgot_title",
+    "group": "auth",
+    "az": "Şifrəni bərpa et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.google",
+    "group": "auth",
+    "az": "Google",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.guest",
+    "group": "auth",
+    "az": "Qonaq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.have_account",
+    "group": "auth",
+    "az": "Hesabın var? ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.invalid_code",
+    "group": "auth",
+    "az": "Kod yanlışdır.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.invalid_reset_token",
+    "group": "auth",
+    "az": "Bərpa tokeni yanlışdır.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.last_name_hint",
+    "group": "auth",
+    "az": "Quliyev",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.last_name_label",
+    "group": "auth",
+    "az": "Soyad",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.login",
+    "group": "auth",
+    "az": "Daxil ol",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.login_register",
+    "group": "auth",
+    "az": "Daxil ol / Qeydiyyat",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.login_subtitle",
+    "group": "auth",
+    "az": "Hesabına daxil ol",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.new_password",
+    "group": "auth",
+    "az": "Yeni şifrə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.no_account",
+    "group": "auth",
+    "az": "Hesabın yoxdur? ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.otp_enter_6_digits",
+    "group": "auth",
+    "az": "6 rəqəmli kodu daxil edin.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.otp_sent_to",
+    "group": "auth",
+    "az": "{email} ünvanına gələn 6 rəqəmli kod.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.otp_sent_to_email",
+    "group": "auth",
+    "az": "Təsdiq kodu email-inizə göndərildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.password_label",
+    "group": "auth",
+    "az": "Şifrə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.password_min8_hint",
+    "group": "auth",
+    "az": "Minimum 8 simvol",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.password_min_8",
+    "group": "auth",
+    "az": "Minimum 8 simvol olmalıdır.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.password_updated_body",
+    "group": "auth",
+    "az": "Şifrəniz uğurla dəyişdirildi. Artıq yeni şifrəniz ilə daxil ola bilərsiniz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.password_updated_title",
+    "group": "auth",
+    "az": "Şifrə yeniləndi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.passwords_mismatch",
+    "group": "auth",
+    "az": "Şifrələr uyğun gəlmir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.privacy_policy_link",
+    "group": "auth",
+    "az": "Məxfilik siyasəti",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.referral_code_hint",
+    "group": "auth",
+    "az": "Dostunun kodu",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.referral_code_label",
+    "group": "auth",
+    "az": "Dəvət kodu (istəyə bağlı)",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.referral_invited_by",
+    "group": "auth",
+    "az": "Sizi {name} dəvət etdi — qeydiyyatdan sonra hər ikiniz {reward} qazanacaqsınız",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.referral_promo_received",
+    "group": "auth",
+    "az": "Sizə {amount} promokod verildi 🎁",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.register",
+    "group": "auth",
+    "az": "Qeydiyyatdan keç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.register_subtitle",
+    "group": "auth",
+    "az": "Bir neçə addımda qoşul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.remember_me",
+    "group": "auth",
+    "az": "Məni xatırla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.repeat_hint",
+    "group": "auth",
+    "az": "Təkrar yaz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.resend_link",
+    "group": "auth",
+    "az": "Linki yenidən göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.resend_link_failed",
+    "group": "auth",
+    "az": "Təsdiq linkini göndərmək mümkün olmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.reset_password_failed",
+    "group": "auth",
+    "az": "Şifrəni yeniləmək mümkün olmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.send_code",
+    "group": "auth",
+    "az": "Kod göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.send_code_failed",
+    "group": "auth",
+    "az": "Kod göndərmək mümkün olmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.send_new_code",
+    "group": "auth",
+    "az": "Yeni kod göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.set_new_password_subtitle",
+    "group": "auth",
+    "az": "Yeni şifrəni təyin et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.spoken_languages",
+    "group": "auth",
+    "az": "Danışdığın dillər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.terms_prefix",
+    "group": "auth",
+    "az": "İstifadə qaydaları və ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.terms_suffix",
+    "group": "auth",
+    "az": " ilə tanış oldum.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.update_password",
+    "group": "auth",
+    "az": "Şifrəni yenilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.verification_link_sent",
+    "group": "auth",
+    "az": "Təsdiq linki email-inizə göndərildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.verify_email_body",
+    "group": "auth",
+    "az": "{email} ünvanına təsdiq linki göndərdik. Linkə klikləyib hesabını aktivləşdir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.verify_email_title",
+    "group": "auth",
+    "az": "Email-ini təsdiqlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.welcome_back",
+    "group": "auth",
+    "az": "Xoş gəldin",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "auth.welcome_tagline",
+    "group": "auth",
+    "az": "Səyahət et, bağlama daşı, qazan. Etibarlı crowdshipping icması.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "block.unblocked",
+    "group": "block",
+    "az": "Blok götürüldü.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "block.user",
+    "group": "block",
+    "az": "İstifadəçini blokla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "block.user_blocked",
+    "group": "block",
+    "az": "İstifadəçi bloklandı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "chat.cancel_reason_line",
+    "group": "chat",
+    "az": "Səbəb: {reason}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "chat.go_to_chat",
+    "group": "chat",
+    "az": "Söhbətə keç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "chat.reply.to",
+    "group": "chat",
+    "az": "{name}-ə cavab",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "chat.retry",
+    "group": "chat",
+    "az": "Yenidən cəhd",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "chat.search.empty",
+    "group": "chat",
+    "az": "Heç nə tapılmadı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "chat.search.hint",
+    "group": "chat",
+    "az": "Axtar...",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.action_failed",
+    "group": "common",
+    "az": "Əməliyyat alınmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.active",
+    "group": "common",
+    "az": "Aktiv",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.all",
+    "group": "common",
+    "az": "Hamısı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.collapse",
+    "group": "common",
+    "az": "Yığ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.days_ago",
+    "group": "common",
+    "az": "{days} gün əvvəl",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.days_short",
+    "group": "common",
+    "az": "{count} gün",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.expand",
+    "group": "common",
+    "az": "Ətraflı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.hours_short",
+    "group": "common",
+    "az": "{count} saat",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.lang_az",
+    "group": "common",
+    "az": "Azərbaycanca",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.lang_en",
+    "group": "common",
+    "az": "English",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.lang_es",
+    "group": "common",
+    "az": "Español",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.lang_ru",
+    "group": "common",
+    "az": "",
+    "en": "",
+    "ru": "Русский",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.lang_tr",
+    "group": "common",
+    "az": "Türkçe",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.lang_ua",
+    "group": "common",
+    "az": "",
+    "en": "",
+    "ru": "Українська",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.loading_more",
+    "group": "common",
+    "az": "Daha çox yüklənir…",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.message",
+    "group": "common",
+    "az": "Mesaj",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_apr",
+    "group": "common",
+    "az": "Apr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_aug",
+    "group": "common",
+    "az": "Avq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_dec",
+    "group": "common",
+    "az": "Dek",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_feb",
+    "group": "common",
+    "az": "Fev",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_jan",
+    "group": "common",
+    "az": "Yan",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_jul",
+    "group": "common",
+    "az": "İyul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_jun",
+    "group": "common",
+    "az": "İyun",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_mar",
+    "group": "common",
+    "az": "Mar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_may",
+    "group": "common",
+    "az": "May",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_nov",
+    "group": "common",
+    "az": "Noy",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_oct",
+    "group": "common",
+    "az": "Okt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.month_sep",
+    "group": "common",
+    "az": "Sen",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.note",
+    "group": "common",
+    "az": "Qeyd",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.now",
+    "group": "common",
+    "az": "indi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.optional",
+    "group": "common",
+    "az": "İstəyə bağlı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.or",
+    "group": "common",
+    "az": "və ya",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.other",
+    "group": "common",
+    "az": "Digər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.profile_not_found",
+    "group": "common",
+    "az": "Profil məlumatı tapılmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.refresh",
+    "group": "common",
+    "az": "Yenilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.repeat",
+    "group": "common",
+    "az": "Təkrar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.request_error",
+    "group": "common",
+    "az": "Sorğu xətası",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.save",
+    "group": "common",
+    "az": "Yadda saxla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.send",
+    "group": "common",
+    "az": "Göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.skip",
+    "group": "common",
+    "az": "Keç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.user",
+    "group": "common",
+    "az": "İstifadəçi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.weeks_short",
+    "group": "common",
+    "az": "{count} həftə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.you",
+    "group": "common",
+    "az": "Siz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "common.you_initial",
+    "group": "common",
+    "az": "S",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "country.azerbaijan",
+    "group": "country",
+    "az": "Azərbaycan",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "country.germany",
+    "group": "country",
+    "az": "Almaniya",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "country.russia",
+    "group": "country",
+    "az": "Rusiya",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "country.turkey",
+    "group": "country",
+    "az": "Türkiyə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "country.uae",
+    "group": "country",
+    "az": "BƏƏ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "courier.default_name",
+    "group": "courier",
+    "az": "",
+    "en": "",
+    "ru": "Курьер",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "courier.default_user",
+    "group": "courier",
+    "az": "",
+    "en": "",
+    "ru": "Пользователь",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "create.flight_date_placeholder",
+    "group": "create",
+    "az": "15 Jul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "create.shipment_date_placeholder",
+    "group": "create",
+    "az": "5–12 İyul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.action.chat",
+    "group": "deals",
+    "az": "Söhbətə keç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.action_accept",
+    "group": "deals",
+    "az": "Qəbul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.action_counter",
+    "group": "deals",
+    "az": "Dəyiş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.action_decline",
+    "group": "deals",
+    "az": "Rədd",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.action_review",
+    "group": "deals",
+    "az": "Rəy",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.auto_completed",
+    "group": "deals",
+    "az": "Avtomatik tamamlandı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.awaiting_badge",
+    "group": "deals",
+    "az": "gözlənilir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.cancel_counterpart_unresponsive",
+    "group": "deals",
+    "az": "Qarşı tərəf cavab vermir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.cancel_found_another",
+    "group": "deals",
+    "az": "Başqa variant tapdım",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.cancel_plans_changed",
+    "group": "deals",
+    "az": "Planlar dəyişdi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.cancel_terms_disagreement",
+    "group": "deals",
+    "az": "Şərtlərlə razılaşmadıq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.cancelled_short",
+    "group": "deals",
+    "az": "Ləğv edildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.card_accepted",
+    "group": "deals",
+    "az": "Təklif qəbul edildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.card_declined",
+    "group": "deals",
+    "az": "Təklif rədd edildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.deal_cancelled",
+    "group": "deals",
+    "az": "Sövdələşmə ləğv edildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.deal_completed",
+    "group": "deals",
+    "az": "Sövdələşmə tamamlandı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.delivered",
+    "group": "deals",
+    "az": "Çatdırıldı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.dispute.detail_hint",
+    "group": "deals",
+    "az": "Ətraflı izah edin…",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.disputed",
+    "group": "deals",
+    "az": "Problem bildirildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.error.action_failed",
+    "group": "deals",
+    "az": "Əməliyyat alınmadı. Yenidən cəhd edin.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.expired",
+    "group": "deals",
+    "az": "Vaxtı keçdi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.filter.carrier",
+    "group": "deals",
+    "az": "Daşıyıcı kimi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.filter.sender",
+    "group": "deals",
+    "az": "Göndərən kimi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.package_clothing",
+    "group": "deals",
+    "az": "Geyim",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.package_documents",
+    "group": "deals",
+    "az": "Sənədlər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.package_electronics",
+    "group": "deals",
+    "az": "Elektronika",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.package_food",
+    "group": "deals",
+    "az": "Qida",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.package_small_parcel",
+    "group": "deals",
+    "az": "Kiçik bağlama",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.picked_up",
+    "group": "deals",
+    "az": "Mal götürüldü",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.profile_not_found",
+    "group": "deals",
+    "az": "Profil məlumatı tapılmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.proposal",
+    "group": "deals",
+    "az": "Təklif",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.proposal_incoming",
+    "group": "deals",
+    "az": "Çatdırılma təklifi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.proposal_sent",
+    "group": "deals",
+    "az": "Təklifin göndərildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.review.comment_required",
+    "group": "deals",
+    "az": "Aşağı qiymət üçün şərh vacibdir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.review.pending_moderation",
+    "group": "deals",
+    "az": "Rəyiniz moderasiyaya göndərildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.review.published",
+    "group": "deals",
+    "az": "Rəyiniz yayımlandı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.status_accepted",
+    "group": "deals",
+    "az": "Qəbul olundu",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.status_completed",
+    "group": "deals",
+    "az": "Tamamlandı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.status_deal",
+    "group": "deals",
+    "az": "Sövdələşmə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.status_disputed",
+    "group": "deals",
+    "az": "Mübahisəli",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.status_proposal_pending",
+    "group": "deals",
+    "az": "Təklif gözləyir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.support",
+    "group": "deals",
+    "az": "Dəstək",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.timeline.completed",
+    "group": "deals",
+    "az": "Tamamlandı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.timeline.delivered",
+    "group": "deals",
+    "az": "Çatdırıldı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "deals.timeline.picked_up",
+    "group": "deals",
+    "az": "Mal götürüldü",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.package_type.clothing",
+    "group": "enum",
+    "az": "Geyim",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.package_type.documents",
+    "group": "enum",
+    "az": "Sənədlər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.package_type.electronics",
+    "group": "enum",
+    "az": "Elektronika",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.package_type.food",
+    "group": "enum",
+    "az": "Qida",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.package_type.other",
+    "group": "enum",
+    "az": "Digər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.package_type.small_parcel",
+    "group": "enum",
+    "az": "Kiçik bağlama",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.user_tier_bronze",
+    "group": "enum",
+    "az": "Bürünc",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.user_tier_gold",
+    "group": "enum",
+    "az": "Qızıl",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.user_tier_new",
+    "group": "enum",
+    "az": "Yeni",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.user_tier_platinum",
+    "group": "enum",
+    "az": "Platin",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.user_tier_silver",
+    "group": "enum",
+    "az": "Gümüş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "enum.user_tier_standard",
+    "group": "enum",
+    "az": "Standart",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.change_password_failed",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Ошибка смены пароля",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.generic",
+    "group": "error",
+    "az": "Something went wrong",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.generic_with_detail",
+    "group": "error",
+    "az": "Error: {detail}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.login_failed",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Ошибка входа",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.no_connection",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Нет подключения к интернету",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.operation_failed",
+    "group": "error",
+    "az": "Əməliyyat alınmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.registration_failed",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Ошибка регистрации",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.request_failed",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Ошибка запроса",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.server",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Ошибка сервера. Попробуйте позже",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.timeout",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Превышено время ожидания",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "error.unauthorized",
+    "group": "error",
+    "az": "",
+    "en": "",
+    "ru": "Требуется авторизация",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "home.route_price_from_template",
+    "group": "home",
+    "az": "{price} \\$-dən",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "home.route_travelers_template",
+    "group": "home",
+    "az": "{count} səyahətçi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "home.stats_deliveries_suffix",
+    "group": "home",
+    "az": " çatdırılma · ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "home.stats_travelers_suffix",
+    "group": "home",
+    "az": " təsdiqlənmiş səyahətçi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "legal.load_failed_body",
+    "group": "legal",
+    "az": "Səhifəni yükləyə bilmədik. İnternet bağlantını yoxla.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "legal.updated_at",
+    "group": "legal",
+    "az": "Yenilənib: {date}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "limit.active_count_prefix",
+    "group": "limit",
+    "az": "{active}/{limit} aktiv {noun} elanın var. ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "limit.increase_cta",
+    "group": "limit",
+    "az": "Limiti artır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.accepted_packages",
+    "group": "listing",
+    "az": "Qəbul olunan bağlamalar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.activate",
+    "group": "listing",
+    "az": "Aktiv et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.active_deal_edit_limited",
+    "group": "listing",
+    "az": "Aktiv sövdələşmə olduğu üçün redaktə məhduddur. Silmək istəsəniz, əvvəl açıq sövdələşmələri həll edin.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.active_order_in_chat",
+    "group": "listing",
+    "az": "Bu söhbətdə artıq aktiv sifariş var. Davam etmək üçün mövcud söhbətə keç.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.avg_response",
+    "group": "listing",
+    "az": "Adətən ~{minutes} dəqiqəyə cavab verir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.back_to_listing",
+    "group": "listing",
+    "az": "Elana qayıt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.delete_confirm_message",
+    "group": "listing",
+    "az": "Bu əməliyyat geri qaytarılmır. Davam etmək istəyirsən?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.delete_confirm_title",
+    "group": "listing",
+    "az": "Elanı sil?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.delete_sheet_subtitle",
+    "group": "listing",
+    "az": "Silmə səbəbini seç.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.delete_sheet_title",
+    "group": "listing",
+    "az": "Elanı sil",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.deliveries_count",
+    "group": "listing",
+    "az": "{count} çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.delivery",
+    "group": "listing",
+    "az": "Təhvil",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.description",
+    "group": "listing",
+    "az": "Təsvir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.details",
+    "group": "listing",
+    "az": "Detallar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.edit",
+    "group": "listing",
+    "az": "Redaktə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.expired_banner_message",
+    "group": "listing",
+    "az": "Uçuş tarixi keçdiyi üçün elan lentdən çıxıb. Yeni tarixlə yenidən paylaşa bilərsiniz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.expired_banner_title",
+    "group": "listing",
+    "az": "Vaxtı keçib",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.favorites",
+    "group": "listing",
+    "az": "Sevimli",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.fix",
+    "group": "listing",
+    "az": "Düzəlt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.flight",
+    "group": "listing",
+    "az": "Reys",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.free",
+    "group": "listing",
+    "az": "Boş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.free_hint",
+    "group": "listing",
+    "az": "Boş: {kg} kq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.free_space",
+    "group": "listing",
+    "az": "Boş yer",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.free_space_left",
+    "group": "listing",
+    "az": "{kg} kq boş yer qalıb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.free_weight",
+    "group": "listing",
+    "az": "{weight} kq boş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.fully_booked",
+    "group": "listing",
+    "az": "Yer yoxdur.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.moderation_banner_message",
+    "group": "listing",
+    "az": "Elanınız yoxlanılır. Təsdiqlənəndən sonra lentdə görünəcək.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.moderation_banner_title",
+    "group": "listing",
+    "az": "Moderasiyada",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.my_listing",
+    "group": "listing",
+    "az": "Elanım",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.negotiable",
+    "group": "listing",
+    "az": "Razılaşma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.negotiable_with",
+    "group": "listing",
+    "az": "Razılaşma ilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.no_space",
+    "group": "listing",
+    "az": "Yer yoxdur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.not_found_body",
+    "group": "listing",
+    "az": "Elan silinmiş, moderasiyada ola bilər və ya sənə açıq deyil.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.not_found_title",
+    "group": "listing",
+    "az": "Elan tapılmadı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.note_hint",
+    "group": "listing",
+    "az": "Qısa mesaj yaz...",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.offer_failed",
+    "group": "listing",
+    "az": "Təklif göndərilmədi. Məlumatları yoxla və yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.offer_sent",
+    "group": "listing",
+    "az": "Təklif göndərildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.offer_sent_body",
+    "group": "listing",
+    "az": "{name} təklifinizə baxıb cavab verəcək.\nSöhbətdən danışıqları davam etdirə bilərsiniz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.package",
+    "group": "listing",
+    "az": "Bağlama",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.package_type",
+    "group": "listing",
+    "az": "Bağlama növü",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.packages",
+    "group": "listing",
+    "az": "Bağlamalar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.pause",
+    "group": "listing",
+    "az": "Dayandır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.pause_confirm_message",
+    "group": "listing",
+    "az": "Bu elan lentdən çıxacaq və istifadəçilər onu görməyəcək. Davam edək?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.pause_confirm_title",
+    "group": "listing",
+    "az": "Elanı dayandır?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.paused_banner_message",
+    "group": "listing",
+    "az": "Bu elan lentdə görünmür. İstənilən vaxt yenidən aktivləşdirə bilərsiniz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.paused_banner_title",
+    "group": "listing",
+    "az": "Dayandırılıb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.price",
+    "group": "listing",
+    "az": "Qiymət",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.price_hint",
+    "group": "listing",
+    "az": "Təxmini qiyməti çəkiyə görə hesablaya bilərsən: {price} \\$/kq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.price_negotiable",
+    "group": "listing",
+    "az": "Qiymət razılaşma ilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.published",
+    "group": "listing",
+    "az": "Dərc olunub",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.rejected_banner_message",
+    "group": "listing",
+    "az": "Səbəb: elan qaydalara uyğun deyil. Düzəliş edib yenidən göndərə bilərsiniz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.rejected_banner_title",
+    "group": "listing",
+    "az": "Rədd edildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.remaining_days_hours",
+    "group": "listing",
+    "az": "{days} gün {hours} saat",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.remaining_hours",
+    "group": "listing",
+    "az": "{hours} saat",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.remaining_minutes",
+    "group": "listing",
+    "az": "{minutes} dəq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.report_sent",
+    "group": "listing",
+    "az": "Şikayət göndərildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.report_sheet_subtitle",
+    "group": "listing",
+    "az": "Səbəbi seç və ya qısa qeyd yaz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.report_sheet_title",
+    "group": "listing",
+    "az": "Şikayət et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.repost",
+    "group": "listing",
+    "az": "Yenidən paylaş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.reserved",
+    "group": "listing",
+    "az": "Rezerv olunub",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.resume",
+    "group": "listing",
+    "az": "Yenidən aktivləşdir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.resume_confirm_action",
+    "group": "listing",
+    "az": "Aktiv et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.resume_confirm_message",
+    "group": "listing",
+    "az": "Elan yenidən lentdə görünəcək. Davam edək?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.resume_confirm_title",
+    "group": "listing",
+    "az": "Elanı aktivləşdir?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.send_offer",
+    "group": "listing",
+    "az": "Təklif göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.shipment",
+    "group": "listing",
+    "az": "Göndəriş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.similar",
+    "group": "listing",
+    "az": "Oxşar elanlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.stat_favorites",
+    "group": "listing",
+    "az": "Seçilmiş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.stat_views",
+    "group": "listing",
+    "az": "Baxış",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.total_price",
+    "group": "listing",
+    "az": "Ümumi qiymət",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.trip",
+    "group": "listing",
+    "az": "Səfər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.trip_summary_free",
+    "group": "listing",
+    "az": "{date} · {kg} kq boş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.updated_moderation",
+    "group": "listing",
+    "az": "Elan yeniləndi və yenidən moderasiyaya göndərildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.views",
+    "group": "listing",
+    "az": "Baxış",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing.weight",
+    "group": "listing",
+    "az": "Çəki",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.cancel_payment",
+    "group": "listing_quota",
+    "az": "Ödənişi ləğv et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.confirm_title",
+    "group": "listing_quota",
+    "az": "Ödənişi təsdiqlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.create_listing",
+    "group": "listing_quota",
+    "az": "Elan yarat",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.go_to_payment",
+    "group": "listing_quota",
+    "az": "ödənişə keç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.limit_full_subtitle",
+    "group": "listing_quota",
+    "az": "Limiti artır və dərhal yenisini yarat.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.load_error",
+    "group": "listing_quota",
+    "az": "Planlar yüklənmədi. Yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.new_limit",
+    "group": "listing_quota",
+    "az": "Yeni limit",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.one_time",
+    "group": "listing_quota",
+    "az": "bir dəfəlik · daimi limit",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.pause_instead",
+    "group": "listing_quota",
+    "az": "və ya bir elanı dayandır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.pay_cta",
+    "group": "listing_quota",
+    "az": "ödə və limiti artır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.pay_cta_empty",
+    "group": "listing_quota",
+    "az": "Plan seç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.payment_failed_sub",
+    "group": "listing_quota",
+    "az": "Məbləğ tutulmadı və limit dəyişmədi. Yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.payment_pending_sub",
+    "group": "listing_quota",
+    "az": "Ödəniş səhifəsində əməliyyatı tamamla. Bitən kimi nəticəni avtomatik göstərəcəyik.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.per_listing_prefix",
+    "group": "listing_quota",
+    "az": "elan başına",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.permanent_increase",
+    "group": "listing_quota",
+    "az": "Daimi limit artımı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.plans_header",
+    "group": "listing_quota",
+    "az": "Limiti artır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.receipt.type",
+    "group": "listing_quota",
+    "az": "Növ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.refresh_status",
+    "group": "listing_quota",
+    "az": "Statusu yenilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.retry",
+    "group": "listing_quota",
+    "az": "Yenidən cəhd et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.secure_note",
+    "group": "listing_quota",
+    "az": "Ödəniş təhlükəsiz provayder səhifəsində aparılır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.secure_redirect",
+    "group": "listing_quota",
+    "az": "Növbəti addımda təhlükəsiz ödəniş səhifəsinə yönləndiriləcəksən. Ödənişi orada tamamla — nəticəni avtomatik alacağıq.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.success_sub_prefix",
+    "group": "listing_quota",
+    "az": "İndi daha",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.success_sub_suffix",
+    "group": "listing_quota",
+    "az": "aktiv elan yarada bilərsən.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.success_title",
+    "group": "listing_quota",
+    "az": "Limitin artdı!",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.test_mode",
+    "group": "listing_quota",
+    "az": "Test rejimi — real məbləğ tutulmur (mock)",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.total",
+    "group": "listing_quota",
+    "az": "Ümumi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.type_shipment",
+    "group": "listing_quota",
+    "az": "göndəriş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.type_trip",
+    "group": "listing_quota",
+    "az": "səfər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "listing_quota.view_receipt",
+    "group": "listing_quota",
+    "az": "Qəbzə bax",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "menu.load_failed",
+    "group": "menu",
+    "az": "Menyu yüklənmədi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "menu.retry",
+    "group": "menu",
+    "az": "Yenidən yoxla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "menu.tier_status",
+    "group": "menu",
+    "az": "Statusum",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.apr",
+    "group": "month",
+    "az": "Aprel",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.aug",
+    "group": "month",
+    "az": "Avqust",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.dec",
+    "group": "month",
+    "az": "Dekabr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.feb",
+    "group": "month",
+    "az": "Fevral",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.jan",
+    "group": "month",
+    "az": "Yanvar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.jul",
+    "group": "month",
+    "az": "İyul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.jun",
+    "group": "month",
+    "az": "İyun",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.mar",
+    "group": "month",
+    "az": "Mart",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.may",
+    "group": "month",
+    "az": "May",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.nov",
+    "group": "month",
+    "az": "Noyabr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.oct",
+    "group": "month",
+    "az": "Oktyabr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "month.sep",
+    "group": "month",
+    "az": "Sentyabr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "my_listings.filter_empty_subtitle",
+    "group": "my_listings",
+    "az": "Bu filter üzrə elan tapılmadı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "my_listings.filter_empty_title",
+    "group": "my_listings",
+    "az": "Elan yoxdur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "my_listings.filter_title",
+    "group": "my_listings",
+    "az": "Filtr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.critical_note",
+    "group": "notification",
+    "az": "Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.deals_subtitle",
+    "group": "notification",
+    "az": "Təklif, çatdırılma, sifariş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.deals_title",
+    "group": "notification",
+    "az": "Sövdələşmə & təkliflər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.email_subtitle",
+    "group": "notification",
+    "az": "Vacib yeniliklər e-poçtla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.email_title",
+    "group": "notification",
+    "az": "E-poçt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.follows_subtitle",
+    "group": "notification",
+    "az": "Yeni izləyici və elanları",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.follows_title",
+    "group": "notification",
+    "az": "İzləmə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.group_categories",
+    "group": "notification",
+    "az": "Kateqoriyalar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.group_channels",
+    "group": "notification",
+    "az": "Kanallar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.group_quiet_hours",
+    "group": "notification",
+    "az": "Sakit saatlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.listings_subtitle",
+    "group": "notification",
+    "az": "Təsdiq, rədd, vaxt, uyğun elan",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.listings_title",
+    "group": "notification",
+    "az": "Elanlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.marketing_subtitle",
+    "group": "notification",
+    "az": "Kampaniya və elanlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.marketing_title",
+    "group": "notification",
+    "az": "Yeniliklər & təkliflər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.messages_subtitle",
+    "group": "notification",
+    "az": "Yeni və cavabsız mesajlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.messages_title",
+    "group": "notification",
+    "az": "Mesajlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.push_subtitle",
+    "group": "notification",
+    "az": "Telefona anında bildiriş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.push_title",
+    "group": "notification",
+    "az": "Push bildirişlər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.quiet_range_label",
+    "group": "notification",
+    "az": "Başlanğıc — son",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.quiet_toggle_subtitle",
+    "group": "notification",
+    "az": "Seçilən saatlarda push gəlməz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.quiet_toggle_title",
+    "group": "notification",
+    "az": "Push-u sakitləşdir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.reviews_subtitle",
+    "group": "notification",
+    "az": "Yeni rəy və xatırlatma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.reviews_title",
+    "group": "notification",
+    "az": "Rəylər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.saved_search_subtitle",
+    "group": "notification",
+    "az": "Axtarışınıza uyğun yeni elan",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.saved_search_title",
+    "group": "notification",
+    "az": "Saxlanan axtarışlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.settings_saved",
+    "group": "notification",
+    "az": "Ayarlar saxlandı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "notification.settings_title",
+    "group": "notification",
+    "az": "Bildiriş ayarları",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_delivery_time",
+    "group": "onboarding",
+    "az": "1–2 gündə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_destination_city",
+    "group": "onboarding",
+    "az": "İstanbul",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_origin_city",
+    "group": "onboarding",
+    "az": "Bakı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_price_from",
+    "group": "onboarding",
+    "az": "5 \\$-dən",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_rating",
+    "group": "onboarding",
+    "az": "4.9 reytinq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_secure",
+    "group": "onboarding",
+    "az": "Təhlükəsiz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.art_your_parcel",
+    "group": "onboarding",
+    "az": "Bağlaman",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.colleague_contributions_desc",
+    "group": "onboarding",
+    "az": "But understanding the contributions our colleagues make to our teams and companies.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.notifications_control_desc",
+    "group": "onboarding",
+    "az": "Take control of notifications, collaborate live or on your own time.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.stay_informed_title",
+    "group": "onboarding",
+    "az": "Always stay informed about new features and services",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "onboarding.track_accomplishments_desc",
+    "group": "onboarding",
+    "az": "Remember to keep track of your professional accomplishments.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "privacy.load_error",
+    "group": "privacy",
+    "az": "Error loading privacy policy",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "privacy.no_content",
+    "group": "privacy",
+    "az": "No content available",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "privacy.retry",
+    "group": "privacy",
+    "az": "Retry",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "privacy.screen_title",
+    "group": "privacy",
+    "az": "Privacy Policy",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.account_deleted",
+    "group": "profile",
+    "az": "Hesabınız silindi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.auth_required_subtitle",
+    "group": "profile",
+    "az": "Elanlarını, rəylərini və ayarlarını idarə etmək üçün hesabına daxil ol.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.auth_required_title",
+    "group": "profile",
+    "az": "Profil üçün daxil ol",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.avatar_delete_failed",
+    "group": "profile",
+    "az": "Avatar silinmədi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.avatar_update_failed",
+    "group": "profile",
+    "az": "Avatar yenilənmədi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.bio",
+    "group": "profile",
+    "az": "Bio",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.change_photo",
+    "group": "profile",
+    "az": "Şəkli dəyiş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.current_password",
+    "group": "profile",
+    "az": "Cari parol",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.delete_confirm_understand",
+    "group": "profile",
+    "az": "Nəticələri başa düşürəm",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.delete_subtitle",
+    "group": "profile",
+    "az": "Elanlarınız, söhbətləriniz və rəyləriniz gizlədiləcək. Bu əməli geri qaytarmaq mümkün deyil.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.delete_title",
+    "group": "profile",
+    "az": "Hesabı silmək?",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.email_label",
+    "group": "profile",
+    "az": "Email",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.first_name",
+    "group": "profile",
+    "az": "Ad",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.follow",
+    "group": "profile",
+    "az": "İzlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.follow_active",
+    "group": "profile",
+    "az": "İzlənilir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.follow_started",
+    "group": "profile",
+    "az": "İzləməyə başladınız.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.follow_stopped",
+    "group": "profile",
+    "az": "İzləmə dayandırıldı.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.image_process_failed",
+    "group": "profile",
+    "az": "Failed to process image",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.languages_known",
+    "group": "profile",
+    "az": "Bildiyiniz dillər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.last_name",
+    "group": "profile",
+    "az": "Soyad",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.list_empty",
+    "group": "profile",
+    "az": "Siyahı boşdur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.logged_out",
+    "group": "profile",
+    "az": "Çıxış edildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.member_since",
+    "group": "profile",
+    "az": "{year}-dən üzv",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.message",
+    "group": "profile",
+    "az": "Mesaj",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.new_password",
+    "group": "profile",
+    "az": "Yeni parol",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.password_hint",
+    "group": "profile",
+    "az": "Ən az 8 simvol, cari paroldan fərqli",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.password_min",
+    "group": "profile",
+    "az": "Ən az 8 simvol olmalıdır.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.password_strong",
+    "group": "profile",
+    "az": "Güclü",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.password_update",
+    "group": "profile",
+    "az": "Parolu yenilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.password_weak",
+    "group": "profile",
+    "az": "Zəif",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_activity",
+    "group": "profile",
+    "az": "Aktivlik vaxtı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_activity_hint",
+    "group": "profile",
+    "az": "Son giriş görünsün",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_email",
+    "group": "profile",
+    "az": "E-poçt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_languages",
+    "group": "profile",
+    "az": "Bildiyim dillər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_note",
+    "group": "profile",
+    "az": "Əlaqə həmişə söhbət (chat) vasitəsilə mümkündür — nömrənizi gizli saxlasanız belə.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_phone",
+    "group": "profile",
+    "az": "Telefon nömrəsi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_profile_visible",
+    "group": "profile",
+    "az": "Profildə görünsün",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_show",
+    "group": "profile",
+    "az": "Profildə göstər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_update_failed",
+    "group": "profile",
+    "az": "Məxfilik yenilənmədi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.privacy_visible_to_others",
+    "group": "profile",
+    "az": "Başqaları görə bilsin",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_abuse",
+    "group": "profile",
+    "az": "Təhqir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_details",
+    "group": "profile",
+    "az": "Ətraflı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_fake",
+    "group": "profile",
+    "az": "Saxta",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_fraud",
+    "group": "profile",
+    "az": "Fırıldaq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_inappropriate",
+    "group": "profile",
+    "az": "Uyğunsuz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_other",
+    "group": "profile",
+    "az": "Digər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_spam",
+    "group": "profile",
+    "az": "Spam",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_user_subtitle",
+    "group": "profile",
+    "az": "Səbəbi seçin. Şikayət anonimdir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.report_user_title",
+    "group": "profile",
+    "az": "İstifadəçini şikayət et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.title",
+    "group": "profile",
+    "az": "Profil",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.update_failed",
+    "group": "profile",
+    "az": "Profil yenilənmədi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.user_not_found",
+    "group": "profile",
+    "az": "İstifadəçi tapılmadı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.user_not_found_subtitle",
+    "group": "profile",
+    "az": "Bu hesab mövcud deyil, dayandırılıb və ya silinib.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "profile.users_will_appear",
+    "group": "profile",
+    "az": "Burada istifadəçilər görünəcək.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.condition_once",
+    "group": "promo",
+    "az": "Bir dəfə istifadə olunur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.condition_vip",
+    "group": "promo",
+    "az": "VİP və önə çəkmə üçün keçərli",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.copy_code",
+    "group": "promo",
+    "az": "Kodu köçür",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.days_left",
+    "group": "promo",
+    "az": "{days} gün qalıb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.discount_label",
+    "group": "promo",
+    "az": "ENDİRİM",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.earn_rate",
+    "group": "promo",
+    "az": "Tətbiqi qiymətləndir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.history_expired",
+    "group": "promo",
+    "az": "Vaxtı bitib",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.history_used",
+    "group": "promo",
+    "az": "İstifadə olunub",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.min_order",
+    "group": "promo",
+    "az": "Minimum ödəniş: {amount}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.no_expiry",
+    "group": "promo",
+    "az": "Müddətsiz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.promote_listing",
+    "group": "promo",
+    "az": "Elanı önə çıxar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.source_default",
+    "group": "promo",
+    "az": "Promokod",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.source_rate",
+    "group": "promo",
+    "az": "Tətbiqi qiymətləndirdiyin üçün",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.source_referral",
+    "group": "promo",
+    "az": "Dostunu dəvət etdiyin üçün",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.source_welcome",
+    "group": "promo",
+    "az": "Xoş gəlmisən bonusu",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.stamp_expired",
+    "group": "promo",
+    "az": "BİTİB",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.stamp_used",
+    "group": "promo",
+    "az": "İŞLƏNİB",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.tab_active",
+    "group": "promo",
+    "az": "Aktiv",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.tab_empty",
+    "group": "promo",
+    "az": "Bu bölmədə promokod yoxdur.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.tab_expired",
+    "group": "promo",
+    "az": "Vaxtı keçmiş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.tab_used",
+    "group": "promo",
+    "az": "İstifadə olunmuş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.use",
+    "group": "promo",
+    "az": "İstifadə et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promo.valid_until",
+    "group": "promo",
+    "az": "{date}-a qədər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.apply",
+    "group": "promotion",
+    "az": "Tətbiq et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.checkout.discount",
+    "group": "promotion",
+    "az": "Endirim",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.checkout_title",
+    "group": "promotion",
+    "az": "Sifariş yekunu",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.payment.balance_subtitle",
+    "group": "promotion",
+    "az": "Mock ödəniş · real balans inteqrasiyada",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.payment.card_subtitle",
+    "group": "promotion",
+    "az": "Visa · Mastercard",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.payment.change_method",
+    "group": "promotion",
+    "az": "Ödəniş üsulunu dəyiş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.payment_integration_note",
+    "group": "promotion",
+    "az": "Ödəniş sistemi inteqrasiya mərhələsindədir — bu ekran hazır, provayder qoşulan kimi işləyəcək.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.payment_method",
+    "group": "promotion",
+    "az": "Ödəniş üsulu",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.promo_code",
+    "group": "promotion",
+    "az": "Promokod (varsa)",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.refunded_title",
+    "group": "promotion",
+    "az": "Məbləğ balansa qaytarıldı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.amount",
+    "group": "promotion",
+    "az": "Məbləğ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.check_later",
+    "group": "promotion",
+    "az": "Sonra profildən yoxla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.done",
+    "group": "promotion",
+    "az": "Bitdi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.end",
+    "group": "promotion",
+    "az": "Bitmə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.package",
+    "group": "promotion",
+    "az": "Paket",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.refresh",
+    "group": "promotion",
+    "az": "Statusu yenilə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.refreshing",
+    "group": "promotion",
+    "az": "Yenilənir...",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.status",
+    "group": "promotion",
+    "az": "Status",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.status.view_listing",
+    "group": "promotion",
+    "az": "Elanıma bax",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.tier.top10",
+    "group": "promotion",
+    "az": "İlk 10",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.tier.top100",
+    "group": "promotion",
+    "az": "İlk 100",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.tier.top50",
+    "group": "promotion",
+    "az": "İlk 50",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "promotion.total",
+    "group": "promotion",
+    "az": "Yekun",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "receipt.status.paid",
+    "group": "receipt",
+    "az": "Ödənildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "receipt.view",
+    "group": "receipt",
+    "az": "Qəbz",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.hero_lead",
+    "group": "referral",
+    "az": "Dostunu dəvət et,\nhər ikiniz ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.hero_subtitle",
+    "group": "referral",
+    "az": "Dostun qeydiyyatdan keçən kimi promokod hər ikinizə gedir.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.hero_trail",
+    "group": "referral",
+    "az": " qazanın",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.item_joined",
+    "group": "referral",
+    "az": "Qoşulub",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.share_code",
+    "group": "referral",
+    "az": " Kod: {code}.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.share_copy",
+    "group": "referral",
+    "az": "Kopyala",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.share_message",
+    "group": "referral",
+    "az": "Wawatair-ə qoşul, hər ikimiz {amount} {currency} qazanaq!{code} {link}",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.share_other",
+    "group": "referral",
+    "az": "Digər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.status_waiting",
+    "group": "referral",
+    "az": "Gözləyir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.step3_hint",
+    "group": "referral",
+    "az": "qeydiyyatdan keçən kimi {amount} {currency} promokod.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "referral.title",
+    "group": "referral",
+    "az": "Dostunu dəvət et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.action",
+    "group": "reports",
+    "az": "Şikayət et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.reason_label",
+    "group": "reports",
+    "az": "Səbəb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.sent",
+    "group": "reports",
+    "az": "Şikayət göndərildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.status_pending",
+    "group": "reports",
+    "az": "Gözləyir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.status_rejected",
+    "group": "reports",
+    "az": "Rədd edildi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.status_reviewing",
+    "group": "reports",
+    "az": "Baxılır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.submit",
+    "group": "reports",
+    "az": "Şikayəti göndər",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "reports.title",
+    "group": "reports",
+    "az": "Şikayətlərim",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "review.reply_field_label",
+    "group": "review",
+    "az": "Cavabınız",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "review.reply_sent",
+    "group": "review",
+    "az": "Cavab göndərildi.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.deliveries_count",
+    "group": "search",
+    "az": "{count} çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.min_chars_hint",
+    "group": "search",
+    "az": "Ən azı 2 simvol daxil edin",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.network_error_banner",
+    "group": "search",
+    "az": "Bağlantı yoxdur — nəticələr yüklənmədi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.new_user_no_rating",
+    "group": "search",
+    "az": "Yeni istifadəçi · reytinq yoxdur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.rate_limit_prefix",
+    "group": "search",
+    "az": "Çox tez-tez axtarış — ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.rate_limit_suffix",
+    "group": "search",
+    "az": " sonra yenidən cəhd et",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.save_error",
+    "group": "search",
+    "az": "Axtarışı saxlamaq alınmadı. Yenidən cəhd edin.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.save_name_hint",
+    "group": "search",
+    "az": "Şablonun adı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.save_notify",
+    "group": "search",
+    "az": "Yeni uyğun elanlar barədə bildiriş al",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.save_subtitle",
+    "group": "search",
+    "az": "Bu filtrləri şablon kimi saxla və sonra bir toxunuşla yenidən aç.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.save_title",
+    "group": "search",
+    "az": "Axtarışı saxla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.saved_title",
+    "group": "search",
+    "az": "Saxlanmış axtarışlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.tab_routes",
+    "group": "search",
+    "az": "Marşrut",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.tab_users",
+    "group": "search",
+    "az": "İstifadəçi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.user_empty_subtitle",
+    "group": "search",
+    "az": "«{query}» üzrə nəticə yoxdur. Adı və ya @username-i yoxla.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.user_empty_title",
+    "group": "search",
+    "az": "Heç kim tapılmadı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.user_hint",
+    "group": "search",
+    "az": "Ad, soyad və ya @username",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.user_prompt_subtitle",
+    "group": "search",
+    "az": "İnsanları adı, soyadı və ya istifadəçi adı ilə tap.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "search.user_prompt_title",
+    "group": "search",
+    "az": "Ad və ya @username ilə axtar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "settings.title",
+    "group": "settings",
+    "az": "Ayarlar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "social.follow",
+    "group": "social",
+    "az": "İzlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "social.following",
+    "group": "social",
+    "az": "İzlənilir",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "support.contact",
+    "group": "support",
+    "az": "Dəstək ilə əlaqə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "support.message_label",
+    "group": "support",
+    "az": "Mesaj",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "support.topic_account",
+    "group": "support",
+    "az": "Hesab",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "support.topic_suggestion",
+    "group": "support",
+    "az": "Təklif",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "support.topic_technical",
+    "group": "support",
+    "az": "Texniki",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.badge_comeback",
+    "group": "tier",
+    "az": "Geri qayıt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.badge_current",
+    "group": "tier",
+    "az": "Cari",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.badge_ready",
+    "group": "tier",
+    "az": "Hazır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.bronze_plus",
+    "group": "tier",
+    "az": "Bürünc+",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.deliveries_done",
+    "group": "tier",
+    "az": "Çatdırılma kifayətdir ✓",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.deliveries_first",
+    "group": "tier",
+    "az": "İlk çatdırılmanı tamamla",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.deliveries_remaining_template",
+    "group": "tier",
+    "az": "{count} çatdırılma qalıb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.demoted_body_template",
+    "group": "tier",
+    "az": "Reytinqin dəyişdiyi üçün səviyyən {from} → {to} oldu. ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.demoted_title",
+    "group": "tier",
+    "az": "Səviyyən dəyişdi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.footer_count_template",
+    "group": "tier",
+    "az": "{count} şərt qalıb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.footer_first",
+    "group": "tier",
+    "az": "İlk sifarişini tamamla və yüksəl!",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.footer_first_review",
+    "group": "tier",
+    "az": "İlk rəyini al — yüksəlmək üçün reytinq lazımdır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.footer_rating",
+    "group": "tier",
+    "az": "Reytinqini yüksəlt",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.gold_plus",
+    "group": "tier",
+    "az": "Qızıl+",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.hero_sub_new",
+    "group": "tier",
+    "az": "Səyahətinə yenicə başladın 👋",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.hero_sub_template",
+    "group": "tier",
+    "az": "Sən {tier} səviyyədəsən",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.kyc_button",
+    "group": "tier",
+    "az": "Hesabını təsdiqlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.kyc_button_big",
+    "group": "tier",
+    "az": "Hesabı təsdiqlə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.kyc_label",
+    "group": "tier",
+    "az": "Hesab təsdiqi (KYC)",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.kyc_unverified",
+    "group": "tier",
+    "az": "Təsdiqlənməyib",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.kyc_verified",
+    "group": "tier",
+    "az": "Təsdiqlənib",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.ladder_kyc_legend",
+    "group": "tier",
+    "az": "Yuxarı səviyyələr üçün hesab təsdiqi (KYC) tələb olunur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.ladder_title",
+    "group": "tier",
+    "az": "Bütün səviyyələr",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.laststep_caption",
+    "group": "tier",
+    "az": "Təsdiqdən dərhal sonra yüksələcəksən",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.laststep_sub",
+    "group": "tier",
+    "az": "Çatdırılma və reytinqin hazırdır — yalnız hesab təsdiqi qalıb.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.laststep_title_template",
+    "group": "tier",
+    "az": "{tier} səviyyəsinə son addım!",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.max_badge",
+    "group": "tier",
+    "az": "Ən yüksək səviyyədəsən 🏆",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.metric_deliveries_template",
+    "group": "tier",
+    "az": "{count} çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.metric_no_rating",
+    "group": "tier",
+    "az": "reytinq yoxdur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.metric_rating_template",
+    "group": "tier",
+    "az": "{rating} reytinq",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.note",
+    "group": "tier",
+    "az": "Səviyyə reytinqindən asılıdır — reytinqin düşsə səviyyə dəyişə ",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.platinum",
+    "group": "tier",
+    "az": "Platin",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.progress_title_template",
+    "group": "tier",
+    "az": "{tier} səviyyəsinə keçmək üçün",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.range_open_template",
+    "group": "tier",
+    "az": "{min}+ çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.range_rating_template",
+    "group": "tier",
+    "az": " · reytinq {min}+",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.range_single_template",
+    "group": "tier",
+    "az": "{n} çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.range_span_template",
+    "group": "tier",
+    "az": "{min}-{max} çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.rating_done",
+    "group": "tier",
+    "az": "Reytinq kifayətdir ✓",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.rating_none",
+    "group": "tier",
+    "az": "Hələ reytinqin yoxdur",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.rating_remaining_template",
+    "group": "tier",
+    "az": "min {min} lazımdır — hazırda {cur} · {gap} qalıb",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.ready_sub",
+    "group": "tier",
+    "az": "Növbəti çatdırılmadan sonra yüksələcəksən.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.ready_title_template",
+    "group": "tier",
+    "az": "{tier} səviyyəsinə hazırsan!",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.req_deliveries",
+    "group": "tier",
+    "az": "Çatdırılma",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.req_rating_template",
+    "group": "tier",
+    "az": "Reytinq (min {min})",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.silver_plus",
+    "group": "tier",
+    "az": "Gümüş+",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "tier.tier_start",
+    "group": "tier",
+    "az": "Başlanğıc",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "verification.doc_types_load_failed",
+    "group": "verification",
+    "az": "Sənəd növləri yüklənə bilmədi. Yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "verification.doc_types_load_failed_retry",
+    "group": "verification",
+    "az": "Sənəd növləri yüklənmədi. Yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "verification.submit_failed",
+    "group": "verification",
+    "az": "Göndərmək alınmadı. Yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  }
+]
