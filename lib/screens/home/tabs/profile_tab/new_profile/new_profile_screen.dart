@@ -24,7 +24,7 @@ import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../faq/faq_screen.dart';
-import '../privacy_policy/privacy_policy_screen.dart';
+import '../legal/legal_doc_screen.dart';
 import '../settings/notification_settings/notification_settings_screen.dart';
 import '../support/support_screen.dart';
 import '../tier/tier_badge.dart';
@@ -2486,7 +2486,12 @@ class _SettingsHubScreen extends StatelessWidget {
                     'Qaydalar & məxfilik siyasəti',
                   ),
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => PrivacyPolicyScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => LegalDocScreen(
+                        slug: 'privacy',
+                        title: tr('legal.privacy.title', 'Məxfilik siyasəti'),
+                      ),
+                    ),
                   ),
                 ),
                 _SettingsRow(

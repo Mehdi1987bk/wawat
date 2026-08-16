@@ -10,7 +10,7 @@ import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
-import '../../home/tabs/profile_tab/privacy_policy/privacy_policy_screen.dart';
+import '../../home/tabs/profile_tab/legal/legal_doc_screen.dart';
 import '../../../services/localization_service.dart';
 import '../../../wawat_app.dart';
 import '../../home/tabs/profile_tab/promo/promo_api.dart';
@@ -435,7 +435,11 @@ class _RegistrationScreenState
                               ..onTap = () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => PrivacyPolicyScreen(),
+                                    builder: (_) => LegalDocScreen(
+                                      slug: 'privacy',
+                                      title: tr('legal.privacy.title',
+                                          'Məxfilik siyasəti'),
+                                    ),
                                   ),
                                 );
                               },
