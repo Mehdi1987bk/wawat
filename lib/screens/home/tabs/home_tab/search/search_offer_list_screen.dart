@@ -1894,242 +1894,258 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: isDark ? WawatDark.bg : Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-              decoration: BoxDecoration(
-                color: isDark ? WawatDark.bar : null,
-                border: Border(
-                  bottom: BorderSide(color: cLine(isDark)),
+      // Tap anywhere outside a field to dismiss the (Done-less) numeric keyboard.
+      // A single handler here — instead of per-field onTapOutside, which made
+      // sibling fields unfocus each other and flicker the keyboard shut.
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                decoration: BoxDecoration(
+                  color: isDark ? WawatDark.bar : null,
+                  border: Border(
+                    bottom: BorderSide(color: cLine(isDark)),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(PhosphorIconsBold.x,
-                        color: isDark ? WawatDark.textSecondary : _ink700),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _contentText(widget.content, 'search.filters_title'),
-                      style: TextStyle(
-                        color: cText(isDark),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _reset,
-                    child: Text(
-                      _contentText(widget.content, 'common.reset'),
-                      style: TextStyle(
-                        color: cBrandText(isDark),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                // Swiping/scrolling the sheet also dismisses the keyboard.
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    _FilterTitle(
-                        _contentText(widget.content, 'search.filter_type')),
-                    ListingTypeFilter(
-                      value: _filters.type,
-                      content: widget.content,
-                      onChanged: (value) => setState(
-                        () => _filters = _filters.copyWith(
-                          type: value,
-                          clearType: value == null,
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Icon(PhosphorIconsBold.x,
+                          color: isDark ? WawatDark.textSecondary : _ink700),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _contentText(widget.content, 'search.filters_title'),
+                        style: TextStyle(
+                          color: cText(isDark),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 18),
-                    _FilterTitle(_contentText(
-                        widget.content, 'search.filter_package_type')),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final package in _packages)
-                          _Pill(
-                            label: package.name,
-                            icon: _packageIcon(package.code),
-                            selected:
-                                _filters.packageTypes.contains(package.code),
-                            onTap: () {
-                              final next = [..._filters.packageTypes];
-                              next.contains(package.code)
-                                  ? next.remove(package.code)
-                                  : next.add(package.code);
-                              setState(
-                                () => _filters = _filters.copyWith(
-                                  packageTypes: next,
-                                ),
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _FilterTitle(
-                        _contentText(widget.content, 'search.filter_price')),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _SmallInput(
-                                controller: _priceMin,
-                                hint: _priceLabel(
-                                    widget.content, 'search.price_min'))),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child: _SmallInput(
-                                controller: _priceMax,
-                                hint: _priceLabel(
-                                    widget.content, 'search.price_max'))),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _FilterTitle(
-                        _contentText(widget.content, 'search.filter_weight')),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _SmallInput(
-                                controller: _weightMin,
-                                hint: _contentText(
-                                    widget.content, 'search.weight_min'))),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child: _SmallInput(
-                                controller: _weightMax,
-                                hint: _contentText(
-                                    widget.content, 'search.weight_max'))),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _FilterTitle(
-                        _contentText(widget.content, 'search.filter_date')),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _DateFilterBox(
-                            label: _contentText(
-                                widget.content, 'search.date_from'),
-                            value: _filters.dateFrom,
-                            onTap: () => _pickDate(isFrom: true),
-                            onClear: () => setState(
-                              () => _filters =
-                                  _filters.copyWith(clearDateFrom: true),
-                            ),
-                          ),
+                    GestureDetector(
+                      onTap: _reset,
+                      child: Text(
+                        _contentText(widget.content, 'common.reset'),
+                        style: TextStyle(
+                          color: cBrandText(isDark),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _DateFilterBox(
-                            label:
-                                _contentText(widget.content, 'search.date_to'),
-                            value: _filters.dateTo,
-                            onTap: () => _pickDate(isFrom: false),
-                            onClear: () => setState(
-                              () => _filters =
-                                  _filters.copyWith(clearDateTo: true),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _FilterTitle(
-                        _contentText(widget.content, 'search.filter_rating')),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _Pill(
-                          label:
-                              _contentText(widget.content, 'search.filter_any'),
-                          selected: _filters.ratingMin == null,
-                          onTap: () => setState(
-                            () => _filters =
-                                _filters.copyWith(clearRatingMin: true),
-                          ),
-                        ),
-                        _Pill(
-                          label: '4.5+',
-                          icon: PhosphorIconsFill.star,
-                          selected: _filters.ratingMin == 4.5,
-                          onTap: () => setState(
-                            () => _filters = _filters.copyWith(ratingMin: 4.5),
-                          ),
-                        ),
-                        _Pill(
-                          label: '4.8+',
-                          icon: PhosphorIconsFill.star,
-                          selected: _filters.ratingMin == 4.8,
-                          onTap: () => setState(
-                            () => _filters = _filters.copyWith(ratingMin: 4.8),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _FilterTitle(
-                        _contentText(widget.content, 'search.filter_tier')),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _tier(_contentText(widget.content, 'search.filter_any'),
-                            null),
-                        _tier(_contentText(widget.content, 'tier.bronze_plus'),
-                            'bronze'),
-                        _tier(_contentText(widget.content, 'tier.silver_plus'),
-                            'silver'),
-                        _tier(_contentText(widget.content, 'tier.gold_plus'),
-                            'gold'),
-                        _tier(_contentText(widget.content, 'tier.platinum'),
-                            'platinum'),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    _SwitchRow(
-                      label:
-                          _contentText(widget.content, 'search.verified_only'),
-                      icon: PhosphorIconsFill.sealCheck,
-                      value: _filters.verifiedOnly,
-                      onChanged: (value) => setState(
-                        () => _filters = _filters.copyWith(verifiedOnly: value),
-                      ),
-                    ),
-                    _SwitchRow(
-                      label:
-                          _contentText(widget.content, 'search.following_only'),
-                      icon: PhosphorIconsRegular.userCheck,
-                      value: _filters.following,
-                      onChanged: (value) => setState(
-                        () => _filters = _filters.copyWith(following: value),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: SingleChildScrollView(
+                  // Swiping/scrolling the sheet also dismisses the keyboard.
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _FilterTitle(
+                          _contentText(widget.content, 'search.filter_type')),
+                      ListingTypeFilter(
+                        value: _filters.type,
+                        content: widget.content,
+                        // In the filter, null = "All" is a real, shown selection
+                        // (not a pristine placeholder).
+                        showPlaceholder: false,
+                        onChanged: (value) => setState(
+                          () => _filters = _filters.copyWith(
+                            type: value,
+                            clearType: value == null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterTitle(_contentText(
+                          widget.content, 'search.filter_package_type')),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final package in _packages)
+                            _Pill(
+                              label: package.name,
+                              icon: _packageIcon(package.code),
+                              selected:
+                                  _filters.packageTypes.contains(package.code),
+                              onTap: () {
+                                final next = [..._filters.packageTypes];
+                                next.contains(package.code)
+                                    ? next.remove(package.code)
+                                    : next.add(package.code);
+                                setState(
+                                  () => _filters = _filters.copyWith(
+                                    packageTypes: next,
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterTitle(
+                          _contentText(widget.content, 'search.filter_price')),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: _SmallInput(
+                                  controller: _priceMin,
+                                  hint: _priceLabel(
+                                      widget.content, 'search.price_min'))),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: _SmallInput(
+                                  controller: _priceMax,
+                                  hint: _priceLabel(
+                                      widget.content, 'search.price_max'))),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterTitle(
+                          _contentText(widget.content, 'search.filter_weight')),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: _SmallInput(
+                                  controller: _weightMin,
+                                  hint: _contentText(
+                                      widget.content, 'search.weight_min'))),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: _SmallInput(
+                                  controller: _weightMax,
+                                  hint: _contentText(
+                                      widget.content, 'search.weight_max'))),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterTitle(
+                          _contentText(widget.content, 'search.filter_date')),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _DateFilterBox(
+                              label: _contentText(
+                                  widget.content, 'search.date_from'),
+                              value: _filters.dateFrom,
+                              onTap: () => _pickDate(isFrom: true),
+                              onClear: () => setState(
+                                () => _filters =
+                                    _filters.copyWith(clearDateFrom: true),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _DateFilterBox(
+                              label: _contentText(
+                                  widget.content, 'search.date_to'),
+                              value: _filters.dateTo,
+                              onTap: () => _pickDate(isFrom: false),
+                              onClear: () => setState(
+                                () => _filters =
+                                    _filters.copyWith(clearDateTo: true),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterTitle(
+                          _contentText(widget.content, 'search.filter_rating')),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _Pill(
+                            label: _contentText(
+                                widget.content, 'search.filter_any'),
+                            selected: _filters.ratingMin == null,
+                            onTap: () => setState(
+                              () => _filters =
+                                  _filters.copyWith(clearRatingMin: true),
+                            ),
+                          ),
+                          _Pill(
+                            label: '4.5+',
+                            icon: PhosphorIconsFill.star,
+                            selected: _filters.ratingMin == 4.5,
+                            onTap: () => setState(
+                              () =>
+                                  _filters = _filters.copyWith(ratingMin: 4.5),
+                            ),
+                          ),
+                          _Pill(
+                            label: '4.8+',
+                            icon: PhosphorIconsFill.star,
+                            selected: _filters.ratingMin == 4.8,
+                            onTap: () => setState(
+                              () =>
+                                  _filters = _filters.copyWith(ratingMin: 4.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterTitle(
+                          _contentText(widget.content, 'search.filter_tier')),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _tier(
+                              _contentText(widget.content, 'search.filter_any'),
+                              null),
+                          _tier(
+                              _contentText(widget.content, 'tier.bronze_plus'),
+                              'bronze'),
+                          _tier(
+                              _contentText(widget.content, 'tier.silver_plus'),
+                              'silver'),
+                          _tier(_contentText(widget.content, 'tier.gold_plus'),
+                              'gold'),
+                          _tier(_contentText(widget.content, 'tier.platinum'),
+                              'platinum'),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _SwitchRow(
+                        label: _contentText(
+                            widget.content, 'search.verified_only'),
+                        icon: PhosphorIconsFill.sealCheck,
+                        value: _filters.verifiedOnly,
+                        onChanged: (value) => setState(
+                          () =>
+                              _filters = _filters.copyWith(verifiedOnly: value),
+                        ),
+                      ),
+                      _SwitchRow(
+                        label: _contentText(
+                            widget.content, 'search.following_only'),
+                        icon: PhosphorIconsRegular.userCheck,
+                        value: _filters.following,
+                        onChanged: (value) => setState(
+                          () => _filters = _filters.copyWith(following: value),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -3187,9 +3203,6 @@ class _SmallInput extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      // Numeric keyboards have no return/Done key on Android, so tapping
-      // anywhere outside the field must close it.
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(color: cText(isDark)),
       decoration: _inputDecoration(hint, isDark: isDark),
     );

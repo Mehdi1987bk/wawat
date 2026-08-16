@@ -21,11 +21,18 @@ class ListingTypeFilter extends StatefulWidget {
   final Map<String, String> content;
   final ValueChanged<String?> onChanged;
 
+  /// When true (home search form), a null value is the pristine "not chosen"
+  /// state and shows a placeholder prompt. When false (the filter sheet, which
+  /// always represents a concrete filter), null means "All" and is shown as a
+  /// real, highlighted selection.
+  final bool showPlaceholder;
+
   const ListingTypeFilter({
     super.key,
     required this.value,
     required this.content,
     required this.onChanged,
+    this.showPlaceholder = true,
   });
 
   @override
@@ -33,9 +40,9 @@ class ListingTypeFilter extends StatefulWidget {
 }
 
 class _ListingTypeFilterState extends State<ListingTypeFilter> {
-  // Starts "chosen" only when a concrete type was pre-set; a null start is the
-  // pristine placeholder state.
-  late bool _chosen = widget.value != null;
+  // Starts "chosen" when a concrete type was pre-set, or always when the
+  // placeholder is disabled (filter sheet → null = "All" is a real selection).
+  late bool _chosen = widget.value != null || !widget.showPlaceholder;
 
   @override
   void didUpdateWidget(covariant ListingTypeFilter oldWidget) {
@@ -43,7 +50,7 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
     // Re-derive on an external change (parent reset/apply). A null→null no-op —
     // the parent echoing our own "All" pick — is ignored so All stays selected.
     if (oldWidget.value != widget.value) {
-      _chosen = widget.value != null;
+      _chosen = widget.value != null || !widget.showPlaceholder;
     }
   }
 
@@ -99,7 +106,7 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
     final options = _options();
     // Nothing chosen yet → show a placeholder prompt instead of defaulting to
     // "Hamısı/All". Once a pick is made (including "All"), show it as selected.
-    final isPlaceholder = !_chosen;
+    final isPlaceholder = widget.showPlaceholder && !_chosen;
     final active = isPlaceholder ? null : _active(options);
     final placeholderColor =
         isDark ? WawatDark.textSecondary : const Color(0xFF64748B);
