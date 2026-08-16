@@ -18,6 +18,7 @@ import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/telemetry/telemetry.dart';
 import '../../../../../services/telemetry/telemetry_events.dart';
 import '../../../../../services/wawat_content.dart';
+import '../../profile_tab/promo/promo_api.dart';
 import '../details/listing_details_screen.dart';
 import '../widgets/listing_card.dart';
 
@@ -224,11 +225,10 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                     subtitle: _tx(
                       content,
                       'promotion.boost_short',
-                      'İlk 10 / 50 / 100 mövqe',
+                      'Zəmanətli göstərişlər',
                     ),
-                    price: pricing?.boost.tiers
-                        .expand((tier) => tier.prices.values)
-                        .minOrNull,
+                    price:
+                        pricing?.boost.packages.map((p) => p.price).minOrNull,
                     onTap: pricing == null
                         ? null
                         : () => openPromotionFlow(
@@ -284,9 +284,12 @@ class PromotionPurchaseScreen extends StatefulWidget {
 class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
   late final PromotionApi _api = PromotionApi(sl.get<Dio>());
   late Future<_PromotionBundle> _future;
-  String? _selectedTier;
+
+  /// Boost selection — the package code (`large` | `medium` | `small`).
+  String? _selectedPackage;
+
+  /// VIP selection — the duration in days.
   int? _selectedDuration;
-  int _step = 0;
 
   @override
   void initState() {
@@ -313,9 +316,14 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
     _selectedDuration = durations.contains(7)
         ? 7
         : (durations.isEmpty ? null : durations.first);
-    if (widget.initialType == 'featured' &&
-        base.pricing.boost.tiers.isNotEmpty) {
-      _selectedTier = existing?.tier ?? base.pricing.boost.tiers.first.tier;
+    if (widget.initialType == 'featured') {
+      final packages = base.pricing.boost.packages;
+      final existingPkg = existing?.package;
+      final hasExisting =
+          existingPkg != null && packages.any((p) => p.package == existingPkg);
+      _selectedPackage = hasExisting
+          ? existingPkg
+          : (packages.isEmpty ? null : packages.first.package);
     }
     return _PromotionBundle(
       pricing: base.pricing,
@@ -337,47 +345,56 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
           return _ErrorPage(onRetry: () => setState(() => _future = _load()));
         }
         final bundle = snapshot.data!;
-        final isVip = widget.initialType == 'vip';
         final existing = bundle.existingPromotion;
-        final isExtension = existing != null;
-        if (!isVip && _step == 0 && !isExtension) {
-          return _BoostTierPage(
+
+        // VIP — unchanged: pick 1 / 7 / 30 days, price from vip.prices.
+        if (widget.initialType == 'vip') {
+          final prices = bundle.pricing.vip.prices;
+          return _DurationPage(
             listing: widget.listing,
             content: bundle.content,
-            pricing: bundle.pricing,
-            selectedTier: _selectedTier,
+            packageNamesByCode: bundle.packageNamesByCode,
+            vip: true,
+            tier: null,
+            existing: existing,
+            durations: bundle.pricing.durations,
+            prices: prices,
+            selectedDuration: _selectedDuration,
             onBack: () => Navigator.pop(context),
-            onChanged: (value) => setState(() => _selectedTier = value),
-            onContinue:
-                _selectedTier == null ? null : () => setState(() => _step = 1),
+            onChanged: (value) => setState(() => _selectedDuration = value),
+            onCheckout: _selectedDuration == null
+                ? null
+                : () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => _PromotionCheckoutScreen(
+                          api: _api,
+                          listing: widget.listing,
+                          content: bundle.content,
+                          type: 'vip',
+                          duration: _selectedDuration!,
+                          amount: prices[_selectedDuration] ?? 0,
+                          currency: bundle.pricing.currency,
+                          existingPromotion: existing,
+                        ),
+                      ),
+                    ),
           );
         }
-        final prices = isVip
-            ? bundle.pricing.vip.prices
-            : bundle.pricing.boost.tiers
-                    .where((item) => item.tier == _selectedTier)
-                    .firstOrNull
-                    ?.prices ??
-                const <int, double>{};
-        return _DurationPage(
+
+        // Boost — guaranteed-impressions packages (no tiers, no days).
+        final selected = bundle.pricing.boost.packages
+            .where((p) => p.package == _selectedPackage)
+            .firstOrNull;
+        return _BoostPackagePage(
           listing: widget.listing,
           content: bundle.content,
           packageNamesByCode: bundle.packageNamesByCode,
-          vip: isVip,
-          tier: _selectedTier,
+          pricing: bundle.pricing,
           existing: existing,
-          durations: bundle.pricing.durations,
-          prices: prices,
-          selectedDuration: _selectedDuration,
-          onBack: () {
-            if (!isVip && !isExtension && _step == 1) {
-              setState(() => _step = 0);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-          onChanged: (value) => setState(() => _selectedDuration = value),
-          onCheckout: _selectedDuration == null
+          selectedPackage: _selectedPackage,
+          onBack: () => Navigator.pop(context),
+          onChanged: (value) => setState(() => _selectedPackage = value),
+          onCheckout: selected == null
               ? null
               : () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -385,10 +402,13 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
                         api: _api,
                         listing: widget.listing,
                         content: bundle.content,
-                        type: widget.initialType,
-                        tier: _selectedTier,
-                        duration: _selectedDuration!,
-                        amount: prices[_selectedDuration] ?? 0,
+                        type: 'featured',
+                        duration: null,
+                        package: selected.package,
+                        packageLabel: selected.label,
+                        guaranteedMin: selected.guaranteedMin,
+                        guaranteedMax: selected.guaranteedMax,
+                        amount: selected.price,
                         currency: bundle.pricing.currency,
                         existingPromotion: existing,
                       ),
@@ -405,8 +425,17 @@ class _PromotionCheckoutScreen extends StatefulWidget {
   final Listing listing;
   final Map<String, String> content;
   final String type;
-  final String? tier;
-  final int duration;
+
+  /// VIP duration in days — null for boost (which has no days).
+  final int? duration;
+
+  /// Boost package code + label and its guaranteed-impressions range. Null for
+  /// VIP.
+  final String? package;
+  final String? packageLabel;
+  final int? guaranteedMin;
+  final int? guaranteedMax;
+
   final double amount;
   final String currency;
   final Promotion? existingPromotion;
@@ -416,8 +445,11 @@ class _PromotionCheckoutScreen extends StatefulWidget {
     required this.listing,
     required this.content,
     required this.type,
-    this.tier,
-    required this.duration,
+    this.duration,
+    this.package,
+    this.packageLabel,
+    this.guaranteedMin,
+    this.guaranteedMax,
     required this.amount,
     required this.currency,
     this.existingPromotion,
@@ -433,10 +465,110 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
   bool _loading = false;
   String? _error;
 
+  /// The pending order — created lazily (either when the user applies a promo,
+  /// so we have an id to quote against, or on "checkout"). Kept so we never
+  /// create the order twice. The extend flow (`existingPromotion != null`) has
+  /// no promo step and never touches this.
+  Promotion? _order;
+  late final String _createKey =
+      'promotion-${DateTime.now().microsecondsSinceEpoch}';
+
+  PromotionQuote? _quote; // last APPLICABLE quote (drives discount + total)
+  String? _appliedCode; // the code behind _quote — forwarded to pay
+  bool _quoting = false;
+  String? _promoMessage; // non-applicable reason / quote error, shown in red
+
+  bool get _isNew => widget.existingPromotion == null;
+  bool get _isBoost => widget.type == 'featured';
+  bool get _hasDiscount => _quote != null && _quote!.applicable;
+  double get _effectiveTotal =>
+      _hasDiscount ? _quote!.finalAmount : widget.amount;
+
   @override
   void dispose() {
     _promoCode.dispose();
     super.dispose();
+  }
+
+  /// Create the pending order once (NO promo at create — the code rides on quote
+  /// + pay per the backend contract) and reuse it thereafter.
+  Future<Promotion> _ensureOrder() async {
+    final existing = _order;
+    if (existing != null) return existing;
+    final response = await widget.api.createPromotion(
+      widget.listing.id,
+      _isBoost
+          ? PromotionRequest.boost(package: widget.package ?? '')
+          : PromotionRequest.vip(durationDays: widget.duration ?? 0),
+      idempotencyKey: _createKey,
+    );
+    _order = response.data;
+    return response.data;
+  }
+
+  Future<void> _applyPromo() async {
+    if (_quoting) return;
+    FocusScope.of(context).unfocus();
+    final code = _promoCode.text.trim();
+    if (code.isEmpty) {
+      setState(() {
+        _quote = null;
+        _appliedCode = null;
+        _promoMessage = null;
+      });
+      return;
+    }
+    setState(() {
+      _quoting = true;
+      _promoMessage = null;
+    });
+    try {
+      final order = await _ensureOrder();
+      final quote = (await widget.api.quotePromotion(order.id, code)).data;
+      if (!mounted) return;
+      setState(() {
+        _quoting = false;
+        if (quote.applicable) {
+          _quote = quote;
+          _appliedCode = code;
+          _promoMessage = null;
+        } else {
+          _quote = null;
+          _appliedCode = null;
+          _promoMessage = _promoReasonText(widget.content, quote.reason);
+        }
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _quoting = false;
+        _quote = null;
+        _appliedCode = null;
+        _promoMessage = _apiError(error);
+      });
+    }
+  }
+
+  void _clearPromo() {
+    _promoCode.clear();
+    setState(() {
+      _quote = null;
+      _appliedCode = null;
+      _promoMessage = null;
+    });
+  }
+
+  Future<void> _openWallet() async {
+    final selected = await showAppBottomSheet<PromoCode>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _PromoWalletSheet(content: widget.content),
+    );
+    if (selected == null || !mounted) return;
+    _promoCode.text = selected.code;
+    await _applyPromo();
   }
 
   Future<void> _continue() async {
@@ -446,24 +578,22 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
       _error = null;
     });
     try {
-      final response = widget.existingPromotion == null
-          ? await widget.api.createPromotion(
-              widget.listing.id,
-              PromotionRequest(
-                type: widget.type,
-                tier: widget.type == 'featured' ? widget.tier : null,
-                durationDays: widget.duration,
-                promoCode: _promoCode.text,
-              ),
-              idempotencyKey:
-                  'promotion-${DateTime.now().microsecondsSinceEpoch}',
-            )
-          : await widget.api.extendPromotion(
-              widget.existingPromotion!.id,
-              PromotionExtendRequest(durationDays: widget.duration),
-              idempotencyKey:
-                  'promotion-extend-${DateTime.now().microsecondsSinceEpoch}',
-            );
+      final Promotion promotion;
+      if (_isNew) {
+        promotion = await _ensureOrder();
+      } else {
+        // Boost re-buy = empty body (same package, fresh guarantee); VIP adds
+        // days. Sending duration_days for boost would 422.
+        final response = await widget.api.extendPromotion(
+          widget.existingPromotion!.id,
+          _isBoost
+              ? const PromotionExtendRequest()
+              : PromotionExtendRequest(durationDays: widget.duration ?? 0),
+          idempotencyKey:
+              'promotion-extend-${DateTime.now().microsecondsSinceEpoch}',
+        );
+        promotion = response.data;
+      }
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute(
@@ -471,10 +601,13 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
             api: widget.api,
             listing: widget.listing,
             content: widget.content,
-            promotion: response.data,
+            promotion: promotion,
+            promoCode: _isNew ? _appliedCode : null,
+            quote: _isNew ? _quote : null,
           ),
         ),
       );
+      if (mounted) setState(() => _loading = false);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -500,97 +633,223 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
           _CheckoutSummaryCard(
             listing: widget.listing,
             vip: vip,
-            tier: widget.tier,
+            boost: _isBoost,
+            packageLabel: widget.packageLabel,
+            guaranteedMin: widget.guaranteedMin,
+            guaranteedMax: widget.guaranteedMax,
             duration: widget.duration,
             content: widget.content,
           ),
           const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: _whiteCard(isDark),
-            child: Row(
-              children: [
-                Icon(
-                  PhosphorIconsRegular.ticket,
-                  color: _cMuted(isDark),
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SizedBox(
-                    height: 44,
-                    child: TextField(
-                      controller: _promoCode,
-                      style: TextStyle(
-                        color: _cText(isDark),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+          if (_isNew) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: _whiteCard(isDark),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        PhosphorIconsRegular.ticket,
+                        color: _cMuted(isDark),
+                        size: 20,
                       ),
-                      decoration: InputDecoration(
-                        hintText: _tx(
-                          widget.content,
-                          'promotion.promo_code',
-                          'Promokod (varsa)',
-                        ),
-                        hintStyle: TextStyle(
-                          color: _cMuted(isDark),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        filled: true,
-                        fillColor: isDark
-                            ? WawatDark.surfaceAlt
-                            : _ink900.withValues(alpha: 0.02),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 14),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? WawatDark.border
-                                : _ink900.withValues(alpha: 0.07),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: TextField(
+                            controller: _promoCode,
+                            enabled: !_quoting,
+                            textCapitalization: TextCapitalization.characters,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (_) => _applyPromo(),
+                            onTapOutside: (_) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
+                            style: TextStyle(
+                              color: _cText(isDark),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: _tx(
+                                widget.content,
+                                'promotion.promo_code',
+                                'Promokod (varsa)',
+                              ),
+                              hintStyle: TextStyle(
+                                color: _cMuted(isDark),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              filled: true,
+                              fillColor: isDark
+                                  ? WawatDark.surfaceAlt
+                                  : _ink900.withValues(alpha: 0.02),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 14),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: isDark
+                                      ? WawatDark.border
+                                      : _ink900.withValues(alpha: 0.07),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: _brand),
+                              ),
+                            ),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
+                      ),
+                      const SizedBox(width: 8),
+                      Material(
+                        color: _cFill(isDark),
+                        borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: _brand),
+                          onTap: _quoting ? null : _applyPromo,
+                          child: Container(
+                            height: 44,
+                            constraints: const BoxConstraints(minWidth: 64),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: _quoting
+                                ? SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: _cText4(isDark),
+                                    ),
+                                  )
+                                : Text(
+                                    _tx(widget.content, 'promotion.apply',
+                                        'Tətbiq et'),
+                                    style: TextStyle(
+                                      color: _cText4(isDark),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                  if (_hasDiscount) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(
+                          PhosphorIconsFill.checkCircle,
+                          color: isDark ? WawatDark.success : _emerald,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _formatContent(
+                              widget.content,
+                              'promotion.promo_applied',
+                              'Promokod tətbiq olundu · −{amount} \$',
+                              {'amount': _money(_quote!.discount)},
+                            ),
+                            style: TextStyle(
+                              color: isDark ? WawatDark.success : _emerald,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: _clearPromo,
+                          child: Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: Icon(
+                              PhosphorIconsBold.x,
+                              color: _cMuted(isDark),
+                              size: 15,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else if (_promoMessage != null) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(
+                          PhosphorIconsFill.warningCircle,
+                          color: isDark
+                              ? WawatDark.danger
+                              : const Color(0xFFEF4444),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _promoMessage!,
+                            style: TextStyle(
+                              color: isDark
+                                  ? WawatDark.danger
+                                  : const Color(0xFFEF4444),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _openWallet,
+                    child: Row(
+                      children: [
+                        Icon(
+                          PhosphorIconsRegular.wallet,
+                          color: isDark ? WawatDark.brandText : _brand,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _tx(
+                            widget.content,
+                            'promotion.choose_from_wallet',
+                            'Promokodlarımdan seç',
+                          ),
+                          style: TextStyle(
+                            color: isDark ? WawatDark.brandText : _brand,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  height: 44,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: _cFill(isDark),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    _tx(widget.content, 'promotion.apply', 'Tətbiq et'),
-                    style: TextStyle(
-                      color: _cText4(isDark),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
+          ],
           Container(
             padding: const EdgeInsets.all(16),
             decoration: _whiteCard(isDark),
             child: Column(
               children: [
                 _CheckoutRow(
-                  label:
-                      '${vip ? _tx(widget.content, 'enum.promotion_type.vip', 'VİP') : _tierLabel(widget.tier, widget.content)} · ${_formatContent(widget.content, 'promotion.duration_template', '{days} gün', {
-                        'days': widget.duration
-                      })}',
+                  label: _isBoost
+                      ? (widget.packageLabel ??
+                          _tx(widget.content, 'promotion.cta.boost', 'Önə çək'))
+                      : '${_tx(widget.content, 'enum.promotion_type.vip', 'VİP')} · ${_formatContent(widget.content, 'promotion.duration_template', '{days} gün', {
+                              'days': widget.duration
+                            })}',
                   value: '${widget.amount.toStringAsFixed(2)} \$',
                 ),
                 _CheckoutRow(
@@ -599,12 +858,14 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
                     'promotion.checkout.discount',
                     'Endirim',
                   ),
-                  value: '0.00 \$',
+                  value: _hasDiscount
+                      ? '−${_quote!.discount.toStringAsFixed(2)} \$'
+                      : '0.00 \$',
                   valueColor: isDark ? WawatDark.success : _emerald,
                 ),
                 _CheckoutRow(
                   label: _tx(widget.content, 'promotion.total', 'Yekun'),
-                  value: '${widget.amount.toStringAsFixed(2)} \$',
+                  value: '${_effectiveTotal.toStringAsFixed(2)} \$',
                   emphasized: true,
                   topBorder: true,
                 ),
@@ -620,11 +881,233 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
       bottomNavigationBar: _StickyBottom(
         child: _PrimaryButton(
           label:
-              '${_tx(widget.content, 'promotion.cta.checkout', 'Ödənişə keç')} · ${_money(widget.amount)} \$',
+              '${_tx(widget.content, 'promotion.cta.checkout', 'Ödənişə keç')} · ${_money(_effectiveTotal)} \$',
           icon: PhosphorIconsBold.arrowRight,
           iconAfter: true,
           onTap: _continue,
           loading: _loading,
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet listing the user's active promo codes (GET /me/promo-codes).
+/// Tapping one pops the sheet with that [PromoCode]; the checkout screen then
+/// fills the field with its code and re-quotes.
+class _PromoWalletSheet extends StatefulWidget {
+  final Map<String, String> content;
+
+  const _PromoWalletSheet({required this.content});
+
+  @override
+  State<_PromoWalletSheet> createState() => _PromoWalletSheetState();
+}
+
+class _PromoWalletSheetState extends State<_PromoWalletSheet> {
+  late final Future<PromoCodesPage> _future = PromoApi().getPromoCodes();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return FractionallySizedBox(
+      heightFactor: 0.7,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _cScreen(isDark),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: _cFaint(isDark),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 13, 10, 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _tx(widget.content, 'promotion.wallet_title',
+                          'Promokodlarım'),
+                      style: TextStyle(
+                        color: _cText(isDark),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.pop(context),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(
+                        PhosphorIconsBold.x,
+                        color: _cText4(isDark),
+                        size: 21,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<PromoCodesPage>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: _brand),
+                    );
+                  }
+                  final codes = (snapshot.data?.data ?? const <PromoCode>[])
+                      .where((code) => code.isActive)
+                      .toList();
+                  if (codes.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          _tx(widget.content, 'promotion.wallet_empty',
+                              'Aktiv promokodun yoxdur.'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _cText2(isDark),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                    itemCount: codes.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) => _PromoWalletTile(
+                      code: codes[index],
+                      content: widget.content,
+                      onTap: () => Navigator.pop(context, codes[index]),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PromoWalletTile extends StatelessWidget {
+  final PromoCode code;
+  final Map<String, String> content;
+  final VoidCallback onTap;
+
+  const _PromoWalletTile({
+    required this.code,
+    required this.content,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final days = code.daysLeft;
+    return Material(
+      color: _cCard(isDark),
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: _cLine(isDark)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _cBrandSoft(isDark),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  PhosphorIconsFill.ticket,
+                  color: isDark ? WawatDark.brandText : _brand,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      code.code,
+                      style: TextStyle(
+                        color: _cText(isDark),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      code.sourceLabel.isNotEmpty
+                          ? code.sourceLabel
+                          : code.amountLabel,
+                      style: TextStyle(
+                        color: _cText2(isDark),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (days != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        _formatContent(
+                          content,
+                          'promotion.wallet_days_left',
+                          '{days} gün qalıb',
+                          {'days': days},
+                        ),
+                        style: TextStyle(
+                          color: code.isExpiringSoon
+                              ? (isDark
+                                  ? WawatDark.danger
+                                  : const Color(0xFFEF4444))
+                              : _cMuted(isDark),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '−${code.amountLabel}',
+                style: TextStyle(
+                  color: isDark ? WawatDark.success : _emerald,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -637,11 +1120,21 @@ class _PaymentMethodScreen extends StatefulWidget {
   final Map<String, String> content;
   final Promotion promotion;
 
+  /// Promo code applied on the checkout screen (null when none). Forwarded to
+  /// the pay call so the server charges the discounted amount.
+  final String? promoCode;
+
+  /// The applicable quote behind [promoCode] — drives the discounted total shown
+  /// here and on the pay button.
+  final PromotionQuote? quote;
+
   const _PaymentMethodScreen({
     required this.api,
     required this.listing,
     required this.content,
     required this.promotion,
+    this.promoCode,
+    this.quote,
   });
 
   @override
@@ -652,13 +1145,21 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
   String _method = 'card';
   bool _openingPayment = false;
 
+  bool get _hasDiscount =>
+      widget.quote != null &&
+      widget.quote!.applicable &&
+      (widget.promoCode ?? '').isNotEmpty;
+
+  double get _payable =>
+      _hasDiscount ? widget.quote!.finalAmount : widget.promotion.amount;
+
   Future<void> _pay() async {
     if (_openingPayment) return;
     setState(() => _openingPayment = true);
     // GA4-событие begin_checkout: вместе с purchase ниже даёт готовый отчёт
     // «сколько дошло от выбора способа оплаты до успешного платежа».
     Telemetry.instance.event(TelemetryEvents.beginCheckout, params: {
-      TelemetryParams.value: widget.promotion.amount,
+      TelemetryParams.value: _payable,
       TelemetryParams.currency: widget.promotion.currency,
       TelemetryParams.itemCategory: widget.promotion.type,
       TelemetryParams.durationDays: widget.promotion.durationDays,
@@ -672,6 +1173,7 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
           content: widget.content,
           promotion: widget.promotion,
           method: _method,
+          promoCode: widget.promoCode,
         ),
       ),
     );
@@ -697,6 +1199,38 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
               'Ödəniş sistemi inteqrasiya mərhələsindədir — bu ekran hazır, provayder qoşulan kimi işləyəcək.',
             ),
           ),
+          if (_hasDiscount) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: _whiteCard(isDark, radius: 18),
+              child: Column(
+                children: [
+                  _CheckoutRow(
+                    label: _tx(widget.content, 'promotion.total_before',
+                        'İlkin məbləğ'),
+                    value: '${widget.quote!.baseAmount.toStringAsFixed(2)} \$',
+                  ),
+                  _CheckoutRow(
+                    label: _formatContent(
+                      widget.content,
+                      'promotion.promo_line',
+                      'Promokod · {code}',
+                      {'code': widget.promoCode},
+                    ),
+                    value: '−${widget.quote!.discount.toStringAsFixed(2)} \$',
+                    valueColor: isDark ? WawatDark.success : _emerald,
+                  ),
+                  _CheckoutRow(
+                    label: _tx(widget.content, 'promotion.total', 'Yekun'),
+                    value: '${_payable.toStringAsFixed(2)} \$',
+                    emphasized: true,
+                    topBorder: true,
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           Text(
             _tx(widget.content, 'promotion.payment_method', 'Ödəniş üsulu'),
@@ -773,7 +1307,7 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
             widget.content,
             'promotion.payment.pay_template',
             'Ödə · {amount} \$',
-            {'amount': _money(widget.promotion.amount)},
+            {'amount': _money(_payable)},
           ),
           icon: PhosphorIconsFill.lockSimple,
           onTap: _pay,
@@ -791,12 +1325,17 @@ class _PromotionProcessingScreen extends StatefulWidget {
   final Promotion promotion;
   final String method;
 
+  /// Applied promo code (null when none). The server re-validates and charges
+  /// the discounted amount; a 422 `promo.not_applicable` surfaces as an error.
+  final String? promoCode;
+
   const _PromotionProcessingScreen({
     required this.api,
     required this.listing,
     required this.content,
     required this.promotion,
     required this.method,
+    this.promoCode,
   });
 
   @override
@@ -827,7 +1366,10 @@ class _PromotionProcessingScreenState
     try {
       final payResponse = await widget.api.payPromotion(
         widget.promotion.id,
-        PromotionPayRequest(method: widget.method),
+        PromotionPayRequest(
+          method: widget.method,
+          promoCode: widget.promoCode,
+        ),
         idempotencyKey: _idempotencyKey,
       );
       var promotion = payResponse.data;
@@ -859,7 +1401,7 @@ class _PromotionProcessingScreenState
       // заходе на экран идемпотентный ключ тот же, и Firebase не посчитает
       // покупку дважды.
       Telemetry.instance.event(TelemetryEvents.purchase, params: {
-        TelemetryParams.value: promotion.amount,
+        TelemetryParams.value: promotion.chargedAmount,
         TelemetryParams.currency: promotion.currency,
         TelemetryParams.transactionId: promotion.id,
         TelemetryParams.itemCategory: promotion.type,
@@ -1165,7 +1707,7 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                         'Paket',
                       ),
                       value:
-                          '${_promotion.typeLabel}${_promotion.tierLabel == null ? '' : ' · ${_promotion.tierLabel}'}',
+                          '${_promotion.typeLabel}${(_promotion.packageLabel ?? _promotion.tierLabel) == null ? '' : ' · ${_promotion.packageLabel ?? _promotion.tierLabel}'}',
                     ),
                     const SizedBox(height: 11),
                     _KeyValue(
@@ -1176,6 +1718,19 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                       ),
                       value: _promotion.statusLabel,
                     ),
+                    if (_promotion.isBoost &&
+                        _promotion.impressions != null) ...[
+                      const SizedBox(height: 11),
+                      _KeyValue(
+                        label: _tx(
+                          widget.content,
+                          'promotion.status.impressions',
+                          'Hədəf göstərişlər',
+                        ),
+                        value:
+                            '${_promotion.impressions!.delivered}/${_promotion.impressions!.target}',
+                      ),
+                    ],
                     if (_promotion.endsAt != null) ...[
                       const SizedBox(height: 11),
                       _KeyValue(
@@ -1419,82 +1974,119 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
   }
 }
 
-class _BoostTierPage extends StatelessWidget {
+/// Boost = pick one of three guaranteed-impressions packages (large / medium /
+/// small). No tier band, no days — the listing stays boosted until it hits its
+/// target impressions. When [existing] is set (an active boost), this becomes a
+/// "re-buy the same package" screen: the current progress is shown on top and
+/// only that package is offered (the extend endpoint always re-buys the same
+/// one). Prices and guarantee ranges are always the fresh `/pricing` values.
+class _BoostPackagePage extends StatelessWidget {
   final Listing listing;
   final Map<String, String> content;
+  final Map<String, String> packageNamesByCode;
   final PromotionPricing pricing;
-  final String? selectedTier;
+  final Promotion? existing;
+  final String? selectedPackage;
   final VoidCallback onBack;
   final ValueChanged<String> onChanged;
-  final VoidCallback? onContinue;
+  final VoidCallback? onCheckout;
 
-  const _BoostTierPage({
+  const _BoostPackagePage({
     required this.listing,
     required this.content,
+    required this.packageNamesByCode,
     required this.pricing,
-    required this.selectedTier,
+    required this.existing,
+    required this.selectedPackage,
     required this.onBack,
     required this.onChanged,
-    required this.onContinue,
+    required this.onCheckout,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultDuration =
-        pricing.durations.contains(7) ? 7 : pricing.durations.firstOrNull;
+    final repurchase = existing != null;
+    final all = pricing.boost.packages;
+    final match = all.where((p) => p.package == existing?.package).toList();
+    final packages = repurchase && match.isNotEmpty ? match : all;
+    final recommendedCode = all.isEmpty ? null : all.first.package;
+    final selected =
+        packages.where((p) => p.package == selectedPackage).firstOrNull;
+
     return Scaffold(
       backgroundColor: _cScreen(isDark),
       body: Column(
         children: [
           _PromotionHero(
             vip: false,
-            title: _tx(content, 'promotion.cta.boost', 'Önə çək'),
+            title: repurchase
+                ? _tx(content, 'promotion.cta.extend', 'Uzat')
+                : _tx(content, 'promotion.cta.boost', 'Önə çək'),
             subtitle: _tx(
               content,
-              'promotion.boost_description',
-              'Elanın axtarış və lentdə seçdiyin mövqe zolağında görünəcək.',
+              'promotion.boost.packages_description',
+              'Elanına zəmanətli göstəriş sayı al. Hədəf yığılana qədər önə çəkilir — gün limiti yoxdur.',
             ),
             onBack: onBack,
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 105),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
               children: [
+                if (repurchase) ...[
+                  _ActivePromotionPanel(content: content, promotion: existing!),
+                  const SizedBox(height: 18),
+                ],
                 _StepTitle(
-                  step: 1,
+                  step: repurchase ? null : 1,
                   text: _tx(
                     content,
-                    'promotion.step.position',
-                    'Mövqe zolağını seç',
+                    'promotion.boost.choose_package',
+                    'Paket seç',
                   ),
                 ),
                 const SizedBox(height: 12),
-                for (final tier in pricing.boost.tiers) ...[
-                  _SelectionCard(
-                    selected: tier.tier == selectedTier,
-                    accent: _brand,
-                    title: tier.label,
-                    subtitle: _formatContent(
-                      content,
-                      'promotion.position_description_template',
-                      'Nəticələrin ilk {count}-liyində daha çox baxış',
-                      {'count': tier.positionLimit},
-                    ),
-                    value: defaultDuration == null
-                        ? ''
-                        : '${_money(tier.prices[defaultDuration] ?? 0)} \$',
-                    onTap: () => onChanged(tier.tier),
+                for (final package in packages) ...[
+                  _BoostPackageCard(
+                    package: package,
+                    content: content,
+                    selected: package.package == selectedPackage,
+                    recommended:
+                        !repurchase && package.package == recommendedCode,
+                    onTap: () => onChanged(package.package),
                   ),
                   const SizedBox(height: 10),
                 ],
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 _InfoBanner(
                   text: _tx(
                     content,
-                    'promotion.tier_note',
-                    'VİP elanlar həmişə önə çəkilmiş elanların da üstündədir.',
+                    'promotion.boost.guaranteed_hint',
+                    'Elanın hədəf göstəriş sayına çatana qədər önə çəkilir.',
                   ),
+                ),
+                const SizedBox(height: 12),
+                _NoRefundNote(content: content),
+                const SizedBox(height: 22),
+                Text(
+                  _tx(
+                    content,
+                    'promotion.preview_title',
+                    'Lentdə belə görünəcək',
+                  ),
+                  style: TextStyle(
+                    color: _cText4(isDark),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _PromotionListingPreview(
+                  listing: listing,
+                  content: content,
+                  packageNamesByCode: packageNamesByCode,
+                  promotionType: 'featured',
                 ),
               ],
             ),
@@ -1502,17 +2094,241 @@ class _BoostTierPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: _StickyBottom(
-        child: _PrimaryButton(
-          label: _tx(
-            content,
-            'promotion.cta.continue_duration',
-            'Davam et — müddət seç',
-          ),
-          icon: PhosphorIconsBold.arrowRight,
-          iconAfter: true,
-          onTap: onContinue,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (selected != null) ...[
+              Row(
+                children: [
+                  Text(
+                    selected.label,
+                    style: TextStyle(
+                      color: _cText2(isDark),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${_money(selected.price)} \$',
+                    style: TextStyle(
+                      color: _cText(isDark),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+            _PrimaryButton(
+              label: repurchase && selected != null
+                  ? '${_tx(content, 'promotion.cta.extend', 'Uzat')} · ${_money(selected.price)} \$'
+                  : _tx(content, 'promotion.cta.checkout', 'Ödənişə keç'),
+              icon: PhosphorIconsBold.arrowRight,
+              iconAfter: true,
+              onTap: onCheckout,
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+/// One guaranteed-impressions package card: name + flat price + guaranteed
+/// impression range. Radio-style single select; the recommended (largest)
+/// package carries a soft brand border and a "recommended" pill.
+class _BoostPackageCard extends StatelessWidget {
+  final PromotionBoostPackage package;
+  final Map<String, String> content;
+  final bool selected;
+  final bool recommended;
+  final VoidCallback onTap;
+
+  const _BoostPackageCard({
+    required this.package,
+    required this.content,
+    required this.selected,
+    required this.recommended,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accent = _brand;
+    final brandText = isDark ? WawatDark.brandText : _brand;
+    final label = package.label.isNotEmpty
+        ? package.label
+        : _tx(content, 'enum.promotion_package.${package.package}',
+            package.package);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: selected ? accent.withValues(alpha: 0.08) : _cCard(isDark),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected
+                ? accent
+                : recommended
+                    ? accent.withValues(alpha: 0.45)
+                    : (isDark
+                        ? WawatDark.border
+                        : _ink900.withValues(alpha: 0.09)),
+            width: selected ? 2 : (recommended ? 1.5 : 1),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              margin: const EdgeInsets.only(top: 2),
+              decoration: BoxDecoration(
+                color: selected ? accent : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? accent : _cFaint(isDark),
+                  width: 1.5,
+                ),
+              ),
+              child: selected
+                  ? const Icon(
+                      PhosphorIconsBold.check,
+                      color: Colors.white,
+                      size: 13,
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: _cText(isDark),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (recommended) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: accent,
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Text(
+                            _tx(content, 'promotion.boost.recommended',
+                                'Tövsiyə'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 7),
+                  Row(
+                    children: [
+                      Icon(PhosphorIconsRegular.eye,
+                          color: _cMuted(isDark), size: 15),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          _tx(content, 'promotion.boost.guaranteed_label',
+                              'Zəmanətli göstərişlər'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: _cText2(isDark),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _impressionRange(
+                            package.guaranteedMin, package.guaranteedMax),
+                        style: TextStyle(
+                          color: brandText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              '${_money(package.price)} \$',
+              style: TextStyle(
+                color: _cText(isDark),
+                fontSize: 19,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Small "payment is non-refundable" note shown under the package list — the
+/// backend copy (`promotion.boost.no_refund_note`) spells out that an unmet
+/// guarantee is handled manually via support.
+class _NoRefundNote extends StatelessWidget {
+  final Map<String, String> content;
+
+  const _NoRefundNote({required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(PhosphorIconsRegular.info, color: _cMuted(isDark), size: 15),
+        const SizedBox(width: 7),
+        Expanded(
+          child: Text(
+            _tx(
+              content,
+              'promotion.boost.no_refund_note',
+              'Ödəniş geri qaytarılmır. Zəmanət yerinə yetməzsə, dəstək vasitəsilə həll olunur.',
+            ),
+            style: TextStyle(
+              color: _cMuted(isDark),
+              fontSize: 11.5,
+              height: 1.35,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -2294,15 +3110,23 @@ class _RouteLine extends StatelessWidget {
 class _CheckoutSummaryCard extends StatelessWidget {
   final Listing listing;
   final bool vip;
-  final String? tier;
-  final int duration;
+  final bool boost;
+  final String? packageLabel;
+  final int? guaranteedMin;
+  final int? guaranteedMax;
+
+  /// VIP duration in days — null for boost.
+  final int? duration;
   final Map<String, String> content;
 
   const _CheckoutSummaryCard({
     required this.listing,
     required this.vip,
-    this.tier,
-    required this.duration,
+    this.boost = false,
+    this.packageLabel,
+    this.guaranteedMin,
+    this.guaranteedMax,
+    this.duration,
     required this.content,
   });
 
@@ -2321,9 +3145,17 @@ class _CheckoutSummaryCard extends StatelessWidget {
                 'enum.listing_type.shipment_post',
                 'Göndəriş',
               ));
-    final endDate = MaterialLocalizations.of(context).formatMediumDate(
-      DateTime.now().add(Duration(days: duration)),
-    );
+    final title = vip
+        ? _tx(content, 'promotion.checkout.vip_title', 'VİP promosyon')
+        : _formatContent(
+            content,
+            'promotion.checkout.boost_title_template',
+            'Önə çək · {tier}',
+            {
+              'tier': packageLabel ??
+                  _tx(content, 'enum.promotion_type.featured', 'Önə çıxarılan')
+            },
+          );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -2353,18 +3185,7 @@ class _CheckoutSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      vip
-                          ? _tx(
-                              content,
-                              'promotion.checkout.vip_title',
-                              'VİP promosyon',
-                            )
-                          : _formatContent(
-                              content,
-                              'promotion.checkout.boost_title_template',
-                              'Önə çək · {tier}',
-                              {'tier': _tierLabel(tier, content)},
-                            ),
+                      title,
                       style: TextStyle(
                         color: _cText(isDark),
                         fontSize: 16,
@@ -2402,43 +3223,60 @@ class _CheckoutSummaryCard extends StatelessWidget {
                     'promotion.checkout.package',
                     'Paket',
                   ),
-                  value: vip
-                      ? _tx(content, 'enum.promotion_type.vip', 'VİP')
-                      : _tierLabel(tier, content),
+                  value: boost
+                      ? (packageLabel ??
+                          _tx(content, 'enum.promotion_type.featured',
+                              'Önə çıxarılan'))
+                      : _tx(content, 'enum.promotion_type.vip', 'VİP'),
                 ),
-                _CheckoutRow(
-                  label: _tx(
-                    content,
-                    'promotion.checkout.duration',
-                    'Müddət',
+                // Boost = guaranteed impressions, no days/start/end. VIP keeps
+                // the duration + start + end summary.
+                if (boost)
+                  _CheckoutRow(
+                    label: _tx(
+                      content,
+                      'promotion.boost.guaranteed_label',
+                      'Zəmanətli göstərişlər',
+                    ),
+                    value: _impressionRange(guaranteedMin, guaranteedMax),
+                  )
+                else ...[
+                  _CheckoutRow(
+                    label: _tx(
+                      content,
+                      'promotion.checkout.duration',
+                      'Müddət',
+                    ),
+                    value: _formatContent(
+                      content,
+                      'promotion.duration_template',
+                      '{days} gün',
+                      {'days': duration ?? 0},
+                    ),
                   ),
-                  value: _formatContent(
-                    content,
-                    'promotion.duration_template',
-                    '{days} gün',
-                    {'days': duration},
+                  _CheckoutRow(
+                    label: _tx(
+                      content,
+                      'promotion.checkout.start',
+                      'Başlama',
+                    ),
+                    value: _tx(
+                      content,
+                      'promotion.checkout.starts_after_approval',
+                      'Təsdiqdən dərhal sonra',
+                    ),
                   ),
-                ),
-                _CheckoutRow(
-                  label: _tx(
-                    content,
-                    'promotion.checkout.start',
-                    'Başlama',
+                  _CheckoutRow(
+                    label: _tx(
+                      content,
+                      'promotion.checkout.end',
+                      'Bitmə',
+                    ),
+                    value: MaterialLocalizations.of(context).formatMediumDate(
+                      DateTime.now().add(Duration(days: duration ?? 0)),
+                    ),
                   ),
-                  value: _tx(
-                    content,
-                    'promotion.checkout.starts_after_approval',
-                    'Təsdiqdən dərhal sonra',
-                  ),
-                ),
-                _CheckoutRow(
-                  label: _tx(
-                    content,
-                    'promotion.checkout.end',
-                    'Bitmə',
-                  ),
-                  value: endDate,
-                ),
+                ],
               ],
             ),
           ),
@@ -2708,7 +3546,7 @@ class _PromotionHistoryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${vip ? _tx(content, 'enum.promotion_type.vip', 'VİP') : promotion.tierLabel ?? promotion.typeLabel} · $route',
+                      '${vip ? _tx(content, 'enum.promotion_type.vip', 'VİP') : promotion.packageLabel ?? promotion.tierLabel ?? promotion.typeLabel} · $route',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -2719,7 +3557,7 @@ class _PromotionHistoryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${_remainingLabel(promotion, content)} · ${_money(promotion.amount)} \$',
+                      '${_promotionMetaLabel(promotion, content)} · ${_money(promotion.amount)} \$',
                       style: TextStyle(color: _cMuted(isDark), fontSize: 11),
                     ),
                   ],
@@ -2772,7 +3610,7 @@ class _PromotionHistoryCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(99),
               child: LinearProgressIndicator(
                 minHeight: 5,
-                value: _promotionProgress(promotion),
+                value: _progressValue(promotion),
                 color: accent,
                 backgroundColor: isDark
                     ? WawatDark.surfaceAlt
@@ -3013,7 +3851,7 @@ class _ActivePromotionPanel extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            _remainingLabel(promotion, content),
+            _promotionMetaLabel(promotion, content),
             style: TextStyle(color: _cText3(isDark), fontSize: 13),
           ),
           const SizedBox(height: 12),
@@ -3021,7 +3859,7 @@ class _ActivePromotionPanel extends StatelessWidget {
             borderRadius: BorderRadius.circular(99),
             child: LinearProgressIndicator(
               minHeight: 6,
-              value: _promotionProgress(promotion),
+              value: _progressValue(promotion),
               color: color,
               backgroundColor: isDark ? WawatDark.elevated : Colors.white,
             ),
@@ -3605,6 +4443,37 @@ String _money(double value) {
       );
 }
 
+/// Guaranteed-impressions range shown on package cards / checkout, e.g.
+/// `410–510`. Collapses to a single number if min == max.
+String _impressionRange(int? min, int? max) {
+  final lo = min ?? 0;
+  final hi = max ?? 0;
+  if (hi <= 0 && lo <= 0) return '—';
+  if (hi <= lo) return '$lo';
+  return '$lo–$hi';
+}
+
+/// Progress fraction (0..1) for a promotion's progress bar. Boost uses the
+/// server impression percent; VIP falls back to elapsed-time progress.
+double _progressValue(Promotion promotion) {
+  final impressions = promotion.impressions;
+  if (promotion.isBoost && impressions != null) {
+    return (impressions.percent / 100).clamp(0.0, 1.0);
+  }
+  return _promotionProgress(promotion);
+}
+
+/// Meta line under a promotion's route on the "My promotions" card / active
+/// panel. Boost shows delivered-of-target impressions; VIP shows time left.
+String _promotionMetaLabel(Promotion promotion, Map<String, String> content) {
+  final impressions = promotion.impressions;
+  if (promotion.isBoost && impressions != null) {
+    return '${_tx(content, 'promotion.boost.progress_label', 'Göstərilib')} '
+        '${impressions.delivered}/${impressions.target}';
+  }
+  return _remainingLabel(promotion, content);
+}
+
 String _dateTime(String? raw) {
   final date = DateTime.tryParse(raw ?? '')?.toLocal();
   if (date == null) return '-';
@@ -3675,7 +4544,7 @@ String _statusDescription(
         : _tx(
             content,
             'promotion.status.active_boost',
-            'Elanın indi seçilmiş mövqe zolağında önə çıxarılır.',
+            'Elanın indi önə çəkilir və zəmanətli göstərişlər toplayır.',
           ),
     'pending_activation' => _tx(
         content,
@@ -3717,6 +4586,33 @@ String _apiError(Object error) {
     'promotion.error.generic',
     'Əməliyyat alınmadı. Yenidən cəhd et.',
   );
+}
+
+/// Human message for a quote's `applicable:false` reason code. Falls back to the
+/// generic "not applied" text for unknown/`null` reasons so a code never silently
+/// looks accepted.
+String _promoReasonText(Map<String, String> content, String? reason) {
+  switch (reason) {
+    case 'invalid':
+      return _tx(content, 'promo.reason.invalid',
+          'Promokod yanlışdır, artıq istifadə olunub və ya vaxtı keçib.');
+    case 'below_min_order':
+      return _tx(content, 'promo.reason.below_min_order',
+          'Sifariş məbləği bu promokod üçün minimuma çatmır.');
+    case 'currency_mismatch':
+      return _tx(content, 'promo.reason.currency_mismatch',
+          'Promokod başqa valyutadadır.');
+    case 'feature_disabled':
+      return _tx(content, 'promo.reason.feature_disabled',
+          'Promokodlar müvəqqəti olaraq deaktivdir.');
+    case 'listing_not_active':
+      return _tx(content, 'promo.reason.listing_not_active',
+          'Elan aktiv olmadığı üçün promokod tətbiq olunmur.');
+    case 'no_promo_code':
+      return _tx(content, 'promo.reason.no_promo_code', 'Promokod daxil edin.');
+    default:
+      return _tx(content, 'promo.reason.generic', 'Promokod tətbiq olunmadı.');
+  }
 }
 
 bool _isResolvedPromotionStatus(String status) {

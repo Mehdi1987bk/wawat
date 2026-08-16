@@ -60,46 +60,55 @@ class PromotionProductPricing {
 class PromotionBoostPricing {
   final String type;
   final String label;
-  final List<PromotionTierPricing> tiers;
+  final List<PromotionBoostPackage> packages;
 
   const PromotionBoostPricing({
     required this.type,
     required this.label,
-    required this.tiers,
+    required this.packages,
   });
 
   factory PromotionBoostPricing.fromJson(Map<String, dynamic> json) {
     return PromotionBoostPricing(
       type: json['type']?.toString() ?? 'featured',
       label: json['label']?.toString() ?? 'Önə çıxarılan',
-      tiers: _list(json['tiers'])
+      packages: _list(json['packages'])
           .whereType<Map>()
           .map((item) =>
-              PromotionTierPricing.fromJson(Map<String, dynamic>.from(item)))
+              PromotionBoostPackage.fromJson(Map<String, dynamic>.from(item)))
           .toList(),
     );
   }
 }
 
-class PromotionTierPricing {
-  final String tier;
+/// One guaranteed-impressions boost package (large / medium / small). Price is
+/// flat — there are no days. The listing stays boosted until it reaches its
+/// target impressions, then finishes automatically. `guaranteedMin`–
+/// `guaranteedMax` is the promised impression range, computed server-side from
+/// the active-user count, so it must never be hardcoded — always read the fresh
+/// values from `/promotions/pricing`.
+class PromotionBoostPackage {
+  final String package;
   final String label;
-  final int positionLimit;
-  final Map<int, double> prices;
+  final double price;
+  final int guaranteedMin;
+  final int guaranteedMax;
 
-  const PromotionTierPricing({
-    required this.tier,
+  const PromotionBoostPackage({
+    required this.package,
     required this.label,
-    required this.positionLimit,
-    required this.prices,
+    required this.price,
+    required this.guaranteedMin,
+    required this.guaranteedMax,
   });
 
-  factory PromotionTierPricing.fromJson(Map<String, dynamic> json) {
-    return PromotionTierPricing(
-      tier: json['tier']?.toString() ?? '',
+  factory PromotionBoostPackage.fromJson(Map<String, dynamic> json) {
+    return PromotionBoostPackage(
+      package: json['package']?.toString() ?? '',
       label: json['label']?.toString() ?? '',
-      positionLimit: _int(json['position_limit']) ?? 0,
-      prices: _priceMap(json['prices']),
+      price: _double(json['price']) ?? 0,
+      guaranteedMin: _int(json['guaranteed_min']) ?? 0,
+      guaranteedMax: _int(json['guaranteed_max']) ?? 0,
     );
   }
 }
@@ -116,6 +125,53 @@ class PromotionResponse {
       data: Promotion.fromJson(_map(json['data'])),
       message: json['message']?.toString(),
       receipt: Receipt.fromResponse(json),
+    );
+  }
+}
+
+class PromotionQuoteResponse {
+  final PromotionQuote data;
+  final String? message;
+
+  const PromotionQuoteResponse({required this.data, this.message});
+
+  factory PromotionQuoteResponse.fromJson(Map<String, dynamic> json) {
+    return PromotionQuoteResponse(
+      data: PromotionQuote.fromJson(_map(json['data'])),
+      message: json['message']?.toString(),
+    );
+  }
+}
+
+/// Preview of a promo code applied to a pending promotion order — returned by
+/// `POST /promotions/{id}/quote`. `applicable` gates the discount; when it's
+/// false, `reason` explains why (invalid | below_min_order | currency_mismatch
+/// | feature_disabled | listing_not_active | no_promo_code).
+class PromotionQuote {
+  final double baseAmount;
+  final double discount;
+  final double finalAmount;
+  final String currency;
+  final bool applicable;
+  final String? reason;
+
+  const PromotionQuote({
+    required this.baseAmount,
+    required this.discount,
+    required this.finalAmount,
+    required this.currency,
+    required this.applicable,
+    this.reason,
+  });
+
+  factory PromotionQuote.fromJson(Map<String, dynamic> json) {
+    return PromotionQuote(
+      baseAmount: _double(json['base_amount']) ?? 0,
+      discount: _double(json['discount']) ?? 0,
+      finalAmount: _double(json['final_amount']) ?? 0,
+      currency: json['currency']?.toString() ?? 'AZN',
+      applicable: _bool(json['applicable']) ?? false,
+      reason: json['reason']?.toString(),
     );
   }
 }
@@ -152,8 +208,23 @@ class Promotion {
   final String typeLabel;
   final String? tier;
   final String? tierLabel;
+
+  /// Boost package code / label (`large` | `medium` | `small`). Null for VIP.
+  final String? package;
+  final String? packageLabel;
+
+  /// Guaranteed-impressions progress for a boost promotion. Null for VIP, where
+  /// [durationDays] / [endsAt] / [remainingSeconds] drive the countdown instead.
+  final PromotionImpressions? impressions;
+
   final int durationDays;
   final double amount;
+
+  /// Promo discount / net charged — present only on the pay response
+  /// (`discount_amount` / `final_amount`). Null on the pending order, where only
+  /// [amount] (base price) is known.
+  final double? discountAmount;
+  final double? finalAmount;
   final String currency;
   final String status;
   final String statusLabel;
@@ -173,8 +244,13 @@ class Promotion {
     required this.typeLabel,
     this.tier,
     this.tierLabel,
+    this.package,
+    this.packageLabel,
+    this.impressions,
     required this.durationDays,
     required this.amount,
+    this.discountAmount,
+    this.finalAmount,
     required this.currency,
     required this.status,
     required this.statusLabel,
@@ -188,6 +264,10 @@ class Promotion {
     this.listing,
   });
 
+  /// The amount actually charged — the discounted total when a promo applied,
+  /// otherwise the base price. Use this for revenue telemetry.
+  double get chargedAmount => finalAmount ?? amount;
+
   factory Promotion.fromJson(Map<String, dynamic> json) {
     return Promotion(
       id: json['id']?.toString() ?? '',
@@ -196,8 +276,15 @@ class Promotion {
       typeLabel: json['type_label']?.toString() ?? '',
       tier: json['tier']?.toString(),
       tierLabel: json['tier_label']?.toString(),
+      package: json['package']?.toString(),
+      packageLabel: json['package_label']?.toString(),
+      impressions: json['impressions'] is Map
+          ? PromotionImpressions.fromJson(_map(json['impressions']))
+          : null,
       durationDays: _int(json['duration_days']) ?? 0,
       amount: _double(json['amount']) ?? 0,
+      discountAmount: _double(json['discount_amount']),
+      finalAmount: _double(json['final_amount']),
       currency: json['currency']?.toString() ?? 'AZN',
       status: json['status']?.toString() ?? '',
       statusLabel: json['status_label']?.toString() ?? '',
@@ -217,10 +304,39 @@ class Promotion {
   }
 
   bool get isVip => type == 'vip';
+
+  /// Boost = the guaranteed-impressions product (server `type` == `featured`).
+  bool get isBoost => type == 'featured';
   bool get isActive => status == 'active';
   bool get isExpired => status == 'expired';
   bool get isPending =>
       status == 'pending_payment' || status == 'pending_activation';
+}
+
+/// Guaranteed-impressions progress for a boost promotion. The backend counts an
+/// impression each time the listing surfaces in the feed/search or its card is
+/// opened (owner's own views excluded); `percent` is server-computed 0–100.
+class PromotionImpressions {
+  final int target;
+  final int delivered;
+  final int remaining;
+  final int percent;
+
+  const PromotionImpressions({
+    required this.target,
+    required this.delivered,
+    required this.remaining,
+    required this.percent,
+  });
+
+  factory PromotionImpressions.fromJson(Map<String, dynamic> json) {
+    return PromotionImpressions(
+      target: _int(json['target']) ?? 0,
+      delivered: _int(json['delivered']) ?? 0,
+      remaining: _int(json['remaining']) ?? 0,
+      percent: (_int(json['percent']) ?? 0).clamp(0, 100),
+    );
+  }
 }
 
 class PromotionPayment {

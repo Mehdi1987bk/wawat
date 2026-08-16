@@ -291,7 +291,28 @@ class WawatContent {
         'Adətən 1–2 saat ərzində təsdiqlənir. Təsdiqdən sonra lentdə görünəcək.',
     'promotion.upsell_title': 'Elanını daha çox insana çatdır',
     'promotion.vip_short': 'Ən yuxarıda, ayrıca bölmədə',
-    'promotion.boost_short': 'İlk 10 / 50 / 100 mövqe',
+    'promotion.boost_short': 'Zəmanətli göstərişlər',
+    // Boost = guaranteed-impressions packages (large / medium / small). Package
+    // names + labels also arrive directly on the pricing/promotion payload; the
+    // keys below are the shared-dictionary copies + boost-only strings.
+    'enum.promotion_package.large': 'Böyük',
+    'enum.promotion_package.medium': 'Orta',
+    'enum.promotion_package.small': 'Kiçik',
+    'promotion.boost.guaranteed_label': 'Zəmanətli göstərişlər',
+    'promotion.boost.guaranteed_hint':
+        'Elanın hədəf göstəriş sayına çatana qədər önə çəkilir.',
+    'promotion.boost.progress_label': 'Göstərilib',
+    'promotion.boost.no_refund_note':
+        'Ödəniş geri qaytarılmır. Zəmanət yerinə yetməzsə, dəstək vasitəsilə həll olunur.',
+    'promotion.boost.packages_description':
+        'Elanına zəmanətli göstəriş sayı al. Hədəf yığılana qədər önə çəkilir — gün limiti yoxdur.',
+    'promotion.boost.choose_package': 'Paket seç',
+    'promotion.boost.recommended': 'Tövsiyə',
+    'promotion.status.impressions': 'Hədəf göstərişlər',
+    'promotion.package_required': 'Zəhmət olmasa paket seçin.',
+    'promotion.boost_capacity_full':
+        'Paketlər müvəqqəti olaraq doludur. Bir azdan yenidən cəhd edin.',
+    'promotion.invalid_package': 'Seçilmiş paket mövcud deyil.',
     'promotion.skip': 'İndi yox, elanlarıma keç',
     'promotion.section.vip': 'VİP elanlar',
     'promotion.section.all': 'Bütün elanlar',
@@ -308,6 +329,13 @@ class WawatContent {
     'promotion.promo_code': 'Promokod (varsa)',
     'promotion.apply': 'Tətbiq et',
     'promotion.total': 'Yekun',
+    'promotion.total_before': 'İlkin məbləğ',
+    'promotion.promo_applied': 'Promokod tətbiq olundu · −{amount} \$',
+    'promotion.promo_line': 'Promokod · {code}',
+    'promotion.choose_from_wallet': 'Promokodlarımdan seç',
+    'promotion.wallet_title': 'Promokodlarım',
+    'promotion.wallet_empty': 'Aktiv promokodun yoxdur.',
+    'promotion.wallet_days_left': '{days} gün qalıb',
     'promotion.payment_title': 'Ödəniş',
     'promotion.payment_method': 'Ödəniş üsulu',
     'promotion.payment_integration_note':
@@ -392,7 +420,7 @@ class WawatContent {
     'promotion.status.active_vip':
         'Elanın indi VİP-dir və lentin ən yuxarısında görünəcək.',
     'promotion.status.active_boost':
-        'Elanın indi seçilmiş mövqe zolağında önə çıxarılır.',
+        'Elanın indi önə çəkilir və zəmanətli göstərişlər toplayır.',
     'promotion.status.failed':
         'Kartından məbləğ tutulmadı. Yenidən cəhd edə bilərsən.',
     'promotion.status.pending':
@@ -623,6 +651,16 @@ class WawatContent {
     'profile.verified': 'Təsdiqlənib',
     'profile.verify_account': 'Hesabınızı təsdiqləyin',
     'promo.copied': 'Kod kopyalandı',
+    'promo.reason.invalid':
+        'Promokod yanlışdır, artıq istifadə olunub və ya vaxtı keçib.',
+    'promo.reason.below_min_order':
+        'Sifariş məbləği bu promokod üçün minimuma çatmır.',
+    'promo.reason.currency_mismatch': 'Promokod başqa valyutadadır.',
+    'promo.reason.feature_disabled': 'Promokodlar müvəqqəti olaraq deaktivdir.',
+    'promo.reason.listing_not_active':
+        'Elan aktiv olmadığı üçün promokod tətbiq olunmur.',
+    'promo.reason.no_promo_code': 'Promokod daxil edin.',
+    'promo.reason.generic': 'Promokod tətbiq olunmadı.',
     'promo.error_body':
         'Promokodları yükləyə bilmədik. İnternet bağlantını yoxla.',
     'promo.error_title': 'Bağlantı yoxdur',
