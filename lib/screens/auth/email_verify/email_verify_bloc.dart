@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
+import '../../../services/localization_service.dart';
 import '../auth_action_result.dart';
 
 class EmailVerifyBloc extends BaseBloc {
@@ -18,9 +19,10 @@ class EmailVerifyBloc extends BaseBloc {
       errorSink.add(message);
       return AuthActionResult.failure(message: message);
     } catch (_) {
-      const message = 'Təsdiq linkini göndərmək mümkün olmadı.';
+      final message = tr(
+          'auth.resend_link_failed', 'Təsdiq linkini göndərmək mümkün olmadı.');
       errorSink.add(message);
-      return const AuthActionResult.failure(message: message);
+      return AuthActionResult.failure(message: message);
     } finally {
       loadingSink.add(false);
     }
@@ -29,8 +31,9 @@ class EmailVerifyBloc extends BaseBloc {
   String _parseDioError(DioException e) {
     final data = e.response?.data;
     if (data is Map<String, dynamic>) {
-      return data['message']?.toString() ?? 'Sorğu xətası';
+      return data['message']?.toString() ??
+          tr('common.request_error', 'Sorğu xətası');
     }
-    return 'Sorğu xətası';
+    return tr('common.request_error', 'Sorğu xətası');
   }
 }

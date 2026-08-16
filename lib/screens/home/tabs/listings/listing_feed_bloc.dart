@@ -14,7 +14,31 @@ import '../../../../domain/entities/pagination.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/paginable_bloc.dart';
+import '../../../../services/telemetry/telemetry.dart';
+import '../../../../services/telemetry/telemetry_events.dart';
 import '../../../../services/wawat_content.dart';
+
+/// GA4-событие `search` для любой точки входа в поиск.
+///
+/// Живёт рядом с [ListingFilterState], а не в экранах: поиск запускается из
+/// формы, из популярных маршрутов и из повторного поиска в выдаче, и все три
+/// должны попадать в одну воронку с одинаковыми параметрами.
+///
+/// В `search_term` уходит маршрут («Баку → Стамбул»), а не свободный текст:
+/// он и есть запрос пользователя в этом приложении, и по нему сразу видно,
+/// какие направления реально ищут.
+void logSearchEvent(ListingFilterState filters, {required String source}) {
+  Telemetry.instance.event(TelemetryEvents.search, params: {
+    TelemetryParams.searchTerm:
+        '${filters.cityFrom?.name ?? '?'} → ${filters.cityTo?.name ?? '?'}',
+    TelemetryParams.fromCity: filters.cityFrom?.name,
+    TelemetryParams.toCity: filters.cityTo?.name,
+    TelemetryParams.listingType: filters.type,
+    TelemetryParams.filterCount: filters.activeFilterCount,
+    TelemetryParams.source: source,
+    'sort': filters.sort,
+  });
+}
 
 class ListingFilterState {
   final String? type;
@@ -30,6 +54,10 @@ class ListingFilterState {
   final double? priceMin;
   final double? priceMax;
   final double? ratingMin;
+
+  /// Minimum user tier ("this level and above"): null | new | standard |
+  /// bronze | silver | gold | platinum. Sent to the API as `tier_min`; the
+  /// server applies the threshold (e.g. silver → silver+gold+platinum only).
   final String? tierMin;
   final String sort;
 

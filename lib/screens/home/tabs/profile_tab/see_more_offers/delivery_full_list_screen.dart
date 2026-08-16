@@ -10,6 +10,7 @@ import '../../../../../presentation/bloc/utils.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../create_post/create_post_screen.dart';
@@ -886,7 +887,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        'Ləğv et',
+                        tr('common.cancel', 'Ləğv et'),
                         style: TextStyle(
                           color: isDark ? cMuted(isDark) : _ink500,
                           fontSize: 14,

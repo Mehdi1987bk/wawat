@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import 'reports_api.dart';
 
 // ── palette ──────────────────────────────────────────────────────────────────
@@ -113,17 +115,17 @@ class _StatusStyle {
 _StatusStyle _statusStyle(bool d, Report r) {
   switch (r.status) {
     case 'resolved':
-      return _StatusStyle('Həll olundu', PhosphorIconsFill.checkCircle,
-          _cEmeraldBg(d), _cEmeraldText(d));
+      return _StatusStyle(tr('reports.status_resolved', 'Həll olundu'),
+          PhosphorIconsFill.checkCircle, _cEmeraldBg(d), _cEmeraldText(d));
     case 'rejected':
-      return _StatusStyle(
-          'Rədd edildi', PhosphorIconsFill.xCircle, _cGrayBg(d), _cMuted(d));
+      return _StatusStyle(tr('reports.status_rejected', 'Rədd edildi'),
+          PhosphorIconsFill.xCircle, _cGrayBg(d), _cMuted(d));
     case 'pending':
-      return _StatusStyle(
-          'Gözləyir', PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
+      return _StatusStyle(tr('reports.status_pending', 'Gözləyir'),
+          PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
     default:
-      return _StatusStyle(
-          'Baxılır', PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
+      return _StatusStyle(tr('reports.status_reviewing', 'Baxılır'),
+          PhosphorIconsFill.clock, _cAmberBg(d), _cAmberText(d));
   }
 }
 
@@ -210,7 +212,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       value: _overlay(d),
       child: Scaffold(
         backgroundColor: _cScreen(d),
-        appBar: _appBar(context, d, 'Şikayətlərim'),
+        appBar: _appBar(context, d, tr('reports.title', 'Şikayətlərim')),
         body: _loading
             ? const _Skeleton()
             : _error != null
@@ -344,14 +346,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   size: 34, color: _cBrandText(d)),
             ),
             const SizedBox(height: 16),
-            Text('Şikayətin yoxdur',
+            Text(tr('reports.empty_title', 'Şikayətin yoxdur'),
                 style: TextStyle(
                     color: _cText(d),
                     fontSize: 18,
                     fontWeight: FontWeight.w800)),
             const SizedBox(height: 6),
             Text(
-              'Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək.',
+              tr('reports.empty_subtitle',
+                  'Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: _cMuted(d),
@@ -369,11 +372,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
 String _reportTitle(String type) {
   switch (type) {
     case 'user':
-      return 'İstifadəçi barədə şikayət';
+      return tr('reports.subject_user', 'İstifadəçi barədə şikayət');
     case 'message':
-      return 'Mesaj barədə şikayət';
+      return tr('reports.subject_message', 'Mesaj barədə şikayət');
     default:
-      return 'Elan barədə şikayət';
+      return tr('reports.subject_listing', 'Elan barədə şikayət');
   }
 }
 
@@ -398,7 +401,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       value: _overlay(d),
       child: Scaffold(
         backgroundColor: _cScreen(d),
-        appBar: _appBar(context, d, 'Şikayət #$idLabel'),
+        appBar: _appBar(context, d,
+            tr('reports.id_template', 'Şikayət #{id}', {'id': idLabel})),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -455,7 +459,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700)),
                               if (r.hasEvidence)
-                                Text('Sübut əlavə edilib',
+                                Text(
+                                    tr('reports.evidence_attached',
+                                        'Sübut əlavə edilib'),
                                     style: TextStyle(
                                         color: _cFaint(d),
                                         fontSize: 11.5,
@@ -467,7 +473,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _label(d, 'Səbəb'),
+                  _label(d, tr('reports.reason_label', 'Səbəb')),
                   const SizedBox(height: 4),
                   Text(r.reasonLabel.isEmpty ? '—' : r.reasonLabel,
                       style: TextStyle(
@@ -476,7 +482,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           fontWeight: FontWeight.w600)),
                   if (r.note.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    _label(d, 'İzah'),
+                    _label(d, tr('reports.explanation_label', 'İzah')),
                     const SizedBox(height: 4),
                     Text(r.note,
                         style: TextStyle(
@@ -489,7 +495,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            _label(d, 'Vəziyyət'),
+            _label(d, tr('reports.status_label', 'Vəziyyət')),
             const SizedBox(height: 12),
             _Timeline(steps: _steps(r), isDark: d),
             if (r.resolutionNote.isNotEmpty) ...[
@@ -508,7 +514,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                         Icon(PhosphorIconsFill.shieldCheck,
                             size: 15, color: _cBrandText(d)),
                         const SizedBox(width: 6),
-                        Text('Moderasiya cavabı',
+                        Text(
+                            tr('reports.moderation_response',
+                                'Moderasiya cavabı'),
                             style: TextStyle(
                                 color: _cBrandText(d),
                                 fontSize: 12,
@@ -540,13 +548,19 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
     final resolved = r.status == 'resolved';
     final done = resolved || r.status == 'rejected';
     return [
-      _Step('Göndərildi',
+      _Step(tr('reports.step_sent', 'Göndərildi'),
           r.createdAt == null ? null : _fmtDateTime(r.createdAt!), 'done'),
       _Step(
-          'Baxılır', 'Moderasiya komandası yoxlayır', done ? 'done' : 'active'),
+          tr('reports.status_reviewing', 'Baxılır'),
+          tr('reports.step_reviewing_hint', 'Moderasiya komandası yoxlayır'),
+          done ? 'done' : 'active'),
       _Step(
-        'Nəticə',
-        done ? (resolved ? 'Həll olundu' : 'Rədd edildi') : 'Gözlənilir',
+        tr('reports.step_result', 'Nəticə'),
+        done
+            ? (resolved
+                ? tr('reports.status_resolved', 'Həll olundu')
+                : tr('reports.status_rejected', 'Rədd edildi'))
+            : tr('reports.result_pending', 'Gözlənilir'),
         done ? 'done' : 'future',
       ),
     ];
@@ -732,13 +746,15 @@ class _ErrorView extends StatelessWidget {
                   color: d ? const Color(0xFFFF9A9A) : const Color(0xFFEF4444)),
             ),
             const SizedBox(height: 16),
-            Text('Bağlantı yoxdur',
+            Text(tr('common.no_connection', 'Bağlantı yoxdur'),
                 style: TextStyle(
                     color: _cText(d),
                     fontSize: 18,
                     fontWeight: FontWeight.w800)),
             const SizedBox(height: 6),
-            Text('Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.',
+            Text(
+                tr('common.load_failed_generic',
+                    'Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cMuted(d),
@@ -755,12 +771,12 @@ class _ErrorView extends StatelessWidget {
                     color: _brand, borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(PhosphorIconsBold.arrowClockwise,
+                  children: [
+                    const Icon(PhosphorIconsBold.arrowClockwise,
                         size: 16, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Yenidən cəhd et',
-                        style: TextStyle(
+                    const SizedBox(width: 8),
+                    Text(tr('common.retry', 'Yenidən cəhd et'),
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w700)),

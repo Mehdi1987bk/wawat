@@ -14,6 +14,7 @@ import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_aware_screen.dart';
+import '../../../../services/localization_service.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
 import '../home_tab/widget/city_selector.dart';
@@ -57,7 +58,7 @@ String _azMonth(int month) {
 }
 
 String _userDisplayName(User? user) {
-  if (user == null) return 'Siz';
+  if (user == null) return tr('common.you', 'Siz');
   final fullName = user.fullname.trim();
   if (fullName.isNotEmpty) return fullName;
   final name = [user.firstName, user.lastName]
@@ -67,7 +68,7 @@ String _userDisplayName(User? user) {
   if (user.username != null && user.username!.trim().isNotEmpty) {
     return user.username!;
   }
-  return 'Siz';
+  return tr('common.you', 'Siz');
 }
 
 String _userInitials(String name) {
@@ -76,7 +77,9 @@ String _userInitials(String name) {
       .split(RegExp(r'\s+'))
       .where((part) => part.isNotEmpty)
       .toList();
-  if (parts.isEmpty || name == 'Siz') return 'S';
+  if (parts.isEmpty || name == tr('common.you', 'Siz')) {
+    return tr('common.you_initial', 'S');
+  }
   if (parts.length == 1) return parts.first.characters.first.toUpperCase();
   return '${parts.first.characters.first}${parts.last.characters.first}'
       .toUpperCase();
@@ -1471,8 +1474,11 @@ class _CreateHeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Full-bleed blue header (no SafeArea), so offset the content below the
+    // status bar manually — otherwise the title collides with the clock/notch.
+    final topInset = MediaQuery.of(context).padding.top;
     return Container(
-      height: 166,
+      height: 140 + topInset,
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -1485,18 +1491,25 @@ class _CreateHeroHeader extends StatelessWidget {
         children: [
           Positioned.fill(child: CustomPaint(painter: _HeroArcPainter())),
           Positioned(
-            left: 20,
+            left: 12,
             right: 20,
-            top: 38,
+            top: topInset + 12,
             child: Row(
               children: [
                 GestureDetector(
-                  behavior: HitTestBehavior.translucent,
+                  behavior: HitTestBehavior.opaque,
                   onTap: onClose,
-                  child: const Icon(PhosphorIconsBold.x,
-                      color: Colors.white, size: 28),
+                  // Larger, comfortable 46×46 hit area (the bare glyph was ~28).
+                  child: const SizedBox(
+                    width: 46,
+                    height: 46,
+                    child: Center(
+                      child: Icon(PhosphorIconsBold.x,
+                          color: Colors.white, size: 28),
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2461,12 +2474,16 @@ class _DateTile extends StatelessWidget {
           error: error,
           onTap: () async {
             final now = DateTime.now();
+            // Allow picking today as the departure date, not only tomorrow+.
+            final today = DateTime(now.year, now.month, now.day);
+            final initial =
+                (value != null && !value!.isBefore(today)) ? value! : today;
             final date = await _showWawatDatePicker(
               context: context,
               content: content,
-              initialDate: now.add(const Duration(days: 1)),
-              firstDate: now.add(const Duration(days: 1)),
-              lastDate: now.add(const Duration(days: 365 * 3)),
+              initialDate: initial,
+              firstDate: today,
+              lastDate: today.add(const Duration(days: 365 * 3)),
               accent: accent,
             );
             if (date != null) onChanged(date);
@@ -3406,7 +3423,7 @@ class _TripPreviewCard extends StatelessWidget {
   }
 
   String _userDisplayName(User? user) {
-    if (user == null) return 'Siz';
+    if (user == null) return tr('common.you', 'Siz');
     final fullName = user.fullname.trim();
     if (fullName.isNotEmpty) return fullName;
     final name = [user.firstName, user.lastName]
@@ -3416,7 +3433,7 @@ class _TripPreviewCard extends StatelessWidget {
     if (user.username != null && user.username!.trim().isNotEmpty) {
       return user.username!;
     }
-    return 'Siz';
+    return tr('common.you', 'Siz');
   }
 
   String _userInitials(String name) {
@@ -3425,7 +3442,9 @@ class _TripPreviewCard extends StatelessWidget {
         .split(RegExp(r'\s+'))
         .where((part) => part.isNotEmpty)
         .toList();
-    if (parts.isEmpty || name == 'Siz') return 'S';
+    if (parts.isEmpty || name == tr('common.you', 'Siz')) {
+      return tr('common.you_initial', 'S');
+    }
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
     return '${parts.first.characters.first}${parts.last.characters.first}'
         .toUpperCase();

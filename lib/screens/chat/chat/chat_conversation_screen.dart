@@ -107,10 +107,13 @@ class _ChatConversationScreenState
   void initState() {
     super.initState();
     _conversation = widget.conversation;
-    // Upgrade the header to meta.conversation once messages load (keeps the
-    // instant push-supplied name/avatar until the authoritative one arrives).
+    // Keep the latest header value for profile/typing reads, but do NOT
+    // setState here: the messages poll re-emits a fresh Conversation every ~10s,
+    // and a whole-screen rebuild would re-attach the still-focused composer and
+    // pop the keyboard back up on its own. The header renders from its own
+    // StreamBuilder (see body()), so it stays live without rebuilding the input.
     bloc.conversationHeaderStream.listen((conv) {
-      if (conv != null && mounted) setState(() => _conversation = conv);
+      if (conv != null) _conversation = conv;
     });
     // Suppress the global new-message banner while this thread is open.
     NotificationSocketService.instance
@@ -167,8 +170,7 @@ class _ChatConversationScreenState
     // reverse:true → messages.first is the newest (rendered at the bottom).
     final newestIsMine = bloc.isMyMessage(messages.first);
     if (newestIsMine || _isNearBottom()) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _scrollToBottom());
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     }
   }
 
@@ -218,11 +220,15 @@ class _ChatConversationScreenState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _ConversationHeader(
-                    conversation: _conversation,
-                    onBack: () => Navigator.of(context).maybePop(),
-                    onMenu: _showConversationOptions,
-                    onOpenProfile: _openProfile,
+                  StreamBuilder<Conversation?>(
+                    stream: bloc.conversationHeaderStream,
+                    initialData: _conversation,
+                    builder: (context, snapshot) => _ConversationHeader(
+                      conversation: snapshot.data ?? _conversation,
+                      onBack: () => Navigator.of(context).maybePop(),
+                      onMenu: _showConversationOptions,
+                      onOpenProfile: _openProfile,
+                    ),
                   ),
                   StreamBuilder<ShipmentData?>(
                     stream: bloc.activeShipmentStream,
@@ -242,103 +248,123 @@ class _ChatConversationScreenState
             ),
           ),
           Expanded(
-            child: Stack(
-              children: [
-                const Positioned.fill(child: _ThreadBackground()),
-                StreamBuilder<bool>(
-                  stream: bloc.isLoadingStream,
-                  initialData: true,
-                  builder: (context, loadingSnapshot) {
-                    return StreamBuilder<Map<String, ShipmentData>>(
-                      stream: bloc.shipmentsStream,
-                      initialData: const {},
-                      builder: (context, shipmentSnapshot) {
-                        return StreamBuilder<List<ChatMessage>>(
-                          stream: bloc.messagesStream,
-                          initialData: const [],
-                          builder: (context, snapshot) {
-                            final messages = snapshot.data ?? const [];
-                            if (loadingSnapshot.data == true &&
-                                messages.isEmpty) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: _brand,
-                                  strokeWidth: 2,
+            // Tap the thread to dismiss the keyboard AND clear the composer's
+            // focus (message long-press / card taps still win the gesture
+            // arena). Clearing focus — not just hiding the keyboard — is what
+            // stops a later rebuild from re-opening it.
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: Stack(
+                children: [
+                  const Positioned.fill(child: _ThreadBackground()),
+                  StreamBuilder<bool>(
+                    stream: bloc.isLoadingStream,
+                    initialData: true,
+                    builder: (context, loadingSnapshot) {
+                      return StreamBuilder<Map<String, ShipmentData>>(
+                        stream: bloc.shipmentsStream,
+                        initialData: const {},
+                        builder: (context, shipmentSnapshot) {
+                          return StreamBuilder<List<ChatMessage>>(
+                            stream: bloc.messagesStream,
+                            initialData: const [],
+                            builder: (context, snapshot) {
+                              final messages = snapshot.data ?? const [];
+                              if (loadingSnapshot.data == true &&
+                                  messages.isEmpty) {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    color: _brand,
+                                    strokeWidth: 2,
+                                  ),
+                                );
+                              }
+                              if (messages.isEmpty) {
+                                return _EmptyConversation(
+                                  user: _conversation.user,
+                                  content: _content,
+                                );
+                              }
+
+                              final currentOfferIds =
+                                  _currentProposalMessageIds(messages);
+
+                              return RefreshIndicator(
+                                color: _brand,
+                                onRefresh: bloc.loadMessages,
+                                child: ListView.builder(
+                                  controller: _scrollController,
+                                  reverse: true,
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                                  itemCount: messages.length,
+                                  itemBuilder: (context, index) {
+                                    final message = messages[index];
+                                    final showDate = _shouldShowDate(
+                                      messages,
+                                      index,
+                                    );
+                                    return Column(
+                                      // Stable identity so the list survives
+                                      // rebuilds/reorders on every WS or poll
+                                      // response without re-binding elements — this
+                                      // is what stops photo bubbles from flashing
+                                      // their placeholder and re-loading each time.
+                                      key: ValueKey(message.id),
+                                      children: [
+                                        if (showDate)
+                                          _DateSeparator(
+                                            date: _dateLabel(
+                                              message.createdAtDateTime,
+                                            ),
+                                          ),
+                                        MessageBubble(
+                                          message: message,
+                                          isMyMessage:
+                                              bloc.isMyMessage(message),
+                                          isCurrentOffer: message.card?.type !=
+                                                  'proposal' ||
+                                              currentOfferIds
+                                                  .contains(message.id),
+                                          shipment:
+                                              message.card?.shipmentId == null
+                                                  ? null
+                                                  : shipmentSnapshot.data?[
+                                                      message.card!.shipmentId],
+                                          onShipmentAction:
+                                              _handleShipmentAction,
+                                          onRetry: bloc.retryMessage,
+                                          onLongPress: _showMessageOptions,
+                                          onReview: _showReviewDialog,
+                                          onSupport: _openSupport,
+                                          onReply: _startReply,
+                                          onOpenProfile: _openProfile,
+                                          editedLabel: _t('chat.message.edited',
+                                              'redaktə edildi'),
+                                          deletedLabel: bloc
+                                                  .isMyMessage(message)
+                                              ? _t(
+                                                  'chat.message.deleted_by_you',
+                                                  'Bu mesajı sildiniz')
+                                              : _t('chat.message.deleted',
+                                                  'Mesaj silindi'),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               );
-                            }
-                            if (messages.isEmpty) {
-                              return _EmptyConversation(
-                                user: _conversation.user,
-                                content: _content,
-                              );
-                            }
-
-                            final currentOfferIds =
-                                _currentProposalMessageIds(messages);
-
-                            return RefreshIndicator(
-                              color: _brand,
-                              onRefresh: bloc.loadMessages,
-                              child: ListView.builder(
-                                controller: _scrollController,
-                                reverse: true,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                padding:
-                                    const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                                itemCount: messages.length,
-                                itemBuilder: (context, index) {
-                                  final message = messages[index];
-                                  final showDate = _shouldShowDate(
-                                    messages,
-                                    index,
-                                  );
-                                  return Column(
-                                    // Stable identity so the list survives
-                                    // rebuilds/reorders on every WS or poll
-                                    // response without re-binding elements — this
-                                    // is what stops photo bubbles from flashing
-                                    // their placeholder and re-loading each time.
-                                    key: ValueKey(message.id),
-                                    children: [
-                                      if (showDate)
-                                        _DateSeparator(
-                                          date: _dateLabel(
-                                            message.createdAtDateTime,
-                                          ),
-                                        ),
-                                      MessageBubble(
-                                        message: message,
-                                        isMyMessage: bloc.isMyMessage(message),
-                                        isCurrentOffer:
-                                            message.card?.type != 'proposal' ||
-                                                currentOfferIds
-                                                    .contains(message.id),
-                                        shipment:
-                                            message.card?.shipmentId == null
-                                                ? null
-                                                : shipmentSnapshot.data?[
-                                                    message.card!.shipmentId],
-                                        onShipmentAction: _handleShipmentAction,
-                                        onRetry: bloc.retryMessage,
-                                        onLongPress: _showMessageOptions,
-                                        onReview: _showReviewDialog,
-                                        onSupport: _openSupport,
-                                        onReply: _startReply,
-                                        onOpenProfile: _openProfile,
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           StreamBuilder<bool>(
@@ -542,37 +568,20 @@ class _ChatConversationScreenState
     required String hint,
     int minLength = 0,
     int maxLength = 1000,
-  }) async {
-    final controller = TextEditingController();
-    final result = await showDialog<String>(
+  }) {
+    // Same lifecycle rule as _editMessage: the dialog owns its controller and
+    // disposes it after full unmount, never synchronously on pop.
+    return showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          minLines: 2,
-          maxLines: 5,
-          maxLength: maxLength,
-          decoration: InputDecoration(hintText: hint),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(_t('common.cancel')),
-          ),
-          FilledButton(
-            onPressed: () {
-              final text = controller.text.trim();
-              if (text.length < minLength) return;
-              Navigator.pop(context, text);
-            },
-            child: Text(_t('common.confirm')),
-          ),
-        ],
+      builder: (_) => _TextPromptDialog(
+        title: title,
+        hint: hint,
+        minLength: minLength,
+        maxLength: maxLength,
+        cancelLabel: _t('common.cancel'),
+        confirmLabel: _t('common.confirm'),
       ),
     );
-    controller.dispose();
-    return result;
   }
 
   Future<void> _showReviewDialog(String shipmentId) async {
@@ -587,19 +596,21 @@ class _ChatConversationScreenState
     if (result == null) return;
 
     try {
-      final message = await bloc.submitShipmentReview(
+      final review = await bloc.submitShipmentReview(
         shipmentId,
         rating: result.rating,
         comment: result.comment,
       );
       if (!mounted) return;
+      // approved → published instantly (green success); pending → moderation.
+      final fallback = review.isApproved
+          ? _t('review.published', 'Rəyiniz yayımlandı')
+          : _t('review.pending', 'Rəyiniz moderasiyaya göndərildi');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            message ?? _t('review.submitted', 'Rəy göndərildi'),
-          ),
+          content: Text(review.message.isNotEmpty ? review.message : fallback),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: _brand,
+          backgroundColor: review.isApproved ? const Color(0xFF16A34A) : _brand,
         ),
       );
     } catch (error) {
@@ -641,13 +652,18 @@ class _ChatConversationScreenState
   }
 
   void _showMessageOptions(ChatMessage message) {
+    // A deleted tombstone has no content and no actions.
+    if (message.isDeleted) return;
     final isMine = bloc.isMyMessage(message);
     final canEdit = isMine &&
         message.type == 'text' &&
         message.isRead != true &&
         !message.id.startsWith('local-');
-    final canDelete =
-        message.type != 'system_card' && !message.id.startsWith('local-');
+    // Single mode — always "for everyone", and only your own message can be
+    // deleted (server enforces with 403; the menu item mirrors that rule).
+    final canDelete = isMine &&
+        message.type != 'system_card' &&
+        !message.id.startsWith('local-');
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showAppBottomSheet<void>(
@@ -716,35 +732,21 @@ class _ChatConversationScreenState
   }
 
   Future<void> _editMessage(ChatMessage message) async {
-    final controller = TextEditingController(text: message.body);
+    // The dialog owns its TextEditingController and disposes it in its own
+    // State.dispose (after the route fully unmounts). Disposing a controller
+    // synchronously right after showDialog — while the TextField is still
+    // animating out — leaves the field's Focus InheritedElement with dangling
+    // dependents and trips `_dependents.isEmpty` (framework.dart:6079).
     final body = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(_t('chat.message.edit', 'Redaktə et')),
-        content: TextField(
-          controller: controller,
-          minLines: 1,
-          maxLines: 5,
-          maxLength: 5000,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(_t('common.cancel')),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = controller.text.trim();
-              if (value.isNotEmpty) Navigator.pop(dialogContext, value);
-            },
-            child: Text(_t('common.save')),
-          ),
-        ],
+      builder: (_) => _EditMessageDialog(
+        initialText: message.body ?? '',
+        title: _t('chat.message.edit', 'Redaktə et'),
+        cancelLabel: _t('common.cancel'),
+        saveLabel: _t('common.save'),
       ),
     );
-    controller.dispose();
-    if (body == null) return;
+    if (body == null || !mounted) return;
     try {
       await bloc.editMessage(message.id, body);
     } catch (error) {
@@ -753,6 +755,31 @@ class _ChatConversationScreenState
   }
 
   Future<void> _deleteMessage(ChatMessage message) async {
+    // One mode only — deletion is always "for everyone". The message won't
+    // disappear; it becomes a "deleted" tombstone for both sides.
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(_t('chat.message.delete', 'Sil')),
+        content: Text(
+          _t('chat.message.delete_confirm',
+              'Bu mesaj hər ikinizdə silinəcək. Silinsin?'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(_t('common.cancel')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444)),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(_t('chat.message.delete', 'Sil')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
     try {
       await bloc.deleteMessage(message.id);
     } catch (error) {
@@ -1498,6 +1525,132 @@ class _FilePreview extends StatelessWidget {
   }
 }
 
+/// Edit-message dialog that owns its controller for its whole lifetime, so the
+/// controller (and the TextField's Focus dependents) are torn down in the right
+/// order — after the dialog route fully unmounts, not synchronously on pop.
+class _EditMessageDialog extends StatefulWidget {
+  final String initialText;
+  final String title;
+  final String cancelLabel;
+  final String saveLabel;
+
+  const _EditMessageDialog({
+    required this.initialText,
+    required this.title,
+    required this.cancelLabel,
+    required this.saveLabel,
+  });
+
+  @override
+  State<_EditMessageDialog> createState() => _EditMessageDialogState();
+}
+
+class _EditMessageDialogState extends State<_EditMessageDialog> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initialText);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = _controller.text.trim();
+    if (value.isNotEmpty) Navigator.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextField(
+        controller: _controller,
+        minLines: 1,
+        maxLines: 5,
+        maxLength: 5000,
+        autofocus: true,
+        textInputAction: TextInputAction.send,
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(widget.cancelLabel),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(widget.saveLabel),
+        ),
+      ],
+    );
+  }
+}
+
+/// Generic single-field prompt dialog (counter note, report reason, …). Owns
+/// its controller for the same lifecycle-safety reason as [_EditMessageDialog].
+class _TextPromptDialog extends StatefulWidget {
+  final String title;
+  final String hint;
+  final int minLength;
+  final int maxLength;
+  final String cancelLabel;
+  final String confirmLabel;
+
+  const _TextPromptDialog({
+    required this.title,
+    required this.hint,
+    required this.minLength,
+    required this.maxLength,
+    required this.cancelLabel,
+    required this.confirmLabel,
+  });
+
+  @override
+  State<_TextPromptDialog> createState() => _TextPromptDialogState();
+}
+
+class _TextPromptDialogState extends State<_TextPromptDialog> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final text = _controller.text.trim();
+    if (text.length < widget.minLength) return;
+    Navigator.pop(context, text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextField(
+        controller: _controller,
+        minLines: 2,
+        maxLines: 5,
+        maxLength: widget.maxLength,
+        autofocus: true,
+        decoration: InputDecoration(hintText: widget.hint),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(widget.cancelLabel),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(widget.confirmLabel),
+        ),
+      ],
+    );
+  }
+}
+
 class _SheetTile extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -1829,8 +1982,19 @@ class _ReviewSheetState extends State<_ReviewSheet> {
   final TextEditingController _comment = TextEditingController();
   int _rating = 5;
 
+  /// 1–3★ require a comment (backend 422s otherwise); 4–5★ optional.
+  bool get _requiresComment => _rating <= 3;
+  bool get _canSubmit => !_requiresComment || _comment.text.trim().isNotEmpty;
+
   String _t(String key, String fallback) =>
       WawatContent.text(widget.content, key, fallback);
+
+  @override
+  void initState() {
+    super.initState();
+    // Re-evaluate the submit button as the comment is typed.
+    _comment.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -1956,6 +2120,27 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                 minLines: 3,
                 maxLines: 5,
               ),
+              if (_requiresComment && _comment.text.trim().isEmpty) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(PhosphorIconsFill.info,
+                        size: 13, color: Color(0xFFF59E0B)),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        _t('chat.review.comment_required',
+                            'Aşağı qiymət üçün şərh vacibdir.'),
+                        style: const TextStyle(
+                          color: Color(0xFFB67C00),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 18),
               Row(
                 children: [
@@ -1981,12 +2166,17 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).pop(
-                        _ReviewResult(_rating, _comment.text.trim()),
-                      ),
+                      onPressed: _canSubmit
+                          ? () => Navigator.of(context).pop(
+                                _ReviewResult(_rating, _comment.text.trim()),
+                              )
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _brand,
                         foregroundColor: Colors.white,
+                        disabledBackgroundColor: _brand.withValues(alpha: 0.4),
+                        disabledForegroundColor:
+                            Colors.white.withValues(alpha: 0.8),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(

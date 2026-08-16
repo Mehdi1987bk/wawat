@@ -9,6 +9,8 @@ import '../../../../../../data/network/request/privacy_settings.dart';
 import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
+import '../../../../../../services/telemetry/telemetry_consent.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
@@ -255,6 +257,118 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildDiagnosticsCard(isDark),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Диагностика и аналитика.
+  ///
+  /// Стоит отдельной карточкой и сохраняется мгновенно, без кнопки «Сохранить»:
+  /// это локальный выбор устройства, он не уходит на бэкенд вместе с настройками
+  /// приватности профиля и не должен зависеть от валидности той формы.
+  ///
+  /// Наличие этого переключателя — не украшение: без него нельзя заявить
+  /// «Data collection is optional» в Google Play Data safety и корректно
+  /// ответить на вопросы App Privacy в App Store Connect.
+  Widget _buildDiagnosticsCard(bool isDark) {
+    return AnimatedBuilder(
+      animation: TelemetryConsent.instance,
+      builder: (context, _) {
+        final consent = TelemetryConsent.instance;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: cCard(isDark),
+            borderRadius: BorderRadius.circular(16),
+            border: cCardBorder(isDark),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                    ),
+                  ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF017BFE), Color(0xFF5B4FFF)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.insights_rounded,
+                        color: Colors.white, size: 30),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('privacy_diagnostics_title',
+                              'Diaqnostika və analitika'),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color:
+                                isDark ? WawatDark.textPrimary : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tr('privacy_diagnostics_subtitle',
+                              'Tətbiqdəki nasazlıqları tapmağa kömək edir. Reklam üçün istifadə olunmur.'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.35,
+                            color: isDark
+                                ? WawatDark.textSecondary
+                                : const Color(0xFF8E8E93),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildToggleRow(
+                tr('privacy_crash_reports', 'Nasazlıq hesabatları'),
+                consent.crashReportsEnabled,
+                (value) => consent.setCrashReportsEnabled(value),
+                isDark,
+              ),
+              const SizedBox(height: 8),
+              _buildToggleRow(
+                tr('privacy_usage_stats', 'İstifadə statistikası'),
+                consent.analyticsEnabled,
+                (value) => consent.setAnalyticsEnabled(value),
+                isDark,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                tr('privacy_diagnostics_note',
+                    'Şəxsi məlumatlar — telefon, e-poçt və mesajların mətni — göndərilmir.'),
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  color: isDark ? WawatDark.textMuted : const Color(0xFF8E8E93),
                 ),
               ),
             ],

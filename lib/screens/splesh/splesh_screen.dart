@@ -56,27 +56,15 @@ class _SpleshScreenState extends State<SpleshScreen> {
     return Scaffold(
       backgroundColor: isDark ? WawatDark.bg : Colors.white,
       body: Center(
-        child: isDark
-            ? Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Image.asset(
-                  'asset/wawatair_primary.png',
-                  fit: BoxFit.contain,
-                  width: 260,
-                ),
-              )
-            : Image.asset(
-                'asset/wawatair_primary.png',
-                fit: BoxFit.contain,
-                width: 260,
-              ),
+        // Dark: blue+white check with white wordmark (reads on the dark bg) — no
+        // white chip. Light: the standard dark wordmark.
+        child: Image.asset(
+          isDark
+              ? 'asset/wawatair_logo_dark.png'
+              : 'asset/wawatair_primary.png',
+          fit: BoxFit.contain,
+          width: 260,
+        ),
       ),
     );
   }

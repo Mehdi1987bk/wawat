@@ -7,6 +7,7 @@ import '../../../data/network/response/language_response.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/push_notification_service.dart';
 import '../auth_action_result.dart';
 
@@ -58,10 +59,12 @@ class RegistrationBloc extends BaseBloc {
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);
-      errorSink.add(result.message ?? 'Ошибка запроса');
+      errorSink
+          .add(result.message ?? tr('error.request_failed', 'Ошибка запроса'));
       return result;
     } catch (_) {
-      return const AuthActionResult.failure(message: 'Ошибка регистрации');
+      return AuthActionResult.failure(
+          message: tr('error.registration_failed', 'Ошибка регистрации'));
     } finally {
       loadingSink.add(false);
     }
@@ -122,7 +125,8 @@ class RegistrationBloc extends BaseBloc {
       );
     }
 
-    return const AuthActionResult.failure(message: 'Ошибка запроса');
+    return AuthActionResult.failure(
+        message: tr('error.request_failed', 'Ошибка запроса'));
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {

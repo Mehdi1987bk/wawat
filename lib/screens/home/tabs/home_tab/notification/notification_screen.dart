@@ -13,6 +13,7 @@ import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/notification_router.dart';
 import '../../../../../services/notification_socket_service.dart';
 import '../../../../../services/notification_visual.dart';
+import 'package:buking/services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import '../search/search_offer_list_screen.dart';
 import 'notification_bloc.dart';
@@ -1164,25 +1165,34 @@ enum _InlineAction { accept, decline, view, complete }
 
 String _groupLabel(String createdAt) {
   final date = DateTime.tryParse(createdAt)?.toLocal();
-  if (date == null) return 'Köhnə';
+  if (date == null) return tr('notification.group_old', 'Köhnə');
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final itemDay = DateTime(date.year, date.month, date.day);
   final diff = today.difference(itemDay).inDays;
-  if (diff == 0) return 'Bu gün';
-  if (diff == 1) return 'Dünən';
-  if (diff < 7) return 'Bu həftə';
-  return 'Köhnə';
+  if (diff == 0) return tr('common.today', 'Bu gün');
+  if (diff == 1) return tr('common.yesterday', 'Dünən');
+  if (diff < 7) return tr('notification.group_this_week', 'Bu həftə');
+  return tr('notification.group_old', 'Köhnə');
 }
 
 String _relativeTime(String createdAt) {
   final date = DateTime.tryParse(createdAt)?.toLocal();
   if (date == null) return createdAt;
   final diff = DateTime.now().difference(date);
-  if (diff.inMinutes < 1) return 'indi';
-  if (diff.inMinutes < 60) return '${diff.inMinutes} dəqiqə əvvəl';
-  if (diff.inHours < 24) return '${diff.inHours} saat əvvəl';
-  if (diff.inDays == 1) return 'Dünən';
-  if (diff.inDays < 7) return '${diff.inDays} gün əvvəl';
+  if (diff.inMinutes < 1) return tr('notification.time_now', 'indi');
+  if (diff.inMinutes < 60) {
+    return tr('notification.time_minutes_ago', '{count} dəqiqə əvvəl',
+        {'count': '${diff.inMinutes}'});
+  }
+  if (diff.inHours < 24) {
+    return tr('notification.time_hours_ago', '{count} saat əvvəl',
+        {'count': '${diff.inHours}'});
+  }
+  if (diff.inDays == 1) return tr('common.yesterday', 'Dünən');
+  if (diff.inDays < 7) {
+    return tr('notification.time_days_ago', '{count} gün əvvəl',
+        {'count': '${diff.inDays}'});
+  }
   return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
 }

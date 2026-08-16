@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
 import '../../../../../../services/wawat_content.dart';
 
 const dealBrand = Color(0xFF017BFE);
@@ -147,12 +148,12 @@ String dealShortDate(String? iso) {
 
 String dealPackageLabel(String? code) {
   return switch (code) {
-    'documents' => 'Sənədlər',
-    'small_parcel' => 'Kiçik bağlama',
-    'electronics' => 'Elektronika',
-    'clothing' => 'Geyim',
-    'food' => 'Qida',
-    'other' => 'Digər',
+    'documents' => tr('enum.package_type.documents', 'Sənədlər'),
+    'small_parcel' => tr('enum.package_type.small_parcel', 'Kiçik bağlama'),
+    'electronics' => tr('enum.package_type.electronics', 'Elektronika'),
+    'clothing' => tr('enum.package_type.clothing', 'Geyim'),
+    'food' => tr('enum.package_type.food', 'Qida'),
+    'other' => tr('enum.package_type.other', 'Digər'),
     _ => code ?? '',
   };
 }

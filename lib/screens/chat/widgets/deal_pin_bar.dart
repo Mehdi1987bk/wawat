@@ -3,6 +3,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/wawat_content.dart';
 
 const _brand = Color(0xFF0271EB);
@@ -107,14 +108,15 @@ class DealPinBar extends StatelessWidget {
 
   String _statusFallback() {
     return switch (shipment.status) {
-      'proposal_pending' => 'Təklif gözləyir',
-      'accepted' => 'Qəbul olundu',
-      'picked_up' => 'Mal götürüldü',
-      'delivered' => 'Çatdırıldı',
-      'disputed' => 'Mübahisəli',
-      'completed' => 'Tamamlandı',
-      'auto_completed' => 'Avtomatik tamamlandı',
-      _ => 'Sövdələşmə',
+      'proposal_pending' =>
+        tr('deals.status_proposal_pending', 'Təklif gözləyir'),
+      'accepted' => tr('deals.status_accepted', 'Qəbul olundu'),
+      'picked_up' => tr('deals.picked_up', 'Mal götürüldü'),
+      'delivered' => tr('deals.delivered', 'Çatdırıldı'),
+      'disputed' => tr('deals.status_disputed', 'Mübahisəli'),
+      'completed' => tr('deals.status_completed', 'Tamamlandı'),
+      'auto_completed' => tr('deals.auto_completed', 'Avtomatik tamamlandı'),
+      _ => tr('deals.status_deal', 'Sövdələşmə'),
     };
   }
 

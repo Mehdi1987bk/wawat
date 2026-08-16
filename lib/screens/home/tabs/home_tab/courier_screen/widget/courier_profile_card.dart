@@ -15,6 +15,7 @@ import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../presentation/resourses/wawat_text_styles.dart';
+import 'package:buking/services/localization_service.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 import '../../widget/auth_modal_utils.dart';
@@ -401,7 +402,8 @@ class CourierProfileCard extends StatelessWidget {
       builder: (context) => SafeArea(
         child: _CourierReviewBottomSheet(
           courierId: data.user.id ?? 0,
-          courierName: data.user.fullname ?? 'Курьер',
+          courierName:
+              data.user.fullname ?? tr('courier.default_name', 'Курьер'),
           isDark: isDark,
           onReviewSubmitted: (request) {
             if (onReviewSubmitted != null) {
@@ -421,7 +423,8 @@ class CourierProfileCard extends StatelessWidget {
       StartChatModal.show(
         context,
         userId: data.user.id ?? 0,
-        userName: data.user.fullname ?? 'Пользователь',
+        userName:
+            data.user.fullname ?? tr('courier.default_user', 'Пользователь'),
         onSuccess: (message) async {
           try {
             final chatApi = ChatApi(sl.get<Dio>());

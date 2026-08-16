@@ -5,6 +5,7 @@ import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/user.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../services/localization_service.dart';
 import '../../../../services/wawat_content.dart';
 import '../profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'create_post_screen.dart';
@@ -279,8 +280,16 @@ class _Hero extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 330),
           child: Text.rich(
             TextSpan(
-              text: '${quota.active}/${quota.limit} aktiv $noun elanın var. '
-                  '${WawatContent.text(content, 'limit.subtitle_middle')}',
+              text: tr(
+                    'limit.active_count_prefix',
+                    '{active}/{limit} aktiv {noun} elanın var. ',
+                    {
+                      'active': '${quota.active}',
+                      'limit': '${quota.limit}',
+                      'noun': noun,
+                    },
+                  ) +
+                  WawatContent.text(content, 'limit.subtitle_middle'),
               children: [
                 TextSpan(
                   text: WawatContent.text(content, 'limit.pause_word'),
@@ -329,7 +338,7 @@ class _ActiveListingTile extends StatelessWidget {
     final date = isTrip ? listing.flightDate : listing.deliveryDateFrom;
     final status = listing.statusLabel ??
         content['enum.listing_status.${listing.status}'] ??
-        'Aktiv';
+        tr('common.active', 'Aktiv');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(

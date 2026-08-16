@@ -6,6 +6,7 @@ import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
@@ -89,7 +90,7 @@ class _ChangePasswordTabState
       if (mounted) {
         showIOSStyleMessage(
           context,
-          "Error: $e",
+          tr('error.generic_with_detail', 'Error: {detail}', {'detail': '$e'}),
           isSuccess: false,
         );
       }

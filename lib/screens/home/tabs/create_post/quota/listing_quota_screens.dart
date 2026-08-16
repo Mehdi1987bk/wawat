@@ -11,6 +11,9 @@ import '../../../../../presentation/common/async_button.dart';
 import '../../../../../presentation/common/app_bottom_sheet.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
+import '../../../../../services/telemetry/telemetry.dart';
+import '../../../../../services/telemetry/telemetry_events.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../../payments/receipt_screen.dart';
 import '../create_post_screen.dart';
@@ -133,8 +136,10 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                 )
                 .extraListings;
             final selected = _selectedPlan(plans);
-            final typeLabel =
-                typePricing?.label ?? (_isTrip ? 'səfər' : 'göndəriş');
+            final typeLabel = typePricing?.label ??
+                (_isTrip
+                    ? tr('listing_quota.type_trip', 'səfər')
+                    : tr('listing_quota.type_shipment', 'göndəriş'));
 
             return Column(
               children: [
@@ -438,6 +443,16 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
       _paying = true;
       _error = null;
     });
+    // value + currency — обязательная пара для GA4, иначе платёж не попадёт
+    // в отчёты по выручке. Логируем из экрана: интерцептор суммы не знает.
+    Telemetry.instance.event(TelemetryEvents.beginCheckout, params: {
+      TelemetryParams.value: _order.amount,
+      TelemetryParams.currency: _order.currency,
+      TelemetryParams.transactionId: _order.id,
+      TelemetryParams.itemCategory: 'listing_quota',
+      TelemetryParams.listingType: _order.type,
+      'extra_listings': _order.extraListings,
+    });
     try {
       final res = await widget.api.payOrder(
         _order.id,
@@ -449,15 +464,36 @@ class _QuotaProcessingScreenState extends State<QuotaProcessingScreen> {
       if (!mounted) return;
       final o = res.data;
       if (o.isPaid) {
+        Telemetry.instance.event(TelemetryEvents.purchase, params: {
+          TelemetryParams.value: o.amount,
+          TelemetryParams.currency: o.currency,
+          TelemetryParams.transactionId: o.id,
+          TelemetryParams.itemCategory: 'listing_quota',
+          TelemetryParams.listingType: o.type,
+          'extra_listings': o.extraListings,
+        });
         await _goToSuccess(o, res.receipt);
       } else {
+        Telemetry.instance.event(TelemetryEvents.purchaseFailed, params: {
+          TelemetryParams.transactionId: o.id,
+          TelemetryParams.itemCategory: 'listing_quota',
+          TelemetryParams.result: o.status,
+        });
         setState(() {
           _order = o;
           _paying = false;
           _error = o.isPending ? null : (res.message ?? _failedText());
         });
       }
-    } catch (e) {
+    } catch (e, st) {
+      Telemetry.instance.event(TelemetryEvents.purchaseFailed, params: {
+        TelemetryParams.transactionId: _order.id,
+        TelemetryParams.itemCategory: 'listing_quota',
+        TelemetryParams.errorType: e.runtimeType.toString(),
+      });
+      // Сорванная оплата стоит денег — репортим как non-fatal даже для
+      // DioException, которые интерцептор считает обычной сетевой ошибкой.
+      Telemetry.instance.error(e, st, reason: 'quota_payment_failed');
       if (!mounted) return;
       setState(() {
         _paying = false;

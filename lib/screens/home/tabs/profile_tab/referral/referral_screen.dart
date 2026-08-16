@@ -4,6 +4,8 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import 'referral_api.dart';
 
 // ── palette ──────────────────────────────────────────────────────────────────
@@ -121,10 +123,21 @@ class _ReferralScreenState extends State<ReferralScreen> {
   }
 
   String get _shareText {
-    final code = _info.code.isEmpty ? '' : ' Kod: ${_info.code}.';
+    final code = _info.code.isEmpty
+        ? ''
+        : tr('referral.share_code', ' Kod: {code}.', {'code': _info.code});
     final link =
         _info.shareLink.isEmpty ? 'https://wawatair.com' : _info.shareLink;
-    return 'Wawatair-ə qoşul, hər ikimiz ${_info.rewardAmount.round()} ${_info.currencySymbol} qazanaq!$code $link';
+    return tr(
+      'referral.share_message',
+      'Wawatair-ə qoşul, hər ikimiz {amount} {currency} qazanaq!{code} {link}',
+      {
+        'amount': '${_info.rewardAmount.round()}',
+        'currency': _info.currencySymbol,
+        'code': code,
+        'link': link,
+      },
+    );
   }
 
   void _toast(String m) {
@@ -145,7 +158,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
 
   void _copy() {
     Clipboard.setData(ClipboardData(text: _info.code));
-    _toast('Kod kopyalandı');
+    _toast(tr('referral.code_copied', 'Kod kopyalandı'));
   }
 
   @override
@@ -155,7 +168,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
       value: _overlay(d),
       child: Scaffold(
         backgroundColor: _cScreen(d),
-        appBar: _appBar(context, d, 'Dostunu dəvət et'),
+        appBar: _appBar(context, d, tr('referral.title', 'Dostunu dəvət et')),
         body: _loading
             ? Center(child: CircularProgressIndicator(color: _cBrandText(d)))
             : _error != null
@@ -171,12 +184,21 @@ class _ReferralScreenState extends State<ReferralScreen> {
       children: [
         _hero(),
         const SizedBox(height: 20),
-        _step(d, 1, 'Linki paylaş', 'dostuna dəvət linkini göndər.'),
+        _step(d, 1, tr('referral.share_link', 'Linki paylaş'),
+            tr('referral.share_link_hint', 'dostuna dəvət linkini göndər.')),
         const SizedBox(height: 12),
-        _step(d, 2, 'Dostun qoşulur', 'link ilə qeydiyyatdan keçir.'),
+        _step(d, 2, tr('referral.friend_joins', 'Dostun qoşulur'),
+            tr('referral.friend_joins_hint', 'link ilə qeydiyyatdan keçir.')),
         const SizedBox(height: 12),
-        _step(d, 3, 'İkiniz də qazanırsınız',
-            'qeydiyyatdan keçən kimi ${_info.rewardAmount.round()} ${_info.currencySymbol} promokod.'),
+        _step(
+            d,
+            3,
+            tr('referral.both_earn', 'İkiniz də qazanırsınız'),
+            tr('referral.step3_hint',
+                'qeydiyyatdan keçən kimi {amount} {currency} promokod.', {
+              'amount': '${_info.rewardAmount.round()}',
+              'currency': _info.currencySymbol,
+            })),
         const SizedBox(height: 20),
         _codeCard(d),
         const SizedBox(height: 16),
@@ -195,7 +217,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Dəvət etdiklərim',
+                Text(tr('referral.my_invites', 'Dəvət etdiklərim'),
                     style: TextStyle(
                         color: _cBrandText(d),
                         fontSize: 13.5,
@@ -249,12 +271,14 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 Text.rich(
                   TextSpan(
                     children: [
-                      const TextSpan(text: 'Dostunu dəvət et,\nhər ikiniz '),
+                      TextSpan(
+                          text: tr('referral.hero_lead',
+                              'Dostunu dəvət et,\nhər ikiniz ')),
                       TextSpan(
                           text:
                               '${_info.rewardAmount.round()} ${_info.currencySymbol}',
                           style: const TextStyle(color: _accent)),
-                      const TextSpan(text: ' qazanın'),
+                      TextSpan(text: tr('referral.hero_trail', ' qazanın')),
                     ],
                   ),
                   textAlign: TextAlign.center,
@@ -266,7 +290,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Dostun qeydiyyatdan keçən kimi promokod hər ikinizə gedir.',
+                  tr('referral.hero_subtitle',
+                      'Dostun qeydiyyatdan keçən kimi promokod hər ikinizə gedir.'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
@@ -330,7 +355,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('DƏVƏT KODUN',
+          Text(tr('referral.code_label', 'DƏVƏT KODUN'),
               style: TextStyle(
                   color: (d ? _dBrandText : _brand700).withValues(alpha: 0.7),
                   fontSize: 10.5,
@@ -388,12 +413,13 @@ class _ReferralScreenState extends State<ReferralScreen> {
             'Telegram',
             () => _openUrl(
                 'https://t.me/share/url?url=${Uri.encodeComponent(link)}&text=${Uri.encodeComponent(_shareText)}')),
-        _shareItem(d, PhosphorIconsBold.linkSimple, _brand, 'Kopyala', () {
+        _shareItem(d, PhosphorIconsBold.linkSimple, _brand,
+            tr('referral.share_copy', 'Kopyala'), () {
           Clipboard.setData(ClipboardData(text: _shareText));
-          _toast('Link kopyalandı');
+          _toast(tr('referral.link_copied', 'Link kopyalandı'));
         }, softBrand: true),
-        _shareItem(d, PhosphorIconsBold.dotsThree, _cText2(d), 'Digər',
-            () => Share.share(_shareText),
+        _shareItem(d, PhosphorIconsBold.dotsThree, _cText2(d),
+            tr('referral.share_other', 'Digər'), () => Share.share(_shareText),
             neutral: true),
       ],
     );
@@ -454,12 +480,14 @@ class _ReferralScreenState extends State<ReferralScreen> {
       ),
       child: Row(
         children: [
-          _statCell(d, '${_info.invited}', 'Dəvət'),
-          _statDivider(d),
-          _statCell(d, '${_info.joined}', 'Qoşulan'),
+          _statCell(
+              d, '${_info.invited}', tr('referral.stat_invited', 'Dəvət')),
           _statDivider(d),
           _statCell(
-              d, '${_info.earned.round()} ${_info.currencySymbol}', 'Qazanılan',
+              d, '${_info.joined}', tr('referral.stat_joined', 'Qoşulan')),
+          _statDivider(d),
+          _statCell(d, '${_info.earned.round()} ${_info.currencySymbol}',
+              tr('referral.stat_earned', 'Qazanılan'),
               brand: true),
         ],
       ),
@@ -534,7 +562,8 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
       value: _overlay(d),
       child: Scaffold(
         backgroundColor: _cScreen(d),
-        appBar: _appBar(context, d, 'Dəvət etdiklərim'),
+        appBar:
+            _appBar(context, d, tr('referral.my_invites', 'Dəvət etdiklərim')),
         body: _loading
             ? Center(child: CircularProgressIndicator(color: _cBrandText(d)))
             : _error != null
@@ -584,15 +613,16 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                     Text(
                         it.isRewarded && it.name.isNotEmpty
                             ? it.name
-                            : 'Dəvət olunub',
+                            : tr('referral.item_invited', 'Dəvət olunub'),
                         style: TextStyle(
                             color: _cText(d),
                             fontSize: 13.5,
                             fontWeight: FontWeight.w700)),
                     Text(
                         it.isRewarded
-                            ? 'Qoşulub${it.displayDate == null ? '' : ' · ${_fmtDate(it.displayDate!)}'}'
-                            : 'İlk sifariş gözlənilir',
+                            ? '${tr('referral.item_joined', 'Qoşulub')}${it.displayDate == null ? '' : ' · ${_fmtDate(it.displayDate!)}'}'
+                            : tr('referral.item_waiting_first_order',
+                                'İlk sifariş gözlənilir'),
                         style: TextStyle(
                             color: _cMuted(d),
                             fontSize: 11.5,
@@ -611,7 +641,9 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
               else
                 _chip(
                     d,
-                    it.statusLabel.isNotEmpty ? it.statusLabel : 'Gözləyir',
+                    it.statusLabel.isNotEmpty
+                        ? it.statusLabel
+                        : tr('referral.status_waiting', 'Gözləyir'),
                     _cAmberBg(d),
                     _cAmberText(d),
                     icon: PhosphorIconsFill.clock),
@@ -660,14 +692,16 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                   size: 30, color: _cBrandText(d)),
             ),
             const SizedBox(height: 14),
-            Text('Hələ heç kimi dəvət etməmisən',
+            Text(tr('referral.empty_title', 'Hələ heç kimi dəvət etməmisən'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cText2(d),
                     fontSize: 14,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
-            Text('Linki paylaş — dostların burada görünəcək.',
+            Text(
+                tr('referral.empty_subtitle',
+                    'Linki paylaş — dostların burada görünəcək.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cMuted(d),
@@ -684,12 +718,14 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
                     color: _brand, borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(PhosphorIconsFill.shareFat,
+                  children: [
+                    const Icon(PhosphorIconsFill.shareFat,
                         size: 16, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Dəvət linkini paylaş',
-                        style: TextStyle(
+                    const SizedBox(width: 8),
+                    Text(
+                        tr('referral.share_invite_link',
+                            'Dəvət linkini paylaş'),
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13.5,
                             fontWeight: FontWeight.w700)),
@@ -732,13 +768,15 @@ class _ErrorView extends StatelessWidget {
                   color: d ? const Color(0xFFFF9A9A) : const Color(0xFFEF4444)),
             ),
             const SizedBox(height: 14),
-            Text('Bağlantı yoxdur',
+            Text(tr('common.no_connection', 'Bağlantı yoxdur'),
                 style: TextStyle(
                     color: _cText(d),
                     fontSize: 17,
                     fontWeight: FontWeight.w800)),
             const SizedBox(height: 6),
-            Text('Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.',
+            Text(
+                tr('common.load_failed_generic',
+                    'Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cMuted(d),
@@ -755,12 +793,12 @@ class _ErrorView extends StatelessWidget {
                     color: _brand, borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(PhosphorIconsBold.arrowClockwise,
+                  children: [
+                    const Icon(PhosphorIconsBold.arrowClockwise,
                         size: 15, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Yenidən cəhd et',
-                        style: TextStyle(
+                    const SizedBox(width: 8),
+                    Text(tr('common.retry', 'Yenidən cəhd et'),
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 13.5,
                             fontWeight: FontWeight.w700)),

@@ -17,6 +17,7 @@ import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/common/image_selector.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../experience_tab/experience_tab_screen.dart';
@@ -160,7 +161,8 @@ class _PersonalInfoTabState
                     _buildTextField(S.of(context).vrebveg34g3sd,
                         _fullNameController, isDark),
                     const SizedBox(height: 16),
-                    _buildTextField('Email', _emailController, isDark),
+                    _buildTextField(tr('profile.email_label', 'Email'),
+                        _emailController, isDark),
                     const SizedBox(height: 16),
 
                     // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ (РЕДАКТИРУЕМЫЙ)
@@ -379,7 +381,10 @@ class _PersonalInfoTabState
 
           if (originalImage == null) {
             if (mounted) {
-              showIOSStyleMessage(context, "Failed to process image");
+              showIOSStyleMessage(
+                  context,
+                  tr('profile.image_process_failed',
+                      'Failed to process image'));
             }
             return;
           }
@@ -599,7 +604,10 @@ class _PersonalInfoTabState
       _validateForm(); // Пересчитываем валидацию
     } catch (error) {
       if (mounted) {
-        showIOSStyleMessage(context, "Error: $error");
+        showIOSStyleMessage(
+            context,
+            tr('error.generic_with_detail', 'Error: {detail}',
+                {'detail': '$error'}));
       }
     } finally {
       if (mounted) setState(() => _saving = false);

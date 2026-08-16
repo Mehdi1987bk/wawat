@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/response/chat_response.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import 'widgets/deal_status.dart';
 
@@ -433,7 +434,7 @@ Future<Map<String, dynamic>?> showDealDisputeSheet(
               isDark: isDark,
               label: '',
               controller: reasonController,
-              hint: 'Ətraflı izah edin…',
+              hint: tr('deals.dispute.detail_hint', 'Ətraflı izah edin…'),
               maxLines: 3,
             ),
             SizedBox(
@@ -681,37 +682,83 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
               ],
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  final traitSuffix = selectedTraits
-                      .map((code) => traits.firstWhere((t) => t[0] == code)[1])
-                      .join(', ');
-                  final comment = [commentController.text.trim(), traitSuffix]
-                      .where((e) => e.isNotEmpty)
-                      .join(' · ');
-                  Navigator.of(sheetContext).pop({
-                    'rating': rating,
-                    if (comment.isNotEmpty) 'comment': comment,
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: dealBrand,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-                icon: const Icon(PhosphorIconsFill.paperPlaneTilt,
-                    size: 17, color: Colors.white),
-                label: Text(
-                  WawatContent.text(
-                      content, 'deals.review.submit', 'Rəyi göndər'),
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
+            // 1–3★ require a comment (backend 422s otherwise) → gate the button
+            // and reveal a hint. 4–5★ may submit without one. ListenableBuilder
+            // keeps the button in sync as the comment is typed.
+            ListenableBuilder(
+              listenable: commentController,
+              builder: (context, _) {
+                final requiresComment = rating <= 3;
+                final hasComment = commentController.text.trim().isNotEmpty;
+                final canSubmit = !requiresComment || hasComment;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (requiresComment && !hasComment) ...[
+                      Row(
+                        children: [
+                          const Icon(PhosphorIconsFill.info,
+                              size: 13, color: Color(0xFFF5B301)),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: Text(
+                              WawatContent.text(
+                                  content,
+                                  'deals.review.comment_required',
+                                  'Aşağı qiymət üçün şərh vacibdir.'),
+                              style: const TextStyle(
+                                  color: Color(0xFFB67C00),
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: canSubmit
+                            ? () {
+                                final traitSuffix = selectedTraits
+                                    .map((code) => traits
+                                        .firstWhere((t) => t[0] == code)[1])
+                                    .join(', ');
+                                final comment = [
+                                  commentController.text.trim(),
+                                  traitSuffix
+                                ].where((e) => e.isNotEmpty).join(' · ');
+                                Navigator.of(sheetContext).pop({
+                                  'rating': rating,
+                                  if (comment.isNotEmpty) 'comment': comment,
+                                });
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: dealBrand,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              dealBrand.withValues(alpha: 0.4),
+                          disabledForegroundColor:
+                              Colors.white.withValues(alpha: 0.8),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
+                        ),
+                        icon: const Icon(PhosphorIconsFill.paperPlaneTilt,
+                            size: 17, color: Colors.white),
+                        label: Text(
+                          WawatContent.text(
+                              content, 'deals.review.submit', 'Rəyi göndər'),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

@@ -3,6 +3,8 @@ import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../listings/promotion/promotion_screens.dart';
@@ -59,21 +61,21 @@ Color _cEmeraldText(bool d) =>
 Color _cEmeraldIcon(bool d) =>
     d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981);
 
-const _azMonths = [
-  'Yanvar',
-  'Fevral',
-  'Mart',
-  'Aprel',
-  'May',
-  'İyun',
-  'İyul',
-  'Avqust',
-  'Sentyabr',
-  'Oktyabr',
-  'Noyabr',
-  'Dekabr',
-];
-String _fmtDate(DateTime d) => '${d.day} ${_azMonths[d.month - 1]}';
+List<String> _azMonths() => [
+      tr('month.jan', 'Yanvar'),
+      tr('month.feb', 'Fevral'),
+      tr('month.mar', 'Mart'),
+      tr('month.apr', 'Aprel'),
+      tr('month.may', 'May'),
+      tr('month.jun', 'İyun'),
+      tr('month.jul', 'İyul'),
+      tr('month.aug', 'Avqust'),
+      tr('month.sep', 'Sentyabr'),
+      tr('month.oct', 'Oktyabr'),
+      tr('month.nov', 'Noyabr'),
+      tr('month.dec', 'Dekabr'),
+    ];
+String _fmtDate(DateTime d) => '${d.day} ${_azMonths()[d.month - 1]}';
 
 class PromoCodesScreen extends BaseScreen<PromoCodesBloc> {
   PromoCodesScreen({super.key});
@@ -531,7 +533,7 @@ class _PromoTicket extends StatelessWidget {
                   height: 1,
                   fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          Text('ENDİRİM',
+          Text(tr('promo.discount_label', 'ENDİRİM'),
               style: TextStyle(
                   color: fg.withValues(alpha: 0.7),
                   fontSize: 9,
@@ -614,8 +616,8 @@ class _PromoTicket extends StatelessWidget {
                           offset: const Offset(0, 6))
                     ],
                   ),
-                  child: const Text('İstifadə et',
-                      style: TextStyle(
+                  child: Text(tr('promo.use', 'İstifadə et'),
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700)),
@@ -639,7 +641,9 @@ class _PromoTicket extends StatelessWidget {
           children: [
             Icon(PhosphorIconsFill.clock, size: 11, color: _cAmberText(d)),
             const SizedBox(width: 4),
-            Text('${promo.daysLeft} gün qalıb',
+            Text(
+                tr('promo.days_left', '{days} gün qalıb',
+                    {'days': '${promo.daysLeft}'}),
                 style: TextStyle(
                     color: _cAmberText(d),
                     fontSize: 10.5,
@@ -656,8 +660,9 @@ class _PromoTicket extends StatelessWidget {
         Flexible(
           child: Text(
             promo.expiresAt == null
-                ? 'Müddətsiz'
-                : '${_fmtDate(promo.expiresAt!)}-a qədər',
+                ? tr('promo.no_expiry', 'Müddətsiz')
+                : tr('promo.valid_until', '{date}-a qədər',
+                    {'date': _fmtDate(promo.expiresAt!)}),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -747,7 +752,10 @@ class _PromoTicket extends StatelessWidget {
           border: Border.all(color: border, width: 2),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(used ? 'İŞLƏNİB' : 'BİTİB',
+        child: Text(
+            used
+                ? tr('promo.stamp_used', 'İŞLƏNİB')
+                : tr('promo.stamp_expired', 'BİTİB'),
             style: TextStyle(
                 color: color,
                 fontSize: 10,
@@ -762,11 +770,11 @@ class _PromoTicket extends StatelessWidget {
       final date = promo.usedAt == null ? '' : ' · ${_fmtDate(promo.usedAt!)}';
       final ctx =
           (promo.usedContext ?? '').isEmpty ? '' : ' · ${promo.usedContext}';
-      return 'İstifadə olunub$date$ctx';
+      return '${tr('promo.history_used', 'İstifadə olunub')}$date$ctx';
     }
     final date =
         promo.expiresAt == null ? '' : ' · ${_fmtDate(promo.expiresAt!)}';
-    return 'Vaxtı bitib$date';
+    return '${tr('promo.history_expired', 'Vaxtı bitib')}$date';
   }
 
   IconData _sourceIcon(String source) {
@@ -786,13 +794,13 @@ class _PromoTicket extends StatelessWidget {
     if (p.sourceLabel.isNotEmpty) return p.sourceLabel;
     switch (p.source) {
       case 'rate_review':
-        return 'Tətbiqi qiymətləndirdiyin üçün';
+        return tr('promo.source_rate', 'Tətbiqi qiymətləndirdiyin üçün');
       case 'referral':
-        return 'Dostunu dəvət etdiyin üçün';
+        return tr('promo.source_referral', 'Dostunu dəvət etdiyin üçün');
       case 'welcome':
-        return 'Xoş gəlmisən bonusu';
+        return tr('promo.source_welcome', 'Xoş gəlmisən bonusu');
       default:
-        return 'Promokod';
+        return tr('promo.source_default', 'Promokod');
     }
   }
 }
@@ -1041,11 +1049,16 @@ class _DetailSheet extends StatelessWidget {
               onTap: () {},
             ),
             const SizedBox(height: 16),
-            _condition(d, 'Minimum ödəniş: ${_minLabel()}'),
+            _condition(
+                d,
+                tr('promo.min_order', 'Minimum ödəniş: {amount}',
+                    {'amount': _minLabel()})),
             const SizedBox(height: 10),
-            _condition(d, 'Bir dəfə istifadə olunur'),
+            _condition(
+                d, tr('promo.condition_once', 'Bir dəfə istifadə olunur')),
             const SizedBox(height: 10),
-            _condition(d, 'VİP və önə çəkmə üçün keçərli'),
+            _condition(
+                d, tr('promo.condition_vip', 'VİP və önə çəkmə üçün keçərli')),
             const SizedBox(height: 18),
             Row(
               children: [
@@ -1053,7 +1066,7 @@ class _DetailSheet extends StatelessWidget {
                   flex: 10,
                   child: _sheetButton(
                     d,
-                    label: 'Kodu köçür',
+                    label: tr('promo.copy_code', 'Kodu köçür'),
                     icon: PhosphorIconsBold.copy,
                     primary: false,
                     onTap: onCopy,
@@ -1064,7 +1077,7 @@ class _DetailSheet extends StatelessWidget {
                   flex: 14,
                   child: _sheetButton(
                     d,
-                    label: 'Elanı önə çıxar',
+                    label: tr('promo.promote_listing', 'Elanı önə çıxar'),
                     icon: PhosphorIconsBold.rocketLaunch,
                     primary: true,
                     onTap: onPromote,
@@ -1263,12 +1276,12 @@ class _LoadError extends StatelessWidget {
                     color: _brand, borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(PhosphorIconsBold.arrowClockwise,
+                  children: [
+                    const Icon(PhosphorIconsBold.arrowClockwise,
                         size: 16, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Yenidən cəhd et',
-                        style: TextStyle(
+                    const SizedBox(width: 8),
+                    Text(tr('common.retry', 'Yenidən cəhd et'),
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w700)),

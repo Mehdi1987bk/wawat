@@ -1,6 +1,8 @@
 // lib/core/utils/error_parser.dart
 import 'package:dio/dio.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 class ErrorParser {
   static String parseDioError(dynamic e) {
     if (e is! DioException) {
@@ -11,11 +13,11 @@ class ErrorParser {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
-      return 'Превышено время ожидания';
+      return tr('error.timeout', 'Превышено время ожидания');
     }
 
     if (e.type == DioExceptionType.connectionError) {
-      return 'Нет подключения к интернету';
+      return tr('error.no_connection', 'Нет подключения к интернету');
     }
 
     final data = e.response?.data;
@@ -23,15 +25,15 @@ class ErrorParser {
 
     // 🔐 Обработка по статус-коду
     if (statusCode == 401) {
-      return 'Требуется авторизация';
+      return tr('error.unauthorized', 'Требуется авторизация');
     }
 
     if (statusCode == 403) {
-      return 'Доступ запрещен';
+      return tr('error.forbidden', 'Доступ запрещен');
     }
 
     if (statusCode == 500) {
-      return 'Ошибка сервера. Попробуйте позже';
+      return tr('error.server', 'Ошибка сервера. Попробуйте позже');
     }
 
     // 📝 Парсинг тела ответа
@@ -53,6 +55,6 @@ class ErrorParser {
       }
     }
 
-    return 'Ошибка запроса';
+    return tr('error.request_failed', 'Ошибка запроса');
   }
 }

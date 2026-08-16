@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/theme_manager.dart';
 import '../login/login_screen.dart';
 import 'forgot_password_bloc.dart';
@@ -94,7 +95,9 @@ class _ForgotPasswordScreenState
     _clearErrors();
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      setState(() => _fieldErrors = {'email': 'Email mütləqdir.'});
+      setState(() => _fieldErrors = {
+            'email': tr('auth.email_required', 'Email mütləqdir.')
+          });
       return;
     }
 
@@ -119,7 +122,9 @@ class _ForgotPasswordScreenState
   Future<void> _verifyOtp() async {
     _clearErrors();
     if (_otp.length != 6) {
-      setState(() => _fieldErrors = {'otp': '6 rəqəmli kodu daxil edin.'});
+      setState(() => _fieldErrors = {
+            'otp': tr('auth.otp_enter_6_digits', '6 rəqəmli kodu daxil edin.')
+          });
       return;
     }
 
@@ -144,13 +149,15 @@ class _ForgotPasswordScreenState
     final confirmation = _confirmPasswordController.text;
 
     if (password.length < 8) {
-      setState(
-          () => _fieldErrors = {'password': 'Minimum 8 simvol olmalıdır.'});
+      setState(() => _fieldErrors = {
+            'password': tr('auth.password_min_8', 'Minimum 8 simvol olmalıdır.')
+          });
       return;
     }
     if (password != confirmation) {
       setState(() => _fieldErrors = {
-            'password_confirmation': 'Şifrələr uyğun gəlmir.',
+            'password_confirmation':
+                tr('auth.passwords_mismatch', 'Şifrələr uyğun gəlmir.'),
           });
       return;
     }
@@ -238,10 +245,10 @@ class _ForgotPasswordScreenState
             const SizedBox(height: 28),
             Text(
               _step == 0
-                  ? 'Şifrəni bərpa et'
+                  ? tr('auth.forgot_title', 'Şifrəni bərpa et')
                   : _step == 1
-                      ? 'Kodu yaz'
-                      : 'Yeni şifrə',
+                      ? tr('auth.enter_code_title', 'Kodu yaz')
+                      : tr('auth.new_password', 'Yeni şifrə'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: titleColor,
@@ -252,10 +259,15 @@ class _ForgotPasswordScreenState
             const SizedBox(height: 8),
             Text(
               _step == 0
-                  ? 'Email-ini yaz - təsdiq kodu göndərək.'
+                  ? tr('auth.forgot_subtitle',
+                      'Email-ini yaz - təsdiq kodu göndərək.')
                   : _step == 1
-                      ? '${_emailController.text.trim()} ünvanına gələn 6 rəqəmli kod.'
-                      : 'Yeni şifrəni təyin et.',
+                      ? tr(
+                          'auth.otp_sent_to',
+                          '{email} ünvanına gələn 6 rəqəmli kod.',
+                          {'email': _emailController.text.trim()})
+                      : tr('auth.set_new_password_subtitle',
+                          'Yeni şifrəni təyin et.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: bodyColor,
@@ -282,8 +294,8 @@ class _ForgotPasswordScreenState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _AuthField(
-          label: 'Email',
-          hint: 'ad@nümunə.com',
+          label: tr('auth.email_label', 'Email'),
+          hint: tr('auth.email_hint', 'ad@nümunə.com'),
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           error: _fieldErrors['email'],
@@ -291,7 +303,7 @@ class _ForgotPasswordScreenState
         ),
         const SizedBox(height: 24),
         _PrimaryButton(
-          text: 'Kod göndər',
+          text: tr('auth.send_code', 'Kod göndər'),
           onPressed: _requestOtp,
         ),
       ],
@@ -343,17 +355,20 @@ class _ForgotPasswordScreenState
         const SizedBox(height: 24),
         if (isExpired)
           _PrimaryButton(
-            text: 'Yeni kod göndər',
+            text: tr('auth.send_new_code', 'Yeni kod göndər'),
             onPressed: () => _requestOtp(isResend: true),
           )
         else
           _PrimaryButton(
-            text: 'Təsdiqlə',
+            text: tr('common.confirm', 'Təsdiqlə'),
             onPressed: _verifyOtp,
           ),
         const SizedBox(height: 18),
         Text(
-          isExpired ? 'Kodun vaxtı bitib.' : 'Kodun vaxtı: $_timerText',
+          isExpired
+              ? tr('auth.code_expired', 'Kodun vaxtı bitib.')
+              : tr('auth.code_time_left', 'Kodun vaxtı: {time}',
+                  {'time': _timerText}),
           textAlign: TextAlign.center,
           style: TextStyle(
             color: isExpired
@@ -368,7 +383,8 @@ class _ForgotPasswordScreenState
           GestureDetector(
             onTap: _isLoading ? null : () => _requestOtp(isResend: true),
             child: Text(
-              'Kod gəlmədi? Yenidən göndər',
+              tr('auth.code_not_received_resend',
+                  'Kod gəlmədi? Yenidən göndər'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? WawatDark.brandText : _brand,
@@ -386,8 +402,8 @@ class _ForgotPasswordScreenState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _AuthField(
-          label: 'Yeni şifrə',
-          hint: 'Minimum 8 simvol',
+          label: tr('auth.new_password', 'Yeni şifrə'),
+          hint: tr('auth.password_min8_hint', 'Minimum 8 simvol'),
           controller: _passwordController,
           obscureText: _obscurePassword,
           error: _fieldErrors['password'],
@@ -406,8 +422,8 @@ class _ForgotPasswordScreenState
         ),
         const SizedBox(height: 16),
         _AuthField(
-          label: 'Təsdiqlə',
-          hint: 'Təkrar yaz',
+          label: tr('common.confirm', 'Təsdiqlə'),
+          hint: tr('auth.repeat_hint', 'Təkrar yaz'),
           controller: _confirmPasswordController,
           obscureText: _obscureConfirmPassword,
           error: _fieldErrors['password_confirmation'],
@@ -427,7 +443,7 @@ class _ForgotPasswordScreenState
         ),
         const SizedBox(height: 24),
         _PrimaryButton(
-          text: 'Şifrəni yenilə',
+          text: tr('auth.update_password', 'Şifrəni yenilə'),
           onPressed: _resetPassword,
         ),
       ],
@@ -457,7 +473,7 @@ class _ForgotPasswordScreenState
           ),
           const SizedBox(height: 24),
           Text(
-            'Şifrə yeniləndi',
+            tr('auth.password_updated_title', 'Şifrə yeniləndi'),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: titleColor,
@@ -467,7 +483,8 @@ class _ForgotPasswordScreenState
           ),
           const SizedBox(height: 10),
           Text(
-            'Şifrəniz uğurla dəyişdirildi. Artıq yeni şifrəniz ilə daxil ola bilərsiniz.',
+            tr('auth.password_updated_body',
+                'Şifrəniz uğurla dəyişdirildi. Artıq yeni şifrəniz ilə daxil ola bilərsiniz.'),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: bodyColor,
@@ -477,7 +494,7 @@ class _ForgotPasswordScreenState
           ),
           const SizedBox(height: 28),
           _PrimaryButton(
-            text: 'Daxil ol',
+            text: tr('auth.login', 'Daxil ol'),
             onPressed: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => LoginScreen()),

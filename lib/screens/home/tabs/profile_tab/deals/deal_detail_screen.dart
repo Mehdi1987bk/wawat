@@ -6,6 +6,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../data/network/response/chat_response.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../new_profile/new_profile_screen.dart';
@@ -309,7 +310,8 @@ class _DealDetailScreenState
     final counterpart = shipment.isCarrier ? shipment.sender : shipment.carrier;
     final userId = counterpart?.profileId;
     if (userId == null) {
-      _toast('Profil məlumatı tapılmadı.', isError: true);
+      _toast(tr('deals.profile_not_found', 'Profil məlumatı tapılmadı.'),
+          isError: true);
       return;
     }
     Navigator.of(context).push(
@@ -334,25 +336,38 @@ class _DealDetailScreenState
     );
     if (result == null || !mounted) return;
     try {
-      final message = await bloc.submitReview(
+      final review = await bloc.submitReview(
         rating: result['rating'] as int,
         comment: result['comment'] as String?,
       );
-      if (mounted) _toast(message ?? 'Rəy göndərildi');
+      if (!mounted) return;
+      // approved → published now (green); pending → sent to moderation.
+      final fallback = review.isApproved
+          ? tr('deals.review.published', 'Rəyiniz yayımlandı')
+          : tr('deals.review.pending_moderation',
+              'Rəyiniz moderasiyaya göndərildi');
+      _toast(
+        review.message.isNotEmpty ? review.message : fallback,
+        isSuccess: review.isApproved,
+      );
     } catch (error) {
       if (mounted) _toast(_extractError(error), isError: true);
     }
   }
 
-  void _toast(String message, {bool isError = false}) {
+  void _toast(String message, {bool isError = false, bool isSuccess = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isError
+        ? dealRed600
+        : isSuccess
+            ? const Color(0xFF16A34A)
+            : (isDark ? WawatDark.elevated : dealInk900);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor:
-              isError ? dealRed600 : (isDark ? WawatDark.elevated : dealInk900),
+          backgroundColor: bg,
           content: Text(message,
               style: const TextStyle(fontWeight: FontWeight.w600)),
         ),
@@ -510,7 +525,8 @@ class _DealDetailScreenState
         }
       }
     }
-    return 'Əməliyyat alınmadı. Yenidən cəhd edin.';
+    return tr(
+        'deals.error.action_failed', 'Əməliyyat alınmadı. Yenidən cəhd edin.');
   }
 }
 
@@ -930,7 +946,7 @@ class _TimelineCard extends StatelessWidget {
           PhosphorIconsFill.package,
           brandBadgeBg,
           brandBadgeFg,
-          'Mal götürüldü',
+          tr('deals.timeline.picked_up', 'Mal götürüldü'),
           shipment.pickedUpAt
         ],
       if (shipment.deliveredAt != null)
@@ -938,7 +954,7 @@ class _TimelineCard extends StatelessWidget {
           PhosphorIconsFill.mapPinLine,
           brandBadgeBg,
           brandBadgeFg,
-          'Çatdırıldı',
+          tr('deals.timeline.delivered', 'Çatdırıldı'),
           shipment.deliveredAt
         ],
       if (shipment.completedAt != null)
@@ -946,7 +962,7 @@ class _TimelineCard extends StatelessWidget {
           PhosphorIconsFill.checkCircle,
           emeraldBadgeBg,
           emeraldBadgeFg,
-          'Tamamlandı',
+          tr('deals.timeline.completed', 'Tamamlandı'),
           shipment.completedAt
         ],
     ];

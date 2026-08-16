@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 import 'legal_api.dart';
 
 // ── palette ──────────────────────────────────────────────────────────────────
@@ -173,7 +175,9 @@ class _LegalDocScreenState extends State<LegalDocScreen> {
                 size: 13,
                 color: _cMuted(d)),
             const SizedBox(width: 6),
-            Text('Yenilənib: ${_fmtDate(date)}',
+            Text(
+                tr('legal.updated_at', 'Yenilənib: {date}',
+                    {'date': _fmtDate(date)}),
                 style: TextStyle(
                     color: _cMuted(d),
                     fontSize: 11,
@@ -363,13 +367,15 @@ class _ErrorView extends StatelessWidget {
                   color: d ? const Color(0xFFFF9A9A) : const Color(0xFFEF4444)),
             ),
             const SizedBox(height: 16),
-            Text('Bağlantı yoxdur',
+            Text(tr('common.no_connection', 'Bağlantı yoxdur'),
                 style: TextStyle(
                     color: _cText(d),
                     fontSize: 18,
                     fontWeight: FontWeight.w800)),
             const SizedBox(height: 6),
-            Text('Səhifəni yükləyə bilmədik. İnternet bağlantını yoxla.',
+            Text(
+                tr('legal.load_failed_body',
+                    'Səhifəni yükləyə bilmədik. İnternet bağlantını yoxla.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: _cMuted(d),
@@ -386,12 +392,12 @@ class _ErrorView extends StatelessWidget {
                     color: _brand, borderRadius: BorderRadius.circular(16)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(PhosphorIconsBold.arrowClockwise,
+                  children: [
+                    const Icon(PhosphorIconsBold.arrowClockwise,
                         size: 16, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Yenidən cəhd et',
-                        style: TextStyle(
+                    const SizedBox(width: 8),
+                    Text(tr('common.retry', 'Yenidən cəhd et'),
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w700)),

@@ -25,6 +25,12 @@ String _contentText(Map<String, String> content, String key,
   return WawatContent.text(content, key, fallback);
 }
 
+/// Price labels: the app prices in USD, but some CMS translations still carry
+/// the AZN symbol (₼). Force `$` so the currency is consistent everywhere,
+/// regardless of what the CMS serves per language.
+String _priceLabel(Map<String, String> content, String key) =>
+    _contentText(content, key).replaceAll('₼', r'$');
+
 class SearchFormWidget extends StatefulWidget {
   final ListingFeedBloc bloc;
   final bool compact;
@@ -239,6 +245,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     if (_fromCity == null || _toCity == null) return;
 
     final filters = _filters();
+    logSearchEvent(filters,
+        source: widget.compact ? 'inline_form' : 'search_form');
     if (widget.onSearch != null) {
       widget.onSearch!(filters);
       return;
@@ -540,14 +548,14 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             Expanded(
               child: _NumberBox(
                 controller: _priceMin,
-                label: _contentText(content, 'search.price_min'),
+                label: _priceLabel(content, 'search.price_min'),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _NumberBox(
                 controller: _priceMax,
-                label: _contentText(content, 'search.price_max'),
+                label: _priceLabel(content, 'search.price_max'),
               ),
             ),
           ],
@@ -611,6 +619,8 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     String key,
     String? value,
   ) {
+    // Single-select minimum-tier threshold ("value and above"); "Any" (null)
+    // clears it. Sent to the API as `tier_min`.
     return _FilterChip(
       label: _contentText(content, key),
       selected: _tierMin == value,
@@ -675,14 +685,14 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
               Expanded(
                 child: _NumberBox(
                   controller: _priceMin,
-                  label: _contentText(content, 'search.price_min'),
+                  label: _priceLabel(content, 'search.price_min'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _NumberBox(
                   controller: _priceMax,
-                  label: _contentText(content, 'search.price_max'),
+                  label: _priceLabel(content, 'search.price_max'),
                 ),
               ),
             ],
@@ -1076,6 +1086,9 @@ class _NumberBox extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      // Numeric keyboards have no return/Done key on Android, so tapping
+      // anywhere outside the field must close it.
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(color: cText(isDark)),
       decoration: InputDecoration(
         hintText: label,

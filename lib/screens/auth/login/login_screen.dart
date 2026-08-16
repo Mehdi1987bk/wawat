@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
 import '../forgot_password/forgot_password_modal.dart';
@@ -116,7 +117,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                   _LogoMark(size: 56),
                   const SizedBox(height: 14),
                   Text(
-                    'Xoş gəldin',
+                    tr('auth.welcome_back', 'Xoş gəldin'),
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -125,7 +126,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Hesabına daxil ol',
+                    tr('auth.login_subtitle', 'Hesabına daxil ol'),
                     style: TextStyle(
                       fontSize: 14,
                       color: bodyColor,
@@ -144,8 +145,8 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
             ],
             const SizedBox(height: 22),
             _AuthField(
-              label: 'Email',
-              hint: 'ad@nümunə.com',
+              label: tr('auth.email_label', 'Email'),
+              hint: tr('auth.email_hint', 'ad@nümunə.com'),
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               prefixIcon: Icons.email_outlined,
@@ -154,7 +155,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
             ),
             const SizedBox(height: 16),
             _AuthField(
-              label: 'Şifrə',
+              label: tr('auth.password_label', 'Şifrə'),
               hint: '••••••••',
               controller: _passwordController,
               obscureText: _obscurePassword,
@@ -186,14 +187,14 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                 ),
                 Expanded(
                   child: Text(
-                    'Məni xatırla',
+                    tr('auth.remember_me', 'Məni xatırla'),
                     style: TextStyle(color: bodyColor),
                   ),
                 ),
                 TextButton(
                   onPressed: () => ForgotPasswordModal.show(context),
                   child: Text(
-                    'Şifrənizi unutmusunuz?',
+                    tr('auth.forgot_password_link', 'Şifrənizi unutmusunuz?'),
                     style: TextStyle(
                       color: isDark ? WawatDark.brandText : _brand,
                       fontWeight: FontWeight.w600,
@@ -204,30 +205,30 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
             ),
             const SizedBox(height: 12),
             _PrimaryButton(
-              text: 'Daxil ol',
+              text: tr('auth.login', 'Daxil ol'),
               onPressed: _login,
             ),
             if (_isSuspendedMessage) ...[
               const SizedBox(height: 12),
               _OutlineButton(
-                text: 'Dəstək ilə əlaqə',
+                text: tr('support.contact', 'Dəstək ilə əlaqə'),
                 icon: Icons.support_agent_outlined,
                 onPressed: _contactSupport,
                 isDark: isDark,
               ),
             ],
             const SizedBox(height: 24),
-            _DividerLabel(text: 'və ya', isDark: isDark),
+            _DividerLabel(text: tr('common.or', 'və ya'), isDark: isDark),
             const SizedBox(height: 18),
             _OutlineButton(
-              text: 'Google ilə davam et',
+              text: tr('auth.continue_with_google', 'Google ilə davam et'),
               icon: Icons.g_mobiledata,
               onPressed: null,
               isDark: isDark,
             ),
             const SizedBox(height: 10),
             _OutlineButton(
-              text: 'Apple ilə davam et',
+              text: tr('auth.continue_with_apple', 'Apple ilə davam et'),
               icon: Icons.apple,
               onPressed: null,
               isDark: isDark,
@@ -238,13 +239,13 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
                 alignment: WrapAlignment.center,
                 children: [
                   Text(
-                    'Hesabın yoxdur? ',
+                    tr('auth.no_account', 'Hesabın yoxdur? '),
                     style: TextStyle(color: bodyColor),
                   ),
                   GestureDetector(
                     onTap: _openRegister,
                     child: Text(
-                      'Qeydiyyatdan keç',
+                      tr('auth.register', 'Qeydiyyatdan keç'),
                       style: TextStyle(
                         color: isDark ? WawatDark.brandText : _brand,
                         fontWeight: FontWeight.w700,

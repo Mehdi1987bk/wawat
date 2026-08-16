@@ -13,6 +13,7 @@ import '../../../../../data/network/response/verification_response.dart';
 import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_manager.dart';
 import '../settings/experience_tab/experience_tab_screen.dart';
 
@@ -34,8 +35,9 @@ class _VerificationScreenState
   bool _isLoadingStatus = true;
   VerificationData? _verificationData;
 
-  /// ID-document types from /document-types (selfie excluded — it's a separate
-  /// slot). Never hardcoded; the picker renders from this.
+  /// Accepted ID-document types from /document-types. Currently filtered to
+  /// passport only, so the type picker is hidden and the passport upload is the
+  /// single flow. Names still arrive localized from the backend.
   List<DocumentType> _idDocTypes = const [];
   String? _selectedType;
   bool _typesLoadFailed = false;
@@ -53,7 +55,8 @@ class _VerificationScreenState
     try {
       final types = await bloc.loadDocumentTypes();
       if (!mounted) return;
-      final idTypes = types.where((t) => !t.isSelfie).toList();
+      // Only passport is accepted for now → single option, no type picker shown.
+      final idTypes = types.where((t) => t.isPassport).toList();
       setState(() {
         _idDocTypes = idTypes;
         _selectedType ??= idTypes.isNotEmpty ? idTypes.first.code : null;
@@ -621,7 +624,9 @@ class _VerificationScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              if (_idDocTypes.isNotEmpty)
+              // Type picker only makes sense with more than one option; with a
+              // single accepted type (passport) it's hidden.
+              if (_idDocTypes.length > 1)
                 _buildTypePicker(isDark)
               else if (_typesLoadFailed)
                 _buildTypesRetry(isDark),
@@ -812,7 +817,10 @@ class _VerificationScreenState
     if (_selectedType == null) {
       await _loadDocumentTypes();
       if (_selectedType == null) {
-        _snack('Sənəd növləri yüklənə bilmədi. Yenidən cəhd et.', Colors.red);
+        _snack(
+            tr('verification.doc_types_load_failed',
+                'Sənəd növləri yüklənə bilmədi. Yenidən cəhd et.'),
+            Colors.red);
         return;
       }
     }
@@ -836,7 +844,10 @@ class _VerificationScreenState
     } catch (_) {
       // ErrorDispatcher only surfaces 422 (validation) — show the rest too.
       if (mounted) {
-        _snack('Göndərmək alınmadı. Yenidən cəhd et.', Colors.red);
+        _snack(
+            tr('verification.submit_failed',
+                'Göndərmək alınmadı. Yenidən cəhd et.'),
+            Colors.red);
       }
     } finally {
       if (mounted) {
@@ -868,7 +879,8 @@ class _VerificationScreenState
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Sənəd növləri yüklənmədi. Yenidən cəhd et.',
+                  tr('verification.doc_types_load_failed_retry',
+                      'Sənəd növləri yüklənmədi. Yenidən cəhd et.'),
                   style: TextStyle(
                     color: isDark
                         ? WawatDark.textSecondary

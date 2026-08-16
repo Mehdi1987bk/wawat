@@ -11,7 +11,12 @@ import '../../../../../services/wawat_content.dart';
 ///
 /// Data: `value` is null (all) | 'trip' | 'shipment_post'. Labels come from the
 /// CMS; per-type icons match the rest of the app (plane = blue, parcel = amber).
-class ListingTypeFilter extends StatelessWidget {
+///
+/// "All" shares the null value with the "not chosen yet" state, so the widget
+/// keeps an internal [_chosen] flag: until the user explicitly picks something
+/// the trigger shows a placeholder prompt and nothing is highlighted; picking
+/// "All" (also null) then reads as a real, highlighted selection.
+class ListingTypeFilter extends StatefulWidget {
   final String? value;
   final Map<String, String> content;
   final ValueChanged<String?> onChanged;
@@ -23,30 +28,50 @@ class ListingTypeFilter extends StatelessWidget {
     required this.onChanged,
   });
 
+  @override
+  State<ListingTypeFilter> createState() => _ListingTypeFilterState();
+}
+
+class _ListingTypeFilterState extends State<ListingTypeFilter> {
+  // Starts "chosen" only when a concrete type was pre-set; a null start is the
+  // pristine placeholder state.
+  late bool _chosen = widget.value != null;
+
+  @override
+  void didUpdateWidget(covariant ListingTypeFilter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-derive on an external change (parent reset/apply). A null→null no-op —
+    // the parent echoing our own "All" pick — is ignored so All stays selected.
+    if (oldWidget.value != widget.value) {
+      _chosen = widget.value != null;
+    }
+  }
+
   List<_TypeOption> _options() => [
         _TypeOption(
           value: null,
-          label: WawatContent.text(content, 'search.type_all', 'Hamısı'),
+          label: WawatContent.text(widget.content, 'search.type_all', 'Hamısı'),
           icon: PhosphorIconsBold.squaresFour,
           accent: _Accent.brand,
         ),
         _TypeOption(
           value: 'trip',
-          label: WawatContent.text(content, 'enum.listing_type.trip', 'Səfər'),
+          label: WawatContent.text(
+              widget.content, 'enum.listing_type.trip', 'Səfər'),
           icon: PhosphorIconsBold.airplaneTilt,
           accent: _Accent.brand,
         ),
         _TypeOption(
           value: 'shipment_post',
           label: WawatContent.text(
-              content, 'enum.listing_type.shipment_post', 'Göndəriş'),
+              widget.content, 'enum.listing_type.shipment_post', 'Göndəriş'),
           icon: PhosphorIconsBold.package,
           accent: _Accent.amber,
         ),
       ];
 
   _TypeOption _active(List<_TypeOption> options) => options.firstWhere(
-        (o) => o.value == value,
+        (o) => o.value == widget.value,
         orElse: () => options.first,
       );
 
@@ -56,19 +81,28 @@ class ListingTypeFilter extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => _TypeFilterSheet(
-        content: content,
+        content: widget.content,
         options: options,
-        activeValue: value,
+        activeValue: widget.value,
+        showSelection: _chosen,
       ),
     );
-    if (selected != null) onChanged(selected.value);
+    if (selected != null) {
+      setState(() => _chosen = true);
+      widget.onChanged(selected.value);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final options = _options();
-    final active = _active(options);
+    // Nothing chosen yet → show a placeholder prompt instead of defaulting to
+    // "Hamısı/All". Once a pick is made (including "All"), show it as selected.
+    final isPlaceholder = !_chosen;
+    final active = isPlaceholder ? null : _active(options);
+    final placeholderColor =
+        isDark ? WawatDark.textSecondary : const Color(0xFF64748B);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -96,17 +130,23 @@ class ListingTypeFilter extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _IconChip(icon: active.icon, accent: active.accent, isDark: isDark),
+            _IconChip(
+              icon: active?.icon ?? PhosphorIconsBold.squaresFour,
+              accent: active?.accent ?? _Accent.brand,
+              isDark: isDark,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                active.label,
+                active?.label ??
+                    WawatContent.text(widget.content, 'search.type_placeholder',
+                        'Kimi axtarırsan?'),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: cText(isDark),
+                  color: isPlaceholder ? placeholderColor : cText(isDark),
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: isPlaceholder ? FontWeight.w600 : FontWeight.w700,
                 ),
               ),
             ),
@@ -127,10 +167,15 @@ class _TypeFilterSheet extends StatelessWidget {
   final List<_TypeOption> options;
   final String? activeValue;
 
+  /// Whether the current [activeValue] is an explicit choice. When false
+  /// (pristine state) no row is highlighted — not even "All" (null).
+  final bool showSelection;
+
   const _TypeFilterSheet({
     required this.content,
     required this.options,
     required this.activeValue,
+    required this.showSelection,
   });
 
   @override
@@ -171,7 +216,8 @@ class _TypeFilterSheet extends StatelessWidget {
           for (final option in options)
             _TypeRow(
               option: option,
-              selected: option.value == activeValue,
+              // Highlight only an explicit pick; "All" (null) counts once chosen.
+              selected: showSelection && option.value == activeValue,
               isDark: isDark,
               onTap: () => Navigator.pop(context, _TypeResult(option.value)),
             ),

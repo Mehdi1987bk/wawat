@@ -41,6 +41,12 @@ String _contentText(Map<String, String> content, String key,
   return WawatContent.text(content, key, fallback);
 }
 
+/// Price labels: the app prices in USD, but some CMS translations still carry
+/// the AZN symbol (₼). Force `$` so the currency is consistent everywhere,
+/// regardless of what the CMS serves per language.
+String _priceLabel(Map<String, String> content, String key) =>
+    _contentText(content, key).replaceAll('₼', r'$');
+
 class SearchOfferListScreen extends BaseScreen<ListingFeedBloc> {
   final ListingFilterState filters;
   final bool showBackButton;
@@ -1924,6 +1930,9 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
             ),
             Expanded(
               child: SingleChildScrollView(
+                // Swiping/scrolling the sheet also dismisses the keyboard.
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 100),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1975,14 +1984,14 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                         Expanded(
                             child: _SmallInput(
                                 controller: _priceMin,
-                                hint: _contentText(
-                                    widget.content, 'common.min'))),
+                                hint: _priceLabel(
+                                    widget.content, 'search.price_min'))),
                         const SizedBox(width: 10),
                         Expanded(
                             child: _SmallInput(
                                 controller: _priceMax,
-                                hint: _contentText(
-                                    widget.content, 'common.max'))),
+                                hint: _priceLabel(
+                                    widget.content, 'search.price_max'))),
                       ],
                     ),
                     const SizedBox(height: 18),
@@ -1994,13 +2003,13 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                             child: _SmallInput(
                                 controller: _weightMin,
                                 hint: _contentText(
-                                    widget.content, 'common.min'))),
+                                    widget.content, 'search.weight_min'))),
                         const SizedBox(width: 10),
                         Expanded(
                             child: _SmallInput(
                                 controller: _weightMax,
                                 hint: _contentText(
-                                    widget.content, 'common.max'))),
+                                    widget.content, 'search.weight_max'))),
                       ],
                     ),
                     const SizedBox(height: 18),
@@ -2148,6 +2157,8 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
   }
 
   Widget _tier(String label, String? value) {
+    // Single-select minimum-tier threshold: "value and above". "Any" (null)
+    // clears it. The server enforces the threshold via `tier_min`.
     return _Pill(
       label: label,
       selected: _filters.tierMin == value,
@@ -3167,6 +3178,9 @@ class _SmallInput extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      // Numeric keyboards have no return/Done key on Android, so tapping
+      // anywhere outside the field must close it.
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(color: cText(isDark)),
       decoration: _inputDecoration(hint, isDark: isDark),
     );

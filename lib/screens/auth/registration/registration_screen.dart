@@ -233,7 +233,7 @@ class _RegistrationScreenState
               child: Column(
                 children: [
                   Text(
-                    'Hesab yarat',
+                    tr('auth.create_account_title', 'Hesab yarat'),
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -242,7 +242,7 @@ class _RegistrationScreenState
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Bir neçə addımda qoşul',
+                    tr('auth.register_subtitle', 'Bir neçə addımda qoşul'),
                     style: TextStyle(
                       fontSize: 14,
                       color: bodyColor,
@@ -291,8 +291,8 @@ class _RegistrationScreenState
               children: [
                 Expanded(
                   child: _AuthField(
-                    label: 'Ad',
-                    hint: 'Tahir',
+                    label: tr('auth.first_name_label', 'Ad'),
+                    hint: tr('auth.first_name_hint', 'Tahir'),
                     controller: _firstNameController,
                     error: _fieldErrors['first_name'],
                     isDark: isDark,
@@ -301,8 +301,8 @@ class _RegistrationScreenState
                 const SizedBox(width: 12),
                 Expanded(
                   child: _AuthField(
-                    label: 'Soyad',
-                    hint: 'Quliyev',
+                    label: tr('auth.last_name_label', 'Soyad'),
+                    hint: tr('auth.last_name_hint', 'Quliyev'),
                     controller: _lastNameController,
                     error: _fieldErrors['last_name'],
                     isDark: isDark,
@@ -312,8 +312,8 @@ class _RegistrationScreenState
             ),
             const SizedBox(height: 16),
             _AuthField(
-              label: 'Email',
-              hint: 'ad@nümunə.com',
+              label: tr('auth.email_label', 'Email'),
+              hint: tr('auth.email_hint', 'ad@nümunə.com'),
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               error: _fieldErrors['email'],
@@ -321,8 +321,8 @@ class _RegistrationScreenState
             ),
             const SizedBox(height: 16),
             _AuthField(
-              label: 'Şifrə',
-              hint: 'Minimum 8 simvol',
+              label: tr('auth.password_label', 'Şifrə'),
+              hint: tr('auth.password_min8_hint', 'Minimum 8 simvol'),
               controller: _passwordController,
               obscureText: _obscurePassword,
               error: _fieldErrors['password'],
@@ -342,8 +342,8 @@ class _RegistrationScreenState
             ),
             const SizedBox(height: 16),
             _AuthField(
-              label: 'Şifrəni təsdiqlə',
-              hint: 'Təkrar yaz',
+              label: tr('auth.confirm_password_label', 'Şifrəni təsdiqlə'),
+              hint: tr('auth.repeat_hint', 'Təkrar yaz'),
               controller: _confirmPasswordController,
               obscureText: true,
               error: _fieldErrors['password_confirmation'],
@@ -359,7 +359,7 @@ class _RegistrationScreenState
             ),
             const SizedBox(height: 18),
             Text(
-              'Danışdığın dillər',
+              tr('auth.spoken_languages', 'Danışdığın dillər'),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -421,9 +421,12 @@ class _RegistrationScreenState
                           height: 1.35,
                         ),
                         children: [
-                          const TextSpan(text: 'İstifadə qaydaları və '),
                           TextSpan(
-                            text: 'Məxfilik siyasəti',
+                              text: tr('auth.terms_prefix',
+                                  'İstifadə qaydaları və ')),
+                          TextSpan(
+                            text: tr('auth.privacy_policy_link',
+                                'Məxfilik siyasəti'),
                             style: TextStyle(
                               color: isDark ? WawatDark.brandText : _brand,
                               fontWeight: FontWeight.w700,
@@ -437,7 +440,9 @@ class _RegistrationScreenState
                                 );
                               },
                           ),
-                          const TextSpan(text: ' ilə tanış oldum.'),
+                          TextSpan(
+                              text:
+                                  tr('auth.terms_suffix', ' ilə tanış oldum.')),
                         ],
                       ),
                     ),
@@ -460,17 +465,17 @@ class _RegistrationScreenState
             ],
             const SizedBox(height: 22),
             _PrimaryButton(
-              text: 'Qeydiyyatdan keç',
+              text: tr('auth.register', 'Qeydiyyatdan keç'),
               onPressed: _register,
             ),
             const SizedBox(height: 24),
-            _DividerLabel(text: 'və ya', isDark: isDark),
+            _DividerLabel(text: tr('common.or', 'və ya'), isDark: isDark),
             const SizedBox(height: 18),
             Row(
               children: [
                 Expanded(
                   child: _OutlineButton(
-                    text: 'Google',
+                    text: tr('auth.google', 'Google'),
                     icon: Icons.g_mobiledata,
                     onPressed: null,
                     isDark: isDark,
@@ -479,7 +484,7 @@ class _RegistrationScreenState
                 const SizedBox(width: 10),
                 Expanded(
                   child: _OutlineButton(
-                    text: 'Apple',
+                    text: tr('auth.apple', 'Apple'),
                     icon: Icons.apple,
                     onPressed: null,
                     isDark: isDark,
@@ -493,13 +498,13 @@ class _RegistrationScreenState
                 alignment: WrapAlignment.center,
                 children: [
                   Text(
-                    'Hesabın var? ',
+                    tr('auth.have_account', 'Hesabın var? '),
                     style: TextStyle(color: bodyColor),
                   ),
                   GestureDetector(
                     onTap: _openLogin,
                     child: Text(
-                      'Daxil ol',
+                      tr('auth.login', 'Daxil ol'),
                       style: TextStyle(
                         color: isDark ? WawatDark.brandText : _brand,
                         fontWeight: FontWeight.w700,

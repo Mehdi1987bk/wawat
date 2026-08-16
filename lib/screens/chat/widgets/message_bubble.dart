@@ -7,6 +7,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -38,6 +39,14 @@ class MessageBubble extends StatelessWidget {
   /// Tapping the incoming peer's avatar opens their profile.
   final VoidCallback? onOpenProfile;
 
+  /// Localized "edited" caption shown next to the time when the message has been
+  /// edited ([ChatMessage.editedAt] set). Falls back to AZ when not provided.
+  final String? editedLabel;
+
+  /// Localized tombstone text for a deleted message — already resolved by the
+  /// caller to "you deleted this" / "message deleted" per authorship.
+  final String? deletedLabel;
+
   const MessageBubble({
     super.key,
     required this.message,
@@ -51,11 +60,25 @@ class MessageBubble extends StatelessWidget {
     this.onSupport,
     this.onReply,
     this.onOpenProfile,
+    this.editedLabel,
+    this.deletedLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Deleted tombstone: no content, no long-press/swipe/edit — just the plate.
+    if (message.isDeleted) {
+      return _DeletedBubble(
+        message: message,
+        isMyMessage: isMyMessage,
+        label: deletedLabel ??
+            (isMyMessage
+                ? tr('chat.message.deleted_by_you', 'Bu mesajı sildiniz')
+                : tr('chat.message.deleted', 'Mesaj silindi')),
+        onOpenProfile: onOpenProfile,
+      );
+    }
     if (message.type == 'system_card' && message.card != null) {
       return _SystemCardMessage(
         message: message,
@@ -182,7 +205,8 @@ class MessageBubble extends StatelessWidget {
                                 color: isDark ? WawatDark.textMuted : _ink400,
                                 fontSize: 10)),
                         Text(
-                          'redaktə edildi',
+                          editedLabel ??
+                              tr('chat.message.edited', 'redaktə edildi'),
                           style: TextStyle(
                             color: isDark ? WawatDark.textMuted : _ink400,
                             fontSize: 10,
@@ -217,6 +241,101 @@ class MessageBubble extends StatelessWidget {
       isDark: isDark,
       onReply: () => onReply!(message),
       child: bubble,
+    );
+  }
+}
+
+/// Tombstone for a deleted message: a muted, italic plate with a prohibit icon
+/// where the bubble used to be. Same left/right slot and avatar as a normal
+/// message, but no content, actions, edited label or delivery ticks.
+class _DeletedBubble extends StatelessWidget {
+  final ChatMessage message;
+  final bool isMyMessage;
+  final String label;
+  final VoidCallback? onOpenProfile;
+
+  const _DeletedBubble({
+    required this.message,
+    required this.isMyMessage,
+    required this.label,
+    this.onOpenProfile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fg = isDark ? WawatDark.textMuted : _ink500;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment:
+            isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMyMessage) ...[
+            _SmallAvatar(user: message.user, onTap: onOpenProfile),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Column(
+              crossAxisAlignment: isMyMessage
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(
+                    color:
+                        isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9),
+                    border: Border.all(
+                      color: isDark ? WawatDark.border : _border,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(18),
+                      topRight: const Radius.circular(18),
+                      bottomLeft: Radius.circular(isMyMessage ? 18 : 6),
+                      bottomRight: Radius.circular(isMyMessage ? 6 : 18),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(PhosphorIconsRegular.prohibit, size: 14, color: fg),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            color: fg,
+                            fontSize: 13.5,
+                            height: 1.25,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  message.timeString(context),
+                  style: TextStyle(
+                    color: isDark ? WawatDark.textMuted : _ink400,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -389,18 +508,18 @@ class _DeliveryStatus extends StatelessWidget {
       case ChatMessageDeliveryStatus.failed:
         return GestureDetector(
           onTap: () => onRetry?.call(message.id),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 PhosphorIconsFill.warningCircle,
                 color: Color(0xFFEF4444),
                 size: 13,
               ),
-              SizedBox(width: 3),
+              const SizedBox(width: 3),
               Text(
-                'Yenidən cəhd',
-                style: TextStyle(
+                tr('chat.retry', 'Yenidən cəhd'),
+                style: const TextStyle(
                   color: Color(0xFFEF4444),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -862,8 +981,10 @@ class _ProposalCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             message.isMine
-                                ? 'Təklifin göndərildi'
-                                : 'Çatdırılma təklifi',
+                                ? tr('deals.proposal_sent',
+                                    'Təklifin göndərildi')
+                                : tr('deals.proposal_incoming',
+                                    'Çatdırılma təklifi'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -887,7 +1008,7 @@ class _ProposalCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(99),
                             ),
                             child: Text(
-                              'gözlənilir',
+                              tr('deals.awaiting_badge', 'gözlənilir'),
                               style: TextStyle(
                                 color: isDark
                                     ? WawatDark.warning
@@ -937,7 +1058,7 @@ class _ProposalCard extends StatelessWidget {
                 if (actions.contains('decline'))
                   Expanded(
                     child: _DealButton(
-                      label: 'Rədd',
+                      label: tr('deals.action_decline', 'Rədd'),
                       background: isDark
                           ? const Color(0xFF3A1E1E)
                           : const Color(0xFFFEECEC),
@@ -954,7 +1075,7 @@ class _ProposalCard extends StatelessWidget {
                 if (actions.contains('counter'))
                   Expanded(
                     child: _DealButton(
-                      label: 'Dəyiş',
+                      label: tr('deals.action_counter', 'Dəyiş'),
                       background: isDark ? WawatDark.brandSoft : _brand50,
                       textColor: isDark ? WawatDark.brandText : _brand,
                       onTap: () =>
@@ -967,7 +1088,7 @@ class _ProposalCard extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: _DealButton(
-                      label: 'Qəbul',
+                      label: tr('deals.action_accept', 'Qəbul'),
                       icon: PhosphorIconsBold.check,
                       background: _brand,
                       textColor: Colors.white,
@@ -1023,7 +1144,7 @@ class _CompletedCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sövdələşmə tamamlandı',
+                  tr('deals.deal_completed', 'Sövdələşmə tamamlandı'),
                   style: TextStyle(
                     color: isDark ? WawatDark.textPrimary : _ink900,
                     fontSize: 13,
@@ -1047,7 +1168,7 @@ class _CompletedCard extends StatelessWidget {
           if (card.shipmentId != null && onReview != null) ...[
             const SizedBox(width: 8),
             _SmallPill(
-              label: 'Rəy',
+              label: tr('deals.action_review', 'Rəy'),
               icon: PhosphorIconsFill.star,
               background: isDark ? WawatDark.brandSoft : _brand50,
               textColor: isDark ? WawatDark.brandText : _brand,
@@ -1094,7 +1215,7 @@ class _DisputedCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Problem bildirildi',
+                  tr('deals.disputed', 'Problem bildirildi'),
                   style: TextStyle(
                     color: isDark ? WawatDark.textPrimary : _ink900,
                     fontSize: 13,
@@ -1118,7 +1239,7 @@ class _DisputedCard extends StatelessWidget {
           if (onSupport != null) ...[
             const SizedBox(width: 8),
             _SmallPill(
-              label: 'Dəstək',
+              label: tr('deals.support', 'Dəstək'),
               icon: PhosphorIconsRegular.headset,
               background: isDark ? WawatDark.surface : Colors.white,
               textColor: isDark ? WawatDark.textSecondary : _ink600,
@@ -1179,7 +1300,7 @@ class _CancelledCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sövdələşmə ləğv edildi',
+                  tr('deals.deal_cancelled', 'Sövdələşmə ləğv edildi'),
                   style: TextStyle(
                     color: isDark ? WawatDark.textPrimary : _ink900,
                     fontSize: 13,
@@ -1188,7 +1309,8 @@ class _CancelledCard extends StatelessWidget {
                 ),
                 if (reasonLabel != null && reasonLabel.isNotEmpty)
                   Text(
-                    'Səbəb: $reasonLabel',
+                    tr('chat.cancel_reason_line', 'Səbəb: {reason}',
+                        {'reason': reasonLabel}),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -1230,15 +1352,16 @@ String? _nonBlank(String? s) => (s != null && s.trim().isNotEmpty) ? s : null;
 String? _cancelReasonLabel(String? code) {
   switch (code) {
     case 'plans_changed':
-      return 'Planlar dəyişdi';
+      return tr('deals.cancel_plans_changed', 'Planlar dəyişdi');
     case 'terms_disagreement':
-      return 'Şərtlərlə razılaşmadıq';
+      return tr('deals.cancel_terms_disagreement', 'Şərtlərlə razılaşmadıq');
     case 'counterpart_unresponsive':
-      return 'Qarşı tərəf cavab vermir';
+      return tr(
+          'deals.cancel_counterpart_unresponsive', 'Qarşı tərəf cavab vermir');
     case 'found_another':
-      return 'Başqa variant tapdım';
+      return tr('deals.cancel_found_another', 'Başqa variant tapdım');
     case 'other':
-      return 'Digər';
+      return tr('common.other', 'Digər');
     default:
       return null;
   }
@@ -1452,16 +1575,16 @@ _CardVisual _cardVisual(String type) {
 
 String _fallbackCardLabel(String type) {
   return switch (type) {
-    'accepted' => 'Təklif qəbul edildi',
-    'declined' => 'Təklif rədd edildi',
-    'picked_up' => 'Mal götürüldü',
-    'delivered' => 'Çatdırıldı',
-    'completed' => 'Sövdələşmə tamamlandı',
-    'auto_completed' => 'Avtomatik tamamlandı',
-    'disputed' => 'Problem bildirildi',
-    'cancelled' => 'Ləğv edildi',
-    'expired' => 'Vaxtı keçdi',
-    _ => 'Təklif',
+    'accepted' => tr('deals.card_accepted', 'Təklif qəbul edildi'),
+    'declined' => tr('deals.card_declined', 'Təklif rədd edildi'),
+    'picked_up' => tr('deals.picked_up', 'Mal götürüldü'),
+    'delivered' => tr('deals.delivered', 'Çatdırıldı'),
+    'completed' => tr('deals.deal_completed', 'Sövdələşmə tamamlandı'),
+    'auto_completed' => tr('deals.auto_completed', 'Avtomatik tamamlandı'),
+    'disputed' => tr('deals.disputed', 'Problem bildirildi'),
+    'cancelled' => tr('deals.cancelled_short', 'Ləğv edildi'),
+    'expired' => tr('deals.expired', 'Vaxtı keçdi'),
+    _ => tr('deals.proposal', 'Təklif'),
   };
 }
 
@@ -1481,12 +1604,12 @@ String _formatCity(dynamic city, dynamic fallback) {
 
 String _packageLabel(dynamic value) {
   return switch (value?.toString()) {
-    'documents' => 'Sənədlər',
-    'small_parcel' => 'Kiçik bağlama',
-    'electronics' => 'Elektronika',
-    'clothing' => 'Geyim',
-    'food' => 'Qida',
-    'other' => 'Digər',
+    'documents' => tr('deals.package_documents', 'Sənədlər'),
+    'small_parcel' => tr('deals.package_small_parcel', 'Kiçik bağlama'),
+    'electronics' => tr('deals.package_electronics', 'Elektronika'),
+    'clothing' => tr('deals.package_clothing', 'Geyim'),
+    'food' => tr('deals.package_food', 'Qida'),
+    'other' => tr('common.other', 'Digər'),
     _ => value?.toString() ?? '',
   };
 }

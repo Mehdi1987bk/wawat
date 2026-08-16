@@ -15,6 +15,8 @@ import '../../../../payments/receipt_screen.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/telemetry/telemetry.dart';
+import '../../../../../services/telemetry/telemetry_events.dart';
 import '../../../../../services/wawat_content.dart';
 import '../details/listing_details_screen.dart';
 import '../widgets/listing_card.dart';
@@ -653,6 +655,15 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
   Future<void> _pay() async {
     if (_openingPayment) return;
     setState(() => _openingPayment = true);
+    // GA4-событие begin_checkout: вместе с purchase ниже даёт готовый отчёт
+    // «сколько дошло от выбора способа оплаты до успешного платежа».
+    Telemetry.instance.event(TelemetryEvents.beginCheckout, params: {
+      TelemetryParams.value: widget.promotion.amount,
+      TelemetryParams.currency: widget.promotion.currency,
+      TelemetryParams.itemCategory: widget.promotion.type,
+      TelemetryParams.durationDays: widget.promotion.durationDays,
+      TelemetryParams.method: _method,
+    });
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _PromotionProcessingScreen(
@@ -843,6 +854,21 @@ class _PromotionProcessingScreenState
         }
       }
 
+      // GA4 purchase: value + currency обязательны, иначе платёж не попадёт в
+      // отчёты по выручке. transaction_id даёт дедупликацию — при повторном
+      // заходе на экран идемпотентный ключ тот же, и Firebase не посчитает
+      // покупку дважды.
+      Telemetry.instance.event(TelemetryEvents.purchase, params: {
+        TelemetryParams.value: promotion.amount,
+        TelemetryParams.currency: promotion.currency,
+        TelemetryParams.transactionId: promotion.id,
+        TelemetryParams.itemCategory: promotion.type,
+        TelemetryParams.durationDays: promotion.durationDays,
+        TelemetryParams.method: widget.method,
+        TelemetryParams.result: promotion.status,
+        TelemetryParams.listingId: widget.listing.id,
+      });
+
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -855,7 +881,18 @@ class _PromotionProcessingScreenState
           ),
         ),
       );
-    } catch (error) {
+    } catch (error, stack) {
+      Telemetry.instance.event(TelemetryEvents.purchaseFailed, params: {
+        TelemetryParams.value: widget.promotion.amount,
+        TelemetryParams.currency: widget.promotion.currency,
+        TelemetryParams.transactionId: widget.promotion.id,
+        TelemetryParams.method: widget.method,
+        TelemetryParams.errorType: error.runtimeType.toString(),
+      });
+      // Сорванный платёж — всегда баг, который стоит денег: отправляем как
+      // non-fatal, даже если это DioException (интерцептор о деньгах не знает).
+      Telemetry.instance
+          .error(error, stack, reason: 'promotion_payment_failed');
       if (!mounted) return;
       setState(() {
         _submitting = false;
@@ -2691,29 +2728,38 @@ class _PromotionHistoryCard extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onTap,
-                child: Container(
+                // Extra transparent margin around the chip → a comfortable,
+                // reliable tap target (the bare chip was easy to miss).
+                child: Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    promotion.isExpired
-                        ? _tx(
-                            content,
-                            'promotion.action.renew',
-                            'Yenilə',
-                          )
-                        : _tx(
-                            content,
-                            'promotion.action.extend',
-                            'Uzat',
-                          ),
-                    style: TextStyle(
-                      color: vip ? _ink900 : Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  child: Container(
+                    constraints:
+                        const BoxConstraints(minWidth: 68, minHeight: 40),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      promotion.isExpired
+                          ? _tx(
+                              content,
+                              'promotion.action.renew',
+                              'Yenilə',
+                            )
+                          : _tx(
+                              content,
+                              'promotion.action.extend',
+                              'Uzat',
+                            ),
+                      style: TextStyle(
+                        color: vip ? _ink900 : Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),

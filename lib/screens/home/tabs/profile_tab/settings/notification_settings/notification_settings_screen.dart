@@ -7,6 +7,7 @@ import '../../../../../../data/network/response/notifications.dart';
 import '../../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../../main.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -101,21 +102,25 @@ class _NotificationSettingsScreenState
                     : ListView(
                         padding: const EdgeInsets.only(bottom: 26),
                         children: [
-                          const _GroupHeader('Kanallar'),
+                          _GroupHeader(
+                              tr('notification.group_channels', 'Kanallar')),
                           _SettingsCard(
                             children: [
                               _SettingRow(
                                 icon: PhosphorIconsFill.deviceMobile,
-                                title: 'Push bildirişlər',
-                                subtitle: 'Telefona anında bildiriş',
+                                title: tr('notification.push_title',
+                                    'Push bildirişlər'),
+                                subtitle: tr('notification.push_subtitle',
+                                    'Telefona anında bildiriş'),
                                 value: notifyPush,
                                 onChanged: (value) =>
                                     _update(notifyPush: value),
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.envelopeSimple,
-                                title: 'E-poçt',
-                                subtitle: 'Vacib yeniliklər e-poçtla',
+                                title: tr('notification.email_title', 'E-poçt'),
+                                subtitle: tr('notification.email_subtitle',
+                                    'Vacib yeniliklər e-poçtla'),
                                 value: notifyEmail,
                                 onChanged: (value) =>
                                     _update(notifyEmail: value),
@@ -123,29 +128,36 @@ class _NotificationSettingsScreenState
                               ),
                             ],
                           ),
-                          const _GroupHeader('Kateqoriyalar'),
+                          _GroupHeader(tr('notification.group_categories',
+                              'Kateqoriyalar')),
                           _SettingsCard(
                             children: [
                               _SettingRow(
                                 icon: PhosphorIconsFill.handshake,
-                                title: 'Sövdələşmə & təkliflər',
-                                subtitle: 'Təklif, çatdırılma, sifariş',
+                                title: tr('notification.deals_title',
+                                    'Sövdələşmə & təkliflər'),
+                                subtitle: tr('notification.deals_subtitle',
+                                    'Təklif, çatdırılma, sifariş'),
                                 value: notifyShipments,
                                 onChanged: (value) =>
                                     _update(notifyShipments: value),
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.airplaneTilt,
-                                title: 'Elanlar',
-                                subtitle: 'Təsdiq, rədd, vaxt, uyğun elan',
+                                title: tr(
+                                    'notification.listings_title', 'Elanlar'),
+                                subtitle: tr('notification.listings_subtitle',
+                                    'Təsdiq, rədd, vaxt, uyğun elan'),
                                 value: notifyListings,
                                 onChanged: (value) =>
                                     _update(notifyListings: value),
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.chatCircle,
-                                title: 'Mesajlar',
-                                subtitle: 'Yeni və cavabsız mesajlar',
+                                title: tr(
+                                    'notification.messages_title', 'Mesajlar'),
+                                subtitle: tr('notification.messages_subtitle',
+                                    'Yeni və cavabsız mesajlar'),
                                 value: notifyNewMessages,
                                 onChanged: (value) =>
                                     _update(notifyNewMessages: value),
@@ -153,35 +165,43 @@ class _NotificationSettingsScreenState
                               _SettingRow(
                                 icon: PhosphorIconsFill.star,
                                 iconColor: isDark ? WawatDark.warning : _amber,
-                                iconBg: isDark
-                                    ? const Color(0xFF3A2A12)
-                                    : _amber50,
-                                title: 'Rəylər',
-                                subtitle: 'Yeni rəy və xatırlatma',
+                                iconBg:
+                                    isDark ? const Color(0xFF3A2A12) : _amber50,
+                                title:
+                                    tr('notification.reviews_title', 'Rəylər'),
+                                subtitle: tr('notification.reviews_subtitle',
+                                    'Yeni rəy və xatırlatma'),
                                 value: notifyReviews,
                                 onChanged: (value) =>
                                     _update(notifyReviews: value),
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.userPlus,
-                                title: 'İzləmə',
-                                subtitle: 'Yeni izləyici və elanları',
+                                title:
+                                    tr('notification.follows_title', 'İzləmə'),
+                                subtitle: tr('notification.follows_subtitle',
+                                    'Yeni izləyici və elanları'),
                                 value: notifyFollows,
                                 onChanged: (value) =>
                                     _update(notifyFollows: value),
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.bookmarkSimple,
-                                title: 'Saxlanan axtarışlar',
-                                subtitle: 'Axtarışınıza uyğun yeni elan',
+                                title: tr('notification.saved_search_title',
+                                    'Saxlanan axtarışlar'),
+                                subtitle: tr(
+                                    'notification.saved_search_subtitle',
+                                    'Axtarışınıza uyğun yeni elan'),
                                 value: notifySavedSearch,
                                 onChanged: (value) =>
                                     _update(notifySavedSearch: value),
                               ),
                               _SettingRow(
                                 icon: PhosphorIconsFill.megaphone,
-                                title: 'Yeniliklər & təkliflər',
-                                subtitle: 'Kampaniya və elanlar',
+                                title: tr('notification.marketing_title',
+                                    'Yeniliklər & təkliflər'),
+                                subtitle: tr('notification.marketing_subtitle',
+                                    'Kampaniya və elanlar'),
                                 value: notifyMarketing,
                                 onChanged: (value) =>
                                     _update(notifyMarketing: value),
@@ -189,7 +209,8 @@ class _NotificationSettingsScreenState
                               ),
                             ],
                           ),
-                          const _GroupHeader('Sakit saatlar'),
+                          _GroupHeader(tr('notification.group_quiet_hours',
+                              'Sakit saatlar')),
                           _SettingsCard(
                             children: [
                               _SettingRow(
@@ -198,8 +219,11 @@ class _NotificationSettingsScreenState
                                 iconBg: isDark
                                     ? WawatDark.surfaceAlt
                                     : _ink900.withValues(alpha: 0.05),
-                                title: 'Push-u sakitləşdir',
-                                subtitle: 'Seçilən saatlarda push gəlməz',
+                                title: tr('notification.quiet_toggle_title',
+                                    'Push-u sakitləşdir'),
+                                subtitle: tr(
+                                    'notification.quiet_toggle_subtitle',
+                                    'Seçilən saatlarda push gəlməz'),
                                 value: quietEnabled,
                                 onChanged: (value) => value
                                     ? _update(
@@ -328,7 +352,7 @@ class _NotificationSettingsScreenState
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Ayarlar saxlandı.'),
+        content: Text(tr('notification.settings_saved', 'Ayarlar saxlandı.')),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(milliseconds: 1200),
         backgroundColor: const Color(0xFF10B981),
@@ -370,7 +394,7 @@ class _TopBar extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Bildiriş ayarları',
+              tr('notification.settings_title', 'Bildiriş ayarları'),
               style: TextStyle(
                 color: isDark ? WawatDark.textPrimary : _ink900,
                 fontSize: 16,
@@ -473,8 +497,9 @@ class _SettingRow extends StatelessWidget {
               ? null
               : Border(
                   bottom: BorderSide(
-                    color:
-                        isDark ? WawatDark.divider : _ink900.withValues(alpha: 0.05),
+                    color: isDark
+                        ? WawatDark.divider
+                        : _ink900.withValues(alpha: 0.05),
                   ),
                 ),
         ),
@@ -577,7 +602,7 @@ class _QuietHoursRow extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Başlanğıc — son',
+                tr('notification.quiet_range_label', 'Başlanğıc — son'),
                 style: TextStyle(
                   color: isDark ? WawatDark.textSecondary : _ink600,
                   fontSize: 13,
@@ -589,8 +614,8 @@ class _QuietHoursRow extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text('—',
-                  style: TextStyle(
-                      color: isDark ? WawatDark.textMuted : _ink400)),
+                  style:
+                      TextStyle(color: isDark ? WawatDark.textMuted : _ink400)),
             ),
             _TimeChip(label: end, onTap: onEndTap),
           ],
@@ -657,7 +682,8 @@ class _CriticalNote extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.',
+              tr('notification.critical_note',
+                  'Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.'),
               style: TextStyle(
                 color: isDark ? WawatDark.textSecondary : _ink500,
                 fontSize: 12.5,

@@ -10,6 +10,7 @@ import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../../services/localization_service.dart';
 import '../../../../../../services/theme_aware_screen.dart';
 import '../../../../../../services/theme_manager.dart';
 import '../../../../../auth/registration/widget/language_selector.dart';
@@ -357,7 +358,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       if (mounted) {
         showIOSStyleMessage(
           context,
-          "Error: $error",
+          tr('error.generic_with_detail', 'Error: {detail}',
+              {'detail': '$error'}),
           isSuccess: false,
         );
       }

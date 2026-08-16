@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../generated/l10n.dart';
+import '../../services/localization_service.dart';
 import '../../services/theme_manager.dart';
 import 'base_bloc.dart';
 import 'base_screen.dart';
@@ -12,7 +13,7 @@ import 'base_screen.dart';
 typedef bool ErrorHandler(Object error);
 
 mixin ErrorDispatcher<Page extends BaseScreen, Bloc extends BaseBloc>
-on BaseState<Page, Bloc> {
+    on BaseState<Page, Bloc> {
   StreamSubscription? errorSubscription;
 
   @override
@@ -31,7 +32,7 @@ on BaseState<Page, Bloc> {
         }
 
         final data = response?.data;
-        String message = "Something went wrong";
+        String message = tr('error.generic', 'Something went wrong');
 
         if (data is String && data.isNotEmpty) {
           message = data.trim();
@@ -54,10 +55,10 @@ on BaseState<Page, Bloc> {
 }
 
 void showTopSnackbar(
-    String message,
-    bool isSuccess,
-    BuildContext context,
-    ) {
+  String message,
+  bool isSuccess,
+  BuildContext context,
+) {
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
 
@@ -96,9 +97,7 @@ void showTopSnackbar(
                   color: Colors.transparent,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF1E1E1E)
-                          : Colors.white,
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSuccess
@@ -148,11 +147,11 @@ void showTopSnackbar(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isSuccess ? S.of(context).bfdbdffbdsbf : S.of(context).bfdbsdbadfb,
+                                  isSuccess
+                                      ? S.of(context).bfdbdffbdsbf
+                                      : S.of(context).bfdbsdbadfb,
                                   style: TextStyle(
-                                    color: isDark
-                                        ? Colors.white
-                                        : Colors.black,
+                                    color: isDark ? Colors.white : Colors.black,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                   ),

@@ -186,22 +186,22 @@ class _AboutScreenState extends State<AboutScreen> {
         Container(
           width: 80,
           height: 80,
+          padding: const EdgeInsets.all(14),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _brand,
+            // The brand mark is black+blue on transparent, so it sits on a white
+            // tile (matches the app-icon look) rather than the old blue chip.
+            color: Colors.white,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: _ink900.withValues(alpha: 0.06)),
             boxShadow: [
               BoxShadow(
-                  color: _brand.withValues(alpha: 0.45),
+                  color: _brand.withValues(alpha: 0.28),
                   blurRadius: 20,
                   offset: const Offset(0, 8))
             ],
           ),
-          child: const Text('W',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 38,
-                  fontWeight: FontWeight.w800)),
+          child: Image.asset('assets/icon.png', fit: BoxFit.contain),
         ),
         const SizedBox(height: 12),
         Text('Wawatair',

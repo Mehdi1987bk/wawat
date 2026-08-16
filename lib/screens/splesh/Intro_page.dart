@@ -6,6 +6,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/resourses/wawat_dark.dart';
+import '../../services/localization_service.dart';
 import '../../services/wawat_content.dart';
 import '../auth/login/login_screen.dart';
 import '../home/home_screen.dart';
@@ -276,21 +277,23 @@ class _BrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const logo = Image(
+    // On a dark background the dark wordmark is invisible, so instead of wrapping
+    // it in a white chip, show the blue check mark — it reads cleanly on any
+    // background. Light keeps the full wordmark.
+    if (isDark) {
+      return const Image(
+        image: AssetImage('asset/wawatair_mark.png'),
+        height: 30,
+        fit: BoxFit.contain,
+        alignment: Alignment.centerLeft,
+      );
+    }
+    return const Image(
       image: AssetImage('asset/wawatair_primary.png'),
       width: 132,
       height: 27,
       fit: BoxFit.contain,
       alignment: Alignment.centerLeft,
-    );
-    if (!isDark) return logo;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: logo,
     );
   }
 }
@@ -427,7 +430,7 @@ class _FirstArtContent extends StatelessWidget {
           top: 26,
           child: _ArtChip(
             icon: PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
-            label: 'Bakı',
+            label: tr('onboarding.art_origin_city', 'Bakı'),
           ),
         ),
         Positioned(
@@ -435,7 +438,7 @@ class _FirstArtContent extends StatelessWidget {
           top: 22,
           child: _ArtChip(
             icon: PhosphorIcons.airplaneTakeoff(PhosphorIconsStyle.fill),
-            label: 'İstanbul',
+            label: tr('onboarding.art_destination_city', 'İstanbul'),
           ),
         ),
         Positioned(
@@ -443,7 +446,7 @@ class _FirstArtContent extends StatelessWidget {
           bottom: 30,
           child: _ArtChip(
             icon: PhosphorIcons.package(PhosphorIconsStyle.fill),
-            label: 'Bağlaman',
+            label: tr('onboarding.art_your_parcel', 'Bağlaman'),
           ),
         ),
       ],
@@ -511,7 +514,7 @@ class _SecondArtContent extends StatelessWidget {
           bottom: 34,
           child: _ArtChip(
             icon: PhosphorIcons.clock(PhosphorIconsStyle.fill),
-            label: '1–2 gündə',
+            label: tr('onboarding.art_delivery_time', '1–2 gündə'),
           ),
         ),
       ],
@@ -556,7 +559,7 @@ class _ThirdArtContent extends StatelessWidget {
           child: _ArtChip(
             icon: PhosphorIcons.star(PhosphorIconsStyle.fill),
             iconColor: const Color(0xFFFBBF24),
-            label: '4.9 reytinq',
+            label: tr('onboarding.art_rating', '4.9 reytinq'),
           ),
         ),
         Positioned(
@@ -564,7 +567,7 @@ class _ThirdArtContent extends StatelessWidget {
           bottom: 32,
           child: _ArtChip(
             icon: PhosphorIcons.shieldCheck(PhosphorIconsStyle.fill),
-            label: 'Təhlükəsiz',
+            label: tr('onboarding.art_secure', 'Təhlükəsiz'),
           ),
         ),
         Positioned.fill(
@@ -682,9 +685,9 @@ class _MoneyChip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 6),
-          const Text(
-            '5 \$-dən',
-            style: TextStyle(
+          Text(
+            tr('onboarding.art_price_from', '5 \$-dən'),
+            style: const TextStyle(
               color: _IntroPageState._ink900,
               fontSize: 12,
               height: 1,

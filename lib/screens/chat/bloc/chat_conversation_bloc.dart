@@ -5,6 +5,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../data/cache/cache_manager.dart';
 import '../../../data/network/api/chat_api.dart';
 import '../../../data/network/response/chat_response.dart';
+import '../../../data/network/response/review_submit_result.dart';
 import '../../../data/network/response/target_user_request.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
@@ -103,6 +104,10 @@ class ChatConversationBloc extends BaseBloc {
       await _pusherService.subscribeToConversationRead(
         conversationId,
         _onMessageRead,
+      );
+      await _pusherService.subscribeToConversationDeleted(
+        conversationId,
+        _onMessageDeleted,
       );
     }
     _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
@@ -320,7 +325,8 @@ class ChatConversationBloc extends BaseBloc {
     // image's caption (sent in the same request). Only text (no file) stays a
     // plain text message. Never split a captioned photo into two bubbles.
     if (file != null) {
-      await _queueImage(file, caption: text.isEmpty ? null : text, replyTo: replyTo);
+      await _queueImage(file,
+          caption: text.isEmpty ? null : text, replyTo: replyTo);
     } else if (text.isNotEmpty) {
       await _queueText(text, replyTo: replyTo);
     }
@@ -335,7 +341,8 @@ class ChatConversationBloc extends BaseBloc {
     return _sendPending(pending);
   }
 
-  Future<void> _queueImage(File file, {String? caption, ChatReplyRef? replyTo}) {
+  Future<void> _queueImage(File file,
+      {String? caption, ChatReplyRef? replyTo}) {
     final pending = _PendingMessage(
       localId: _localId(),
       image: file,
@@ -400,11 +407,30 @@ class ChatConversationBloc extends BaseBloc {
   }
 
   Future<void> deleteMessage(String messageId) async {
+    // Single mode — always "for everyone". Server enforces ownership and 204s.
+    // The bubble is NOT removed: it becomes a "deleted" tombstone in place, the
+    // same state the peer sees (via realtime / next load).
     await _chatApi.deleteMessage(messageId);
+    _markMessageDeleted(messageId);
+  }
+
+  /// Realtime `message.deleted` on `private-conversation.{id}`:
+  /// `{ id, conversation_id }`. Flip the matching bubble to its tombstone live.
+  void _onMessageDeleted(Map<String, dynamic> data) {
+    final id = data['id']?.toString();
+    if (id != null && id.isNotEmpty) _markMessageDeleted(id);
+  }
+
+  /// Replace the message with its local tombstone, keeping its slot. No-op when
+  /// the id isn't in the loaded window (a later fetch renders it deleted).
+  void _markMessageDeleted(String messageId) {
     if (_messagesSubject.isClosed) return;
+    final current = _messagesSubject.value;
+    if (!current.any((message) => message.id == messageId)) return;
     _messagesSubject.add(
-      _messagesSubject.value
-          .where((message) => message.id != messageId)
+      current
+          .map((message) =>
+              message.id == messageId ? message.asDeleted() : message)
           .toList(),
     );
   }
@@ -449,7 +475,7 @@ class ChatConversationBloc extends BaseBloc {
     return message;
   }
 
-  Future<String?> submitShipmentReview(
+  Future<ReviewSubmitResult> submitShipmentReview(
     String shipmentId, {
     required int rating,
     String? comment,
@@ -573,6 +599,10 @@ class ChatConversationBloc extends BaseBloc {
       _conversationId!,
       _onMessageRead,
     );
+    await _pusherService.subscribeToConversationDeleted(
+      _conversationId!,
+      _onMessageDeleted,
+    );
     await loadMessages();
   }
 
@@ -602,6 +632,12 @@ class ChatConversationBloc extends BaseBloc {
         _pusherService.unsubscribeFromConversationRead(
           _conversationId!,
           _onMessageRead,
+        ),
+      );
+      unawaited(
+        _pusherService.unsubscribeFromConversationDeleted(
+          _conversationId!,
+          _onMessageDeleted,
         ),
       );
     }

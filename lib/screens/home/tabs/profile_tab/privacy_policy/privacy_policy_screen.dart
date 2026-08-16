@@ -7,10 +7,10 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:buking/presentation/resourses/theme_colors.dart';
 import 'package:buking/presentation/resourses/wawat_colors.dart';
 import 'package:buking/presentation/resourses/wawat_dark.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:buking/services/theme_manager.dart';
 
 import '../../../../../data/network/response/privacy_policy_response.dart';
-import '../../../../../generated/l10n.dart';
 
 class PrivacyPolicyScreen extends BaseScreen {
   PrivacyPolicyScreen({super.key});
@@ -47,7 +47,7 @@ class _PrivacyPolicyScreenState
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
-                'Privacy Policy', // Замени на S.of(context).privacyPolicy если есть локализация
+                tr('privacy.screen_title', 'Privacy Policy'),
                 style: TextStyle(
                   color: isDark ? cText(isDark) : Colors.black,
                   fontWeight: FontWeight.w500,
@@ -96,7 +96,8 @@ class _PrivacyPolicyScreenState
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Error loading privacy policy', // Замени на локализацию
+                            tr('privacy.load_error',
+                                'Error loading privacy policy'),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -126,9 +127,9 @@ class _PrivacyPolicyScreenState
                                 gradient: WawatColors.buttonGradient,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Text(
-                                'Retry', // Замени на локализацию
-                                style: TextStyle(
+                              child: Text(
+                                tr('privacy.retry', 'Retry'),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -249,7 +250,7 @@ class _PrivacyPolicyScreenState
                 // No data
                 return Center(
                   child: Text(
-                    'No content available', // Замени на локализацию
+                    tr('privacy.no_content', 'No content available'),
                     style: TextStyle(
                       fontSize: 16,
                       color: isDark ? cText2(isDark) : Colors.black54,

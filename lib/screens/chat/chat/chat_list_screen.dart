@@ -266,7 +266,14 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
 
                               final conversation = visible[index];
                               return ConversationItem(
+                                // Stable identity so a reorder (new message
+                                // bumps a row up) moves the element instead of
+                                // rebuilding rows in place — no avatar flicker,
+                                // no scroll jump.
+                                key: ValueKey(conversation.id),
                                 conversation: conversation,
+                                deletedLabel:
+                                    _t('chat.message.deleted', 'Mesaj silindi'),
                                 onTap: () => _openConversation(conversation),
                                 onTapMenu: () => _showConversationMenu(
                                   conversation,
@@ -291,10 +298,18 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
     if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
     final aTime = a.sortTime;
     final bTime = b.sortTime;
-    if (aTime == null && bTime == null) return 0;
-    if (aTime == null) return 1;
-    if (bTime == null) return -1;
-    return bTime.compareTo(aTime);
+    if (aTime != null && bTime != null) {
+      final cmp = bTime.compareTo(aTime);
+      if (cmp != 0) return cmp;
+    } else if (aTime == null && bTime != null) {
+      return 1;
+    } else if (aTime != null && bTime == null) {
+      return -1;
+    }
+    // Deterministic tiebreaker: equal-time (or timeless) rows must keep a stable
+    // order across the periodic re-sorts, otherwise Dart's unstable sort would
+    // swap them every refresh and the list would visibly jitter.
+    return a.id.compareTo(b.id);
   }
 
   Future<void> _openConversation(Conversation conversation) async {
@@ -304,11 +319,9 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
         builder: (_) => ChatConversationScreen(conversation: conversation),
       ),
     );
-    if (_showArchived) {
-      await bloc.loadArchivedConversations();
-    } else {
-      await bloc.loadConversations();
-    }
+    // Non-destructive: keeps the scroll position/pagination from before opening
+    // the chat (a full reload would snap the list back to the top).
+    await bloc.refreshCurrent();
     sl.get<UnreadChatBloc>().fetchUnreadCount();
   }
 

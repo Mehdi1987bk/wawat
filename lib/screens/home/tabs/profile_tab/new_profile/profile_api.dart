@@ -11,6 +11,7 @@ import '../../../../../data/network/response/tier_status_response.dart';
 import '../../../../../data/network/response/user_search_response.dart';
 import '../../../../../domain/entities/pagination.dart';
 import '../../../../../main.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import 'profile_models.dart';
 
@@ -135,19 +136,22 @@ class WawatProfileApi {
   Future<String> follow(String userId) async {
     final response =
         await _dio.post<Map<String, dynamic>>('$baseUrl/users/$userId/follow');
-    return response.data?['message']?.toString() ?? 'İzləməyə başladınız.';
+    return response.data?['message']?.toString() ??
+        tr('profile.follow_started', 'İzləməyə başladınız.');
   }
 
   Future<String> unfollow(String userId) async {
     final response = await _dio
         .delete<Map<String, dynamic>>('$baseUrl/users/$userId/follow');
-    return response.data?['message']?.toString() ?? 'İzləmə dayandırıldı.';
+    return response.data?['message']?.toString() ??
+        tr('profile.follow_stopped', 'İzləmə dayandırıldı.');
   }
 
   Future<String> block(String userId) async {
     final response =
         await _dio.post<Map<String, dynamic>>('$baseUrl/users/$userId/block');
-    return response.data?['message']?.toString() ?? 'İstifadəçi bloklandı.';
+    return response.data?['message']?.toString() ??
+        tr('block.user_blocked', 'İstifadəçi bloklandı.');
   }
 
   Future<String> reportUser({
@@ -165,7 +169,8 @@ class WawatProfileApi {
       },
       options: Options(headers: {'Idempotency-Key': _idempotencyKey('report')}),
     );
-    return response.data?['message']?.toString() ?? 'Şikayət göndərildi.';
+    return response.data?['message']?.toString() ??
+        tr('reports.sent', 'Şikayət göndərildi.');
   }
 
   Future<WawatProfileUser> updateProfile(Map<String, dynamic> data) async {
@@ -182,7 +187,7 @@ class WawatProfileApi {
       data: settings.toJson(),
     );
     return response.data?['message']?.toString() ??
-        'Məxfilik parametrləri yeniləndi.';
+        tr('profile.privacy_updated', 'Məxfilik parametrləri yeniləndi.');
   }
 
   Future<String> changePassword({
@@ -196,13 +201,15 @@ class WawatProfileApi {
         'password': password,
       },
     );
-    return response.data?['message']?.toString() ?? 'Parol dəyişdirildi.';
+    return response.data?['message']?.toString() ??
+        tr('profile.password_changed', 'Parol dəyişdirildi.');
   }
 
   Future<String> deleteAccount() async {
     final response =
         await _dio.delete<Map<String, dynamic>>('$baseUrl/profile/account');
-    return response.data?['message']?.toString() ?? 'Hesabınız silindi.';
+    return response.data?['message']?.toString() ??
+        tr('profile.account_deleted', 'Hesabınız silindi.');
   }
 
   Future<String> uploadAvatar(File avatar) async {
@@ -212,13 +219,15 @@ class WawatProfileApi {
         'avatar': await MultipartFile.fromFile(avatar.path),
       }),
     );
-    return response.data?['message']?.toString() ?? 'Avatar yeniləndi.';
+    return response.data?['message']?.toString() ??
+        tr('profile.avatar_updated', 'Avatar yeniləndi.');
   }
 
   Future<String> deleteAvatar() async {
     final response =
         await _dio.delete<Map<String, dynamic>>('$baseUrl/profile/avatar');
-    return response.data?['message']?.toString() ?? 'Avatar silindi.';
+    return response.data?['message']?.toString() ??
+        tr('profile.avatar_deleted', 'Avatar silindi.');
   }
 
   Future<String> replyReview({
@@ -230,7 +239,7 @@ class WawatProfileApi {
       data: {'reply': reply},
     );
     return response.data?['message']?.toString() ??
-        'Cavabınız moderasiyaya göndərildi.';
+        tr('review.reply_submitted', 'Cavabınız moderasiyaya göndərildi.');
   }
 
   Future<String> writeReview({
@@ -248,7 +257,7 @@ class WawatProfileApi {
       options: Options(headers: {'Idempotency-Key': _idempotencyKey('review')}),
     );
     return response.data?['message']?.toString() ??
-        'Rəyiniz moderasiyaya göndərildi.';
+        tr('review.submitted', 'Rəyiniz moderasiyaya göndərildi.');
   }
 
   Future<String> requestReview(String shipmentId) async {
@@ -258,16 +267,18 @@ class WawatProfileApi {
         headers: {'Idempotency-Key': _idempotencyKey('review-request')},
       ),
     );
-    return response.data?['message']?.toString() ?? 'Rəy istəyi göndərildi.';
+    return response.data?['message']?.toString() ??
+        tr('review.request_sent', 'Rəy istəyi göndərildi.');
   }
 
   Future<String> logout() async {
     try {
       final response =
           await _dio.post<Map<String, dynamic>>('$baseUrl/auth/logout');
-      return response.data?['message']?.toString() ?? 'Çıxış edildi.';
+      return response.data?['message']?.toString() ??
+          tr('profile.logged_out', 'Çıxış edildi.');
     } catch (_) {
-      return 'Çıxış edildi.';
+      return tr('profile.logged_out', 'Çıxış edildi.');
     }
   }
 

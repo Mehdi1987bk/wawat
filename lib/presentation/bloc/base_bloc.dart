@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../main.dart';
+import '../../services/telemetry/telemetry.dart';
 
 typedef AsyncBloc<T> = Future<T> Function();
 
@@ -41,8 +43,9 @@ abstract class BaseBloc {
     try {
       var result = await future;
       return Future.value(result);
-    } catch (e) {
-      print(e);
+    } catch (e, st) {
+      logger.e(e);
+      _reportNonFatal(e, st, 'bloc.run');
       dispatchError(e);
       return Future.error(e);
     } finally {
@@ -53,6 +56,23 @@ abstract class BaseBloc {
     }
   }
 
+  /// Отчёт об исключении, которое дошло до блока.
+  ///
+  /// `DioException` пропускаем: сетевые ошибки уже полностью описаны
+  /// `TelemetryInterceptor` (эндпоинт, код, длительность), и дублировать их
+  /// здесь означало бы удвоить счётчики в панели. Сюда падает то, что
+  /// действительно является багом клиента: ошибки парсинга ответа, `null`
+  /// там, где его не ждали, приведения типов.
+  void _reportNonFatal(Object error, StackTrace stack, String reason) {
+    if (error is DioException) return;
+    Telemetry.instance.error(
+      error,
+      stack,
+      reason: reason,
+      context: {'bloc': runtimeType.toString()},
+    );
+  }
+
   void _localeHandler<T>(
       Locale locale, EventSink<T> sink, AsyncBloc<T> bloc) async {
     // loadingSink.add(++_taskCounter > 0); // ❌ Убрали индикатор загрузки
@@ -60,9 +80,10 @@ abstract class BaseBloc {
     try {
       final value = await bloc();
       sink.add(value);
-    } catch (e) {
+    } catch (e, st) {
       dispatchError(e);
-      print(e);
+      logger.e(e);
+      _reportNonFatal(e, st, 'bloc.localeHandler');
     } finally {
       --_taskCounter;
       // if (!_loadingIndicator.isClosed) {

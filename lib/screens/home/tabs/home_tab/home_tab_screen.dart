@@ -19,6 +19,8 @@ import '../home_tab/widget/search_form_page.dart';
 import '../home_tab/search/search_offer_list_screen.dart';
 import '../listings/details/listing_details_screen.dart';
 import '../listings/listing_feed_bloc.dart';
+import '../../../../services/telemetry/telemetry.dart';
+import '../../../../services/telemetry/telemetry_events.dart';
 import '../listings/widgets/listing_card.dart';
 import 'home_tab_bloc.dart';
 import 'notification/notification_screen.dart';
@@ -548,14 +550,20 @@ class _CommunityStats extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: isDark ? cText(true) : _ink900),
                   ),
-                  const TextSpan(text: ' çatdırılma · '),
+                  TextSpan(
+                    text: _contentText(content, 'home.stats_deliveries_suffix',
+                        ' çatdırılma · '),
+                  ),
                   TextSpan(
                     text: '3,500+',
                     style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: isDark ? cText(true) : _ink900),
                   ),
-                  const TextSpan(text: ' təsdiqlənmiş səyahətçi'),
+                  TextSpan(
+                    text: _contentText(content, 'home.stats_travelers_suffix',
+                        ' təsdiqlənmiş səyahətçi'),
+                  ),
                 ],
               ),
               style: TextStyle(
@@ -664,6 +672,11 @@ class _PopularRoutesState extends State<_PopularRoutes> {
     if (from == null || to == null) return;
 
     final filters = ListingFilterState(cityFrom: from, cityTo: to);
+    Telemetry.instance.event(TelemetryEvents.trendingRouteTapped, params: {
+      TelemetryParams.fromCity: from.name,
+      TelemetryParams.toCity: to.name,
+    });
+    logSearchEvent(filters, source: 'popular_route');
     await widget.bloc.saveRecentSearch(filters);
     if (!mounted) return;
     await Navigator.of(context).push(
@@ -723,7 +736,11 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                         _RouteTitle(label: route.label, isDark: isDark),
                         const SizedBox(height: 5),
                         Text(
-                          '${route.total} səyahətçi',
+                          _contentText(
+                                  widget.content,
+                                  'home.route_travelers_template',
+                                  '{count} səyahətçi')
+                              .replaceAll('{count}', '${route.total}'),
                           style: TextStyle(
                             color: isDark ? cMuted(true) : _ink400,
                             fontSize: 11,
@@ -732,7 +749,11 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                         ),
                         const Spacer(),
                         Text(
-                          '${route.minPrice} \$-dən',
+                          _contentText(
+                                  widget.content,
+                                  'home.route_price_from_template',
+                                  '{price} \$-dən')
+                              .replaceAll('{price}', '${route.minPrice}'),
                           style: TextStyle(
                             color: isDark ? cBrandText(true) : _brand,
                             fontSize: 16,

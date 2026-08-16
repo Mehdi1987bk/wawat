@@ -10,6 +10,8 @@ import '../../../../../data/network/response/user.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
+import '../../../../../services/telemetry/telemetry.dart';
+import '../../../../../services/telemetry/telemetry_events.dart';
 import '../../../../../services/wawat_content.dart';
 
 class ListingDetailsBloc extends BaseBloc {
@@ -17,8 +19,20 @@ class ListingDetailsBloc extends BaseBloc {
   PackageTypesResponse? _packageTypes;
   Map<String, String>? _content;
 
-  Future<ListingResponse> getDetails(String id) {
-    return run(authRepository.getListingDetails(id));
+  Future<ListingResponse> getDetails(String id) async {
+    final response = await run(authRepository.getListingDetails(id));
+    // GA4 view_item — вершина всех воронок («посмотрел → написал»,
+    // «посмотрел → откликнулся»). Логируем здесь, а не в экране: сюда
+    // приходят все входы в карточку, включая переход из пуша и из поиска.
+    final listing = response.data;
+    Telemetry.instance.event(TelemetryEvents.viewItem, params: {
+      TelemetryParams.itemId: listing.id,
+      TelemetryParams.itemCategory: listing.type,
+      TelemetryParams.fromCity: listing.cityFrom,
+      TelemetryParams.toCity: listing.cityTo,
+      TelemetryParams.listingType: listing.typeLabel,
+    });
+    return response;
   }
 
   Future<Map<String, String>> loadContent() async {
@@ -133,5 +147,4 @@ class ListingDetailsBloc extends BaseBloc {
     final random = Random().nextInt(1 << 32);
     return 'listing-$scope-$now-$random';
   }
-
 }

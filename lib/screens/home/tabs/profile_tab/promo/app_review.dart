@@ -4,6 +4,9 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:buking/services/localization_service.dart';
+
+import '../../../../../presentation/common/app_bottom_sheet.dart';
 import 'promo_api.dart';
 
 // ── Wawatair navy palette (shared spec) ──────────────────────────────────────
@@ -67,9 +70,35 @@ class AppReviewFlow {
     );
   }
 
-  /// Runs the native store-review flow (in_app_review, falling back to the
-  /// store URL) then reports `rated` to the backend. Resolves to the granted
-  /// reward (code + amount + expiry) or `null`. Reusable by the rate page.
+  /// Same review flow as [show], but presented as a bottom sheet — used by the
+  /// explicit "Rate app" button so a tap opens a sheet (stars → store), never
+  /// launches the store straight away. Resolves to the granted reward, if any.
+  static Future<ReviewReward?> showSheet(
+    BuildContext context, {
+    AppReviewPrompt? prompt,
+    PromoApi? api,
+  }) async {
+    final resolved = api ?? PromoApi();
+    final data = prompt ??
+        await resolved.getReviewPrompt() ??
+        const AppReviewPrompt.fallback();
+    if (!context.mounted) return null;
+    resolved.markReviewShown(promptToken: data.promptToken);
+    return showAppBottomSheet<ReviewReward?>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ReviewDialog(prompt: data, api: resolved, asSheet: true),
+    );
+  }
+
+  /// Explicit "Rate in Store" tap → open the store listing, then report `rated`
+  /// to the backend and resolve to the granted reward (code + amount + expiry)
+  /// or `null`. Reusable by the rate page.
+  ///
+  /// NOTE: this deliberately does NOT use `InAppReview.requestReview()` — the
+  /// in-app review overlay is quota-limited by Google/Apple and very often shows
+  /// nothing, which made the button feel dead. In-app review is only appropriate
+  /// for the automatic prompt (see the dialog), never for an explicit button.
   static Future<ReviewReward?> requestStoreReview(
     BuildContext context, {
     AppReviewPrompt? prompt,
@@ -77,39 +106,62 @@ class AppReviewFlow {
     PromoApi? api,
   }) async {
     final resolved = api ?? PromoApi();
-    final review = InAppReview.instance;
-    try {
-      if (await review.isAvailable()) {
-        await review.requestReview();
-      } else if (context.mounted) {
-        await _openStore(context, prompt);
-      }
-    } catch (_) {
-      if (context.mounted) await _openStore(context, prompt);
-    }
+    await _openStore(context, prompt);
     return resolved.markReviewRated(
         promptToken: prompt?.promptToken, rating: rating);
   }
 
+  /// Opens the store listing as reliably as possible: backend-provided URL →
+  /// hardcoded Play fallback (we know the package) → native `openStoreListing`.
   static Future<void> _openStore(
       BuildContext context, AppReviewPrompt? prompt) async {
     final isIos = Theme.of(context).platform == TargetPlatform.iOS;
     final url = (isIos ? prompt?.storeUrlIos : prompt?.storeUrlAndroid) ??
         prompt?.storeUrlAndroid ??
-        prompt?.storeUrlIos;
-    if (url == null || url.isEmpty) return;
-    final uri = Uri.tryParse(url);
-    if (uri != null) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+        prompt?.storeUrlIos ??
+        (isIos ? _fallbackIosStoreUrl : _fallbackAndroidStoreUrl);
+    if (url != null && url.isNotEmpty) {
+      final uri = Uri.tryParse(url);
+      if (uri != null &&
+          await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        return;
+      }
     }
+    // Last resort: Android opens the Play page for the running package with no
+    // URL; iOS needs the App Store id, so it only works once _appStoreId is set.
+    try {
+      await InAppReview.instance.openStoreListing(
+          appStoreId: _appStoreId.isEmpty ? null : _appStoreId);
+    } catch (_) {}
   }
 }
+
+/// Play Store listing for this app's package — the guaranteed fallback so the
+/// "Rate in Store" button always opens something even before the backend prompt
+/// endpoint (which supplies platform store URLs) is live.
+const String _fallbackAndroidStoreUrl =
+    'https://play.google.com/store/apps/details?id=az.buking.buking';
+
+/// Numeric App Store id for `wawat.app` (Wawat Air) — resolved from the live
+/// App Store listing. REQUIRED for iOS: apps.apple.com links and openStoreListing
+/// both need it, otherwise iOS has no way to deep-link to the listing.
+const String _appStoreId = '6755226789';
+
+/// iOS App Store review composer for this app — null until [_appStoreId] is set.
+String? get _fallbackIosStoreUrl => _appStoreId.isEmpty
+    ? null
+    : 'https://apps.apple.com/app/id$_appStoreId?action=write-review';
 
 class _ReviewDialog extends StatefulWidget {
   final AppReviewPrompt prompt;
   final PromoApi api;
 
-  const _ReviewDialog({required this.prompt, required this.api});
+  /// Render as a bottom sheet (rounded top + drag handle) instead of a centered
+  /// dialog. Used by the "Rate app" button so it opens a sheet, not the store.
+  final bool asSheet;
+
+  const _ReviewDialog(
+      {required this.prompt, required this.api, this.asSheet = false});
 
   @override
   State<_ReviewDialog> createState() => _ReviewDialogState();
@@ -120,6 +172,7 @@ enum _Stage { intro, highPicked, redirecting, thanks, lowRating }
 class _ReviewDialogState extends State<_ReviewDialog> {
   _Stage _stage = _Stage.intro;
   int _rating = 0;
+  ReviewReward? _reward;
   final TextEditingController _feedback = TextEditingController();
 
   String _t(String key, String fallback) =>
@@ -140,36 +193,48 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
   Future<void> _goStore() async {
     setState(() => _stage = _Stage.redirecting);
-    final review = InAppReview.instance;
-    try {
-      if (await review.isAvailable()) {
-        await review.requestReview();
-      } else {
-        await _openStoreUrl();
-      }
-    } catch (_) {
-      await _openStoreUrl();
-    }
-    widget.api.markReviewRated(
+    // The user explicitly chose to leave a review → send them to the store's
+    // review composer (reliable, real transition). We intentionally do NOT use
+    // InAppReview.requestReview() here: on iOS it's a quota-limited overlay that
+    // often shows nothing and never actually opens the App Store — which is
+    // exactly the "keçid yoxdu" the user hit.
+    await _openStoreUrl();
+    final reward = await widget.api.markReviewRated(
         promptToken: widget.prompt.promptToken, rating: _rating);
-    if (mounted) setState(() => _stage = _Stage.thanks);
+    if (mounted) {
+      setState(() {
+        _reward = reward ?? widget.prompt.existingReward;
+        _stage = _Stage.thanks;
+      });
+    }
   }
 
   Future<void> _openStoreUrl() async {
-    final url = (Theme.of(context).platform == TargetPlatform.iOS
-            ? widget.prompt.storeUrlIos
-            : widget.prompt.storeUrlAndroid) ??
-        widget.prompt.storeUrlAndroid ??
-        widget.prompt.storeUrlIos;
-    if (url == null || url.isEmpty) return;
-    final uri = Uri.tryParse(url);
-    if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final isIos = Theme.of(context).platform == TargetPlatform.iOS;
+    final url =
+        (isIos ? widget.prompt.storeUrlIos : widget.prompt.storeUrlAndroid) ??
+            widget.prompt.storeUrlAndroid ??
+            widget.prompt.storeUrlIos ??
+            (isIos ? _fallbackIosStoreUrl : _fallbackAndroidStoreUrl);
+    if (url != null && url.isNotEmpty) {
+      final uri = Uri.tryParse(url);
+      if (uri != null &&
+          await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        return;
+      }
+    }
+    try {
+      await InAppReview.instance.openStoreListing(
+          appStoreId: _appStoreId.isEmpty ? null : _appStoreId);
+    } catch (_) {}
   }
 
   Future<void> _sendFeedback() async {
-    widget.api.markReviewRated(
+    final reward = await widget.api.markReviewRated(
         promptToken: widget.prompt.promptToken, rating: _rating);
-    if (mounted) Navigator.of(context).maybePop();
+    if (mounted) {
+      Navigator.of(context).pop(reward ?? widget.prompt.existingReward);
+    }
   }
 
   void _later() {
@@ -180,6 +245,38 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   @override
   Widget build(BuildContext context) {
     final d = _dark(context);
+    if (widget.asSheet) {
+      return Container(
+        decoration: BoxDecoration(
+          color: _cSurface(d),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: _cMuted(d).withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 14, 22, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _body(d),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Dialog(
       backgroundColor: _cSurface(d),
       surfaceTintColor: _cSurface(d),
@@ -293,7 +390,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         const SizedBox(height: 4),
         _GhostButton(label: _t('later', 'Sonra'), onTap: _later),
         const SizedBox(height: 4),
-        Text('Bir dəqiqədən az çəkir',
+        Text(tr('app_review.less_than_minute', 'Bir dəqiqədən az çəkir'),
             style: TextStyle(
                 color: _cMuted(d), fontSize: 11, fontWeight: FontWeight.w500)),
       ];
@@ -304,7 +401,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             bg: d ? const Color(0x29F5B40A) : const Color(0xFFFFFBEB),
             fg: _amber),
         const SizedBox(height: 16),
-        Text('Çox sağ ol! 🎉',
+        Text(tr('app_review.high_title', 'Çox sağ ol! 🎉'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
@@ -312,12 +409,15 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         Text.rich(
           TextSpan(
             children: [
-              const TextSpan(text: 'Rəyini App Store-da paylaş — sənə '),
               TextSpan(
-                  text: '${widget.prompt.rewardLabel()} promokod',
+                  text: tr('app_review.high_body_prefix',
+                      'Rəyini App Store-da paylaş — sənə ')),
+              TextSpan(
+                  text: tr('app_review.high_body_reward', '{reward} promokod',
+                      {'reward': widget.prompt.rewardLabel()}),
                   style: TextStyle(
                       color: _cText2(d), fontWeight: FontWeight.w800)),
-              const TextSpan(text: ' göndərək.'),
+              TextSpan(text: tr('app_review.high_body_suffix', ' göndərək.')),
             ],
           ),
           textAlign: TextAlign.center,
@@ -331,7 +431,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         _stars(d, goldAll: true),
         const SizedBox(height: 20),
         _PrimaryButton(
-          label: 'App Store-da rəy yaz',
+          label: tr('app_review.write_review_appstore', 'App Store-da rəy yaz'),
           icon: PhosphorIconsFill.appleLogo,
           onTap: _goStore,
         ),
@@ -355,61 +455,74 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ),
         ),
         const SizedBox(height: 16),
-        Text('App Store açılır…',
+        Text(tr('app_review.opening_store', 'App Store açılır…'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 18, fontWeight: FontWeight.w800)),
         const SizedBox(height: 6),
-        Text('Rəyini orada paylaş, sonra tətbiqə qayıt.',
+        Text(
+            tr('app_review.opening_store_body',
+                'Rəyini orada paylaş, sonra tətbiqə qayıt.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d), fontSize: 13, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
       ];
 
-  List<Widget> _thanks(bool d) => [
-        Container(
-          width: 80,
-          height: 80,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: d ? const Color(0x2910B981) : const Color(0xFFECFDF5),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(PhosphorIconsFill.checkCircle,
-              size: 48,
-              color: d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981)),
+  List<Widget> _thanks(bool d) {
+    final reward = _reward;
+    final hasCode = reward != null && reward.hasCode;
+    return [
+      Container(
+        width: 80,
+        height: 80,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: d ? const Color(0x2910B981) : const Color(0xFFECFDF5),
+          shape: BoxShape.circle,
         ),
-        const SizedBox(height: 16),
-        Text(_t('thanks_title', 'Təşəkkür edirik! ⭐️'),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
-        const SizedBox(height: 8),
-        Text(
-          _t('thanks_body', 'Dəstəyin bizə çox kömək edir. Budur hədiyyən:'),
+        child: Icon(PhosphorIconsFill.checkCircle,
+            size: 48,
+            color: d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981)),
+      ),
+      const SizedBox(height: 16),
+      Text(_t('thanks_title', 'Təşəkkür edirik! ⭐️'),
           textAlign: TextAlign.center,
           style: TextStyle(
-              color: _cMuted(d),
-              fontSize: 13.5,
-              height: 1.35,
-              fontWeight: FontWeight.w500),
-        ),
+              color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
+      const SizedBox(height: 8),
+      Text(
+        hasCode
+            ? _t('thanks_body', 'Dəstəyin bizə çox kömək edir. Budur hədiyyən:')
+            : tr('app_review.thanks_body_short',
+                'Dəstəyin bizə çox kömək edir.'),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            color: _cMuted(d),
+            fontSize: 13.5,
+            height: 1.35,
+            fontWeight: FontWeight.w500),
+      ),
+      if (hasCode) ...[
         const SizedBox(height: 16),
-        _RewardCoupon(prompt: widget.prompt, isDark: d),
+        _RewardCoupon(reward: reward, isDark: d),
         const SizedBox(height: 16),
         _PrimaryButton(
-          label: 'Kodu köçür',
+          label: tr('promo.copy_code', 'Kodu köçür'),
           icon: PhosphorIconsFill.copy,
           onTap: () {
-            Clipboard.setData(const ClipboardData(text: 'WAWA5'));
-            Navigator.of(context).maybePop();
+            Clipboard.setData(ClipboardData(text: reward.code));
+            Navigator.of(context).pop(_reward);
           },
         ),
         const SizedBox(height: 4),
-        _GhostButton(
-            label: 'Bağla', onTap: () => Navigator.of(context).maybePop()),
-      ];
+      ] else
+        const SizedBox(height: 8),
+      _GhostButton(
+          label: tr('common.close', 'Bağla'),
+          onTap: () => Navigator.of(context).pop(_reward)),
+    ];
+  }
 
   List<Widget> _low(bool d) => [
         _closeButton(d),
@@ -440,12 +553,14 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ),
         ),
         const SizedBox(height: 12),
-        Text('Bizə kömək et — nəyi dəyişək?',
+        Text(tr('app_review.low_title', 'Bizə kömək et — nəyi dəyişək?'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 19, fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        Text('Fikrin birbaşa komandamıza gedir. Promokod yenə də səninlədir.',
+        Text(
+            tr('app_review.low_body',
+                'Fikrin birbaşa komandamıza gedir. Promokod yenə də səninlədir.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -459,7 +574,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           style: TextStyle(
               color: _cText(d), fontSize: 14, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
-            hintText: 'Təcrübən barədə bir neçə söz yaz…',
+            hintText: tr('app_review.feedback_hint',
+                'Təcrübən barədə bir neçə söz yaz…'),
             hintStyle:
                 TextStyle(color: _cMuted(d), fontWeight: FontWeight.w500),
             filled: true,
@@ -478,12 +594,12 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         ),
         const SizedBox(height: 12),
         _PrimaryButton(
-          label: 'Rəy göndər',
+          label: tr('app_review.send_feedback', 'Rəy göndər'),
           icon: PhosphorIconsFill.paperPlaneTilt,
           onTap: _sendFeedback,
         ),
         const SizedBox(height: 4),
-        _GhostButton(label: 'Keç', onTap: _later),
+        _GhostButton(label: tr('common.skip', 'Keç'), onTap: _later),
       ];
 
   Widget _rewardChip(bool d) => Container(
@@ -501,7 +617,9 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           children: [
             Icon(PhosphorIconsFill.gift, size: 16, color: _cBrandText(d)),
             const SizedBox(width: 6),
-            Text('${widget.prompt.rewardLabel()} promokod hədiyyə',
+            Text(
+                tr('app_review.reward_chip', '{reward} promokod hədiyyə',
+                    {'reward': widget.prompt.rewardLabel()}),
                 style: TextStyle(
                     color: d ? _dText : _ink800,
                     fontSize: 13,
@@ -512,10 +630,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 }
 
 class _RewardCoupon extends StatelessWidget {
-  final AppReviewPrompt prompt;
+  final ReviewReward reward;
   final bool isDark;
 
-  const _RewardCoupon({required this.prompt, required this.isDark});
+  const _RewardCoupon({required this.reward, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -541,7 +659,7 @@ class _RewardCoupon extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('PROMOKODUN',
+                      Text(tr('app_review.your_promo_label', 'PROMOKODUN'),
                           style: TextStyle(
                               color: (d ? _dBrandText : _brand700)
                                   .withValues(alpha: 0.7),
@@ -549,12 +667,11 @@ class _RewardCoupon extends StatelessWidget {
                               letterSpacing: 1,
                               fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
-                      Text('WAWA5',
+                      Text(reward.code,
                           style: TextStyle(
                               color: d ? _dBrandText : _brand700,
                               fontSize: 19,
                               letterSpacing: 3,
-                              fontFeatures: const [],
                               fontFamily: 'monospace',
                               fontWeight: FontWeight.w800)),
                     ],
@@ -583,7 +700,11 @@ class _RewardCoupon extends StatelessWidget {
                 const Icon(PhosphorIconsFill.tag,
                     size: 13, color: Colors.white),
                 const SizedBox(width: 6),
-                Text('${prompt.rewardLabel()} endirim · növbəti sifarişə',
+                Text(
+                    tr(
+                        'app_review.coupon_footer_next',
+                        '{amount} endirim · növbəti sifarişə',
+                        {'amount': reward.amountLabel()}),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,

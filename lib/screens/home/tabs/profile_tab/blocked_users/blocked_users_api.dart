@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../../../main.dart';
+import '../../../../../services/localization_service.dart';
 import '../new_profile/profile_models.dart';
 
 class BlockedUsersApi {
@@ -26,7 +27,8 @@ class BlockedUsersApi {
     final response = await _dio.delete<Map<String, dynamic>>(
       '$baseUrl/users/$publicId/block',
     );
-    return response.data?['message']?.toString() ?? 'Blok götürüldü.';
+    return response.data?['message']?.toString() ??
+        tr('block.unblocked', 'Blok götürüldü.');
   }
 }
 

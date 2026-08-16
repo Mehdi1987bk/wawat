@@ -1,8 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import 'package:buking/services/localization_service.dart';
 
 import 'app_review.dart';
 import 'promo_api.dart';
@@ -31,11 +31,21 @@ const _dBrandText = Color(0xFF7FB6FF);
 const _okGreen = Color(0xFF10B981);
 const _dOkGreen = Color(0xFF4FD6A0);
 
-const _azMonths = [
-  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
-  'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr' //
-];
-String _azDate(DateTime d) => '${d.day} ${_azMonths[d.month - 1]} ${d.year}';
+List<String> _azMonths() => [
+      tr('month.jan', 'Yanvar'),
+      tr('month.feb', 'Fevral'),
+      tr('month.mar', 'Mart'),
+      tr('month.apr', 'Aprel'),
+      tr('month.may', 'May'),
+      tr('month.jun', 'İyun'),
+      tr('month.jul', 'İyul'),
+      tr('month.aug', 'Avqust'),
+      tr('month.sep', 'Sentyabr'),
+      tr('month.oct', 'Oktyabr'),
+      tr('month.nov', 'Noyabr'),
+      tr('month.dec', 'Dekabr'),
+    ];
+String _azDate(DateTime d) => '${d.day} ${_azMonths()[d.month - 1]} ${d.year}';
 
 bool _dark(BuildContext c) => Theme.of(c).brightness == Brightness.dark;
 Color _cScreen(bool d) => d ? _dBg : Colors.white;
@@ -78,20 +88,23 @@ class _RateAppScreenState extends State<RateAppScreen> {
     });
   }
 
-  /// Single entry point: opens the native Store review sheet, reports back to
-  /// the backend, then reveals the granted coupon inline + a 5-second toast.
+  /// Kicks straight to the Store listing (the original behaviour), then reports
+  /// `rated` to the backend and reveals the granted coupon inline. No bottom
+  /// sheet, no top toast.
   Future<void> _rate() async {
-    if (_busy || _rated) return;
+    if (_rated || _busy) return;
     setState(() => _busy = true);
-    final reward =
-        await AppReviewFlow.requestStoreReview(context, prompt: _prompt);
+    final reward = await AppReviewFlow.requestStoreReview(
+      context,
+      prompt: _prompt,
+      rating: 5,
+    );
     if (!mounted) return;
     setState(() {
       _busy = false;
       _rated = true;
       _reward = reward ?? _prompt.existingReward;
     });
-    _showThanksToast(context, dark: _dark(context));
   }
 
   @override
@@ -122,7 +135,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
           icon: Icon(PhosphorIconsBold.arrowLeft, color: _cText2(d), size: 21),
         ),
-        title: Text('Tətbiqi qiymətləndir',
+        title: Text(tr('promo.earn_rate', 'Tətbiqi qiymətləndir'),
             style: TextStyle(
                 color: _cText(d), fontSize: 17, fontWeight: FontWeight.w800)),
         bottom: PreferredSize(
@@ -139,7 +152,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
         const SizedBox(height: 36),
         Center(child: _starBadge(d)),
         const SizedBox(height: 20),
-        Text('Wawatair-i bəyənirsən?',
+        Text(tr('app_review.like_title', 'Wawatair-i bəyənirsən?'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 21, fontWeight: FontWeight.w800)),
@@ -147,7 +160,8 @@ class _RateAppScreenState extends State<RateAppScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.',
+            tr('app_review.like_subtitle',
+                '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -162,14 +176,14 @@ class _RateAppScreenState extends State<RateAppScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: _PrimaryButton(
-            label: 'Store-da qiymətləndir',
+            label: tr('app_review.rate_in_store', 'Store-da qiymətləndir'),
             icon: PhosphorIconsFill.star,
             busy: _busy,
             onTap: _rate,
           ),
         ),
         const SizedBox(height: 8),
-        Text('Bir dəqiqədən az çəkir',
+        Text(tr('app_review.less_than_minute', 'Bir dəqiqədən az çəkir'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d), fontSize: 11, fontWeight: FontWeight.w500)),
@@ -184,13 +198,25 @@ class _RateAppScreenState extends State<RateAppScreen> {
           ),
           child: Column(
             children: [
-              _step(d, '1',
-                  'Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır'),
+              _step(
+                  d,
+                  '1',
+                  tr('app_review.step_open',
+                      'Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır')),
               const SizedBox(height: 12),
-              _step(d, '2',
-                  '${_prompt.rewardLabel()} promokod avtomatik hesabına gəlir'),
+              _step(
+                  d,
+                  '2',
+                  tr(
+                      'app_review.step_reward',
+                      '{reward} promokod avtomatik hesabına gəlir',
+                      {'reward': _prompt.rewardLabel()})),
               const SizedBox(height: 12),
-              _step(d, '3', 'Elanı VİP/önə çəkərkən tətbiq et'),
+              _step(
+                  d,
+                  '3',
+                  tr('app_review.step_apply',
+                      'Elanı VİP/önə çəkərkən tətbiq et')),
             ],
           ),
         ),
@@ -209,8 +235,9 @@ class _RateAppScreenState extends State<RateAppScreen> {
         const SizedBox(height: 20),
         Text(
             hasCoupon
-                ? 'Hədiyyə promokodun hazırdır 🎁'
-                : 'Təşəkkür edirik! ⭐️',
+                ? tr('app_review.reward_ready_title',
+                    'Hədiyyə promokodun hazırdır 🎁')
+                : tr('app_review.thanks_title', 'Təşəkkür edirik! ⭐️'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 21, fontWeight: FontWeight.w800)),
@@ -219,8 +246,10 @@ class _RateAppScreenState extends State<RateAppScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
             hasCoupon
-                ? 'Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:'
-                : 'Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.',
+                ? tr('app_review.reward_ready_body',
+                    'Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:')
+                : tr('app_review.already_rated_body',
+                    'Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -239,7 +268,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _PrimaryButton(
-              label: 'Promokodlarıma bax',
+              label: tr('app_review.view_my_promos', 'Promokodlarıma bax'),
               icon: PhosphorIconsFill.ticket,
               onTap: () => Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => PromoCodesScreen()),
@@ -264,7 +293,9 @@ class _RateAppScreenState extends State<RateAppScreen> {
           children: [
             Icon(PhosphorIconsFill.gift, size: 15, color: _cBrandText(d)),
             const SizedBox(width: 6),
-            Text('${_prompt.rewardLabel()} promokod hədiyyə',
+            Text(
+                tr('app_review.reward_chip', '{reward} promokod hədiyyə',
+                    {'reward': _prompt.rewardLabel()}),
                 style: TextStyle(
                     color: _cText2(d),
                     fontSize: 13,
@@ -378,140 +409,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
   }
 }
 
-/// Slides a green "thanks" banner in from the top; auto-dismisses after 5s.
-/// Replaces the old full-page thanks screen the user asked to remove.
-void _showThanksToast(BuildContext context, {required bool dark}) {
-  final overlay = Overlay.of(context);
-  late OverlayEntry entry;
-  entry = OverlayEntry(
-    builder: (_) => _ThanksToast(
-      isDark: dark,
-      onDismiss: () {
-        if (entry.mounted) entry.remove();
-      },
-    ),
-  );
-  overlay.insert(entry);
-}
-
-class _ThanksToast extends StatefulWidget {
-  final bool isDark;
-  final VoidCallback onDismiss;
-
-  const _ThanksToast({required this.isDark, required this.onDismiss});
-
-  @override
-  State<_ThanksToast> createState() => _ThanksToastState();
-}
-
-class _ThanksToastState extends State<_ThanksToast>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 320));
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _c.forward();
-    _timer = Timer(const Duration(seconds: 5), _close);
-  }
-
-  Future<void> _close() async {
-    _timer?.cancel();
-    if (mounted) await _c.reverse();
-    widget.onDismiss();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final d = widget.isDark;
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-          child: SlideTransition(
-            position: Tween<Offset>(
-                    begin: const Offset(0, -0.5), end: Offset.zero)
-                .animate(
-                    CurvedAnimation(parent: _c, curve: Curves.easeOutCubic)),
-            child: FadeTransition(
-              opacity: _c,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _close,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                  decoration: BoxDecoration(
-                    color:
-                        d ? const Color(0xFF13251C) : const Color(0xFFECFDF5),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color:
-                            (d ? _dOkGreen : _okGreen).withValues(alpha: 0.35)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: d ? 0.4 : 0.12),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: (d ? _dOkGreen : _okGreen)
-                              .withValues(alpha: d ? 0.18 : 0.14),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(PhosphorIconsFill.checkCircle,
-                            size: 24, color: d ? _dOkGreen : _okGreen),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Təşəkkür edirik! ⭐️',
-                                style: TextStyle(
-                                    color: _cText(d),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800)),
-                            const SizedBox(height: 2),
-                            Text('Rəyin bizə çox kömək edir.',
-                                style: TextStyle(
-                                    color: _cMuted(d),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// The granted coupon rendered inline on the rate page, with its validity
 /// window (days left + expiry date) so the user knows how long they have.
 class _Coupon extends StatelessWidget {
@@ -523,10 +420,14 @@ class _Coupon extends StatelessWidget {
   String? _validity() {
     final days = reward.daysLeft;
     if (reward.expiresAt == null || days == null) return null;
-    if (days < 0) return 'Müddəti bitib';
+    if (days < 0) return tr('app_review.validity_expired', 'Müddəti bitib');
     final date = _azDate(reward.expiresAt!);
-    if (days == 0) return 'Bu gün bitir · $date';
-    return '$days gün qalıb · son tarix $date';
+    if (days == 0) {
+      return tr(
+          'app_review.validity_today', 'Bu gün bitir · {date}', {'date': date});
+    }
+    return tr('app_review.validity_days', '{days} gün qalıb · son tarix {date}',
+        {'days': '$days', 'date': date});
   }
 
   @override
@@ -554,7 +455,7 @@ class _Coupon extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('PROMOKODUN',
+                          Text(tr('app_review.your_promo_label', 'PROMOKODUN'),
                               style: TextStyle(
                                   color: (d ? _dBrandText : _brand700)
                                       .withValues(alpha: 0.7),
@@ -579,8 +480,8 @@ class _Coupon extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           behavior: SnackBarBehavior.floating,
                           backgroundColor: d ? _dElevated : _ink900,
-                          content: const Text('Kod kopyalandı',
-                              style: TextStyle(
+                          content: Text(tr('promo.copied', 'Kod kopyalandı'),
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700)),
                         ));
@@ -628,7 +529,11 @@ class _Coupon extends StatelessWidget {
                 const Icon(PhosphorIconsFill.tag,
                     size: 13, color: Colors.white),
                 const SizedBox(width: 6),
-                Text('${reward.amountLabel()} endirim · VİP/önə çəkmə',
+                Text(
+                    tr(
+                        'app_review.coupon_footer_vip',
+                        '{amount} endirim · VİP/önə çəkmə',
+                        {'amount': reward.amountLabel()}),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,

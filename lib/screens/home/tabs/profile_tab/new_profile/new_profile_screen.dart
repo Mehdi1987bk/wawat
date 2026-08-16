@@ -17,6 +17,7 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../services/notification_socket_service.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../home_screen.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
@@ -526,7 +527,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
                 Column(
                   children: [
                     _ProfileTopBar(
-                      title: _isSelf ? 'Profil' : user.safeFullName,
+                      title: _isSelf
+                          ? tr('profile.title', 'Profil')
+                          : user.safeFullName,
                       showBack: !_isSelf,
                       // On our own profile (incl. via the public route) show an
                       // edit-profile action instead of the report/block menu.
@@ -666,7 +669,8 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
         _toast(message);
       } catch (_) {
         setState(() => _userOverride = user);
-        _toast('Əməliyyat alınmadı.', error: true);
+        _toast(tr('error.operation_failed', 'Əməliyyat alınmadı.'),
+            error: true);
       }
     });
   }
@@ -849,7 +853,8 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
             try {
               _toast(await _api.block(user.id));
             } catch (_) {
-              _toast('Əməliyyat alınmadı.', error: true);
+              _toast(tr('error.operation_failed', 'Əməliyyat alınmadı.'),
+                  error: true);
             }
           });
         },
@@ -874,7 +879,7 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
           : null,
       builder: (_) => _ReportUserSheet(api: _api, user: user, content: content),
     );
-    if (sent == true) _toast('Şikayət göndərildi.');
+    if (sent == true) _toast(tr('reports.sent', 'Şikayət göndərildi.'));
   }
 
   void _toast(String message, {bool error = false}) {
@@ -1023,7 +1028,8 @@ class _ProfileHeader extends StatelessWidget {
                         if (user.memberSince != null) ...[
                           const SizedBox(width: 8),
                           Text(
-                            '${user.memberSince!.year}-dən üzv',
+                            tr('profile.member_since', '{year}-dən üzv',
+                                {'year': '${user.memberSince!.year}'}),
                             style: TextStyle(
                               color: _cMuted(isDark),
                               fontSize: 11,
@@ -1517,9 +1523,10 @@ class _ProfileListingRow extends StatelessWidget {
         ? [
             _formatDate(listing.flightDate),
             if (listing.freeWeightKg != null)
-              '${_num(listing.freeWeightKg)} kq boş',
+              tr('listing.free_weight', '{weight} kq boş',
+                  {'weight': _num(listing.freeWeightKg)}),
             if (listing.allowPriceNegotiation == true)
-              'Razılaşma'
+              tr('listing.negotiable', 'Razılaşma')
             else if (listing.pricePerKg != null)
               '${_num(listing.pricePerKg)} \$/kq',
           ].where((e) => e.isNotEmpty).join(' · ')
@@ -2107,12 +2114,12 @@ class _PublicActionBar extends StatelessWidget {
             flex: 16,
             child: user.isFollowing
                 ? _GhostButton(
-                    label: 'İzlənilir',
+                    label: tr('profile.follow_active', 'İzlənilir'),
                     icon: PhosphorIconsFill.check,
                     onTap: onFollow,
                   )
                 : _PrimaryButton(
-                    label: 'İzlə',
+                    label: tr('profile.follow', 'İzlə'),
                     icon: PhosphorIconsBold.plus,
                     onTap: onFollow,
                   ),
@@ -2121,7 +2128,7 @@ class _PublicActionBar extends StatelessWidget {
           Expanded(
             flex: 10,
             child: _SoftButton(
-              label: 'Mesaj',
+              label: tr('profile.message', 'Mesaj'),
               icon: PhosphorIconsFill.chatCircle,
               onTap: onMessage,
             ),
@@ -2367,7 +2374,7 @@ class _SettingsHubScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           children: [
-            const _ProfileTopBar(title: 'Ayarlar'),
+            _ProfileTopBar(title: tr('settings.title', 'Ayarlar')),
             _GroupHead(_tx(content, 'profile.settings.account', 'Hesab')),
             _SettingsGroup(
               children: [
@@ -2918,7 +2925,9 @@ class _PrivacySettingsScreenState extends State<_PrivacySettingsScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _settings = previous);
-      _showSnack(context, 'Məxfilik yenilənmədi.', error: true);
+      _showSnack(
+          context, tr('profile.privacy_update_failed', 'Məxfilik yenilənmədi.'),
+          error: true);
     }
   }
 
@@ -3397,7 +3406,7 @@ class _ReportUserSheetState extends State<_ReportUserSheet> {
           ),
           const SizedBox(height: 12),
           _PrimaryButton(
-            label: 'Şikayəti göndər',
+            label: tr('reports.submit', 'Şikayəti göndər'),
             icon: PhosphorIconsFill.flag,
             onTap: _submit,
             loading: _busy,
@@ -3493,7 +3502,7 @@ class _ReplyReviewSheetState extends State<_ReplyReviewSheet> {
           ),
           const SizedBox(height: 12),
           _Field(
-            label: 'Cavabınız',
+            label: tr('review.reply_field_label', 'Cavabınız'),
             controller: _reply,
             maxLines: 4,
             maxLength: 2000,
@@ -3530,19 +3539,19 @@ class _UserActionSheet extends StatelessWidget {
         children: [
           _SheetAction(
             icon: PhosphorIconsRegular.prohibit,
-            label: 'İstifadəçini blokla',
+            label: tr('block.user', 'İstifadəçini blokla'),
             color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
             onTap: onBlock,
           ),
           _SheetAction(
             icon: PhosphorIconsRegular.flag,
-            label: 'Şikayət et',
+            label: tr('reports.action', 'Şikayət et'),
             color: isDark ? WawatDark.dangerText : const Color(0xFFEF4444),
             onTap: onReport,
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Bağla'),
+            child: Text(tr('common.close', 'Bağla')),
           ),
         ],
       ),
@@ -4137,7 +4146,9 @@ class _PasswordStrength extends StatelessWidget {
         ],
         const SizedBox(width: 8),
         Text(
-          active >= 3 ? 'Güclü' : 'Zəif',
+          active >= 3
+              ? tr('profile.password_strong', 'Güclü')
+              : tr('profile.password_weak', 'Zəif'),
           style: TextStyle(
             color: active >= 3
                 ? (isDark ? WawatDark.success : _emerald)
@@ -4169,7 +4180,7 @@ class _LanguageSelector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Bildiyiniz dillər',
+          tr('profile.languages_known', 'Bildiyiniz dillər'),
           style: TextStyle(
             color: _cText(isDark),
             fontSize: 13,
@@ -4662,7 +4673,8 @@ class _ProfileSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ProfileTopBar(title: 'Profil', showBack: showBack),
+        _ProfileTopBar(
+            title: tr('profile.title', 'Profil'), showBack: showBack),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -4750,7 +4762,7 @@ class _ProfileNotFound extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        const _ProfileTopBar(title: 'Profil'),
+        _ProfileTopBar(title: tr('profile.title', 'Profil')),
         Expanded(
           child: Center(
             child: Padding(
@@ -4775,7 +4787,7 @@ class _ProfileNotFound extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'İstifadəçi tapılmadı',
+                    tr('profile.user_not_found', 'İstifadəçi tapılmadı'),
                     style: TextStyle(
                       color: _cText(isDark),
                       fontSize: 18,
@@ -4784,7 +4796,8 @@ class _ProfileNotFound extends StatelessWidget {
                   ),
                   const SizedBox(height: 7),
                   Text(
-                    'Bu hesab mövcud deyil, dayandırılıb və ya silinib.',
+                    tr('profile.user_not_found_subtitle',
+                        'Bu hesab mövcud deyil, dayandırılıb və ya silinib.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: _cText2(isDark),
@@ -4796,7 +4809,8 @@ class _ProfileNotFound extends StatelessWidget {
                   const SizedBox(height: 18),
                   SizedBox(
                     width: 180,
-                    child: _PrimaryButton(label: 'Yenilə', onTap: onRetry),
+                    child: _PrimaryButton(
+                        label: tr('common.refresh', 'Yenilə'), onTap: onRetry),
                   ),
                 ],
               ),
@@ -4880,7 +4894,7 @@ class _ProfileAuthRequired extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        const _ProfileTopBar(title: 'Profil'),
+        _ProfileTopBar(title: tr('profile.title', 'Profil')),
         Expanded(
           child: Center(
             child: Padding(
@@ -4903,7 +4917,7 @@ class _ProfileAuthRequired extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'Profil üçün daxil ol',
+                    tr('profile.auth_required_title', 'Profil üçün daxil ol'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: _cText(isDark),
@@ -4913,7 +4927,8 @@ class _ProfileAuthRequired extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Elanlarını, rəylərini və ayarlarını idarə etmək üçün hesabına daxil ol.',
+                    tr('profile.auth_required_subtitle',
+                        'Elanlarını, rəylərini və ayarlarını idarə etmək üçün hesabına daxil ol.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: _cText2(isDark),
@@ -4924,7 +4939,7 @@ class _ProfileAuthRequired extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
                   _PrimaryButton(
-                    label: 'Daxil ol / Qeydiyyat',
+                    label: tr('auth.login_register', 'Daxil ol / Qeydiyyat'),
                     onTap: () => AuthModalUtils.showAuthRequiredModal(context),
                   ),
                   const SizedBox(height: 10),
@@ -4934,7 +4949,7 @@ class _ProfileAuthRequired extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: Text(
-                        'Yenilə',
+                        tr('common.refresh', 'Yenilə'),
                         style: TextStyle(
                           color: isDark ? WawatDark.brandText : _brand,
                           fontSize: 13,
@@ -5002,20 +5017,20 @@ String _dateRange(String? from, String? to) {
 }
 
 String _month(int month) {
-  const months = [
+  final months = [
     '',
-    'Yan',
-    'Fev',
-    'Mar',
-    'Apr',
-    'May',
-    'İyun',
-    'İyul',
-    'Avq',
-    'Sen',
-    'Okt',
-    'Noy',
-    'Dek',
+    tr('common.month_jan', 'Yan'),
+    tr('common.month_feb', 'Fev'),
+    tr('common.month_mar', 'Mar'),
+    tr('common.month_apr', 'Apr'),
+    tr('common.month_may', 'May'),
+    tr('common.month_jun', 'İyun'),
+    tr('common.month_jul', 'İyul'),
+    tr('common.month_aug', 'Avq'),
+    tr('common.month_sep', 'Sen'),
+    tr('common.month_oct', 'Okt'),
+    tr('common.month_nov', 'Noy'),
+    tr('common.month_dec', 'Dek'),
   ];
   return months[month];
 }
@@ -5023,10 +5038,18 @@ String _month(int month) {
 String _relativeDate(DateTime? date) {
   if (date == null) return '';
   final diff = DateTime.now().difference(date);
-  if (diff.inDays >= 7) return '${diff.inDays ~/ 7} həftə';
-  if (diff.inDays > 0) return '${diff.inDays} gün';
-  if (diff.inHours > 0) return '${diff.inHours} saat';
-  return 'indi';
+  if (diff.inDays >= 7) {
+    return tr('common.weeks_short', '{count} həftə',
+        {'count': '${diff.inDays ~/ 7}'});
+  }
+  if (diff.inDays > 0) {
+    return tr('common.days_short', '{count} gün', {'count': '${diff.inDays}'});
+  }
+  if (diff.inHours > 0) {
+    return tr(
+        'common.hours_short', '{count} saat', {'count': '${diff.inHours}'});
+  }
+  return tr('common.now', 'indi');
 }
 
 String _errorMessage(Object error) {
@@ -5035,7 +5058,7 @@ String _errorMessage(Object error) {
     if (data is Map && data['message'] != null)
       return data['message'].toString();
   }
-  return 'Əməliyyat alınmadı.';
+  return tr('error.operation_failed', 'Əməliyyat alınmadı.');
 }
 
 void _showSnack(BuildContext context, String message, {bool error = false}) {

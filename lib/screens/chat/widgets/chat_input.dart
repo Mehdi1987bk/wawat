@@ -6,6 +6,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/wawat_content.dart';
 
 const _brand = Color(0xFF0271EB);
@@ -325,7 +326,8 @@ class _ChatInputState extends State<ChatInput> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${reply.authorName}-ə cavab',
+                  tr('chat.reply.to', '{name}-ə cavab',
+                      {'name': reply.authorName}),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

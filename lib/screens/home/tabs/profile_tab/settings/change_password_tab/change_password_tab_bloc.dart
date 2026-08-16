@@ -4,6 +4,7 @@ import '../../../../../../data/network/api/auth_api.dart';
 import '../../../../../../data/network/request/change_password_request.dart';
 import '../../../../../../main.dart';
 import '../../../../../../presentation/bloc/base_bloc.dart';
+import '../../../../../../services/localization_service.dart';
 
 class ChangePasswordTabBloc extends BaseBloc {
   final AuthApi _authApi = sl.get<AuthApi>();
@@ -29,7 +30,7 @@ class ChangePasswordTabBloc extends BaseBloc {
       errorSink.add(message);
       return false;
     } catch (_) {
-      errorSink.add('Ошибка смены пароля');
+      errorSink.add(tr('error.change_password_failed', 'Ошибка смены пароля'));
       return false;
     } finally {
       loadingSink.add(false);
@@ -55,6 +56,6 @@ class ChangePasswordTabBloc extends BaseBloc {
       }
     }
 
-    return 'Ошибка запроса';
+    return tr('error.request_failed', 'Ошибка запроса');
   }
 }

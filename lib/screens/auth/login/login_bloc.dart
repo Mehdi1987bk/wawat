@@ -4,6 +4,7 @@ import '../../../data/network/request/login_request.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/push_notification_service.dart';
 import '../auth_action_result.dart';
 
@@ -32,11 +33,13 @@ class LoginBloc extends BaseBloc {
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);
-      errorSink.add(result.message ?? 'Ошибка запроса');
+      errorSink
+          .add(result.message ?? tr('error.request_failed', 'Ошибка запроса'));
       return result;
     } catch (_) {
-      errorSink.add('Ошибка входа');
-      return const AuthActionResult.failure(message: 'Ошибка входа');
+      errorSink.add(tr('error.login_failed', 'Ошибка входа'));
+      return AuthActionResult.failure(
+          message: tr('error.login_failed', 'Ошибка входа'));
     } finally {
       loadingSink.add(false);
     }
@@ -71,7 +74,8 @@ class LoginBloc extends BaseBloc {
       );
     }
 
-    return const AuthActionResult.failure(message: 'Ошибка запроса');
+    return AuthActionResult.failure(
+        message: tr('error.request_failed', 'Ошибка запроса'));
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {

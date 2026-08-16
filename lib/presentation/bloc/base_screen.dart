@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../services/localization_service.dart';
+import '../../services/telemetry/telemetry.dart';
 import '../../services/theme_manager.dart';
 import '../resourses/app_colors.dart';
 import '../resourses/wawat_dark.dart';
@@ -28,9 +31,19 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   void initState() {
     super.initState();
+    // Единственная точка, через которую проходит открытие любого экрана на
+    // BaseScreen. Логировать здесь надёжнее, чем в NavigatorObserver: там
+    // безымянные MaterialPageRoute неотличимы друг от друга.
+    // Экран можно переименовать для аналитики, переопределив screenName.
+    unawaited(Telemetry.instance
+        .screen(screenName, screenClass: widget.runtimeType.toString()));
     bloc = provideBloc();
     bloc.init();
   }
+
+  /// Имя экрана в аналитике. По умолчанию — имя класса виджета
+  /// (`ListingDetailsScreen` → `listing_details_screen`).
+  String get screenName => widget.runtimeType.toString();
 
   @override
   Widget build(BuildContext context) {

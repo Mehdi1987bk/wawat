@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:buking/services/localization_service.dart';
 import '../../../../../data/network/response/user_search_response.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
@@ -28,7 +29,8 @@ Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
 Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink700;
 Color _cMuted(bool d) => d ? WawatDark.textMuted : _ink400;
 Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
-Color _cField(bool d) => d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05);
+Color _cField(bool d) =>
+    d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05);
 Color _cLine(bool d) => d ? WawatDark.border : _ink900.withValues(alpha: 0.05);
 
 const _kRecentKey = 'user_search_recent_v1';
@@ -150,7 +152,8 @@ class _UserSearchTabState extends State<UserSearchTab> {
       return;
     }
     // Debounce 350ms; a stale in-flight request is dropped by _reqId.
-    _debounce = Timer(const Duration(milliseconds: 350), () => _search(reset: true));
+    _debounce =
+        Timer(const Duration(milliseconds: 350), () => _search(reset: true));
   }
 
   void _clearQuery() {
@@ -334,7 +337,7 @@ class _UserSearchTabState extends State<UserSearchTab> {
                 decoration: InputDecoration(
                   isCollapsed: true,
                   border: InputBorder.none,
-                  hintText: 'Ad, soyad və ya @username',
+                  hintText: tr('search.user_hint', 'Ad, soyad və ya @username'),
                   hintStyle: TextStyle(
                     color: _cMuted(d),
                     fontSize: 15,
@@ -397,15 +400,15 @@ class _UserSearchTabState extends State<UserSearchTab> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Son axtarışlar',
+            Text(tr('search.recent_title', 'Son axtarışlar'),
                 style: TextStyle(
                     color: _cText(d),
                     fontSize: 13,
                     fontWeight: FontWeight.w700)),
             GestureDetector(
               onTap: _clearRecent,
-              child: const Text('Təmizlə',
-                  style: TextStyle(
+              child: Text(tr('common.clear', 'Təmizlə'),
+                  style: const TextStyle(
                       color: _brand,
                       fontSize: 12,
                       fontWeight: FontWeight.w700)),
@@ -481,8 +484,9 @@ class _UserSearchTabState extends State<UserSearchTab> {
         icon: PhosphorIconsRegular.magnifyingGlass,
         iconBg: d ? WawatDark.brandChip : _brand50,
         iconColor: _brand,
-        title: 'Ad və ya @username ilə axtar',
-        subtitle: 'İnsanları adı, soyadı və ya istifadəçi adı ilə tap.',
+        title: tr('search.user_prompt_title', 'Ad və ya @username ilə axtar'),
+        subtitle: tr('search.user_prompt_subtitle',
+            'İnsanları adı, soyadı və ya istifadəçi adı ilə tap.'),
       );
 
   Widget _tooShortView(bool d) {
@@ -494,7 +498,7 @@ class _UserSearchTabState extends State<UserSearchTab> {
             children: [
               Icon(PhosphorIconsRegular.info, size: 14, color: _cMuted(d)),
               const SizedBox(width: 6),
-              Text('Ən azı 2 simvol daxil edin',
+              Text(tr('search.min_chars_hint', 'Ən azı 2 simvol daxil edin'),
                   style: TextStyle(
                       color: _cMuted(d),
                       fontSize: 11.5,
@@ -546,11 +550,11 @@ class _UserSearchTabState extends State<UserSearchTab> {
             SizedBox(
               width: 15,
               height: 15,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: _cMuted(d)),
+              child:
+                  CircularProgressIndicator(strokeWidth: 2, color: _cMuted(d)),
             ),
             const SizedBox(width: 8),
-            Text('Daha çox yüklənir…',
+            Text(tr('common.loading_more', 'Daha çox yüklənir…'),
                 style: TextStyle(
                     color: _cMuted(d),
                     fontSize: 12,
@@ -565,9 +569,12 @@ class _UserSearchTabState extends State<UserSearchTab> {
         icon: PhosphorIconsRegular.userFocus,
         iconBg: d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05),
         iconColor: _ink300,
-        title: 'Heç kim tapılmadı',
-        subtitle:
-            '«${_query.trim()}» üzrə nəticə yoxdur. Adı və ya @username-i yoxla.',
+        title: tr('search.user_empty_title', 'Heç kim tapılmadı'),
+        subtitle: tr(
+          'search.user_empty_subtitle',
+          '«{query}» üzrə nəticə yoxdur. Adı və ya @username-i yoxla.',
+          {'query': _query.trim()},
+        ),
       );
 
   // ── banners ───────────────────────────────────────────────────────────────
@@ -588,12 +595,14 @@ class _UserSearchTabState extends State<UserSearchTab> {
           Expanded(
             child: Text.rich(
               TextSpan(
-                text: 'Çox tez-tez axtarış — ',
+                text: tr('search.rate_limit_prefix', 'Çox tez-tez axtarış — '),
                 children: [
                   TextSpan(
                       text: '${_retryAfter}s',
                       style: const TextStyle(fontWeight: FontWeight.w800)),
-                  const TextSpan(text: ' sonra yenidən cəhd et'),
+                  TextSpan(
+                      text: tr('search.rate_limit_suffix',
+                          ' sonra yenidən cəhd et')),
                 ],
               ),
               style: const TextStyle(
@@ -603,7 +612,8 @@ class _UserSearchTabState extends State<UserSearchTab> {
             ),
           ),
           const SizedBox(width: 8),
-          _bannerBtn('Təkrar', const Color(0xFFE8A400), _retry),
+          _bannerBtn(
+              tr('common.repeat', 'Təkrar'), const Color(0xFFE8A400), _retry),
         ],
       ),
     );
@@ -623,15 +633,18 @@ class _UserSearchTabState extends State<UserSearchTab> {
           const Icon(PhosphorIconsFill.wifiSlash,
               size: 18, color: Color(0xFFEF4444)),
           const SizedBox(width: 10),
-          const Expanded(
-            child: Text('Bağlantı yoxdur — nəticələr yüklənmədi',
-                style: TextStyle(
+          Expanded(
+            child: Text(
+                tr('search.network_error_banner',
+                    'Bağlantı yoxdur — nəticələr yüklənmədi'),
+                style: const TextStyle(
                     color: Color(0xFFDC2626),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),
-          _bannerBtn('Təkrar', const Color(0xFFEF4444), _retry),
+          _bannerBtn(
+              tr('common.repeat', 'Təkrar'), const Color(0xFFEF4444), _retry),
         ],
       ),
     );
@@ -724,8 +737,10 @@ class SearchSegmentTabs extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _seg(d, 'Marşrut', PhosphorIconsBold.mapPinLine, 0),
-            _seg(d, 'İstifadəçi', PhosphorIconsBold.usersThree, 1),
+            _seg(d, tr('search.tab_routes', 'Marşrut'),
+                PhosphorIconsBold.mapPinLine, 0),
+            _seg(d, tr('search.tab_users', 'İstifadəçi'),
+                PhosphorIconsBold.usersThree, 1),
           ],
         ),
       ),
@@ -869,7 +884,8 @@ class _UserCard extends StatelessWidget {
 
   Widget _trustRow(bool d) {
     if (item.isNewUser) {
-      return Text('Yeni istifadəçi · reytinq yoxdur',
+      return Text(
+          tr('search.new_user_no_rating', 'Yeni istifadəçi · reytinq yoxdur'),
           style: TextStyle(
               color: _cMuted(d), fontSize: 11.5, fontWeight: FontWeight.w600));
     }
@@ -879,15 +895,20 @@ class _UserCard extends StatelessWidget {
         const SizedBox(width: 3),
         Text((item.ratingAvg ?? 0).toStringAsFixed(1),
             style: TextStyle(
-                color: _cText2(d), fontSize: 11.5, fontWeight: FontWeight.w700)),
+                color: _cText2(d),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700)),
         const SizedBox(width: 3),
         Text('(${item.ratingCount})',
             style: TextStyle(
-                color: _cMuted(d), fontSize: 11.5, fontWeight: FontWeight.w600)),
+                color: _cMuted(d),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600)),
         if (item.completedShipments > 0) ...[
-          Text('  ·  ',
-              style: TextStyle(color: _ink300, fontSize: 11.5)),
-          Text('${item.completedShipments} çatdırılma',
+          Text('  ·  ', style: TextStyle(color: _ink300, fontSize: 11.5)),
+          Text(
+              tr('search.deliveries_count', '{count} çatdırılma',
+                  {'count': '${item.completedShipments}'}),
               style: TextStyle(
                   color: _cMuted(d),
                   fontSize: 11.5,
@@ -907,7 +928,7 @@ class _UserCard extends StatelessWidget {
             color: d ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Text('İzlənilir',
+          child: Text(tr('social.following', 'İzlənilir'),
               style: TextStyle(
                   color: d ? WawatDark.textSecondary : const Color(0xFF475569),
                   fontSize: 12,
@@ -925,11 +946,11 @@ class _UserCard extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(PhosphorIconsBold.plus, size: 11, color: Colors.white),
-            SizedBox(width: 4),
-            Text('İzlə',
-                style: TextStyle(
+          children: [
+            const Icon(PhosphorIconsBold.plus, size: 11, color: Colors.white),
+            const SizedBox(width: 4),
+            Text(tr('social.follow', 'İzlə'),
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),

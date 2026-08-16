@@ -7,6 +7,7 @@ import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../presentation/common/listing_share.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import '../../profile_tab/new_profile/profile_api.dart';
@@ -328,8 +329,11 @@ class _ListingCardState extends State<ListingCard> {
                       content['enum.listing_status.fully_booked'] ??
                       content['listing.fully_booked'] ??
                       'Yer yoxdur',
-                  color: isDark ? WawatDark.textSecondary : const Color(0xFF475569),
-                  background: isDark ? WawatDark.elevated : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? WawatDark.textSecondary
+                      : const Color(0xFF475569),
+                  background:
+                      isDark ? WawatDark.elevated : const Color(0xFFE2E8F0),
                 ),
               if (_promotionType == 'vip' && !_readonly)
                 _Badge(
@@ -476,26 +480,40 @@ class _ListingCardState extends State<ListingCard> {
             ),
           ),
         ),
-        Spacer(),
+        // A fixed gap instead of a flex Spacer — the Spacer used to eat a third
+        // of the row and crush the price side (the label truncated to "Razılaşma
+        // …"). Letting the date chip expand pushes the price to the right edge
+        // and frees the room the unit hint below needs.
+        const SizedBox(width: 10),
         if (_isTrip && widget.listing.allowPriceNegotiation == true) ...[
-          const SizedBox(width: 12),
           // Negotiable pricing → show a label instead of the meaningless "0.0 $"
-          // (a negotiable trip is stored with a ~0 price on the backend).
+          // (a negotiable trip is stored with a ~0 price on the backend). Still
+          // prefix the per-kg unit ("$/kq") so it reads like the fixed-price
+          // cards — the agreement is over a per-kilogram rate.
           Flexible(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Text(
+                  '\$/kq',
+                  style: TextStyle(
+                    color: mutedColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 6),
                 Icon(PhosphorIconsFill.handshake,
                     size: 15, color: _accentOf(isDark)),
                 const SizedBox(width: 5),
                 Flexible(
                   child: Text(
-                    'Razılaşma ilə',
+                    tr('listing.negotiable', 'Razılaşma ilə'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: _accentOf(isDark),
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -543,7 +561,7 @@ class _ListingCardState extends State<ListingCard> {
         if (!_isTrip && widget.listing.weightKg != null)
           _InfoRow(
             icon: PhosphorIconsRegular.scales,
-            label: 'Çəki',
+            label: tr('listing.weight', 'Çəki'),
             value: '${_formatNumber(widget.listing.weightKg!)} kq',
             textColor: textColor,
             mutedColor: mutedColor,
@@ -552,7 +570,7 @@ class _ListingCardState extends State<ListingCard> {
           const SizedBox(height: 10),
           _InfoRow(
             icon: PhosphorIconsRegular.ticket,
-            label: 'Reys',
+            label: tr('listing.flight', 'Reys'),
             value: widget.listing.flightNumber!,
             textColor: textColor,
             mutedColor: mutedColor,
@@ -562,7 +580,7 @@ class _ListingCardState extends State<ListingCard> {
           const SizedBox(height: 10),
           _Badge(
             icon: PhosphorIconsFill.handshake,
-            label: 'Qiymət razılaşma ilə',
+            label: tr('listing.price_negotiable', 'Qiymət razılaşma ilə'),
             color: _accentOf(isDark),
             background: _accentSoftOf(isDark),
           ),
@@ -608,7 +626,7 @@ class _ListingCardState extends State<ListingCard> {
         Row(
           children: [
             Text(
-              'Boş yer',
+              tr('listing.free_space', 'Boş yer'),
               style: TextStyle(
                 color: isDark ? cText2(true) : mutedColor,
                 fontSize: 12,
@@ -795,7 +813,8 @@ class _ListingCardState extends State<ListingCard> {
                       if (owner.avgResponseMinutes != null) ...[
                         Text(' · ', style: TextStyle(color: mutedColor)),
                         Text(
-                          '~${owner.avgResponseMinutes} dəq cavab',
+                          tr('listing.avg_response', '~{minutes} dəq cavab',
+                              {'minutes': '${owner.avgResponseMinutes}'}),
                           style: TextStyle(
                             color: mutedColor,
                             fontSize: 12,
@@ -828,7 +847,7 @@ class _ListingCardState extends State<ListingCard> {
           if (widget.listing.viewCount != null)
             Expanded(
               child: _OwnerStat(
-                label: 'Baxış',
+                label: tr('listing.views', 'Baxış'),
                 value: widget.listing.viewCount.toString(),
                 color: textColor,
                 mutedColor: mutedColor,
@@ -837,7 +856,7 @@ class _ListingCardState extends State<ListingCard> {
           if (widget.listing.favoritesCount != null)
             Expanded(
               child: _OwnerStat(
-                label: 'Sevimli',
+                label: tr('listing.favorites', 'Sevimli'),
                 value: widget.listing.favoritesCount.toString(),
                 color: textColor,
                 mutedColor: mutedColor,
@@ -864,8 +883,9 @@ class _ListingCardState extends State<ListingCard> {
           flex: 3,
           child: _ActionButton(
             label: offerDisabled
-                ? (widget.listing.statusLabel ?? 'Yer yoxdur')
-                : 'Təklif göndər',
+                ? (widget.listing.statusLabel ??
+                    tr('listing.no_space', 'Yer yoxdur'))
+                : tr('listing.send_offer', 'Təklif göndər'),
             icon: offerDisabled
                 ? PhosphorIconsBold.prohibit
                 : PhosphorIconsBold.paperPlaneTilt,
@@ -882,7 +902,7 @@ class _ListingCardState extends State<ListingCard> {
         Expanded(
           flex: 2,
           child: _ActionButton(
-            label: 'Mesaj',
+            label: tr('common.message', 'Mesaj'),
             icon: PhosphorIconsRegular.chatCircle,
             background: _accentSoftOf(isDark),
             color: _accentOf(isDark),
@@ -901,7 +921,9 @@ class _ListingCardState extends State<ListingCard> {
       children: [
         Expanded(
           child: _ActionButton(
-            label: canResume ? 'Aktiv et' : 'Dayandır',
+            label: canResume
+                ? tr('listing.activate', 'Aktiv et')
+                : tr('listing.pause', 'Dayandır'),
             icon: canResume
                 ? PhosphorIconsFill.arrowClockwise
                 : PhosphorIconsBold.pause,
@@ -919,7 +941,7 @@ class _ListingCardState extends State<ListingCard> {
         const SizedBox(width: 10),
         Expanded(
           child: _ActionButton(
-            label: 'Repost',
+            label: tr('listing.repost', 'Repost'),
             icon: PhosphorIconsBold.arrowClockwise,
             background: isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE),
             color: isDark ? WawatDark.brandText : const Color(0xFF0271EB),
@@ -931,7 +953,7 @@ class _ListingCardState extends State<ListingCard> {
         const SizedBox(width: 10),
         Expanded(
           child: _ActionButton(
-            label: 'Sil',
+            label: tr('common.delete', 'Sil'),
             icon: PhosphorIconsRegular.trash,
             background:
                 isDark ? WawatDark.dangerSoftBg : const Color(0xFFFEE2E2),
@@ -1160,10 +1182,16 @@ class _ListingCardState extends State<ListingCard> {
     if (seconds <= 0) return promotion.statusLabel ?? '';
     final days = seconds ~/ 86400;
     final hours = (seconds % 86400) ~/ 3600;
-    if (days > 0) return '$days gün $hours saat';
-    if (hours > 0) return '$hours saat';
+    if (days > 0) {
+      return tr('listing.remaining_days_hours', '{days} gün {hours} saat',
+          {'days': '$days', 'hours': '$hours'});
+    }
+    if (hours > 0) {
+      return tr('listing.remaining_hours', '{hours} saat', {'hours': '$hours'});
+    }
     final minutes = (seconds % 3600) ~/ 60;
-    return '$minutes dəq';
+    return tr(
+        'listing.remaining_minutes', '{minutes} dəq', {'minutes': '$minutes'});
   }
 
   double _listingPromotionProgress(ListingPromotion? promotion) {
@@ -1195,7 +1223,9 @@ class _ListingCardState extends State<ListingCard> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _isExpanded ? 'Yığ' : 'Ətraflı',
+                _isExpanded
+                    ? tr('common.collapse', 'Yığ')
+                    : tr('common.expand', 'Ətraflı'),
                 style: TextStyle(
                   color: accent,
                   fontSize: 12,

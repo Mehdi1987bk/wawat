@@ -14,6 +14,7 @@ import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
+import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
@@ -326,8 +327,8 @@ class _ListingDetailsScreenState
                           listing: listing,
                           isDark: isDark,
                           isOwner: isOwner,
-                          isFavorited:
-                              _favoritedOverride ?? (listing?.isFavorited ?? false),
+                          isFavorited: _favoritedOverride ??
+                              (listing?.isFavorited ?? false),
                           content: bundle?.content ?? const {},
                           onBack: _handleBack,
                           onShare: listing == null
@@ -522,7 +523,7 @@ class _ListingDetailsScreenState
     } catch (_) {
       if (!mounted) return;
       setState(() => _favoritedOverride = current); // revert on failure
-      _showError('Əməliyyat alınmadı.');
+      _showError(tr('common.action_failed', 'Əməliyyat alınmadı.'));
       return;
     }
     if (!mounted) return;
@@ -536,10 +537,10 @@ class _ListingDetailsScreenState
 
   Future<void> _pause(Listing listing) async {
     final confirmed = await _confirmAction(
-      title: 'Elanı dayandır?',
-      message:
-          'Bu elan lentdən çıxacaq və istifadəçilər onu görməyəcək. Davam edək?',
-      confirmLabel: 'Dayandır',
+      title: tr('listing.pause_confirm_title', 'Elanı dayandır?'),
+      message: tr('listing.pause_confirm_message',
+          'Bu elan lentdən çıxacaq və istifadəçilər onu görməyəcək. Davam edək?'),
+      confirmLabel: tr('listing.pause', 'Dayandır'),
     );
     if (!confirmed) return;
     try {
@@ -551,15 +552,16 @@ class _ListingDetailsScreenState
       _reload();
     } catch (_) {
       if (!mounted) return;
-      _showError('Əməliyyat alınmadı.');
+      _showError(tr('common.action_failed', 'Əməliyyat alınmadı.'));
     }
   }
 
   Future<void> _resume(Listing listing) async {
     final confirmed = await _confirmAction(
-      title: 'Elanı aktivləşdir?',
-      message: 'Elan yenidən lentdə görünəcək. Davam edək?',
-      confirmLabel: 'Aktiv et',
+      title: tr('listing.resume_confirm_title', 'Elanı aktivləşdir?'),
+      message: tr('listing.resume_confirm_message',
+          'Elan yenidən lentdə görünəcək. Davam edək?'),
+      confirmLabel: tr('listing.resume_confirm_action', 'Aktiv et'),
     );
     if (!confirmed) return;
     try {
@@ -575,7 +577,7 @@ class _ListingDetailsScreenState
       _reload();
     } catch (_) {
       if (!mounted) return;
-      _showError('Əməliyyat alınmadı.');
+      _showError(tr('common.action_failed', 'Əməliyyat alınmadı.'));
     }
   }
 
@@ -622,7 +624,7 @@ class _ListingDetailsScreenState
   void _openOwnerProfile(ListingOwner owner) {
     final userId = (owner.id ?? owner.username ?? '').trim();
     if (userId.isEmpty) {
-      _showError('Profil məlumatı tapılmadı.');
+      _showError(tr('common.profile_not_found', 'Profil məlumatı tapılmadı.'));
       return;
     }
     Navigator.of(context).push(
@@ -653,9 +655,10 @@ class _ListingDetailsScreenState
 
   Future<void> _showDeleteSheet(Listing listing) async {
     final confirmed = await _confirmAction(
-      title: 'Elanı sil?',
-      message: 'Bu əməliyyat geri qaytarılmır. Davam etmək istəyirsən?',
-      confirmLabel: 'Sil',
+      title: tr('listing.delete_confirm_title', 'Elanı sil?'),
+      message: tr('listing.delete_confirm_message',
+          'Bu əməliyyat geri qaytarılmır. Davam etmək istəyirsən?'),
+      confirmLabel: tr('common.delete', 'Sil'),
       isDanger: true,
     );
     if (!confirmed) return;
@@ -666,9 +669,9 @@ class _ListingDetailsScreenState
       backgroundColor: Colors.transparent,
       barrierColor: isDark ? WawatDark.scrim : null,
       builder: (_) => _ReasonSheet(
-        title: 'Elanı sil',
-        subtitle: 'Silmə səbəbini seç.',
-        actionLabel: 'Sil',
+        title: tr('listing.delete_sheet_title', 'Elanı sil'),
+        subtitle: tr('listing.delete_sheet_subtitle', 'Silmə səbəbini seç.'),
+        actionLabel: tr('common.delete', 'Sil'),
         isDanger: true,
         reasons: _deleteReasons(_content),
         onSubmit: (reason, note) {
@@ -701,9 +704,10 @@ class _ListingDetailsScreenState
       backgroundColor: Colors.transparent,
       barrierColor: isDark ? WawatDark.scrim : null,
       builder: (_) => _ReasonSheet(
-        title: 'Şikayət et',
-        subtitle: 'Səbəbi seç və ya qısa qeyd yaz.',
-        actionLabel: 'Göndər',
+        title: tr('listing.report_sheet_title', 'Şikayət et'),
+        subtitle: tr(
+            'listing.report_sheet_subtitle', 'Səbəbi seç və ya qısa qeyd yaz.'),
+        actionLabel: tr('common.send', 'Göndər'),
         reasons: _reportReasons(_content),
         onSubmit: (reason, note) {
           return bloc.reportListing(
@@ -715,7 +719,7 @@ class _ListingDetailsScreenState
       ),
     );
     if (!mounted || sent != true) return;
-    _snack('Şikayət göndərildi.');
+    _snack(tr('listing.report_sent', 'Şikayət göndərildi.'));
   }
 
   void _reload() {
@@ -871,7 +875,7 @@ class _ConfirmActionDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        'Ləğv et',
+                        tr('common.cancel', 'Ləğv et'),
                         style: TextStyle(
                           color: isDark ? WawatDark.textPrimary : _ink500,
                           fontSize: 14,
@@ -962,7 +966,9 @@ class _TopBar extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              isOwner ? 'Elanım' : _t(content, 'listing.detail_title', 'Elan'),
+              isOwner
+                  ? tr('listing.my_listing', 'Elanım')
+                  : _t(content, 'listing.detail_title', 'Elan'),
               style: TextStyle(
                 color: titleColor,
                 fontSize: 17,
@@ -1534,7 +1540,10 @@ class _TrustBlock extends StatelessWidget {
                           ),
                           Text('·', style: TextStyle(color: cFaint(isDark))),
                           Text(
-                            '${owner.completedShipmentsCount ?? 0} çatdırılma',
+                            tr('listing.deliveries_count',
+                                '{count} çatdırılma', {
+                              'count': '${owner.completedShipmentsCount ?? 0}'
+                            }),
                             style: TextStyle(
                               color: cText2(isDark),
                               fontSize: 12,
@@ -1569,7 +1578,10 @@ class _TrustBlock extends StatelessWidget {
                     const SizedBox(width: 7),
                     Expanded(
                       child: Text(
-                        'Adətən ~${owner.avgResponseMinutes} dəqiqəyə cavab verir',
+                        tr(
+                            'listing.avg_response',
+                            'Adətən ~{minutes} dəqiqəyə cavab verir',
+                            {'minutes': '${owner.avgResponseMinutes}'}),
                         style: TextStyle(
                           color: isDark
                               ? WawatDark.success
@@ -1611,15 +1623,15 @@ class _OwnerManagementBlock extends StatelessWidget {
           children: [
             _ReservationProgressCard(listing: listing),
             const SizedBox(height: 12),
-            const _OwnerInfoBanner(
+            _OwnerInfoBanner(
               icon: PhosphorIconsFill.info,
               color: _brand,
               background: _brand50,
               darkColor: WawatDark.brandText,
               darkBackground: WawatDark.brandChip,
               title: null,
-              message:
-                  'Aktiv sövdələşmə olduğu üçün redaktə məhduddur. Silmək istəsəniz, əvvəl açıq sövdələşmələri həll edin.',
+              message: tr('listing.active_deal_edit_limited',
+                  'Aktiv sövdələşmə olduğu üçün redaktə məhduddur. Silmək istəsəniz, əvvəl açıq sövdələşmələri həll edin.'),
             ),
             const SizedBox(height: 14),
             _OwnerDetailsCard(
@@ -1661,7 +1673,7 @@ class _OwnerStatsGrid extends StatelessWidget {
         Expanded(
           child: _OwnerStatCard(
             value: '${listing.viewCount ?? 0}',
-            label: 'Baxış',
+            label: tr('listing.stat_views', 'Baxış'),
             icon: PhosphorIconsRegular.eye,
           ),
         ),
@@ -1669,7 +1681,7 @@ class _OwnerStatsGrid extends StatelessWidget {
         Expanded(
           child: _OwnerStatCard(
             value: '${listing.favoritesCount ?? 0}',
-            label: 'Seçilmiş',
+            label: tr('listing.stat_favorites', 'Seçilmiş'),
             icon: PhosphorIconsRegular.heart,
           ),
         ),
@@ -1679,7 +1691,9 @@ class _OwnerStatsGrid extends StatelessWidget {
             value: listing.isTrip
                 ? '${_num(listing.freeWeightKg)}kq'
                 : '${_num(listing.weightKg)}kq',
-            label: listing.isTrip ? 'Boş' : 'Çəki',
+            label: listing.isTrip
+                ? tr('listing.free', 'Boş')
+                : tr('listing.weight', 'Çəki'),
             icon: PhosphorIconsRegular.scales,
           ),
         ),
@@ -1763,7 +1777,7 @@ class _ReservationProgressCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Rezerv olunub',
+                tr('listing.reserved', 'Rezerv olunub'),
                 style: TextStyle(
                   color: cText(isDark),
                   fontSize: 13,
@@ -1795,7 +1809,8 @@ class _ReservationProgressCard extends StatelessWidget {
           ),
           const SizedBox(height: 9),
           Text(
-            '${_num(free)} kq boş yer qalıb',
+            tr('listing.free_space_left', '{kg} kq boş yer qalıb',
+                {'kg': _num(free)}),
             style: TextStyle(
               color: cText2(isDark),
               fontSize: 12,
@@ -1827,7 +1842,7 @@ class _OwnerDetailsCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Detallar',
+          tr('listing.details', 'Detallar'),
           style: TextStyle(
             color: cText(isDark),
             fontSize: 13,
@@ -1849,20 +1864,20 @@ class _OwnerDetailsCard extends StatelessWidget {
             children: [
               if (listing.isTrip)
                 _OwnerDetailRow(
-                  label: 'Qiymət',
+                  label: tr('listing.price', 'Qiymət'),
                   value: listing.allowPriceNegotiation == true
-                      ? 'Razılaşma'
+                      ? tr('listing.negotiable', 'Razılaşma')
                       : '${_num(listing.pricePerKg)} \$/kq',
                 ),
               if (listing.isTrip)
                 _OwnerDetailRow(
-                  label: 'Reys',
+                  label: tr('listing.flight', 'Reys'),
                   value: (listing.flightNumber ?? '').isEmpty
                       ? '-'
                       : listing.flightNumber!,
                 ),
               _OwnerDetailRow(
-                label: 'Bağlamalar',
+                label: tr('listing.packages', 'Bağlamalar'),
                 value: packages.isEmpty ? '-' : packages,
                 isLast: true,
               ),
@@ -2006,46 +2021,46 @@ class _FactsGrid extends StatelessWidget {
         ? [
             _FactData(
               PhosphorIconsRegular.scales,
-              'Boş yer',
+              tr('listing.free_space', 'Boş yer'),
               '${_num(listing.freeWeightKg)} kq',
               suffix: '/ ${_num(listing.maxWeightKg)} kq',
             ),
             _FactData(
               PhosphorIconsRegular.tag,
-              'Qiymət',
+              tr('listing.price', 'Qiymət'),
               listing.allowPriceNegotiation == true
-                  ? 'Razılaşma'
+                  ? tr('listing.negotiable', 'Razılaşma')
                   : '${_num(listing.pricePerKg)} \$',
               suffix: listing.allowPriceNegotiation == true ? null : '/kq',
             ),
             _FactData(
               PhosphorIconsRegular.airplaneInFlight,
-              'Reys',
+              tr('listing.flight', 'Reys'),
               (listing.flightNumber ?? '').isEmpty
                   ? '-'
                   : listing.flightNumber!,
             ),
             _FactData(
               PhosphorIconsRegular.clock,
-              'Dərc olunub',
+              tr('listing.published', 'Dərc olunub'),
               _relativeDate(listing.createdAt),
             ),
           ]
         : [
             _FactData(
               PhosphorIconsRegular.scales,
-              'Çəki',
+              tr('listing.weight', 'Çəki'),
               '${_num(listing.weightKg)} kq',
             ),
             _FactData(
               PhosphorIconsRegular.calendarBlank,
-              'Təhvil',
+              tr('listing.delivery', 'Təhvil'),
               _formatDateRange(
                   listing.deliveryDateFrom, listing.deliveryDateTo),
             ),
             _FactData(
               PhosphorIconsRegular.clock,
-              'Dərc olunub',
+              tr('listing.published', 'Dərc olunub'),
               _relativeDate(listing.createdAt),
             ),
           ];
@@ -2161,7 +2176,9 @@ class _PackageTypesBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            listing.isTrip ? 'Qəbul olunan bağlamalar' : 'Bağlama növü',
+            listing.isTrip
+                ? tr('listing.accepted_packages', 'Qəbul olunan bağlamalar')
+                : tr('listing.package_type', 'Bağlama növü'),
             style: TextStyle(
               color: cText(isDark),
               fontSize: 14,
@@ -2206,7 +2223,7 @@ class _DescriptionBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Təsvir',
+            tr('listing.description', 'Təsvir'),
             style: TextStyle(
               color: cText(isDark),
               fontSize: 14,
@@ -2258,7 +2275,7 @@ class _SimilarBlock extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Oxşar elanlar',
+                    tr('listing.similar', 'Oxşar elanlar'),
                     style: TextStyle(
                       color: cText(isDark),
                       fontSize: 15,
@@ -2273,7 +2290,7 @@ class _SimilarBlock extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     child: Text(
-                      'Hamısı',
+                      tr('common.all', 'Hamısı'),
                       style: TextStyle(
                         color: cBrandText(isDark),
                         fontSize: 12,
@@ -2349,7 +2366,7 @@ class _SimilarListingsScreen extends StatelessWidget {
                     const SizedBox(width: 14),
                     Expanded(
                       child: Text(
-                        'Oxşar elanlar',
+                        tr('listing.similar', 'Oxşar elanlar'),
                         style: TextStyle(
                           color: cText(isDark),
                           fontSize: 17,
@@ -2449,7 +2466,11 @@ class _SimilarListCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     listing.isTrip
-                        ? '${_formatDate(listing.flightDate)} · ${_num(listing.freeWeightKg)} kq boş'
+                        ? tr('listing.trip_summary_free',
+                            '{date} · {kg} kq boş', {
+                            'date': _formatDate(listing.flightDate),
+                            'kg': _num(listing.freeWeightKg),
+                          })
                         : _formatDateRange(
                             listing.deliveryDateFrom,
                             listing.deliveryDateTo,
@@ -2469,7 +2490,7 @@ class _SimilarListCard extends StatelessWidget {
             if (listing.isTrip)
               Text(
                 listing.allowPriceNegotiation == true
-                    ? 'Razılaşma ilə'
+                    ? tr('listing.negotiable_with', 'Razılaşma ilə')
                     : '${_num(listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText(isDark),
@@ -2531,7 +2552,9 @@ class _SimilarCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    listing.isTrip ? 'Səfər' : 'Göndəriş',
+                    listing.isTrip
+                        ? tr('listing.trip', 'Səfər')
+                        : tr('listing.shipment', 'Göndəriş'),
                     style: TextStyle(
                       color: accent,
                       fontSize: 11,
@@ -2555,7 +2578,10 @@ class _SimilarCard extends StatelessWidget {
             const Spacer(),
             Text(
               listing.isTrip
-                  ? '${_formatDate(listing.flightDate)} · ${_num(listing.freeWeightKg)} kq boş'
+                  ? tr('listing.trip_summary_free', '{date} · {kg} kq boş', {
+                      'date': _formatDate(listing.flightDate),
+                      'kg': _num(listing.freeWeightKg),
+                    })
                   : _formatDateRange(
                       listing.deliveryDateFrom, listing.deliveryDateTo),
               maxLines: 1,
@@ -2569,7 +2595,7 @@ class _SimilarCard extends StatelessWidget {
             if (listing.isTrip)
               Text(
                 listing.allowPriceNegotiation == true
-                    ? 'Razılaşma ilə'
+                    ? tr('listing.negotiable_with', 'Razılaşma ilə')
                     : '${_num(listing.pricePerKg)} \$/kq',
                 style: TextStyle(
                   color: cText(isDark),
@@ -2639,7 +2665,7 @@ class _ActionBar extends StatelessWidget {
               children: [
                 Expanded(
                   child: _ActionButton(
-                    label: 'Mesaj',
+                    label: tr('common.message', 'Mesaj'),
                     icon: PhosphorIconsFill.chatCircle,
                     variant: _ActionVariant.ghost,
                     onTap: onMessage,
@@ -2651,13 +2677,14 @@ class _ActionBar extends StatelessWidget {
                   // No space left on a full listing → the offer CTA is disabled.
                   child: listing.isFull
                       ? _ActionButton(
-                          label: listing.statusLabel ?? 'Yer yoxdur',
+                          label: listing.statusLabel ??
+                              tr('listing.no_space', 'Yer yoxdur'),
                           icon: PhosphorIconsFill.prohibit,
                           variant: _ActionVariant.disabled,
                           onTap: () {},
                         )
                       : _ActionButton(
-                          label: 'Təklif göndər',
+                          label: tr('listing.send_offer', 'Təklif göndər'),
                           icon: PhosphorIconsFill.paperPlaneTilt,
                           variant: _ActionVariant.primary,
                           onTap: onOffer,
@@ -2674,7 +2701,7 @@ class _ActionBar extends StatelessWidget {
         children: [
           Expanded(
             child: _ActionButton(
-              label: 'Redaktə',
+              label: tr('listing.edit', 'Redaktə'),
               icon: PhosphorIconsBold.pencilSimple,
               variant: _ActionVariant.ghost,
               onTap: onEdit,
@@ -2684,7 +2711,7 @@ class _ActionBar extends StatelessWidget {
           Expanded(
             flex: 2,
             child: _ActionButton(
-              label: 'Yenidən aktivləşdir',
+              label: tr('listing.resume', 'Yenidən aktivləşdir'),
               icon: PhosphorIconsFill.play,
               variant: _ActionVariant.primary,
               onTap: onResume,
@@ -2698,7 +2725,7 @@ class _ActionBar extends StatelessWidget {
         children: [
           Expanded(
             child: _ActionButton(
-              label: 'Sil',
+              label: tr('common.delete', 'Sil'),
               icon: PhosphorIconsRegular.trash,
               variant: _ActionVariant.ghost,
               onTap: onDelete,
@@ -2708,7 +2735,7 @@ class _ActionBar extends StatelessWidget {
           Expanded(
             flex: 2,
             child: _ActionButton(
-              label: 'Yenidən paylaş',
+              label: tr('listing.repost', 'Yenidən paylaş'),
               icon: PhosphorIconsBold.arrowClockwise,
               variant: _ActionVariant.primary,
               onTap: onRepost,
@@ -2722,7 +2749,7 @@ class _ActionBar extends StatelessWidget {
         children: [
           Expanded(
             child: _ActionButton(
-              label: 'Sil',
+              label: tr('common.delete', 'Sil'),
               icon: PhosphorIconsRegular.trash,
               variant: _ActionVariant.ghost,
               onTap: onDelete,
@@ -2732,7 +2759,7 @@ class _ActionBar extends StatelessWidget {
           Expanded(
             flex: 2,
             child: _ActionButton(
-              label: 'Düzəlt',
+              label: tr('listing.fix', 'Düzəlt'),
               icon: PhosphorIconsBold.pencilSimple,
               variant: _ActionVariant.primary,
               onTap: onEdit,
@@ -2745,7 +2772,7 @@ class _ActionBar extends StatelessWidget {
       children: [
         Expanded(
           child: _ActionButton(
-            label: 'Redaktə',
+            label: tr('listing.edit', 'Redaktə'),
             icon: PhosphorIconsBold.pencilSimple,
             variant: _ActionVariant.ghost,
             onTap: onEdit,
@@ -2754,7 +2781,7 @@ class _ActionBar extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _ActionButton(
-            label: 'Dayandır',
+            label: tr('listing.pause', 'Dayandır'),
             icon: PhosphorIconsBold.pause,
             variant: _ActionVariant.secondary,
             onTap: onPause,
@@ -2763,7 +2790,7 @@ class _ActionBar extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _ActionButton(
-            label: 'Sil',
+            label: tr('common.delete', 'Sil'),
             icon: PhosphorIconsRegular.trash,
             variant: _ActionVariant.danger,
             onTap: onDelete,
@@ -2927,7 +2954,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
             Row(
               children: [
                 Text(
-                  'Təklif göndər',
+                  tr('listing.send_offer', 'Təklif göndər'),
                   style: TextStyle(
                     color: cText(isDark),
                     fontSize: 18,
@@ -2948,7 +2975,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
             ),
             const SizedBox(height: 14),
             Text(
-              'Bağlama növü',
+              tr('listing.package_type', 'Bağlama növü'),
               style: TextStyle(
                 color: cText(isDark),
                 fontSize: 13,
@@ -2975,8 +3002,11 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                 Expanded(
                   child: _SheetInput(
                     controller: _weightController,
-                    label: 'Çəki',
-                    hint: free == null ? 'kq' : 'Boş: ${_num(free)} kq',
+                    label: tr('listing.weight', 'Çəki'),
+                    hint: free == null
+                        ? 'kq'
+                        : tr('listing.free_hint', 'Boş: {kg} kq',
+                            {'kg': _num(free)}),
                     keyboardType: TextInputType.number,
                   ),
                 ),
@@ -2984,7 +3014,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                 Expanded(
                   child: _SheetInput(
                     controller: _priceController,
-                    label: 'Ümumi qiymət',
+                    label: tr('listing.total_price', 'Ümumi qiymət'),
                     hint: '\$',
                     keyboardType: TextInputType.number,
                   ),
@@ -2994,8 +3024,8 @@ class _ProposalSheetState extends State<_ProposalSheet> {
             const SizedBox(height: 12),
             _SheetInput(
               controller: _noteController,
-              label: 'Qeyd',
-              hint: 'Qısa mesaj yaz...',
+              label: tr('common.note', 'Qeyd'),
+              hint: tr('listing.note_hint', 'Qısa mesaj yaz...'),
               maxLines: 3,
             ),
             if (widget.listing.isTrip &&
@@ -3003,7 +3033,10 @@ class _ProposalSheetState extends State<_ProposalSheet> {
                 widget.listing.allowPriceNegotiation != true) ...[
               const SizedBox(height: 9),
               Text(
-                'Təxmini qiyməti çəkiyə görə hesablaya bilərsən: ${_num(widget.listing.pricePerKg)} \$/kq',
+                tr(
+                    'listing.price_hint',
+                    'Təxmini qiyməti çəkiyə görə hesablaya bilərsən: {price} \$/kq',
+                    {'price': _num(widget.listing.pricePerKg)}),
                 style: TextStyle(
                   color: cText2(isDark),
                   fontSize: 12,
@@ -3024,7 +3057,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
             ],
             const SizedBox(height: 16),
             _ActionButton(
-              label: 'Təklif göndər',
+              label: tr('listing.send_offer', 'Təklif göndər'),
               icon: PhosphorIconsFill.paperPlaneTilt,
               variant: _ActionVariant.primary,
               onTap: _submit,
@@ -3086,7 +3119,8 @@ class _ProposalError {
 }
 
 _ProposalError _proposalErrorMessage(Object error) {
-  const fallback = 'Təklif göndərilmədi. Məlumatları yoxla və yenidən cəhd et.';
+  final fallback = tr('listing.offer_failed',
+      'Təklif göndərilmədi. Məlumatları yoxla və yenidən cəhd et.');
   if (error is DioException) {
     final data = error.response?.data;
     if (data is Map) {
@@ -3124,7 +3158,8 @@ _ProposalError _proposalErrorMessage(Object error) {
 
 String _friendlyProposalError(String message) {
   if (message == 'There is still an active order in this chat.') {
-    return 'Bu söhbətdə artıq aktiv sifariş var. Davam etmək üçün mövcud söhbətə keç.';
+    return tr('listing.active_order_in_chat',
+        'Bu söhbətdə artıq aktiv sifariş var. Davam etmək üçün mövcud söhbətə keç.');
   }
   return message;
 }
@@ -3207,7 +3242,7 @@ class _ProposalErrorBox extends StatelessWidget {
                         color: cBrandText(isDark), size: 18),
                     const SizedBox(width: 7),
                     Text(
-                      'Söhbətə keç',
+                      tr('chat.go_to_chat', 'Söhbətə keç'),
                       style: TextStyle(
                         color: cBrandText(isDark),
                         fontSize: 13,
@@ -3253,7 +3288,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final ownerName = listing.owner?.firstName ??
         listing.owner?.displayName.split(' ').first ??
-        'İstifadəçi';
+        tr('common.user', 'İstifadəçi');
     return Scaffold(
       backgroundColor: isDark ? WawatDark.bg : _brand,
       body: SafeArea(
@@ -3276,7 +3311,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 46),
               Text(
-                'Təklif göndərildi',
+                tr('listing.offer_sent', 'Təklif göndərildi'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: isDark ? WawatDark.textPrimary : Colors.white,
@@ -3287,7 +3322,10 @@ class _ProposalSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                '$ownerName təklifinizə baxıb cavab verəcək.\nSöhbətdən danışıqları davam etdirə bilərsiniz.',
+                tr(
+                    'listing.offer_sent_body',
+                    '{name} təklifinizə baxıb cavab verəcək.\nSöhbətdən danışıqları davam etdirə bilərsiniz.',
+                    {'name': ownerName}),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: isDark
@@ -3313,7 +3351,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _SuccessSummaryRow(
-                      label: 'Bağlama',
+                      label: tr('listing.package', 'Bağlama'),
                       value: [
                         data.packageName,
                         if (data.weightKg != null) '${_num(data.weightKg)} kq',
@@ -3322,7 +3360,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                     if (data.priceTotal != null) ...[
                       const SizedBox(height: 18),
                       _SuccessSummaryRow(
-                        label: 'Ümumi qiymət',
+                        label: tr('listing.total_price', 'Ümumi qiymət'),
                         value: '${_num(data.priceTotal)} \$',
                       ),
                     ],
@@ -3348,7 +3386,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                           color: isDark ? Colors.white : _brand, size: 22),
                       const SizedBox(width: 10),
                       Text(
-                        'Söhbətə keç',
+                        tr('chat.go_to_chat', 'Söhbətə keç'),
                         style: TextStyle(
                           color: isDark ? Colors.white : _brand,
                           fontSize: 18,
@@ -3364,7 +3402,7 @@ class _ProposalSuccessScreen extends StatelessWidget {
                 behavior: HitTestBehavior.translucent,
                 onTap: () => Navigator.of(context).maybePop(),
                 child: Text(
-                  'Elana qayıt',
+                  tr('listing.back_to_listing', 'Elana qayıt'),
                   style: TextStyle(
                     color: isDark
                         ? WawatDark.textSecondary
@@ -3540,8 +3578,8 @@ class _ReasonSheetState extends State<_ReasonSheet> {
             const SizedBox(height: 10),
             _SheetInput(
               controller: _noteController,
-              label: 'Qeyd',
-              hint: 'İstəyə bağlı',
+              label: tr('common.note', 'Qeyd'),
+              hint: tr('common.optional', 'İstəyə bağlı'),
               maxLines: 3,
             ),
             const SizedBox(height: 14),
@@ -3577,7 +3615,8 @@ class _ReasonSheetState extends State<_ReasonSheet> {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Əməliyyat alınmadı.')),
+        SnackBar(
+            content: Text(tr('common.action_failed', 'Əməliyyat alınmadı.'))),
       );
     }
   }
@@ -3960,7 +3999,7 @@ class _ErrorState extends StatelessWidget {
                 color: cBrandText(isDark), size: 58),
             const SizedBox(height: 14),
             Text(
-              'Elan tapılmadı',
+              tr('listing.not_found_title', 'Elan tapılmadı'),
               style: TextStyle(
                 color: cText(isDark),
                 fontSize: 21,
@@ -3969,7 +4008,8 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Elan silinmiş, moderasiyada ola bilər və ya sənə açıq deyil.',
+              tr('listing.not_found_body',
+                  'Elan silinmiş, moderasiyada ola bilər və ya sənə açıq deyil.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: cText2(isDark),
@@ -3979,7 +4019,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             _ActionButton(
-              label: 'Yenidən yoxla',
+              label: tr('common.retry', 'Yenidən yoxla'),
               icon: PhosphorIconsBold.arrowClockwise,
               variant: _ActionVariant.primary,
               onTap: onRetry,
@@ -4115,47 +4155,48 @@ bool _isMutedOwnerStatus(String? status) {
 _OwnerInfoBanner? _ownerTopBanner(String status) {
   switch (status) {
     case 'moderation':
-      return const _OwnerInfoBanner(
+      return _OwnerInfoBanner(
         icon: PhosphorIconsFill.hourglass,
         color: _amber,
         background: _amber50,
         darkColor: WawatDark.warning,
         darkBackground: WawatDark.warningBg,
-        title: 'Moderasiyada',
-        message: 'Elanınız yoxlanılır. Təsdiqlənəndən sonra lentdə görünəcək.',
+        title: tr('listing.moderation_banner_title', 'Moderasiyada'),
+        message: tr('listing.moderation_banner_message',
+            'Elanınız yoxlanılır. Təsdiqlənəndən sonra lentdə görünəcək.'),
       );
     case 'rejected':
-      return const _OwnerInfoBanner(
+      return _OwnerInfoBanner(
         icon: PhosphorIconsFill.xCircle,
-        color: Color(0xFFEF4444),
-        background: Color(0xFFFEF2F2),
+        color: const Color(0xFFEF4444),
+        background: const Color(0xFFFEF2F2),
         darkColor: WawatDark.dangerText,
         darkBackground: WawatDark.dangerSoftBg,
-        title: 'Rədd edildi',
-        message:
-            'Səbəb: elan qaydalara uyğun deyil. Düzəliş edib yenidən göndərə bilərsiniz.',
+        title: tr('listing.rejected_banner_title', 'Rədd edildi'),
+        message: tr('listing.rejected_banner_message',
+            'Səbəb: elan qaydalara uyğun deyil. Düzəliş edib yenidən göndərə bilərsiniz.'),
       );
     case 'paused':
-      return const _OwnerInfoBanner(
+      return _OwnerInfoBanner(
         icon: PhosphorIconsFill.pauseCircle,
         color: _ink600,
-        background: Color(0xFFF3F4F6),
+        background: const Color(0xFFF3F4F6),
         darkColor: WawatDark.textSecondary,
         darkBackground: WawatDark.surfaceAlt,
-        title: 'Dayandırılıb',
-        message:
-            'Bu elan lentdə görünmür. İstənilən vaxt yenidən aktivləşdirə bilərsiniz.',
+        title: tr('listing.paused_banner_title', 'Dayandırılıb'),
+        message: tr('listing.paused_banner_message',
+            'Bu elan lentdə görünmür. İstənilən vaxt yenidən aktivləşdirə bilərsiniz.'),
       );
     case 'expired':
-      return const _OwnerInfoBanner(
+      return _OwnerInfoBanner(
         icon: PhosphorIconsFill.clockCountdown,
         color: _ink600,
-        background: Color(0xFFF3F4F6),
+        background: const Color(0xFFF3F4F6),
         darkColor: WawatDark.textSecondary,
         darkBackground: WawatDark.surfaceAlt,
-        title: 'Vaxtı keçib',
-        message:
-            'Uçuş tarixi keçdiyi üçün elan lentdən çıxıb. Yeni tarixlə yenidən paylaşa bilərsiniz.',
+        title: tr('listing.expired_banner_title', 'Vaxtı keçib'),
+        message: tr('listing.expired_banner_message',
+            'Uçuş tarixi keçdiyi üçün elan lentdən çıxıb. Yeni tarixlə yenidən paylaşa bilərsiniz.'),
       );
     default:
       return null;
@@ -4177,11 +4218,11 @@ String _initials(String name) {
 String? _countryFallback(String? city) {
   if (city == null) return null;
   final lower = city.toLowerCase();
-  if (lower.contains('dubai')) return 'BƏƏ';
-  if (lower.contains('istanbul')) return 'Türkiyə';
-  if (lower.contains('berlin')) return 'Almaniya';
-  if (lower.contains('moscow')) return 'Rusiya';
-  return 'Azərbaycan';
+  if (lower.contains('dubai')) return tr('country.uae', 'BƏƏ');
+  if (lower.contains('istanbul')) return tr('country.turkey', 'Türkiyə');
+  if (lower.contains('berlin')) return tr('country.germany', 'Almaniya');
+  if (lower.contains('moscow')) return tr('country.russia', 'Rusiya');
+  return tr('country.azerbaijan', 'Azərbaycan');
 }
 
 String _formatDate(String? value) {
@@ -4234,9 +4275,9 @@ String _relativeDate(String? value) {
   final date = DateTime.tryParse(value);
   if (date == null) return value;
   final diff = DateTime.now().difference(date);
-  if (diff.inDays <= 0) return 'bugün';
-  if (diff.inDays == 1) return 'dünən';
-  return '${diff.inDays} gün əvvəl';
+  if (diff.inDays <= 0) return tr('common.today', 'bugün');
+  if (diff.inDays == 1) return tr('common.yesterday', 'dünən');
+  return tr('common.days_ago', '{days} gün əvvəl', {'days': '${diff.inDays}'});
 }
 
 String _num(double? value) {

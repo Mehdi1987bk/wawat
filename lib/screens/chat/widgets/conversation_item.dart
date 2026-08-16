@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -18,17 +19,23 @@ class ConversationItem extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onTapMenu;
 
+  /// Localized "message deleted" text, shown as the preview when the last
+  /// message is a deleted tombstone.
+  final String? deletedLabel;
+
   const ConversationItem({
     super.key,
     required this.conversation,
     required this.onTap,
     required this.onTapMenu,
+    this.deletedLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final unread = conversation.unreadCount > 0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lastDeleted = conversation.lastMessageIsDeleted;
 
     return Material(
       color: unread
@@ -81,23 +88,37 @@ class ConversationItem extends StatelessWidget {
                     const SizedBox(height: 5),
                     Row(
                       children: [
-                        _PreviewIcon(type: conversation.lastMessage?.type),
+                        _PreviewIcon(
+                          type: conversation.lastMessage?.type,
+                          deleted: lastDeleted,
+                        ),
                         if (conversation.lastMessage != null)
                           const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            conversation.lastMessagePreview(context),
+                            lastDeleted
+                                ? (deletedLabel ??
+                                    tr('chat.message.deleted', 'Mesaj silindi'))
+                                : conversation.lastMessagePreview(context),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: unread
-                                  ? (isDark ? WawatDark.textPrimary : _ink900)
-                                  : (isDark
-                                      ? WawatDark.textSecondary
-                                      : _ink500),
+                              color: lastDeleted
+                                  ? (isDark ? WawatDark.textMuted : _ink400)
+                                  : unread
+                                      ? (isDark
+                                          ? WawatDark.textPrimary
+                                          : _ink900)
+                                      : (isDark
+                                          ? WawatDark.textSecondary
+                                          : _ink500),
                               fontSize: 13,
-                              fontWeight:
-                                  unread ? FontWeight.w600 : FontWeight.w500,
+                              fontStyle: lastDeleted
+                                  ? FontStyle.italic
+                                  : FontStyle.normal,
+                              fontWeight: !lastDeleted && unread
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),
@@ -242,17 +263,22 @@ class _Avatar extends StatelessWidget {
 
 class _PreviewIcon extends StatelessWidget {
   final String? type;
+  final bool deleted;
 
-  const _PreviewIcon({this.type});
+  const _PreviewIcon({this.type, this.deleted = false});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final icon = switch (type) {
-      'image' => PhosphorIconsRegular.image,
-      'system_card' => PhosphorIconsRegular.paperPlaneTilt,
-      _ => null,
-    };
+    // A deleted last message overrides its original type icon with a prohibit
+    // mark, matching the tombstone in the thread.
+    final icon = deleted
+        ? PhosphorIconsRegular.prohibit
+        : switch (type) {
+            'image' => PhosphorIconsRegular.image,
+            'system_card' => PhosphorIconsRegular.paperPlaneTilt,
+            _ => null,
+          };
     if (icon == null) return const SizedBox.shrink();
     return Icon(icon, color: isDark ? WawatDark.iconMuted : _ink400, size: 15);
   }

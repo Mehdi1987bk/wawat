@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../presentation/bloc/base_screen.dart';
+import '../../../services/localization_service.dart';
 import 'auth_welcome_bloc.dart';
 
 class AuthWelcomeScreen extends BaseScreen<AuthWelcomeBloc> {
@@ -42,9 +43,9 @@ class _AuthWelcomeScreenState
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'Qonaq',
-                    style: TextStyle(
+                  child: Text(
+                    tr('auth.guest', 'Qonaq'),
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontWeight: FontWeight.w600,
                     ),
@@ -72,10 +73,11 @@ class _AuthWelcomeScreenState
                       ),
                     ),
                     const SizedBox(height: 22),
-                    const Text(
-                      'Səyahət et, bağlama daşı, qazan. Etibarlı crowdshipping icması.',
+                    Text(
+                      tr('auth.welcome_tagline',
+                          'Səyahət et, bağlama daşı, qazan. Etibarlı crowdshipping icması.'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
                         height: 1.4,
@@ -86,33 +88,33 @@ class _AuthWelcomeScreenState
                 ),
               ),
               _WhiteButton(
-                text: 'Qeydiyyatdan keç',
+                text: tr('auth.register', 'Qeydiyyatdan keç'),
                 onPressed: widget.onRegister,
               ),
               const SizedBox(height: 12),
               _GlassButton(
-                text: 'Daxil ol',
+                text: tr('auth.login', 'Daxil ol'),
                 onPressed: widget.onLogin,
               ),
               const SizedBox(height: 16),
-              const _DividerLabel(text: 'və ya'),
+              _DividerLabel(text: tr('common.or', 'və ya')),
               const SizedBox(height: 16),
-              const _OAuthButton(
-                text: 'Google ilə davam et',
+              _OAuthButton(
+                text: tr('auth.continue_with_google', 'Google ilə davam et'),
                 icon: Icons.g_mobiledata,
               ),
               const SizedBox(height: 10),
-              const _OAuthButton(
-                text: 'Apple ilə davam et',
+              _OAuthButton(
+                text: tr('auth.continue_with_apple', 'Apple ilə davam et'),
                 icon: Icons.apple,
                 isDark: true,
               ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text(
-                  'Qonaq kimi davam et',
-                  style: TextStyle(
+                child: Text(
+                  tr('auth.continue_as_guest', 'Qonaq kimi davam et'),
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,

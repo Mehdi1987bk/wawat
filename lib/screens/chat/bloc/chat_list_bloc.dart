@@ -211,8 +211,51 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  Future<void> refreshCurrent() {
-    return _showArchived ? loadArchivedConversations() : loadConversations();
+  /// Non-destructive refresh for the realtime / 15s-timer / app-resume paths and
+  /// when returning to the list from a chat. Unlike [loadConversations] it keeps
+  /// pagination and the current item count intact: it refetches the first page
+  /// and MERGES it into the already-loaded set (updating changed rows, adding
+  /// brand-new ones) rather than replacing everything with page 1. Replacing
+  /// used to shrink an 80-item paginated list back to 20 and yank a scrolled-down
+  /// user violently back up. Ordering is owned by the UI sort (pinned + recency),
+  /// so here we only preserve the count. Full resets stay on
+  /// [loadConversations]/[loadArchivedConversations] (tab switch, pull-to-refresh)
+  /// where the list is at the top anyway.
+  Future<void> refreshCurrent() async {
+    try {
+      final response = _showArchived
+          ? await _chatApi.getArchivedConversations(20, 1)
+          : await _chatApi.getConversations(20, 1);
+      _lastPage = response.meta.lastPage;
+
+      final fresh = response.data;
+      final existing = _conversationsSubject.value;
+      if (existing.isEmpty) {
+        _currentPage = 1;
+        _conversationsSubject.add(fresh);
+        await _syncRealtimeSubscriptions(fresh);
+        return;
+      }
+
+      final freshById = {for (final c in fresh) c.id: c};
+      final seen = <String>{};
+      final merged = <Conversation>[];
+      for (final c in existing) {
+        // Replace an already-loaded row with its fresh copy (new last message,
+        // unread count, pin state…); keep older paginated rows untouched.
+        merged.add(freshById[c.id] ?? c);
+        seen.add(c.id);
+      }
+      // Conversations that appeared on page 1 since the last load.
+      for (final c in fresh) {
+        if (!seen.contains(c.id)) merged.add(c);
+      }
+
+      _conversationsSubject.add(merged);
+      await _syncRealtimeSubscriptions(merged);
+    } catch (e) {
+      print('Error refreshing conversations: $e');
+    }
   }
 
   Future<void> reconnectRealtime() async {

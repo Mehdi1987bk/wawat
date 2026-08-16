@@ -5,6 +5,7 @@ import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../presentation/common/async_button.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
+import '../../../services/localization_service.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
 import 'email_verify_bloc.dart';
@@ -29,7 +30,9 @@ class _EmailVerifyScreenState
     final result = await bloc.resendVerificationLink();
     if (!mounted) return;
     showTopSnackbar(
-      result.message ?? 'Təsdiq linki email-inizə göndərildi.',
+      result.message ??
+          tr('auth.verification_link_sent',
+              'Təsdiq linki email-inizə göndərildi.'),
       result.isSuccess,
       context,
     );
@@ -80,7 +83,7 @@ class _EmailVerifyScreenState
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Email-ini təsdiqlə',
+                    tr('auth.verify_email_title', 'Email-ini təsdiqlə'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 26,
@@ -90,7 +93,10 @@ class _EmailVerifyScreenState
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '${widget.email} ünvanına təsdiq linki göndərdik. Linkə klikləyib hesabını aktivləşdir.',
+                    tr(
+                        'auth.verify_email_body',
+                        '{email} ünvanına təsdiq linki göndərdik. Linkə klikləyib hesabını aktivləşdir.',
+                        {'email': widget.email}),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -100,7 +106,7 @@ class _EmailVerifyScreenState
                   ),
                   const SizedBox(height: 28),
                   _PrimaryButton(
-                    text: 'Linki yenidən göndər',
+                    text: tr('auth.resend_link', 'Linki yenidən göndər'),
                     onPressed: _resend,
                   ),
                   const SizedBox(height: 12),
@@ -112,7 +118,7 @@ class _EmailVerifyScreenState
                       );
                     },
                     child: Text(
-                      'Davam et',
+                      tr('common.continue', 'Davam et'),
                       style: TextStyle(
                         color: isDark ? WawatDark.brandText : _brand,
                         fontWeight: FontWeight.w600,
@@ -121,7 +127,8 @@ class _EmailVerifyScreenState
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'Məktub gəlmədi? Spam qovluğunu yoxla.',
+                    tr('auth.check_spam',
+                        'Məktub gəlmədi? Spam qovluğunu yoxla.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: mutedColor,

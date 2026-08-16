@@ -68,6 +68,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
   late Future<int> _activeDealsCountFuture;
   late Future<int> _promoActiveCountFuture;
   String? _preferredLocaleOverride;
+  // Last successfully loaded bundle — kept so pull-to-refresh (and any reload)
+  // can leave the page on screen instead of flashing the full-screen skeleton.
+  WawatProfileBundle? _lastBundle;
 
   @override
   void initState() {
@@ -137,6 +140,22 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
       _activeDealsCountFuture = _loadActiveDealsCount();
       _promoActiveCountFuture = _loadPromoActiveCount();
     });
+  }
+
+  /// Pull-to-refresh: refetch in the background while the page stays visible
+  /// (the `RefreshIndicator`'s own top spinner is the only progress shown — no
+  /// full-screen skeleton, thanks to [_lastBundle]). Awaits the main bundle so
+  /// the indicator stays until the data actually arrives.
+  Future<void> _refresh() async {
+    final bundleFuture = _load();
+    setState(() {
+      _future = bundleFuture;
+      _activeDealsCountFuture = _loadActiveDealsCount();
+      _promoActiveCountFuture = _loadPromoActiveCount();
+    });
+    try {
+      await bundleFuture;
+    } catch (_) {}
   }
 
   void _push(Widget screen) {
@@ -419,7 +438,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                 TextButton(
                   onPressed: () => Navigator.of(sheetContext).pop(false),
                   child: Text(
-                    'İmtina et',
+                    tr('common.cancel', 'İmtina et'),
                     style: TextStyle(
                       color: cMuted(isDark),
                       fontSize: 13,
@@ -454,18 +473,25 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
     return FutureBuilder<WawatProfileBundle>(
       future: _future,
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const _MenuSkeleton();
-        }
-        if (!snapshot.hasData) {
+        if (snapshot.hasData) _lastBundle = snapshot.data;
+        // While a refresh is in flight, keep the previously loaded page on
+        // screen; only the very first load (no cached bundle) shows the
+        // skeleton, and only a hard failure with nothing cached shows the error.
+        final bundle = snapshot.data ?? _lastBundle;
+        if (bundle == null) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const _MenuSkeleton();
+          }
           return _MenuError(onRetry: _reload);
         }
-        final bundle = snapshot.data!;
         final content = bundle.content;
         final user = bundle.user;
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        final activeListings =
-            user.stats.listingsActive ?? bundle.listings.data.length;
+        // "Elanlarım" opens ALL my listings (any status), so the badge must be
+        // the total — not just the active count, which understated it.
+        final myListingsCount = user.stats.listingsTotal ??
+            user.stats.listingsActive ??
+            bundle.listings.data.length;
         final reviewsCount =
             user.stats.reviewsReceivedCount ?? bundle.reviews.data.length;
 
@@ -476,7 +502,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
             child: RefreshIndicator(
               color: cBrandText(isDark),
               backgroundColor: cCard(isDark),
-              onRefresh: () async => _reload(),
+              onRefresh: _refresh,
               child: ListView(
                 controller: _scrollController,
                 padding: const EdgeInsets.only(bottom: 112),
@@ -511,7 +537,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                       _MenuRow(
                         icon: PhosphorIconsFill.note,
                         label: _text(content, 'menu.my_listings', 'Elanlarım'),
-                        badge: activeListings > 0 ? '$activeListings' : null,
+                        badge: myListingsCount > 0 ? '$myListingsCount' : null,
                         onTap: () => _push(DeliveryFullListScreen()),
                       ),
                       _MenuRow(
@@ -747,8 +773,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                           'menu.rules',
                           'Qaydalar & şərtlər',
                         ),
-                        onTap: () => _push(const LegalDocScreen(
-                            slug: 'terms', title: 'Qaydalar & şərtlər')),
+                        onTap: () => _push(LegalDocScreen(
+                            slug: 'terms',
+                            title: tr('menu.rules', 'Qaydalar & şərtlər'))),
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.shieldCheck,
@@ -757,8 +784,10 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                           'menu.privacy_policy',
                           'Məxfilik siyasəti',
                         ),
-                        onTap: () => _push(const LegalDocScreen(
-                            slug: 'privacy', title: 'Məxfilik siyasəti')),
+                        onTap: () => _push(LegalDocScreen(
+                            slug: 'privacy',
+                            title: tr(
+                                'menu.privacy_policy', 'Məxfilik siyasəti'))),
                       ),
                       _MenuRow(
                         icon: PhosphorIconsFill.heartStraight,
@@ -1538,7 +1567,7 @@ class _MenuError extends StatelessWidget {
                     color: cBrandText(isDark), size: 42),
                 const SizedBox(height: 12),
                 Text(
-                  'Menyu yüklənmədi.',
+                  tr('menu.load_failed', 'Menyu yüklənmədi.'),
                   style: TextStyle(
                     color: cText(isDark),
                     fontSize: 18,
@@ -1556,7 +1585,7 @@ class _MenuError extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text('Yenidən yoxla'),
+                  child: Text(tr('menu.retry', 'Yenidən yoxla')),
                 ),
               ],
             ),

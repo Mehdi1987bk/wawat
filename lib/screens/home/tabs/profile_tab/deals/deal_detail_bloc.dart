@@ -2,12 +2,14 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../../../../data/network/api/chat_api.dart';
 import '../../../../../data/network/response/chat_response.dart';
+import '../../../../../data/network/response/review_submit_result.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
 import '../../../../../services/wawat_content.dart';
 
 class DealDetailBloc extends BaseBloc {
-  DealDetailBloc(this.shipmentId, {ChatApi? api}) : _api = api ?? sl.get<ChatApi>();
+  DealDetailBloc(this.shipmentId, {ChatApi? api})
+      : _api = api ?? sl.get<ChatApi>();
 
   final String shipmentId;
   final ChatApi _api;
@@ -59,8 +61,10 @@ class DealDetailBloc extends BaseBloc {
     }
   }
 
-  Future<String?> submitReview({required int rating, String? comment}) {
-    return _api.submitShipmentReview(shipmentId, rating: rating, comment: comment);
+  Future<ReviewSubmitResult> submitReview(
+      {required int rating, String? comment}) {
+    return _api.submitShipmentReview(shipmentId,
+        rating: rating, comment: comment);
   }
 
   void _emit(DealDetailState state) {
