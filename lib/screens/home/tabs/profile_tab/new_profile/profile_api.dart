@@ -100,7 +100,11 @@ class WawatProfileApi {
     return WawatReviewResponse.fromJson(response.data ?? const {});
   }
 
-  Future<List<WawatProfileUser>> followers(
+  /// Followers / following list for a user, returned WITH `meta.total` so the
+  /// caller can drive the tab badge from the same response as the list. The
+  /// backend guarantees `meta.total` == the list length (inactive accounts are
+  /// excluded everywhere), so badge and list can never diverge.
+  Future<({List<WawatProfileUser> items, int total})> followers(
     String userId, {
     bool following = false,
     int page = 1,
@@ -111,12 +115,15 @@ class WawatProfileApi {
       queryParameters: {'page': page, 'per_page': 40},
     );
     final data = response.data?['data'];
-    if (data is! List) return const [];
-    return data
-        .whereType<Map>()
-        .map((item) =>
-            WawatProfileUser.fromJson(Map<String, dynamic>.from(item)))
-        .toList();
+    final total = (response.data?['meta']?['total'] as num?)?.toInt() ?? 0;
+    final items = data is List
+        ? data
+            .whereType<Map>()
+            .map((item) =>
+                WawatProfileUser.fromJson(Map<String, dynamic>.from(item)))
+            .toList()
+        : <WawatProfileUser>[];
+    return (items: items, total: total);
   }
 
   /// Elastic people search. `q` must already be ≥ 2 chars (caller-enforced).

@@ -2160,8 +2160,26 @@ class _FollowListScreenState extends State<_FollowListScreen> {
   late bool _followingTab = widget.following;
   late Future<List<WawatProfileUser>> _future = _load();
 
-  Future<List<WawatProfileUser>> _load() {
-    return widget.api.followers(widget.user.id, following: _followingTab);
+  // Tab badges are driven by the SAME response as the list (meta.total), so a
+  // stale cached profile count can never disagree with what's on screen. Null
+  // until the relevant tab's list has loaded — then we fall back to the cached
+  // profile count only for the not-yet-loaded tab.
+  int? _followersTotal;
+  int? _followingTotal;
+
+  Future<List<WawatProfileUser>> _load() async {
+    final res =
+        await widget.api.followers(widget.user.id, following: _followingTab);
+    if (mounted) {
+      setState(() {
+        if (_followingTab) {
+          _followingTotal = res.total;
+        } else {
+          _followersTotal = res.total;
+        }
+      });
+    }
+    return res.items;
   }
 
   void _switch(bool following) {
@@ -2205,7 +2223,7 @@ class _FollowListScreenState extends State<_FollowListScreen> {
                         'menu.followers',
                         'İzləyicilər',
                       ),
-                      count: widget.user.followersCount,
+                      count: _followersTotal ?? widget.user.followersCount,
                       onTap: () => _switch(false),
                     ),
                     _Segment(
@@ -2215,7 +2233,7 @@ class _FollowListScreenState extends State<_FollowListScreen> {
                         'menu.following',
                         'İzlədiklərim',
                       ),
-                      count: widget.user.followingCount,
+                      count: _followingTotal ?? widget.user.followingCount,
                       onTap: () => _switch(true),
                     ),
                   ],
