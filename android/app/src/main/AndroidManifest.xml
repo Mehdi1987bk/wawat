@@ -1,6 +1,21 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- firebase-analytics подтягивает это разрешение транзитивно. Мы не
+         показываем рекламу и не строим рекламные аудитории, а его наличие
+         обязывает объявить сбор Advertising ID в Play Data safety и попадает
+         под политику для детских приложений. Убираем на этапе слияния
+         манифестов — сбор AD_ID дополнительно выключен ниже. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+    <!-- То же самое в варианте Privacy Sandbox (Android 13+): новые версии
+         play-services-measurement добавляют его вместо AD_ID. Оставленное
+         разрешение заставило бы Play Console требовать декларации сбора
+         рекламного идентификатора, которого у нас нет. -->
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+        tools:node="remove" />
 
     <application
         android:label="Wawat Air"
@@ -58,6 +73,32 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/notification_color" />
+
+        <!-- ── Аналитика: только продуктовая диагностика ────────────────────
+             Никаких рекламных идентификаторов и сигналов для таргетинга.
+             Именно это позволяет заявить в Play Data safety и App Privacy,
+             что данные не используются для рекламы и не передаются третьим
+             лицам, и не показывать пользователю ATT-запрос на iOS. -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_ssaid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_personalization_signals"
+            android:value="false" />
+
+        <!-- Crashlytics и Performance стартуют включёнными; фактический сбор
+             включает/выключает пользователь в «Məxfilik» — приложение
+             применяет его выбор через setCrashlyticsCollectionEnabled()
+             при каждом запуске (см. telemetry.dart). -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="true" />
+        <meta-data
+            android:name="firebase_performance_collection_enabled"
+            android:value="true" />
     </application>
 
     <queries>

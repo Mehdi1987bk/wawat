@@ -1,0 +1,182 @@
+[
+  {
+    "key": "auth.terms_connector",
+    "group": "auth",
+    "az": " və ",
+    "en": " and ",
+    "ru": " и ",
+    "tr": " ve ",
+    "ua": " та ",
+    "es": " y "
+  },
+  {
+    "key": "auth.terms_link",
+    "group": "auth",
+    "az": "İstifadə qaydaları",
+    "en": "Terms of Use",
+    "ru": "Условия использования",
+    "tr": "Kullanım Koşulları",
+    "ua": "Умови використання",
+    "es": "Términos de uso"
+  },
+  {
+    "key": "legal.privacy.title",
+    "group": "legal",
+    "az": "Məxfilik siyasəti",
+    "en": "Privacy Policy",
+    "ru": "Политика конфиденциальности",
+    "tr": "Gizlilik Politikası",
+    "ua": "Політика конфіденційності",
+    "es": "Política de privacidad"
+  },
+  {
+    "key": "legal.terms.title",
+    "group": "legal",
+    "az": "İstifadə şərtləri",
+    "en": "Terms of Use",
+    "ru": "Условия использования",
+    "tr": "Kullanım Koşulları",
+    "ua": "Умови використання",
+    "es": "Términos de uso"
+  },
+  {
+    "key": "promo.reason.invalid",
+    "group": "promo",
+    "az": "Promokod yanlışdır, artıq istifadə olunub və ya vaxtı keçib.",
+    "en": "Promo code is invalid, already used, or expired.",
+    "ru": "Промокод недействителен, уже использован или истёк.",
+    "tr": "Promosyon kodu geçersiz, daha önce kullanılmış ya da süresi dolmuş.",
+    "ua": "Промокод недійсний, уже використаний або прострочений.",
+    "es": "El código promocional no es válido, ya se usó o venció."
+  },
+  {
+    "key": "promo.reason.below_min_order",
+    "group": "promo",
+    "az": "Sifariş məbləği bu promokod üçün minimuma çatmır.",
+    "en": "Order amount is below the minimum for this promo code.",
+    "ru": "Сумма заказа меньше минимальной для этого промокода.",
+    "tr": "Sipariş tutarı bu promosyon kodu için gereken minimumun altında.",
+    "ua": "Сума замовлення менша за мінімум для цього промокоду.",
+    "es": "El monto del pedido no alcanza el mínimo para este código promocional."
+  },
+  {
+    "key": "promo.reason.currency_mismatch",
+    "group": "promo",
+    "az": "Promokod başqa valyutadadır.",
+    "en": "This promo code is in a different currency.",
+    "ru": "Промокод в другой валюте.",
+    "tr": "Promosyon kodu farklı bir para biriminde.",
+    "ua": "Промокод у іншій валюті.",
+    "es": "El código promocional es de otra moneda."
+  },
+  {
+    "key": "promo.reason.feature_disabled",
+    "group": "promo",
+    "az": "Promokodlar müvəqqəti olaraq deaktivdir.",
+    "en": "Promo codes are temporarily disabled.",
+    "ru": "Промокоды временно отключены.",
+    "tr": "Promosyon kodları geçici olarak devre dışı.",
+    "ua": "Промокоди тимчасово вимкнені.",
+    "es": "Los códigos promocionales están desactivados temporalmente."
+  },
+  {
+    "key": "promo.reason.listing_not_active",
+    "group": "promo",
+    "az": "Elan aktiv olmadığı üçün promokod tətbiq olunmur.",
+    "en": "The listing isn't active, so the promo code can't be applied.",
+    "ru": "Объявление неактивно, поэтому промокод нельзя применить.",
+    "tr": "İlan aktif olmadığı için promosyon kodu uygulanamıyor.",
+    "ua": "Оголошення неактивне, тому промокод не застосовується.",
+    "es": "El anuncio no está activo, por eso no se puede aplicar el código promocional."
+  },
+  {
+    "key": "promo.reason.no_promo_code",
+    "group": "promo",
+    "az": "Promokod daxil edin.",
+    "en": "Enter a promo code.",
+    "ru": "Введите промокод.",
+    "tr": "Promosyon kodu girin.",
+    "ua": "Введіть промокод.",
+    "es": "Ingresa un código promocional."
+  },
+  {
+    "key": "promo.reason.generic",
+    "group": "promo",
+    "az": "Promokod tətbiq olunmadı.",
+    "en": "Promo code wasn't applied.",
+    "ru": "Промокод не применён.",
+    "tr": "Promosyon kodu uygulanmadı.",
+    "ua": "Промокод не застосовано.",
+    "es": "No se pudo aplicar el código promocional."
+  },
+  {
+    "key": "promotion.promo_applied",
+    "group": "promotion",
+    "az": "Promokod tətbiq olundu · −{amount} $",
+    "en": "Promo code applied · −{amount} $",
+    "ru": "Промокод применён · −{amount} $",
+    "tr": "Promosyon kodu uygulandı · −{amount} $",
+    "ua": "Промокод застосовано · −{amount} $",
+    "es": "Código promocional aplicado · −{amount} $"
+  },
+  {
+    "key": "promotion.promo_line",
+    "group": "promotion",
+    "az": "Promokod · {code}",
+    "en": "Promo code · {code}",
+    "ru": "Промокод · {code}",
+    "tr": "Promosyon kodu · {code}",
+    "ua": "Промокод · {code}",
+    "es": "Código promocional · {code}"
+  },
+  {
+    "key": "promotion.total_before",
+    "group": "promotion",
+    "az": "İlkin məbləğ",
+    "en": "Original amount",
+    "ru": "Исходная сумма",
+    "tr": "İlk tutar",
+    "ua": "Початкова сума",
+    "es": "Monto original"
+  },
+  {
+    "key": "promotion.choose_from_wallet",
+    "group": "promotion",
+    "az": "Promokodlarımdan seç",
+    "en": "Choose from my promo codes",
+    "ru": "Выбрать из моих промокодов",
+    "tr": "Promosyon kodlarımdan seç",
+    "ua": "Обрати з моїх промокодів",
+    "es": "Elegir de mis códigos promocionales"
+  },
+  {
+    "key": "promotion.wallet_title",
+    "group": "promotion",
+    "az": "Promokodlarım",
+    "en": "My promo codes",
+    "ru": "Мои промокоды",
+    "tr": "Promosyon kodlarım",
+    "ua": "Мої промокоди",
+    "es": "Mis códigos promocionales"
+  },
+  {
+    "key": "promotion.wallet_empty",
+    "group": "promotion",
+    "az": "Aktiv promokodun yoxdur.",
+    "en": "You have no active promo codes.",
+    "ru": "У вас нет активных промокодов.",
+    "tr": "Aktif promosyon kodun yok.",
+    "ua": "У вас немає активних промокодів.",
+    "es": "No tienes códigos promocionales activos."
+  },
+  {
+    "key": "promotion.wallet_days_left",
+    "group": "promotion",
+    "az": "{days} gün qalıb",
+    "en": "{days} days left",
+    "ru": "Осталось {days} дн.",
+    "tr": "{days} gün kaldı",
+    "ua": "Залишилось {days} дн.",
+    "es": "Quedan {days} días"
+  }
+]

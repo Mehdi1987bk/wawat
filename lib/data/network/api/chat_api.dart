@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 
 import '../response/chat_response.dart';
+import '../response/review_submit_result.dart';
 import '../response/target_user_request.dart';
 
 class ChatApi {
@@ -122,17 +123,26 @@ class ChatApi {
     );
   }
 
-  Future<int> getUnreadCount() async {
+  /// Unread badges: total unread conversations + how many ARCHIVED chats have
+  /// unread messages (per chat, not per message). `/conversations/unread-count`
+  /// → `{ unread_count, archived_unread_count }`.
+  Future<({int unread, int archived})> getUnreadCount() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '$_baseUrl/conversations/unread-count',
     );
     final data = response.data?['data'];
     if (data is Map) {
-      final value = data['unread_count'];
-      if (value is num) return value.toInt();
-      return int.tryParse(value?.toString() ?? '') ?? 0;
+      return (
+        unread: _asInt(data['unread_count']),
+        archived: _asInt(data['archived_unread_count']),
+      );
     }
-    return 0;
+    return (unread: 0, archived: 0);
+  }
+
+  int _asInt(Object? value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
   Future<void> updateConversation(
@@ -232,7 +242,7 @@ class ChatApi {
     return response.data?['message']?.toString();
   }
 
-  Future<String?> submitShipmentReview(
+  Future<ReviewSubmitResult> submitShipmentReview(
     String shipmentId, {
     required int rating,
     String? comment,
@@ -246,7 +256,7 @@ class ChatApi {
       },
       options: Options(headers: {'Idempotency-Key': _uuidV4()}),
     );
-    return response.data?['message']?.toString();
+    return ReviewSubmitResult.fromResponse(response.data);
   }
 
   String _uuidV4() {

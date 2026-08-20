@@ -19,8 +19,10 @@ const _userKey = 'UserKey';
 const _firstOpen = 'FirstOpen';
 late final Box settingsBox;
 
-// Поддерживаемые языки приложения
-const _supportedLanguageCodes = ['ru', 'uk', 'az', 'en', 'tr'];
+// Поддерживаемые языки приложения — держать в синхроне с
+// MaterialApp.supportedLocales в wawat_app.dart (иначе телефон на этом языке при
+// первом запуске откроется на английском вместо своего языка).
+const _supportedLanguageCodes = ['ru', 'uk', 'az', 'en', 'tr', 'es'];
 
 class DataCacheManager implements CacheManager {
   final Future<Box> _authBox = Hive.openBox(_authCache);
@@ -170,9 +172,16 @@ class DataCacheManager implements CacheManager {
 
   @override
   Locale? getLocale() {
-    return Locale(
-      settingsBox.get(_localeKey),
-    );
+    // Uses the already-open settings box synchronously; if it isn't open yet or
+    // no locale was saved, fall back to the device language instead of crashing
+    // on Locale(null). (getLocaleAsync is the async-safe path used at boot.)
+    try {
+      final code = Hive.box(_settingsCache).get(_localeKey) as String?;
+      if (code == null || code.isEmpty) return _getDeviceLocaleIfSupported();
+      return Locale(code);
+    } catch (_) {
+      return _getDeviceLocaleIfSupported();
+    }
   }
 
   @override

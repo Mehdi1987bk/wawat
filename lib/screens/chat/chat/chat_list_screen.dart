@@ -191,7 +191,13 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
                         final conversations = List<Conversation>.from(
                           snapshot.data ?? const <Conversation>[],
                         );
-                        conversations.sort(_sortConversations);
+                        // The ARCHIVED list is already ordered by the server
+                        // (chats with unread on top by last-message time, then
+                        // by archive order) — keep it as-is. Only the main list
+                        // is sorted client-side (pins first, then recency).
+                        if (!_showArchived) {
+                          conversations.sort(_sortConversations);
+                        }
                         final visible = _applySearch(conversations);
 
                         if (loadingSnapshot.data == true &&
@@ -586,11 +592,16 @@ class _Header extends StatelessWidget {
                 onTap: () => onTabChanged(false),
               ),
               const SizedBox(width: 8),
-              _TabChip(
-                label: WawatContent.text(content, 'chat.tab.archive'),
-                selected: showArchived,
-                isDark: isDark,
-                onTap: () => onTabChanged(true),
+              StreamBuilder<int>(
+                stream: sl.get<UnreadChatBloc>().archivedUnreadCountStream,
+                initialData: sl.get<UnreadChatBloc>().archivedUnreadCount,
+                builder: (context, snapshot) => _TabChip(
+                  label: WawatContent.text(content, 'chat.tab.archive'),
+                  selected: showArchived,
+                  isDark: isDark,
+                  badge: snapshot.data ?? 0,
+                  onTap: () => onTabChanged(true),
+                ),
               ),
             ],
           ),
@@ -606,15 +617,21 @@ class _TabChip extends StatelessWidget {
   final bool isDark;
   final VoidCallback onTap;
 
+  /// Unread count shown as a small bubble next to the label (0 → hidden).
+  final int badge;
+
   const _TabChip({
     required this.label,
     required this.selected,
     required this.isDark,
     required this.onTap,
+    this.badge = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final onSelected = Colors.white;
+    final onIdle = isDark ? WawatDark.textSecondary : _ink500;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -627,17 +644,40 @@ class _TabChip extends StatelessWidget {
                   : _ink900.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected
-                ? Colors.white
-                : isDark
-                    ? WawatDark.textSecondary
-                    : _ink500,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? onSelected : onIdle,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (badge > 0) ...[
+              const SizedBox(width: 7),
+              Container(
+                constraints: const BoxConstraints(minWidth: 18),
+                height: 18,
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: selected ? Colors.white : _brand,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  badge > 99 ? '99+' : '$badge',
+                  style: TextStyle(
+                    color: selected ? _brand : Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -20,6 +20,7 @@ class PusherService {
   final Map<String, Set<PusherMessageCallback>> _conversationCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _typingCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _readCallbacks = {};
+  final Map<String, Set<PusherMessageCallback>> _deletedCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _userCallbacks = {};
   // Global per-user notifications channel (private-notifications.{public_id}),
   // event `new_message_notification`. Keyed by public_id.
@@ -182,7 +183,8 @@ class PusherService {
 
       if (eventName != 'message.sent' &&
           eventName != 'user.typing' &&
-          eventName != 'message.read') {
+          eventName != 'message.read' &&
+          eventName != 'message.deleted') {
         return;
       }
       final data = _decodeMap(envelope['data']);
@@ -191,6 +193,7 @@ class PusherService {
         final source = switch (eventName) {
           'user.typing' => _typingCallbacks,
           'message.read' => _readCallbacks,
+          'message.deleted' => _deletedCallbacks,
           _ => _conversationCallbacks,
         };
         final callbacks = List<PusherMessageCallback>.from(
@@ -307,6 +310,36 @@ class PusherService {
     await _unsubscribe('private-conversation.$conversationId');
   }
 
+  /// Message-deleted events (`message.deleted`) ride the same
+  /// `private-conversation.{id}` channel — subscribing here is a no-op when
+  /// already joined for messages/typing/read.
+  Future<void> subscribeToConversationDeleted(
+    String conversationId,
+    PusherMessageCallback onDeleted,
+  ) async {
+    _deletedCallbacks
+        .putIfAbsent(conversationId, () => <PusherMessageCallback>{})
+        .add(onDeleted);
+    await _subscribe('private-conversation.$conversationId');
+  }
+
+  Future<void> unsubscribeFromConversationDeleted(
+    String conversationId, [
+    PusherMessageCallback? onDeleted,
+  ]) async {
+    final callbacks = _deletedCallbacks[conversationId];
+    if (onDeleted == null) {
+      callbacks?.clear();
+    } else {
+      callbacks?.remove(onDeleted);
+    }
+    if (callbacks?.isEmpty != false) {
+      _deletedCallbacks.remove(conversationId);
+    }
+    if (_hasConversationCallbacks(conversationId)) return;
+    await _unsubscribe('private-conversation.$conversationId');
+  }
+
   Future<void> subscribeToUserChannel(
     int userId,
     PusherMessageCallback onMessage,
@@ -370,6 +403,7 @@ class PusherService {
       ..._conversationCallbacks.keys,
       ..._typingCallbacks.keys,
       ..._readCallbacks.keys,
+      ..._deletedCallbacks.keys,
     };
     final channels = <String>[
       ...conversationIds.map(
@@ -506,6 +540,7 @@ class PusherService {
     _conversationCallbacks.clear();
     _typingCallbacks.clear();
     _readCallbacks.clear();
+    _deletedCallbacks.clear();
     _userCallbacks.clear();
     _notificationCallbacks.clear();
     await _closeSocket();
@@ -514,7 +549,8 @@ class PusherService {
   bool _hasConversationCallbacks(String conversationId) {
     return _conversationCallbacks[conversationId]?.isNotEmpty == true ||
         _typingCallbacks[conversationId]?.isNotEmpty == true ||
-        _readCallbacks[conversationId]?.isNotEmpty == true;
+        _readCallbacks[conversationId]?.isNotEmpty == true ||
+        _deletedCallbacks[conversationId]?.isNotEmpty == true;
   }
 
   String? _conversationId(

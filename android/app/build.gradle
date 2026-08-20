@@ -3,6 +3,10 @@ plugins {
     id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services"
+    // Загружает mapping/символы и включает сбор падений. Плагин был объявлен в
+    // settings.gradle, но не применялся — поэтому Crashlytics не работал.
+    id "com.google.firebase.crashlytics"
+    id "com.google.firebase.firebase-perf"
 }
 
 def localProperties = new Properties()
@@ -61,10 +65,27 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Отчёты с машин разработчиков только зашумляют консоль, а выгрузка
+            // символов заметно удлиняет каждую отладочную сборку.
+            firebaseCrashlytics {
+                mappingFileUploadEnabled false
+            }
+            // Байткод-инструментализация Performance — самая дорогая часть
+            // отладочной сборки и в debug не нужна.
+            FirebasePerformance {
+                instrumentationEnabled false
+            }
+        }
         release {
             signingConfig signingConfigs.release
             ndk {
                 debugSymbolLevel 'FULL'
+            }
+            firebaseCrashlytics {
+                // Без выгрузки mapping стек-трейсы в консоли остаются
+                // нечитаемыми, если когда-нибудь включим minify.
+                mappingFileUploadEnabled true
             }
         }
     }

@@ -1,0 +1,7532 @@
+[
+  {
+    "key": "about.copyright",
+    "az": "© 2026 Wawatair · Bütün hüquqlar qorunur",
+    "ru": "© 2026 Wawatair · Все права защищены",
+    "en": "© 2026 Wawatair · All rights reserved"
+  },
+  {
+    "key": "about.follow_us",
+    "az": "Bizi izlə",
+    "ru": "Мы в соцсетях",
+    "en": "Follow us"
+  },
+  {
+    "key": "about.licenses",
+    "az": "Lisenziyalar",
+    "ru": "Лицензии",
+    "en": "Licenses"
+  },
+  {
+    "key": "about.terms",
+    "az": "İstifadə şərtləri",
+    "ru": "Условия использования",
+    "en": "Terms of use"
+  },
+  {
+    "key": "about.up_to_date",
+    "az": "Ən son versiyadasan",
+    "ru": "У вас последняя версия",
+    "en": "You're up to date"
+  },
+  {
+    "key": "about.version",
+    "az": "Versiya {version}",
+    "ru": "Версия {version}",
+    "en": "Version {version}"
+  },
+  {
+    "key": "about.website",
+    "az": "Veb sayt",
+    "ru": "Веб-сайт",
+    "en": "Website"
+  },
+  {
+    "key": "auth.continue",
+    "az": "Davam et",
+    "ru": "Продолжить",
+    "en": "Continue"
+  },
+  {
+    "key": "auth.continue_apple",
+    "az": "Apple ilə davam et",
+    "ru": "Продолжить с Apple",
+    "en": "Continue with Apple"
+  },
+  {
+    "key": "auth.continue_as_guest",
+    "az": "Qonaq kimi davam et",
+    "ru": "Продолжить как гость",
+    "en": "Continue as guest"
+  },
+  {
+    "key": "auth.continue_google",
+    "az": "Google ilə davam et",
+    "ru": "Продолжить с Google",
+    "en": "Continue with Google"
+  },
+  {
+    "key": "auth.forgot.code_expired",
+    "az": "Kodun vaxtı bitib.",
+    "ru": "Срок действия кода истёк.",
+    "en": "The code has expired."
+  },
+  {
+    "key": "auth.forgot.code_not_received",
+    "az": "Kod gəlmədi? Yenidən göndər",
+    "ru": "Код не пришёл? Отправить снова",
+    "en": "Didn't get the code? Resend"
+  },
+  {
+    "key": "auth.forgot.code_sent",
+    "az": "Təsdiq kodu email-inizə göndərildi.",
+    "ru": "Код подтверждения отправлен на вашу почту.",
+    "en": "A verification code has been sent to your email."
+  },
+  {
+    "key": "auth.forgot.code_timer",
+    "az": "Kodun vaxtı: {time}",
+    "ru": "Код истекает через: {time}",
+    "en": "Code expires in: {time}"
+  },
+  {
+    "key": "auth.forgot.confirm_hint",
+    "az": "Təkrar yaz",
+    "ru": "Повторите ввод",
+    "en": "Re-enter"
+  },
+  {
+    "key": "auth.forgot.confirm_label",
+    "az": "Təsdiqlə",
+    "ru": "Подтвердите",
+    "en": "Confirm"
+  },
+  {
+    "key": "auth.forgot.email_hint",
+    "az": "ad@nümunə.com",
+    "ru": "имя@пример.com",
+    "en": "name@example.com"
+  },
+  {
+    "key": "auth.forgot.email_required",
+    "az": "Email mütləqdir.",
+    "ru": "Укажите email.",
+    "en": "Email is required."
+  },
+  {
+    "key": "auth.forgot.invalid_code",
+    "az": "Kod yanlışdır.",
+    "ru": "Неверный код.",
+    "en": "The code is incorrect."
+  },
+  {
+    "key": "auth.forgot.invalid_token",
+    "az": "Bərpa tokeni yanlışdır.",
+    "ru": "Токен восстановления недействителен.",
+    "en": "The recovery token is invalid."
+  },
+  {
+    "key": "auth.forgot.new_password_label",
+    "az": "Yeni şifrə",
+    "ru": "Новый пароль",
+    "en": "New password"
+  },
+  {
+    "key": "auth.forgot.otp_required",
+    "az": "6 rəqəmli kodu daxil edin.",
+    "ru": "Введите 6-значный код.",
+    "en": "Enter the 6-digit code."
+  },
+  {
+    "key": "auth.forgot.password_hint",
+    "az": "Minimum 8 simvol",
+    "ru": "Минимум 8 символов",
+    "en": "Minimum 8 characters"
+  },
+  {
+    "key": "auth.forgot.password_min",
+    "az": "Minimum 8 simvol olmalıdır.",
+    "ru": "Минимум 8 символов.",
+    "en": "Must be at least 8 characters."
+  },
+  {
+    "key": "auth.forgot.password_mismatch",
+    "az": "Şifrələr uyğun gəlmir.",
+    "ru": "Пароли не совпадают.",
+    "en": "Passwords don't match."
+  },
+  {
+    "key": "auth.forgot.resend_code",
+    "az": "Yeni kod göndər",
+    "ru": "Отправить новый код",
+    "en": "Send new code"
+  },
+  {
+    "key": "auth.forgot.reset_failed",
+    "az": "Şifrəni yeniləmək mümkün olmadı.",
+    "ru": "Не удалось обновить пароль.",
+    "en": "Couldn't update the password."
+  },
+  {
+    "key": "auth.forgot.reset_password",
+    "az": "Şifrəni yenilə",
+    "ru": "Обновить пароль",
+    "en": "Update password"
+  },
+  {
+    "key": "auth.forgot.send_code",
+    "az": "Kod göndər",
+    "ru": "Отправить код",
+    "en": "Send code"
+  },
+  {
+    "key": "auth.forgot.send_code_failed",
+    "az": "Kod göndərmək mümkün olmadı.",
+    "ru": "Не удалось отправить код.",
+    "en": "Couldn't send the code."
+  },
+  {
+    "key": "auth.forgot.subtitle_email",
+    "az": "Email-ini yaz - təsdiq kodu göndərək.",
+    "ru": "Введите email — отправим код подтверждения.",
+    "en": "Enter your email — we'll send a verification code."
+  },
+  {
+    "key": "auth.forgot.subtitle_otp",
+    "az": "{email} ünvanına gələn 6 rəqəmli kod.",
+    "ru": "6-значный код, отправленный на {email}.",
+    "en": "The 6-digit code sent to {email}."
+  },
+  {
+    "key": "auth.forgot.subtitle_password",
+    "az": "Yeni şifrəni təyin et.",
+    "ru": "Задайте новый пароль.",
+    "en": "Set your new password."
+  },
+  {
+    "key": "auth.forgot.success_body",
+    "az": "Şifrəniz uğurla dəyişdirildi. Artıq yeni şifrəniz ilə daxil ola bilərsiniz.",
+    "ru": "Пароль успешно изменён. Теперь можно войти с новым паролем.",
+    "en": "Your password was changed successfully. You can now log in with your new password."
+  },
+  {
+    "key": "auth.forgot.success_title",
+    "az": "Şifrə yeniləndi",
+    "ru": "Пароль обновлён",
+    "en": "Password updated"
+  },
+  {
+    "key": "auth.forgot.title_email",
+    "az": "Şifrəni bərpa et",
+    "ru": "Восстановить пароль",
+    "en": "Reset password"
+  },
+  {
+    "key": "auth.forgot.title_otp",
+    "az": "Kodu yaz",
+    "ru": "Введите код",
+    "en": "Enter the code"
+  },
+  {
+    "key": "auth.forgot.title_password",
+    "az": "Yeni şifrə",
+    "ru": "Новый пароль",
+    "en": "New password"
+  },
+  {
+    "key": "auth.forgot.verify",
+    "az": "Təsdiqlə",
+    "ru": "Подтвердить",
+    "en": "Confirm"
+  },
+  {
+    "key": "auth.guest",
+    "az": "Qonaq",
+    "ru": "Гость",
+    "en": "Guest"
+  },
+  {
+    "key": "auth.login",
+    "az": "Daxil ol",
+    "ru": "Войти",
+    "en": "Log in"
+  },
+  {
+    "key": "auth.login.contact_support",
+    "az": "Dəstək ilə əlaqə",
+    "ru": "Связаться с поддержкой",
+    "en": "Contact support"
+  },
+  {
+    "key": "auth.login.email_hint",
+    "az": "ad@nümunə.com",
+    "ru": "имя@пример.com",
+    "en": "name@example.com"
+  },
+  {
+    "key": "auth.login.forgot_password",
+    "az": "Şifrənizi unutmusunuz?",
+    "ru": "Забыли пароль?",
+    "en": "Forgot your password?"
+  },
+  {
+    "key": "auth.login.no_account",
+    "az": "Hesabın yoxdur? ",
+    "ru": "Нет аккаунта? ",
+    "en": "Don't have an account? "
+  },
+  {
+    "key": "auth.login.password_label",
+    "az": "Şifrə",
+    "ru": "Пароль",
+    "en": "Password"
+  },
+  {
+    "key": "auth.login.remember_me",
+    "az": "Məni xatırla",
+    "ru": "Запомнить меня",
+    "en": "Remember me"
+  },
+  {
+    "key": "auth.login.subtitle",
+    "az": "Hesabına daxil ol",
+    "ru": "Войдите в аккаунт",
+    "en": "Log in to your account"
+  },
+  {
+    "key": "auth.login.welcome",
+    "az": "Xoş gəldin",
+    "ru": "Добро пожаловать",
+    "en": "Welcome"
+  },
+  {
+    "key": "auth.or",
+    "az": "və ya",
+    "ru": "или",
+    "en": "or"
+  },
+  {
+    "key": "auth.register",
+    "az": "Qeydiyyatdan keç",
+    "ru": "Зарегистрироваться",
+    "en": "Sign up"
+  },
+  {
+    "key": "auth.register.confirm_password_hint",
+    "az": "Təkrar yaz",
+    "ru": "Повторите ввод",
+    "en": "Re-enter"
+  },
+  {
+    "key": "auth.register.confirm_password_label",
+    "az": "Şifrəni təsdiqlə",
+    "ru": "Подтвердите пароль",
+    "en": "Confirm password"
+  },
+  {
+    "key": "auth.register.email_hint",
+    "az": "ad@nümunə.com",
+    "ru": "имя@пример.com",
+    "en": "name@example.com"
+  },
+  {
+    "key": "auth.register.first_name",
+    "az": "Ad",
+    "ru": "Имя",
+    "en": "First name"
+  },
+  {
+    "key": "auth.register.first_name_hint",
+    "az": "Tahir",
+    "ru": "Иван",
+    "en": "John"
+  },
+  {
+    "key": "auth.register.have_account",
+    "az": "Hesabın var? ",
+    "ru": "Уже есть аккаунт? ",
+    "en": "Already have an account? "
+  },
+  {
+    "key": "auth.register.languages_label",
+    "az": "Danışdığın dillər",
+    "ru": "Языки, на которых вы говорите",
+    "en": "Languages you speak"
+  },
+  {
+    "key": "auth.register.last_name",
+    "az": "Soyad",
+    "ru": "Фамилия",
+    "en": "Last name"
+  },
+  {
+    "key": "auth.register.last_name_hint",
+    "az": "Quliyev",
+    "ru": "Иванов",
+    "en": "Doe"
+  },
+  {
+    "key": "auth.register.password_hint",
+    "az": "Minimum 8 simvol",
+    "ru": "Минимум 8 символов",
+    "en": "Minimum 8 characters"
+  },
+  {
+    "key": "auth.register.password_label",
+    "az": "Şifrə",
+    "ru": "Пароль",
+    "en": "Password"
+  },
+  {
+    "key": "auth.register.privacy_policy",
+    "az": "Məxfilik siyasəti",
+    "ru": "Политика конфиденциальности",
+    "en": "Privacy policy"
+  },
+  {
+    "key": "auth.register.subtitle",
+    "az": "Bir neçə addımda qoşul",
+    "ru": "Присоединяйтесь за пару шагов",
+    "en": "Join in a few steps"
+  },
+  {
+    "key": "auth.register.terms_prefix",
+    "az": "İstifadə qaydaları və ",
+    "ru": "Условия использования и ",
+    "en": "Terms of use and "
+  },
+  {
+    "key": "auth.register.terms_suffix",
+    "az": " ilə tanış oldum.",
+    "ru": " — ознакомлен(а).",
+    "en": " — I have read and agree."
+  },
+  {
+    "key": "auth.register.title",
+    "az": "Hesab yarat",
+    "ru": "Создать аккаунт",
+    "en": "Create account"
+  },
+  {
+    "key": "auth.verify.body",
+    "az": "{email} ünvanına təsdiq linki göndərdik. Linkə klikləyib hesabını aktivləşdir.",
+    "ru": "Мы отправили ссылку для подтверждения на {email}. Перейдите по ней, чтобы активировать аккаунт.",
+    "en": "We sent a verification link to {email}. Tap the link to activate your account."
+  },
+  {
+    "key": "auth.verify.check_spam",
+    "az": "Məktub gəlmədi? Spam qovluğunu yoxla.",
+    "ru": "Письмо не пришло? Проверьте папку «Спам».",
+    "en": "Didn't get the email? Check your spam folder."
+  },
+  {
+    "key": "auth.verify.link_sent",
+    "az": "Təsdiq linki email-inizə göndərildi.",
+    "ru": "Ссылка для подтверждения отправлена на вашу почту.",
+    "en": "A verification link has been sent to your email."
+  },
+  {
+    "key": "auth.verify.resend",
+    "az": "Linki yenidən göndər",
+    "ru": "Отправить ссылку снова",
+    "en": "Resend link"
+  },
+  {
+    "key": "auth.verify.send_failed",
+    "az": "Təsdiq linkini göndərmək mümkün olmadı.",
+    "ru": "Не удалось отправить ссылку для подтверждения.",
+    "en": "Couldn't send the verification link."
+  },
+  {
+    "key": "auth.verify.title",
+    "az": "Email-ini təsdiqlə",
+    "ru": "Подтвердите email",
+    "en": "Verify your email"
+  },
+  {
+    "key": "auth.welcome.tagline",
+    "az": "Səyahət et, bağlama daşı, qazan. Etibarlı crowdshipping icması.",
+    "ru": "Путешествуй, вози посылки, зарабатывай. Надёжное сообщество crowdshipping.",
+    "en": "Travel, carry parcels, earn. A trusted crowdshipping community."
+  },
+  {
+    "key": "block.cancel",
+    "az": "İmtina et",
+    "ru": "Отмена",
+    "en": "Cancel"
+  },
+  {
+    "key": "block.confirm.action",
+    "az": "Bloku aç",
+    "ru": "Разблокировать",
+    "en": "Unblock"
+  },
+  {
+    "key": "block.confirm.body",
+    "az": ":name yenidən sizə mesaj yaza və elanlarınıza baxa biləcək.",
+    "ru": ":name снова сможет писать вам и просматривать ваши объявления.",
+    "en": ":name will be able to message you and view your listings again."
+  },
+  {
+    "key": "block.confirm.title",
+    "az": "Bloku açmaq?",
+    "ru": "Разблокировать?",
+    "en": "Unblock?"
+  },
+  {
+    "key": "block.count",
+    "az": "Cəmi :count istifadəçi",
+    "ru": "Всего :count пользователей",
+    "en": ":count users total"
+  },
+  {
+    "key": "block.empty.body",
+    "az": "Kimisə bloklasanız, burada görünəcək. Söhbətdə və ya profildə «Blokla» ilə bloklaya bilərsiniz.",
+    "ru": "Когда вы кого-то заблокируете, он появится здесь. Заблокировать можно из чата или профиля через «Заблокировать».",
+    "en": "When you block someone, they'll appear here. You can block from a chat or profile using «Block»."
+  },
+  {
+    "key": "block.empty.title",
+    "az": "Bloklanmış istifadəçi yoxdur",
+    "ru": "Нет заблокированных пользователей",
+    "en": "No blocked users"
+  },
+  {
+    "key": "block.error.body",
+    "az": "İnternet bağlantısını yoxlayıb yenidən cəhd edin.",
+    "ru": "Проверьте подключение к интернету и повторите попытку.",
+    "en": "Check your internet connection and try again."
+  },
+  {
+    "key": "block.error.title",
+    "az": "Yüklənmədi",
+    "ru": "Не удалось загрузить",
+    "en": "Couldn't load"
+  },
+  {
+    "key": "block.loading_more",
+    "az": "Yüklənir…",
+    "ru": "Загрузка…",
+    "en": "Loading…"
+  },
+  {
+    "key": "block.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить",
+    "en": "Try again"
+  },
+  {
+    "key": "block.subtitle",
+    "az": "Blokladığınız istifadəçilər sizə mesaj yaza və elanlarınıza baxa bilməz.",
+    "ru": "Заблокированные вами пользователи не могут писать вам и просматривать ваши объявления.",
+    "en": "Users you've blocked can't message you or view your listings."
+  },
+  {
+    "key": "block.title",
+    "az": "Bloklanmış istifadəçilər",
+    "ru": "Заблокированные пользователи",
+    "en": "Blocked users"
+  },
+  {
+    "key": "block.unblock",
+    "az": "Blokdan çıxar",
+    "ru": "Разблокировать",
+    "en": "Unblock"
+  },
+  {
+    "key": "block.unblock_success",
+    "az": "Blok götürüldü.",
+    "ru": "Пользователь разблокирован.",
+    "en": "User unblocked."
+  },
+  {
+    "key": "block.unblocking",
+    "az": "Açılır…",
+    "ru": "Разблокировка…",
+    "en": "Unblocking…"
+  },
+  {
+    "key": "chat.action.archive",
+    "az": "Arxivlə",
+    "ru": "В архив",
+    "en": "Archive"
+  },
+  {
+    "key": "chat.action.block",
+    "az": "Blokla",
+    "ru": "Заблокировать",
+    "en": "Block"
+  },
+  {
+    "key": "chat.action.delete",
+    "az": "Söhbəti sil",
+    "ru": "Удалить чат",
+    "en": "Delete chat"
+  },
+  {
+    "key": "chat.action.pin",
+    "az": "Söhbəti sabitlə",
+    "ru": "Закрепить чат",
+    "en": "Pin chat"
+  },
+  {
+    "key": "chat.action.profile",
+    "az": "Profilə bax",
+    "ru": "Смотреть профиль",
+    "en": "View profile"
+  },
+  {
+    "key": "chat.action.unarchive",
+    "az": "Arxivdən çıxar",
+    "ru": "Из архива",
+    "en": "Unarchive"
+  },
+  {
+    "key": "chat.action.unblock",
+    "az": "Bloku aç",
+    "ru": "Разблокировать",
+    "en": "Unblock"
+  },
+  {
+    "key": "chat.action.unpin",
+    "az": "Sabitdən çıxar",
+    "ru": "Открепить",
+    "en": "Unpin"
+  },
+  {
+    "key": "chat.attach.image",
+    "az": "Şəkil",
+    "ru": "Фото",
+    "en": "Photo"
+  },
+  {
+    "key": "chat.cancel_reason.counterpart_unresponsive",
+    "az": "Qarşı tərəf cavab vermir",
+    "ru": "Другая сторона не отвечает",
+    "en": "The other party isn't responding"
+  },
+  {
+    "key": "chat.cancel_reason.found_another",
+    "az": "Başqa variant tapdım",
+    "ru": "Нашёл другой вариант",
+    "en": "Found another option"
+  },
+  {
+    "key": "chat.cancel_reason.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "chat.cancel_reason.plans_changed",
+    "az": "Planlar dəyişdi",
+    "ru": "Планы изменились",
+    "en": "Plans changed"
+  },
+  {
+    "key": "chat.cancel_reason.terms_disagreement",
+    "az": "Şərtlərlə razılaşmadıq",
+    "ru": "Не сошлись в условиях",
+    "en": "Couldn't agree on terms"
+  },
+  {
+    "key": "chat.card.action_accept",
+    "az": "Qəbul",
+    "ru": "Принять",
+    "en": "Accept"
+  },
+  {
+    "key": "chat.card.action_counter",
+    "az": "Dəyiş",
+    "ru": "Изменить",
+    "en": "Change"
+  },
+  {
+    "key": "chat.card.action_decline",
+    "az": "Rədd",
+    "ru": "Отклонить",
+    "en": "Decline"
+  },
+  {
+    "key": "chat.card.cancel_reason",
+    "az": "Səbəb: {reason}",
+    "ru": "Причина: {reason}",
+    "en": "Reason: {reason}"
+  },
+  {
+    "key": "chat.card.cancelled",
+    "az": "Sövdələşmə ləğv edildi",
+    "ru": "Сделка отменена",
+    "en": "Deal cancelled"
+  },
+  {
+    "key": "chat.card.cancelled_title",
+    "az": "Sövdələşmə ləğv edildi",
+    "ru": "Сделка отменена",
+    "en": "Deal cancelled"
+  },
+  {
+    "key": "chat.card.completed",
+    "az": "Sövdələşmə tamamlandı",
+    "ru": "Сделка завершена",
+    "en": "Deal completed"
+  },
+  {
+    "key": "chat.card.completed_title",
+    "az": "Sövdələşmə tamamlandı",
+    "ru": "Сделка завершена",
+    "en": "Deal completed"
+  },
+  {
+    "key": "chat.card.disputed_title",
+    "az": "Problem bildirildi",
+    "ru": "Сообщено о проблеме",
+    "en": "Problem reported"
+  },
+  {
+    "key": "chat.card.pending_badge",
+    "az": "gözlənilir",
+    "ru": "ожидается",
+    "en": "pending"
+  },
+  {
+    "key": "chat.card.proposal_incoming",
+    "az": "Çatdırılma təklifi",
+    "ru": "Предложение о доставке",
+    "en": "Delivery offer"
+  },
+  {
+    "key": "chat.card.proposal_received",
+    "az": "Çatdırılma təklifi",
+    "ru": "Предложение о доставке",
+    "en": "Delivery offer"
+  },
+  {
+    "key": "chat.card.proposal_sent",
+    "az": "Təklifin göndərildi",
+    "ru": "Предложение отправлено",
+    "en": "Offer sent"
+  },
+  {
+    "key": "chat.card.reason_prefix",
+    "az": "Səbəb",
+    "ru": "Причина",
+    "en": "Reason"
+  },
+  {
+    "key": "chat.card.review",
+    "az": "Rəy",
+    "ru": "Отзыв",
+    "en": "Review"
+  },
+  {
+    "key": "chat.card.review_action",
+    "az": "Rəy",
+    "ru": "Отзыв",
+    "en": "Review"
+  },
+  {
+    "key": "chat.card.support",
+    "az": "Dəstək",
+    "ru": "Поддержка",
+    "en": "Support"
+  },
+  {
+    "key": "chat.card.support_action",
+    "az": "Dəstək",
+    "ru": "Поддержка",
+    "en": "Support"
+  },
+  {
+    "key": "chat.card.waiting_badge",
+    "az": "gözlənilir",
+    "ru": "ожидание",
+    "en": "pending"
+  },
+  {
+    "key": "chat.card_label.accepted",
+    "az": "Təklif qəbul edildi",
+    "ru": "Предложение принято",
+    "en": "Offer accepted"
+  },
+  {
+    "key": "chat.card_label.auto_completed",
+    "az": "Avtomatik tamamlandı",
+    "ru": "Завершено автоматически",
+    "en": "Auto-completed"
+  },
+  {
+    "key": "chat.card_label.cancelled",
+    "az": "Ləğv edildi",
+    "ru": "Отменено",
+    "en": "Cancelled"
+  },
+  {
+    "key": "chat.card_label.completed",
+    "az": "Sövdələşmə tamamlandı",
+    "ru": "Сделка завершена",
+    "en": "Deal completed"
+  },
+  {
+    "key": "chat.card_label.declined",
+    "az": "Təklif rədd edildi",
+    "ru": "Предложение отклонено",
+    "en": "Offer declined"
+  },
+  {
+    "key": "chat.card_label.default",
+    "az": "Təklif",
+    "ru": "Предложение",
+    "en": "Offer"
+  },
+  {
+    "key": "chat.card_label.delivered",
+    "az": "Çatdırıldı",
+    "ru": "Доставлено",
+    "en": "Delivered"
+  },
+  {
+    "key": "chat.card_label.disputed",
+    "az": "Problem bildirildi",
+    "ru": "Сообщено о проблеме",
+    "en": "Problem reported"
+  },
+  {
+    "key": "chat.card_label.expired",
+    "az": "Vaxtı keçdi",
+    "ru": "Срок истёк",
+    "en": "Expired"
+  },
+  {
+    "key": "chat.card_label.picked_up",
+    "az": "Mal götürüldü",
+    "ru": "Товар забран",
+    "en": "Picked up"
+  },
+  {
+    "key": "chat.counter.note",
+    "az": "Qeyd",
+    "ru": "Заметка",
+    "en": "Note"
+  },
+  {
+    "key": "chat.counter.note_hint",
+    "az": "Şərti izah et...",
+    "ru": "Опишите условия...",
+    "en": "Explain the terms..."
+  },
+  {
+    "key": "chat.counter.note_optional",
+    "az": "istəyə bağlı",
+    "ru": "необязательно",
+    "en": "optional"
+  },
+  {
+    "key": "chat.counter.price",
+    "az": "Ümumi qiymət",
+    "ru": "Общая цена",
+    "en": "Total price"
+  },
+  {
+    "key": "chat.counter.submit",
+    "az": "Yeni təklif göndər",
+    "ru": "Отправить новое предложение",
+    "en": "Send new offer"
+  },
+  {
+    "key": "chat.counter.title",
+    "az": "Təklifi dəyiş",
+    "ru": "Изменить предложение",
+    "en": "Change offer"
+  },
+  {
+    "key": "chat.counter.weight",
+    "az": "Çəki",
+    "ru": "Вес",
+    "en": "Weight"
+  },
+  {
+    "key": "chat.empty_archive_subtitle",
+    "az": "Arxivləşmiş söhbətlər burada görünəcək.",
+    "ru": "Архивированные чаты появятся здесь.",
+    "en": "Archived chats will appear here."
+  },
+  {
+    "key": "chat.empty_archive_title",
+    "az": "Arxiv boşdur",
+    "ru": "Архив пуст",
+    "en": "Archive is empty"
+  },
+  {
+    "key": "chat.empty_subtitle",
+    "az": "Elan sahibinə Mesaj və ya Təklif göndər yazanda söhbət burada görünəcək.",
+    "ru": "Когда вы отправите владельцу объявления «Сообщение» или «Предложение», чат появится здесь.",
+    "en": "When you send a Message or Offer to a listing owner, the chat will appear here."
+  },
+  {
+    "key": "chat.empty_title",
+    "az": "Hələ söhbətin yoxdur",
+    "ru": "У вас пока нет чатов",
+    "en": "You don't have any chats yet"
+  },
+  {
+    "key": "chat.go_to_chat",
+    "az": "Söhbətə keç",
+    "ru": "Перейти в чат",
+    "en": "Go to chat"
+  },
+  {
+    "key": "chat.image.too_large",
+    "az": "Şəklin ölçüsü 30 MB-dan çox ola bilməz.",
+    "ru": "Размер изображения не может превышать 30 МБ.",
+    "en": "Image size can't exceed 30 MB."
+  },
+  {
+    "key": "chat.image.unsupported",
+    "az": "Yalnız JPG, PNG və WEBP şəkilləri dəstəklənir.",
+    "ru": "Поддерживаются только изображения JPG, PNG и WEBP.",
+    "en": "Only JPG, PNG and WEBP images are supported."
+  },
+  {
+    "key": "chat.input.blocked",
+    "az": "Bu istifadəçiyə mesaj göndərə bilməzsən",
+    "ru": "Вы не можете писать этому пользователю",
+    "en": "You can't message this user"
+  },
+  {
+    "key": "chat.input.blocked_by_me",
+    "az": "Bu istifadəçini blokladın. Mesaj göndərə bilməzsən.",
+    "ru": "Вы заблокировали этого пользователя. Отправка сообщений недоступна.",
+    "en": "You've blocked this user. You can't send messages."
+  },
+  {
+    "key": "chat.input.placeholder",
+    "az": "Mesaj yaz...",
+    "ru": "Напишите сообщение...",
+    "en": "Write a message..."
+  },
+  {
+    "key": "chat.list.title",
+    "az": "Söhbətlər",
+    "ru": "Чаты",
+    "en": "Chats"
+  },
+  {
+    "key": "chat.message.copy",
+    "az": "Kopyala",
+    "ru": "Копировать",
+    "en": "Copy"
+  },
+  {
+    "key": "chat.message.delete",
+    "az": "Sil",
+    "ru": "Удалить",
+    "en": "Delete"
+  },
+  {
+    "key": "chat.message.edit",
+    "az": "Redaktə et",
+    "ru": "Изменить",
+    "en": "Edit"
+  },
+  {
+    "key": "chat.message.edited",
+    "az": "redaktə edildi",
+    "ru": "изменено",
+    "en": "edited"
+  },
+  {
+    "key": "chat.message.reply",
+    "az": "Cavabla",
+    "ru": "Ответить",
+    "en": "Reply"
+  },
+  {
+    "key": "chat.message.retry",
+    "az": "Yenidən cəhd",
+    "ru": "Повторить",
+    "en": "Retry"
+  },
+  {
+    "key": "chat.open_error",
+    "az": "Söhbəti açmaq alınmadı.",
+    "ru": "Не удалось открыть чат.",
+    "en": "Couldn't open the chat."
+  },
+  {
+    "key": "chat.package.clothing",
+    "az": "Geyim",
+    "ru": "Одежда",
+    "en": "Clothing"
+  },
+  {
+    "key": "chat.package.documents",
+    "az": "Sənədlər",
+    "ru": "Документы",
+    "en": "Documents"
+  },
+  {
+    "key": "chat.package.electronics",
+    "az": "Elektronika",
+    "ru": "Электроника",
+    "en": "Electronics"
+  },
+  {
+    "key": "chat.package.food",
+    "az": "Qida",
+    "ru": "Еда",
+    "en": "Food"
+  },
+  {
+    "key": "chat.package.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "chat.package.small_parcel",
+    "az": "Kiçik bağlama",
+    "ru": "Небольшая посылка",
+    "en": "Small parcel"
+  },
+  {
+    "key": "chat.pinbar.accepted_carrier",
+    "az": "Malı göndərəndən götürün",
+    "ru": "Заберите товар у отправителя",
+    "en": "Pick up the item from the sender"
+  },
+  {
+    "key": "chat.pinbar.accepted_sender",
+    "az": "Daşıyıcı malı götürəcək",
+    "ru": "Курьер заберёт товар",
+    "en": "The carrier will pick up the item"
+  },
+  {
+    "key": "chat.pinbar.awaiting_reply",
+    "az": "Cavab gözlənilir",
+    "ru": "Ожидается ответ",
+    "en": "Awaiting reply"
+  },
+  {
+    "key": "chat.pinbar.completed",
+    "az": "Rəy yazın — təcrübəni bölüşün",
+    "ru": "Оставьте отзыв — поделитесь опытом",
+    "en": "Leave a review — share your experience"
+  },
+  {
+    "key": "chat.pinbar.delivered",
+    "az": "Malı aldınızsa təsdiqləyin",
+    "ru": "Подтвердите, если получили товар",
+    "en": "Confirm if you received the item"
+  },
+  {
+    "key": "chat.pinbar.disputed",
+    "az": "Araşdırılır",
+    "ru": "На рассмотрении",
+    "en": "Under review"
+  },
+  {
+    "key": "chat.pinbar.picked_up",
+    "az": "Yolda",
+    "ru": "В пути",
+    "en": "On the way"
+  },
+  {
+    "key": "chat.pinbar.status.accepted",
+    "az": "Qəbul olundu",
+    "ru": "Принято",
+    "en": "Accepted"
+  },
+  {
+    "key": "chat.pinbar.status.auto_completed",
+    "az": "Avtomatik tamamlandı",
+    "ru": "Завершено автоматически",
+    "en": "Auto-completed"
+  },
+  {
+    "key": "chat.pinbar.status.completed",
+    "az": "Tamamlandı",
+    "ru": "Завершено",
+    "en": "Completed"
+  },
+  {
+    "key": "chat.pinbar.status.default",
+    "az": "Sövdələşmə",
+    "ru": "Сделка",
+    "en": "Deal"
+  },
+  {
+    "key": "chat.pinbar.status.delivered",
+    "az": "Çatdırıldı",
+    "ru": "Доставлено",
+    "en": "Delivered"
+  },
+  {
+    "key": "chat.pinbar.status.disputed",
+    "az": "Mübahisəli",
+    "ru": "Спорная",
+    "en": "Disputed"
+  },
+  {
+    "key": "chat.pinbar.status.picked_up",
+    "az": "Mal götürüldü",
+    "ru": "Товар забран",
+    "en": "Picked up"
+  },
+  {
+    "key": "chat.pinbar.status.proposal_pending",
+    "az": "Təklif gözləyir",
+    "ru": "Ожидает предложения",
+    "en": "Offer pending"
+  },
+  {
+    "key": "chat.pinbar.your_turn",
+    "az": "Sizin növbəniz — cavab verin",
+    "ru": "Ваш ход — ответьте",
+    "en": "Your turn — respond"
+  },
+  {
+    "key": "chat.profile.unavailable",
+    "az": "Profil məlumatı tapılmadı.",
+    "ru": "Данные профиля не найдены.",
+    "en": "Profile not found."
+  },
+  {
+    "key": "chat.proposal.counter",
+    "az": "Dəyiş",
+    "ru": "Изменить",
+    "en": "Counter"
+  },
+  {
+    "key": "chat.proposal.decline",
+    "az": "Rədd",
+    "ru": "Отклонить",
+    "en": "Decline"
+  },
+  {
+    "key": "chat.reply.replying_to",
+    "az": "${reply.authorName}-ə cavab",
+    "ru": "Ответ {name}",
+    "en": "Reply to {name}"
+  },
+  {
+    "key": "chat.review.comment",
+    "az": "Şərhinizi yazın",
+    "ru": "Напишите комментарий",
+    "en": "Write your comment"
+  },
+  {
+    "key": "chat.review.comment_label",
+    "az": "Şərhiniz",
+    "ru": "Ваш комментарий",
+    "en": "Your comment"
+  },
+  {
+    "key": "chat.review.r1",
+    "az": "Çox pis",
+    "ru": "Очень плохо",
+    "en": "Very bad"
+  },
+  {
+    "key": "chat.review.r2",
+    "az": "Pis",
+    "ru": "Плохо",
+    "en": "Bad"
+  },
+  {
+    "key": "chat.review.r3",
+    "az": "Normal",
+    "ru": "Нормально",
+    "en": "Okay"
+  },
+  {
+    "key": "chat.review.r4",
+    "az": "Yaxşı",
+    "ru": "Хорошо",
+    "en": "Good"
+  },
+  {
+    "key": "chat.review.r5",
+    "az": "Əla",
+    "ru": "Отлично",
+    "en": "Excellent"
+  },
+  {
+    "key": "chat.review.subtitle",
+    "az": "Təcrübəni qiymətləndir",
+    "ru": "Оцените опыт",
+    "en": "Rate your experience"
+  },
+  {
+    "key": "chat.review.title",
+    "az": "Rəy yaz",
+    "ru": "Оставить отзыв",
+    "en": "Write a review"
+  },
+  {
+    "key": "chat.search.empty",
+    "az": "Heç nə tapılmadı",
+    "ru": "Ничего не найдено",
+    "en": "Nothing found"
+  },
+  {
+    "key": "chat.search.hint",
+    "az": "Axtar...",
+    "ru": "Поиск...",
+    "en": "Search..."
+  },
+  {
+    "key": "chat.shipment.cancel",
+    "az": "Sövdələşməni ləğv et",
+    "ru": "Отменить сделку",
+    "en": "Cancel the deal"
+  },
+  {
+    "key": "chat.shipment.cancel_hint",
+    "az": "Ləğv səbəbini yazın",
+    "ru": "Укажите причину отмены",
+    "en": "Enter the cancellation reason"
+  },
+  {
+    "key": "chat.shipment.dispute",
+    "az": "Problem bildir",
+    "ru": "Сообщить о проблеме",
+    "en": "Report a problem"
+  },
+  {
+    "key": "chat.shipment.dispute_hint",
+    "az": "Nə baş verdiyini yazın",
+    "ru": "Опишите, что произошло",
+    "en": "Describe what happened"
+  },
+  {
+    "key": "chat.shipment.reason",
+    "az": "Səbəbi yaz",
+    "ru": "Укажите причину",
+    "en": "Describe the reason"
+  },
+  {
+    "key": "chat.tab.all",
+    "az": "Hamısı",
+    "ru": "Все",
+    "en": "All"
+  },
+  {
+    "key": "chat.tab.archive",
+    "az": "Arxiv",
+    "ru": "Архив",
+    "en": "Archive"
+  },
+  {
+    "key": "chat.thread.empty_subtitle",
+    "az": "{name} ilə hələ yazışmamısan. Salamla və detalları soruş.",
+    "ru": "Вы ещё не переписывались с {name}. Поздоровайтесь и уточните детали.",
+    "en": "You haven't messaged {name} yet. Say hi and ask for details."
+  },
+  {
+    "key": "chat.thread.empty_title",
+    "az": "Söhbətə başla",
+    "ru": "Начните переписку",
+    "en": "Start the conversation"
+  },
+  {
+    "key": "chat.typing",
+    "az": "yazır...",
+    "ru": "печатает...",
+    "en": "typing..."
+  },
+  {
+    "key": "chat.user_not_found",
+    "az": "İstifadəçi məlumatı tapılmadı.",
+    "ru": "Данные пользователя не найдены.",
+    "en": "User details not found."
+  },
+  {
+    "key": "common.all",
+    "az": "Hamısı",
+    "ru": "Все",
+    "en": "All"
+  },
+  {
+    "key": "common.back",
+    "az": "Geri",
+    "ru": "Назад",
+    "en": "Back"
+  },
+  {
+    "key": "common.cancel",
+    "az": "İmtina et",
+    "ru": "Отмена",
+    "en": "Cancel"
+  },
+  {
+    "key": "common.close",
+    "az": "Bağla",
+    "ru": "Закрыть",
+    "en": "Close"
+  },
+  {
+    "key": "common.collapse",
+    "az": "Yığ",
+    "ru": "Свернуть",
+    "en": "Collapse"
+  },
+  {
+    "key": "common.coming_soon",
+    "az": "{label} tezliklə aktiv olacaq.",
+    "ru": "{label} скоро станет доступно.",
+    "en": "{label} will be available soon."
+  },
+  {
+    "key": "common.confirm",
+    "az": "Təsdiq et",
+    "ru": "Подтвердить",
+    "en": "Confirm"
+  },
+  {
+    "key": "common.continue",
+    "az": "Davam et",
+    "ru": "Продолжить",
+    "en": "Continue"
+  },
+  {
+    "key": "common.delete",
+    "az": "Sil",
+    "ru": "Удалить",
+    "en": "Delete"
+  },
+  {
+    "key": "common.edit",
+    "az": "Düzəliş",
+    "ru": "Изменить",
+    "en": "Edit"
+  },
+  {
+    "key": "common.error",
+    "az": "Xəta baş verdi. Yenidən cəhd edin.",
+    "ru": "Произошла ошибка. Попробуйте снова.",
+    "en": "Something went wrong. Please try again."
+  },
+  {
+    "key": "common.load_failed_generic",
+    "az": "Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.",
+    "ru": "Не удалось загрузить данные. Проверьте подключение к интернету.",
+    "en": "Couldn't load data. Check your internet connection."
+  },
+  {
+    "key": "common.month_abbr",
+    "az": "['Yan','Fev','Mar','Apr','May','İyun','İyul','Avq','Sen','Okt','Noy','Dek']",
+    "ru": "—",
+    "en": "—"
+  },
+  {
+    "key": "common.more",
+    "az": "Ətraflı",
+    "ru": "Подробнее",
+    "en": "More"
+  },
+  {
+    "key": "common.no_connection",
+    "az": "Bağlantı yoxdur",
+    "ru": "Нет подключения",
+    "en": "No connection"
+  },
+  {
+    "key": "common.note",
+    "az": "Qeyd",
+    "ru": "Заметка",
+    "en": "Note"
+  },
+  {
+    "key": "common.operation_completed",
+    "az": "Əməliyyat tamamlandı",
+    "ru": "Операция завершена",
+    "en": "Operation completed"
+  },
+  {
+    "key": "common.operation_failed",
+    "az": "Əməliyyat alınmadı.",
+    "ru": "Не удалось выполнить операцию.",
+    "en": "Something went wrong."
+  },
+  {
+    "key": "common.optional",
+    "az": "İstəyə bağlı",
+    "ru": "Необязательно",
+    "en": "Optional"
+  },
+  {
+    "key": "common.pause",
+    "az": "Dayandır",
+    "ru": "Приостановить",
+    "en": "Pause"
+  },
+  {
+    "key": "common.refresh",
+    "az": "Yenilə",
+    "ru": "Обновить",
+    "en": "Refresh"
+  },
+  {
+    "key": "common.request_error",
+    "az": "Sorğu xətası",
+    "ru": "Ошибка запроса",
+    "en": "Request error"
+  },
+  {
+    "key": "common.reset",
+    "az": "Sıfırla",
+    "ru": "Сбросить",
+    "en": "Reset"
+  },
+  {
+    "key": "common.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить попытку",
+    "en": "Try again"
+  },
+  {
+    "key": "common.save",
+    "az": "Yadda saxla",
+    "ru": "Сохранить",
+    "en": "Save"
+  },
+  {
+    "key": "common.send",
+    "az": "Göndər",
+    "ru": "Отправить",
+    "en": "Send"
+  },
+  {
+    "key": "common.something_went_wrong",
+    "az": "Xəta baş verdi. Yenidən cəhd edin.",
+    "ru": "Произошла ошибка. Повторите попытку.",
+    "en": "Something went wrong. Try again."
+  },
+  {
+    "key": "common.time_days",
+    "az": "{n} gün",
+    "ru": "{n} дн.",
+    "en": "{n}d"
+  },
+  {
+    "key": "common.time_hours",
+    "az": "{n} saat",
+    "ru": "{n} ч.",
+    "en": "{n}h"
+  },
+  {
+    "key": "common.time_now",
+    "az": "indi",
+    "ru": "сейчас",
+    "en": "now"
+  },
+  {
+    "key": "common.time_weeks",
+    "az": "{n} həftə",
+    "ru": "{n} нед.",
+    "en": "{n}w"
+  },
+  {
+    "key": "common.today",
+    "az": "Bu gün",
+    "ru": "Сегодня",
+    "en": "Today"
+  },
+  {
+    "key": "common.unit_kg",
+    "az": "kq",
+    "ru": "кг",
+    "en": "kg"
+  },
+  {
+    "key": "common.user",
+    "az": "İstifadəçi",
+    "ru": "Пользователь",
+    "en": "User"
+  },
+  {
+    "key": "common.wait",
+    "az": "Gözləyin...",
+    "ru": "Подождите...",
+    "en": "Please wait..."
+  },
+  {
+    "key": "common.yesterday",
+    "az": "Dünən",
+    "ru": "Вчера",
+    "en": "Yesterday"
+  },
+  {
+    "key": "common.you",
+    "az": "Siz",
+    "ru": "Вы",
+    "en": "You"
+  },
+  {
+    "key": "create.chip.delivery_range",
+    "az": "Çatdırılma aralığı",
+    "ru": "Срок доставки",
+    "en": "Delivery window"
+  },
+  {
+    "key": "create.chip.empty_weight",
+    "az": "Boş çəki",
+    "ru": "Свободный вес",
+    "en": "Free weight"
+  },
+  {
+    "key": "create.chip.flight_date",
+    "az": "Uçuş tarixi",
+    "ru": "Дата вылета",
+    "en": "Flight date"
+  },
+  {
+    "key": "create.chip.package_type",
+    "az": "Bağlama növü",
+    "ru": "Тип посылки",
+    "en": "Package type"
+  },
+  {
+    "key": "create.chip.price_per_kg",
+    "az": "1 kq qiyməti",
+    "ru": "Цена за 1 кг",
+    "en": "Price per kg"
+  },
+  {
+    "key": "create.chip.weight",
+    "az": "Çəki",
+    "ru": "Вес",
+    "en": "Weight"
+  },
+  {
+    "key": "create.delivery_range",
+    "az": "Çatdırılma aralığı",
+    "ru": "Срок доставки",
+    "en": "Delivery window"
+  },
+  {
+    "key": "create.empty_weight",
+    "az": "Boş çəki",
+    "ru": "Свободный вес",
+    "en": "Free weight"
+  },
+  {
+    "key": "create.empty_weight_helper",
+    "az": "Aparacağın maksimum çəki — limit 32 kq.",
+    "ru": "Максимальный вес, который повезёшь — лимит 32 кг.",
+    "en": "Maximum weight you can carry — limit 32 kg."
+  },
+  {
+    "key": "create.flight_date",
+    "az": "Uçuş tarixi",
+    "ru": "Дата вылета",
+    "en": "Flight date"
+  },
+  {
+    "key": "create.flight_number",
+    "az": "Reys nömrəsi",
+    "ru": "Номер рейса",
+    "en": "Flight number"
+  },
+  {
+    "key": "create.flight_number_helper",
+    "az": "Sərnişinlərə etibar üçün — maks 8 simvol.",
+    "ru": "Для доверия пассажиров — макс. 8 символов.",
+    "en": "For passenger trust — max 8 characters."
+  },
+  {
+    "key": "create.flight_number_hint",
+    "az": "məs. J2 5432",
+    "ru": "напр. J2 5432",
+    "en": "e.g. J2 5432"
+  },
+  {
+    "key": "create.flight_time",
+    "az": "Saat",
+    "ru": "Время",
+    "en": "Time"
+  },
+  {
+    "key": "create.free_after_review",
+    "az": "Pulsuz · yoxlanışdan sonra dərc olunur",
+    "ru": "Бесплатно · публикуется после проверки",
+    "en": "Free · published after review"
+  },
+  {
+    "key": "create.go_preview",
+    "az": "Önizləməyə keç",
+    "ru": "К предпросмотру",
+    "en": "Go to preview"
+  },
+  {
+    "key": "create.negotiable",
+    "az": "Qiymətdə danışıq olar",
+    "ru": "Цена договорная",
+    "en": "Price negotiable"
+  },
+  {
+    "key": "create.note_hint",
+    "az": "Nə götürə bilərsən, şərtlər, əlaqə vaxtı...",
+    "ru": "Что можешь взять, условия, время связи...",
+    "en": "What you can take, terms, contact time..."
+  },
+  {
+    "key": "create.note_label",
+    "az": "Qeyd · istəyə bağlı",
+    "ru": "Заметка · необязательно",
+    "en": "Note · optional"
+  },
+  {
+    "key": "create.package_min_one",
+    "az": "Ən azı 1",
+    "ru": "Минимум 1",
+    "en": "At least 1"
+  },
+  {
+    "key": "create.package_select",
+    "az": "Bağlama növü",
+    "ru": "Тип посылки",
+    "en": "Package type"
+  },
+  {
+    "key": "create.package_selected_count",
+    "az": "{count} seçildi",
+    "ru": "Выбрано: {count}",
+    "en": "{count} selected"
+  },
+  {
+    "key": "create.package_type_title",
+    "az": "Hansı bağlamaları götürürsən?",
+    "ru": "Какие посылки берёшь?",
+    "en": "Which packages will you take?"
+  },
+  {
+    "key": "create.package_weight",
+    "az": "Bağlamanın çəkisi",
+    "ru": "Вес посылки",
+    "en": "Package weight"
+  },
+  {
+    "key": "create.preview_section",
+    "az": "Elanın belə görünəcək",
+    "ru": "Так будет выглядеть твоё объявление",
+    "en": "Here's how your listing will look"
+  },
+  {
+    "key": "create.preview_title",
+    "az": "Önizləmə",
+    "ru": "Предпросмотр",
+    "en": "Preview"
+  },
+  {
+    "key": "create.price_helper",
+    "az": "Maksimum 99 $/kq.",
+    "ru": "Максимум 99 $/кг.",
+    "en": "Maximum $99/kg."
+  },
+  {
+    "key": "create.price_per_kg",
+    "az": "Qiymət (1 kq üçün)",
+    "ru": "Цена (за 1 кг)",
+    "en": "Price (per kg)"
+  },
+  {
+    "key": "create.publish",
+    "az": "Dərc et",
+    "ru": "Опубликовать",
+    "en": "Publish"
+  },
+  {
+    "key": "create.publishing",
+    "az": "Dərc olunur...",
+    "ru": "Публикуется...",
+    "en": "Publishing..."
+  },
+  {
+    "key": "create.quick_select",
+    "az": "Tez seçim",
+    "ru": "Быстрый выбор",
+    "en": "Quick select"
+  },
+  {
+    "key": "create.route_shipment_title",
+    "az": "Haradan hara göndərirsən?",
+    "ru": "Откуда и куда отправляешь?",
+    "en": "Where are you sending from and to?"
+  },
+  {
+    "key": "create.route_subtitle",
+    "az": "Şəhərləri seç — sistem uyğun göndərişləri tapacaq.",
+    "ru": "Выбери города — система найдёт подходящие отправления.",
+    "en": "Pick the cities — the system will find matching shipments."
+  },
+  {
+    "key": "create.route_trip_title",
+    "az": "Haradan hara uçursan?",
+    "ru": "Откуда и куда летишь?",
+    "en": "Where are you flying from and to?"
+  },
+  {
+    "key": "create.shipment_description",
+    "az": "Bağlamam var, aparacaq səyahətçi axtarıram — çatdırılma aralığı seçirəm.",
+    "ru": "У меня есть посылка, ищу путешественника — выбираю срок доставки.",
+    "en": "I have a parcel and I'm looking for a traveler — I pick a delivery window."
+  },
+  {
+    "key": "create.shipment_details_title",
+    "az": "Göndəriş detalları",
+    "ru": "Детали отправки",
+    "en": "Shipment details"
+  },
+  {
+    "key": "create.shipment_title",
+    "az": "Göndəriş elanı",
+    "ru": "Объявление об отправке",
+    "en": "Shipment listing"
+  },
+  {
+    "key": "create.step_details",
+    "az": "Detallar",
+    "ru": "Детали",
+    "en": "Details"
+  },
+  {
+    "key": "create.step_preview",
+    "az": "Önizləmə",
+    "ru": "Предпросмотр",
+    "en": "Preview"
+  },
+  {
+    "key": "create.step_route",
+    "az": "Marşrut",
+    "ru": "Маршрут",
+    "en": "Route"
+  },
+  {
+    "key": "create.step_template",
+    "az": "Addım {step}/{total}",
+    "ru": "Шаг {step}/{total}",
+    "en": "Step {step}/{total}"
+  },
+  {
+    "key": "create.success_matches_shipments",
+    "az": "{count} göndəriş səni gözləyir",
+    "ru": "{count} посылок ждут вас",
+    "en": "{count} shipments are waiting for you"
+  },
+  {
+    "key": "create.success_matches_travelers",
+    "az": "{count} səyahətçi səni gözləyir",
+    "ru": "{count} путешественников ждут вас",
+    "en": "{count} travelers are waiting for you"
+  },
+  {
+    "key": "create.success_my_listings",
+    "az": "Elanlarım",
+    "ru": "Мои объявления",
+    "en": "My listings"
+  },
+  {
+    "key": "create.success_new_listing",
+    "az": "Yeni elan",
+    "ru": "Новое объявление",
+    "en": "New listing"
+  },
+  {
+    "key": "create.success_quota_shipment",
+    "az": "3 aktiv göndəriş elanı limitindən {used}-i istifadədə",
+    "ru": "Использовано {used} из 3 активных объявлений о посылке",
+    "en": "{used} of 3 active shipment listings in use"
+  },
+  {
+    "key": "create.success_quota_trip",
+    "az": "3 aktiv səfər elanı limitindən {used}-i istifadədə",
+    "ru": "Использовано {used} из 3 активных объявлений о поездке",
+    "en": "{used} of 3 active trip listings in use"
+  },
+  {
+    "key": "create.success_remaining_shipment",
+    "az": "Daha {count} göndəriş elanı yarada bilərsən",
+    "ru": "Можно создать ещё {count} объявлений о посылке",
+    "en": "You can create {count} more shipment listings"
+  },
+  {
+    "key": "create.success_remaining_trip",
+    "az": "Daha {count} səfər elanı yarada bilərsən",
+    "ru": "Можно создать ещё {count} объявлений о поездке",
+    "en": "You can create {count} more trip listings"
+  },
+  {
+    "key": "create.success_subtitle",
+    "az": "Moderasiyadan keçdikdən sonra Kəşf lentində görünəcək — adətən bir neçə dəqiqə çəkir.",
+    "ru": "После модерации оно появится в ленте «Обзор» — обычно это занимает несколько минут.",
+    "en": "Once it passes moderation, it will appear in the Discover feed — usually within a few minutes."
+  },
+  {
+    "key": "create.success_title",
+    "az": "Elan yoxlanışa göndərildi",
+    "ru": "Объявление отправлено на проверку",
+    "en": "Listing sent for review"
+  },
+  {
+    "key": "create.success_view_shipments",
+    "az": "Uyğun göndərişlərə bax",
+    "ru": "Смотреть подходящие посылки",
+    "en": "View matching shipments"
+  },
+  {
+    "key": "create.success_view_travelers",
+    "az": "Uyğun səyahətçilərə bax",
+    "ru": "Смотреть подходящих путешественников",
+    "en": "View matching travelers"
+  },
+  {
+    "key": "create.title",
+    "az": "Yeni elan",
+    "ru": "Новое объявление",
+    "en": "New listing"
+  },
+  {
+    "key": "create.trip_description",
+    "az": "Səyahət edirəm, çantamda yer var — çəki və qiymət təyin edirəm.",
+    "ru": "Я путешествую, в багаже есть место — указываю вес и цену.",
+    "en": "I'm traveling and have space in my bag — I set the weight and price."
+  },
+  {
+    "key": "create.trip_details_title",
+    "az": "Səfər detalları",
+    "ru": "Детали поездки",
+    "en": "Trip details"
+  },
+  {
+    "key": "create.trip_title",
+    "az": "Səfər elanı",
+    "ru": "Объявление о поездке",
+    "en": "Trip listing"
+  },
+  {
+    "key": "deals.action.accept",
+    "az": "Qəbul et",
+    "ru": "Принять",
+    "en": "Accept"
+  },
+  {
+    "key": "deals.action.browse",
+    "az": "Digər daşıyıcılara bax",
+    "ru": "Другие перевозчики",
+    "en": "Browse other couriers"
+  },
+  {
+    "key": "deals.action.cancel",
+    "az": "Ləğv et",
+    "ru": "Отменить",
+    "en": "Cancel"
+  },
+  {
+    "key": "deals.action.chat",
+    "az": "Söhbətə keç",
+    "ru": "Перейти в чат",
+    "en": "Open chat"
+  },
+  {
+    "key": "deals.action.complete",
+    "az": "Malı aldım, təsdiqlə",
+    "ru": "Получил товар, подтвердить",
+    "en": "Received, confirm"
+  },
+  {
+    "key": "deals.action.counter",
+    "az": "Qarşı təklif",
+    "ru": "Встречное предложение",
+    "en": "Counter-offer"
+  },
+  {
+    "key": "deals.action.decline",
+    "az": "Rədd et",
+    "ru": "Отклонить",
+    "en": "Decline"
+  },
+  {
+    "key": "deals.action.delivered",
+    "az": "Çatdırdım",
+    "ru": "Доставлено",
+    "en": "Delivered"
+  },
+  {
+    "key": "deals.action.dispute",
+    "az": "Problem bildir",
+    "ru": "Сообщить о проблеме",
+    "en": "Report a problem"
+  },
+  {
+    "key": "deals.action.picked_up",
+    "az": "Malı götürdüm",
+    "ru": "Забрал товар",
+    "en": "Picked up"
+  },
+  {
+    "key": "deals.action.repropose",
+    "az": "Yenidən təklif et",
+    "ru": "Предложить снова",
+    "en": "Propose again"
+  },
+  {
+    "key": "deals.action.review",
+    "az": "Rəy yaz",
+    "ru": "Оставить отзыв",
+    "en": "Write a review"
+  },
+  {
+    "key": "deals.action.withdraw",
+    "az": "Təklifi geri götür",
+    "ru": "Отозвать предложение",
+    "en": "Withdraw offer"
+  },
+  {
+    "key": "deals.active_badge_template",
+    "az": "{count} aktiv",
+    "ru": "{count} активн.",
+    "en": "{count} active"
+  },
+  {
+    "key": "deals.auto_complete_hint",
+    "az": "3 gün ərzində təsdiq etməsəniz, sövdələşmə avtomatik tamamlanacaq.",
+    "ru": "Если не подтвердите в течение 3 дней, сделка завершится автоматически.",
+    "en": "If you don’t confirm within 3 days, the deal will complete automatically."
+  },
+  {
+    "key": "deals.auto_completed_note",
+    "az": "Mal çatdırıldıqdan 3 gün sonra göndərən təsdiq etmədiyi üçün sövdələşmə avtomatik tamamlandı. Rəy yaza bilərsiniz.",
+    "ru": "Отправитель не подтвердил в течение 3 дней после доставки, поэтому сделка завершилась автоматически. Вы можете оставить отзыв.",
+    "en": "The sender didn’t confirm within 3 days of delivery, so the deal completed automatically. You can leave a review."
+  },
+  {
+    "key": "deals.awaiting_reply",
+    "az": "Cavab gözlənilir",
+    "ru": "Ожидается ответ",
+    "en": "Awaiting reply"
+  },
+  {
+    "key": "deals.cancel.hint",
+    "az": "Səbəbi seçin — qarşı tərəfə bildiriləcək.",
+    "ru": "Выберите причину — другая сторона получит уведомление.",
+    "en": "Choose a reason — the other side will be notified."
+  },
+  {
+    "key": "deals.cancel.reason_label",
+    "az": "Ləğv səbəbi",
+    "ru": "Причина отмены",
+    "en": "Cancellation reason"
+  },
+  {
+    "key": "deals.cancel.title",
+    "az": "Sövdələşməni ləğv et",
+    "ru": "Отменить сделку",
+    "en": "Cancel deal"
+  },
+  {
+    "key": "deals.coming_soon",
+    "az": "Tezliklə aktiv olacaq.",
+    "ru": "Скоро будет доступно.",
+    "en": "Coming soon."
+  },
+  {
+    "key": "deals.confirm.complete.title",
+    "az": "Malı aldığınızı təsdiqləyirsiniz?",
+    "ru": "Подтверждаете, что получили товар?",
+    "en": "Confirm that you received the item?"
+  },
+  {
+    "key": "deals.confirm.delivered.title",
+    "az": "Çatdırdığınızı təsdiqləyirsiniz?",
+    "ru": "Подтверждаете доставку?",
+    "en": "Confirm delivery?"
+  },
+  {
+    "key": "deals.confirm.irreversible_body",
+    "az": "Bu əməldən sonra sövdələşmə tamamlanmış sayılacaq və geri qaytarıla bilməz.",
+    "ru": "После этого действия сделка будет считаться завершённой и её нельзя отменить.",
+    "en": "After this action the deal is considered complete and can’t be undone."
+  },
+  {
+    "key": "deals.confirm.no",
+    "az": "İmtina",
+    "ru": "Отмена",
+    "en": "Cancel"
+  },
+  {
+    "key": "deals.confirm.picked_up.title",
+    "az": "Malı götürdüyünüzü təsdiqləyirsiniz?",
+    "ru": "Подтверждаете, что забрали товар?",
+    "en": "Confirm that you picked up the item?"
+  },
+  {
+    "key": "deals.confirm.yes",
+    "az": "Bəli, təsdiqlə",
+    "ru": "Да, подтвердить",
+    "en": "Yes, confirm"
+  },
+  {
+    "key": "deals.confirm_receipt_hint",
+    "az": "Malı aldınız? Təsdiqləyin",
+    "ru": "Получили товар? Подтвердите",
+    "en": "Received the item? Confirm"
+  },
+  {
+    "key": "deals.counter.hint",
+    "az": "Şərtləri dəyişib göndər — qarşı tərəf təsdiqləyəcək.",
+    "ru": "Измените условия и отправьте — другая сторона подтвердит.",
+    "en": "Change the terms and send — the other side will confirm."
+  },
+  {
+    "key": "deals.counter.submit",
+    "az": "Qarşı təklifi göndər",
+    "ru": "Отправить встречное предложение",
+    "en": "Send counter-offer"
+  },
+  {
+    "key": "deals.counter.title",
+    "az": "Qarşı təklif",
+    "ru": "Встречное предложение",
+    "en": "Counter-offer"
+  },
+  {
+    "key": "deals.detail_title.picked_up",
+    "az": "Mal yoldadır",
+    "ru": "Товар в пути",
+    "en": "Item on the way"
+  },
+  {
+    "key": "deals.dispute.admin_note",
+    "az": "Komandamız hər iki tərəflə əlaqə saxlayacaq. Söhbətdə əlavə məlumat verə bilərsiniz.",
+    "ru": "Наша команда свяжется с обеими сторонами. Вы можете добавить детали в чате.",
+    "en": "Our team will contact both sides. You can add more details in the chat."
+  },
+  {
+    "key": "deals.dispute.detail_hint",
+    "az": "Ətraflı izah edin…",
+    "ru": "Опишите подробнее…",
+    "en": "Explain in detail…"
+  },
+  {
+    "key": "deals.dispute.hint",
+    "az": "Nə baş verdiyini yazın — admin araşdıracaq. Sövdələşmə «Mübahisəli» statusuna keçəcək.",
+    "ru": "Опишите, что произошло — админ разберётся. Сделка перейдёт в статус «Спорная».",
+    "en": "Describe what happened — an admin will review it. The deal will move to \"Disputed\" status."
+  },
+  {
+    "key": "deals.dispute.submit",
+    "az": "Problemi göndər",
+    "ru": "Отправить жалобу",
+    "en": "Submit problem"
+  },
+  {
+    "key": "deals.dispute.title",
+    "az": "Problem bildir",
+    "ru": "Сообщить о проблеме",
+    "en": "Report a problem"
+  },
+  {
+    "key": "deals.dispute_reason.damaged",
+    "az": "Mal zədəli / əskik",
+    "ru": "Товар повреждён / неполный",
+    "en": "Item damaged / incomplete"
+  },
+  {
+    "key": "deals.dispute_reason.lost_contact",
+    "az": "Əlaqə kəsildi",
+    "ru": "Связь потеряна",
+    "en": "Lost contact"
+  },
+  {
+    "key": "deals.dispute_reason.not_arrived",
+    "az": "Mal çatmadı",
+    "ru": "Товар не доставлен",
+    "en": "Item not delivered"
+  },
+  {
+    "key": "deals.dispute_reason.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "deals.empty.body",
+    "az": "Bir elana təklif göndərin və ya birbaşa söhbətdə razılaşın — sövdələşmələr burada görünəcək.",
+    "ru": "Отправьте предложение по объявлению или договоритесь прямо в чате — сделки появятся здесь.",
+    "en": "Send an offer on a listing or agree directly in chat — your deals will appear here."
+  },
+  {
+    "key": "deals.empty.cta",
+    "az": "Elanlara bax",
+    "ru": "Смотреть объявления",
+    "en": "Browse listings"
+  },
+  {
+    "key": "deals.empty.title",
+    "az": "Hələ sövdələşməniz yoxdur",
+    "ru": "У вас пока нет сделок",
+    "en": "You don’t have any deals yet"
+  },
+  {
+    "key": "deals.error.action_failed",
+    "az": "Əməliyyat alınmadı. Yenidən cəhd edin.",
+    "ru": "Не удалось выполнить действие. Попробуйте ещё раз.",
+    "en": "Action failed. Please try again."
+  },
+  {
+    "key": "deals.error.load",
+    "az": "Yüklənmədi. İnternet bağlantısını yoxlayın.",
+    "ru": "Не удалось загрузить. Проверьте интернет-соединение.",
+    "en": "Failed to load. Check your internet connection."
+  },
+  {
+    "key": "deals.error.profile_not_found",
+    "az": "Profil məlumatı tapılmadı.",
+    "ru": "Данные профиля не найдены.",
+    "en": "Profile not found."
+  },
+  {
+    "key": "deals.expired_note",
+    "az": "Təklifin cavab müddəti bitdi. Yenidən təklif göndərə bilərsiniz.",
+    "ru": "Срок ответа на предложение истёк. Вы можете отправить предложение снова.",
+    "en": "The offer response window has expired. You can send a new offer."
+  },
+  {
+    "key": "deals.expired_unanswered",
+    "az": "Cavabsız qaldı",
+    "ru": "Осталось без ответа",
+    "en": "No response"
+  },
+  {
+    "key": "deals.filter.all",
+    "az": "Hamısı",
+    "ru": "Все",
+    "en": "All"
+  },
+  {
+    "key": "deals.filter.carrier",
+    "az": "Daşıyıcı kimi",
+    "ru": "Как курьер",
+    "en": "As carrier"
+  },
+  {
+    "key": "deals.filter.sender",
+    "az": "Göndərən kimi",
+    "ru": "Как отправитель",
+    "en": "As sender"
+  },
+  {
+    "key": "deals.how_it_works",
+    "az": "Necə işləyir?",
+    "ru": "Как это работает?",
+    "en": "How it works?"
+  },
+  {
+    "key": "deals.note_optional",
+    "az": "Qeyd (istəyə bağlı)",
+    "ru": "Заметка (необязательно)",
+    "en": "Note (optional)"
+  },
+  {
+    "key": "deals.operation_failed",
+    "az": "Əməliyyat alınmadı. Yenidən cəhd edin.",
+    "ru": "Не удалось выполнить операцию. Попробуйте снова.",
+    "en": "Operation failed. Please try again."
+  },
+  {
+    "key": "deals.pending_expires_template",
+    "az": "Təklifin vaxtı: {date}-a qədər",
+    "ru": "Срок предложения: до {date}",
+    "en": "Offer valid until {date}"
+  },
+  {
+    "key": "deals.reason_prefix",
+    "az": "Səbəb",
+    "ru": "Причина",
+    "en": "Reason"
+  },
+  {
+    "key": "deals.retry",
+    "az": "Yenidən",
+    "ru": "Повторить",
+    "en": "Retry"
+  },
+  {
+    "key": "deals.review.prompt",
+    "az": "Təcrübəni bir neçə sözlə yaz…",
+    "ru": "Опишите впечатление парой слов…",
+    "en": "Describe your experience in a few words…"
+  },
+  {
+    "key": "deals.review.question_template",
+    "az": "{name} ilə təcrübən necə idi?",
+    "ru": "Как прошёл ваш опыт с {name}?",
+    "en": "How was your experience with {name}?"
+  },
+  {
+    "key": "deals.review.sent",
+    "az": "Rəy göndərildi",
+    "ru": "Отзыв отправлен",
+    "en": "Review submitted"
+  },
+  {
+    "key": "deals.review.submit",
+    "az": "Rəyi göndər",
+    "ru": "Отправить отзыв",
+    "en": "Submit review"
+  },
+  {
+    "key": "deals.review.trait.careful",
+    "az": "Diqqətli",
+    "ru": "Внимательный",
+    "en": "Careful"
+  },
+  {
+    "key": "deals.review.trait.on_time",
+    "az": "Vaxtında",
+    "ru": "Вовремя",
+    "en": "On time"
+  },
+  {
+    "key": "deals.review.trait.polite",
+    "az": "Nəzakətli",
+    "ru": "Вежливый",
+    "en": "Polite"
+  },
+  {
+    "key": "deals.review_sent",
+    "az": "Rəy göndərildi",
+    "ru": "Отзыв отправлен",
+    "en": "Review sent"
+  },
+  {
+    "key": "deals.role.carrier",
+    "az": "Daşıyıcı",
+    "ru": "Курьер",
+    "en": "Carrier"
+  },
+  {
+    "key": "deals.role.sender",
+    "az": "Göndərən",
+    "ru": "Отправитель",
+    "en": "Sender"
+  },
+  {
+    "key": "deals.section.history",
+    "az": "Tarixçə",
+    "ru": "История",
+    "en": "History"
+  },
+  {
+    "key": "deals.section.terms",
+    "az": "Şərtlər",
+    "ru": "Условия",
+    "en": "Terms"
+  },
+  {
+    "key": "deals.step.accepted",
+    "az": "Qəbul",
+    "ru": "Принято",
+    "en": "Accepted"
+  },
+  {
+    "key": "deals.step.delivered",
+    "az": "Çatdı",
+    "ru": "Доставлено",
+    "en": "Delivered"
+  },
+  {
+    "key": "deals.step.done",
+    "az": "Bitdi",
+    "ru": "Готово",
+    "en": "Done"
+  },
+  {
+    "key": "deals.step.picked_up",
+    "az": "Götürüldü",
+    "ru": "Забрано",
+    "en": "Picked up"
+  },
+  {
+    "key": "deals.step.proposal",
+    "az": "Təklif",
+    "ru": "Предложение",
+    "en": "Offer"
+  },
+  {
+    "key": "deals.sub.accepted_carrier",
+    "az": "Razılaşma bağlandı · malı göndərəndən götürün",
+    "ru": "Договорённость достигнута · заберите товар у отправителя",
+    "en": "Deal agreed · pick up the item from the sender"
+  },
+  {
+    "key": "deals.sub.accepted_sender",
+    "az": "Razılaşma bağlandı · daşıyıcı malı götürəcək",
+    "ru": "Договорённость достигнута · курьер заберёт товар",
+    "en": "Deal agreed · the carrier will pick up the item"
+  },
+  {
+    "key": "deals.sub.auto_completed",
+    "az": "Təsdiq müddəti bitdiyi üçün sistem bağladı",
+    "ru": "Закрыто системой по истечении срока подтверждения",
+    "en": "Closed by the system after the confirmation window expired"
+  },
+  {
+    "key": "deals.sub.cancelled",
+    "az": "Sövdələşmə dayandırıldı",
+    "ru": "Сделка отменена",
+    "en": "Deal cancelled"
+  },
+  {
+    "key": "deals.sub.completed",
+    "az": "Sövdələşmə uğurla bağlandı",
+    "ru": "Сделка успешно завершена",
+    "en": "Deal closed successfully"
+  },
+  {
+    "key": "deals.sub.declined",
+    "az": "Təklif qəbul edilmədi",
+    "ru": "Предложение не принято",
+    "en": "Offer wasn't accepted"
+  },
+  {
+    "key": "deals.sub.delivered_carrier",
+    "az": "Çatdırıldı · göndərənin təsdiqini gözləyin",
+    "ru": "Доставлено · дождитесь подтверждения отправителя",
+    "en": "Delivered · wait for the sender’s confirmation"
+  },
+  {
+    "key": "deals.sub.delivered_sender",
+    "az": "Malı aldınızsa təsdiqləyin — sövdələşmə tamamlanacaq",
+    "ru": "Если получили товар, подтвердите — сделка завершится",
+    "en": "If you’ve received the item, confirm — the deal will complete"
+  },
+  {
+    "key": "deals.sub.disputed",
+    "az": "Problem bildirildi · admin araşdırır",
+    "ru": "Проблема отправлена · рассматривает администратор",
+    "en": "Issue reported · admin reviewing"
+  },
+  {
+    "key": "deals.sub.expired",
+    "az": "Təklif vaxtında cavablandırılmadı",
+    "ru": "Ответ на предложение не получен вовремя",
+    "en": "Offer not answered in time"
+  },
+  {
+    "key": "deals.sub.pending_me",
+    "az": "Sizə yeni təklif gəlib — cavab verin",
+    "ru": "Вам поступило новое предложение — ответьте",
+    "en": "You have a new offer — respond"
+  },
+  {
+    "key": "deals.sub.pending_them",
+    "az": "Təklifiniz göndərildi · qarşı tərəf cavab verməlidir",
+    "ru": "Ваше предложение отправлено · другая сторона должна ответить",
+    "en": "Your offer was sent · the other side needs to respond"
+  },
+  {
+    "key": "deals.sub.picked_up_carrier",
+    "az": "Təyinat şəhərinə çatanda «Çatdırdım» seçin",
+    "ru": "По прибытии в город назначения нажмите «Доставлено»",
+    "en": "On arrival in the destination city, tap \"Delivered\""
+  },
+  {
+    "key": "deals.sub.picked_up_sender",
+    "az": "Mal yoldadır · daşıyıcı çatdırana qədər gözləyin",
+    "ru": "Товар в пути · дождитесь доставки курьером",
+    "en": "Item on the way · wait for the carrier to deliver"
+  },
+  {
+    "key": "deals.tab.active",
+    "az": "Aktiv",
+    "ru": "Активные",
+    "en": "Active"
+  },
+  {
+    "key": "deals.tab.history",
+    "az": "Tarixçə",
+    "ru": "История",
+    "en": "History"
+  },
+  {
+    "key": "deals.terms.note",
+    "az": "Qeyd",
+    "ru": "Заметка",
+    "en": "Note"
+  },
+  {
+    "key": "deals.terms.package",
+    "az": "Bağlama",
+    "ru": "Посылка",
+    "en": "Package"
+  },
+  {
+    "key": "deals.terms.price",
+    "az": "Qiymət",
+    "ru": "Цена",
+    "en": "Price"
+  },
+  {
+    "key": "deals.terms.trip_date",
+    "az": "Səfər",
+    "ru": "Поездка",
+    "en": "Trip"
+  },
+  {
+    "key": "deals.terms.weight",
+    "az": "Çəki",
+    "ru": "Вес",
+    "en": "Weight"
+  },
+  {
+    "key": "deals.timeline.completed",
+    "az": "Tamamlandı",
+    "ru": "Завершено",
+    "en": "Completed"
+  },
+  {
+    "key": "deals.timeline.delivered",
+    "az": "Çatdırıldı",
+    "ru": "Доставлено",
+    "en": "Delivered"
+  },
+  {
+    "key": "deals.timeline.picked_up",
+    "az": "Mal götürüldü",
+    "ru": "Товар забран",
+    "en": "Item picked up"
+  },
+  {
+    "key": "deals.title",
+    "az": "Sövdələşmələrim",
+    "ru": "Мои сделки",
+    "en": "My deals"
+  },
+  {
+    "key": "deals.title_short",
+    "az": "Sövdələşmə",
+    "ru": "Сделка",
+    "en": "Deal"
+  },
+  {
+    "key": "deals.your_turn",
+    "az": "Sizin növbəniz — cavab verin",
+    "ru": "Ваш ход — ответьте",
+    "en": "Your turn — respond"
+  },
+  {
+    "key": "enum.listing_delete_reason.created_by_mistake",
+    "az": "Səhvən yaratdım",
+    "ru": "Создал по ошибке",
+    "en": "Created by mistake"
+  },
+  {
+    "key": "enum.listing_delete_reason.found_another",
+    "az": "Başqa variant tapdım",
+    "ru": "Нашёл другой вариант",
+    "en": "Found another option"
+  },
+  {
+    "key": "enum.listing_delete_reason.no_longer_needed",
+    "az": "Artıq lazım deyil",
+    "ru": "Больше не нужно",
+    "en": "No longer needed"
+  },
+  {
+    "key": "enum.listing_delete_reason.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "enum.listing_delete_reason.plans_changed",
+    "az": "Planlarım dəyişdi",
+    "ru": "Планы изменились",
+    "en": "My plans changed"
+  },
+  {
+    "key": "enum.listing_status.active",
+    "az": "Aktiv",
+    "ru": "Активно",
+    "en": "Active"
+  },
+  {
+    "key": "enum.listing_type.shipment_post",
+    "az": "GÖNDƏRİŞ",
+    "ru": "Посылка",
+    "en": "Shipment"
+  },
+  {
+    "key": "enum.listing_type.trip",
+    "az": "SƏFƏR",
+    "ru": "Поездка",
+    "en": "Trip"
+  },
+  {
+    "key": "enum.listing_type_noun.shipment",
+    "az": "göndəriş",
+    "ru": "отправление",
+    "en": "shipment"
+  },
+  {
+    "key": "enum.listing_type_noun.trip",
+    "az": "səfər",
+    "ru": "поездка",
+    "en": "trip"
+  },
+  {
+    "key": "enum.package_type.clothing",
+    "az": "Geyim",
+    "ru": "Одежда",
+    "en": "Clothing"
+  },
+  {
+    "key": "enum.package_type.documents",
+    "az": "Sənədlər",
+    "ru": "Документы",
+    "en": "Documents"
+  },
+  {
+    "key": "enum.package_type.electronics",
+    "az": "Elektronika",
+    "ru": "Электроника",
+    "en": "Electronics"
+  },
+  {
+    "key": "enum.package_type.food",
+    "az": "Qida",
+    "ru": "Еда",
+    "en": "Food"
+  },
+  {
+    "key": "enum.package_type.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "enum.package_type.small_parcel",
+    "az": "Kiçik bağlama",
+    "ru": "Маленькая посылка",
+    "en": "Small parcel"
+  },
+  {
+    "key": "enum.payment_method.balance",
+    "az": "Wawatair balans",
+    "ru": "Баланс Wawatair",
+    "en": "Wawatair balance"
+  },
+  {
+    "key": "enum.payment_method.card",
+    "az": "Bank kartı",
+    "ru": "Банковская карта",
+    "en": "Bank card"
+  },
+  {
+    "key": "enum.promotion_type.featured",
+    "az": "Önə çıxarılan",
+    "ru": "Продвигаемое",
+    "en": "Featured"
+  },
+  {
+    "key": "enum.promotion_type.vip",
+    "az": "VİP",
+    "ru": "VIP",
+    "en": "VIP"
+  },
+  {
+    "key": "enum.report_reason_code.abuse",
+    "az": "Təhqir",
+    "ru": "Оскорбление",
+    "en": "Abuse"
+  },
+  {
+    "key": "enum.report_reason_code.fake",
+    "az": "Saxta",
+    "ru": "Подделка",
+    "en": "Fake"
+  },
+  {
+    "key": "enum.report_reason_code.fraud",
+    "az": "Fırıldaq",
+    "ru": "Мошенничество",
+    "en": "Fraud"
+  },
+  {
+    "key": "enum.report_reason_code.inappropriate",
+    "az": "Uyğunsuz",
+    "ru": "Неприемлемо",
+    "en": "Inappropriate"
+  },
+  {
+    "key": "enum.report_reason_code.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "enum.report_reason_code.spam",
+    "az": "Spam",
+    "ru": "Спам",
+    "en": "Spam"
+  },
+  {
+    "key": "enum.shipment_cancel_reason.counterpart_unresponsive",
+    "az": "Qarşı tərəf cavab vermir",
+    "ru": "Другая сторона не отвечает",
+    "en": "The other party isn't responding"
+  },
+  {
+    "key": "enum.shipment_cancel_reason.found_another",
+    "az": "Başqa variant tapdım",
+    "ru": "Нашёл другой вариант",
+    "en": "Found another option"
+  },
+  {
+    "key": "enum.shipment_cancel_reason.other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "enum.shipment_cancel_reason.plans_changed",
+    "az": "Planlar dəyişdi",
+    "ru": "Планы изменились",
+    "en": "Plans changed"
+  },
+  {
+    "key": "enum.shipment_cancel_reason.terms_disagreement",
+    "az": "Şərtlərlə razılaşmadıq",
+    "ru": "Не договорились об условиях",
+    "en": "Couldn't agree on terms"
+  },
+  {
+    "key": "enum.shipment_status.accepted",
+    "az": "Qəbul olundu",
+    "ru": "Принято",
+    "en": "Accepted"
+  },
+  {
+    "key": "enum.shipment_status.auto_completed",
+    "az": "Avtomatik tamamlandı",
+    "ru": "Завершено автоматически",
+    "en": "Auto-completed"
+  },
+  {
+    "key": "enum.shipment_status.cancelled",
+    "az": "Ləğv edildi",
+    "ru": "Отменено",
+    "en": "Cancelled"
+  },
+  {
+    "key": "enum.shipment_status.completed",
+    "az": "Tamamlandı",
+    "ru": "Завершено",
+    "en": "Completed"
+  },
+  {
+    "key": "enum.shipment_status.declined",
+    "az": "Rədd edildi",
+    "ru": "Отклонено",
+    "en": "Declined"
+  },
+  {
+    "key": "enum.shipment_status.delivered",
+    "az": "Çatdırıldı",
+    "ru": "Доставлено",
+    "en": "Delivered"
+  },
+  {
+    "key": "enum.shipment_status.disputed",
+    "az": "Mübahisəli",
+    "ru": "Спор",
+    "en": "Disputed"
+  },
+  {
+    "key": "enum.shipment_status.expired",
+    "az": "Vaxtı keçdi",
+    "ru": "Истекло",
+    "en": "Expired"
+  },
+  {
+    "key": "enum.shipment_status.picked_up",
+    "az": "Mal götürüldü",
+    "ru": "Груз забран",
+    "en": "Picked up"
+  },
+  {
+    "key": "enum.shipment_status.proposal_pending",
+    "az": "Təklif gözləyir",
+    "ru": "Предложение на рассмотрении",
+    "en": "Offer pending"
+  },
+  {
+    "key": "enum.user_tier.bronze",
+    "az": "Bürünc",
+    "ru": "Бронза",
+    "en": "Bronze"
+  },
+  {
+    "key": "enum.user_tier.gold",
+    "az": "Qızıl",
+    "ru": "Золото",
+    "en": "Gold"
+  },
+  {
+    "key": "enum.user_tier.new",
+    "az": "Yeni",
+    "ru": "Новичок",
+    "en": "New"
+  },
+  {
+    "key": "enum.user_tier.platinum",
+    "az": "Platin",
+    "ru": "Платина",
+    "en": "Platinum"
+  },
+  {
+    "key": "enum.user_tier.silver",
+    "az": "Gümüş",
+    "ru": "Серебро",
+    "en": "Silver"
+  },
+  {
+    "key": "enum.user_tier.standard",
+    "az": "Standart",
+    "ru": "Стандарт",
+    "en": "Standard"
+  },
+  {
+    "key": "faq.contact_subtitle",
+    "az": "Komandamız kömək etməyə hazırdır.",
+    "ru": "Наша команда готова помочь.",
+    "en": "Our team is ready to help."
+  },
+  {
+    "key": "faq.contact_title",
+    "az": "Cavab tapmadın?",
+    "ru": "Не нашли ответ?",
+    "en": "Didn't find an answer?"
+  },
+  {
+    "key": "faq.empty",
+    "az": "Hələ sual yoxdur",
+    "ru": "Пока нет вопросов",
+    "en": "No questions yet"
+  },
+  {
+    "key": "faq.load_failed",
+    "az": "FAQ yüklənmədi",
+    "ru": "Не удалось загрузить FAQ",
+    "en": "Couldn't load FAQ"
+  },
+  {
+    "key": "faq.no_results",
+    "az": "«{query}» üzrə nəticə yoxdur",
+    "ru": "Нет результатов по «{query}»",
+    "en": "No results for \"{query}\""
+  },
+  {
+    "key": "faq.no_results_hint",
+    "az": "Başqa açar sözlə yoxla və ya dəstəyə yaz.",
+    "ru": "Попробуйте другое ключевое слово или напишите в поддержку.",
+    "en": "Try another keyword or contact support."
+  },
+  {
+    "key": "faq.search_hint",
+    "az": "Sualını axtar…",
+    "ru": "Поиск вопроса…",
+    "en": "Search your question…"
+  },
+  {
+    "key": "faq.subtitle",
+    "az": "Suallarına cavab tap",
+    "ru": "Найдите ответы на свои вопросы",
+    "en": "Find answers to your questions"
+  },
+  {
+    "key": "favorites.empty_subtitle",
+    "az": "Bəyəndiyin elanları ürək işarəsi ilə burada saxla.",
+    "ru": "Отмечайте понравившиеся объявления сердечком, и они появятся здесь.",
+    "en": "Tap the heart on listings you like to save them here."
+  },
+  {
+    "key": "favorites.empty_title",
+    "az": "Hələ sevimli elan yoxdur",
+    "ru": "Пока нет избранных объявлений",
+    "en": "No favorites yet"
+  },
+  {
+    "key": "favorites.subtitle",
+    "az": "Yadda saxladığın elanlar",
+    "ru": "Сохранённые объявления",
+    "en": "Your saved listings"
+  },
+  {
+    "key": "favorites.title",
+    "az": "Sevimlilər",
+    "ru": "Избранное",
+    "en": "Favorites"
+  },
+  {
+    "key": "feed.end",
+    "az": "Hamısı bu qədər",
+    "ru": "Это всё",
+    "en": "That's everything"
+  },
+  {
+    "key": "home.hero_subtitle",
+    "az": "Səyahət edənlərlə göndərənləri birləşdiririk",
+    "ru": "Соединяем путешественников и отправителей",
+    "en": "Connecting travelers with senders"
+  },
+  {
+    "key": "home.hero_title",
+    "az": "Bağlamanı kim aparsın?",
+    "ru": "Кто доставит вашу посылку?",
+    "en": "Who'll carry your parcel?"
+  },
+  {
+    "key": "home.route_price_from_template",
+    "az": "{price} $-dən",
+    "ru": "от {price} $",
+    "en": "from {price} $"
+  },
+  {
+    "key": "home.route_travelers_template",
+    "az": "{count} səyahətçi",
+    "ru": "{count} путешественников",
+    "en": "{count} travelers"
+  },
+  {
+    "key": "home.stats_deliveries_suffix",
+    "az": " çatdırılma · ",
+    "ru": " доставок · ",
+    "en": " deliveries · "
+  },
+  {
+    "key": "home.stats_prefix",
+    "az": "Bu ay",
+    "ru": "В этом месяце",
+    "en": "This month"
+  },
+  {
+    "key": "home.stats_travelers_suffix",
+    "az": " təsdiqlənmiş səyahətçi",
+    "ru": " проверенных путешественников",
+    "en": " verified travelers"
+  },
+  {
+    "key": "legal.error.body",
+    "az": "Səhifəni yükləyə bilmədik. İnternet bağlantını yoxla.",
+    "ru": "Не удалось загрузить страницу. Проверьте подключение к интернету.",
+    "en": "We couldn't load the page. Check your internet connection."
+  },
+  {
+    "key": "legal.error.title",
+    "az": "Bağlantı yoxdur",
+    "ru": "Нет соединения",
+    "en": "No connection"
+  },
+  {
+    "key": "legal.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить",
+    "en": "Try again"
+  },
+  {
+    "key": "legal.updated",
+    "az": "Yenilənib: {date}",
+    "ru": "Обновлено: {date}",
+    "en": "Updated: {date}"
+  },
+  {
+    "key": "limit.active_count_prefix",
+    "az": "{active}/{limit} aktiv {noun} elanın var.",
+    "ru": "У вас {active}/{limit} активных объявлений «{noun}».",
+    "en": "You have {active}/{limit} active {noun} listings."
+  },
+  {
+    "key": "limit.increase_cta",
+    "az": "Limiti artır",
+    "ru": "Увеличить лимит",
+    "en": "Increase limit"
+  },
+  {
+    "key": "listing.accepted_packages",
+    "az": "Qəbul olunan bağlamalar",
+    "ru": "Принимаемые посылки",
+    "en": "Accepted packages"
+  },
+  {
+    "key": "listing.active_order_exists",
+    "az": "Bu söhbətdə artıq aktiv sifariş var. Davam etmək üçün mövcud söhbətə keç.",
+    "ru": "В этом чате уже есть активный заказ. Перейдите в существующий чат, чтобы продолжить.",
+    "en": "There’s already an active order in this chat. Open the existing chat to continue."
+  },
+  {
+    "key": "listing.avg_response",
+    "az": "Adətən ~{minutes} dəqiqəyə cavab verir",
+    "ru": "Обычно отвечает за ~{minutes} мин",
+    "en": "Usually replies in ~{minutes} min"
+  },
+  {
+    "key": "listing.back_to_listing",
+    "az": "Elana qayıt",
+    "ru": "Вернуться к объявлению",
+    "en": "Back to listing"
+  },
+  {
+    "key": "listing.completed_deliveries",
+    "az": "{count} çatdırılma",
+    "ru": "{count} доставок",
+    "en": "{count} deliveries"
+  },
+  {
+    "key": "listing.delete_confirm_message",
+    "az": "Bu əməliyyat geri qaytarılmır. Davam etmək istəyirsən?",
+    "ru": "Это действие необратимо. Продолжить?",
+    "en": "This can’t be undone. Continue?"
+  },
+  {
+    "key": "listing.delete_confirm_title",
+    "az": "Elanı sil?",
+    "ru": "Удалить объявление?",
+    "en": "Delete listing?"
+  },
+  {
+    "key": "listing.delete_sheet_subtitle",
+    "az": "Silmə səbəbini seç.",
+    "ru": "Выберите причину удаления.",
+    "en": "Choose a reason for deleting."
+  },
+  {
+    "key": "listing.delete_sheet_title",
+    "az": "Elanı sil",
+    "ru": "Удалить объявление",
+    "en": "Delete listing"
+  },
+  {
+    "key": "listing.deleted",
+    "az": "Elan silindi.",
+    "ru": "Объявление удалено.",
+    "en": "Listing deleted."
+  },
+  {
+    "key": "listing.description_label",
+    "az": "Təsvir",
+    "ru": "Описание",
+    "en": "Description"
+  },
+  {
+    "key": "listing.detail_title",
+    "az": "Elan",
+    "ru": "Объявление",
+    "en": "Listing"
+  },
+  {
+    "key": "listing.details_label",
+    "az": "Detallar",
+    "ru": "Детали",
+    "en": "Details"
+  },
+  {
+    "key": "listing.edit_limited_active_deal",
+    "az": "Aktiv sövdələşmə olduğu üçün redaktə məhduddur. Silmək istəsəniz, əvvəl açıq sövdələşmələri həll edin.",
+    "ru": "Редактирование ограничено из-за активной сделки. Чтобы удалить, сначала завершите открытые сделки.",
+    "en": "Editing is limited while there’s an active deal. To delete, resolve open deals first."
+  },
+  {
+    "key": "listing.estimate_price_hint",
+    "az": "Təxmini qiyməti çəkiyə görə hesablaya bilərsən: {price} $/kq",
+    "ru": "Примерную цену можно рассчитать по весу: {price} $/кг",
+    "en": "You can estimate the price by weight: {price} $/kg"
+  },
+  {
+    "key": "listing.fact_delivery",
+    "az": "Təhvil",
+    "ru": "Доставка",
+    "en": "Delivery"
+  },
+  {
+    "key": "listing.fact_free_space",
+    "az": "Boş yer",
+    "ru": "Свободно",
+    "en": "Free space"
+  },
+  {
+    "key": "listing.fact_published",
+    "az": "Dərc olunub",
+    "ru": "Опубликовано",
+    "en": "Published"
+  },
+  {
+    "key": "listing.favorited",
+    "az": "Elan seçilmişlərə əlavə edildi.",
+    "ru": "Объявление добавлено в избранное.",
+    "en": "Listing added to favorites."
+  },
+  {
+    "key": "listing.fix",
+    "az": "Düzəlt",
+    "ru": "Исправить",
+    "en": "Fix"
+  },
+  {
+    "key": "listing.flight_label",
+    "az": "Reys",
+    "ru": "Рейс",
+    "en": "Flight"
+  },
+  {
+    "key": "listing.free_space",
+    "az": "Boş yer",
+    "ru": "Свободно",
+    "en": "Free space"
+  },
+  {
+    "key": "listing.free_space_left",
+    "az": "{count} kq boş yer qalıb",
+    "ru": "Осталось {count} кг свободного места",
+    "en": "{count} kg of space left"
+  },
+  {
+    "key": "listing.free_weight_hint",
+    "az": "Boş: {n} kq",
+    "ru": "Свободно: {n} кг",
+    "en": "Free: {n} kg"
+  },
+  {
+    "key": "listing.free_weight_kg",
+    "az": "{kg} kq boş",
+    "ru": "{kg} кг свободно",
+    "en": "{kg} kg free"
+  },
+  {
+    "key": "listing.fully_booked",
+    "az": "Yer yoxdur.",
+    "ru": "Мест нет.",
+    "en": "No space left."
+  },
+  {
+    "key": "listing.kg_free",
+    "az": "{n} kq boş",
+    "ru": "{n} кг свободно",
+    "en": "{n} kg free"
+  },
+  {
+    "key": "listing.limit_reached_short",
+    "az": "Limit dolub",
+    "ru": "Лимит исчерпан",
+    "en": "Limit reached"
+  },
+  {
+    "key": "listing.message_cta",
+    "az": "Mesaj",
+    "ru": "Сообщение",
+    "en": "Message"
+  },
+  {
+    "key": "listing.my_listing_title",
+    "az": "Elanım",
+    "ru": "Моё объявление",
+    "en": "My listing"
+  },
+  {
+    "key": "listing.negotiable",
+    "az": "Razılaşma",
+    "ru": "Договорная",
+    "en": "Negotiable"
+  },
+  {
+    "key": "listing.negotiable_short",
+    "az": "Razılaşma",
+    "ru": "Договорная",
+    "en": "Negotiable"
+  },
+  {
+    "key": "listing.no_space",
+    "az": "Yer yoxdur",
+    "ru": "Мест нет",
+    "en": "No space"
+  },
+  {
+    "key": "listing.not_found_body",
+    "az": "Elan silinmiş, moderasiyada ola bilər və ya sənə açıq deyil.",
+    "ru": "Объявление удалено, находится на модерации или недоступно вам.",
+    "en": "The listing was deleted, may be under review, or isn’t available to you."
+  },
+  {
+    "key": "listing.not_found_title",
+    "az": "Elan tapılmadı",
+    "ru": "Объявление не найдено",
+    "en": "Listing not found"
+  },
+  {
+    "key": "listing.note_hint",
+    "az": "Qısa mesaj yaz...",
+    "ru": "Напишите короткое сообщение...",
+    "en": "Write a short message..."
+  },
+  {
+    "key": "listing.offer_failed",
+    "az": "Təklif göndərilmədi. Məlumatları yoxla və yenidən cəhd et.",
+    "ru": "Не удалось отправить предложение. Проверьте данные и попробуйте снова.",
+    "en": "Offer wasn’t sent. Check the details and try again."
+  },
+  {
+    "key": "listing.offer_sent",
+    "az": "Təklif göndərildi",
+    "ru": "Предложение отправлено",
+    "en": "Offer sent"
+  },
+  {
+    "key": "listing.offer_sent_body",
+    "az": "{ownerName} təklifinizə baxıb cavab verəcək.\nSöhbətdən danışıqları davam etdirə bilərsiniz.",
+    "ru": "{ownerName} рассмотрит ваше предложение и ответит.\nПродолжить переговоры можно в чате.",
+    "en": "{ownerName} will review your offer and reply.\nYou can continue the conversation in chat."
+  },
+  {
+    "key": "listing.package_label",
+    "az": "Bağlama",
+    "ru": "Посылка",
+    "en": "Package"
+  },
+  {
+    "key": "listing.package_type",
+    "az": "Bağlama növü",
+    "ru": "Тип посылки",
+    "en": "Package type"
+  },
+  {
+    "key": "listing.packages_label",
+    "az": "Bağlamalar",
+    "ru": "Посылки",
+    "en": "Packages"
+  },
+  {
+    "key": "listing.pause_confirm_message",
+    "az": "Bu elan lentdən çıxacaq və istifadəçilər onu görməyəcək. Davam edək?",
+    "ru": "Объявление скроется из ленты и станет недоступно пользователям. Продолжить?",
+    "en": "This listing will leave the feed and users won’t see it. Continue?"
+  },
+  {
+    "key": "listing.pause_confirm_title",
+    "az": "Elanı dayandır?",
+    "ru": "Приостановить объявление?",
+    "en": "Pause listing?"
+  },
+  {
+    "key": "listing.paused",
+    "az": "Elan dayandırıldı.",
+    "ru": "Объявление приостановлено.",
+    "en": "Listing paused."
+  },
+  {
+    "key": "listing.price_label",
+    "az": "Qiymət",
+    "ru": "Цена",
+    "en": "Price"
+  },
+  {
+    "key": "listing.price_negotiable",
+    "az": "Qiymət razılaşma ilə",
+    "ru": "Цена договорная",
+    "en": "Price negotiable"
+  },
+  {
+    "key": "listing.reactivate",
+    "az": "Yenidən aktivləşdir",
+    "ru": "Активировать снова",
+    "en": "Reactivate"
+  },
+  {
+    "key": "listing.remaining_template",
+    "az": "{count} qalıb",
+    "ru": "Осталось {count}",
+    "en": "{count} left"
+  },
+  {
+    "key": "listing.report_sent",
+    "az": "Şikayət göndərildi.",
+    "ru": "Жалоба отправлена.",
+    "en": "Report sent."
+  },
+  {
+    "key": "listing.report_sheet_subtitle",
+    "az": "Səbəbi seç və ya qısa qeyd yaz.",
+    "ru": "Выберите причину или напишите короткую заметку.",
+    "en": "Pick a reason or add a short note."
+  },
+  {
+    "key": "listing.report_sheet_title",
+    "az": "Şikayət et",
+    "ru": "Пожаловаться",
+    "en": "Report"
+  },
+  {
+    "key": "listing.repost",
+    "az": "Yenidən paylaş",
+    "ru": "Опубликовать снова",
+    "en": "Repost"
+  },
+  {
+    "key": "listing.reserved",
+    "az": "Rezerv olunub",
+    "ru": "Забронировано",
+    "en": "Reserved"
+  },
+  {
+    "key": "listing.response_short",
+    "az": "~{minutes} dəq cavab",
+    "ru": "~{minutes} мин ответ",
+    "en": "~{minutes} min reply"
+  },
+  {
+    "key": "listing.resume_confirm_message",
+    "az": "Elan yenidən lentdə görünəcək. Davam edək?",
+    "ru": "Объявление снова появится в ленте. Продолжить?",
+    "en": "The listing will show in the feed again. Continue?"
+  },
+  {
+    "key": "listing.resume_confirm_title",
+    "az": "Elanı aktivləşdir?",
+    "ru": "Активировать объявление?",
+    "en": "Activate listing?"
+  },
+  {
+    "key": "listing.resumed",
+    "az": "Elan yenidən aktivləşdirildi.",
+    "ru": "Объявление снова активно.",
+    "en": "Listing reactivated."
+  },
+  {
+    "key": "listing.send_offer",
+    "az": "Təklif göndər",
+    "ru": "Отправить предложение",
+    "en": "Send offer"
+  },
+  {
+    "key": "listing.similar",
+    "az": "Oxşar elanlar",
+    "ru": "Похожие объявления",
+    "en": "Similar listings"
+  },
+  {
+    "key": "listing.stat_favorited",
+    "az": "Seçilmiş",
+    "ru": "В избранном",
+    "en": "Favorited"
+  },
+  {
+    "key": "listing.stat_favorites",
+    "az": "Sevimli",
+    "ru": "В избранном",
+    "en": "Favorite"
+  },
+  {
+    "key": "listing.stat_free",
+    "az": "Boş",
+    "ru": "Свободно",
+    "en": "Free"
+  },
+  {
+    "key": "listing.stat_views",
+    "az": "Baxış",
+    "ru": "Просмотры",
+    "en": "Views"
+  },
+  {
+    "key": "listing.stat_weight",
+    "az": "Çəki",
+    "ru": "Вес",
+    "en": "Weight"
+  },
+  {
+    "key": "listing.status_expired_message",
+    "az": "Uçuş tarixi keçdiyi üçün elan lentdən çıxıb. Yeni tarixlə yenidən paylaşa bilərsiniz.",
+    "ru": "Дата вылета прошла, поэтому объявление ушло из ленты. Опубликуйте его снова с новой датой.",
+    "en": "The flight date has passed, so the listing left the feed. Repost it with a new date."
+  },
+  {
+    "key": "listing.status_expired_title",
+    "az": "Vaxtı keçib",
+    "ru": "Истекло",
+    "en": "Expired"
+  },
+  {
+    "key": "listing.status_moderation_message",
+    "az": "Elanınız yoxlanılır. Təsdiqlənəndən sonra lentdə görünəcək.",
+    "ru": "Ваше объявление проверяется. После одобрения появится в ленте.",
+    "en": "Your listing is being reviewed. It’ll appear in the feed once approved."
+  },
+  {
+    "key": "listing.status_moderation_title",
+    "az": "Moderasiyada",
+    "ru": "На модерации",
+    "en": "Under review"
+  },
+  {
+    "key": "listing.status_paused_message",
+    "az": "Bu elan lentdə görünmür. İstənilən vaxt yenidən aktivləşdirə bilərsiniz.",
+    "ru": "Это объявление скрыто из ленты. Вы можете активировать его в любой момент.",
+    "en": "This listing is hidden from the feed. You can reactivate it anytime."
+  },
+  {
+    "key": "listing.status_paused_title",
+    "az": "Dayandırılıb",
+    "ru": "Приостановлено",
+    "en": "Paused"
+  },
+  {
+    "key": "listing.status_rejected_message",
+    "az": "Səbəb: elan qaydalara uyğun deyil. Düzəliş edib yenidən göndərə bilərsiniz.",
+    "ru": "Причина: объявление не соответствует правилам. Исправьте и отправьте снова.",
+    "en": "Reason: the listing doesn’t meet the rules. Fix it and resubmit."
+  },
+  {
+    "key": "listing.status_rejected_title",
+    "az": "Rədd edildi",
+    "ru": "Отклонено",
+    "en": "Rejected"
+  },
+  {
+    "key": "listing.total_price",
+    "az": "Ümumi qiymət",
+    "ru": "Общая цена",
+    "en": "Total price"
+  },
+  {
+    "key": "listing.type_shipment",
+    "az": "Göndəriş",
+    "ru": "Отправление",
+    "en": "Shipment"
+  },
+  {
+    "key": "listing.type_trip",
+    "az": "Səfər",
+    "ru": "Поездка",
+    "en": "Trip"
+  },
+  {
+    "key": "listing.unfavorited",
+    "az": "Elan seçilmişlərdən çıxarıldı.",
+    "ru": "Объявление удалено из избранного.",
+    "en": "Listing removed from favorites."
+  },
+  {
+    "key": "listing.updated_moderation",
+    "az": "Elan yeniləndi və yenidən moderasiyaya göndərildi.",
+    "ru": "Объявление обновлено и отправлено на повторную модерацию.",
+    "en": "Listing updated and sent back for review."
+  },
+  {
+    "key": "listing.weight_label",
+    "az": "Çəki",
+    "ru": "Вес",
+    "en": "Weight"
+  },
+  {
+    "key": "listing_quota.badge.best_value",
+    "az": "Ən sərfəli",
+    "ru": "Выгодно",
+    "en": "Best value"
+  },
+  {
+    "key": "listing_quota.cancel_payment",
+    "az": "Ödənişi ləğv et",
+    "ru": "Отменить оплату",
+    "en": "Cancel payment"
+  },
+  {
+    "key": "listing_quota.confirm_title",
+    "az": "Ödənişi təsdiqlə",
+    "ru": "Подтвердите оплату",
+    "en": "Confirm payment"
+  },
+  {
+    "key": "listing_quota.create_listing",
+    "az": "Elan yarat",
+    "ru": "Создать объявление",
+    "en": "Create listing"
+  },
+  {
+    "key": "listing_quota.go_to_payment",
+    "az": "ödənişə keç",
+    "ru": "перейти к оплате",
+    "en": "go to payment"
+  },
+  {
+    "key": "listing_quota.limit_full_subtitle",
+    "az": "Limiti artır və dərhal yenisini yarat.",
+    "ru": "Увеличьте лимит и сразу создайте новое.",
+    "en": "Increase the limit and create a new one right away."
+  },
+  {
+    "key": "listing_quota.limit_full_title.trip",
+    "az": "Aktiv {typeLabel} limitin dolub",
+    "ru": "Лимит активных «{typeLabel}» исчерпан",
+    "en": "Your active {typeLabel} limit is full"
+  },
+  {
+    "key": "listing_quota.load_error",
+    "az": "Planlar yüklənmədi. Yenidən cəhd et.",
+    "ru": "Не удалось загрузить планы. Попробуйте снова.",
+    "en": "Couldn’t load plans. Try again."
+  },
+  {
+    "key": "listing_quota.new_limit",
+    "az": "Yeni limit",
+    "ru": "Новый лимит",
+    "en": "New limit"
+  },
+  {
+    "key": "listing_quota.one_time",
+    "az": "bir dəfəlik · daimi limit",
+    "ru": "разово · постоянный лимит",
+    "en": "one-time · permanent limit"
+  },
+  {
+    "key": "listing_quota.pause_instead",
+    "az": "və ya bir elanı dayandır",
+    "ru": "или приостановите одно объявление",
+    "en": "or pause a listing instead"
+  },
+  {
+    "key": "listing_quota.pay_cta",
+    "az": "ödə və limiti artır",
+    "ru": "оплатить и увеличить лимит",
+    "en": "pay and increase the limit"
+  },
+  {
+    "key": "listing_quota.pay_cta_empty",
+    "az": "Plan seç",
+    "ru": "Выберите план",
+    "en": "Choose a plan"
+  },
+  {
+    "key": "listing_quota.payment_failed",
+    "az": "Ödəniş keçmədi",
+    "ru": "Оплата не прошла",
+    "en": "Payment failed"
+  },
+  {
+    "key": "listing_quota.payment_failed_sub",
+    "az": "Məbləğ tutulmadı və limit dəyişmədi. Yenidən cəhd et.",
+    "ru": "Средства не списаны, лимит не изменён. Попробуйте снова.",
+    "en": "No amount was charged and the limit didn’t change. Try again."
+  },
+  {
+    "key": "listing_quota.payment_pending",
+    "az": "Ödəniş gözlənilir…",
+    "ru": "Ожидание оплаты…",
+    "en": "Waiting for payment…"
+  },
+  {
+    "key": "listing_quota.payment_pending_sub",
+    "az": "Ödəniş səhifəsində əməliyyatı tamamla. Bitən kimi nəticəni avtomatik göstərəcəyik.",
+    "ru": "Завершите операцию на странице оплаты. Как только всё будет готово, мы автоматически покажем результат.",
+    "en": "Complete the transaction on the payment page. We’ll show the result automatically once it’s done."
+  },
+  {
+    "key": "listing_quota.per_listing_prefix",
+    "az": "elan başına",
+    "ru": "за объявление",
+    "en": "per listing"
+  },
+  {
+    "key": "listing_quota.permanent_increase",
+    "az": "Daimi limit artımı",
+    "ru": "Постоянное увеличение лимита",
+    "en": "Permanent limit increase"
+  },
+  {
+    "key": "listing_quota.plans_header",
+    "az": "Limiti artır",
+    "ru": "Увеличить лимит",
+    "en": "Increase limit"
+  },
+  {
+    "key": "listing_quota.receipt.package",
+    "az": "Paket",
+    "ru": "Пакет",
+    "en": "Package"
+  },
+  {
+    "key": "listing_quota.receipt.type",
+    "az": "Növ",
+    "ru": "Тип",
+    "en": "Type"
+  },
+  {
+    "key": "listing_quota.refresh_status",
+    "az": "Statusu yenilə",
+    "ru": "Обновить статус",
+    "en": "Refresh status"
+  },
+  {
+    "key": "listing_quota.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Попробовать снова",
+    "en": "Try again"
+  },
+  {
+    "key": "listing_quota.secure_note",
+    "az": "Ödəniş təhlükəsiz provayder səhifəsində aparılır",
+    "ru": "Оплата проходит на защищённой странице провайдера",
+    "en": "Payment is made on the provider’s secure page"
+  },
+  {
+    "key": "listing_quota.secure_redirect",
+    "az": "Növbəti addımda təhlükəsiz ödəniş səhifəsinə yönləndiriləcəksən. Ödənişi orada tamamla — nəticəni avtomatik alacağıq.",
+    "ru": "На следующем шаге вы перейдёте на защищённую страницу оплаты. Завершите оплату там — результат получим автоматически.",
+    "en": "Next, you’ll be redirected to a secure payment page. Complete the payment there — we’ll get the result automatically."
+  },
+  {
+    "key": "listing_quota.success_sub_prefix",
+    "az": "İndi daha",
+    "ru": "Теперь ещё",
+    "en": "Now"
+  },
+  {
+    "key": "listing_quota.success_sub_suffix",
+    "az": "aktiv elan yarada bilərsən.",
+    "ru": "активных объявлений можно создать.",
+    "en": "more active listings you can create."
+  },
+  {
+    "key": "listing_quota.success_title",
+    "az": "Limitin artdı!",
+    "ru": "Лимит увеличен!",
+    "en": "Your limit increased!"
+  },
+  {
+    "key": "listing_quota.test_mode",
+    "az": "Test rejimi — real məbləğ tutulmur (mock)",
+    "ru": "Тестовый режим — реальная сумма не списывается (mock)",
+    "en": "Test mode — no real amount charged (mock)"
+  },
+  {
+    "key": "listing_quota.title",
+    "az": "Limiti artır",
+    "ru": "Увеличить лимит",
+    "en": "Increase limit"
+  },
+  {
+    "key": "listing_quota.total",
+    "az": "Ümumi",
+    "ru": "Итого",
+    "en": "Total"
+  },
+  {
+    "key": "listing_quota.view_receipt",
+    "az": "Qəbzə bax",
+    "ru": "Посмотреть чек",
+    "en": "View receipt"
+  },
+  {
+    "key": "menu.about",
+    "az": "Tətbiq haqqında",
+    "ru": "О приложении",
+    "en": "About the app"
+  },
+  {
+    "key": "menu.appearance",
+    "az": "Görünüş",
+    "ru": "Оформление",
+    "en": "Appearance"
+  },
+  {
+    "key": "menu.blocked_users",
+    "az": "Bloklanmış istifadəçilər",
+    "ru": "Заблокированные пользователи",
+    "en": "Blocked users"
+  },
+  {
+    "key": "menu.change_password",
+    "az": "Parolu dəyiş",
+    "ru": "Сменить пароль",
+    "en": "Change password"
+  },
+  {
+    "key": "menu.connections",
+    "az": "İzləyicilər və izlədiklərim",
+    "ru": "Подписчики и подписки",
+    "en": "Followers & following"
+  },
+  {
+    "key": "menu.contact_support",
+    "az": "Dəstəyə yaz",
+    "ru": "Написать в поддержку",
+    "en": "Contact support"
+  },
+  {
+    "key": "menu.deals",
+    "az": "Sövdələşmələrim",
+    "ru": "Мои сделки",
+    "en": "My deals"
+  },
+  {
+    "key": "menu.delete_account",
+    "az": "Hesabı sil",
+    "ru": "Удалить аккаунт",
+    "en": "Delete account"
+  },
+  {
+    "key": "menu.edit_profile",
+    "az": "Profili redaktə et",
+    "ru": "Редактировать профиль",
+    "en": "Edit profile"
+  },
+  {
+    "key": "menu.favorites",
+    "az": "Seçilmişlər",
+    "ru": "Избранное",
+    "en": "Favorites"
+  },
+  {
+    "key": "menu.followers",
+    "az": "İzləyicilər",
+    "ru": "Подписчики",
+    "en": "Followers"
+  },
+  {
+    "key": "menu.following",
+    "az": "İzlədiklərim",
+    "ru": "Подписки",
+    "en": "Following"
+  },
+  {
+    "key": "menu.help",
+    "az": "Kömək & FAQ",
+    "ru": "Помощь и FAQ",
+    "en": "Help & FAQ"
+  },
+  {
+    "key": "menu.invite",
+    "az": "Dostunu dəvət et",
+    "ru": "Пригласить друга",
+    "en": "Invite a friend"
+  },
+  {
+    "key": "menu.language",
+    "az": "Dil",
+    "ru": "Язык",
+    "en": "Language"
+  },
+  {
+    "key": "menu.language_subtitle",
+    "az": "Tətbiq dilini seçin.",
+    "ru": "Выберите язык приложения.",
+    "en": "Choose the app language."
+  },
+  {
+    "key": "menu.load_failed",
+    "az": "Menyu yüklənmədi.",
+    "ru": "Не удалось загрузить меню.",
+    "en": "Couldn't load the menu."
+  },
+  {
+    "key": "menu.logout",
+    "az": "Çıxış",
+    "ru": "Выйти",
+    "en": "Log out"
+  },
+  {
+    "key": "menu.logout_confirm_message",
+    "az": "Yenidən daxil olmaq üçün e-poçt və parolunuz lazım olacaq.",
+    "ru": "Чтобы войти снова, понадобятся e-mail и пароль.",
+    "en": "You'll need your email and password to sign in again."
+  },
+  {
+    "key": "menu.logout_confirm_title",
+    "az": "Çıxış etmək?",
+    "ru": "Выйти из аккаунта?",
+    "en": "Log out?"
+  },
+  {
+    "key": "menu.my_listings",
+    "az": "Elanlarım",
+    "ru": "Мои объявления",
+    "en": "My listings"
+  },
+  {
+    "key": "menu.my_reports",
+    "az": "Şikayətlərim",
+    "ru": "Мои жалобы",
+    "en": "My reports"
+  },
+  {
+    "key": "menu.not_verified_badge",
+    "az": "Təsdiqlənməyib",
+    "ru": "Не подтверждён",
+    "en": "Not verified"
+  },
+  {
+    "key": "menu.notifications",
+    "az": "Bildiriş ayarları",
+    "ru": "Настройки уведомлений",
+    "en": "Notification settings"
+  },
+  {
+    "key": "menu.privacy",
+    "az": "Məxfilik",
+    "ru": "Конфиденциальность",
+    "en": "Privacy"
+  },
+  {
+    "key": "menu.privacy_policy",
+    "az": "Məxfilik siyasəti",
+    "ru": "Политика конфиденциальности",
+    "en": "Privacy policy"
+  },
+  {
+    "key": "menu.promo_codes",
+    "az": "Promokodlarım",
+    "ru": "Мои промокоды",
+    "en": "My promo codes"
+  },
+  {
+    "key": "menu.promotions",
+    "az": "Promosyonlarım",
+    "ru": "Мои промоакции",
+    "en": "My promotions"
+  },
+  {
+    "key": "menu.rate_app",
+    "az": "Tətbiqi qiymətləndir",
+    "ru": "Оценить приложение",
+    "en": "Rate the app"
+  },
+  {
+    "key": "menu.retry",
+    "az": "Yenidən yoxla",
+    "ru": "Повторить",
+    "en": "Retry"
+  },
+  {
+    "key": "menu.reviews",
+    "az": "Rəylərim",
+    "ru": "Мои отзывы",
+    "en": "My reviews"
+  },
+  {
+    "key": "menu.reviews_left",
+    "az": "Yazdığım rəylər",
+    "ru": "Оставленные отзывы",
+    "en": "Reviews I left"
+  },
+  {
+    "key": "menu.reviews_received",
+    "az": "Aldığım rəylər",
+    "ru": "Полученные отзывы",
+    "en": "Reviews received"
+  },
+  {
+    "key": "menu.rules",
+    "az": "Qaydalar & şərtlər",
+    "ru": "Правила и условия",
+    "en": "Terms & conditions"
+  },
+  {
+    "key": "menu.saved_searches",
+    "az": "Saxlanan axtarışlar",
+    "ru": "Сохранённые поиски",
+    "en": "Saved searches"
+  },
+  {
+    "key": "menu.section_account",
+    "az": "Hesab",
+    "ru": "Аккаунт",
+    "en": "Account"
+  },
+  {
+    "key": "menu.section_activity",
+    "az": "Fəaliyyətim",
+    "ru": "Моя активность",
+    "en": "My activity"
+  },
+  {
+    "key": "menu.section_preferences",
+    "az": "Tərcihlər",
+    "ru": "Настройки",
+    "en": "Preferences"
+  },
+  {
+    "key": "menu.section_reviews",
+    "az": "Rəylər",
+    "ru": "Отзывы",
+    "en": "Reviews"
+  },
+  {
+    "key": "menu.section_support",
+    "az": "Dəstək & haqqında",
+    "ru": "Поддержка и о приложении",
+    "en": "Support & about"
+  },
+  {
+    "key": "menu.tier_status",
+    "az": "Statusum",
+    "ru": "Мой статус",
+    "en": "My status"
+  },
+  {
+    "key": "menu.title",
+    "az": "Menyu",
+    "ru": "Меню",
+    "en": "Menu"
+  },
+  {
+    "key": "menu.verify_account",
+    "az": "Hesabı təsdiqlə",
+    "ru": "Подтвердить аккаунт",
+    "en": "Verify account"
+  },
+  {
+    "key": "menu.view_profile",
+    "az": "Profilə bax",
+    "ru": "Открыть профиль",
+    "en": "View profile"
+  },
+  {
+    "key": "my_listings.filter_empty_subtitle",
+    "az": "Bu filter üzrə elan tapılmadı.",
+    "ru": "По этому фильтру объявлений не найдено.",
+    "en": "No listings match this filter."
+  },
+  {
+    "key": "my_listings.filter_empty_title",
+    "az": "Elan yoxdur",
+    "ru": "Объявлений нет",
+    "en": "No listings"
+  },
+  {
+    "key": "my_listings.filter_title",
+    "az": "Filtr",
+    "ru": "Фильтр",
+    "en": "Filter"
+  },
+  {
+    "key": "my_listings.resume",
+    "az": "Aktiv et",
+    "ru": "Активировать",
+    "en": "Activate"
+  },
+  {
+    "key": "nav.explore",
+    "az": "Kəşf",
+    "ru": "Обзор",
+    "en": "Explore"
+  },
+  {
+    "key": "notif_settings.critical_note",
+    "az": "Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.",
+    "ru": "Уведомления об аккаунте и безопасности (вход, пароль, подтверждение, предупреждение) отправляются всегда и не могут быть отключены.",
+    "en": "Account and security alerts (sign-in, password, confirmation, warnings) are always sent and can't be turned off."
+  },
+  {
+    "key": "notif_settings.deals.subtitle",
+    "az": "Təklif, çatdırılma, sifariş",
+    "ru": "Предложения, доставка, заказы",
+    "en": "Offers, delivery, orders"
+  },
+  {
+    "key": "notif_settings.deals.title",
+    "az": "Sövdələşmə & təkliflər",
+    "ru": "Сделки и предложения",
+    "en": "Deals & offers"
+  },
+  {
+    "key": "notif_settings.email.subtitle",
+    "az": "Vacib yeniliklər e-poçtla",
+    "ru": "Важные новости по эл. почте",
+    "en": "Important updates by email"
+  },
+  {
+    "key": "notif_settings.email.title",
+    "az": "E-poçt",
+    "ru": "Эл. почта",
+    "en": "Email"
+  },
+  {
+    "key": "notif_settings.follows.subtitle",
+    "az": "Yeni izləyici və elanları",
+    "ru": "Новые подписчики и их объявления",
+    "en": "New followers and their listings"
+  },
+  {
+    "key": "notif_settings.follows.title",
+    "az": "İzləmə",
+    "ru": "Подписки",
+    "en": "Following"
+  },
+  {
+    "key": "notif_settings.group.categories",
+    "az": "Kateqoriyalar",
+    "ru": "Категории",
+    "en": "Categories"
+  },
+  {
+    "key": "notif_settings.group.channels",
+    "az": "Kanallar",
+    "ru": "Каналы",
+    "en": "Channels"
+  },
+  {
+    "key": "notif_settings.group.quiet_hours",
+    "az": "Sakit saatlar",
+    "ru": "Тихие часы",
+    "en": "Quiet hours"
+  },
+  {
+    "key": "notif_settings.listings.subtitle",
+    "az": "Təsdiq, rədd, vaxt, uyğun elan",
+    "ru": "Подтверждения, отклонения, сроки, подходящие объявления",
+    "en": "Approvals, rejections, deadlines, matching listings"
+  },
+  {
+    "key": "notif_settings.listings.title",
+    "az": "Elanlar",
+    "ru": "Объявления",
+    "en": "Listings"
+  },
+  {
+    "key": "notif_settings.marketing.subtitle",
+    "az": "Kampaniya və elanlar",
+    "ru": "Акции и анонсы",
+    "en": "Campaigns and announcements"
+  },
+  {
+    "key": "notif_settings.marketing.title",
+    "az": "Yeniliklər & təkliflər",
+    "ru": "Новости и акции",
+    "en": "News & offers"
+  },
+  {
+    "key": "notif_settings.messages.subtitle",
+    "az": "Yeni və cavabsız mesajlar",
+    "ru": "Новые и неотвеченные сообщения",
+    "en": "New and unanswered messages"
+  },
+  {
+    "key": "notif_settings.messages.title",
+    "az": "Mesajlar",
+    "ru": "Сообщения",
+    "en": "Messages"
+  },
+  {
+    "key": "notif_settings.push.subtitle",
+    "az": "Telefona anında bildiriş",
+    "ru": "Мгновенные уведомления на телефон",
+    "en": "Instant alerts on your phone"
+  },
+  {
+    "key": "notif_settings.push.title",
+    "az": "Push bildirişlər",
+    "ru": "Push-уведомления",
+    "en": "Push notifications"
+  },
+  {
+    "key": "notif_settings.quiet.range_label",
+    "az": "Başlanğıc — son",
+    "ru": "Начало — конец",
+    "en": "Start — end"
+  },
+  {
+    "key": "notif_settings.quiet.subtitle",
+    "az": "Seçilən saatlarda push gəlməz",
+    "ru": "В выбранные часы push не приходит",
+    "en": "No push during the selected hours"
+  },
+  {
+    "key": "notif_settings.quiet.title",
+    "az": "Push-u sakitləşdir",
+    "ru": "Отключить push",
+    "en": "Mute push"
+  },
+  {
+    "key": "notif_settings.reviews.subtitle",
+    "az": "Yeni rəy və xatırlatma",
+    "ru": "Новые отзывы и напоминания",
+    "en": "New reviews and reminders"
+  },
+  {
+    "key": "notif_settings.reviews.title",
+    "az": "Rəylər",
+    "ru": "Отзывы",
+    "en": "Reviews"
+  },
+  {
+    "key": "notif_settings.saved_search.subtitle",
+    "az": "Axtarışınıza uyğun yeni elan",
+    "ru": "Новые объявления по вашему запросу",
+    "en": "New listings matching your search"
+  },
+  {
+    "key": "notif_settings.saved_search.title",
+    "az": "Saxlanan axtarışlar",
+    "ru": "Сохранённые поиски",
+    "en": "Saved searches"
+  },
+  {
+    "key": "notif_settings.saved_toast",
+    "az": "Ayarlar saxlandı.",
+    "ru": "Настройки сохранены.",
+    "en": "Settings saved."
+  },
+  {
+    "key": "notif_settings.title",
+    "az": "Bildiriş ayarları",
+    "ru": "Настройки уведомлений",
+    "en": "Notification settings"
+  },
+  {
+    "key": "notification.group_old",
+    "az": "Köhnə",
+    "ru": "Ранее",
+    "en": "Earlier"
+  },
+  {
+    "key": "notification.group_this_week",
+    "az": "Bu həftə",
+    "ru": "На этой неделе",
+    "en": "This week"
+  },
+  {
+    "key": "notification.time_days_ago",
+    "az": "{count} gün əvvəl",
+    "ru": "{count} дн. назад",
+    "en": "{count} days ago"
+  },
+  {
+    "key": "notification.time_hours_ago",
+    "az": "{count} saat əvvəl",
+    "ru": "{count} ч. назад",
+    "en": "{count} hours ago"
+  },
+  {
+    "key": "notification.time_minutes_ago",
+    "az": "{count} dəqiqə əvvəl",
+    "ru": "{count} мин. назад",
+    "en": "{count} minutes ago"
+  },
+  {
+    "key": "notification.time_now",
+    "az": "indi",
+    "ru": "только что",
+    "en": "just now"
+  },
+  {
+    "key": "notifications.group.older",
+    "az": "Köhnə",
+    "ru": "Ранее",
+    "en": "Earlier"
+  },
+  {
+    "key": "notifications.group.this_week",
+    "az": "Bu həftə",
+    "ru": "На этой неделе",
+    "en": "This week"
+  },
+  {
+    "key": "notifications.group.today",
+    "az": "Bu gün",
+    "ru": "Сегодня",
+    "en": "Today"
+  },
+  {
+    "key": "notifications.group.yesterday",
+    "az": "Dünən",
+    "ru": "Вчера",
+    "en": "Yesterday"
+  },
+  {
+    "key": "notifications.time.days_ago",
+    "az": "{days} gün əvvəl",
+    "ru": "{days} дн. назад",
+    "en": "{days}d ago"
+  },
+  {
+    "key": "notifications.time.hours_ago",
+    "az": "{hours} saat əvvəl",
+    "ru": "{hours} ч. назад",
+    "en": "{hours}h ago"
+  },
+  {
+    "key": "notifications.time.minutes_ago",
+    "az": "{minutes} dəqiqə əvvəl",
+    "ru": "{minutes} мин. назад",
+    "en": "{minutes} min ago"
+  },
+  {
+    "key": "notifications.time.now",
+    "az": "indi",
+    "ru": "сейчас",
+    "en": "now"
+  },
+  {
+    "key": "notifications.time.yesterday",
+    "az": "Dünən",
+    "ru": "Вчера",
+    "en": "Yesterday"
+  },
+  {
+    "key": "onboarding.art.city_from",
+    "az": "Bakı",
+    "ru": "Баку",
+    "en": "Baku"
+  },
+  {
+    "key": "onboarding.art.city_to",
+    "az": "İstanbul",
+    "ru": "Стамбул",
+    "en": "Istanbul"
+  },
+  {
+    "key": "onboarding.art.eta",
+    "az": "1–2 gündə",
+    "ru": "за 1–2 дня",
+    "en": "in 1–2 days"
+  },
+  {
+    "key": "onboarding.art.parcel",
+    "az": "Bağlaman",
+    "ru": "Твоя посылка",
+    "en": "Your parcel"
+  },
+  {
+    "key": "onboarding.art.price_from",
+    "az": "5 \\$-dən",
+    "ru": "от $5",
+    "en": "from $5"
+  },
+  {
+    "key": "onboarding.art.rating",
+    "az": "4.9 reytinq",
+    "ru": "рейтинг 4.9",
+    "en": "4.9 rating"
+  },
+  {
+    "key": "onboarding.art.secure",
+    "az": "Təhlükəsiz",
+    "ru": "Безопасно",
+    "en": "Secure"
+  },
+  {
+    "key": "onboarding.cta.next",
+    "az": "Növbəti",
+    "ru": "Далее",
+    "en": "Next"
+  },
+  {
+    "key": "onboarding.cta.skip",
+    "az": "Keç",
+    "ru": "Пропустить",
+    "en": "Skip"
+  },
+  {
+    "key": "onboarding.cta.start",
+    "az": "Başla",
+    "ru": "Начать",
+    "en": "Get started"
+  },
+  {
+    "key": "onboarding.have_account",
+    "az": "Hesabın var?",
+    "ru": "Уже есть аккаунт?",
+    "en": "Have an account?"
+  },
+  {
+    "key": "onboarding.login",
+    "az": "Daxil ol",
+    "ru": "Войти",
+    "en": "Log in"
+  },
+  {
+    "key": "onboarding.slide1.body",
+    "az": "Uçan minlərlə insanın çantasında boş yer var. Wawatair onları bağlama göndərənlərlə birləşdirir.",
+    "ru": "У тысяч летящих людей есть свободное место в багаже. Wawatair соединяет их с теми, кто отправляет посылки.",
+    "en": "Thousands of travelers have free space in their bags. Wawatair connects them with people sending parcels."
+  },
+  {
+    "key": "onboarding.slide1.title",
+    "az": "Səyahət edəni göndərənlə birləşdir",
+    "ru": "Соедини путешественника с отправителем",
+    "en": "Connect travelers with senders"
+  },
+  {
+    "key": "onboarding.slide2.body",
+    "az": "Qiyməti birbaşa çatda danış, bağlamanı əl-ələ, tez və sərfəli çatdır.",
+    "ru": "Обсуди цену прямо в чате и передай посылку из рук в руки — быстро и выгодно.",
+    "en": "Agree on the price right in chat and hand off your parcel in person — fast and affordable."
+  },
+  {
+    "key": "onboarding.slide2.title",
+    "az": "Kargodan ucuz, poçtdan sürətli",
+    "ru": "Дешевле карго, быстрее почты",
+    "en": "Cheaper than cargo, faster than mail"
+  },
+  {
+    "key": "onboarding.slide3.body",
+    "az": "Mavi nişan, reytinq və rəylər — kiminlə iş gördüyünü əvvəlcədən bil.",
+    "ru": "Синяя галочка, рейтинг и отзывы — знай заранее, с кем имеешь дело.",
+    "en": "Blue badge, ratings and reviews — know who you're dealing with in advance."
+  },
+  {
+    "key": "onboarding.slide3.title",
+    "az": "Təsdiqlənmiş, etibarlı icma",
+    "ru": "Проверенное, надёжное сообщество",
+    "en": "A verified, trusted community"
+  },
+  {
+    "key": "picker.date_help",
+    "az": "Tarix seç",
+    "ru": "Выберите дату",
+    "en": "Select date"
+  },
+  {
+    "key": "picker.time_help",
+    "az": "Saat seç",
+    "ru": "Выберите время",
+    "en": "Select time"
+  },
+  {
+    "key": "privacy_policy.empty",
+    "az": "Məzmun yoxdur",
+    "ru": "Нет содержимого",
+    "en": "No content"
+  },
+  {
+    "key": "privacy_policy.load_error",
+    "az": "Məxfilik siyasətini yükləmək olmadı",
+    "ru": "Не удалось загрузить политику конфиденциальности",
+    "en": "Couldn't load the privacy policy"
+  },
+  {
+    "key": "profile.account_deleted",
+    "az": "Hesabınız silindi.",
+    "ru": "Ваш аккаунт удалён.",
+    "en": "Your account was deleted."
+  },
+  {
+    "key": "profile.account_unavailable",
+    "az": "Bu hesab mövcud deyil, dayandırılıb və ya silinib.",
+    "ru": "Этот аккаунт не существует, приостановлен или удалён.",
+    "en": "This account doesn't exist, is suspended, or was deleted."
+  },
+  {
+    "key": "profile.auth_login_register",
+    "az": "Daxil ol / Qeydiyyat",
+    "ru": "Вход / Регистрация",
+    "en": "Sign in / Sign up"
+  },
+  {
+    "key": "profile.auth_required_subtitle",
+    "az": "Elanlarını, rəylərini və ayarlarını idarə etmək üçün hesabına daxil ol.",
+    "ru": "Войдите в аккаунт, чтобы управлять объявлениями, отзывами и настройками.",
+    "en": "Sign in to manage your listings, reviews and settings."
+  },
+  {
+    "key": "profile.auth_required_title",
+    "az": "Profil üçün daxil ol",
+    "ru": "Войдите, чтобы открыть профиль",
+    "en": "Sign in to view your profile"
+  },
+  {
+    "key": "profile.avatar_camera",
+    "az": "Kameradan çək",
+    "ru": "Снять на камеру",
+    "en": "Take a photo"
+  },
+  {
+    "key": "profile.avatar_delete",
+    "az": "Şəkli sil",
+    "ru": "Удалить фото",
+    "en": "Delete photo"
+  },
+  {
+    "key": "profile.avatar_delete_failed",
+    "az": "Avatar silinmədi.",
+    "ru": "Не удалось удалить аватар.",
+    "en": "Couldn't delete the avatar."
+  },
+  {
+    "key": "profile.avatar_deleted",
+    "az": "Avatar silindi.",
+    "ru": "Аватар удалён.",
+    "en": "Avatar deleted."
+  },
+  {
+    "key": "profile.avatar_gallery",
+    "az": "Qalereyadan seç",
+    "ru": "Выбрать из галереи",
+    "en": "Choose from gallery"
+  },
+  {
+    "key": "profile.avatar_hint",
+    "az": "JPG/PNG/WEBP · maks 10 MB",
+    "ru": "JPG/PNG/WEBP · макс. 10 МБ",
+    "en": "JPG/PNG/WEBP · max 10 MB"
+  },
+  {
+    "key": "profile.avatar_title",
+    "az": "Profil şəkli",
+    "ru": "Фото профиля",
+    "en": "Profile photo"
+  },
+  {
+    "key": "profile.avatar_update_failed",
+    "az": "Avatar yenilənmədi.",
+    "ru": "Не удалось обновить аватар.",
+    "en": "Couldn't update the avatar."
+  },
+  {
+    "key": "profile.avatar_updated",
+    "az": "Avatar yeniləndi.",
+    "ru": "Аватар обновлён.",
+    "en": "Avatar updated."
+  },
+  {
+    "key": "profile.block_user",
+    "az": "İstifadəçini blokla",
+    "ru": "Заблокировать пользователя",
+    "en": "Block user"
+  },
+  {
+    "key": "profile.change_password",
+    "az": "Parolu dəyiş",
+    "ru": "Сменить пароль",
+    "en": "Change password"
+  },
+  {
+    "key": "profile.change_photo",
+    "az": "Şəkli dəyiş",
+    "ru": "Изменить фото",
+    "en": "Change photo"
+  },
+  {
+    "key": "profile.current_password",
+    "az": "Cari parol",
+    "ru": "Текущий пароль",
+    "en": "Current password"
+  },
+  {
+    "key": "profile.delete_account",
+    "az": "Hesabı sil",
+    "ru": "Удалить аккаунт",
+    "en": "Delete account"
+  },
+  {
+    "key": "profile.delete_confirm_understand",
+    "az": "Nəticələri başa düşürəm",
+    "ru": "Я понимаю последствия",
+    "en": "I understand the consequences"
+  },
+  {
+    "key": "profile.delete_subtitle",
+    "az": "Elanlarınız, söhbətləriniz və rəyləriniz gizlədiləcək. Bu əməli geri qaytarmaq mümkün deyil.",
+    "ru": "Ваши объявления, чаты и отзывы будут скрыты. Отменить это действие нельзя.",
+    "en": "Your listings, chats and reviews will be hidden. This can't be undone."
+  },
+  {
+    "key": "profile.delete_title",
+    "az": "Hesabı silmək?",
+    "ru": "Удалить аккаунт?",
+    "en": "Delete account?"
+  },
+  {
+    "key": "profile.deliveries",
+    "az": "Çatdırılma",
+    "ru": "Доставки",
+    "en": "Deliveries"
+  },
+  {
+    "key": "profile.edit",
+    "az": "Profili redaktə et",
+    "ru": "Редактировать профиль",
+    "en": "Edit profile"
+  },
+  {
+    "key": "profile.empty_listings_subtitle",
+    "az": "Yeni elan yaratdıqdan sonra burada görünəcək.",
+    "ru": "После создания объявления появятся здесь.",
+    "en": "Once you create a listing, it'll show up here."
+  },
+  {
+    "key": "profile.empty_listings_title",
+    "az": "Hələ elan yoxdur",
+    "ru": "Пока нет объявлений",
+    "en": "No listings yet"
+  },
+  {
+    "key": "profile.first_name",
+    "az": "Ad",
+    "ru": "Имя",
+    "en": "First name"
+  },
+  {
+    "key": "profile.follow",
+    "az": "İzlə",
+    "ru": "Подписаться",
+    "en": "Follow"
+  },
+  {
+    "key": "profile.follow_started",
+    "az": "İzləməyə başladınız.",
+    "ru": "Вы подписались.",
+    "en": "You're now following."
+  },
+  {
+    "key": "profile.followers",
+    "az": "İzləyici",
+    "ru": "Подписчики",
+    "en": "Followers"
+  },
+  {
+    "key": "profile.following",
+    "az": "İzləyir",
+    "ru": "Подписки",
+    "en": "Following"
+  },
+  {
+    "key": "profile.following_active",
+    "az": "İzlənilir",
+    "ru": "Вы подписаны",
+    "en": "Following"
+  },
+  {
+    "key": "profile.help_faq",
+    "az": "Kömək & FAQ",
+    "ru": "Помощь и FAQ",
+    "en": "Help & FAQ"
+  },
+  {
+    "key": "profile.language",
+    "az": "Dil",
+    "ru": "Язык",
+    "en": "Language"
+  },
+  {
+    "key": "profile.languages_you_know",
+    "az": "Bildiyiniz dillər",
+    "ru": "Языки, которыми владеете",
+    "en": "Languages you speak"
+  },
+  {
+    "key": "profile.last_name",
+    "az": "Soyad",
+    "ru": "Фамилия",
+    "en": "Last name"
+  },
+  {
+    "key": "profile.list_empty",
+    "az": "Siyahı boşdur",
+    "ru": "Список пуст",
+    "en": "The list is empty"
+  },
+  {
+    "key": "profile.listings",
+    "az": "Elanlar",
+    "ru": "Объявления",
+    "en": "Listings"
+  },
+  {
+    "key": "profile.load_failed",
+    "az": "Məlumat yüklənmədi.",
+    "ru": "Не удалось загрузить данные.",
+    "en": "Couldn't load the data."
+  },
+  {
+    "key": "profile.logout",
+    "az": "Çıxış",
+    "ru": "Выйти",
+    "en": "Log out"
+  },
+  {
+    "key": "profile.member_since",
+    "az": "{year}-dən üzv",
+    "ru": "с нами с {year}",
+    "en": "member since {year}"
+  },
+  {
+    "key": "profile.message",
+    "az": "Mesaj",
+    "ru": "Сообщение",
+    "en": "Message"
+  },
+  {
+    "key": "profile.my_listings",
+    "az": "Elanlarım",
+    "ru": "Мои объявления",
+    "en": "My listings"
+  },
+  {
+    "key": "profile.new_password",
+    "az": "Yeni parol",
+    "ru": "Новый пароль",
+    "en": "New password"
+  },
+  {
+    "key": "profile.not_found",
+    "az": "Profil məlumatı tapılmadı.",
+    "ru": "Профиль не найден.",
+    "en": "Profile not found."
+  },
+  {
+    "key": "profile.not_verified",
+    "az": "Təsdiqlənməyib",
+    "ru": "Не подтверждён",
+    "en": "Not verified"
+  },
+  {
+    "key": "profile.notification_settings",
+    "az": "Bildiriş ayarları",
+    "ru": "Настройки уведомлений",
+    "en": "Notification settings"
+  },
+  {
+    "key": "profile.password_changed",
+    "az": "Parol dəyişdirildi.",
+    "ru": "Пароль изменён.",
+    "en": "Password changed."
+  },
+  {
+    "key": "profile.password_hint",
+    "az": "Ən az 8 simvol, cari paroldan fərqli",
+    "ru": "Минимум 8 символов, отличается от текущего",
+    "en": "At least 8 characters, different from the current one"
+  },
+  {
+    "key": "profile.password_min",
+    "az": "Ən az 8 simvol olmalıdır.",
+    "ru": "Минимум 8 символов.",
+    "en": "Must be at least 8 characters."
+  },
+  {
+    "key": "profile.password_strong",
+    "az": "Güclü",
+    "ru": "Надёжный",
+    "en": "Strong"
+  },
+  {
+    "key": "profile.password_update",
+    "az": "Parolu yenilə",
+    "ru": "Обновить пароль",
+    "en": "Update password"
+  },
+  {
+    "key": "profile.password_weak",
+    "az": "Zəif",
+    "ru": "Слабый",
+    "en": "Weak"
+  },
+  {
+    "key": "profile.privacy",
+    "az": "Məxfilik",
+    "ru": "Конфиденциальность",
+    "en": "Privacy"
+  },
+  {
+    "key": "profile.privacy_activity",
+    "az": "Aktivlik vaxtı",
+    "ru": "Время активности",
+    "en": "Activity time"
+  },
+  {
+    "key": "profile.privacy_activity_hint",
+    "az": "Son giriş görünsün",
+    "ru": "Показывать последний вход",
+    "en": "Show last seen"
+  },
+  {
+    "key": "profile.privacy_email",
+    "az": "E-poçt",
+    "ru": "Эл. почта",
+    "en": "Email"
+  },
+  {
+    "key": "profile.privacy_languages",
+    "az": "Bildiyim dillər",
+    "ru": "Языки, которыми владею",
+    "en": "Languages I speak"
+  },
+  {
+    "key": "profile.privacy_note",
+    "az": "Əlaqə həmişə söhbət (chat) vasitəsilə mümkündür — nömrənizi gizli saxlasanız belə.",
+    "ru": "Связаться всегда можно через чат — даже если номер скрыт.",
+    "en": "You can always be reached via chat — even if your number is hidden."
+  },
+  {
+    "key": "profile.privacy_phone",
+    "az": "Telefon nömrəsi",
+    "ru": "Номер телефона",
+    "en": "Phone number"
+  },
+  {
+    "key": "profile.privacy_profile_visible",
+    "az": "Profildə görünsün",
+    "ru": "Показывать в профиле",
+    "en": "Show on profile"
+  },
+  {
+    "key": "profile.privacy_show",
+    "az": "Profildə göstər",
+    "ru": "Показывать в профиле",
+    "en": "Show on profile"
+  },
+  {
+    "key": "profile.privacy_update_failed",
+    "az": "Məxfilik yenilənmədi.",
+    "ru": "Не удалось обновить конфиденциальность.",
+    "en": "Couldn't update privacy."
+  },
+  {
+    "key": "profile.privacy_updated",
+    "az": "Məxfilik parametrləri yeniləndi.",
+    "ru": "Настройки конфиденциальности обновлены.",
+    "en": "Privacy settings updated."
+  },
+  {
+    "key": "profile.privacy_visible_to_others",
+    "az": "Başqaları görə bilsin",
+    "ru": "Виден другим",
+    "en": "Visible to others"
+  },
+  {
+    "key": "profile.rating",
+    "az": "Reytinq",
+    "ru": "Рейтинг",
+    "en": "Rating"
+  },
+  {
+    "key": "profile.report_abuse",
+    "az": "Təhqir",
+    "ru": "Оскорбление",
+    "en": "Abuse"
+  },
+  {
+    "key": "profile.report_action",
+    "az": "Şikayət et",
+    "ru": "Пожаловаться",
+    "en": "Report"
+  },
+  {
+    "key": "profile.report_details",
+    "az": "Ətraflı",
+    "ru": "Подробнее",
+    "en": "Details"
+  },
+  {
+    "key": "profile.report_fake",
+    "az": "Saxta",
+    "ru": "Фейк",
+    "en": "Fake"
+  },
+  {
+    "key": "profile.report_fraud",
+    "az": "Fırıldaq",
+    "ru": "Мошенничество",
+    "en": "Fraud"
+  },
+  {
+    "key": "profile.report_inappropriate",
+    "az": "Uyğunsuz",
+    "ru": "Неприемлемо",
+    "en": "Inappropriate"
+  },
+  {
+    "key": "profile.report_other",
+    "az": "Digər",
+    "ru": "Другое",
+    "en": "Other"
+  },
+  {
+    "key": "profile.report_sent",
+    "az": "Şikayət göndərildi.",
+    "ru": "Жалоба отправлена.",
+    "en": "Report sent."
+  },
+  {
+    "key": "profile.report_submit",
+    "az": "Şikayəti göndər",
+    "ru": "Отправить жалобу",
+    "en": "Send report"
+  },
+  {
+    "key": "profile.report_user_subtitle",
+    "az": "Səbəbi seçin. Şikayət anonimdir.",
+    "ru": "Выберите причину. Жалоба анонимна.",
+    "en": "Pick a reason. Reports are anonymous."
+  },
+  {
+    "key": "profile.report_user_title",
+    "az": "İstifadəçini şikayət et",
+    "ru": "Пожаловаться на пользователя",
+    "en": "Report user"
+  },
+  {
+    "key": "profile.response",
+    "az": "Cavab",
+    "ru": "Ответ",
+    "en": "Response"
+  },
+  {
+    "key": "profile.settings.account",
+    "az": "Hesab",
+    "ru": "Аккаунт",
+    "en": "Account"
+  },
+  {
+    "key": "profile.settings.preferences",
+    "az": "Tərcihlər",
+    "ru": "Настройки",
+    "en": "Preferences"
+  },
+  {
+    "key": "profile.settings.support",
+    "az": "Dəstək",
+    "ru": "Поддержка",
+    "en": "Support"
+  },
+  {
+    "key": "profile.settings_title",
+    "az": "Ayarlar",
+    "ru": "Настройки",
+    "en": "Settings"
+  },
+  {
+    "key": "profile.support",
+    "az": "Dəstək",
+    "ru": "Поддержка",
+    "en": "Support"
+  },
+  {
+    "key": "profile.terms_privacy",
+    "az": "Qaydalar & məxfilik siyasəti",
+    "ru": "Правила и политика конфиденциальности",
+    "en": "Terms & privacy policy"
+  },
+  {
+    "key": "profile.title",
+    "az": "Profil",
+    "ru": "Профиль",
+    "en": "Profile"
+  },
+  {
+    "key": "profile.unfollow_done",
+    "az": "İzləmə dayandırıldı.",
+    "ru": "Вы отписались.",
+    "en": "Unfollowed."
+  },
+  {
+    "key": "profile.update_failed",
+    "az": "Profil yenilənmədi.",
+    "ru": "Не удалось обновить профиль.",
+    "en": "Couldn't update the profile."
+  },
+  {
+    "key": "profile.updated",
+    "az": "Profil yeniləndi.",
+    "ru": "Профиль обновлён.",
+    "en": "Profile updated."
+  },
+  {
+    "key": "profile.user_blocked",
+    "az": "İstifadəçi bloklandı.",
+    "ru": "Пользователь заблокирован.",
+    "en": "User blocked."
+  },
+  {
+    "key": "profile.user_not_found",
+    "az": "İstifadəçi tapılmadı",
+    "ru": "Пользователь не найден",
+    "en": "User not found"
+  },
+  {
+    "key": "profile.users_will_appear",
+    "az": "Burada istifadəçilər görünəcək.",
+    "ru": "Здесь появятся пользователи.",
+    "en": "Users will appear here."
+  },
+  {
+    "key": "profile.verification_unavailable",
+    "az": "Təsdiqləmə məlumatı yüklənmədi.",
+    "ru": "Не удалось загрузить данные подтверждения.",
+    "en": "Couldn't load verification details."
+  },
+  {
+    "key": "profile.verified",
+    "az": "Təsdiqlənib",
+    "ru": "Подтверждён",
+    "en": "Verified"
+  },
+  {
+    "key": "profile.verify_account",
+    "az": "Hesabınızı təsdiqləyin",
+    "ru": "Подтвердите аккаунт",
+    "en": "Verify your account"
+  },
+  {
+    "key": "promo.cond_min",
+    "az": "Minimum ödəniş: {amount}",
+    "ru": "Минимальный заказ: {amount}",
+    "en": "Minimum order: {amount}"
+  },
+  {
+    "key": "promo.cond_scope",
+    "az": "VİP və önə çəkmə üçün keçərli",
+    "ru": "Действует для VIP и продвижения",
+    "en": "Valid for VIP and promotion"
+  },
+  {
+    "key": "promo.cond_single_use",
+    "az": "Bir dəfə istifadə olunur",
+    "ru": "Используется один раз",
+    "en": "Single use"
+  },
+  {
+    "key": "promo.copied",
+    "az": "Kod kopyalandı",
+    "ru": "Код скопирован",
+    "en": "Code copied"
+  },
+  {
+    "key": "promo.copy_code",
+    "az": "Kodu köçür",
+    "ru": "Скопировать код",
+    "en": "Copy code"
+  },
+  {
+    "key": "promo.days_left",
+    "az": "{days} gün qalıb",
+    "ru": "осталось {days} дн.",
+    "en": "{days} days left"
+  },
+  {
+    "key": "promo.discount_label",
+    "az": "ENDİRİM",
+    "ru": "СКИДКА",
+    "en": "DISCOUNT"
+  },
+  {
+    "key": "promo.earn_invite",
+    "az": "Dostunu dəvət et",
+    "ru": "Пригласите друга",
+    "en": "Invite a friend"
+  },
+  {
+    "key": "promo.earn_invite_sub",
+    "az": "Hər qeydiyyatdan olan dost üçün",
+    "ru": "За каждого зарегистрировавшегося друга",
+    "en": "For each friend who signs up"
+  },
+  {
+    "key": "promo.earn_rate",
+    "az": "Tətbiqi qiymətləndir",
+    "ru": "Оцените приложение",
+    "en": "Rate the app"
+  },
+  {
+    "key": "promo.earn_rate_sub",
+    "az": "Store-da ulduz ver",
+    "ru": "Поставьте звезду в Store",
+    "en": "Give a star on the Store"
+  },
+  {
+    "key": "promo.empty_subtitle",
+    "az": "Promokod qazan və sifarişlərində endirim əldə et.",
+    "ru": "Зарабатывайте промокоды и получайте скидки на заказы.",
+    "en": "Earn promo codes and get discounts on your orders."
+  },
+  {
+    "key": "promo.empty_title",
+    "az": "Hələ promokodun yoxdur",
+    "ru": "У вас пока нет промокодов",
+    "en": "You have no promo codes yet"
+  },
+  {
+    "key": "promo.error_body",
+    "az": "Promokodları yükləyə bilmədik. İnternet bağlantını yoxla.",
+    "ru": "Не удалось загрузить промокоды. Проверьте интернет-соединение.",
+    "en": "We couldn't load your promo codes. Check your internet connection."
+  },
+  {
+    "key": "promo.error_title",
+    "az": "Bağlantı yoxdur",
+    "ru": "Нет соединения",
+    "en": "No connection"
+  },
+  {
+    "key": "promo.expired_at",
+    "az": "Vaxtı bitib",
+    "ru": "Истёк",
+    "en": "Expired"
+  },
+  {
+    "key": "promo.hint",
+    "az": "Kodu elanı VİP edərkən və ya önə çəkərkən ödənişdə tətbiq et.",
+    "ru": "Применяйте код при оплате, делая объявление VIP или продвигая его.",
+    "en": "Apply the code at checkout when making a listing VIP or promoting it."
+  },
+  {
+    "key": "promo.no_expiry",
+    "az": "Müddətsiz",
+    "ru": "Бессрочно",
+    "en": "No expiry"
+  },
+  {
+    "key": "promo.promote_listing",
+    "az": "Elanı önə çıxar",
+    "ru": "Продвинуть объявление",
+    "en": "Promote listing"
+  },
+  {
+    "key": "promo.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить",
+    "en": "Try again"
+  },
+  {
+    "key": "promo.source_default",
+    "az": "Promokod",
+    "ru": "Промокод",
+    "en": "Promo code"
+  },
+  {
+    "key": "promo.source_rate_review",
+    "az": "Tətbiqi qiymətləndirdiyin üçün",
+    "ru": "За оценку приложения",
+    "en": "For rating the app"
+  },
+  {
+    "key": "promo.source_referral",
+    "az": "Dostunu dəvət etdiyin üçün",
+    "ru": "За приглашение друга",
+    "en": "For inviting a friend"
+  },
+  {
+    "key": "promo.source_welcome",
+    "az": "Xoş gəlmisən bonusu",
+    "ru": "Приветственный бонус",
+    "en": "Welcome bonus"
+  },
+  {
+    "key": "promo.stamp_expired",
+    "az": "BİTİB",
+    "ru": "ИСТЁК",
+    "en": "EXPIRED"
+  },
+  {
+    "key": "promo.stamp_used",
+    "az": "İŞLƏNİB",
+    "ru": "ИСПОЛЬЗОВАН",
+    "en": "USED"
+  },
+  {
+    "key": "promo.tab_active",
+    "az": "Aktiv",
+    "ru": "Активные",
+    "en": "Active"
+  },
+  {
+    "key": "promo.tab_empty",
+    "az": "Bu bölmədə promokod yoxdur.",
+    "ru": "В этом разделе нет промокодов.",
+    "en": "No promo codes in this section."
+  },
+  {
+    "key": "promo.tab_expired",
+    "az": "Vaxtı keçmiş",
+    "ru": "Истёкшие",
+    "en": "Expired"
+  },
+  {
+    "key": "promo.tab_used",
+    "az": "İstifadə olunmuş",
+    "ru": "Использованные",
+    "en": "Used"
+  },
+  {
+    "key": "promo.title",
+    "az": "Promokodlarım",
+    "ru": "Мои промокоды",
+    "en": "My promo codes"
+  },
+  {
+    "key": "promo.until_date",
+    "az": "{date}-a qədər",
+    "ru": "до {date}",
+    "en": "until {date}"
+  },
+  {
+    "key": "promo.use",
+    "az": "İstifadə et",
+    "ru": "Использовать",
+    "en": "Use"
+  },
+  {
+    "key": "promo.used_at",
+    "az": "İstifadə olunub",
+    "ru": "Использован",
+    "en": "Used"
+  },
+  {
+    "key": "promotion.action.extend",
+    "az": "Uzat",
+    "ru": "Продлить",
+    "en": "Extend"
+  },
+  {
+    "key": "promotion.action.renew",
+    "az": "Yenilə",
+    "ru": "Возобновить",
+    "en": "Renew"
+  },
+  {
+    "key": "promotion.activated",
+    "az": "Təbriklər!",
+    "ru": "Поздравляем!",
+    "en": "Congratulations!"
+  },
+  {
+    "key": "promotion.active_template",
+    "az": "{type} artıq aktivdir",
+    "ru": "{type} уже активно",
+    "en": "{type} is already active"
+  },
+  {
+    "key": "promotion.apply",
+    "az": "Tətbiq et",
+    "ru": "Применить",
+    "en": "Apply"
+  },
+  {
+    "key": "promotion.boost_description",
+    "az": "Elanın axtarış və lentdə seçdiyin mövqe zolağında görünəcək.",
+    "ru": "Объявление появится в выбранной позиционной полосе в поиске и ленте.",
+    "en": "Your listing appears in the position band you choose, in search and the feed."
+  },
+  {
+    "key": "promotion.boost_short",
+    "az": "İlk 10 / 50 / 100 mövqe",
+    "ru": "Топ 10 / 50 / 100 позиций",
+    "en": "Top 10 / 50 / 100 positions"
+  },
+  {
+    "key": "promotion.checkout.boost_title_template",
+    "az": "Önə çək · {tier}",
+    "ru": "Продвинуть · {tier}",
+    "en": "Boost · {tier}"
+  },
+  {
+    "key": "promotion.checkout.discount",
+    "az": "Endirim",
+    "ru": "Скидка",
+    "en": "Discount"
+  },
+  {
+    "key": "promotion.checkout.duration",
+    "az": "Müddət",
+    "ru": "Срок",
+    "en": "Duration"
+  },
+  {
+    "key": "promotion.checkout.end",
+    "az": "Bitmə",
+    "ru": "Окончание",
+    "en": "Ends"
+  },
+  {
+    "key": "promotion.checkout.package",
+    "az": "Paket",
+    "ru": "Пакет",
+    "en": "Package"
+  },
+  {
+    "key": "promotion.checkout.start",
+    "az": "Başlama",
+    "ru": "Начало",
+    "en": "Start"
+  },
+  {
+    "key": "promotion.checkout.starts_after_approval",
+    "az": "Təsdiqdən dərhal sonra",
+    "ru": "Сразу после одобрения",
+    "en": "Right after approval"
+  },
+  {
+    "key": "promotion.checkout.vip_title",
+    "az": "VİP promosyon",
+    "ru": "VIP-продвижение",
+    "en": "VIP promotion"
+  },
+  {
+    "key": "promotion.checkout_open_failed",
+    "az": "Ödəniş səhifəsini açmaq alınmadı.",
+    "ru": "Не удалось открыть страницу оплаты.",
+    "en": "Couldn't open the payment page."
+  },
+  {
+    "key": "promotion.checkout_title",
+    "az": "Sifariş yekunu",
+    "ru": "Итог заказа",
+    "en": "Order summary"
+  },
+  {
+    "key": "promotion.created_subtitle",
+    "az": "Adətən 1–2 saat ərzində təsdiqlənir. Təsdiqdən sonra lentdə görünəcək.",
+    "ru": "Обычно проверка занимает 1–2 часа. После одобрения объявление появится в ленте.",
+    "en": "Usually approved within 1–2 hours. Once approved it appears in the feed."
+  },
+  {
+    "key": "promotion.created_title",
+    "az": "Elanın yoxlamaya göndərildi",
+    "ru": "Объявление отправлено на проверку",
+    "en": "Listing sent for review"
+  },
+  {
+    "key": "promotion.cta.boost",
+    "az": "Önə çək",
+    "ru": "Продвинуть",
+    "en": "Boost"
+  },
+  {
+    "key": "promotion.cta.boost_too",
+    "az": "Önə də çək",
+    "ru": "Ещё и продвинуть",
+    "en": "Boost too"
+  },
+  {
+    "key": "promotion.cta.checkout",
+    "az": "Ödənişə keç",
+    "ru": "Перейти к оплате",
+    "en": "Proceed to payment"
+  },
+  {
+    "key": "promotion.cta.continue_duration",
+    "az": "Davam et — müddət seç",
+    "ru": "Продолжить — выбрать срок",
+    "en": "Continue — choose duration"
+  },
+  {
+    "key": "promotion.cta.extend",
+    "az": "Uzat",
+    "ru": "Продлить",
+    "en": "Extend"
+  },
+  {
+    "key": "promotion.cta.upgrade_tier",
+    "az": "Zolağı yüksəlt",
+    "ru": "Повысить уровень",
+    "en": "Upgrade tier"
+  },
+  {
+    "key": "promotion.cta.vip",
+    "az": "VİP et",
+    "ru": "Сделать VIP",
+    "en": "Make VIP"
+  },
+  {
+    "key": "promotion.duration.best_value",
+    "az": "Ən sərfəli paket",
+    "ru": "Самый выгодный пакет",
+    "en": "Best value"
+  },
+  {
+    "key": "promotion.duration.popular",
+    "az": "Populyar seçim",
+    "ru": "Популярный выбор",
+    "en": "Popular choice"
+  },
+  {
+    "key": "promotion.duration.short_trial",
+    "az": "Qısa sınaq",
+    "ru": "Короткий тест",
+    "en": "Quick trial"
+  },
+  {
+    "key": "promotion.duration_template",
+    "az": "{days} gün",
+    "ru": "{days} дн.",
+    "en": "{days} days"
+  },
+  {
+    "key": "promotion.empty",
+    "az": "Bu bölmədə promosyon yoxdur.",
+    "ru": "В этом разделе нет продвижений.",
+    "en": "No promotions in this section."
+  },
+  {
+    "key": "promotion.error.generic",
+    "az": "Əməliyyat alınmadı. Yenidən cəhd et.",
+    "ru": "Операция не выполнена. Повторите попытку.",
+    "en": "The operation failed. Try again."
+  },
+  {
+    "key": "promotion.error.load",
+    "az": "Məlumatları yükləmək alınmadı.",
+    "ru": "Не удалось загрузить данные.",
+    "en": "Couldn't load the data."
+  },
+  {
+    "key": "promotion.failed_title",
+    "az": "Ödəniş alınmadı",
+    "ru": "Оплата не прошла",
+    "en": "Payment failed"
+  },
+  {
+    "key": "promotion.listing_template",
+    "az": "Elan #{id}",
+    "ru": "Объявление №{id}",
+    "en": "Listing #{id}"
+  },
+  {
+    "key": "promotion.my_title",
+    "az": "Promosyonlarım",
+    "ru": "Мои продвижения",
+    "en": "My promotions"
+  },
+  {
+    "key": "promotion.pay.processing",
+    "az": "Ödəniş emal olunur…",
+    "ru": "Обработка платежа…",
+    "en": "Processing payment…"
+  },
+  {
+    "key": "promotion.pay.processing_hint",
+    "az": "Zəhmət olmasa gözlə. Bu ekranı bağlama.",
+    "ru": "Пожалуйста, подождите. Не закрывайте этот экран.",
+    "en": "Please wait. Don't close this screen."
+  },
+  {
+    "key": "promotion.pay.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить",
+    "en": "Try again"
+  },
+  {
+    "key": "promotion.pay.secure_note",
+    "az": "Ödənişlər şifrələnir · kart məlumatı serverdə saxlanmır",
+    "ru": "Платежи шифруются · данные карты не хранятся на сервере",
+    "en": "Payments are encrypted · card data isn't stored on the server"
+  },
+  {
+    "key": "promotion.pay.title",
+    "az": "Ödəniş",
+    "ru": "Оплата",
+    "en": "Payment"
+  },
+  {
+    "key": "promotion.payment.balance",
+    "az": "Wawatair balans",
+    "ru": "Баланс Wawatair",
+    "en": "Wawatair balance"
+  },
+  {
+    "key": "promotion.payment.balance_subtitle",
+    "az": "Mock ödəniş · real balans inteqrasiyada",
+    "ru": "Тестовая оплата · реальный баланс в интеграции",
+    "en": "Mock payment · real balance in integration"
+  },
+  {
+    "key": "promotion.payment.balance_unavailable",
+    "az": "Balans: 0.00 $ — kifayət etmir",
+    "ru": "Баланс: 0.00 $ — недостаточно",
+    "en": "Balance: $0.00 — insufficient"
+  },
+  {
+    "key": "promotion.payment.card",
+    "az": "Bank kartı",
+    "ru": "Банковская карта",
+    "en": "Bank card"
+  },
+  {
+    "key": "promotion.payment.card_subtitle",
+    "az": "Visa · Mastercard",
+    "ru": "Visa · Mastercard",
+    "en": "Visa · Mastercard"
+  },
+  {
+    "key": "promotion.payment.change_method",
+    "az": "Ödəniş üsulunu dəyiş",
+    "ru": "Изменить способ оплаты",
+    "en": "Change payment method"
+  },
+  {
+    "key": "promotion.payment.pay_template",
+    "az": "Ödə · {amount} $",
+    "ru": "Оплатить · {amount} $",
+    "en": "Pay · {amount} $"
+  },
+  {
+    "key": "promotion.payment.safety",
+    "az": "Ödənişlər şifrələnir · kart məlumatı serverdə saxlanmır",
+    "ru": "Платежи шифруются · данные карты не хранятся на сервере",
+    "en": "Payments are encrypted · card details aren't stored on the server"
+  },
+  {
+    "key": "promotion.payment_failed",
+    "az": "Ödəniş alınmadı",
+    "ru": "Оплата не прошла",
+    "en": "Payment failed"
+  },
+  {
+    "key": "promotion.payment_integration_note",
+    "az": "Ödəniş sistemi inteqrasiya mərhələsindədir — provayder qoşulan kimi işləyəcək.",
+    "ru": "Платёжная система на этапе интеграции — экран готов и заработает, как только подключится провайдер.",
+    "en": "The payment system is being integrated — this screen is ready and will work once the provider is connected."
+  },
+  {
+    "key": "promotion.payment_method",
+    "az": "Ödəniş üsulu",
+    "ru": "Способ оплаты",
+    "en": "Payment method"
+  },
+  {
+    "key": "promotion.payment_pending",
+    "az": "Təsdiq gözlənilir",
+    "ru": "Ожидается подтверждение",
+    "en": "Awaiting confirmation"
+  },
+  {
+    "key": "promotion.payment_title",
+    "az": "Ödəniş",
+    "ru": "Оплата",
+    "en": "Payment"
+  },
+  {
+    "key": "promotion.pending_activation_note",
+    "az": "Elan təsdiqlənən kimi promosyon avtomatik aktivləşəcək.",
+    "ru": "Продвижение можно оплатить сейчас — оно активируется автоматически после одобрения объявления.",
+    "en": "You can buy promotion now — it activates automatically once the listing is approved."
+  },
+  {
+    "key": "promotion.pending_title",
+    "az": "Təsdiq gözlənilir",
+    "ru": "Ожидание подтверждения",
+    "en": "Awaiting confirmation"
+  },
+  {
+    "key": "promotion.position_description_template",
+    "az": "Nəticələrin ilk {count}-liyində daha çox baxış",
+    "ru": "Больше просмотров в топ-{count} результатов",
+    "en": "More views in the top {count} results"
+  },
+  {
+    "key": "promotion.preview_full_title",
+    "az": "Elanın lentdə görünüşü",
+    "ru": "Вид объявления в ленте",
+    "en": "Listing preview in feed"
+  },
+  {
+    "key": "promotion.preview_title",
+    "az": "Lentdə belə görünəcək",
+    "ru": "Так это выглядит в ленте",
+    "en": "How it looks in the feed"
+  },
+  {
+    "key": "promotion.pricing_unavailable",
+    "az": "Promosyon paketlərini yükləmək alınmadı.",
+    "ru": "Не удалось загрузить пакеты продвижения.",
+    "en": "Couldn't load promotion packages."
+  },
+  {
+    "key": "promotion.processing_subtitle",
+    "az": "Zəhmət olmasa gözlə. Bu ekranı bağlama.",
+    "ru": "Пожалуйста, подождите. Не закрывайте этот экран.",
+    "en": "Please wait. Don't close this screen."
+  },
+  {
+    "key": "promotion.processing_title",
+    "az": "Ödəniş emal olunur…",
+    "ru": "Обработка платежа…",
+    "en": "Processing payment…"
+  },
+  {
+    "key": "promotion.promo_code",
+    "az": "Promokod (varsa)",
+    "ru": "Промокод (если есть)",
+    "en": "Promo code (if any)"
+  },
+  {
+    "key": "promotion.provider_unavailable",
+    "az": "Ödəniş səhifəsini açmaq alınmadı.",
+    "ru": "Не удалось открыть страницу оплаты.",
+    "en": "Couldn't open the payment page."
+  },
+  {
+    "key": "promotion.refunded_title",
+    "az": "Məbləğ balansa qaytarıldı",
+    "ru": "Сумма возвращена на баланс",
+    "en": "Amount refunded to balance"
+  },
+  {
+    "key": "promotion.refunded_to_balance",
+    "az": "Məbləğ Wawatair balansına qaytarıldı.",
+    "ru": "Сумма возвращена на баланс Wawatair.",
+    "en": "The amount was refunded to your Wawatair balance."
+  },
+  {
+    "key": "promotion.remaining.days_template",
+    "az": "{days} gün {hours} saat qalıb",
+    "ru": "Осталось {days} дн. {hours} ч.",
+    "en": "{days}d {hours}h left"
+  },
+  {
+    "key": "promotion.remaining.expired",
+    "az": "Müddəti bitib",
+    "ru": "Срок истёк",
+    "en": "Expired"
+  },
+  {
+    "key": "promotion.remaining.hours_template",
+    "az": "{hours} saat qalıb",
+    "ru": "Осталось {hours} ч.",
+    "en": "{hours}h left"
+  },
+  {
+    "key": "promotion.remaining_days_hours",
+    "az": "{days} gün {hours} saat",
+    "ru": "{days} дн. {hours} ч",
+    "en": "{days}d {hours}h"
+  },
+  {
+    "key": "promotion.remaining_hours",
+    "az": "{hours} saat",
+    "ru": "{hours} ч",
+    "en": "{hours}h"
+  },
+  {
+    "key": "promotion.remaining_minutes",
+    "az": "{minutes} dəq",
+    "ru": "{minutes} мин",
+    "en": "{minutes}m"
+  },
+  {
+    "key": "promotion.section.all",
+    "az": "Bütün elanlar",
+    "ru": "Все объявления",
+    "en": "All listings"
+  },
+  {
+    "key": "promotion.section.vip",
+    "az": "VİP elanlar",
+    "ru": "VIP-объявления",
+    "en": "VIP listings"
+  },
+  {
+    "key": "promotion.skip",
+    "az": "İndi yox, elanlarıma keç",
+    "ru": "Не сейчас, к моим объявлениям",
+    "en": "Not now, go to my listings"
+  },
+  {
+    "key": "promotion.starting_from",
+    "az": "başlanğıc",
+    "ru": "от",
+    "en": "from"
+  },
+  {
+    "key": "promotion.status.active_boost",
+    "az": "Elanın indi seçilmiş mövqe zolağında önə çıxarılır.",
+    "ru": "Ваше объявление продвигается в выбранной позиционной полосе.",
+    "en": "Your listing is now boosted in the selected position band."
+  },
+  {
+    "key": "promotion.status.active_vip",
+    "az": "Elanın indi VİP-dir və lentin ən yuxarısında görünəcək.",
+    "ru": "Теперь ваше объявление VIP и показывается в самом верху ленты.",
+    "en": "Your listing is now VIP and shows at the top of the feed."
+  },
+  {
+    "key": "promotion.status.amount",
+    "az": "Məbləğ",
+    "ru": "Сумма",
+    "en": "Amount"
+  },
+  {
+    "key": "promotion.status.check_later",
+    "az": "Sonra profildən yoxla",
+    "ru": "Проверить позже в профиле",
+    "en": "Check later in profile"
+  },
+  {
+    "key": "promotion.status.done",
+    "az": "Bitdi",
+    "ru": "Готово",
+    "en": "Done"
+  },
+  {
+    "key": "promotion.status.end",
+    "az": "Bitmə",
+    "ru": "Окончание",
+    "en": "Ends"
+  },
+  {
+    "key": "promotion.status.failed",
+    "az": "Kartından məbləğ tutulmadı. Yenidən cəhd edə bilərsən.",
+    "ru": "Средства с карты не списаны. Можно повторить попытку.",
+    "en": "No money was charged. You can try again."
+  },
+  {
+    "key": "promotion.status.package",
+    "az": "Paket",
+    "ru": "Пакет",
+    "en": "Package"
+  },
+  {
+    "key": "promotion.status.pending",
+    "az": "Bankın və ya ödəniş provayderinin təsdiqini gözləyirik. Nəticə hazır olanda bildiriş alacaqsan.",
+    "ru": "Ждём подтверждения от банка или платёжного провайдера. Вы получите уведомление, когда результат будет готов.",
+    "en": "Waiting for the bank or payment provider to confirm. You'll get a notification once the result is ready."
+  },
+  {
+    "key": "promotion.status.refresh",
+    "az": "Statusu yenilə",
+    "ru": "Обновить статус",
+    "en": "Refresh status"
+  },
+  {
+    "key": "promotion.status.refreshing",
+    "az": "Yenilənir...",
+    "ru": "Обновление...",
+    "en": "Refreshing..."
+  },
+  {
+    "key": "promotion.status.status",
+    "az": "Status",
+    "ru": "Статус",
+    "en": "Status"
+  },
+  {
+    "key": "promotion.status.view_listing",
+    "az": "Elanıma bax",
+    "ru": "Открыть объявление",
+    "en": "View listing"
+  },
+  {
+    "key": "promotion.step.duration",
+    "az": "Müddət seç",
+    "ru": "Выберите срок",
+    "en": "Choose duration"
+  },
+  {
+    "key": "promotion.step.extend_duration",
+    "az": "Müddəti artır",
+    "ru": "Продлить срок",
+    "en": "Extend duration"
+  },
+  {
+    "key": "promotion.step.position",
+    "az": "Mövqe zolağını seç",
+    "ru": "Выберите позиционную полосу",
+    "en": "Choose a position band"
+  },
+  {
+    "key": "promotion.success_title",
+    "az": "Təbriklər!",
+    "ru": "Поздравляем!",
+    "en": "Congratulations!"
+  },
+  {
+    "key": "promotion.summary.boost_template",
+    "az": "{tier} · {days} gün",
+    "ru": "{tier} · {days} дн.",
+    "en": "{tier} · {days} days"
+  },
+  {
+    "key": "promotion.summary.vip_template",
+    "az": "{days} gün VİP",
+    "ru": "{days} дн. VIP",
+    "en": "{days}d VIP"
+  },
+  {
+    "key": "promotion.tabs.active_template",
+    "az": "Aktiv ({count})",
+    "ru": "Активные ({count})",
+    "en": "Active ({count})"
+  },
+  {
+    "key": "promotion.tabs.expired_template",
+    "az": "Bitmiş ({count})",
+    "ru": "Завершённые ({count})",
+    "en": "Expired ({count})"
+  },
+  {
+    "key": "promotion.tier.top10",
+    "az": "İlk 10",
+    "ru": "Топ 10",
+    "en": "Top 10"
+  },
+  {
+    "key": "promotion.tier.top100",
+    "az": "İlk 100",
+    "ru": "Топ 100",
+    "en": "Top 100"
+  },
+  {
+    "key": "promotion.tier.top50",
+    "az": "İlk 50",
+    "ru": "Топ 50",
+    "en": "Top 50"
+  },
+  {
+    "key": "promotion.tier_note",
+    "az": "VİP elanlar həmişə önə çəkilmiş elanların da üstündədir.",
+    "ru": "VIP-объявления всегда выше продвинутых.",
+    "en": "VIP listings always rank above boosted ones."
+  },
+  {
+    "key": "promotion.total",
+    "az": "Yekun",
+    "ru": "Итого",
+    "en": "Total"
+  },
+  {
+    "key": "promotion.upsell_title",
+    "az": "Elanını daha çox insana çatdır",
+    "ru": "Покажите объявление большему числу людей",
+    "en": "Reach more people with your listing"
+  },
+  {
+    "key": "promotion.vip_active",
+    "az": "VİP aktiv",
+    "ru": "VIP активен",
+    "en": "VIP active"
+  },
+  {
+    "key": "promotion.vip_benefit.badge",
+    "az": "Tac nişanı və qızılı çərçivə",
+    "ru": "Значок короны и золотая рамка",
+    "en": "Crown badge and gold frame"
+  },
+  {
+    "key": "promotion.vip_benefit.section",
+    "az": "Ayrıca «VİP elanlar» bölməsində üst sıra",
+    "ru": "Верхняя строка в отдельном разделе «VIP-объявления»",
+    "en": "Top spot in a separate \"VIP listings\" section"
+  },
+  {
+    "key": "promotion.vip_benefit.views",
+    "az": "Orta hesabla daha çox baxış",
+    "ru": "В среднем больше просмотров",
+    "en": "More views on average"
+  },
+  {
+    "key": "promotion.vip_benefits_title",
+    "az": "VİP nə qazandırır?",
+    "ru": "Что даёт VIP?",
+    "en": "What does VIP give you?"
+  },
+  {
+    "key": "promotion.vip_description",
+    "az": "Elanın lentin ən yuxarısında, ayrıca «VİP elanlar» bölməsində görünəcək.",
+    "ru": "Объявление появится в самом верху ленты и в отдельном разделе «VIP-объявления».",
+    "en": "Your listing appears at the top of the feed and in a separate \"VIP listings\" section."
+  },
+  {
+    "key": "promotion.vip_short",
+    "az": "Ən yuxarıda, ayrıca bölmədə",
+    "ru": "В самом верху, в отдельном разделе",
+    "en": "At the very top, in a separate section"
+  },
+  {
+    "key": "rate.code_copied",
+    "az": "Kod kopyalandı",
+    "ru": "Код скопирован",
+    "en": "Code copied"
+  },
+  {
+    "key": "rate.coupon_footer",
+    "az": "{amount} endirim · VİP/önə çəkmə",
+    "ru": "{amount} скидка · VIP/продвижение",
+    "en": "{amount} off · VIP/promotion"
+  },
+  {
+    "key": "rate.cta",
+    "az": "Store-da qiymətləndir",
+    "ru": "Оценить в Store",
+    "en": "Rate on the Store"
+  },
+  {
+    "key": "rate.days_left",
+    "az": "{days} gün qalıb · son tarix {date}",
+    "ru": "осталось {days} дн. · до {date}",
+    "en": "{days} days left · until {date}"
+  },
+  {
+    "key": "rate.expired",
+    "az": "Müddəti bitib",
+    "ru": "Срок истёк",
+    "en": "Expired"
+  },
+  {
+    "key": "rate.expires_today",
+    "az": "Bu gün bitir · {date}",
+    "ru": "Истекает сегодня · {date}",
+    "en": "Expires today · {date}"
+  },
+  {
+    "key": "rate.intro_subtitle",
+    "az": "1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.",
+    "ru": "Уделите минуту, оцените нас в Store — и получите промокод в подарок.",
+    "en": "Take a minute to rate us on the Store — and get a gift promo code."
+  },
+  {
+    "key": "rate.intro_title",
+    "az": "Wawatair-i bəyənirsən?",
+    "ru": "Нравится Wawatair?",
+    "en": "Do you like Wawatair?"
+  },
+  {
+    "key": "rate.rated_body_coupon",
+    "az": "Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:",
+    "ru": "Спасибо за отзыв! Примените этот промокод при VIP/продвижении:",
+    "en": "Thanks for your review! Apply this promo code when making a listing VIP/promoting:"
+  },
+  {
+    "key": "rate.rated_body_thanks",
+    "az": "Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.",
+    "ru": "Вы уже оценили это приложение. Ваша поддержка очень помогает нам.",
+    "en": "You've already rated this app. Your support helps us a lot."
+  },
+  {
+    "key": "rate.rated_title_coupon",
+    "az": "Hədiyyə promokodun hazırdır 🎁",
+    "ru": "Ваш промокод-подарок готов 🎁",
+    "en": "Your gift promo code is ready 🎁"
+  },
+  {
+    "key": "rate.rated_title_thanks",
+    "az": "Təşəkkür edirik! ⭐️",
+    "ru": "Спасибо! ⭐️",
+    "en": "Thank you! ⭐️"
+  },
+  {
+    "key": "rate.reward_chip",
+    "az": "{reward} promokod hədiyyə",
+    "ru": "{reward} промокод в подарок",
+    "en": "{reward} promo code gift"
+  },
+  {
+    "key": "rate.step1",
+    "az": "Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır",
+    "ru": "Нажмите кнопку — откроется окно оценки Store",
+    "en": "Tap the button — the Store's rating window opens"
+  },
+  {
+    "key": "rate.step2",
+    "az": "{reward} promokod avtomatik hesabına gəlir",
+    "ru": "промокод на {reward} автоматически зачисляется на счёт",
+    "en": "a {reward} promo code is added to your account automatically"
+  },
+  {
+    "key": "rate.step3",
+    "az": "Elanı VİP/önə çəkərkən tətbiq et",
+    "ru": "Примените при VIP/продвижении объявления",
+    "en": "Apply it when making a listing VIP/promoting it"
+  },
+  {
+    "key": "rate.takes_a_minute",
+    "az": "Bir dəqiqədən az çəkir",
+    "ru": "Займёт меньше минуты",
+    "en": "Takes less than a minute"
+  },
+  {
+    "key": "rate.title",
+    "az": "Tətbiqi qiymətləndir",
+    "ru": "Оценить приложение",
+    "en": "Rate the app"
+  },
+  {
+    "key": "rate.toast_body",
+    "az": "Rəyin bizə çox kömək edir.",
+    "ru": "Ваш отзыв очень помогает нам.",
+    "en": "Your review helps us a lot."
+  },
+  {
+    "key": "rate.toast_title",
+    "az": "Təşəkkür edirik! ⭐️",
+    "ru": "Спасибо! ⭐️",
+    "en": "Thank you! ⭐️"
+  },
+  {
+    "key": "rate.view_my_codes",
+    "az": "Promokodlarıma bax",
+    "ru": "Мои промокоды",
+    "en": "View my promo codes"
+  },
+  {
+    "key": "receipt.download_pdf",
+    "az": "PDF yüklə",
+    "ru": "Скачать PDF",
+    "en": "Download PDF"
+  },
+  {
+    "key": "receipt.footer",
+    "az": "Bu qəbz avtomatik yaradılıb · dəstək: {email}",
+    "ru": "Этот чек создан автоматически · поддержка: {email}",
+    "en": "This receipt was generated automatically · support: {email}"
+  },
+  {
+    "key": "receipt.pdf_error",
+    "az": "PDF yaradıla bilmədi.",
+    "ru": "Не удалось создать PDF.",
+    "en": "Couldn't generate the PDF."
+  },
+  {
+    "key": "receipt.status.awaiting_provider",
+    "az": "Gözləyir",
+    "ru": "Ожидает",
+    "en": "Pending"
+  },
+  {
+    "key": "receipt.status.failed",
+    "az": "Uğursuz",
+    "ru": "Не удалось",
+    "en": "Failed"
+  },
+  {
+    "key": "receipt.status.paid",
+    "az": "Ödənildi",
+    "ru": "Оплачено",
+    "en": "Paid"
+  },
+  {
+    "key": "receipt.status.refunded",
+    "az": "Geri qaytarıldı",
+    "ru": "Возвращено",
+    "en": "Refunded"
+  },
+  {
+    "key": "receipt.title",
+    "az": "Qəbz",
+    "ru": "Чек",
+    "en": "Receipt"
+  },
+  {
+    "key": "receipt.view",
+    "az": "Qəbz",
+    "ru": "Чек",
+    "en": "Receipt"
+  },
+  {
+    "key": "referral.awaiting_first_order",
+    "az": "İlk sifariş gözlənilir",
+    "ru": "Ожидается первый заказ",
+    "en": "Awaiting first order"
+  },
+  {
+    "key": "referral.both_earn",
+    "az": "İkiniz də qazanırsınız",
+    "ru": "Вы оба получаете бонус",
+    "en": "You both earn"
+  },
+  {
+    "key": "referral.both_earn_hint",
+    "az": "ilk sifarişdən sonra {amount} promokod.",
+    "ru": "промокод на {amount} после первого заказа.",
+    "en": "a {amount} promo code after the first order."
+  },
+  {
+    "key": "referral.code_copied",
+    "az": "Kod kopyalandı",
+    "ru": "Код скопирован",
+    "en": "Code copied"
+  },
+  {
+    "key": "referral.code_label",
+    "az": "DƏVƏT KODUN",
+    "ru": "ВАШ КОД ПРИГЛАШЕНИЯ",
+    "en": "YOUR INVITE CODE"
+  },
+  {
+    "key": "referral.empty_subtitle",
+    "az": "Linki paylaş — dostların burada görünəcək.",
+    "ru": "Поделитесь ссылкой — ваши друзья появятся здесь.",
+    "en": "Share the link — your friends will show up here."
+  },
+  {
+    "key": "referral.empty_title",
+    "az": "Hələ heç kimi dəvət etməmisən",
+    "ru": "Вы ещё никого не пригласили",
+    "en": "You haven't invited anyone yet"
+  },
+  {
+    "key": "referral.error_body",
+    "az": "Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.",
+    "ru": "Не удалось загрузить данные. Проверьте интернет-соединение.",
+    "en": "We couldn't load the data. Check your internet connection."
+  },
+  {
+    "key": "referral.error_title",
+    "az": "Bağlantı yoxdur",
+    "ru": "Нет соединения",
+    "en": "No connection"
+  },
+  {
+    "key": "referral.friend_joins",
+    "az": "Dostun qoşulur",
+    "ru": "Друг присоединяется",
+    "en": "Your friend joins"
+  },
+  {
+    "key": "referral.friend_joins_hint",
+    "az": "link ilə qeydiyyatdan keçir.",
+    "ru": "регистрируется по вашей ссылке.",
+    "en": "signs up with your link."
+  },
+  {
+    "key": "referral.hero_note",
+    "az": "Dostun ilk sifarişini tamamlayanda promokod hər ikinizə gedir.",
+    "ru": "Когда друг завершит первый заказ, промокод получите вы оба.",
+    "en": "When your friend completes their first order, you both get a promo code."
+  },
+  {
+    "key": "referral.hero_prefix",
+    "az": "Dostunu dəvət et, hər ikiniz",
+    "ru": "Пригласите друга — вы оба",
+    "en": "Invite a friend and you both"
+  },
+  {
+    "key": "referral.hero_subtitle",
+    "az": "Dostun ilk sifarişini tamamlayanda promokod hər ikinizə gedir.",
+    "ru": "Когда друг завершит первый заказ, промокод получите вы оба.",
+    "en": "When your friend completes their first order, you both get a promo code."
+  },
+  {
+    "key": "referral.hero_suffix",
+    "az": "qazanın",
+    "ru": "получите бонус",
+    "en": "earn"
+  },
+  {
+    "key": "referral.hero_title",
+    "az": "Dostunu dəvət et,\nhər ikiniz ",
+    "ru": "Пригласи друга,\nвы оба ",
+    "en": "Invite a friend,\nyou both "
+  },
+  {
+    "key": "referral.hero_title_suffix",
+    "az": " qazanın",
+    "ru": " заработаете",
+    "en": " earn"
+  },
+  {
+    "key": "referral.invited_pending_name",
+    "az": "Dəvət olunub",
+    "ru": "Приглашён",
+    "en": "Invited"
+  },
+  {
+    "key": "referral.invites_title",
+    "az": "Dəvət etdiklərim",
+    "ru": "Мои приглашения",
+    "en": "People I invited"
+  },
+  {
+    "key": "referral.item_invited",
+    "az": "Dəvət olunub",
+    "ru": "Приглашён",
+    "en": "Invited"
+  },
+  {
+    "key": "referral.item_waiting_first_order",
+    "az": "İlk sifariş gözlənilir",
+    "ru": "Ожидается первый заказ",
+    "en": "Awaiting first order"
+  },
+  {
+    "key": "referral.joined",
+    "az": "Qoşulub",
+    "ru": "Присоединился",
+    "en": "Joined"
+  },
+  {
+    "key": "referral.link_copied",
+    "az": "Link kopyalandı",
+    "ru": "Ссылка скопирована",
+    "en": "Link copied"
+  },
+  {
+    "key": "referral.my_invites",
+    "az": "Dəvət etdiklərim",
+    "ru": "Мои приглашения",
+    "en": "People I invited"
+  },
+  {
+    "key": "referral.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить",
+    "en": "Try again"
+  },
+  {
+    "key": "referral.share_code_suffix",
+    "az": " Kod: {code}.",
+    "ru": " Код: {code}.",
+    "en": " Code: {code}."
+  },
+  {
+    "key": "referral.share_copy",
+    "az": "Kopyala",
+    "ru": "Копировать",
+    "en": "Copy"
+  },
+  {
+    "key": "referral.share_invite_link",
+    "az": "Dəvət linkini paylaş",
+    "ru": "Поделиться ссылкой-приглашением",
+    "en": "Share invite link"
+  },
+  {
+    "key": "referral.share_link",
+    "az": "Linki paylaş",
+    "ru": "Поделиться ссылкой",
+    "en": "Share link"
+  },
+  {
+    "key": "referral.share_link_hint",
+    "az": "dostuna dəvət linkini göndər.",
+    "ru": "отправьте другу пригласительную ссылку.",
+    "en": "send your friend the invite link."
+  },
+  {
+    "key": "referral.share_more",
+    "az": "Digər",
+    "ru": "Ещё",
+    "en": "More"
+  },
+  {
+    "key": "referral.share_text",
+    "az": "Wawatair-ə qoşul, hər ikimiz {amount} qazanaq! Kod: {code}. {link}",
+    "ru": "Присоединяйся к Wawatair — заработаем оба по {amount} {currency}!",
+    "en": "Join Wawatair — we both earn {amount} {currency}!"
+  },
+  {
+    "key": "referral.stat_earned",
+    "az": "Qazanılan",
+    "ru": "Заработано",
+    "en": "Earned"
+  },
+  {
+    "key": "referral.stat_invited",
+    "az": "Dəvət",
+    "ru": "Приглашено",
+    "en": "Invited"
+  },
+  {
+    "key": "referral.stat_joined",
+    "az": "Qoşulan",
+    "ru": "Присоединились",
+    "en": "Joined"
+  },
+  {
+    "key": "referral.status_pending",
+    "az": "Gözləyir",
+    "ru": "Ожидает",
+    "en": "Pending"
+  },
+  {
+    "key": "referral.step1_body",
+    "az": "dostuna dəvət linkini göndər.",
+    "ru": "отправьте другу пригласительную ссылку.",
+    "en": "send your friend the invite link."
+  },
+  {
+    "key": "referral.step1_title",
+    "az": "Linki paylaş",
+    "ru": "Поделитесь ссылкой",
+    "en": "Share the link"
+  },
+  {
+    "key": "referral.step2_body",
+    "az": "link ilə qeydiyyatdan keçir.",
+    "ru": "регистрируется по ссылке.",
+    "en": "signs up via the link."
+  },
+  {
+    "key": "referral.step2_title",
+    "az": "Dostun qoşulur",
+    "ru": "Друг присоединяется",
+    "en": "Your friend joins"
+  },
+  {
+    "key": "referral.step3_body",
+    "az": "ilk sifarişdən sonra {amount} {currency} promokod.",
+    "ru": "промокод на {amount} {currency} после первого заказа.",
+    "en": "a {amount} {currency} promo code after the first order."
+  },
+  {
+    "key": "referral.step3_title",
+    "az": "İkiniz də qazanırsınız",
+    "ru": "Вы оба зарабатываете",
+    "en": "You both earn"
+  },
+  {
+    "key": "referral.title",
+    "az": "Dostunu dəvət et",
+    "ru": "Пригласить друга",
+    "en": "Invite a friend"
+  },
+  {
+    "key": "reports.detail.title",
+    "az": "Şikayət #{id}",
+    "ru": "Жалоба #{id}",
+    "en": "Report #{id}"
+  },
+  {
+    "key": "reports.empty.body",
+    "az": "Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək.",
+    "ru": "Когда вы пожалуетесь на объявление, пользователя или сообщение, это появится здесь.",
+    "en": "When you report a listing, user, or message, it'll appear here."
+  },
+  {
+    "key": "reports.empty.title",
+    "az": "Şikayətin yoxdur",
+    "ru": "Жалоб нет",
+    "en": "No reports"
+  },
+  {
+    "key": "reports.empty_subtitle",
+    "az": "Elan, istifadəçi və ya mesaj barədə şikayət etsən, burada görünəcək.",
+    "ru": "Если вы пожалуетесь на объявление, пользователя или сообщение, жалоба появится здесь.",
+    "en": "If you report a listing, user, or message, it'll show up here."
+  },
+  {
+    "key": "reports.empty_title",
+    "az": "Şikayətin yoxdur",
+    "ru": "У вас нет жалоб",
+    "en": "No reports yet"
+  },
+  {
+    "key": "reports.error.body",
+    "az": "Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.",
+    "ru": "Не удалось загрузить данные. Проверьте подключение к интернету.",
+    "en": "We couldn't load the data. Check your internet connection."
+  },
+  {
+    "key": "reports.error.title",
+    "az": "Bağlantı yoxdur",
+    "ru": "Нет соединения",
+    "en": "No connection"
+  },
+  {
+    "key": "reports.evidence_attached",
+    "az": "Sübut əlavə edilib",
+    "ru": "Прикреплено доказательство",
+    "en": "Evidence attached"
+  },
+  {
+    "key": "reports.explanation_label",
+    "az": "İzah",
+    "ru": "Пояснение",
+    "en": "Explanation"
+  },
+  {
+    "key": "reports.id_template",
+    "az": "Şikayət #{id}",
+    "ru": "Жалоба #{id}",
+    "en": "Report #{id}"
+  },
+  {
+    "key": "reports.label.note",
+    "az": "İzah",
+    "ru": "Пояснение",
+    "en": "Explanation"
+  },
+  {
+    "key": "reports.label.reason",
+    "az": "Səbəb",
+    "ru": "Причина",
+    "en": "Reason"
+  },
+  {
+    "key": "reports.label.status",
+    "az": "Vəziyyət",
+    "ru": "Статус",
+    "en": "Status"
+  },
+  {
+    "key": "reports.moderation_response",
+    "az": "Moderasiya cavabı",
+    "ru": "Ответ модерации",
+    "en": "Moderation response"
+  },
+  {
+    "key": "reports.result_resolved",
+    "az": "Həll olundu",
+    "ru": "Решено",
+    "en": "Resolved"
+  },
+  {
+    "key": "reports.retry",
+    "az": "Yenidən cəhd et",
+    "ru": "Повторить",
+    "en": "Try again"
+  },
+  {
+    "key": "reports.status.pending",
+    "az": "Gözləyir",
+    "ru": "Ожидает",
+    "en": "Pending"
+  },
+  {
+    "key": "reports.status.rejected",
+    "az": "Rədd edildi",
+    "ru": "Отклонено",
+    "en": "Rejected"
+  },
+  {
+    "key": "reports.status.resolved",
+    "az": "Həll olundu",
+    "ru": "Решено",
+    "en": "Resolved"
+  },
+  {
+    "key": "reports.status.reviewing",
+    "az": "Baxılır",
+    "ru": "На рассмотрении",
+    "en": "Under review"
+  },
+  {
+    "key": "reports.status_label",
+    "az": "Vəziyyət",
+    "ru": "Статус",
+    "en": "Status"
+  },
+  {
+    "key": "reports.status_resolved",
+    "az": "Həll olundu",
+    "ru": "Решено",
+    "en": "Resolved"
+  },
+  {
+    "key": "reports.step.awaiting",
+    "az": "Gözlənilir",
+    "ru": "Ожидается",
+    "en": "Awaiting"
+  },
+  {
+    "key": "reports.step.result",
+    "az": "Nəticə",
+    "ru": "Результат",
+    "en": "Result"
+  },
+  {
+    "key": "reports.step.reviewing",
+    "az": "Baxılır",
+    "ru": "На рассмотрении",
+    "en": "Under review"
+  },
+  {
+    "key": "reports.step.reviewing_sub",
+    "az": "Moderasiya komandası yoxlayır",
+    "ru": "Команда модерации проверяет",
+    "en": "The moderation team is reviewing"
+  },
+  {
+    "key": "reports.step.submitted",
+    "az": "Göndərildi",
+    "ru": "Отправлено",
+    "en": "Submitted"
+  },
+  {
+    "key": "reports.step_result",
+    "az": "Nəticə",
+    "ru": "Результат",
+    "en": "Result"
+  },
+  {
+    "key": "reports.step_reviewing_hint",
+    "az": "Moderasiya komandası yoxlayır",
+    "ru": "Команда модерации проверяет",
+    "en": "The moderation team is reviewing"
+  },
+  {
+    "key": "reports.step_sent",
+    "az": "Göndərildi",
+    "ru": "Отправлено",
+    "en": "Sent"
+  },
+  {
+    "key": "reports.subject_listing",
+    "az": "Elan barədə şikayət",
+    "ru": "Жалоба на объявление",
+    "en": "Report listing"
+  },
+  {
+    "key": "reports.subject_message",
+    "az": "Mesaj barədə şikayət",
+    "ru": "Жалоба на сообщение",
+    "en": "Report message"
+  },
+  {
+    "key": "reports.subject_user",
+    "az": "İstifadəçi barədə şikayət",
+    "ru": "Жалоба на пользователя",
+    "en": "Report user"
+  },
+  {
+    "key": "reports.title",
+    "az": "Şikayətlərim",
+    "ru": "Мои жалобы",
+    "en": "My reports"
+  },
+  {
+    "key": "reports.title.listing",
+    "az": "Elan barədə şikayət",
+    "ru": "Жалоба на объявление",
+    "en": "Report about a listing"
+  },
+  {
+    "key": "reports.title.message",
+    "az": "Mesaj barədə şikayət",
+    "ru": "Жалоба на сообщение",
+    "en": "Report about a message"
+  },
+  {
+    "key": "reports.title.user",
+    "az": "İstifadəçi barədə şikayət",
+    "ru": "Жалоба на пользователя",
+    "en": "Report about a user"
+  },
+  {
+    "key": "review.count",
+    "az": "{count} rəy",
+    "ru": "{count} отз.",
+    "en": "{count} reviews"
+  },
+  {
+    "key": "review.empty_subtitle",
+    "az": "Tamamlanmış sifarişlərdən sonra rəylər burada görünəcək.",
+    "ru": "Отзывы появятся здесь после завершённых заказов.",
+    "en": "Reviews show up here after completed orders."
+  },
+  {
+    "key": "review.empty_title",
+    "az": "Hələ rəy yoxdur",
+    "ru": "Пока нет отзывов",
+    "en": "No reviews yet"
+  },
+  {
+    "key": "review.moderation_note",
+    "az": "Rəylər dərc olunmadan öncə yoxlanılır.",
+    "ru": "Отзывы проверяются перед публикацией.",
+    "en": "Reviews are checked before they're published."
+  },
+  {
+    "key": "review.reply_button",
+    "az": "Cavab yaz",
+    "ru": "Ответить",
+    "en": "Reply"
+  },
+  {
+    "key": "review.reply_field_label",
+    "az": "Cavabınız",
+    "ru": "Ваш ответ",
+    "en": "Your reply"
+  },
+  {
+    "key": "review.reply_hint",
+    "az": "Cavabını yaz…",
+    "ru": "Напишите ответ…",
+    "en": "Write your reply…"
+  },
+  {
+    "key": "review.reply_pending",
+    "az": "Cavabınız yoxlanılır",
+    "ru": "Ваш ответ проверяется",
+    "en": "Your reply is under review"
+  },
+  {
+    "key": "review.reply_sent",
+    "az": "Cavab göndərildi.",
+    "ru": "Ответ отправлен.",
+    "en": "Reply sent."
+  },
+  {
+    "key": "review.reply_submit",
+    "az": "Cavabı göndər",
+    "ru": "Отправить ответ",
+    "en": "Send reply"
+  },
+  {
+    "key": "review.reply_submitted",
+    "az": "Cavabınız moderasiyaya göndərildi.",
+    "ru": "Ваш ответ отправлен на модерацию.",
+    "en": "Your reply was sent for review."
+  },
+  {
+    "key": "review.reply_title",
+    "az": "Cavab yaz",
+    "ru": "Ответить",
+    "en": "Write a reply"
+  },
+  {
+    "key": "review.request_sent",
+    "az": "Rəy istəyi göndərildi.",
+    "ru": "Запрос на отзыв отправлен.",
+    "en": "Review request sent."
+  },
+  {
+    "key": "review.submitted",
+    "az": "Rəyiniz moderasiyaya göndərildi.",
+    "ru": "Ваш отзыв отправлен на модерацию.",
+    "en": "Your review was sent for review."
+  },
+  {
+    "key": "review.tab",
+    "az": "Rəylər",
+    "ru": "Отзывы",
+    "en": "Reviews"
+  },
+  {
+    "key": "review.verified_shipment",
+    "az": "Təsdiqlənmiş sifariş",
+    "ru": "Подтверждённый заказ",
+    "en": "Verified order"
+  },
+  {
+    "key": "review.your_reply",
+    "az": "Sizin cavabınız",
+    "ru": "Ваш ответ",
+    "en": "Your reply"
+  },
+  {
+    "key": "search.advanced",
+    "az": "Ətraflı axtarış",
+    "ru": "Расширенный поиск",
+    "en": "Advanced search"
+  },
+  {
+    "key": "search.alert_active",
+    "az": "Bildiriş aktiv",
+    "ru": "Уведомление активно",
+    "en": "Alert on"
+  },
+  {
+    "key": "search.applied_hint",
+    "az": "Filtrlər tətbiq olunur · «Ətraflı»-ya yenidən basıb yığmaq olar",
+    "ru": "Фильтры применены · нажмите «Подробнее» ещё раз, чтобы свернуть",
+    "en": "Filters applied · tap «More» again to collapse"
+  },
+  {
+    "key": "search.date_from",
+    "az": "Başlanğıc",
+    "ru": "Начало",
+    "en": "Start"
+  },
+  {
+    "key": "search.date_to",
+    "az": "Son",
+    "ru": "Конец",
+    "en": "End"
+  },
+  {
+    "key": "search.end_subtitle",
+    "az": "Başqa marşrutu yoxla",
+    "ru": "Попробуйте другой маршрут",
+    "en": "Try another route"
+  },
+  {
+    "key": "search.end_title",
+    "az": "Nəticələrin sonu",
+    "ru": "Конец результатов",
+    "en": "End of results"
+  },
+  {
+    "key": "search.filter",
+    "az": "Filtrlə",
+    "ru": "Фильтр",
+    "en": "Filter"
+  },
+  {
+    "key": "search.filter_any",
+    "az": "Fərqi yoxdur",
+    "ru": "Не важно",
+    "en": "Any"
+  },
+  {
+    "key": "search.filter_date",
+    "az": "Tarix aralığı",
+    "ru": "Диапазон дат",
+    "en": "Date range"
+  },
+  {
+    "key": "search.filter_package_type",
+    "az": "Bağlama növləri",
+    "ru": "Типы посылок",
+    "en": "Package types"
+  },
+  {
+    "key": "search.filter_price",
+    "az": "Qiymət aralığı",
+    "ru": "Диапазон цены",
+    "en": "Price range"
+  },
+  {
+    "key": "search.filter_rating",
+    "az": "Reytinq",
+    "ru": "Рейтинг",
+    "en": "Rating"
+  },
+  {
+    "key": "search.filter_tier",
+    "az": "İstifadəçi səviyyəsi",
+    "ru": "Уровень пользователя",
+    "en": "User level"
+  },
+  {
+    "key": "search.filter_type",
+    "az": "Elan tipi",
+    "ru": "Тип объявления",
+    "en": "Listing type"
+  },
+  {
+    "key": "search.filter_weight",
+    "az": "Çəki aralığı",
+    "ru": "Диапазон веса",
+    "en": "Weight range"
+  },
+  {
+    "key": "search.filter_weight_price",
+    "az": "Çəki və qiymət",
+    "ru": "Вес и цена",
+    "en": "Weight and price"
+  },
+  {
+    "key": "search.filters_title",
+    "az": "Ətraflı axtarış",
+    "ru": "Расширенный поиск",
+    "en": "Advanced search"
+  },
+  {
+    "key": "search.following",
+    "az": "İzləyirsiniz",
+    "ru": "Вы подписаны",
+    "en": "Following"
+  },
+  {
+    "key": "search.following_only",
+    "az": "Yalnız izlədiyim istifadəçilər",
+    "ru": "Только те, на кого я подписан",
+    "en": "Only users I follow"
+  },
+  {
+    "key": "search.from_placeholder",
+    "az": "Haradan",
+    "ru": "Откуда",
+    "en": "From"
+  },
+  {
+    "key": "search.hero_subtitle",
+    "az": "Haradan hara göndərmək istəyirsən?",
+    "ru": "Откуда и куда отправляете?",
+    "en": "Where are you sending from and to?"
+  },
+  {
+    "key": "search.hero_title",
+    "az": "Marşrutu axtar",
+    "ru": "Поиск маршрута",
+    "en": "Find a route"
+  },
+  {
+    "key": "search.last_check_template",
+    "az": "Son yoxlama: {time}",
+    "ru": "Последняя проверка: {time}",
+    "en": "Last checked: {time}"
+  },
+  {
+    "key": "search.network_error_subtitle",
+    "az": "İnternet bağlantını yoxla",
+    "ru": "Проверьте подключение к интернету",
+    "en": "Check your internet connection"
+  },
+  {
+    "key": "search.network_error_title",
+    "az": "Bağlantı yoxdur",
+    "ru": "Нет соединения",
+    "en": "No connection"
+  },
+  {
+    "key": "search.price_max",
+    "az": "Maks $",
+    "ru": "Макс $",
+    "en": "Max $"
+  },
+  {
+    "key": "search.price_min",
+    "az": "Min $",
+    "ru": "Мин $",
+    "en": "Min $"
+  },
+  {
+    "key": "search.recent_title",
+    "az": "Son axtarışlar",
+    "ru": "Недавние поиски",
+    "en": "Recent searches"
+  },
+  {
+    "key": "search.results_count_template",
+    "az": "{count} nəticə",
+    "ru": "Результатов: {count}",
+    "en": "{count} results"
+  },
+  {
+    "key": "search.save_current",
+    "az": "Axtarışı saxla",
+    "ru": "Сохранить поиск",
+    "en": "Save search"
+  },
+  {
+    "key": "search.save_error",
+    "az": "Axtarışı saxlamaq alınmadı. Yenidən cəhd edin.",
+    "ru": "Не удалось сохранить поиск. Попробуйте ещё раз.",
+    "en": "Couldn't save search. Please try again."
+  },
+  {
+    "key": "search.save_name_hint",
+    "az": "Şablonun adı",
+    "ru": "Название шаблона",
+    "en": "Template name"
+  },
+  {
+    "key": "search.save_notify",
+    "az": "Yeni uyğun elanlar barədə bildiriş al",
+    "ru": "Получать уведомления о новых подходящих объявлениях",
+    "en": "Get notified about new matching listings"
+  },
+  {
+    "key": "search.save_subtitle",
+    "az": "Bu filtrləri şablon kimi saxla və sonra bir toxunuşla yenidən aç.",
+    "ru": "Сохраните эти фильтры как шаблон и открывайте их одним касанием.",
+    "en": "Save these filters as a template and reopen them with one tap."
+  },
+  {
+    "key": "search.save_title",
+    "az": "Axtarışı saxla",
+    "ru": "Сохранить поиск",
+    "en": "Save search"
+  },
+  {
+    "key": "search.saved_created",
+    "az": "Axtarış yadda saxlanıldı.",
+    "ru": "Поиск сохранён.",
+    "en": "Search saved."
+  },
+  {
+    "key": "search.saved_empty",
+    "az": "Hələ saxlanmış axtarış yoxdur.",
+    "ru": "Пока нет сохранённых поисков.",
+    "en": "No saved searches yet."
+  },
+  {
+    "key": "search.saved_short",
+    "az": "Saxlanmışlar",
+    "ru": "Сохранённые",
+    "en": "Saved"
+  },
+  {
+    "key": "search.saved_state",
+    "az": "Saxlanıldı",
+    "ru": "Сохранено",
+    "en": "Saved"
+  },
+  {
+    "key": "search.saved_success",
+    "az": "Axtarış yadda saxlanıldı.",
+    "ru": "Поиск сохранён.",
+    "en": "Search saved."
+  },
+  {
+    "key": "search.saved_title",
+    "az": "Saxlanmış axtarışlar",
+    "ru": "Сохранённые поиски",
+    "en": "Saved searches"
+  },
+  {
+    "key": "search.segment_route",
+    "az": "Marşrut",
+    "ru": "Маршрут",
+    "en": "Route"
+  },
+  {
+    "key": "search.segment_user",
+    "az": "İstifadəçi",
+    "ru": "Люди",
+    "en": "People"
+  },
+  {
+    "key": "search.show_results",
+    "az": "Nəticələri göstər",
+    "ru": "Показать результаты",
+    "en": "Show results"
+  },
+  {
+    "key": "search.sort_title",
+    "az": "Sıralama",
+    "ru": "Сортировка",
+    "en": "Sorting"
+  },
+  {
+    "key": "search.to_placeholder",
+    "az": "Hara",
+    "ru": "Куда",
+    "en": "To"
+  },
+  {
+    "key": "search.type_all",
+    "az": "Hamısı",
+    "ru": "Все",
+    "en": "All"
+  },
+  {
+    "key": "search.type_shipment",
+    "az": "Göndəriş",
+    "ru": "Отправление",
+    "en": "Shipment"
+  },
+  {
+    "key": "search.type_trip",
+    "az": "Səfər",
+    "ru": "Поездка",
+    "en": "Trip"
+  },
+  {
+    "key": "search.user_clear",
+    "az": "Təmizlə",
+    "ru": "Очистить",
+    "en": "Clear"
+  },
+  {
+    "key": "search.user_deliveries_template",
+    "az": "{count} çatdırılma",
+    "ru": "{count} доставок",
+    "en": "{count} deliveries"
+  },
+  {
+    "key": "search.user_empty_subtitle",
+    "az": "«{query}» üzrə nəticə yoxdur. Adı və ya @username-i yoxla.",
+    "ru": "Нет результатов по «{query}». Проверьте имя или @username.",
+    "en": "No results for «{query}». Check the name or @username."
+  },
+  {
+    "key": "search.user_empty_title",
+    "az": "Heç kim tapılmadı",
+    "ru": "Никого не найдено",
+    "en": "No one found"
+  },
+  {
+    "key": "search.user_follow",
+    "az": "İzlə",
+    "ru": "Подписаться",
+    "en": "Follow"
+  },
+  {
+    "key": "search.user_following",
+    "az": "İzlənilir",
+    "ru": "Вы подписаны",
+    "en": "Following"
+  },
+  {
+    "key": "search.user_loading_more",
+    "az": "Daha çox yüklənir…",
+    "ru": "Загрузка ещё…",
+    "en": "Loading more…"
+  },
+  {
+    "key": "search.user_min_chars",
+    "az": "Ən azı 2 simvol daxil edin",
+    "ru": "Введите минимум 2 символа",
+    "en": "Enter at least 2 characters"
+  },
+  {
+    "key": "search.user_network_error",
+    "az": "Bağlantı yoxdur — nəticələr yüklənmədi",
+    "ru": "Нет соединения — результаты не загрузились",
+    "en": "No connection — results didn't load"
+  },
+  {
+    "key": "search.user_new_no_rating",
+    "az": "Yeni istifadəçi · reytinq yoxdur",
+    "ru": "Новый пользователь · нет рейтинга",
+    "en": "New user · no rating"
+  },
+  {
+    "key": "search.user_prompt_subtitle",
+    "az": "İnsanları adı, soyadı və ya istifadəçi adı ilə tap.",
+    "ru": "Ищите людей по имени, фамилии или нику.",
+    "en": "Find people by name, surname or username."
+  },
+  {
+    "key": "search.user_prompt_title",
+    "az": "Ad və ya @username ilə axtar",
+    "ru": "Поиск по имени или @username",
+    "en": "Search by name or @username"
+  },
+  {
+    "key": "search.user_rate_limit_prefix",
+    "az": "Çox tez-tez axtarış — ",
+    "ru": "Слишком частые запросы — ",
+    "en": "Too many searches — "
+  },
+  {
+    "key": "search.user_rate_limit_suffix",
+    "az": " sonra yenidən cəhd et",
+    "ru": " повторите попытку",
+    "en": " try again"
+  },
+  {
+    "key": "search.user_recent_title",
+    "az": "Son axtarışlar",
+    "ru": "Недавние поиски",
+    "en": "Recent searches"
+  },
+  {
+    "key": "search.user_retry",
+    "az": "Təkrar",
+    "ru": "Повторить",
+    "en": "Retry"
+  },
+  {
+    "key": "search.user_search_hint",
+    "az": "Ad, soyad və ya @username",
+    "ru": "Имя, фамилия или @username",
+    "en": "Name, surname or @username"
+  },
+  {
+    "key": "search.verified",
+    "az": "Təsdiqlənmiş",
+    "ru": "Проверен",
+    "en": "Verified"
+  },
+  {
+    "key": "search.verified_only",
+    "az": "Yalnız təsdiqlənmiş istifadəçilər",
+    "ru": "Только проверенные пользователи",
+    "en": "Verified users only"
+  },
+  {
+    "key": "search.weight_max",
+    "az": "Maks kq",
+    "ru": "Макс кг",
+    "en": "Max kg"
+  },
+  {
+    "key": "search.weight_min",
+    "az": "Min kq",
+    "ru": "Мин кг",
+    "en": "Min kg"
+  },
+  {
+    "key": "settings.notif_critical_note",
+    "az": "Hesab və təhlükəsizlik bildirişləri (giriş, parol, təsdiq, xəbərdarlıq) həmişə göndərilir və söndürülə bilməz.",
+    "ru": "Уведомления об аккаунте и безопасности (вход, пароль, подтверждение, предупреждение) отправляются всегда и не могут быть отключены.",
+    "en": "Account and security notifications (login, password, verification, alerts) are always sent and can't be turned off."
+  },
+  {
+    "key": "settings.notif_email_subtitle",
+    "az": "Vacib yeniliklər e-poçtla",
+    "ru": "Важные новости по эл. почте",
+    "en": "Important updates by email"
+  },
+  {
+    "key": "settings.notif_follows_subtitle",
+    "az": "Yeni izləyici və elanları",
+    "ru": "Новые подписчики и их объявления",
+    "en": "New followers and their listings"
+  },
+  {
+    "key": "settings.notif_follows_title",
+    "az": "İzləmə",
+    "ru": "Подписки",
+    "en": "Follows"
+  },
+  {
+    "key": "settings.notif_group_categories",
+    "az": "Kateqoriyalar",
+    "ru": "Категории",
+    "en": "Categories"
+  },
+  {
+    "key": "settings.notif_group_channels",
+    "az": "Kanallar",
+    "ru": "Каналы",
+    "en": "Channels"
+  },
+  {
+    "key": "settings.notif_group_quiet",
+    "az": "Sakit saatlar",
+    "ru": "Тихие часы",
+    "en": "Quiet hours"
+  },
+  {
+    "key": "settings.notif_listings_subtitle",
+    "az": "Təsdiq, rədd, vaxt, uyğun elan",
+    "ru": "Одобрение, отклонение, срок, подходящее объявление",
+    "en": "Approval, rejection, expiry, matching listings"
+  },
+  {
+    "key": "settings.notif_listings_title",
+    "az": "Elanlar",
+    "ru": "Объявления",
+    "en": "Listings"
+  },
+  {
+    "key": "settings.notif_marketing_subtitle",
+    "az": "Kampaniya və elanlar",
+    "ru": "Акции и анонсы",
+    "en": "Promotions and announcements"
+  },
+  {
+    "key": "settings.notif_marketing_title",
+    "az": "Yeniliklər & təkliflər",
+    "ru": "Новости и предложения",
+    "en": "News & offers"
+  },
+  {
+    "key": "settings.notif_messages_subtitle",
+    "az": "Yeni və cavabsız mesajlar",
+    "ru": "Новые и неотвеченные сообщения",
+    "en": "New and unanswered messages"
+  },
+  {
+    "key": "settings.notif_messages_title",
+    "az": "Mesajlar",
+    "ru": "Сообщения",
+    "en": "Messages"
+  },
+  {
+    "key": "settings.notif_push_subtitle",
+    "az": "Telefona anında bildiriş",
+    "ru": "Мгновенные уведомления на телефон",
+    "en": "Instant alerts on your phone"
+  },
+  {
+    "key": "settings.notif_push_title",
+    "az": "Push bildirişlər",
+    "ru": "Push-уведомления",
+    "en": "Push notifications"
+  },
+  {
+    "key": "settings.notif_quiet_range_label",
+    "az": "Başlanğıc — son",
+    "ru": "Начало — конец",
+    "en": "Start — end"
+  },
+  {
+    "key": "settings.notif_quiet_subtitle",
+    "az": "Seçilən saatlarda push gəlməz",
+    "ru": "В выбранные часы push не приходит",
+    "en": "No push during selected hours"
+  },
+  {
+    "key": "settings.notif_quiet_title",
+    "az": "Push-u sakitləşdir",
+    "ru": "Отключить push",
+    "en": "Mute push"
+  },
+  {
+    "key": "settings.notif_reviews_subtitle",
+    "az": "Yeni rəy və xatırlatma",
+    "ru": "Новые отзывы и напоминания",
+    "en": "New reviews and reminders"
+  },
+  {
+    "key": "settings.notif_saved",
+    "az": "Ayarlar saxlandı.",
+    "ru": "Настройки сохранены.",
+    "en": "Settings saved."
+  },
+  {
+    "key": "settings.notif_saved_search_subtitle",
+    "az": "Axtarışınıza uyğun yeni elan",
+    "ru": "Новые объявления по вашему запросу",
+    "en": "New listings matching your search"
+  },
+  {
+    "key": "settings.notif_shipments_subtitle",
+    "az": "Təklif, çatdırılma, sifariş",
+    "ru": "Предложение, доставка, заказ",
+    "en": "Offers, delivery, orders"
+  },
+  {
+    "key": "settings.notif_shipments_title",
+    "az": "Sövdələşmə & təkliflər",
+    "ru": "Сделки и предложения",
+    "en": "Deals & offers"
+  },
+  {
+    "key": "sort.date_asc",
+    "az": "Ən köhnə",
+    "ru": "Сначала старые",
+    "en": "Oldest"
+  },
+  {
+    "key": "sort.date_desc",
+    "az": "Ən yeni",
+    "ru": "Сначала новые",
+    "en": "Newest"
+  },
+  {
+    "key": "sort.price_asc",
+    "az": "Qiymət: aşağıdan",
+    "ru": "Цена: по возрастанию",
+    "en": "Price: low to high"
+  },
+  {
+    "key": "sort.price_desc",
+    "az": "Qiymət: yuxarıdan",
+    "ru": "Цена: по убыванию",
+    "en": "Price: high to low"
+  },
+  {
+    "key": "sort.rating_desc",
+    "az": "Ən yüksək reytinq",
+    "ru": "Самый высокий рейтинг",
+    "en": "Highest rating"
+  },
+  {
+    "key": "sort.relevance",
+    "az": "Uyğunluq",
+    "ru": "Релевантность",
+    "en": "Relevance"
+  },
+  {
+    "key": "sort.weight_asc",
+    "az": "Çəki: azdan",
+    "ru": "Вес: по возрастанию",
+    "en": "Weight: low to high"
+  },
+  {
+    "key": "sort.weight_desc",
+    "az": "Çəki: çoxdan",
+    "ru": "Вес: по убыванию",
+    "en": "Weight: high to low"
+  },
+  {
+    "key": "support.attach_image",
+    "az": "Şəkil əlavə et (ops.)",
+    "ru": "Прикрепить фото (необяз.)",
+    "en": "Attach image (optional)"
+  },
+  {
+    "key": "support.attach_image_soon",
+    "az": "Şəkil əlavə etmə tezliklə",
+    "ru": "Прикрепление фото скоро",
+    "en": "Image attachments coming soon"
+  },
+  {
+    "key": "support.close",
+    "az": "Bağla",
+    "ru": "Закрыть",
+    "en": "Close"
+  },
+  {
+    "key": "support.message_hint",
+    "az": "Problemi və ya sualını ətraflı yaz…",
+    "ru": "Опишите проблему или вопрос подробнее…",
+    "en": "Describe your problem or question…"
+  },
+  {
+    "key": "support.message_label",
+    "az": "Mesaj",
+    "ru": "Сообщение",
+    "en": "Message"
+  },
+  {
+    "key": "support.response_time_prefix",
+    "az": "Adətən",
+    "ru": "Обычно отвечаем в течение",
+    "en": "We usually reply within"
+  },
+  {
+    "key": "support.response_time_suffix",
+    "az": "ərzində cavablayırıq. Sorğunu ətraflı yaz.",
+    "ru": ". Опишите запрос подробнее.",
+    "en": ". Please describe your request in detail."
+  },
+  {
+    "key": "support.response_time_value",
+    "az": "24 saat",
+    "ru": "24 часов",
+    "en": "24 hours"
+  },
+  {
+    "key": "support.send_failed",
+    "az": "Göndərilmədi. Yenidən yoxla.",
+    "ru": "Не отправлено. Попробуйте снова.",
+    "en": "Not sent. Please try again."
+  },
+  {
+    "key": "support.sent_ref_prefix",
+    "az": "Müraciət nömrən",
+    "ru": "Номер вашего обращения",
+    "en": "Your request number"
+  },
+  {
+    "key": "support.sent_ref_suffix",
+    "az": ". Cavabı e-poçt və bildirişlə alacaqsan.",
+    "ru": ". Ответ придёт на эл. почту и в уведомлениях.",
+    "en": ". You'll get a reply by email and notification."
+  },
+  {
+    "key": "support.sent_title",
+    "az": "Mesajın göndərildi",
+    "ru": "Сообщение отправлено",
+    "en": "Your message was sent"
+  },
+  {
+    "key": "support.subject_hint",
+    "az": "Qısa başlıq",
+    "ru": "Краткий заголовок",
+    "en": "Short title"
+  },
+  {
+    "key": "support.subject_label",
+    "az": "Başlıq",
+    "ru": "Заголовок",
+    "en": "Title"
+  },
+  {
+    "key": "support.submit",
+    "az": "Göndər",
+    "ru": "Отправить",
+    "en": "Send"
+  },
+  {
+    "key": "support.topic_account",
+    "az": "Hesab",
+    "ru": "Аккаунт",
+    "en": "Account"
+  },
+  {
+    "key": "support.topic_general",
+    "az": "Ümumi",
+    "ru": "Общее",
+    "en": "General"
+  },
+  {
+    "key": "support.topic_label",
+    "az": "Mövzu",
+    "ru": "Тема",
+    "en": "Topic"
+  },
+  {
+    "key": "support.topic_payment",
+    "az": "Ödəniş",
+    "ru": "Оплата",
+    "en": "Payment"
+  },
+  {
+    "key": "support.topic_suggestion",
+    "az": "Təklif",
+    "ru": "Предложение",
+    "en": "Suggestion"
+  },
+  {
+    "key": "support.topic_technical",
+    "az": "Texniki",
+    "ru": "Техническое",
+    "en": "Technical"
+  },
+  {
+    "key": "support.validation_required",
+    "az": "Başlıq və mesajı doldur.",
+    "ru": "Заполните заголовок и сообщение.",
+    "en": "Please fill in the title and message."
+  },
+  {
+    "key": "tier.badge_comeback",
+    "az": "Geri qayıt",
+    "ru": "Вернуться",
+    "en": "Come back"
+  },
+  {
+    "key": "tier.badge_current",
+    "az": "Cari",
+    "ru": "Текущий",
+    "en": "Current"
+  },
+  {
+    "key": "tier.badge_ready",
+    "az": "Hazır",
+    "ru": "Готово",
+    "en": "Ready"
+  },
+  {
+    "key": "tier.bronze_plus",
+    "az": "Bürünc+",
+    "ru": "Бронза+",
+    "en": "Bronze+"
+  },
+  {
+    "key": "tier.deliveries_done",
+    "az": "Çatdırılma kifayətdir ✓",
+    "ru": "Доставок достаточно ✓",
+    "en": "Deliveries are enough ✓"
+  },
+  {
+    "key": "tier.deliveries_first",
+    "az": "İlk çatdırılmanı tamamla",
+    "ru": "Выполните первую доставку",
+    "en": "Complete your first delivery"
+  },
+  {
+    "key": "tier.deliveries_remaining_template",
+    "az": "{count} çatdırılma qalıb",
+    "ru": "Осталось доставок: {count}",
+    "en": "{count} deliveries left"
+  },
+  {
+    "key": "tier.demoted_body_template",
+    "az": "Reytinqin dəyişdiyi üçün səviyyən {from} → {to} oldu. Tələbləri tamamlayaraq geri qayıda bilərsən.",
+    "ru": "Из-за изменения рейтинга ваш уровень стал {from} → {to}. Выполните условия, чтобы вернуться.",
+    "en": "Because your rating changed, your level went {from} → {to}. Complete the requirements to get it back."
+  },
+  {
+    "key": "tier.demoted_title",
+    "az": "Səviyyən dəyişdi",
+    "ru": "Ваш уровень изменился",
+    "en": "Your level changed"
+  },
+  {
+    "key": "tier.error_body",
+    "az": "Statusunu yükləyə bilmədik. İnternet bağlantını yoxla və yenidən cəhd et.",
+    "ru": "Не удалось загрузить статус. Проверьте подключение к интернету и попробуйте снова.",
+    "en": "We couldn't load your status. Check your connection and try again."
+  },
+  {
+    "key": "tier.error_title",
+    "az": "Yüklənmədi",
+    "ru": "Не загрузилось",
+    "en": "Couldn't load"
+  },
+  {
+    "key": "tier.footer_count_template",
+    "az": "{count} şərt qalıb",
+    "ru": "Осталось условий: {count}",
+    "en": "{count} requirements left"
+  },
+  {
+    "key": "tier.footer_first",
+    "az": "İlk sifarişini tamamla və yüksəl!",
+    "ru": "Выполните первый заказ и повысьтесь!",
+    "en": "Complete your first order and level up!"
+  },
+  {
+    "key": "tier.footer_first_review",
+    "az": "İlk rəyini al — yüksəlmək üçün reytinq lazımdır",
+    "ru": "Получите первый отзыв — для повышения нужен рейтинг",
+    "en": "Get your first review — you need a rating to level up"
+  },
+  {
+    "key": "tier.footer_rating",
+    "az": "Reytinqini yüksəlt",
+    "ru": "Повысьте рейтинг",
+    "en": "Raise your rating"
+  },
+  {
+    "key": "tier.gold_plus",
+    "az": "Qızıl+",
+    "ru": "Золото+",
+    "en": "Gold+"
+  },
+  {
+    "key": "tier.hero_sub_new",
+    "az": "Səyahətinə yenicə başladın 👋",
+    "ru": "Вы только начали свой путь 👋",
+    "en": "You've just started your journey 👋"
+  },
+  {
+    "key": "tier.hero_sub_template",
+    "az": "Sən {tier} səviyyədəsən",
+    "ru": "Вы на уровне {tier}",
+    "en": "You're at {tier} level"
+  },
+  {
+    "key": "tier.kyc_button",
+    "az": "Hesabını təsdiqlə",
+    "ru": "Подтвердите аккаунт",
+    "en": "Verify your account"
+  },
+  {
+    "key": "tier.kyc_button_big",
+    "az": "Hesabı təsdiqlə",
+    "ru": "Подтвердить аккаунт",
+    "en": "Verify account"
+  },
+  {
+    "key": "tier.kyc_label",
+    "az": "Hesab təsdiqi (KYC)",
+    "ru": "Подтверждение аккаунта (KYC)",
+    "en": "Account verification (KYC)"
+  },
+  {
+    "key": "tier.kyc_unverified",
+    "az": "Təsdiqlənməyib",
+    "ru": "Не подтверждено",
+    "en": "Not verified"
+  },
+  {
+    "key": "tier.kyc_verified",
+    "az": "Təsdiqlənib",
+    "ru": "Подтверждено",
+    "en": "Verified"
+  },
+  {
+    "key": "tier.ladder_kyc_legend",
+    "az": "Yuxarı səviyyələr üçün hesab təsdiqi (KYC) tələb olunur",
+    "ru": "Для высоких уровней требуется подтверждение аккаунта (KYC)",
+    "en": "Account verification (KYC) is required for higher levels"
+  },
+  {
+    "key": "tier.ladder_title",
+    "az": "Bütün səviyyələr",
+    "ru": "Все уровни",
+    "en": "All levels"
+  },
+  {
+    "key": "tier.laststep_caption",
+    "az": "Təsdiqdən dərhal sonra yüksələcəksən",
+    "ru": "Вы повыситесь сразу после подтверждения",
+    "en": "You'll level up right after verification"
+  },
+  {
+    "key": "tier.laststep_sub",
+    "az": "Çatdırılma və reytinqin hazırdır — yalnız hesab təsdiqi qalıb.",
+    "ru": "Доставки и рейтинг готовы — осталось только подтвердить аккаунт.",
+    "en": "Your deliveries and rating are ready — only account verification is left."
+  },
+  {
+    "key": "tier.laststep_title_template",
+    "az": "{tier} səviyyəsinə son addım!",
+    "ru": "Последний шаг до уровня {tier}!",
+    "en": "One last step to {tier} level!"
+  },
+  {
+    "key": "tier.max_badge",
+    "az": "Ən yüksək səviyyədəsən 🏆",
+    "ru": "Вы на высшем уровне 🏆",
+    "en": "You're at the top level 🏆"
+  },
+  {
+    "key": "tier.metric_deliveries_template",
+    "az": "{count} çatdırılma",
+    "ru": "{count} доставок",
+    "en": "{count} deliveries"
+  },
+  {
+    "key": "tier.metric_no_rating",
+    "az": "reytinq yoxdur",
+    "ru": "нет рейтинга",
+    "en": "no rating yet"
+  },
+  {
+    "key": "tier.metric_rating_template",
+    "az": "{rating} reytinq",
+    "ru": "рейтинг {rating}",
+    "en": "{rating} rating"
+  },
+  {
+    "key": "tier.note",
+    "az": "Səviyyə reytinqindən asılıdır — reytinqin düşsə səviyyə dəyişə bilər, qalxsa geri qayıdır.",
+    "ru": "Уровень зависит от рейтинга — если он упадёт, уровень может измениться, а при росте вернётся.",
+    "en": "Your level depends on your rating — if it drops your level can change, and it comes back when it rises."
+  },
+  {
+    "key": "tier.platinum",
+    "az": "Platin",
+    "ru": "Платина",
+    "en": "Platinum"
+  },
+  {
+    "key": "tier.progress_title_template",
+    "az": "{tier} səviyyəsinə keçmək üçün",
+    "ru": "Чтобы перейти на уровень {tier}",
+    "en": "To reach {tier} level"
+  },
+  {
+    "key": "tier.range_open_template",
+    "az": "{min}+ çatdırılma",
+    "ru": "{min}+ доставок",
+    "en": "{min}+ deliveries"
+  },
+  {
+    "key": "tier.range_rating_template",
+    "az": " · reytinq {min}+",
+    "ru": " · рейтинг {min}+",
+    "en": " · rating {min}+"
+  },
+  {
+    "key": "tier.range_single_template",
+    "az": "{n} çatdırılma",
+    "ru": "{n} доставок",
+    "en": "{n} deliveries"
+  },
+  {
+    "key": "tier.range_span_template",
+    "az": "{min}-{max} çatdırılma",
+    "ru": "{min}-{max} доставок",
+    "en": "{min}-{max} deliveries"
+  },
+  {
+    "key": "tier.rating_done",
+    "az": "Reytinq kifayətdir ✓",
+    "ru": "Рейтинга достаточно ✓",
+    "en": "Rating is enough ✓"
+  },
+  {
+    "key": "tier.rating_none",
+    "az": "Hələ reytinqin yoxdur",
+    "ru": "У вас пока нет рейтинга",
+    "en": "You don't have a rating yet"
+  },
+  {
+    "key": "tier.rating_remaining_template",
+    "az": "min {min} lazımdır — hazırda {cur} · {gap} qalıb",
+    "ru": "нужно мин. {min} — сейчас {cur} · осталось {gap}",
+    "en": "min {min} required — currently {cur} · {gap} to go"
+  },
+  {
+    "key": "tier.ready_sub",
+    "az": "Növbəti çatdırılmadan sonra yüksələcəksən.",
+    "ru": "Вы повысите уровень после следующей доставки.",
+    "en": "You'll level up after your next delivery."
+  },
+  {
+    "key": "tier.ready_title_template",
+    "az": "{tier} səviyyəsinə hazırsan!",
+    "ru": "Вы готовы к уровню {tier}!",
+    "en": "You're ready for {tier} level!"
+  },
+  {
+    "key": "tier.req_deliveries",
+    "az": "Çatdırılma",
+    "ru": "Доставки",
+    "en": "Deliveries"
+  },
+  {
+    "key": "tier.req_rating_template",
+    "az": "Reytinq (min {min})",
+    "ru": "Рейтинг (мин. {min})",
+    "en": "Rating (min {min})"
+  },
+  {
+    "key": "tier.silver_plus",
+    "az": "Gümüş+",
+    "ru": "Серебро+",
+    "en": "Silver+"
+  },
+  {
+    "key": "tier.tier_start",
+    "az": "Başlanğıc",
+    "ru": "Начало",
+    "en": "Start"
+  },
+  {
+    "key": "tier.title",
+    "az": "Statusum",
+    "ru": "Мой статус",
+    "en": "My status"
+  },
+  {
+    "key": "time.days_ago",
+    "az": "{n} gün əvvəl",
+    "ru": "{n} дн. назад",
+    "en": "{n} days ago"
+  },
+  {
+    "key": "time.days_ago_template",
+    "az": "{count} gün əvvəl",
+    "ru": "{count} дн. назад",
+    "en": "{count} days ago"
+  },
+  {
+    "key": "time.hours_ago_template",
+    "az": "{count} saat əvvəl",
+    "ru": "{count} ч. назад",
+    "en": "{count} hours ago"
+  },
+  {
+    "key": "time.now",
+    "az": "indi",
+    "ru": "сейчас",
+    "en": "now"
+  },
+  {
+    "key": "time.today",
+    "az": "bugün",
+    "ru": "сегодня",
+    "en": "today"
+  },
+  {
+    "key": "time.yesterday",
+    "az": "dünən",
+    "ru": "вчера",
+    "en": "yesterday"
+  },
+  {
+    "key": "validation.cities_must_differ",
+    "az": "Şəhərlər fərqli olmalıdır.",
+    "ru": "Города должны отличаться.",
+    "en": "Cities must be different."
+  },
+  {
+    "key": "validation.city_required",
+    "az": "Şəhər seçin.",
+    "ru": "Выберите город.",
+    "en": "Select a city."
+  },
+  {
+    "key": "validation.date_required",
+    "az": "Tarix seçin.",
+    "ru": "Выберите дату.",
+    "en": "Select a date."
+  },
+  {
+    "key": "validation.end_date_after_start",
+    "az": "Son tarix başlanğıc tarixindən sonra olmalıdır.",
+    "ru": "Дата окончания должна быть позже даты начала.",
+    "en": "The end date must be after the start date."
+  },
+  {
+    "key": "validation.package_required",
+    "az": "Ən azı bir bağlama növü seçin.",
+    "ru": "Выберите хотя бы один тип посылки.",
+    "en": "Select at least one package type."
+  },
+  {
+    "key": "validation.price_required",
+    "az": "Qiymət daxil edin.",
+    "ru": "Укажите цену.",
+    "en": "Enter the price."
+  },
+  {
+    "key": "validation.time_required",
+    "az": "Saat seçin.",
+    "ru": "Выберите время.",
+    "en": "Select a time."
+  },
+  {
+    "key": "validation.weight_required",
+    "az": "Çəki daxil edin.",
+    "ru": "Укажите вес.",
+    "en": "Enter the weight."
+  },
+  {
+    "key": "verification.doc_types_load_failed",
+    "az": "Sənəd növləri yüklənə bilmədi. Yenidən cəhd et.",
+    "ru": "Не удалось загрузить типы документов. Попробуйте снова.",
+    "en": "Couldn't load document types. Try again."
+  },
+  {
+    "key": "verification.submit_failed",
+    "az": "Göndərmək alınmadı. Yenidən cəhd et.",
+    "ru": "Не удалось отправить. Попробуйте снова.",
+    "en": "Submission failed. Try again."
+  }
+]

@@ -50,6 +50,8 @@ import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
 import '../network/response/document_type.dart';
 import '../network/response/verification_response.dart';
+import '../../services/telemetry/telemetry.dart';
+import '../../services/telemetry/telemetry_events.dart';
 
 const tokenRefreshTimeOut = 60 * 60 * 1000;
 
@@ -373,6 +375,12 @@ class DataAuthRepository implements AuthRepository {
         // best-effort — не блокируем выход из аккаунта.
       }
     }
+    // Личность сбрасываем здесь явно, а не полагаемся на поток `userDetails`:
+    // `clear()` чистит Hive-бокс целиком, и событие watch по конкретному ключу
+    // может не прийти. Иначе события гостя после выхода продолжали бы
+    // приписываться предыдущему пользователю.
+    Telemetry.instance.event(TelemetryEvents.logout);
+    await Telemetry.instance.clearIdentity();
     return _cacheManager.clear();
   }
 

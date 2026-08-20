@@ -5,12 +5,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:ui' show Color;
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 
 import '../firebase_options.dart';
+import 'notification_banner.dart';
 import 'notification_router.dart';
+import 'notification_socket_service.dart';
+import 'telemetry/telemetry.dart';
+import 'telemetry/telemetry_events.dart';
 
 // Android не позволяет менять звук уже созданного notification channel.
 // Новый id гарантирует, что после обновления канал создастся именно с
@@ -256,8 +261,11 @@ class PushNotificationService {
   }
 
   Future<void> _setForegroundPresentationOptions() {
+    // In-app (foreground): play the push sound but do NOT show the OS banner —
+    // the in-app banner handles the visual. `alert: false` drops the top
+    // drop-down; `sound: true` still plays it. Background/killed are unaffected.
     return _messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
+      alert: false,
       badge: true,
       sound: true,
     );
@@ -265,6 +273,9 @@ class PushNotificationService {
 
   void _onForegroundMessage(RemoteMessage message) {
     _logIncomingMessage('foreground', message);
+    Telemetry.instance.event(TelemetryEvents.pushReceivedForeground, params: {
+      TelemetryParams.source: message.data['type'] ?? 'unknown',
+    });
     final notification = message.notification;
     final title = notification?.title ??
         _firstNonEmpty([
@@ -279,17 +290,20 @@ class PushNotificationService {
         ]);
     if (title == null && body == null) return;
 
-    // On iOS, setForegroundNotificationPresentationOptions already handles
-    // displaying the notification natively — using flutter_local_notifications
-    // on top would cause duplicates for notification payloads. Data-only pushes
-    // still need a local notification.
+    // Foreground = inside the app. Show OUR in-app banner (the visual) and keep
+    // the OS/system notification suppressed. This guarantees the banner appears
+    // even if the realtime socket didn't deliver its own; showNotificationBanner
+    // replaces any current banner, so the two paths never stack.
+    _showInAppBanner(message, title: title, body: body);
+
+    // Sound only — no OS notification:
+    //  • Android: FCM never auto-shows in foreground, so play the sound ourselves.
+    //  • iOS notification payload: the OS plays the sound via the presentation
+    //    options above (alert:false → no banner), so nothing to do here.
+    //  • iOS data-only: no OS notification exists, so a silent local one
+    //    (presentAlert:false) plays the sound without a banner.
     if (Platform.isAndroid) {
-      _showLocalNotification(
-        id: message.hashCode,
-        title: title ?? 'Wawat Air',
-        body: body ?? '',
-        payload: message.data.isEmpty ? null : jsonEncode(message.data),
-      );
+      _playForegroundSound();
     } else if (Platform.isIOS && notification == null) {
       _showLocalNotification(
         id: message.hashCode,
@@ -297,6 +311,82 @@ class PushNotificationService {
         body: body ?? '',
         payload: message.data.isEmpty ? null : jsonEncode(message.data),
       );
+    }
+  }
+
+  /// Builds and shows the in-app banner for a foreground push, from the FCM
+  /// `data` map. Mirrors the realtime-socket banner so both look identical; tap
+  /// routes by `target_type` via [handleNotificationNavigation].
+  void _showInAppBanner(
+    RemoteMessage message, {
+    required String? title,
+    required String? body,
+  }) {
+    final data = Map<String, dynamic>.from(message.data);
+    final type = (data['target_type'] ?? data['type'] ?? '').toString().trim();
+    final actorName = _firstNonEmpty([data['actor_name']]);
+    final actorAvatar = _firstNonEmpty([data['actor_avatar_thumb_url']]);
+
+    if (type == 'conversation') {
+      final convId =
+          _firstNonEmpty([data['conversation_id'], data['target_id']]);
+      // Already reading this thread → the chat updates live, no banner needed.
+      if (convId != null &&
+          NotificationSocketService.instance.activeConversationId == convId) {
+        return;
+      }
+      showNotificationBanner(
+        NotificationBannerData.notification(
+          title: actorName ?? title ?? 'Wawat Air',
+          body: body,
+          type: 'new_message',
+          actorName: actorName,
+          actorAvatarUrl: actorAvatar,
+        ),
+        onTap: () => handleNotificationNavigation(data),
+      );
+      return;
+    }
+
+    // review_received carries stars + comment; other types use the type icon.
+    final rating = int.tryParse(data['rating']?.toString() ?? '');
+    showNotificationBanner(
+      NotificationBannerData.notification(
+        title: title ?? 'Wawat Air',
+        body: body,
+        type: type.isEmpty ? 'none' : type,
+        actorName: actorName,
+        actorAvatarUrl: actorAvatar,
+        rating: rating,
+        comment: _firstNonEmpty([data['comment']]),
+      ),
+      onTap: () => handleNotificationNavigation(data),
+    );
+  }
+
+  final AudioPlayer _foregroundSoundPlayer = AudioPlayer();
+
+  /// Plays the push sound in-app (foreground) with NO OS notification. Routed to
+  /// the notification stream and requests no audio focus, so it's a short blip
+  /// that doesn't pause the user's music.
+  Future<void> _playForegroundSound() async {
+    try {
+      await _foregroundSoundPlayer.setReleaseMode(ReleaseMode.stop);
+      await _foregroundSoundPlayer.setAudioContext(
+        AudioContext(
+          android: const AudioContextAndroid(
+            isSpeakerphoneOn: false,
+            stayAwake: false,
+            contentType: AndroidContentType.sonification,
+            usageType: AndroidUsageType.notification,
+            audioFocus: AndroidAudioFocus.none,
+          ),
+        ),
+      );
+      await _foregroundSoundPlayer.stop();
+      await _foregroundSoundPlayer.play(AssetSource('airplane.mp3'));
+    } catch (e) {
+      _logger.d('Foreground push sound failed: $e');
     }
   }
 
@@ -319,7 +409,10 @@ class PushNotificationService {
       color: _brandColor,
     );
     const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
+      // Foreground data-only push: sound only, no banner (the in-app banner is
+      // the visual). Background/killed pushes are notification payloads rendered
+      // by the OS, unaffected by this.
+      presentAlert: false,
       presentBadge: true,
       presentSound: true,
       // iOS only plays caf/aiff/wav for notifications (never mp3) and matches
@@ -334,6 +427,11 @@ class PushNotificationService {
 
   void _handleMessageOpened(RemoteMessage message) {
     _logIncomingMessage('opened', message);
+    // Доля открытий по типу пуша — единственный способ понять, какие
+    // уведомления полезны, а какие люди просто смахивают.
+    Telemetry.instance.event(TelemetryEvents.pushOpened, params: {
+      TelemetryParams.source: message.data['type'] ?? 'unknown',
+    });
     if (message.data.isNotEmpty) {
       handleNotificationNavigation(Map<String, dynamic>.from(message.data));
     }
@@ -350,6 +448,14 @@ class PushNotificationService {
         settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional;
     _logger.d('Notification permission: ${settings.authorizationStatus}');
+    // Доля отказов — прямой ограничитель для всей пуш-механики; без этой
+    // цифры непонятно, почему падает доставка.
+    Telemetry.instance.event(TelemetryEvents.pushPermissionResult, params: {
+      TelemetryParams.result: settings.authorizationStatus.name,
+    });
+    Telemetry.instance.setUserProperties({
+      TelemetryUserProps.pushEnabled: granted ? 'true' : 'false',
+    });
     return granted;
   }
 

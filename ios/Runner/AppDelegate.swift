@@ -4,7 +4,7 @@ import Firebase
 import FirebaseMessaging
 import UserNotifications
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate, MessagingDelegate {
   override func application(
     _ application: UIApplication,
@@ -49,17 +49,16 @@ import UserNotifications
     NSLog("FCM registration token refreshed on iOS: \(fcmToken != nil ? "ok" : "nil")")
   }
 
-  // Show notifications when app is in foreground (iOS 10+).
+  // Foreground (app open): play the push SOUND but do NOT show the OS banner —
+  // the app renders its own in-app banner. Returning only [.badge, .sound]
+  // (no .banner/.list/.alert) matches the Android foreground behaviour.
+  // willPresent fires ONLY in foreground, so background/killed are unaffected.
   override func userNotificationCenter(
     _ center: UNUserNotificationCenter,
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
-    if #available(iOS 14.0, *) {
-      completionHandler([.banner, .list, .badge, .sound])
-    } else {
-      completionHandler([.alert, .badge, .sound])
-    }
+    completionHandler([.badge, .sound])
   }
 
   // Handle notification tap from background / terminated.

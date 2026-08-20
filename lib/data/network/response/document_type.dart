@@ -14,4 +14,9 @@ class DocumentType {
 
   /// The self-photo type is a dedicated slot, not an ID-document choice.
   bool get isSelfie => code == 'selfie';
+
+  /// Driver's licence is intentionally hidden from the verification picker.
+  bool get isDriverLicense => code == 'driver_license';
+
+  bool get isPassport => code == 'passport';
 }

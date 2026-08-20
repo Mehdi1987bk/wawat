@@ -21,10 +21,13 @@ Map<String, dynamic> _$UnreadChatCountResponseToJson(
 UnreadChatCountData _$UnreadChatCountDataFromJson(Map<String, dynamic> json) =>
     UnreadChatCountData(
       unreadCount: (json['unread_conversations_count'] as num).toInt(),
+      archivedUnreadCount:
+          (json['archived_unread_count'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$UnreadChatCountDataToJson(
         UnreadChatCountData instance) =>
     <String, dynamic>{
       'unread_conversations_count': instance.unreadCount,
+      'archived_unread_count': instance.archivedUnreadCount,
     };

@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 
-version: 1.0.45+45
+version: 1.0.48+29
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -52,6 +52,8 @@ dependencies:
   firebase_core: ^3.10.1
   firebase_messaging: ^15.2.1
   flutter_local_notifications: ^18.0.1
+  # Plays the push sound in-app (foreground) without showing an OS notification.
+  audioplayers: ^6.1.0
   package_info_plus: 8.3.0
   flutter_rating_bar: 4.0.1
   device_info_plus: 11.3.0
@@ -78,6 +80,9 @@ dependencies:
   provider: ^6.1.1
   flutter_exif_rotation: ^0.5.1
   phosphor_flutter: ^2.1.0
+  firebase_crashlytics: ^4.3.10
+  firebase_analytics: ^11.6.0
+  firebase_performance: ^0.10.1+10
 
 dev_dependencies:
   flutter_test:
@@ -123,6 +128,9 @@ flutter:
     - asset/wawatair_primary.png
     - asset/wawatair_bluewhite.png
     - asset/wawatair_symbol.png
+    - asset/wawatair_mark.png
+    - asset/wawatair_logo_dark.png
+    - assets/icon.png
     - asset/fi-sr-home.png
     - asset/bag_2.png
     - asset/bag_1.png
@@ -161,6 +169,7 @@ flutter:
     - asset/add_offer.png
     - asset/icon.jpeg
     - assets/icon.png
+    - assets/airplane.mp3
     - assets/fonts/NotoSans-Regular.ttf
     - assets/fonts/NotoSans-Bold.ttf
     - asset/icon.png

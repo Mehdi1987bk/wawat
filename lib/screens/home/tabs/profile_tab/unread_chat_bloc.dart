@@ -15,6 +15,7 @@ class UnreadChatBloc extends BaseBloc {
   final _pusherService = PusherService();
 
   final _unreadCountSubject = BehaviorSubject<int>.seeded(0);
+  final _archivedUnreadCountSubject = BehaviorSubject<int>.seeded(0);
   final Set<String> _subscribedConversationIds = {};
   Timer? _fallbackTimer;
   bool _initialized = false;
@@ -23,7 +24,13 @@ class UnreadChatBloc extends BaseBloc {
 
   Stream<int> get unreadCountStream => _unreadCountSubject.stream;
 
+  /// Number of archived conversations that have unread messages (per chat) —
+  /// drives the badge on the Archive entry.
+  Stream<int> get archivedUnreadCountStream =>
+      _archivedUnreadCountSubject.stream;
+
   int get unreadCount => _unreadCountSubject.value;
+  int get archivedUnreadCount => _archivedUnreadCountSubject.value;
 
   /// Single source of truth for the badge — pushed here from the realtime
   /// `new_message_notification` payload (`unreadCount`) so every screen updates
@@ -51,14 +58,18 @@ class UnreadChatBloc extends BaseBloc {
     try {
       final token = await _cacheManager.getToken();
       if (token == null || token.isEmpty) {
-        if (!_unreadCountSubject.isClosed) {
-          _unreadCountSubject.add(0);
+        if (!_unreadCountSubject.isClosed) _unreadCountSubject.add(0);
+        if (!_archivedUnreadCountSubject.isClosed) {
+          _archivedUnreadCountSubject.add(0);
         }
         return;
       }
-      final response = await _chatApi.getUnreadCount();
+      final counts = await _chatApi.getUnreadCount();
       if (!_unreadCountSubject.isClosed) {
-        _unreadCountSubject.add(response);
+        _unreadCountSubject.add(counts.unread);
+      }
+      if (!_archivedUnreadCountSubject.isClosed) {
+        _archivedUnreadCountSubject.add(counts.archived);
       }
     } catch (e) {
       dispatchError(e);
@@ -139,6 +150,7 @@ class UnreadChatBloc extends BaseBloc {
     }
     _subscribedConversationIds.clear();
     _unreadCountSubject.close();
+    _archivedUnreadCountSubject.close();
     super.dispose();
   }
 }

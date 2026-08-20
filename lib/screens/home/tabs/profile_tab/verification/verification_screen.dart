@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
@@ -15,6 +16,7 @@ import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_manager.dart';
+import '../new_profile/profile_api.dart';
 import '../settings/experience_tab/experience_tab_screen.dart';
 
 class VerificationScreen extends BaseScreen {
@@ -34,6 +36,12 @@ class _VerificationScreenState
   bool _isLoading = false;
   bool _isLoadingStatus = true;
   VerificationData? _verificationData;
+
+  /// Whether the account is verified, from ANY authoritative source: the
+  /// verification-status endpoint OR the profile's `is_verified` flag. Admin-
+  /// verified accounts often have no verification *request*, so the status
+  /// endpoint returns is_verified=false while the profile is already verified.
+  bool _isVerified = false;
 
   /// Accepted ID-document types from /document-types. Currently filtered to
   /// passport only, so the type picker is hidden and the passport upload is the
@@ -68,17 +76,25 @@ class _VerificationScreenState
   }
 
   Future<void> _loadVerificationStatus() async {
+    // Seed from the profile we were opened with — a verified account should
+    // never land on the upload flow.
+    var verified = widget.user.isVerified ?? false;
     try {
       final response = await bloc.verificationStatus();
-      setState(() {
-        _verificationData = response.data;
-        _isLoadingStatus = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingStatus = false;
-      });
-    }
+      if (mounted) _verificationData = response.data;
+      verified = verified || response.data.isVerified;
+    } catch (_) {/* keep going — the profile flag below still decides */}
+    // Fresh profile flag: catches admin-verified accounts that have no
+    // verification request (status endpoint → is_verified=false).
+    try {
+      final me = await WawatProfileApi().me();
+      verified = verified || me.isVerified;
+    } catch (_) {/* offline / failed — fall back to what we already have */}
+    if (!mounted) return;
+    setState(() {
+      _isVerified = verified;
+      _isLoadingStatus = false;
+    });
   }
 
   @override
@@ -99,9 +115,8 @@ class _VerificationScreenState
         }
 
         final hasVerification = _verificationData?.hasVerification ?? false;
-        final isVerified = _verificationData?.isVerified ?? false;
 
-        if (isVerified) {
+        if (_isVerified) {
           return _buildVerifiedScreen(isDark);
         }
 
@@ -146,26 +161,77 @@ class _VerificationScreenState
               ),
             ),
             Expanded(
-              child: Center(
+              child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(60),
-                        ),
-                        child: const Icon(
-                          Icons.verified_user,
-                          color: Color(0xFF4CAF50),
-                          size: 60,
+                      // Gradient "verified" badge with a soft halo and a gentle
+                      // entrance pop — the celebratory centrepiece of the screen.
+                      TweenAnimationBuilder<double>(
+                        duration: const Duration(milliseconds: 520),
+                        curve: Curves.easeOutBack,
+                        tween: Tween(begin: 0.7, end: 1),
+                        builder: (_, scale, child) =>
+                            Transform.scale(scale: scale, child: child),
+                        child: SizedBox(
+                          width: 140,
+                          height: 140,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 140,
+                                height: 140,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFF22C55E)
+                                      .withValues(alpha: isDark ? 0.10 : 0.07),
+                                ),
+                              ),
+                              Container(
+                                width: 112,
+                                height: 112,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFF22C55E)
+                                      .withValues(alpha: isDark ? 0.16 : 0.12),
+                                ),
+                              ),
+                              Container(
+                                width: 88,
+                                height: 88,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF14B8A6),
+                                      Color(0xFF22C55E),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(26),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF22C55E).withValues(
+                                          alpha: isDark ? 0.45 : 0.35),
+                                      blurRadius: 26,
+                                      spreadRadius: -2,
+                                      offset: const Offset(0, 12),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.verified_user_rounded,
+                                  color: Colors.white,
+                                  size: 46,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 28),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
@@ -841,9 +907,14 @@ class _VerificationScreenState
 
         await _loadVerificationStatus();
       }
-    } catch (_) {
-      // ErrorDispatcher only surfaces 422 (validation) — show the rest too.
-      if (mounted) {
+    } catch (e) {
+      // ErrorDispatcher уже показал 422 верхним снекбаром — причём текстом
+      // сервера («You already have a pending verification request»), который
+      // куда полезнее общей фразы. Своя плашка нужна только для остальных
+      // ошибок, иначе пользователь видит два уведомления об одном и том же.
+      final alreadyShownByDispatcher =
+          e is DioException && e.response?.statusCode == 422;
+      if (mounted && !alreadyShownByDispatcher) {
         _snack(
             tr('verification.submit_failed',
                 'Göndərmək alınmadı. Yenidən cəhd et.'),

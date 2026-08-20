@@ -13,6 +13,8 @@ import 'presentation/resourses/wawat_dark.dart';
 import 'screens/splesh/splesh_screen.dart';
 import 'services/localization_service.dart';
 import 'services/network_status_service.dart';
+import 'services/telemetry/telemetry.dart';
+import 'services/telemetry/telemetry_events.dart';
 import 'services/theme_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -98,7 +100,7 @@ class App extends StatelessWidget {
                 debugShowCheckedModeBanner: false,
                 navigatorKey: navigatorKey,
                 scaffoldMessengerKey: scaffoldMessengerKey,
-                navigatorObservers: [routeObserver],
+                navigatorObservers: [routeObserver, telemetryRouteObserver],
                 theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
                 darkTheme: _buildDarkTheme(),
                 themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
@@ -333,10 +335,24 @@ class _OfflineScreen extends StatefulWidget {
 class _OfflineScreenState extends State<_OfflineScreen> {
   bool _checking = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Сколько пользователей упирается в эту заглушку и как часто — один из
+    // главных вопросов к качеству: всплеск здесь обычно означает не «плохой
+    // интернет у людей», а проблему с доступностью API.
+    Telemetry.instance.event(TelemetryEvents.offlineGateShown);
+  }
+
   Future<void> _retry() async {
     if (_checking) return;
     setState(() => _checking = true);
+    Telemetry.instance.breadcrumb('offline gate: retry tapped');
     final online = await NetworkStatusService.instance.recheck();
+    if (online) {
+      Telemetry.instance.event(TelemetryEvents.backOnline,
+          params: {TelemetryParams.source: 'manual_retry'});
+    }
     if (!mounted) return;
     setState(() => _checking = false);
     // If online, the app root rebuilds (isOffline=false) and this overlay is

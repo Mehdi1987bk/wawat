@@ -56,6 +56,10 @@ class NotificationSocketService with WidgetsBindingObserver {
     _activeConversationId = conversationId;
   }
 
+  /// The chat currently open (or null). The FCM foreground path reads this to
+  /// avoid a banner for the thread the user is already reading.
+  String? get activeConversationId => _activeConversationId;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {

@@ -308,7 +308,9 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                     height: 60,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF017BFE), Color(0xFF5B4FFF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF0F7BF4), Color(0xFF0257AE)],
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),

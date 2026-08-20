@@ -29,6 +29,21 @@ class PromotionApi {
     return PromotionResponse.fromJson(response.data ?? const {});
   }
 
+  /// Preview a promo code against a pending order without charging.
+  /// `POST /promotions/{id}/quote` `{promo_code}` → discount + final amount.
+  /// `promoCode` may be the raw code the user typed OR a wallet promo id —
+  /// the backend accepts either.
+  Future<PromotionQuoteResponse> quotePromotion(
+    String promotionId,
+    String promoCode,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_baseUrl/promotions/$promotionId/quote',
+      data: {'promo_code': promoCode.trim()},
+    );
+    return PromotionQuoteResponse.fromJson(response.data ?? const {});
+  }
+
   Future<PromotionsResponse> getMyPromotions({
     String? status,
     int page = 1,

@@ -659,10 +659,13 @@ class _ChatConversationScreenState
         message.type == 'text' &&
         message.isRead != true &&
         !message.id.startsWith('local-');
-    // Single mode — always "for everyone", and only your own message can be
-    // deleted (server enforces with 403; the menu item mirrors that rule).
+    // Single mode — always "for everyone", and only your OWN, still-UNREAD
+    // message can be deleted: once the peer has read it the server refuses with
+    // 422 (chat.delete_after_read). Gating the menu here means the user never
+    // hits that wall; the 422 is still surfaced as a toast if it races.
     final canDelete = isMine &&
         message.type != 'system_card' &&
+        message.isRead != true &&
         !message.id.startsWith('local-');
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

@@ -7,10 +7,16 @@ import 'package:buking/services/localization_service.dart';
 
 import '../../../../../data/network/response/faq_response.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
-import '../../../../../presentation/resourses/wawat_colors.dart';
+import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_manager.dart';
 import '../support/support_screen.dart';
 import 'faq_bloc.dart';
+
+/// Фирменная заливка. Раньше экран брал `WawatColors.primary` — а это
+/// #5B4FFF из старой фиолетовой палитры, поэтому кнопка «Dəstək», рамка
+/// фокуса и плитка иконки выбивались из бренда в обеих темах.
+const _brand = Color(0xFF017BFE);
+const _brandHex = '#017BFE';
 
 class FaqScreen extends BaseScreen {
   FaqScreen({super.key});
@@ -84,8 +90,13 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
+                          // Бренд, а не фиолетовый из старой темы. Тот же
+                          // градиент, что у героя на «Dəvət et» — чтобы
+                          // фирменные блоки выглядели одинаково.
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFF0F7BF4), Color(0xFF0257AE)],
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -164,8 +175,9 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                            color: WawatColors.primary, width: 1.4),
+                        borderSide: BorderSide(
+                            color: isDark ? WawatDark.focusRing : _brand,
+                            width: 1.4),
                       ),
                     ),
                   ),
@@ -181,7 +193,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                       child: Center(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            isDark ? cBrandText(isDark) : WawatColors.primary,
+                            isDark ? cBrandText(isDark) : _brand,
                           ),
                         ),
                       ),
@@ -374,7 +386,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
         height: 46,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: WawatColors.primary,
+          color: _brand,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -408,7 +420,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isExpanded
-              ? (isDark ? cBrandText(isDark) : WawatColors.primary)
+              ? (isDark ? cBrandText(isDark) : _brand)
               : (isDark ? cBorder(isDark) : Colors.grey.shade200),
           width: isExpanded ? 2 : 1,
         ),
@@ -456,9 +468,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                           height: 32,
                           decoration: BoxDecoration(
                             color: isExpanded
-                                ? (isDark
-                                    ? cBrandBadge(isDark)
-                                    : WawatColors.primary)
+                                ? (isDark ? cBrandBadge(isDark) : _brand)
                                 : (isDark
                                     ? cFill(isDark)
                                     : Colors.grey.shade100),
@@ -504,9 +514,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                             // Стили для разных HTML элементов
                             if (element.localName == 'a') {
                               return {
-                                'color': isDark
-                                    ? '#7FB6FF'
-                                    : '#${WawatColors.primary.value.toRadixString(16).substring(2)}',
+                                'color': isDark ? '#7FB6FF' : _brandHex,
                                 'text-decoration': 'underline',
                               };
                             }

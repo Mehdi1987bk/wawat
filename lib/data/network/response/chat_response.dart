@@ -286,6 +286,12 @@ class ChatMessage {
   final ChatCard? card;
   final String createdAt;
   final String? editedAt;
+
+  /// Server tombstone: the message was deleted for everyone. When true the
+  /// content (body/image/file/card/quote) is empty and the bubble renders a
+  /// "deleted" plate instead. [deletedAt] carries when it happened.
+  final bool isDeleted;
+  final String? deletedAt;
   final bool isMine;
   final bool? isRead;
   final ChatReplyRef? replyTo;
@@ -307,6 +313,8 @@ class ChatMessage {
     this.card,
     required this.createdAt,
     this.editedAt,
+    this.isDeleted = false,
+    this.deletedAt,
     this.isMine = false,
     this.isRead,
     this.replyTo,
@@ -332,6 +340,8 @@ class ChatMessage {
       createdAt:
           _string(json['created_at']) ?? DateTime.now().toIso8601String(),
       editedAt: _string(json['edited_at']),
+      isDeleted: _bool(json['is_deleted']),
+      deletedAt: _string(json['deleted_at']),
       isMine: _bool(json['is_mine']),
       isRead: json.containsKey('is_read') ? _bool(json['is_read']) : null,
       replyTo: replyJson == null ? null : ChatReplyRef.fromJson(replyJson),
@@ -349,6 +359,8 @@ class ChatMessage {
     ChatCard? card,
     String? createdAt,
     String? editedAt,
+    bool? isDeleted,
+    String? deletedAt,
     bool? isMine,
     bool? isRead,
     ChatReplyRef? replyTo,
@@ -366,12 +378,32 @@ class ChatMessage {
       card: card ?? this.card,
       createdAt: createdAt ?? this.createdAt,
       editedAt: editedAt ?? this.editedAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deletedAt: deletedAt ?? this.deletedAt,
       isMine: isMine ?? this.isMine,
       isRead: isRead ?? this.isRead,
       replyTo: replyTo ?? this.replyTo,
       readAt: readAt ?? this.readAt,
       deliveryStatus: deliveryStatus ?? this.deliveryStatus,
       localImagePath: localImagePath ?? this.localImagePath,
+    );
+  }
+
+  /// Local tombstone: turn this message into a "deleted" placeholder with all
+  /// content stripped (body/image/file/card/quote), preserving identity,
+  /// authorship and timestamp so the bubble keeps its slot and picks the right
+  /// "you/other" copy. Used after a 204 delete and on the realtime
+  /// `message.deleted` event (neither returns a full message body).
+  ChatMessage asDeleted({String? deletedAt}) {
+    return ChatMessage(
+      id: id,
+      type: type,
+      createdAt: createdAt,
+      isDeleted: true,
+      deletedAt: deletedAt ?? this.deletedAt,
+      isMine: isMine,
+      isRead: isRead,
+      readAt: readAt,
     );
   }
 
@@ -436,8 +468,14 @@ class Conversation {
     );
   }
 
+  /// Whether the conversation's last message is a "deleted" tombstone — the
+  /// preview must then show the localized "message deleted" plate, not the
+  /// stale body or the image label. Callers resolve the CMS string themselves.
+  bool get lastMessageIsDeleted => lastMessage?.isDeleted == true;
+
   String lastMessagePreview(BuildContext context) {
     if (lastMessage == null) return '';
+    if (lastMessage!.isDeleted) return '';
     if (lastMessage!.type == 'image') return 'Şəkil';
     if (lastMessage!.type == 'system_card') {
       return lastMessage!.card?.label ?? 'Təklif';
