@@ -38,7 +38,7 @@ import '../../data/network/response/unread_chat_count_response.dart';
 import '../../data/network/response/unread_count_response.dart';
 import '../../data/network/response/user.dart';
 import '../../data/network/response/document_type.dart';
-import '../../data/network/response/verification_response.dart';
+import '../../data/network/response/verification_state.dart';
 import '../entities/pagination.dart';
 
 abstract class AuthRepository {
@@ -116,7 +116,13 @@ abstract class AuthRepository {
 
   Future<void> setFavorites(OfferResponse request);
 
-  Future<VerificationResponse> verificationStatus();
+  /// Current KYC verification state (`GET /verification`) + the fee to show on
+  /// the intro. `state` is null when the user has never submitted.
+  Future<VerificationSnapshot> getVerification();
+
+  /// Pay the verification activation fee (`POST /verification/pay`). Works only
+  /// for an approved-and-unpaid request; returns the updated verification.
+  Future<VerificationPayResult> payVerification();
 
   Future<void> addAvatar(File avatar);
 

@@ -313,6 +313,43 @@ class WawatContent {
     'promotion.boost_capacity_full':
         'Paketlər müvəqqəti olaraq doludur. Bir azdan yenidən cəhd edin.',
     'promotion.invalid_package': 'Seçilmiş paket mövcud deyil.',
+    // Paid KYC verification: documents → approval → pay (mock) → badge.
+    // Backend-provided keys (localized live); the rest are app-screen keys.
+    'verification.awaiting_payment':
+        'Sənədlər təsdiqləndi. Nişanı aktivləşdirmək üçün ödə.',
+    'verification.activated': 'Ödəniş uğurlu oldu. Hesab təsdiqləndi.',
+    'verification.already_verified': 'Artıq təsdiqlənmisiniz.',
+    'verification.not_payable': 'Müraciət ödənişə hazır deyil.',
+    'verification.intro.title': 'Hesab doğrulaması',
+    'verification.intro.headline': 'Hesabını doğrula',
+    'verification.intro.subtitle':
+        'Profilinə etibar nişanı əlavə et. Sənədlərini təsdiqlət və aktivləşdir.',
+    'verification.intro.paid_label': 'Ödənişli xidmət',
+    'verification.intro.paid_hint': 'Nişan yalnız ödənişdən sonra aktivləşir.',
+    'verification.intro.step1_title': 'Sənədləri göndər',
+    'verification.intro.step1_hint':
+        'Pasport və selfi yüklə, yoxlamaya göndər.',
+    'verification.intro.step2_title': 'Ödə və aktivləşdir',
+    'verification.intro.step2_hint':
+        'Sənədlər təsdiqləndikdən sonra ödə — nişan aktiv olur.',
+    'verification.intro.cta': 'Sənədləri göndər',
+    'verification.payment.title': 'Ödəniş',
+    'verification.payment.approved_title': 'Sənədlər təsdiqləndi',
+    'verification.payment.amount_label': 'Ödəniləcək məbləğ',
+    'verification.payment.activates_note':
+        'Ödəniş doğrulama nişanını dərhal aktivləşdirir.',
+    'verification.payment.mock_note':
+        'Ödəniş provayderi tezliklə qoşulacaq — hazırda sınaq (mock) rejimidir.',
+    'verification.payment.cta': 'Ödə',
+    'verification.pay_failed': 'Ödəniş alınmadı. Yenidən cəhd et.',
+    'verification.rejected.title': 'Doğrulama',
+    'verification.rejected.headline': 'Doğrulama rədd edildi',
+    'verification.rejected.subtitle':
+        'Sənədlər təsdiqlənmədi. Səbəbə bax və yenidən göndər.',
+    'verification.rejected.reason_label': 'Səbəb',
+    'verification.rejected.no_reason': 'Səbəb göstərilməyib.',
+    'verification.rejected.free_note': 'Yenidən göndərmək pulsuzdur.',
+    'verification.rejected.cta': 'Yenidən göndər',
     'promotion.skip': 'İndi yox, elanlarıma keç',
     'promotion.section.vip': 'VİP elanlar',
     'promotion.section.all': 'Bütün elanlar',

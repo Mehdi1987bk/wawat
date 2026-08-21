@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import '../../../../../data/network/response/document_type.dart';
-import '../../../../../data/network/response/verification_response.dart';
+import '../../../../../data/network/response/verification_state.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
@@ -9,8 +9,13 @@ import '../../../../../presentation/bloc/base_bloc.dart';
 class VerificationBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
 
-  Future<VerificationResponse> verificationStatus() =>
-      authRepository.verificationStatus();
+  /// Current verification state + intro fee (`GET /verification`).
+  Future<VerificationSnapshot> getVerification() =>
+      authRepository.getVerification();
+
+  /// Pay the activation fee (`POST /verification/pay`, mock for now).
+  Future<VerificationPayResult> payVerification() =>
+      authRepository.payVerification();
 
   Future<List<DocumentType>> loadDocumentTypes() =>
       authRepository.getDocumentTypes();

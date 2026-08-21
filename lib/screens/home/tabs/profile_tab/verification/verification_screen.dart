@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/document_type.dart';
 import '../../../../../data/network/response/user.dart';
-import '../../../../../data/network/response/verification_response.dart';
+import '../../../../../data/network/response/verification_state.dart';
 import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
@@ -35,12 +35,26 @@ class _VerificationScreenState
   File? _selfieImage;
   bool _isLoading = false;
   bool _isLoadingStatus = true;
-  VerificationData? _verificationData;
+  bool _isPaying = false;
 
-  /// Whether the account is verified, from ANY authoritative source: the
-  /// verification-status endpoint OR the profile's `is_verified` flag. Admin-
-  /// verified accounts often have no verification *request*, so the status
-  /// endpoint returns is_verified=false while the profile is already verified.
+  /// Current verification request (null when never submitted).
+  VerificationState? _state;
+
+  /// Activation fee to advertise on the intro screen (from the request's
+  /// payment, or a top-level hint when there's no request yet). Null → intro
+  /// shows "paid" without a number.
+  double? _feeAmount;
+  String? _feeCurrency;
+
+  /// The document-upload step is a pushed sub-view reached from the intro
+  /// («Send documents») or the rejected screen («Resubmit»). Back returns to
+  /// the underlying state screen rather than leaving verification.
+  bool _showUpload = false;
+
+  /// Whether the account is verified, from ANY authoritative source: an
+  /// approved-and-paid request OR the profile's `is_verified` flag. Admin-
+  /// verified accounts often have no verification *request*, so the state
+  /// endpoint says unpaid while the profile is already verified.
   bool _isVerified = false;
 
   /// Accepted ID-document types from /document-types. Currently filtered to
@@ -79,19 +93,32 @@ class _VerificationScreenState
     // Seed from the profile we were opened with — a verified account should
     // never land on the upload flow.
     var verified = widget.user.isVerified ?? false;
+    // Seed from what we already know so a transient GET /verification failure
+    // (500/timeout) doesn't wipe a submitted/approved/just-paid request back to
+    // null → the paid intro. Only a SUCCESSFUL fetch overwrites these.
+    VerificationState? state = _state;
+    double? fee = _feeAmount;
+    String? currency = _feeCurrency;
     try {
-      final response = await bloc.verificationStatus();
-      if (mounted) _verificationData = response.data;
-      verified = verified || response.data.isVerified;
-    } catch (_) {/* keep going — the profile flag below still decides */}
+      final snapshot = await bloc.getVerification();
+      state = snapshot.state;
+      fee = snapshot.feeAmount;
+      currency = snapshot.currency;
+      if (state?.isPaidVerified ?? false) verified = true;
+    } catch (_) {
+      /* keep the last known state/fee; profile flag still decides */
+    }
     // Fresh profile flag: catches admin-verified accounts that have no
-    // verification request (status endpoint → is_verified=false).
+    // verification request (state endpoint → still unpaid).
     try {
       final me = await WawatProfileApi().me();
       verified = verified || me.isVerified;
     } catch (_) {/* offline / failed — fall back to what we already have */}
     if (!mounted) return;
     setState(() {
+      _state = state;
+      _feeAmount = fee;
+      _feeCurrency = currency;
       _isVerified = verified;
       _isLoadingStatus = false;
     });
@@ -114,17 +141,43 @@ class _VerificationScreenState
           );
         }
 
-        final hasVerification = _verificationData?.hasVerification ?? false;
-
+        // Profile already verified (incl. admin-verified without a request).
         if (_isVerified) {
           return _buildVerifiedScreen(isDark);
         }
 
-        if (hasVerification) {
+        // The document-upload sub-view (first submit or free resubmit).
+        if (_showUpload) {
+          return _buildUploadDocumentsScreen(isDark);
+        }
+
+        final state = _state;
+
+        // Never submitted → paid intro that explains the two steps.
+        if (state == null) {
+          return _buildIntroScreen(isDark);
+        }
+
+        // Rejected → show the reason, offer a free resubmit.
+        if (state.isRejected) {
+          return _buildRejectedScreen(isDark, state);
+        }
+
+        // Documents under review → waiting, no payment yet.
+        if (state.isPending) {
           return _buildPendingScreen(isDark);
         }
 
-        return _buildUploadDocumentsScreen(isDark);
+        // Approved: pay to activate the badge, else already verified.
+        if (state.isApproved) {
+          if (state.awaitingPayment) {
+            return _buildPaymentScreen(isDark, state);
+          }
+          return _buildVerifiedScreen(isDark);
+        }
+
+        // Unknown/transitional status → treat as under review.
+        return _buildPendingScreen(isDark);
       },
     );
   }
@@ -575,6 +628,674 @@ class _VerificationScreenState
     );
   }
 
+  /// Pay the activation fee (mock for now — always succeeds server-side). On
+  /// success the badge is active; refresh the authoritative flags and land on
+  /// the verified screen.
+  Future<void> _pay() async {
+    if (_isPaying) return;
+    setState(() => _isPaying = true);
+    try {
+      final result = await bloc.payVerification();
+      if (!mounted) return;
+      setState(() => _state = result.state);
+      final message = result.message;
+      if (message != null && message.isNotEmpty) {
+        showIOSStyleMessage(context, message);
+      }
+      await _loadVerificationStatus();
+    } catch (e) {
+      if (!mounted) return;
+      // Surface the server's localized reason (e.g. not_payable) when present.
+      var message =
+          tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.');
+      if (e is DioException) {
+        final data = e.response?.data;
+        if (data is Map &&
+            data['message'] is String &&
+            (data['message'] as String).trim().isNotEmpty) {
+          message = data['message'] as String;
+        }
+      }
+      _snack(message, Colors.red);
+    } finally {
+      if (mounted) setState(() => _isPaying = false);
+    }
+  }
+
+  String _feeText(double amount, String currency) {
+    final value = amount == amount.roundToDouble()
+        ? amount.toInt().toString()
+        : amount.toStringAsFixed(2);
+    return '$value $currency';
+  }
+
+  /// Shared back-arrow header for the intro / payment / rejected screens (back
+  /// leaves verification).
+  Widget _buildHeader(bool isDark, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Icon(
+              Icons.arrow_back,
+              size: 24,
+              color: isDark ? WawatDark.textPrimary : Colors.black,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: isDark ? WawatDark.textPrimary : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required String label,
+    required VoidCallback? onTap,
+    bool loading = false,
+    Color? color,
+  }) {
+    final base = color ?? AppColors.appColor;
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: ElevatedButton(
+        onPressed: loading ? null : onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: base,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          disabledBackgroundColor: base.withOpacity(0.6),
+        ),
+        child: loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildStepRow({
+    required int number,
+    required String title,
+    required String subtitle,
+    required bool isDark,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE),
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            '$number',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: isDark ? WawatDark.brandText : const Color(0xFF017BFE),
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? WawatDark.textPrimary : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.35,
+                  color: isDark ? WawatDark.textSecondary : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Paid intro (data == null): says verification is a paid service, shows the
+  /// fee, explains the two steps, then sends the user to upload documents.
+  Widget _buildIntroScreen(bool isDark) {
+    final fee = _feeAmount;
+    final currency = _feeCurrency ?? 'AZN';
+    return Scaffold(
+      backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(
+              isDark,
+              tr('verification.intro.title', 'Hesab doğrulaması'),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 18),
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00B4A6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.verified_user_outlined,
+                        color: Colors.white,
+                        size: 45,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    Text(
+                      tr('verification.intro.headline', 'Hesabını doğrula'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? WawatDark.textPrimary : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      tr(
+                        'verification.intro.subtitle',
+                        'Profilinə etibar nişanı əlavə et. Sənədlərini təsdiqlət və aktivləşdir.',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.4,
+                        color: isDark ? WawatDark.textSecondary : Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Paid callout — amount is from payment.fee_amount, never
+                    // hardcoded; falls back to just "paid service" if unknown.
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? WawatDark.warningBg
+                            : const Color(0xFFFFF6E5),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color:
+                              const Color(0xFFF5A623).withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? WawatDark.warning.withValues(alpha: 0.18)
+                                  : const Color(0xFFFFE8BF),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.payments_outlined,
+                              color: isDark
+                                  ? WawatDark.warning
+                                  : const Color(0xFFB4791A),
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  tr('verification.intro.paid_label',
+                                      'Ödənişli xidmət'),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark
+                                        ? WawatDark.textPrimary
+                                        : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  tr('verification.intro.paid_hint',
+                                      'Nişan yalnız ödənişdən sonra aktivləşir.'),
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    height: 1.3,
+                                    color: isDark
+                                        ? WawatDark.textSecondary
+                                        : Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (fee != null) ...[
+                            const SizedBox(width: 12),
+                            Text(
+                              _feeText(fee, currency),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? WawatDark.textPrimary
+                                    : Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Two-step checklist.
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: isDark ? WawatDark.surface : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: cCardBorder(isDark),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? Colors.black.withOpacity(0.45)
+                                : Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          _buildStepRow(
+                            number: 1,
+                            title: tr('verification.intro.step1_title',
+                                'Sənədləri göndər'),
+                            subtitle: tr('verification.intro.step1_hint',
+                                'Pasport və selfi yüklə, yoxlamaya göndər.'),
+                            isDark: isDark,
+                          ),
+                          const SizedBox(height: 18),
+                          _buildStepRow(
+                            number: 2,
+                            title: tr('verification.intro.step2_title',
+                                'Ödə və aktivləşdir'),
+                            subtitle: tr('verification.intro.step2_hint',
+                                'Sənədlər təsdiqləndikdən sonra ödə — nişan aktiv olur.'),
+                            isDark: isDark,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    _buildPrimaryButton(
+                      label: tr('verification.intro.cta', 'Sənədləri göndər'),
+                      onTap: () => setState(() => _showUpload = true),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Payment step (approved & payment.required): documents approved, pay the
+  /// fee to activate the badge. Payment is mock now — the button just calls
+  /// /verification/pay. A placeholder marks where the real provider widget goes.
+  Widget _buildPaymentScreen(bool isDark, VerificationState state) {
+    final green = isDark ? WawatDark.success : const Color(0xFF22C55E);
+    return Scaffold(
+      backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(
+              isDark,
+              tr('verification.payment.title', 'Ödəniş'),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 12),
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: green.withValues(alpha: isDark ? 0.16 : 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.task_alt, color: green, size: 50),
+                    ),
+                    const SizedBox(height: 22),
+                    Text(
+                      tr('verification.payment.approved_title',
+                          'Sənədlər təsdiqləndi'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? WawatDark.textPrimary : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      tr(
+                        'verification.awaiting_payment',
+                        'Sənədlər təsdiqləndi. Nişanı aktivləşdirmək üçün ödə.',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.4,
+                        color: isDark ? WawatDark.textSecondary : Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Amount to pay — from payment.fee_amount.
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 22),
+                      decoration: BoxDecoration(
+                        color: isDark ? WawatDark.surface : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: cCardBorder(isDark),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? Colors.black.withOpacity(0.45)
+                                : Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            tr('verification.payment.amount_label',
+                                'Ödəniləcək məbləğ'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark
+                                  ? WawatDark.textSecondary
+                                  : Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _feeText(
+                              state.payment.feeAmount,
+                              state.payment.currency,
+                            ),
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: isDark
+                                  ? WawatDark.brandText
+                                  : const Color(0xFF017BFE),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: isDark
+                              ? WawatDark.textSecondary
+                              : Colors.grey[600],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            tr('verification.payment.activates_note',
+                                'Ödəniş doğrulama nişanını dərhal aktivləşdirir.'),
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.35,
+                              color: isDark
+                                  ? WawatDark.textSecondary
+                                  : Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Placeholder where the real payment-provider widget will
+                    // mount once integrated. For now paying is a mock call.
+                    if (state.payment.mock)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? WawatDark.surfaceAlt
+                              : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isDark
+                                ? WawatDark.border
+                                : const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.build_circle_outlined,
+                              size: 20,
+                              color: isDark
+                                  ? WawatDark.textMuted
+                                  : Colors.grey[500],
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                tr('verification.payment.mock_note',
+                                    'Ödəniş provayderi tezliklə qoşulacaq — hazırda sınaq (mock) rejimidir.'),
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  height: 1.35,
+                                  color: isDark
+                                      ? WawatDark.textSecondary
+                                      : Colors.grey[600],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 28),
+                    _buildPrimaryButton(
+                      label:
+                          '${tr('verification.payment.cta', 'Ödə')} · ${_feeText(state.payment.feeAmount, state.payment.currency)}',
+                      loading: _isPaying,
+                      onTap: _pay,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Rejected: show the reason and offer a free resubmit (POST /submit again).
+  Widget _buildRejectedScreen(bool isDark, VerificationState state) {
+    final red = isDark ? WawatDark.danger : const Color(0xFFEF4444);
+    final reason = state.rejectionReason;
+    return Scaffold(
+      backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(
+              isDark,
+              tr('verification.rejected.title', 'Doğrulama'),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 16),
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: red.withValues(alpha: isDark ? 0.16 : 0.10),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.highlight_off, color: red, size: 52),
+                    ),
+                    const SizedBox(height: 22),
+                    Text(
+                      tr('verification.rejected.headline',
+                          'Doğrulama rədd edildi'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? WawatDark.textPrimary : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      tr(
+                        'verification.rejected.subtitle',
+                        'Sənədlər təsdiqlənmədi. Səbəbə bax və yenidən göndər.',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.4,
+                        color: isDark ? WawatDark.textSecondary : Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? WawatDark.danger.withValues(alpha: 0.12)
+                            : const Color(0xFFFEECEC),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: red.withValues(alpha: 0.30),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tr('verification.rejected.reason_label', 'Səbəb'),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: red,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            reason != null && reason.isNotEmpty
+                                ? reason
+                                : tr('verification.rejected.no_reason',
+                                    'Səbəb göstərilməyib.'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              height: 1.4,
+                              color: isDark
+                                  ? WawatDark.textPrimary
+                                  : Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      tr('verification.rejected.free_note',
+                          'Yenidən göndərmək pulsuzdur.'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color:
+                            isDark ? WawatDark.textSecondary : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildPrimaryButton(
+                      label: tr('verification.rejected.cta', 'Yenidən göndər'),
+                      onTap: () => setState(() => _showUpload = true),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildUploadDocumentsScreen(bool isDark) {
     return Scaffold(
       backgroundColor: isDark ? WawatDark.bg : const Color(0xFFF5F7FA),
@@ -588,7 +1309,11 @@ class _VerificationScreenState
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      // The upload view is a sub-step: back returns to the intro
+                      // / rejected screen it was opened from, not out of KYC.
+                      onTap: () => _showUpload
+                          ? setState(() => _showUpload = false)
+                          : Navigator.pop(context),
                       child: Icon(
                         Icons.arrow_back,
                         size: 24,
@@ -904,8 +1629,9 @@ class _VerificationScreenState
 
       if (mounted) {
         showIOSStyleMessage(context, S.of(context).yhtjkuyil43);
-
         await _loadVerificationStatus();
+        // Leave the upload sub-view → land on the "under review" screen.
+        if (mounted) setState(() => _showUpload = false);
       }
     } catch (e) {
       // ErrorDispatcher уже показал 422 верхним снекбаром — причём текстом

@@ -49,7 +49,7 @@ import '../network/response/unread_chat_count_response.dart';
 import '../network/response/unread_count_response.dart';
 import '../network/response/user.dart';
 import '../network/response/document_type.dart';
-import '../network/response/verification_response.dart';
+import '../network/response/verification_state.dart';
 import '../../services/telemetry/telemetry.dart';
 import '../../services/telemetry/telemetry_events.dart';
 
@@ -268,8 +268,56 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.setFavorites(request);
   }
 
-  Future<VerificationResponse> verificationStatus() async {
-    return _authApi.verificationStatus();
+  @override
+  Future<VerificationSnapshot> getVerification() async {
+    final response = await sl.get<Dio>().get<dynamic>('$baseUrl/verification');
+    final body = response.data is Map
+        ? Map<String, dynamic>.from(response.data as Map)
+        : const <String, dynamic>{};
+    final data = body['data'];
+    final state = data is Map
+        ? VerificationState.fromJson(Map<String, dynamic>.from(data))
+        : null;
+    // Fee for the intro: the active request's payment when there is one, else a
+    // top-level hint if the backend exposes one for the not-submitted case.
+    double? fee = state?.payment.feeAmount;
+    String? currency = state?.payment.currency;
+    // String-tolerant parse: the backend may serialize money as a JSON string
+    // ("50.00"), same as the model's amount parsing — a hard `as num` cast would
+    // throw and drop the intro fee on an otherwise-valid response.
+    if (fee == null && body['payment'] is Map) {
+      final p = Map<String, dynamic>.from(body['payment'] as Map);
+      fee = double.tryParse(p['fee_amount']?.toString() ?? '');
+      currency = p['currency']?.toString() ?? currency;
+    }
+    if (fee == null && body['fee_amount'] != null) {
+      fee = double.tryParse(body['fee_amount'].toString());
+      currency ??= body['currency']?.toString();
+    }
+    return VerificationSnapshot(
+      state: state,
+      feeAmount: fee,
+      currency: currency,
+    );
+  }
+
+  @override
+  Future<VerificationPayResult> payVerification() async {
+    final response = await sl.get<Dio>().post<dynamic>(
+      '$baseUrl/verification/pay',
+      data: const <String, dynamic>{},
+    );
+    final body = response.data is Map
+        ? Map<String, dynamic>.from(response.data as Map)
+        : const <String, dynamic>{};
+    final data = body['data'];
+    if (data is! Map) {
+      throw StateError('verification/pay returned no verification');
+    }
+    return VerificationPayResult(
+      state: VerificationState.fromJson(Map<String, dynamic>.from(data)),
+      message: body['message']?.toString(),
+    );
   }
 
   Future<void> addAvatar(File avatar) {

@@ -53,7 +53,6 @@ import '../response/saved_search_response.dart';
 import '../response/trending_routes_response.dart';
 import '../response/unread_chat_count_response.dart';
 import '../response/unread_count_response.dart';
-import '../response/verification_response.dart';
 
 part 'auth_api.g.dart';
 
@@ -317,9 +316,6 @@ abstract class AuthApi {
 
   @POST('/favorites/toggle')
   Future<void> setFavorites(@Body() OfferResponse request);
-
-  @GET('/verification/status')
-  Future<VerificationResponse> verificationStatus();
 
   @POST('/profile/avatar')
   Future<void> addAvatar(
