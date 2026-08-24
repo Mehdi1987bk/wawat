@@ -1,16 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../data/network/api/promotion_api.dart';
 import '../../../../../data/network/request/promotion_request.dart';
 import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/promotion_response.dart';
 import '../../../../../data/network/response/receipt.dart';
+import '../../../../payments/provider_checkout_screen.dart';
 import '../../../../payments/receipt_screen.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
@@ -34,6 +35,14 @@ const _ink400 = Color(0xFF94A3B8);
 const _ink300 = Color(0xFFCBD5E1);
 const _screen = Color(0xFFEEF1F6);
 const _emerald = Color(0xFF10B981);
+
+/// Show the Apple Pay / Google Pay method tiles on the payment screen. Kept OFF
+/// until the backend accepts `method: apple_pay | google_pay` on `/pay` (today
+/// only `card` and `balance` are accepted — sending others 422s). Flip to true
+/// once the provider is live; the tiles are already platform-gated (Apple Pay →
+/// iOS, Google Pay → Android) and route through the same pay → checkout_url →
+/// [ProviderCheckoutScreen] WebView path as `card`.
+const bool kWalletPayEnabled = false;
 
 // Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не
 // меняется), тёмная ветка = единый графит из [WawatDark].
@@ -1274,6 +1283,41 @@ class _PaymentMethodScreenState extends State<_PaymentMethodScreen> {
             ),
             onTap: () => setState(() => _method = 'balance'),
           ),
+          // Apple Pay (iOS) / Google Pay (Android) — gated by [kWalletPayEnabled]
+          // until the backend accepts these methods. Brand names stay untranslated
+          // per Apple/Google guidelines.
+          if (kWalletPayEnabled && Platform.isIOS) ...[
+            const SizedBox(height: 12),
+            _PaymentOption(
+              selected: _method == 'apple_pay',
+              icon: PhosphorIconsFill.appleLogo,
+              iconBackground: isDark ? WawatDark.elevated : _ink900,
+              iconColor: Colors.white,
+              title: 'Apple Pay',
+              subtitle: _tx(
+                widget.content,
+                'promotion.payment.wallet_pay_subtitle',
+                'Sürətli və təhlükəsiz ödəniş',
+              ),
+              onTap: () => setState(() => _method = 'apple_pay'),
+            ),
+          ],
+          if (kWalletPayEnabled && Platform.isAndroid) ...[
+            const SizedBox(height: 12),
+            _PaymentOption(
+              selected: _method == 'google_pay',
+              icon: PhosphorIconsFill.googleLogo,
+              iconBackground: isDark ? WawatDark.elevated : Colors.white,
+              iconColor: isDark ? WawatDark.textPrimary : _ink900,
+              title: 'Google Pay',
+              subtitle: _tx(
+                widget.content,
+                'promotion.payment.wallet_pay_subtitle',
+                'Sürətli və təhlükəsiz ödəniş',
+              ),
+              onTap: () => setState(() => _method = 'google_pay'),
+            ),
+          ],
           const SizedBox(height: 14),
           Row(
             children: [
@@ -1379,9 +1423,36 @@ class _PromotionProcessingScreenState
       if (payment != null && !payment.isMock) {
         final checkoutUrl = payment.checkoutUrl;
         if (checkoutUrl != null && checkoutUrl.trim().isNotEmpty) {
-          final uri = Uri.tryParse(checkoutUrl);
-          if (uri == null ||
-              !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+          final uri = Uri.tryParse(checkoutUrl.trim());
+          final validUrl = uri != null &&
+              (uri.isScheme('http') || uri.isScheme('https')) &&
+              uri.host.isNotEmpty;
+          if (!validUrl) {
+            throw StateError(
+              _tx(
+                widget.content,
+                'promotion.provider_unavailable',
+                'Ödəniş səhifəsini açmaq alınmadı.',
+              ),
+            );
+          }
+          if (!mounted) return;
+          // In-app provider checkout (card / 3-D Secure, and any Apple·Google
+          // Pay the provider surfaces on its hosted page). `returned`/`cancelled`
+          // only tell us the page flow ended — the backend is the source of
+          // truth, so we poll the order status next. `failed` = the page itself
+          // couldn't load → surface an error instead of polling.
+          final result =
+              await Navigator.of(context).push<ProviderCheckoutResult>(
+            MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (_) => ProviderCheckoutScreen(
+                checkoutUrl: checkoutUrl.trim(),
+                title: _tx(widget.content, 'promotion.pay.title', 'Ödəniş'),
+              ),
+            ),
+          );
+          if (result == ProviderCheckoutResult.failed) {
             throw StateError(
               _tx(
                 widget.content,
@@ -1399,17 +1470,31 @@ class _PromotionProcessingScreenState
       // GA4 purchase: value + currency обязательны, иначе платёж не попадёт в
       // отчёты по выручке. transaction_id даёт дедупликацию — при повторном
       // заходе на экран идемпотентный ключ тот же, и Firebase не посчитает
-      // покупку дважды.
-      Telemetry.instance.event(TelemetryEvents.purchase, params: {
-        TelemetryParams.value: promotion.chargedAmount,
-        TelemetryParams.currency: promotion.currency,
-        TelemetryParams.transactionId: promotion.id,
-        TelemetryParams.itemCategory: promotion.type,
-        TelemetryParams.durationDays: promotion.durationDays,
-        TelemetryParams.method: widget.method,
-        TelemetryParams.result: promotion.status,
-        TelemetryParams.listingId: widget.listing.id,
-      });
+      // покупку дважды. ВАЖНО: логируем purchase ТОЛЬКО когда заказ реально
+      // оплачен — при отмене WebView / таймауте провайдера статус остаётся
+      // pending|failed, и фейковый purchase раздул бы выручку и отравил дедуп.
+      final paid = promotion.status == 'active' ||
+          promotion.status == 'pending_activation';
+      if (paid) {
+        Telemetry.instance.event(TelemetryEvents.purchase, params: {
+          TelemetryParams.value: promotion.chargedAmount,
+          TelemetryParams.currency: promotion.currency,
+          TelemetryParams.transactionId: promotion.id,
+          TelemetryParams.itemCategory: promotion.type,
+          TelemetryParams.durationDays: promotion.durationDays,
+          TelemetryParams.method: widget.method,
+          TelemetryParams.result: promotion.status,
+          TelemetryParams.listingId: widget.listing.id,
+        });
+      } else {
+        Telemetry.instance.event(TelemetryEvents.purchaseFailed, params: {
+          TelemetryParams.value: promotion.chargedAmount,
+          TelemetryParams.currency: promotion.currency,
+          TelemetryParams.transactionId: promotion.id,
+          TelemetryParams.method: widget.method,
+          TelemetryParams.result: promotion.status,
+        });
+      }
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(

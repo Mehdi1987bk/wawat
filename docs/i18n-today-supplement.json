@@ -140,6 +140,16 @@
     "es": "Monto original"
   },
   {
+    "key": "promotion.payment.wallet_pay_subtitle",
+    "group": "promotion",
+    "az": "Sürətli və təhlükəsiz ödəniş",
+    "en": "Fast, secure checkout",
+    "ru": "Быстрая и безопасная оплата",
+    "tr": "Hızlı ve güvenli ödeme",
+    "ua": "Швидка й безпечна оплата",
+    "es": "Pago rápido y seguro"
+  },
+  {
     "key": "promotion.choose_from_wallet",
     "group": "promotion",
     "az": "Promokodlarımdan seç",

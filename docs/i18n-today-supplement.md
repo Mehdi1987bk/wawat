@@ -1,6 +1,6 @@
 # i18n handoff — keys added today (supplement to `i18n-new-keys.json`)
 
-**18 new CMS keys** introduced by today's feature work **after** the 598-key sweep (`i18n-new-keys.json`). These are the ONLY strings from today not yet in a handoff. Translations are already filled (az/ru/en/tr/ua/es).
+**19 new CMS keys** introduced by today's feature work **after** the 598-key sweep (`i18n-new-keys.json`). These are the ONLY strings from today not yet in a handoff. Translations are already filled (az/ru/en/tr/ua/es).
 
 ## How to ship (no app change needed)
 
@@ -26,6 +26,7 @@
 | `promotion.promo_applied` | promotion | Promokod tətbiq olundu · −{amount} $ | Промокод применён · −{amount} $ | Promo code applied · −{amount} $ | Promosyon kodu uygulandı · −{amount} $ | Промокод застосовано · −{amount} $ | Código promocional aplicado · −{amount} $ |
 | `promotion.promo_line` | promotion | Promokod · {code} | Промокод · {code} | Promo code · {code} | Promosyon kodu · {code} | Промокод · {code} | Código promocional · {code} |
 | `promotion.total_before` | promotion | İlkin məbləğ | Исходная сумма | Original amount | İlk tutar | Початкова сума | Monto original |
+| `promotion.payment.wallet_pay_subtitle` | promotion | Sürətli və təhlükəsiz ödəniş | Быстрая и безопасная оплата | Fast, secure checkout | Hızlı ve güvenli ödeme | Швидка й безпечна оплата | Pago rápido y seguro |
 | `promotion.choose_from_wallet` | promotion | Promokodlarımdan seç | Выбрать из моих промокодов | Choose from my promo codes | Promosyon kodlarımdan seç | Обрати з моїх промокодів | Elegir de mis códigos promocionales |
 | `promotion.wallet_title` | promotion | Promokodlarım | Мои промокоды | My promo codes | Promosyon kodlarım | Мої промокоди | Mis códigos promocionales |
 | `promotion.wallet_empty` | promotion | Aktiv promokodun yoxdur. | У вас нет активных промокодов. | You have no active promo codes. | Aktif promosyon kodun yok. | У вас немає активних промокодів. | No tienes códigos promocionales activos. |
@@ -36,4 +37,4 @@
 - **auth** (2): Registration — tappable “Privacy Policy · Terms of Use” links
 - **legal** (2): Legal Markdown screens (privacy / terms titles)
 - **promo** (7): Promo-code apply — validation reasons (quote `applicable:false`)
-- **promotion** (7): Promo-code apply — checkout/payment discount UI + wallet picker
+- **promotion** (8): Promo-code apply — checkout/payment discount UI + wallet picker; Apple/Google Pay tile subtitle

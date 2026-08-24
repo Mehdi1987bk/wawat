@@ -429,6 +429,7 @@ class WawatContent {
     'promotion.payment.balance_unavailable': 'Balans: 0.00 \$ — kifayət etmir',
     'promotion.payment.balance_subtitle':
         'Mock ödəniş · real balans inteqrasiyada',
+    'promotion.payment.wallet_pay_subtitle': 'Sürətli və təhlükəsiz ödəniş',
     'promotion.payment.change_method': 'Ödəniş üsulunu dəyiş',
     'promotion.payment.safety':
         'Ödənişlər şifrələnir · kart məlumatı serverdə saxlanmır',
