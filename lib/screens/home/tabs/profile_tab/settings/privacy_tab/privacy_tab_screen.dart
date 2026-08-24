@@ -119,7 +119,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                           height: 60,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                              colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -223,8 +223,8 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
-                              backgroundColor: const Color(0xFF5B4FFF),
+                              const Color(0xFF4CAF50).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF4CAF50),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -277,7 +277,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF5B4FFF),
+            activeColor: const Color(0xFF4CAF50),
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: isDark
                 ? const Color(0xFF4A4A4A)

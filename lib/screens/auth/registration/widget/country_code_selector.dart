@@ -221,7 +221,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                 ),
                 filled: true,
                 fillColor: widget.isDark
-                    ? const Color(0xFF2A2A2A)
+                    ? const Color(0xFF4CAF50)
                     : Colors.grey.shade100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

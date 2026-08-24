@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '774660161251',
     projectId: 'wawatair-b212f',
     storageBucket: 'wawatair-b212f.firebasestorage.app',
-    iosBundleId: 'wawat.app',
+    iosBundleId: 'wawat.land',
   );
 
 }

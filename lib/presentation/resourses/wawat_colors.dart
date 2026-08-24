@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 /// Цветовая схема для приложения Wawat
 class WawatColors {
   // Основные цвета
-  static const Color primary = Color(0xFF5B4FFF); // Фиолетовый
-  static const Color secondary = Color(0xFF764BA2); // Темный фиолетовый
+  static const Color primary = Color(0xFF4CAF50); // Зеленый
+  static const Color secondary = Color(0xFF388E3C); // Темный зеленый
 
   // Фоновые цвета
   static const Color backgroundLight = Color(0xFFF0F4FF); // Светло-синий фон
@@ -23,7 +23,7 @@ class WawatColors {
   static const Color info = Color(0xFF64B5F6); // Синий
 
   // Цвета для чипов и тегов
-  static const Color chipPurple = Color(0xFF5B4FFF);
+  static const Color chipPurple = Color(0xFF4CAF50); // Зеленый
   static const Color chipGreen = Color(0xFF4CAF50);
   static const Color chipYellow = Color(0xFFFFC107);
   static const Color chipGray = Color(0xFF9E9E9E);
@@ -31,17 +31,17 @@ class WawatColors {
   // Цвета для полей ввода
   static const Color inputBackground = Color(0xFFF5F5F5);
   static const Color inputBorder = Color(0xFFE0E0E0);
-  static const Color inputFocusedBorder = Color(0xFF5B4FFF);
+  static const Color inputFocusedBorder = Color(0xFF4CAF50);
 
   // Градиенты
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF5B4FFF), Color(0xFF764BA2)],
+    colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient buttonGradient = LinearGradient(
-    colors: [Color(0xFF5B4FFF), Color(0xFF764BA2)],
+    colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );

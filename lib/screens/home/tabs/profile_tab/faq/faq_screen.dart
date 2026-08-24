@@ -82,7 +82,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         height: 60,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                            colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -133,7 +133,7 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
                             isDark
-                                ? const Color(0xFF6366F1)
+                                ? const Color(0xFF2E7D32)
                                 : WawatColors.primary,
                           ),
                         ),

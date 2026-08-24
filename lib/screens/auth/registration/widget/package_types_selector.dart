@@ -154,7 +154,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? (isDark
-                              ? const Color(0xFF2A2A2A)
+                              ? const Color(0xFF4CAF50)
                               : const Color(0xFFF0EDFF))
                               : Colors.transparent,
                         ),

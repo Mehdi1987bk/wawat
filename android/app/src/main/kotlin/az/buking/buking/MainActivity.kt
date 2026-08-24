@@ -1,4 +1,4 @@
-package az.buking.buking
+package wawat.land
 
 import android.os.Build
 import android.os.Bundle

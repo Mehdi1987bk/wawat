@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "az.buking.buking"
+    namespace "wawat.land"
     compileSdkVersion 35
     ndkVersion "27.0.12077973"
 
@@ -48,7 +48,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "az.buking.buking"
+        applicationId "wawat.land"
         minSdkVersion 27
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()

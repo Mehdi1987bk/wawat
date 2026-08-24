@@ -168,7 +168,7 @@ class BottomNavigationItem extends StatelessWidget {
         : (isSelected ? activeColor : inactiveColor);
 
     final gradient = LinearGradient(
-      colors: [Color(0xFF2662EA), Color(0xFF9333EA)],
+      colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -194,7 +194,7 @@ class BottomNavigationItem extends StatelessWidget {
                 boxShadow: isCentral && isSelected
                     ? [
                   BoxShadow(
-                    color: Color(0xFF2662EA).withOpacity(0.3 * value),
+                    color: Color(0xFF4CAF50).withOpacity(0.3 * value),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

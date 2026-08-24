@@ -352,7 +352,7 @@ class _ChatConversationScreenState
             height: 50,
             decoration: BoxDecoration(
               color: isDark
-                  ? const Color(0xFF2A2A2A)
+                  ? const Color(0xFF4CAF50)
                   : WawatColors.inputBackground,
               borderRadius: BorderRadius.circular(WawatDimensions.radiusSmall),
             ),

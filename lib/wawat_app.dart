@@ -107,8 +107,8 @@ class App extends StatelessWidget {
       brightness: Brightness.light,
       scaffoldBackgroundColor: Colors.white,
       colorScheme: ColorScheme.light(
-        primary: const Color(0xFF5B4FFF),
-        secondary: const Color(0xFF5B4FFF),
+        primary: const Color(0xFF4CAF50),
+        secondary: const Color(0xFF388E3C),
         surface: Colors.white,
         background: Colors.white,
       ),
@@ -124,8 +124,8 @@ class App extends StatelessWidget {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: const Color(0xFF121212),
       colorScheme: ColorScheme.dark(
-        primary: const Color(0xFF5B4FFF),
-        secondary: const Color(0xFF5B4FFF),
+        primary: const Color(0xFF4CAF50),
+        secondary: const Color(0xFF388E3C),
         surface: const Color(0xFF1E1E1E),
         background: const Color(0xFF121212),
       ),

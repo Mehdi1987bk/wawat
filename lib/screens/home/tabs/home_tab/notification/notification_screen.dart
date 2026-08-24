@@ -110,7 +110,7 @@ class _NotificationScreenState
               height: 40,
               decoration: BoxDecoration(
                 color: isDark
-                    ? const Color(0xFF2A2A2A)
+                    ? const Color(0xFF4CAF50)
                     : WawatColors.backgroundLight,
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -664,7 +664,7 @@ class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
                     duration: const Duration(milliseconds: 300),
                     decoration: BoxDecoration(
                       color: widget.isDark
-                          ? const Color(0xFF2A2A2A)
+                          ? const Color(0xFF4CAF50)
                           : WawatColors.backgroundLight,
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -893,7 +893,7 @@ class _NotificationDetailBottomSheet extends StatelessWidget {
                 // Divider
                 Divider(
                   color: isDark
-                      ? const Color(0xFF2A2A2A)
+                      ? const Color(0xFF4CAF50)
                       : WawatColors.backgroundLight,
                   thickness: 1,
                 ),

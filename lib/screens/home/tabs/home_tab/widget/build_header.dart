@@ -65,7 +65,7 @@ Widget BuildHeader(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF2A2A2A)
+                      ? const Color(0xFF4CAF50)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),

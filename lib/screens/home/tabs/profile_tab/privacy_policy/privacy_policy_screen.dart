@@ -221,7 +221,7 @@ class _PrivacyPolicyScreenState
                           // Стилизация ссылок
                           if (element.localName == 'a') {
                             return {
-                              'color': '#5B4FFF',
+                              'color': '#4CAF50',
                               'text-decoration': 'underline',
                             };
                           }

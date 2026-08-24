@@ -32,7 +32,7 @@ class ProfileImageWidget extends StatelessWidget {
             height: size,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -40,7 +40,7 @@ class ProfileImageWidget extends StatelessWidget {
               boxShadow: showShadow
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF5B4FFF).withOpacity(0.4),
+                        color: const Color(0xFF4CAF50).withOpacity(0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -57,7 +57,7 @@ class ProfileImageWidget extends StatelessWidget {
             bottom: 0,
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF5B4FFF),
+                color: const Color(0xFF4CAF50),
                 borderRadius: BorderRadius.circular(borderRadius / 2),
                 border: Border.all(
                   color: Colors.white,
@@ -66,7 +66,7 @@ class ProfileImageWidget extends StatelessWidget {
                 boxShadow: showShadow
                     ? [
                         BoxShadow(
-                          color: const Color(0xFF5B4FFF).withOpacity(0.5),
+                          color: const Color(0xFF4CAF50).withOpacity(0.5),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -104,11 +104,11 @@ class ProfileImageWidget extends StatelessWidget {
         fit: BoxFit.cover,
         loadingBuilder: (context, child, progress) {
           if (progress == null) return child;
-          return Container(
+            return Container(
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -128,7 +128,7 @@ class ProfileImageWidget extends StatelessWidget {
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

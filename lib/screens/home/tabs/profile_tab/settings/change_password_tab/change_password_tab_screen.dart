@@ -129,12 +129,12 @@ class _ChangePasswordTabState
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF5B4FFF).withOpacity(0.1),
+                            color: const Color(0xFF4CAF50).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.lock_outline,
-                            color: Color(0xFF5B4FFF),
+                            color: Color(0xFF4CAF50),
                             size: 24,
                           ),
                         ),
@@ -229,8 +229,8 @@ class _ChangePasswordTabState
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
-                              backgroundColor: const Color(0xFF5B4FFF),
+                              const Color(0xFF4CAF50).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF4CAF50),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -322,7 +322,7 @@ class _ChangePasswordTabState
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Color(0xFF5B4FFF),
+                color: Color(0xFF4CAF50),
                 width: 2,
               ),
             ),

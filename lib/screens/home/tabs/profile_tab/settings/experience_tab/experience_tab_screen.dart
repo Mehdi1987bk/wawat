@@ -569,7 +569,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         ),
                         borderRadius: BorderRadius.circular(12),
                         color: isDark
-                            ? const Color(0xFF2A2A2A)
+                            ? const Color(0xFF4CAF50)
                             : const Color(0xFFF5F5F5),
                       ),
                       child: AnimatedDefaultTextStyle(
@@ -610,8 +610,8 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
-                              backgroundColor: const Color(0xFF5B4FFF),
+                              const Color(0xFF4CAF50).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF4CAF50),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -668,7 +668,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFF5B4FFF),
+            color: Color(0xFF4CAF50),
             width: 2,
           ),
         ),
@@ -735,7 +735,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               max: 10,
               divisions: 9,
               label: '${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
-              activeColor: const Color(0xFF5B4FFF),
+              activeColor: const Color(0xFF4CAF50),
               inactiveColor:
               isDark ? const Color(0xFF4A4A4A) : const Color(0xFFE5E5EA),
               onChanged: (value) {
@@ -753,7 +753,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF5B4FFF),
+              color: Color(0xFF4CAF50),
             ),
           ),
         ),

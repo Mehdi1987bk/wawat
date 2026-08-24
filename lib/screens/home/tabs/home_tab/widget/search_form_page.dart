@@ -187,7 +187,7 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
+                  ? const Color(0xFF4CAF50)
                   : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),

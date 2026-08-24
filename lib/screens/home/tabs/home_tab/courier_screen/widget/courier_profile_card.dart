@@ -205,7 +205,7 @@ class CourierProfileCard extends StatelessWidget {
                           label: /*S.of(context).brh45hg43g4tgve*/ "",
                           sublabel: '',
                           color: isDark
-                              ? const Color(0xFF2A2A2A)
+                              ? const Color(0xFF4CAF50)
                               : const Color(0xFFF5F8FD),
                           isDark: isDark,
                         ),
@@ -218,7 +218,7 @@ class CourierProfileCard extends StatelessWidget {
                           label: S.of(context).hyrhh6g453grth4ge,
                           sublabel: S.of(context).brthgteb4h5g4t35g,
                           color: isDark
-                              ? const Color(0xFF2A2A2A)
+                              ? const Color(0xFF4CAF50)
                               : const Color(0xFFF4FDF8),
                           isDark: isDark,
                         ),
@@ -236,7 +236,7 @@ class CourierProfileCard extends StatelessWidget {
                           label: '',
                           sublabel: S.of(context).nrny5nrnrny5n5y454,
                           color: isDark
-                              ? const Color(0xFF2A2A2A)
+                              ? const Color(0xFF4CAF50)
                               : const Color(0xFFFBF9FE),
                           isDark: isDark,
                         ),
@@ -249,7 +249,7 @@ class CourierProfileCard extends StatelessWidget {
                           label: '',
                           sublabel: S.of(context).ntnhnhry454,
                           color: isDark
-                              ? const Color(0xFF2A2A2A)
+                              ? const Color(0xFF4CAF50)
                               : const Color(0xFFFBFBF1),
                           isDark: isDark,
                         ),
@@ -333,8 +333,8 @@ class CourierProfileCard extends StatelessWidget {
                 margin: const EdgeInsets.only(left: 25, top: 10),
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -647,7 +647,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                     duration: const Duration(milliseconds: 300),
                     decoration: BoxDecoration(
                       color: widget.isDark
-                          ? const Color(0xFF2A2A2A)
+                          ? const Color(0xFF4CAF50)
                           : WawatColors.backgroundLight,
                       borderRadius: BorderRadius.circular(16),
                     ),

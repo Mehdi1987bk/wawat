@@ -140,7 +140,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                 ? const Color(0xFF10B981).withOpacity(0.15)
                                 : const Color(0xFFDCFCE7))
                                 : (isDark
-                                ? const Color(0xFF2A2A2A)
+                                ? const Color(0xFF4CAF50)
                                 : const Color(0xFFF9FAFB)),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(

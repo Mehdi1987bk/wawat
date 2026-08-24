@@ -103,7 +103,7 @@ class _EditProfileScreenState
                           indicator: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF5B4FFF), Color(0xFFD946EF)],
+                              colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),

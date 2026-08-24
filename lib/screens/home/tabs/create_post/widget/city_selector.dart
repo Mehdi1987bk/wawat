@@ -114,7 +114,7 @@ class _CitySelectorState extends State<CitySelector> {
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
                 color: widget.isDark
-                    ? const Color(0xFF2A2A2A)
+                    ? const Color(0xFF4CAF50)
                     : const Color(0xFFF2F2F7),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -223,7 +223,7 @@ class _CitySelectorState extends State<CitySelector> {
                 indent: 20,
                 endIndent: 20,
                 color: widget.isDark
-                    ? const Color(0xFF2A2A2A)
+                    ? const Color(0xFF4CAF50)
                     : const Color(0xFFE5E5EA),
               ),
               itemBuilder: (context, index) {

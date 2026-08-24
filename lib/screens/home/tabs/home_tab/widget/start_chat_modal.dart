@@ -122,8 +122,8 @@ class _StartChatContentState extends State<_StartChatContent> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFFF3E0),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFFF3E0),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: isDark ? const Color(0xFFFF9800) : const Color(0xFFFFB74D),
@@ -172,8 +172,8 @@ class _StartChatContentState extends State<_StartChatContent> {
                       // Message input
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _errorMessage != null

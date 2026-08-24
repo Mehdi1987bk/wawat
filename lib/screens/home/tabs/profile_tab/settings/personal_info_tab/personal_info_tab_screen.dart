@@ -153,10 +153,10 @@ class _PersonalInfoTabState
                       child:   Text(S.of(context).bvfdb4btevsf),
                     ),
                     const SizedBox(height: 24),
-                    _buildReadOnlyTextField(
+                    _buildTextField(
                         S.of(context).vrebveg34g3sd, _fullNameController, isDark),
                     const SizedBox(height: 16),
-                    _buildReadOnlyTextField('Email', _emailController, isDark),
+                    _buildTextField('Email', _emailController, isDark),
                     const SizedBox(height: 16),
 
                     // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ (РЕДАКТИРУЕМЫЙ)
@@ -211,7 +211,7 @@ class _PersonalInfoTabState
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: Color(0xFF5B4FFF),
+                                color: Color(0xFF4CAF50),
                                 width: 2,
                               ),
                             ),
@@ -237,8 +237,8 @@ class _PersonalInfoTabState
                           return ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               disabledBackgroundColor:
-                              const Color(0xFF5B4FFF).withOpacity(0.3),
-                              backgroundColor: const Color(0xFF5B4FFF),
+                              const Color(0xFF4CAF50).withOpacity(0.3),
+                              backgroundColor: const Color(0xFF4CAF50),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -288,7 +288,7 @@ class _PersonalInfoTabState
           children: [
             // Country code selector (editable)
             CountryCodeSelector(
-              enabled: false,
+              enabled: true,
               selectedCountry: _selectedCountry,
               countries: _allCountries,
               isLoading: _isLoadingCountries,
@@ -301,52 +301,38 @@ class _PersonalInfoTabState
 
             // Phone number field (read-only)
             Expanded(
-              child: Stack(
-                children: [
-                  TextField(
-                    controller: _phoneController,
-                    readOnly: true,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor:
-                      isDark ? const Color(0xFF2A2A2A) : Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark
-                              ? const Color(0xFF4A4A4A)
-                              : const Color(0xFFE5E5EA),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark
-                              ? const Color(0xFF4A4A4A)
-                              : const Color(0xFFE5E5EA),
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
+              child: TextField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor:
+                  isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF4A4A4A)
+                          : const Color(0xFFE5E5EA),
                     ),
                   ),
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.black.withOpacity(0.2)
-                            : Colors.grey.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF4A4A4A)
+                          : const Color(0xFFE5E5EA),
                     ),
                   ),
-                ],
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                ),
               ),
             ),
           ],
@@ -476,7 +462,7 @@ class _PersonalInfoTabState
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Color(0xFF5B4FFF),
+                color: Color(0xFF4CAF50),
                 width: 2,
               ),
             ),
@@ -514,9 +500,9 @@ class _PersonalInfoTabState
                 fontSize: 14,
                 color: isDark ? Colors.white : Colors.black,
               ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
@@ -559,8 +545,7 @@ class _PersonalInfoTabState
     final currentAbout = _aboutController.text.trim();
 
     final isRequiredFieldsFilled = currentFullname.isNotEmpty &&
-        currentEmail.isNotEmpty &&
-        currentPhone.isNotEmpty;
+        currentEmail.isNotEmpty;
 
     // Проверяем изменился ли код страны
     final isCountryChanged = _selectedCountry?.id != _initialCountry?.id;
