@@ -25,11 +25,10 @@ String _contentText(Map<String, String> content, String key,
   return WawatContent.text(content, key, fallback);
 }
 
-/// Price labels: the app prices in USD, but some CMS translations still carry
-/// the AZN symbol (₼). Force `$` so the currency is consistent everywhere,
-/// regardless of what the CMS serves per language.
+/// Price fields show a per-kilogram price, so they go through the shared CMS
+/// normaliser: USD instead of any leftover ₼, and the unit as `kq/$`.
 String _priceLabel(Map<String, String> content, String key) =>
-    _contentText(content, key).replaceAll('₼', r'$');
+    WawatContent.priceLabel(content, key);
 
 class SearchFormWidget extends StatefulWidget {
   final ListingFeedBloc bloc;

@@ -42,11 +42,10 @@ String _contentText(Map<String, String> content, String key,
   return WawatContent.text(content, key, fallback);
 }
 
-/// Price labels: the app prices in USD, but some CMS translations still carry
-/// the AZN symbol (₼). Force `$` so the currency is consistent everywhere,
-/// regardless of what the CMS serves per language.
+/// Price fields show a per-kilogram price, so they go through the shared CMS
+/// normaliser: USD instead of any leftover ₼, and the unit as `kq/$`.
 String _priceLabel(Map<String, String> content, String key) =>
-    _contentText(content, key).replaceAll('₼', r'$');
+    WawatContent.priceLabel(content, key);
 
 class SearchOfferListScreen extends BaseScreen<ListingFeedBloc> {
   final ListingFilterState filters;
@@ -2716,7 +2715,7 @@ List<_SearchFilterChip> _activeChips(
   }
   if (filters.priceMin != null || filters.priceMax != null) {
     chips.add(_SearchFilterChip(
-        'price', _rangeLabel(filters.priceMin, filters.priceMax, '\$')));
+        'price', _rangeLabel(filters.priceMin, filters.priceMax, 'kq/\$')));
   }
   if (filters.weightMin != null || filters.weightMax != null) {
     chips.add(_SearchFilterChip(

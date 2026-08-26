@@ -874,6 +874,28 @@ class WawatContent {
     return value;
   }
 
+  /// Price labels for the search filters. The CMS still serves them per
+  /// language in whatever shape the translator picked: some carry the AZN
+  /// symbol (₼) the app no longer prices in, and the per-kilogram unit is
+  /// written both ways. Normalise both — USD, and the unit kilogram-first as
+  /// `kq/$`, the way the negotiable-price pill on the listing card reads.
+  static String priceLabel(
+    Map<String, String> content,
+    String key, [
+    String? fallback,
+  ]) =>
+      text(content, key, fallback)
+          .replaceAll('₼', r'$')
+          .replaceAll(_perKgUnit, r'kq/$');
+
+  /// `$/kq`, `$ / кг`, an already-correct `kq/$` or a bare `$` — every shape the
+  /// CMS serves collapses to `kq/$`. Ordered alternation, so the per-kg forms
+  /// win over the bare currency symbol and the rewrite stays idempotent.
+  static final RegExp _perKgUnit = RegExp(
+    r'\$\s*/\s*(?:kq|kg|кг)|(?:kq|kg|кг)\s*/\s*\$|\$',
+    caseSensitive: false,
+  );
+
   static String _humanizeKey(String key) {
     final raw = key.split('.').last.replaceAll('_template', '');
     final words = raw

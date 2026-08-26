@@ -33,4 +33,47 @@ void main() {
       'Dəstək',
     );
   });
+
+  test('price filter labels put the kilogram before the dollar', () {
+    expect(
+      WawatContent.priceLabel(
+        const {'search.price_min': 'Мин \$'},
+        'search.price_min',
+      ),
+      'Мин kq/\$',
+    );
+  });
+
+  test('price labels drop the AZN symbol the CMS still serves', () {
+    expect(
+      WawatContent.priceLabel(
+        const {'search.price_max': 'Maks ₼'},
+        'search.price_max',
+      ),
+      'Maks kq/\$',
+    );
+  });
+
+  test('every per-kg spelling collapses to kq/\$ and stays there', () {
+    for (final label in [
+      'Мин \$/кг',
+      'Min \$/kq',
+      'Min \$ / kg',
+      'Min kq/\$'
+    ]) {
+      final normalised = WawatContent.priceLabel(
+        {'search.price_min': label},
+        'search.price_min',
+      );
+
+      expect(normalised, endsWith('kq/\$'));
+      expect(
+        WawatContent.priceLabel(
+          {'search.price_min': normalised},
+          'search.price_min',
+        ),
+        normalised,
+      );
+    }
+  });
 }
