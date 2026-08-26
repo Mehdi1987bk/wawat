@@ -485,7 +485,7 @@ class _ListingCardState extends State<ListingCard> {
         const SizedBox(width: 10),
         const Spacer(),
         if (_isTrip && widget.listing.allowPriceNegotiation == true)
-          // Negotiable price → a polished accent pill (handshake + "$/kq"), so
+          // Negotiable price → a polished accent pill (handshake + "kq/$"), so
           // "by agreement" reads as a deliberate per-kg state, not a missing price.
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
@@ -512,7 +512,7 @@ class _ListingCardState extends State<ListingCard> {
                     size: 16, color: _accentOf(isDark)),
                 const SizedBox(width: 7),
                 Text(
-                  '\$/kq',
+                  'kq/\$',
                   style: TextStyle(
                     color: _accentOf(isDark),
                     fontSize: 14,
