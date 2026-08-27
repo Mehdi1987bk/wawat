@@ -39,10 +39,18 @@ Web- и desktop-сборок нет: 22 файла в `lib/` завязаны н
 ## Сборка APK для телефона
 
 ```bash
-./scripts/build_apk.sh       # release → build/app/outputs/flutter-apk/app-release.apk
+./scripts/build_apk.sh                          # универсальный APK, ~85 МБ
+./scripts/build_apk.sh release --split-per-abi  # по одному на архитектуру, ~38 МБ
 ```
 
 Скрипт проверяет версию Flutter, JDK, Android SDK и ключ подписи, потом собирает.
+Результат — в `build/app/outputs/flutter-apk/`.
+
+Для установки на свой телефон надёжнее универсальный APK. При `--split-per-abi`
+Flutter сдвигает `versionCode` на номер архитектуры (arm64 → `2029` вместо `29`),
+и после такой сборки обновление из Play выглядит для Android откатом версии —
+приложение придётся сначала удалить.
+
 Установка на телефон и заливка в сторы — в `.project-ai/DEPLOYMENT.md`.
 
 Release-сборке нужны `android/key.properties` и keystore; в git они не лежат,
