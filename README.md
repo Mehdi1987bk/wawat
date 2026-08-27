@@ -1,17 +1,56 @@
-# buking
+# Wawat Air
 
-A new Flutter project.
+Мобильное приложение сервиса [Wawatair](https://wawatair.com): путешественники
+везут посылки попутно. Flutter, dart-пакет называется `buking`.
 
-## Getting Started
+Описание экранов и структуры — в [WAWAT_README.md](WAWAT_README.md),
+рабочие заметки по бэкенду, аналитике и локализации — в [`docs/`](docs).
 
-This project is a starting point for a Flutter application.
+## Требования
 
-A few resources to get you started if this is your first Flutter project:
+| Что | Версия | Почему именно она |
+|-----|--------|-------------------|
+| Flutter | **3.27.1** | пин в `.fvmrc`; с более новым `pub get` падает на решении версий |
+| JDK | 17 | `sourceCompatibility` / `jvmTarget` в `android/app/build.gradle` |
+| Android SDK | compileSdk 35, build-tools 35 | |
+| Android NDK | 27.0.12077973 | |
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Нужную версию Flutter ставит [FVM](https://fvm.app):
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# wawat
+```bash
+fvm install 3.27.1
+fvm flutter pub get
+```
+
+Дальше все команды — через `fvm flutter`, не через глобальный `flutter`.
+Глобальный новее, и проект с ним рассыпается на версиях пакетов: это выглядит
+как «устаревшие зависимости», но дело только в версии SDK.
+
+## Запуск
+
+```bash
+fvm flutter run              # на подключённом телефоне или эмуляторе
+fvm flutter test             # 30 тестов
+fvm flutter analyze
+```
+
+Web- и desktop-сборок нет: 22 файла в `lib/` завязаны на `dart:io`.
+
+## Сборка APK для телефона
+
+```bash
+./scripts/build_apk.sh       # release → build/app/outputs/flutter-apk/app-release.apk
+```
+
+Скрипт проверяет версию Flutter, JDK, Android SDK и ключ подписи, потом собирает.
+Установка на телефон и заливка в сторы — в `.project-ai/DEPLOYMENT.md`.
+
+Release-сборке нужны `android/key.properties` и keystore; в git они не лежат,
+на новой машине их надо положить руками.
+
+## Бэкенд
+
+Приложение всегда работает с боевым API `https://api.wawatair.com/api/v1`
+(`lib/main.dart`). Отдельного тестового контура нет.
+
+Тексты интерфейса приходят из CMS (`GET /content`), а не из ARB-файлов.
