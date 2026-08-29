@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:dio/dio.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -2309,14 +2310,52 @@ class _SavedSearchesScreenState extends State<_SavedSearchesScreen> {
     try {
       await widget.bloc.deleteSavedSearch(item.id);
       await _load();
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
       setState(() => _items = previous);
+      // Deletion can be rejected server-side (e.g. an active alert tied to
+      // this search); without this the row just silently snapped back with
+      // no explanation, which reads to the user as "delete doesn't work".
+      _showError(_deleteErrorMessage(error));
     } finally {
       if (mounted) {
         setState(() => _deletingIds.remove(item.id));
       }
     }
+  }
+
+  String _deleteErrorMessage(Object error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+      if (data is String && data.trim().isNotEmpty) return data.trim();
+      if (data is Map && data['message'] is String) {
+        final message = (data['message'] as String).trim();
+        if (message.isNotEmpty) return message;
+      }
+    }
+    return _contentText(
+      widget.content,
+      'common.action_failed',
+      tr('common.action_failed', 'Əməliyyat alınmadı.'),
+    );
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(PhosphorIconsFill.warningCircle, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: const Color(0xFFEF4444),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 2200),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    );
   }
 
   @override
@@ -2840,9 +2879,39 @@ List<SavedSearch> _visibleSavedSearches(List<SavedSearch> items) {
 bool _isUnnamedIdOnlySearch(SavedSearch item) {
   final name = item.name?.trim() ?? '';
   if (name.isNotEmpty && !RegExp(r'^\d+$').hasMatch(name)) return false;
+  // An active alert is always a real, user-facing search — even one that
+  // was broadened to "any city" (both route fields cleared) — and must stay
+  // reachable so it can be turned off or deleted.
+  if (item.notify) return false;
   final filters = item.filters;
-  return !_hasSavedCityLabel(filters, 'from') &&
-      !_hasSavedCityLabel(filters, 'to');
+  if (_hasSavedCityLabel(filters, 'from') || _hasSavedCityLabel(filters, 'to')) {
+    return false;
+  }
+  // No route set either: only treat this as a throwaway stub if it also
+  // carries none of the other filters a user could have picked when
+  // broadening a route-less search (weight/price/dates/etc). Otherwise a
+  // deliberately city-less search would be hidden from this screen with no
+  // way to reach its delete button.
+  const otherFilterKeys = [
+    'type',
+    'package_types',
+    'date_from',
+    'date_to',
+    'weight_min',
+    'weight_max',
+    'price_min',
+    'price_max',
+    'rating_min',
+    'tier_min',
+  ];
+  for (final key in otherFilterKeys) {
+    final value = filters[key];
+    if (value == null) continue;
+    if (value is String && value.trim().isEmpty) continue;
+    if (value is List && value.isEmpty) continue;
+    return false;
+  }
+  return true;
 }
 
 bool _hasSavedCityLabel(Map<String, dynamic> filters, String side) {
