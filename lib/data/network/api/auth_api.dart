@@ -46,6 +46,7 @@ import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
 import '../response/partner_user_response.dart';
 import '../response/privacy_policy_response.dart';
+import '../response/popular_routes_response.dart';
 import '../response/registration_response.dart';
 import '../response/reviews_response.dart';
 import '../response/send_otp_response.dart';
@@ -271,6 +272,9 @@ abstract class AuthApi {
 
   @GET('/cities/popular')
   Future<CitiesResponse> getPopularCities();
+
+  @GET('/listings/popular-routes')
+  Future<PopularRoutesResponse> getPopularRoutes();
 
   @GET('/search/trending-routes')
   Future<TrendingRoutesResponse> getTrendingRoutes();

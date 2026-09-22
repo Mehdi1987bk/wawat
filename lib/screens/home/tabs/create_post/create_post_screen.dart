@@ -141,7 +141,7 @@ Theme _wawatPickerTheme(
   return Theme(
     data: base.copyWith(
       colorScheme: colorScheme,
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),

@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../data/network/response/city.dart';
 import '../../../../data/network/response/listing_response.dart';
+import '../../../../data/network/response/popular_routes_response.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
@@ -13,6 +16,9 @@ import '../../scrollable_tab.dart';
 import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/wawat_content.dart';
+import '../../../../services/home_stats_service.dart';
+import '../../../../presentation/common/locale_aware_refetch.dart';
+import '../../../../services/localization_service.dart';
 import '../../../../services/theme_manager.dart';
 import '../home_tab/widget/auth_modal_utils.dart';
 import '../home_tab/widget/search_form_page.dart';
@@ -41,11 +47,11 @@ class HomeTabScreen extends BaseScreen {
   HomeTabScreen({super.key});
 
   @override
-  _HomeTabScreenState createState() => _HomeTabScreenState();
+  State<HomeTabScreen> createState() => _HomeTabScreenState();
 }
 
 class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
-    with ScrollableTab {
+    with ScrollableTab, LocaleAwareRefetch {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -60,6 +66,9 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
 
   late final UnreadNotificationBloc _notificationBloc;
   late final ListingFeedBloc _listingBloc;
+  late final HomeStatsService _homeStatsService;
+  HomeStats? _homeStats;
+  bool _homeStatsLoading = true;
 
   @override
   bool get showProgressIndicator => false;
@@ -75,6 +84,8 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
     _notificationBloc = sl.get<UnreadNotificationBloc>()..fetchUnreadCount();
     _listingBloc = ListingFeedBloc()..init();
     _listingBloc.refreshList();
+    _homeStatsService = HomeStatsService();
+    unawaited(_loadHomeStats());
 
     _scrollController.addListener(() {
       hideKeyboardOnScroll(context, _scrollController);
@@ -83,6 +94,33 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
         _listingBloc.load();
       }
     });
+  }
+
+  Future<void> _loadHomeStats() async {
+    final cached = await _homeStatsService.loadCached();
+    if (!mounted) return;
+    if (cached != null) {
+      setState(() => _homeStats = cached);
+    }
+
+    try {
+      final fresh = await _homeStatsService.refresh();
+      if (!mounted) return;
+      setState(() {
+        _homeStats = fresh;
+        _homeStatsLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _homeStatsLoading = false);
+    }
+  }
+
+  Future<void> _refreshHome() async {
+    await Future.wait([
+      _listingBloc.refreshList(),
+      _loadHomeStats(),
+    ]);
   }
 
   @override
@@ -99,7 +137,7 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
               color: isDark ? cScreen(true) : const Color(0xFFEEF1F6),
               child: RefreshIndicator(
                 color: _brand,
-                onRefresh: _listingBloc.refreshList,
+                onRefresh: _refreshHome,
                 child: CustomScrollView(
                   controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -112,8 +150,12 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
                       ),
                     ),
                     SliverToBoxAdapter(
-                        child:
-                            _CommunityStats(isDark: isDark, content: content)),
+                      child: _HomeStatsSlot(
+                        isDark: isDark,
+                        stats: _homeStats,
+                        loading: _homeStatsLoading,
+                      ),
+                    ),
                     SliverToBoxAdapter(
                         child: _PopularRoutes(
                             bloc: _listingBloc, content: content)),
@@ -255,6 +297,12 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
     // _notificationBloc is a shared singleton — do not dispose it here.
     _listingBloc.dispose();
     super.dispose();
+  }
+
+  @override
+  void onLocaleChanged() {
+    _listingBloc.reloadForLocaleChange();
+    unawaited(_loadHomeStats());
   }
 
   @override
@@ -515,17 +563,84 @@ class _HeroPathPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _CommunityStats extends StatelessWidget {
+class _HomeStatsSlot extends StatelessWidget {
   final bool isDark;
-  final Map<String, String> content;
+  final HomeStats? stats;
+  final bool loading;
 
-  const _CommunityStats({
+  const _HomeStatsSlot({
     required this.isDark,
-    required this.content,
+    required this.stats,
+    required this.loading,
   });
 
   @override
   Widget build(BuildContext context) {
+    final value = stats;
+    if (value != null) {
+      final template = LocalizationService.instance.rawValue(
+        'home.stats_summary',
+      );
+      if (template == null) return const SizedBox.shrink();
+      return _CommunityStats(
+        isDark: isDark,
+        stats: value,
+        template: template,
+      );
+    }
+    if (!loading) return const SizedBox.shrink();
+
+    return Container(
+      height: 55,
+      margin: const EdgeInsets.only(left: 24, right: 24, top: 20),
+      decoration: BoxDecoration(
+        color: isDark ? cCard(true) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? WawatDark.border : const Color(0x0F0F172A),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Row(
+        children: [
+          const _OnlineDot(),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Container(
+              height: 12,
+              decoration: BoxDecoration(
+                color: isDark ? WawatDark.border : const Color(0xFFE8ECF2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+          const SizedBox(width: 42),
+        ],
+      ),
+    );
+  }
+}
+
+class _CommunityStats extends StatelessWidget {
+  const _CommunityStats({
+    required this.isDark,
+    required this.stats,
+    required this.template,
+  });
+
+  final bool isDark;
+  final HomeStats stats;
+  final String template;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final numberFormat = NumberFormat.decimalPattern(locale);
+    final values = <String, String>{
+      'deliveries': numberFormat.format(stats.deliveriesThisMonth),
+      'verified': numberFormat.format(stats.verifiedTravelers),
+    };
+
     return Container(
       margin: const EdgeInsets.only(left: 24, right: 24, top: 20),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -542,29 +657,7 @@ class _CommunityStats extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(
-                text: _contentText(content, 'home.stats_prefix'),
-                children: [
-                  TextSpan(
-                    text: '1,240',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? cText(true) : _ink900),
-                  ),
-                  TextSpan(
-                    text: _contentText(content, 'home.stats_deliveries_suffix',
-                        ' çatdırılma · '),
-                  ),
-                  TextSpan(
-                    text: '3,500+',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? cText(true) : _ink900),
-                  ),
-                  TextSpan(
-                    text: _contentText(content, 'home.stats_travelers_suffix',
-                        ' təsdiqlənmiş səyahətçi'),
-                  ),
-                ],
+                children: _summarySpans(template, values, isDark),
               ),
               style: TextStyle(
                 color: isDark ? cText2(true) : _ink500,
@@ -577,6 +670,37 @@ class _CommunityStats extends StatelessWidget {
       ),
     );
   }
+}
+
+List<InlineSpan> _summarySpans(
+  String template,
+  Map<String, String> values,
+  bool isDark,
+) {
+  final placeholders = RegExp(r'\{(deliveries|verified)\}');
+  final spans = <InlineSpan>[];
+  var start = 0;
+
+  for (final match in placeholders.allMatches(template)) {
+    if (match.start > start) {
+      spans.add(TextSpan(text: template.substring(start, match.start)));
+    }
+    final key = match.group(1)!;
+    spans.add(
+      TextSpan(
+        text: values[key],
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          color: isDark ? cText(true) : _ink900,
+        ),
+      ),
+    );
+    start = match.end;
+  }
+  if (start < template.length) {
+    spans.add(TextSpan(text: template.substring(start)));
+  }
+  return spans;
 }
 
 class _OnlineDot extends StatelessWidget {
@@ -609,11 +733,7 @@ class _PopularRoutes extends StatefulWidget {
 }
 
 class _PopularRoutesState extends State<_PopularRoutes> {
-  List<_PopularRoute> _routes = const [
-    _PopularRoute(fromName: 'Bakı', toName: 'İstanbul', total: 24, minPrice: 5),
-    _PopularRoute(fromName: 'Bakı', toName: 'Dubai', total: 18, minPrice: 8),
-    _PopularRoute(fromName: 'Gəncə', toName: 'London', total: 24, minPrice: 5),
-  ];
+  List<PopularRoute> _routes = const [];
   bool _openingRoute = false;
 
   @override
@@ -624,70 +744,45 @@ class _PopularRoutesState extends State<_PopularRoutes> {
 
   Future<void> _loadRoutes() async {
     try {
-      final response = await widget.bloc.getTrendingRoutes();
-      final routes = _parsePopularRoutes(response.data);
-      if (!mounted || routes.isEmpty) return;
-      setState(() => _routes = routes.take(3).toList());
+      final response = await widget.bloc.getPopularRoutes();
+      if (!mounted) return;
+      setState(() => _routes = response.data.take(3).toList(growable: false));
     } catch (_) {
-      try {
-        final cities = await widget.bloc.getPopularCities();
-        if (!mounted || cities.data.length < 2) return;
-        setState(() {
-          _routes = [
-            for (var i = 0; i < cities.data.length - 1 && i < 3; i++)
-              _PopularRoute(
-                fromName: cities.data[i].name,
-                toName: cities.data[i + 1].name,
-                from: cities.data[i],
-                to: cities.data[i + 1],
-              ),
-          ];
-        });
-      } catch (_) {}
+      if (!mounted) return;
+      setState(() => _routes = const []);
     }
   }
 
-  Future<City?> _findCity(String name) async {
-    try {
-      final response = await widget.bloc.getCities(name);
-      final normalizedName = name.trim().toLowerCase();
-      for (final city in response.data) {
-        if (city.name.trim().toLowerCase() == normalizedName) return city;
-      }
-      return response.data.isEmpty ? null : response.data.first;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> _openRoute(_PopularRoute route) async {
+  Future<void> _openRoute(PopularRoute route) async {
     if (_openingRoute) return;
     setState(() => _openingRoute = true);
 
-    final from = route.from ?? await _findCity(route.fromName);
-    final to = route.to ?? await _findCity(route.toName);
-
-    if (!mounted) return;
-    setState(() => _openingRoute = false);
-    if (from == null || to == null) return;
-
-    final filters = ListingFilterState(cityFrom: from, cityTo: to);
-    Telemetry.instance.event(TelemetryEvents.trendingRouteTapped, params: {
-      TelemetryParams.fromCity: from.name,
-      TelemetryParams.toCity: to.name,
-    });
-    logSearchEvent(filters, source: 'popular_route');
-    await widget.bloc.saveRecentSearch(filters);
-    if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SearchOfferListScreen(filters: filters),
-      ),
+    final filters = ListingFilterState(
+      cityFrom: route.fromCity,
+      cityTo: route.toCity,
     );
+    try {
+      Telemetry.instance.event(TelemetryEvents.trendingRouteTapped, params: {
+        TelemetryParams.fromCity: route.cityFrom,
+        TelemetryParams.toCity: route.cityTo,
+      });
+      logSearchEvent(filters, source: 'popular_route');
+      await widget.bloc.saveRecentSearch(filters);
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => SearchOfferListScreen(filters: filters),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _openingRoute = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_routes.isEmpty) return const SizedBox.shrink();
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 18, 0, 24),
@@ -740,7 +835,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                                   widget.content,
                                   'home.route_travelers_template',
                                   '{count} səyahətçi')
-                              .replaceAll('{count}', '${route.total}'),
+                              .replaceAll('{count}', '${route.travelersCount}'),
                           style: TextStyle(
                             color: isDark ? cMuted(true) : _ink400,
                             fontSize: 11,
@@ -753,7 +848,7 @@ class _PopularRoutesState extends State<_PopularRoutes> {
                                   widget.content,
                                   'home.route_price_from_template',
                                   '{price} \$-dən')
-                              .replaceAll('{price}', '${route.minPrice}'),
+                              .replaceAll('{price}', route.formattedMinPrice),
                           style: TextStyle(
                             color: isDark ? cBrandText(true) : _brand,
                             fontSize: 16,
@@ -771,61 +866,6 @@ class _PopularRoutesState extends State<_PopularRoutes> {
       ),
     );
   }
-}
-
-List<_PopularRoute> _parsePopularRoutes(Object? raw) {
-  if (raw is! List) return const [];
-  return raw
-      .map((value) {
-        if (value is! Map) return null;
-        final item = Map<String, dynamic>.from(value);
-        try {
-          final from =
-              City.fromJson(Map<String, dynamic>.from(item['from'] as Map));
-          final to =
-              City.fromJson(Map<String, dynamic>.from(item['to'] as Map));
-          return _PopularRoute(
-            fromName: from.name,
-            toName: to.name,
-            from: from,
-            to: to,
-            total: int.tryParse(item['total']?.toString() ?? '') ?? 0,
-            minPrice: _routePrice(item),
-          );
-        } catch (_) {
-          return null;
-        }
-      })
-      .whereType<_PopularRoute>()
-      .toList();
-}
-
-int _routePrice(Map<String, dynamic> item) {
-  final raw = item['min_price'] ??
-      item['price_from'] ??
-      item['min_price_per_kg'] ??
-      item['price_per_kg'];
-  return double.tryParse(raw?.toString() ?? '')?.round() ?? 0;
-}
-
-class _PopularRoute {
-  final String fromName;
-  final String toName;
-  final City? from;
-  final City? to;
-  final int total;
-  final int minPrice;
-
-  const _PopularRoute({
-    required this.fromName,
-    required this.toName,
-    this.from,
-    this.to,
-    this.total = 0,
-    this.minPrice = 0,
-  });
-
-  String get label => '$fromName → $toName';
 }
 
 class _RouteTitle extends StatelessWidget {

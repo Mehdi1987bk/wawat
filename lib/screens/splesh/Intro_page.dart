@@ -9,6 +9,7 @@ import '../../presentation/resourses/wawat_dark.dart';
 import '../../services/localization_service.dart';
 import '../../services/wawat_content.dart';
 import '../auth/login/login_screen.dart';
+import '../../services/home_config.dart';
 import '../home/home_screen.dart';
 
 class IntroPage extends StatefulWidget {
@@ -57,9 +58,17 @@ class _IntroPageState extends State<IntroPage> {
     );
   }
 
+  /// Opens Home on the backend-chosen landing tab (already cached by the splash
+  /// screen's fetch), falling back to Главная.
+  Future<void> _goHome() async {
+    final tab = await HomeConfig.instance.cachedDefaultTab();
+    if (!mounted) return;
+    _complete(HomeScreen(initialTabIndex: tab));
+  }
+
   void _next() {
     if (_page == 2) {
-      _complete(HomeScreen());
+      _goHome();
       return;
     }
     _pageController.nextPage(
@@ -91,7 +100,7 @@ class _IntroPageState extends State<IntroPage> {
                 skipLabel: _text('onboarding.cta.skip'),
                 haveAccountLabel: _text('onboarding.have_account'),
                 loginLabel: _text('onboarding.login'),
-                onSkip: () => _complete(HomeScreen()),
+                onSkip: () => _goHome(),
                 onNext: _next,
                 onLogin: () => _complete(LoginScreen()),
               );

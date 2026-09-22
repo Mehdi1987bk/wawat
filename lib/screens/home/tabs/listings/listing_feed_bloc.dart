@@ -7,6 +7,7 @@ import '../../../../data/network/response/cities_response.dart';
 import '../../../../data/network/response/city.dart';
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/package_types_response.dart';
+import '../../../../data/network/response/popular_routes_response.dart';
 import '../../../../data/network/request/saved_search_request.dart';
 import '../../../../data/network/response/saved_search_response.dart';
 import '../../../../data/network/response/trending_routes_response.dart';
@@ -311,6 +312,27 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
     return load(refresh: true, cancelable: true);
   }
 
+  /// Re-fetches the backend-localized labels (package-type names, listing CMS
+  /// strings) in the now-current language, WITHOUT touching the result list.
+  /// The feed lives in a kept-alive tab, so a language switch does not rebuild
+  /// it — call this to refresh the labels in place.
+  Future<void> reloadLocalizedLabels() async {
+    _packageTypes = null; // drop the one-shot caches so the loaders refetch
+    _listingContent = null;
+    await Future.wait([
+      loadPackageTypes(),
+      loadListingContent(),
+    ]);
+  }
+
+  /// Labels + the feed itself, in the now-current language. Used where the list
+  /// is always visible (Home). Search calls [reloadLocalizedLabels] and only
+  /// re-runs the query when results are already shown.
+  Future<void> reloadForLocaleChange() async {
+    await reloadLocalizedLabels();
+    await refreshList();
+  }
+
   void setFilters(ListingFilterState nextFilters) {
     filters = nextFilters;
     _seed = null;
@@ -351,6 +373,10 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
 
   Future<CitiesResponse> getPopularCities() {
     return authRepository.getPopularCities();
+  }
+
+  Future<PopularRoutesResponse> getPopularRoutes() {
+    return authRepository.getPopularRoutes();
   }
 
   Future<TrendingRoutesResponse> getTrendingRoutes() {

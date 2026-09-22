@@ -10,10 +10,12 @@ import '../../../../domain/entities/pagination.dart';
 import '../../../../data/cache/cache_manager.dart';
 import '../../../../domain/repositories/auth_repository.dart';
 import '../../../../main.dart';
+import '../../../../presentation/common/locale_aware_refetch.dart';
 import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../scrollable_tab.dart';
 import '../../../../services/localization_service.dart';
+import '../../../../services/avatar_cache_buster.dart';
 import '../../../../services/notification_socket_service.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
@@ -61,7 +63,7 @@ class ProfileTabScreen extends StatefulWidget {
 }
 
 class _ProfileTabScreenState extends State<ProfileTabScreen>
-    with ScrollableTab {
+    with ScrollableTab, LocaleAwareRefetch {
   final WawatProfileApi _api = WawatProfileApi();
   final ScrollController _scrollController = ScrollController();
   late Future<WawatProfileBundle> _future;
@@ -84,6 +86,13 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void onLocaleChanged() {
+    // Backend-localized profile data (tier, stats, verification labels) is
+    // cached in the loaded bundle — re-pull it in the new language.
+    _reload();
   }
 
   @override
@@ -219,13 +228,17 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
     );
   }
 
+  String get _activeLocaleCode {
+    final appLocale = Localizations.maybeLocaleOf(context)?.languageCode ??
+        LocalizationService.instance.locale;
+    return LocalizationService.normalize(
+      _preferredLocaleOverride ?? appLocale,
+    );
+  }
+
   Future<void> _openLanguageSheet(WawatProfileBundle bundle) async {
     final content = bundle.content;
-    final current = LocalizationService.normalize(
-      _preferredLocaleOverride ??
-          bundle.user.preferredLocale ??
-          LocalizationService.instance.locale,
-    );
+    final current = _activeLocaleCode;
     final fallback = [
       _LanguageOption('az', tr('common.lang_az', 'Azərbaycanca'), '🇦🇿'),
       _LanguageOption('en', tr('common.lang_en', 'English'), '🇬🇧'),
@@ -720,9 +733,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                       _MenuRow(
                         icon: PhosphorIconsFill.translate,
                         label: _text(content, 'menu.language', 'Dil'),
-                        trailingText: _localeName(
-                          _preferredLocaleOverride ?? user.preferredLocale,
-                        ),
+                        trailingText: _localeName(_activeLocaleCode),
                         onTap: () => _openLanguageSheet(bundle),
                       ),
                       _ThemeModeRow(
@@ -998,7 +1009,7 @@ class _MenuAvatar extends StatelessWidget {
       );
 
   Widget _image(String url, {required Widget onError}) => CachedNetworkImage(
-        imageUrl: url,
+        imageUrl: AvatarCacheBuster.resolve(url),
         width: 56,
         height: 56,
         fit: BoxFit.cover,

@@ -42,6 +42,8 @@ import 'services/telemetry/telemetry.dart';
 import 'services/telemetry/telemetry_events.dart';
 import 'services/telemetry/telemetry_interceptor.dart';
 import 'services/telemetry/telemetry_route_observer.dart';
+import 'screens/payments/iap/iap_catalog.dart';
+import 'screens/payments/iap/iap_service.dart';
 
 final GetIt sl = GetIt.instance;
 final logger = Logger(printer: SimplePrinter());
@@ -118,6 +120,12 @@ Future<void> _bootstrap() async {
   );
   _bindUserIdentity();
 
+  // The standalone dev_iap.dart entry keeps using local catalogue/validation
+  // seams. The production app loads the authenticated backend catalogue.
+  if (kIapEnabled) {
+    unawaited(_initializeIap());
+  }
+
   // Локализация из CMS: диск-кэш грузится мгновенно, затем рефетч по ETag.
   // Не блокируем старт — UI пересоберётся, когда карта готова (notifyListeners).
   final savedLocale = await sl.get<CacheManager>().getLocaleAsync();
@@ -146,6 +154,18 @@ Future<void> _bootstrap() async {
   // after its delay — which would destroy any screen pushed now. The pending
   // tap is flushed from HomeScreen.initState instead, so the target lands on
   // top of Home. See flushPendingNotificationNavigation() / notification_router.
+}
+
+Future<void> _initializeIap() async {
+  final iap = IapService.instance;
+  iap.useCatalogLoader(BackendIapCatalogLoader(sl.get<Dio>()));
+  iap.useValidator(BackendPurchaseValidator(sl.get<Dio>()));
+  try {
+    await iap.init();
+  } catch (error, stackTrace) {
+    logger.w('IAP initialization failed: $error');
+    Telemetry.instance.error(error, stackTrace, reason: 'iap_init_failed');
+  }
 }
 
 void _registerDependency() {
@@ -213,9 +233,10 @@ void _bindUserIdentity() {
           TelemetryUserProps.tierLevel: user.tier,
           TelemetryUserProps.hasListings:
               ((user.stats?.offersTotal ?? 0) > 0) ? 'true' : 'false',
-          TelemetryUserProps.appLocale:
-              user.preferredLocale ?? sl.get<CacheManager>().getLocale()?.languageCode,
-          TelemetryUserProps.themeMode: themeManager.isDarkMode ? 'dark' : 'light',
+          TelemetryUserProps.appLocale: user.preferredLocale ??
+              sl.get<CacheManager>().getLocale()?.languageCode,
+          TelemetryUserProps.themeMode:
+              themeManager.isDarkMode ? 'dark' : 'light',
         },
       ));
     },

@@ -140,11 +140,21 @@ class VerificationSnapshot {
 
 /// Result of `POST /verification/pay` — the updated verification plus the
 /// server's localized success message.
+///
+/// [checkoutUrl] is the Kapital hosted 3-D Secure page: present ONLY when the
+/// backend defers the charge to a real card gateway (mock off). While the mock
+/// gateway is on it is null and the fee is already settled server-side, exactly
+/// like the promotion/quota card flows.
 class VerificationPayResult {
   final VerificationState state;
   final String? message;
+  final String? checkoutUrl;
 
-  const VerificationPayResult({required this.state, this.message});
+  const VerificationPayResult({
+    required this.state,
+    this.message,
+    this.checkoutUrl,
+  });
 }
 
 Map<String, dynamic> _map(Object? value) =>

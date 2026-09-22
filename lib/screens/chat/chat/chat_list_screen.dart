@@ -10,6 +10,7 @@ import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
+import '../../../presentation/common/locale_aware_refetch.dart';
 import '../../home/scrollable_tab.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/wawat_content.dart';
@@ -32,7 +33,7 @@ class ChatListScreen extends BaseScreen {
 }
 
 class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
-    with ScrollableTab {
+    with ScrollableTab, LocaleAwareRefetch {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -76,6 +77,14 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
         sl.get<UnreadChatBloc>().fetchUnreadCount();
       },
     );
+  }
+
+  @override
+  void onLocaleChanged() {
+    WawatContent.loadDefault().then((content) {
+      if (mounted) setState(() => _content = content);
+    });
+    bloc.refreshCurrent();
   }
 
   String _t(String key, [String? fallback]) {

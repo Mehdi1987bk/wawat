@@ -50,29 +50,3 @@ class PromotionExtendRequest {
         if (durationDays != null) 'duration_days': durationDays,
       };
 }
-
-class PromotionPayRequest {
-  final String method;
-  final String? mockOutcome;
-
-  /// Promo code applied to this order — either the raw code the user typed or a
-  /// wallet promo id (the backend accepts both). Server re-validates and charges
-  /// the discounted amount; sent only when non-empty.
-  final String? promoCode;
-
-  const PromotionPayRequest({
-    required this.method,
-    this.mockOutcome,
-    this.promoCode,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'method': method,
-      if (mockOutcome != null && mockOutcome!.trim().isNotEmpty)
-        'mock_outcome': mockOutcome!.trim(),
-      if (promoCode != null && promoCode!.trim().isNotEmpty)
-        'promo_code': promoCode!.trim(),
-    };
-  }
-}

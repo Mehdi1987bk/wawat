@@ -218,22 +218,6 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
               ),
             ],
             const SizedBox(height: 24),
-            _DividerLabel(text: tr('common.or', 'və ya'), isDark: isDark),
-            const SizedBox(height: 18),
-            _OutlineButton(
-              text: tr('auth.continue_with_google', 'Google ilə davam et'),
-              icon: Icons.g_mobiledata,
-              onPressed: null,
-              isDark: isDark,
-            ),
-            const SizedBox(height: 10),
-            _OutlineButton(
-              text: tr('auth.continue_with_apple', 'Apple ilə davam et'),
-              icon: Icons.apple,
-              onPressed: null,
-              isDark: isDark,
-            ),
-            const SizedBox(height: 24),
             Center(
               child: Wrap(
                 alignment: WrapAlignment.center,
@@ -505,34 +489,6 @@ class _AlertBox extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _DividerLabel extends StatelessWidget {
-  final String text;
-  final bool isDark;
-
-  const _DividerLabel({required this.text, this.isDark = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Divider(color: isDark ? WawatDark.divider : null)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isDark ? WawatDark.textMuted : const Color(0xFF9CA3AF),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: isDark ? WawatDark.divider : null)),
-      ],
     );
   }
 }

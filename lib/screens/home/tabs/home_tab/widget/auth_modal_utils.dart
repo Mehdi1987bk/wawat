@@ -5,10 +5,10 @@ import '../../../../auth/registration/registration_modal.dart';
 
 class AuthModalUtils {
   static void showAuthRequiredModal(
-      BuildContext context, {
-        VoidCallback? onLoginSuccess,
-        VoidCallback? onRegisterSuccess,
-      }) {
+    BuildContext context, {
+    VoidCallback? onLoginSuccess,
+    VoidCallback? onRegisterSuccess,
+  }) {
     AuthRequiredModal.show(
       context,
       onRegister: () => _showRegistrationModal(context, onLoginSuccess),
@@ -16,10 +16,23 @@ class AuthModalUtils {
     );
   }
 
+  /// Opens registration directly, without the intermediate "authorization
+  /// required" choice. Used for guest-only navigation targets where the
+  /// product flow explicitly requires account creation.
+  static Future<void> showRegistration(
+    BuildContext context, {
+    VoidCallback? onSuccess,
+  }) {
+    return RegistrationModal.show(
+      context,
+      onLogin: () => _showLoginModal(context, onSuccess),
+    );
+  }
+
   static void _showRegistrationModal(
-      BuildContext context,
-      VoidCallback? onSuccess,
-      ) {
+    BuildContext context,
+    VoidCallback? onSuccess,
+  ) {
     RegistrationModal.show(
       context,
       onLogin: () => _showLoginModal(context, onSuccess),
@@ -27,9 +40,9 @@ class AuthModalUtils {
   }
 
   static void _showLoginModal(
-      BuildContext context,
-      VoidCallback? onSuccess,
-      ) {
+    BuildContext context,
+    VoidCallback? onSuccess,
+  ) {
     LoginModal.show(
       context,
       onRegister: () => _showRegistrationModal(context, onSuccess),

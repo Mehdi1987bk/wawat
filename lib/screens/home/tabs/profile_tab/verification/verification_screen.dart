@@ -4,6 +4,7 @@ import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_bloc.dart';
+import 'package:buking/screens/payments/card_checkout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,10 @@ class _VerificationScreenState
   bool _isLoading = false;
   bool _isLoadingStatus = true;
   bool _isPaying = false;
+
+  /// Stable across retries so re-tapping the fee never double-charges once the
+  /// real gateway is wired (the mock ignores it). Seeded on the first pay.
+  String? _payIdempotencyKey;
 
   /// Current verification request (null when never submitted).
   VerificationState? _state;
@@ -628,16 +633,46 @@ class _VerificationScreenState
     );
   }
 
-  /// Pay the activation fee (mock for now — always succeeds server-side). On
-  /// success the badge is active; refresh the authoritative flags and land on
-  /// the verified screen.
+  /// Pay the activation fee with a bank card. Mirrors the VIP/quota card flow:
+  /// ask the backend to pay by `card`; if it hands back a Kapital hosted
+  /// `checkout_url`, open it in a WebView and confirm the real state afterwards
+  /// (the redirect is only a hint — the backend activates idempotently). While
+  /// the mock gateway is on there is no URL and the fee is already settled, so
+  /// we just refresh and land on the verified screen. No client change is needed
+  /// when the backend switches verification to the real gateway.
   Future<void> _pay() async {
     if (_isPaying) return;
     setState(() => _isPaying = true);
+    final idemKey = _payIdempotencyKey ??=
+        'verification-pay-card-${_state?.id ?? DateTime.now().microsecondsSinceEpoch}';
     try {
-      final result = await bloc.payVerification();
+      final result =
+          await bloc.payVerification(method: 'card', idempotencyKey: idemKey);
       if (!mounted) return;
       setState(() => _state = result.state);
+      final checkoutUrl = result.checkoutUrl;
+      if (checkoutUrl != null && checkoutUrl.isNotEmpty) {
+        final outcome = await Navigator.of(context).push<CardCheckoutResult>(
+          MaterialPageRoute(
+            builder: (_) => CardCheckoutScreen(
+              checkoutUrl: checkoutUrl,
+              title: tr('verification.pay.card_title', 'Kart ilə ödəniş'),
+            ),
+          ),
+        );
+        if (!mounted) return;
+        // Closed the bank page without a verdict → let the user retry.
+        if (outcome == null || outcome == CardCheckoutResult.abandoned) return;
+        await _loadVerificationStatus();
+        if (mounted && !_isVerified) {
+          _snack(
+            tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
+            Colors.red,
+          );
+        }
+        return;
+      }
+      // Mock gateway: the fee is already settled server-side.
       final message = result.message;
       if (message != null && message.isNotEmpty) {
         showIOSStyleMessage(context, message);

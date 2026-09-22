@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <!-- firebase-analytics подтягивает это разрешение транзитивно. Мы не
          показываем рекламу и не строим рекламные аудитории, а его наличие
@@ -51,6 +52,16 @@
             <intent-filter>
                 <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <!-- Card-payment deep link: the Kapital hosted page redirects to
+                 wawatair://payment/result when 3-D Secure finishes. The in-app
+                 WebView normally intercepts it, but registering the scheme lets
+                 the app also catch a redirect that escapes to the OS. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="wawatair" android:host="payment"/>
             </intent-filter>
         </activity>
         <meta-data

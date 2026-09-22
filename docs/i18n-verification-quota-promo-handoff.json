@@ -1,0 +1,522 @@
+[
+  {
+    "key": "app_review.subtitle",
+    "group": "app_review",
+    "az": "1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.",
+    "en": "Take a minute, rate us on the Store — and get a gift promo code.",
+    "ru": "Уделите минуту, оцените нас в Store — и получите промокод в подарок.",
+    "tr": "Bir dakikanı ayır, bizi Store'da değerlendir — ve hediye promosyon kodu kazan.",
+    "ua": "Приділіть хвилину, оцініть нас у Store — і отримайте промокод у подарунок.",
+    "es": "Dedica un minuto, valóranos en la Store — y consigue un código promocional de regalo."
+  },
+  {
+    "key": "app_review.thanks_title",
+    "group": "app_review",
+    "az": "Təşəkkür edirik! ⭐️",
+    "en": "Thank you! ⭐️",
+    "ru": "Спасибо! ⭐️",
+    "tr": "Teşekkürler! ⭐️",
+    "ua": "Дякуємо! ⭐️",
+    "es": "¡Gracias! ⭐️"
+  },
+  {
+    "key": "chat.message.deleted",
+    "group": "chat",
+    "az": "Mesaj silindi",
+    "en": "Message deleted",
+    "ru": "Сообщение удалено",
+    "tr": "Mesaj silindi",
+    "ua": "Повідомлення видалено",
+    "es": "Mensaje eliminado"
+  },
+  {
+    "key": "chat.message.deleted_by_you",
+    "group": "chat",
+    "az": "Bu mesajı sildiniz",
+    "en": "You deleted this message",
+    "ru": "Вы удалили это сообщение",
+    "tr": "Bu mesajı sildiniz",
+    "ua": "Ви видалили це повідомлення",
+    "es": "Eliminaste este mensaje"
+  },
+  {
+    "key": "common.clear",
+    "group": "common",
+    "az": "Təmizlə",
+    "en": "Clear",
+    "ru": "Очистить",
+    "tr": "Temizle",
+    "ua": "Очистити",
+    "es": "Limpiar"
+  },
+  {
+    "key": "error.forbidden",
+    "group": "error",
+    "az": "Giriş qadağandır",
+    "en": "Access denied",
+    "ru": "Доступ запрещён",
+    "tr": "Erişim engellendi",
+    "ua": "Доступ заборонено",
+    "es": "Acceso denegado"
+  },
+  {
+    "key": "listing_quota.awaiting_store",
+    "group": "listing_quota",
+    "az": "Mağaza ödənişi gözlənilir…",
+    "en": "Waiting for store payment…",
+    "ru": "Ожидание оплаты в магазине…",
+    "tr": "Mağaza ödemesi bekleniyor…",
+    "ua": "Очікування оплати в магазині…",
+    "es": "Esperando el pago en la tienda…"
+  },
+  {
+    "key": "listing_quota.creating_order",
+    "group": "listing_quota",
+    "az": "Sifariş hazırlanır…",
+    "en": "Preparing order…",
+    "ru": "Подготовка заказа…",
+    "tr": "Sipariş hazırlanıyor…",
+    "ua": "Підготовка замовлення…",
+    "es": "Preparando el pedido…"
+  },
+  {
+    "key": "listing_quota.iap.pending",
+    "group": "listing_quota",
+    "az": "Əvvəlki ödəniş hələ tamamlanır. Bir azdan yenidən cəhd et.",
+    "en": "A previous payment is still completing. Please try again shortly.",
+    "ru": "Предыдущий платёж ещё завершается. Повторите попытку чуть позже.",
+    "tr": "Önceki ödeme hâlâ tamamlanıyor. Lütfen biraz sonra tekrar deneyin.",
+    "ua": "Попередній платіж ще завершується. Спробуйте ще раз трохи згодом.",
+    "es": "Un pago anterior aún se está completando. Inténtalo de nuevo en un momento."
+  },
+  {
+    "key": "listing_quota.pay.card",
+    "group": "listing_quota",
+    "az": "Bank kartı",
+    "en": "Bank card",
+    "ru": "Банковская карта",
+    "tr": "Banka kartı",
+    "ua": "Банківська картка",
+    "es": "Tarjeta bancaria"
+  },
+  {
+    "key": "listing_quota.pay.card_sub",
+    "group": "listing_quota",
+    "az": "AZN ilə ödəniş",
+    "en": "Payment in AZN",
+    "ru": "Оплата в AZN",
+    "tr": "AZN ile ödeme",
+    "ua": "Оплата в AZN",
+    "es": "Pago en AZN"
+  },
+  {
+    "key": "listing_quota.pay.card_title",
+    "group": "listing_quota",
+    "az": "Kart ilə ödəniş",
+    "en": "Card payment",
+    "ru": "Оплата картой",
+    "tr": "Kartla ödeme",
+    "ua": "Оплата карткою",
+    "es": "Pago con tarjeta"
+  },
+  {
+    "key": "listing_quota.pay.method_title",
+    "group": "listing_quota",
+    "az": "Ödəniş üsulu",
+    "en": "Payment method",
+    "ru": "Способ оплаты",
+    "tr": "Ödeme yöntemi",
+    "ua": "Спосіб оплати",
+    "es": "Método de pago"
+  },
+  {
+    "key": "listing_quota.pay.store_apple",
+    "group": "listing_quota",
+    "az": "App Store",
+    "en": "App Store",
+    "ru": "App Store",
+    "tr": "App Store",
+    "ua": "App Store",
+    "es": "App Store"
+  },
+  {
+    "key": "listing_quota.pay.store_google",
+    "group": "listing_quota",
+    "az": "Google Play",
+    "en": "Google Play",
+    "ru": "Google Play",
+    "tr": "Google Play",
+    "ua": "Google Play",
+    "es": "Google Play"
+  },
+  {
+    "key": "listing_quota.pay.store_sub",
+    "group": "listing_quota",
+    "az": "Mağaza vasitəsilə",
+    "en": "Via the store",
+    "ru": "Через магазин",
+    "tr": "Mağaza aracılığıyla",
+    "ua": "Через магазин",
+    "es": "A través de la tienda"
+  },
+  {
+    "key": "listing_quota.pay.store_unavailable",
+    "group": "listing_quota",
+    "az": "Ödəniş üsulu hazırda əlçatan deyil. Bir azdan yenidən cəhd et.",
+    "en": "This payment method isn't available right now. Please try again shortly.",
+    "ru": "Этот способ оплаты сейчас недоступен. Повторите попытку чуть позже.",
+    "tr": "Bu ödeme yöntemi şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin.",
+    "ua": "Цей спосіб оплати зараз недоступний. Спробуйте ще раз трохи згодом.",
+    "es": "Este método de pago no está disponible ahora. Inténtalo de nuevo en un momento."
+  },
+  {
+    "key": "listing_quota.payment_canceled",
+    "group": "listing_quota",
+    "az": "Ödəniş ləğv edildi. Yenidən cəhd edə bilərsən.",
+    "en": "Payment canceled. You can try again.",
+    "ru": "Платёж отменён. Можно попробовать снова.",
+    "tr": "Ödeme iptal edildi. Tekrar deneyebilirsin.",
+    "ua": "Платіж скасовано. Можна спробувати ще раз.",
+    "es": "Pago cancelado. Puedes intentarlo de nuevo."
+  },
+  {
+    "key": "promotion.pay.card",
+    "group": "promotion",
+    "az": "Bank kartı",
+    "en": "Bank card",
+    "ru": "Банковская карта",
+    "tr": "Banka kartı",
+    "ua": "Банківська картка",
+    "es": "Tarjeta bancaria"
+  },
+  {
+    "key": "promotion.pay.card_sub",
+    "group": "promotion",
+    "az": "AZN ilə ödəniş",
+    "en": "Payment in AZN",
+    "ru": "Оплата в AZN",
+    "tr": "AZN ile ödeme",
+    "ua": "Оплата в AZN",
+    "es": "Pago en AZN"
+  },
+  {
+    "key": "promotion.pay.method_title",
+    "group": "promotion",
+    "az": "Ödəniş üsulu",
+    "en": "Payment method",
+    "ru": "Способ оплаты",
+    "tr": "Ödeme yöntemi",
+    "ua": "Спосіб оплати",
+    "es": "Método de pago"
+  },
+  {
+    "key": "promotion.pay.store_apple",
+    "group": "promotion",
+    "az": "App Store",
+    "en": "App Store",
+    "ru": "App Store",
+    "tr": "App Store",
+    "ua": "App Store",
+    "es": "App Store"
+  },
+  {
+    "key": "promotion.pay.store_google",
+    "group": "promotion",
+    "az": "Google Play",
+    "en": "Google Play",
+    "ru": "Google Play",
+    "tr": "Google Play",
+    "ua": "Google Play",
+    "es": "Google Play"
+  },
+  {
+    "key": "promotion.pay.store_sub",
+    "group": "promotion",
+    "az": "Mağaza vasitəsilə",
+    "en": "Via the store",
+    "ru": "Через магазин",
+    "tr": "Mağaza aracılığıyla",
+    "ua": "Через магазин",
+    "es": "A través de la tienda"
+  },
+  {
+    "key": "promotion.store_unavailable",
+    "group": "promotion",
+    "az": "Mağaza ödənişi müvəqqəti olaraq əlçatan deyil.",
+    "en": "Store payment is temporarily unavailable.",
+    "ru": "Оплата через магазин временно недоступна.",
+    "tr": "Mağaza ödemesi geçici olarak kullanılamıyor.",
+    "ua": "Оплата через магазин тимчасово недоступна.",
+    "es": "El pago en la tienda no está disponible temporalmente."
+  },
+  {
+    "key": "reports.result_pending",
+    "group": "reports",
+    "az": "Gözlənilir",
+    "en": "Pending",
+    "ru": "Ожидается",
+    "tr": "Bekleniyor",
+    "ua": "Очікується",
+    "es": "Pendiente"
+  },
+  {
+    "key": "verification.awaiting_payment",
+    "group": "verification",
+    "az": "Sənədlər təsdiqləndi. Nişanı aktivləşdirmək üçün ödə.",
+    "en": "Documents approved. Pay to activate the badge.",
+    "ru": "Документы одобрены. Оплатите, чтобы активировать значок.",
+    "tr": "Belgeler onaylandı. Rozeti etkinleştirmek için öde.",
+    "ua": "Документи схвалено. Оплатіть, щоб активувати значок.",
+    "es": "Documentos aprobados. Paga para activar la insignia."
+  },
+  {
+    "key": "verification.intro.cta",
+    "group": "verification",
+    "az": "Sənədləri göndər",
+    "en": "Submit documents",
+    "ru": "Отправить документы",
+    "tr": "Belgeleri gönder",
+    "ua": "Надіслати документи",
+    "es": "Enviar documentos"
+  },
+  {
+    "key": "verification.intro.headline",
+    "group": "verification",
+    "az": "Hesabını doğrula",
+    "en": "Verify your account",
+    "ru": "Подтвердите аккаунт",
+    "tr": "Hesabını doğrula",
+    "ua": "Підтвердьте акаунт",
+    "es": "Verifica tu cuenta"
+  },
+  {
+    "key": "verification.intro.paid_hint",
+    "group": "verification",
+    "az": "Nişan yalnız ödənişdən sonra aktivləşir.",
+    "en": "The badge activates only after payment.",
+    "ru": "Значок активируется только после оплаты.",
+    "tr": "Rozet yalnızca ödemeden sonra etkinleşir.",
+    "ua": "Значок активується лише після оплати.",
+    "es": "La insignia se activa solo después del pago."
+  },
+  {
+    "key": "verification.intro.paid_label",
+    "group": "verification",
+    "az": "Ödənişli xidmət",
+    "en": "Paid service",
+    "ru": "Платная услуга",
+    "tr": "Ücretli hizmet",
+    "ua": "Платна послуга",
+    "es": "Servicio de pago"
+  },
+  {
+    "key": "verification.intro.step1_hint",
+    "group": "verification",
+    "az": "Pasport və selfi yüklə, yoxlamaya göndər.",
+    "en": "Upload your passport and a selfie, then submit for review.",
+    "ru": "Загрузите паспорт и селфи, отправьте на проверку.",
+    "tr": "Pasaport ve bir selfie yükle, incelemeye gönder.",
+    "ua": "Завантажте паспорт і селфі, надішліть на перевірку.",
+    "es": "Sube tu pasaporte y un selfie, y envíalo a revisión."
+  },
+  {
+    "key": "verification.intro.step1_title",
+    "group": "verification",
+    "az": "Sənədləri göndər",
+    "en": "Submit documents",
+    "ru": "Отправить документы",
+    "tr": "Belgeleri gönder",
+    "ua": "Надіслати документи",
+    "es": "Enviar documentos"
+  },
+  {
+    "key": "verification.intro.step2_hint",
+    "group": "verification",
+    "az": "Sənədlər təsdiqləndikdən sonra ödə — nişan aktiv olur.",
+    "en": "After the documents are approved, pay — and the badge goes active.",
+    "ru": "После одобрения документов оплатите — значок станет активным.",
+    "tr": "Belgeler onaylandıktan sonra öde — rozet etkinleşir.",
+    "ua": "Після схвалення документів оплатіть — значок стане активним.",
+    "es": "Tras la aprobación de los documentos, paga — y la insignia se activa."
+  },
+  {
+    "key": "verification.intro.step2_title",
+    "group": "verification",
+    "az": "Ödə və aktivləşdir",
+    "en": "Pay and activate",
+    "ru": "Оплатить и активировать",
+    "tr": "Öde ve etkinleştir",
+    "ua": "Оплатити й активувати",
+    "es": "Pagar y activar"
+  },
+  {
+    "key": "verification.intro.subtitle",
+    "group": "verification",
+    "az": "Profilinə etibar nişanı əlavə et. Sənədlərini təsdiqlət və aktivləşdir.",
+    "en": "Add a trust badge to your profile. Get your documents approved and activate it.",
+    "ru": "Добавьте в профиль значок доверия. Подтвердите документы и активируйте его.",
+    "tr": "Profiline güven rozeti ekle. Belgelerini onaylat ve etkinleştir.",
+    "ua": "Додайте до профілю значок довіри. Підтвердьте документи й активуйте його.",
+    "es": "Añade una insignia de confianza a tu perfil. Verifica tus documentos y actívala."
+  },
+  {
+    "key": "verification.intro.title",
+    "group": "verification",
+    "az": "Hesab doğrulaması",
+    "en": "Account verification",
+    "ru": "Верификация аккаунта",
+    "tr": "Hesap doğrulaması",
+    "ua": "Верифікація акаунта",
+    "es": "Verificación de la cuenta"
+  },
+  {
+    "key": "verification.pay.card_title",
+    "group": "verification",
+    "az": "Kart ilə ödəniş",
+    "en": "Card payment",
+    "ru": "Оплата картой",
+    "tr": "Kartla ödeme",
+    "ua": "Оплата карткою",
+    "es": "Pago con tarjeta"
+  },
+  {
+    "key": "verification.pay_failed",
+    "group": "verification",
+    "az": "Ödəniş alınmadı. Yenidən cəhd et.",
+    "en": "Payment failed. Please try again.",
+    "ru": "Оплата не прошла. Повторите попытку.",
+    "tr": "Ödeme başarısız oldu. Lütfen tekrar deneyin.",
+    "ua": "Платіж не пройшов. Спробуйте ще раз.",
+    "es": "El pago falló. Inténtalo de nuevo."
+  },
+  {
+    "key": "verification.payment.activates_note",
+    "group": "verification",
+    "az": "Ödəniş doğrulama nişanını dərhal aktivləşdirir.",
+    "en": "Payment activates the verification badge immediately.",
+    "ru": "Оплата сразу активирует значок верификации.",
+    "tr": "Ödeme, doğrulama rozetini hemen etkinleştirir.",
+    "ua": "Оплата одразу активує значок верифікації.",
+    "es": "El pago activa la insignia de verificación de inmediato."
+  },
+  {
+    "key": "verification.payment.amount_label",
+    "group": "verification",
+    "az": "Ödəniləcək məbləğ",
+    "en": "Amount to pay",
+    "ru": "Сумма к оплате",
+    "tr": "Ödenecek tutar",
+    "ua": "Сума до сплати",
+    "es": "Importe a pagar"
+  },
+  {
+    "key": "verification.payment.approved_title",
+    "group": "verification",
+    "az": "Sənədlər təsdiqləndi",
+    "en": "Documents approved",
+    "ru": "Документы одобрены",
+    "tr": "Belgeler onaylandı",
+    "ua": "Документи схвалено",
+    "es": "Documentos aprobados"
+  },
+  {
+    "key": "verification.payment.cta",
+    "group": "verification",
+    "az": "Ödə",
+    "en": "Pay",
+    "ru": "Оплатить",
+    "tr": "Öde",
+    "ua": "Оплатити",
+    "es": "Pagar"
+  },
+  {
+    "key": "verification.payment.mock_note",
+    "group": "verification",
+    "az": "Ödəniş provayderi tezliklə qoşulacaq — hazırda sınaq (mock) rejimidir.",
+    "en": "A payment provider is coming soon — this is currently test (mock) mode.",
+    "ru": "Платёжный провайдер скоро подключится — сейчас это тестовый (mock) режим.",
+    "tr": "Ödeme sağlayıcısı yakında bağlanacak — şu anda test (mock) modu.",
+    "ua": "Платіжний провайдер скоро підключиться — зараз це тестовий (mock) режим.",
+    "es": "Pronto se conectará un proveedor de pago — ahora está en modo de prueba (mock)."
+  },
+  {
+    "key": "verification.payment.title",
+    "group": "verification",
+    "az": "Ödəniş",
+    "en": "Payment",
+    "ru": "Оплата",
+    "tr": "Ödeme",
+    "ua": "Оплата",
+    "es": "Pago"
+  },
+  {
+    "key": "verification.rejected.cta",
+    "group": "verification",
+    "az": "Yenidən göndər",
+    "en": "Resubmit",
+    "ru": "Отправить повторно",
+    "tr": "Yeniden gönder",
+    "ua": "Надіслати повторно",
+    "es": "Reenviar"
+  },
+  {
+    "key": "verification.rejected.free_note",
+    "group": "verification",
+    "az": "Yenidən göndərmək pulsuzdur.",
+    "en": "Resubmitting is free.",
+    "ru": "Повторная отправка бесплатна.",
+    "tr": "Yeniden göndermek ücretsizdir.",
+    "ua": "Повторне надсилання безкоштовне.",
+    "es": "Reenviar es gratis."
+  },
+  {
+    "key": "verification.rejected.headline",
+    "group": "verification",
+    "az": "Doğrulama rədd edildi",
+    "en": "Verification rejected",
+    "ru": "Верификация отклонена",
+    "tr": "Doğrulama reddedildi",
+    "ua": "Верифікацію відхилено",
+    "es": "Verificación rechazada"
+  },
+  {
+    "key": "verification.rejected.no_reason",
+    "group": "verification",
+    "az": "Səbəb göstərilməyib.",
+    "en": "No reason provided.",
+    "ru": "Причина не указана.",
+    "tr": "Sebep belirtilmedi.",
+    "ua": "Причину не вказано.",
+    "es": "No se indicó ningún motivo."
+  },
+  {
+    "key": "verification.rejected.reason_label",
+    "group": "verification",
+    "az": "Səbəb",
+    "en": "Reason",
+    "ru": "Причина",
+    "tr": "Sebep",
+    "ua": "Причина",
+    "es": "Motivo"
+  },
+  {
+    "key": "verification.rejected.subtitle",
+    "group": "verification",
+    "az": "Sənədlər təsdiqlənmədi. Səbəbə bax və yenidən göndər.",
+    "en": "The documents weren't approved. Check the reason and resubmit.",
+    "ru": "Документы не одобрены. Посмотрите причину и отправьте повторно.",
+    "tr": "Belgeler onaylanmadı. Sebebe bak ve yeniden gönder.",
+    "ua": "Документи не схвалено. Перегляньте причину та надішліть повторно.",
+    "es": "Los documentos no se aprobaron. Revisa el motivo y reenvíalos."
+  },
+  {
+    "key": "verification.rejected.title",
+    "group": "verification",
+    "az": "Doğrulama",
+    "en": "Verification",
+    "ru": "Верификация",
+    "tr": "Doğrulama",
+    "ua": "Верифікація",
+    "es": "Verificación"
+  }
+]

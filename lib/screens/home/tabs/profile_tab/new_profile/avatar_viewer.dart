@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../../../../../services/avatar_cache_buster.dart';
+
 /// Full-screen avatar viewer: pinch-to-zoom photo with a close (X) button.
 ///
 /// Push it over any screen; tapping the photo or the X dismisses it:
@@ -33,7 +35,7 @@ class AvatarViewer extends StatelessWidget {
                 maxScale: 4,
                 child: Center(
                   child: CachedNetworkImage(
-                    imageUrl: url,
+                    imageUrl: AvatarCacheBuster.resolve(url),
                     fit: BoxFit.contain,
                     placeholder: (_, __) => const Center(
                       child: CircularProgressIndicator(

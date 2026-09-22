@@ -23,8 +23,19 @@
 	<string>Wawat</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>wawat.app.payment</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wawatair</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.54</string>
+	<string>1.0.73</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>

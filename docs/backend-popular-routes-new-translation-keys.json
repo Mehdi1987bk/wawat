@@ -1,0 +1,26 @@
+{
+  "keys": [
+    {
+      "key": "home.route_travelers_template",
+      "group": "home",
+      "translations": {
+        "az": "{count} səyahətçi",
+        "en": "{count} travelers",
+        "ru": "{count} путешественников",
+        "tr": "{count} gezgin",
+        "ua": "{count} мандрівників"
+      }
+    },
+    {
+      "key": "home.route_price_from_template",
+      "group": "home",
+      "translations": {
+        "az": "{price} $-dən",
+        "en": "from {price} $",
+        "ru": "от {price} $",
+        "tr": "{price} $'dan başlayan",
+        "ua": "від {price} $"
+      }
+    }
+  ]
+}

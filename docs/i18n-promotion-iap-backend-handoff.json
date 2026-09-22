@@ -1,0 +1,222 @@
+[
+  {
+    "key": "enum.promotion_package.large",
+    "group": "enum",
+    "az": "Böyük",
+    "en": "Large",
+    "ru": "Большой",
+    "tr": "Büyük",
+    "ua": "Великий",
+    "es": "Grande"
+  },
+  {
+    "key": "enum.promotion_package.medium",
+    "group": "enum",
+    "az": "Orta",
+    "en": "Medium",
+    "ru": "Средний",
+    "tr": "Orta",
+    "ua": "Середній",
+    "es": "Mediano"
+  },
+  {
+    "key": "enum.promotion_package.small",
+    "group": "enum",
+    "az": "Kiçik",
+    "en": "Small",
+    "ru": "Маленький",
+    "tr": "Küçük",
+    "ua": "Малий",
+    "es": "Pequeño"
+  },
+  {
+    "key": "promotion.boost.guaranteed_label",
+    "group": "promotion",
+    "az": "Zəmanətli göstərişlər",
+    "en": "Guaranteed impressions",
+    "ru": "Гарантированные показы",
+    "tr": "Garantili gösterimler",
+    "ua": "Гарантовані покази",
+    "es": "Impresiones garantizadas"
+  },
+  {
+    "key": "promotion.boost.guaranteed_hint",
+    "group": "promotion",
+    "az": "Elanın hədəf göstəriş sayına çatana qədər önə çəkilir.",
+    "en": "Your listing stays boosted until it reaches the target number of impressions.",
+    "ru": "Объявление продвигается, пока не наберёт целевое количество показов.",
+    "tr": "İlanın hedef gösterim sayısına ulaşana kadar öne çıkarılır.",
+    "ua": "Оголошення просувається, доки не набере цільову кількість показів.",
+    "es": "El anuncio se promociona hasta alcanzar el número objetivo de impresiones."
+  },
+  {
+    "key": "promotion.boost.progress_label",
+    "group": "promotion",
+    "az": "Göstərilib",
+    "en": "Delivered",
+    "ru": "Показано",
+    "tr": "Gösterildi",
+    "ua": "Показано",
+    "es": "Mostradas"
+  },
+  {
+    "key": "promotion.boost.no_refund_note",
+    "group": "promotion",
+    "az": "Ödəniş geri qaytarılmır. Zəmanət yerinə yetməzsə, dəstək vasitəsilə həll olunur.",
+    "en": "The payment is non-refundable. If the guarantee is not fulfilled, contact support for assistance.",
+    "ru": "Оплата не возвращается. Если гарантия не выполнена, обратитесь в поддержку.",
+    "tr": "Ödeme iade edilmez. Garanti yerine getirilmezse destek ekibiyle iletişime geçin.",
+    "ua": "Оплата не повертається. Якщо гарантію не виконано, зверніться до служби підтримки.",
+    "es": "El pago no es reembolsable. Si no se cumple la garantía, contacta con soporte."
+  },
+  {
+    "key": "promotion.boost.packages_description",
+    "group": "promotion",
+    "az": "Elanın üçün zəmanətli göstəriş paketi al. Hədəfə çatana qədər önə çəkilir — gün limiti yoxdur.",
+    "en": "Buy guaranteed impressions for your listing. It stays boosted until the target is reached, with no day limit.",
+    "ru": "Купите гарантированные показы для объявления. Оно продвигается до достижения цели без ограничения по дням.",
+    "tr": "İlanın için garantili gösterim paketi al. Hedefe ulaşana kadar öne çıkarılır; gün sınırı yoktur.",
+    "ua": "Придбайте гарантовані покази для оголошення. Воно просувається до досягнення цілі без обмеження за днями.",
+    "es": "Compra impresiones garantizadas para tu anuncio. Se promociona hasta alcanzar el objetivo, sin límite de días."
+  },
+  {
+    "key": "promotion.boost.choose_package",
+    "group": "promotion",
+    "az": "Paket seç",
+    "en": "Choose a package",
+    "ru": "Выберите пакет",
+    "tr": "Paket seç",
+    "ua": "Виберіть пакет",
+    "es": "Elige un paquete"
+  },
+  {
+    "key": "promotion.boost.recommended",
+    "group": "promotion",
+    "az": "Tövsiyə",
+    "en": "Recommended",
+    "ru": "Рекомендуем",
+    "tr": "Önerilen",
+    "ua": "Рекомендуємо",
+    "es": "Recomendado"
+  },
+  {
+    "key": "promotion.status.impressions",
+    "group": "promotion",
+    "az": "Hədəf göstərişlər",
+    "en": "Target impressions",
+    "ru": "Целевые показы",
+    "tr": "Hedef gösterimler",
+    "ua": "Цільові покази",
+    "es": "Impresiones objetivo"
+  },
+  {
+    "key": "promotion.package_required",
+    "group": "promotion",
+    "az": "Zəhmət olmasa paket seçin.",
+    "en": "Please choose a package.",
+    "ru": "Пожалуйста, выберите пакет.",
+    "tr": "Lütfen bir paket seçin.",
+    "ua": "Будь ласка, виберіть пакет.",
+    "es": "Elige un paquete."
+  },
+  {
+    "key": "promotion.boost_capacity_full",
+    "group": "promotion",
+    "az": "Paketlər müvəqqəti olaraq doludur. Bir azdan yenidən cəhd edin.",
+    "en": "The packages are temporarily full. Please try again shortly.",
+    "ru": "Пакеты временно недоступны из-за лимита. Повторите попытку позже.",
+    "tr": "Paketlerin kapasitesi geçici olarak dolu. Lütfen biraz sonra tekrar deneyin.",
+    "ua": "Ліміт пакетів тимчасово вичерпано. Спробуйте трохи пізніше.",
+    "es": "Los paquetes han alcanzado temporalmente su capacidad. Inténtalo de nuevo en breve."
+  },
+  {
+    "key": "promotion.invalid_package",
+    "group": "promotion",
+    "az": "Seçilmiş paket mövcud deyil.",
+    "en": "The selected package is not available.",
+    "ru": "Выбранный пакет недоступен.",
+    "tr": "Seçilen paket mevcut değil.",
+    "ua": "Вибраний пакет недоступний.",
+    "es": "El paquete seleccionado no está disponible."
+  },
+  {
+    "key": "promotion.iap.not_ready",
+    "group": "promotion",
+    "az": "Mağaza ödənişi müvəqqəti olaraq əlçatan deyil.",
+    "en": "Store payments are temporarily unavailable.",
+    "ru": "Оплата через магазин временно недоступна.",
+    "tr": "Mağaza ödemeleri geçici olarak kullanılamıyor.",
+    "ua": "Оплата через магазин тимчасово недоступна.",
+    "es": "Los pagos de la tienda no están disponibles temporalmente."
+  },
+  {
+    "key": "promotion.iap.purchase_failed",
+    "group": "promotion",
+    "az": "Ödəniş alınmadı. Yenidən cəhd et.",
+    "en": "The payment failed. Please try again.",
+    "ru": "Оплата не прошла. Попробуйте ещё раз.",
+    "tr": "Ödeme başarısız oldu. Lütfen tekrar deneyin.",
+    "ua": "Оплата не пройшла. Спробуйте ще раз.",
+    "es": "El pago ha fallado. Inténtalo de nuevo."
+  },
+  {
+    "key": "promotion.iap.previous_pending",
+    "group": "promotion",
+    "az": "Əvvəlki ödəniş hələ tamamlanmayıb. Bir az sonra yenidən cəhd et.",
+    "en": "Your previous payment is still being completed. Please try again shortly.",
+    "ru": "Предыдущая оплата ещё обрабатывается. Попробуйте снова немного позже.",
+    "tr": "Önceki ödemeniz hâlâ tamamlanıyor. Lütfen kısa süre sonra tekrar deneyin.",
+    "ua": "Попередня оплата ще обробляється. Спробуйте ще раз трохи пізніше.",
+    "es": "Tu pago anterior todavía se está procesando. Inténtalo de nuevo en unos instantes."
+  },
+  {
+    "key": "promotion.iap.server_validation_failed",
+    "group": "promotion",
+    "az": "Mağaza əməliyyatı serverdə təsdiqlənmədi. Yenidən cəhd et.",
+    "en": "The store transaction could not be verified by the server. Please try again.",
+    "ru": "Сервер не подтвердил покупку в магазине. Попробуйте ещё раз.",
+    "tr": "Mağaza işlemi sunucu tarafından doğrulanamadı. Lütfen tekrar deneyin.",
+    "ua": "Сервер не підтвердив покупку в магазині. Спробуйте ще раз.",
+    "es": "El servidor no pudo verificar la compra de la tienda. Inténtalo de nuevo."
+  },
+  {
+    "key": "promotion.iap.canceled_title",
+    "group": "promotion",
+    "az": "Ödəniş ləğv edildi",
+    "en": "Payment canceled",
+    "ru": "Оплата отменена",
+    "tr": "Ödeme iptal edildi",
+    "ua": "Оплату скасовано",
+    "es": "Pago cancelado"
+  },
+  {
+    "key": "promotion.iap.canceled_message",
+    "group": "promotion",
+    "az": "Ödənişi ləğv etdin. Geri qayıdıb başqa paket seçə bilərsən.",
+    "en": "You canceled the payment. Go back to choose another package.",
+    "ru": "Вы отменили оплату. Вернитесь назад, чтобы выбрать другой пакет.",
+    "tr": "Ödemeyi iptal ettin. Geri dönüp başka bir paket seçebilirsin.",
+    "ua": "Ви скасували оплату. Поверніться, щоб вибрати інший пакет.",
+    "es": "Has cancelado el pago. Vuelve para elegir otro paquete."
+  },
+  {
+    "key": "promotion.iap.back",
+    "group": "promotion",
+    "az": "Geri qayıt",
+    "en": "Go back",
+    "ru": "Вернуться назад",
+    "tr": "Geri dön",
+    "ua": "Повернутися назад",
+    "es": "Volver"
+  },
+  {
+    "key": "promotion.iap.back_to_payment",
+    "group": "promotion",
+    "az": "Ödənişə qayıt",
+    "en": "Back to payment",
+    "ru": "Вернуться к оплате",
+    "tr": "Ödemeye dön",
+    "ua": "Повернутися до оплати",
+    "es": "Volver al pago"
+  }
+]

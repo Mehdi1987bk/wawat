@@ -28,6 +28,7 @@ class WawatContent {
     'tier',
     'my_listings',
     'promotion',
+    'update',
     'onboarding',
     'block',
     'deals',
@@ -46,6 +47,13 @@ class WawatContent {
     'common.operation_completed': 'Əməliyyat tamamlandı',
     'common.error': 'Xəta baş verdi. Yenidən cəhd edin.',
     'common.back': 'Geri',
+    'update.title': 'Yeniləmə tələb olunur',
+    'update.description':
+        'Wawatair-in yeni versiyası mövcuddur. Davam etmək üçün tətbiqi yeniləyin.',
+    'update.button': 'İndi yenilə',
+    'update.version': 'Yeni versiya: {version}',
+    'update.store_error':
+        'Mağaza səhifəsini açmaq mümkün olmadı. Bir qədər sonra yenidən cəhd edin.',
     'onboarding.slide1.title': 'Səyahət edəni göndərənlə birləşdir',
     'onboarding.slide1.body':
         'Uçan minlərlə insanın çantasında boş yer var. Wawatair onları bağlama göndərənlərlə birləşdirir.',
@@ -442,6 +450,17 @@ class WawatContent {
     'promotion.pay.secure_note':
         'Ödənişlər şifrələnir · kart məlumatı serverdə saxlanmır',
     'promotion.pay.retry': 'Yenidən cəhd et',
+    'promotion.iap.not_ready': 'Mağaza ödənişi müvəqqəti olaraq əlçatan deyil.',
+    'promotion.iap.purchase_failed': 'Ödəniş alınmadı. Yenidən cəhd et.',
+    'promotion.iap.previous_pending':
+        'Əvvəlki ödəniş hələ tamamlanmayıb. Bir az sonra yenidən cəhd et.',
+    'promotion.iap.server_validation_failed':
+        'Mağaza əməliyyatı serverdə təsdiqlənmədi. Yenidən cəhd et.',
+    'promotion.iap.canceled_title': 'Ödəniş ləğv edildi',
+    'promotion.iap.canceled_message':
+        'Ödənişi ləğv etdin. Geri qayıdıb başqa paket seçə bilərsən.',
+    'promotion.iap.back': 'Geri qayıt',
+    'promotion.iap.back_to_payment': 'Ödənişə qayıt',
     'promotion.activated': 'Təbriklər!',
     'promotion.payment_failed': 'Ödəniş alınmadı',
     'promotion.payment_pending': 'Təsdiq gözlənilir',
@@ -643,7 +662,6 @@ class WawatContent {
     'feed.end': 'Hamısı bu qədər',
     'home.hero_subtitle': 'Səyahət edənlərlə göndərənləri birləşdiririk',
     'home.hero_title': 'Bağlamanı kim aparsın?',
-    'home.stats_prefix': 'Bu ay',
     'listing.detail_title': 'Elan',
     'menu.appearance': 'Görünüş',
     'menu.promo_codes': 'Promokodlarım',
@@ -863,7 +881,8 @@ class WawatContent {
     String? fallback,
   ]) {
     final runtimeValue = _runtimeTranslations[key];
-    final value = runtimeValue == null ||
+    final value =
+        runtimeValue == null ||
             runtimeValue.trim().isEmpty ||
             runtimeValue == key
         ? content[key]
@@ -883,10 +902,11 @@ class WawatContent {
     Map<String, String> content,
     String key, [
     String? fallback,
-  ]) =>
-      text(content, key, fallback)
-          .replaceAll('₼', r'$')
-          .replaceAll(_perKgUnit, r'kq/$');
+  ]) => text(
+    content,
+    key,
+    fallback,
+  ).replaceAll('₼', r'$').replaceAll(_perKgUnit, r'kq/$');
 
   /// `$/kq`, `$ / кг`, an already-correct `kq/$` or a bare `$` — every shape the
   /// CMS serves collapses to `kq/$`. Ordered alternation, so the per-kg forms

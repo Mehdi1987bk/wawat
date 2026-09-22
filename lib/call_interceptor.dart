@@ -27,11 +27,11 @@ class CallInterceptor extends Interceptor {
 
     // Добавляем язык в header
     final locale = await _storage.getLocaleAsync();
-    if (locale != null) {
-      final languageCode =
-          locale.languageCode == 'uk' ? 'ua' : locale.languageCode;
-      options.headers['Accept-Language'] = languageCode;
-    }
+    final storedLanguageCode = locale?.languageCode ?? 'az';
+    final languageCode = storedLanguageCode == 'uk' ? 'ua' : storedLanguageCode;
+    const supportedLanguages = {'az', 'en', 'ru', 'tr', 'ua'};
+    options.headers['Accept-Language'] =
+        supportedLanguages.contains(languageCode) ? languageCode : 'az';
 
     return handler.next(options);
   }

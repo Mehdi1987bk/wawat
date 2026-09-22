@@ -18,6 +18,7 @@ import '../../../../../main.dart';
 import '../../../../../services/notification_socket_service.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
+import '../../../../../services/avatar_cache_buster.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../home_screen.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
@@ -65,6 +66,27 @@ String _tx(Map<String, String> content, String key, String fallback) {
   return WawatContent.text(content, key, fallback);
 }
 
+String _activeAppLocaleName(BuildContext context) {
+  final code = LocalizationService.normalize(
+    Localizations.localeOf(context).languageCode,
+  );
+  switch (code) {
+    case 'en':
+      return tr('common.lang_en', 'English');
+    case 'ru':
+      return tr('common.lang_ru', 'Русский');
+    case 'tr':
+      return tr('common.lang_tr', 'Türkçe');
+    case 'ua':
+      return tr('common.lang_ua', 'Українська');
+    case 'es':
+      return tr('common.lang_es', 'Español');
+    case 'az':
+    default:
+      return tr('common.lang_az', 'Azərbaycanca');
+  }
+}
+
 class WawatProfileScreen extends StatefulWidget {
   final String? userId;
   final ListingOwner? initialOwner;
@@ -85,18 +107,73 @@ class WawatProfileScreen extends StatefulWidget {
   State<WawatProfileScreen> createState() => _WawatProfileScreenState();
 }
 
-class PublicProfileScreen extends WawatProfileScreen {
+class PublicProfileScreen extends StatefulWidget {
+  final String userId;
+  final ListingOwner? initialOwner;
+  final int initialTab;
+
   const PublicProfileScreen({
     super.key,
-    required String userId,
-    ListingOwner? initialOwner,
-    int initialTab = 0,
-  }) : super(
-          userId: userId,
-          initialOwner: initialOwner,
-          isSelf: false,
-          initialTab: initialTab,
+    required this.userId,
+    this.initialOwner,
+    this.initialTab = 0,
+  });
+
+  @override
+  State<PublicProfileScreen> createState() => _PublicProfileScreenState();
+}
+
+/// Central guest guard for every route that opens another user's profile.
+/// Keeping it here covers feed cards, listing details, search, chats, deals and
+/// notification deep links without relying on every caller to remember a
+/// separate authentication check.
+class _PublicProfileScreenState extends State<PublicProfileScreen> {
+  late Future<bool> _isLogged = sl.get<AuthRepository>().isLogged();
+  bool _openingRegistration = false;
+
+  void _openRegistration() {
+    if (_openingRegistration) return;
+    _openingRegistration = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await AuthModalUtils.showRegistration(context);
+      if (!mounted) return;
+
+      final logged = await sl.get<AuthRepository>().isLogged();
+      if (!mounted) return;
+      if (logged) {
+        setState(() {
+          _openingRegistration = false;
+          _isLogged = Future<bool>.value(true);
+        });
+      } else {
+        Navigator.of(context).maybePop();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _isLogged,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: _brand)),
+          );
+        }
+        if (snapshot.data != true) {
+          _openRegistration();
+          return const Scaffold(body: SizedBox.expand());
+        }
+        return WawatProfileScreen(
+          userId: widget.userId,
+          initialOwner: widget.initialOwner,
+          initialTab: widget.initialTab,
         );
+      },
+    );
+  }
 }
 
 class WawatSettingsScreen extends StatelessWidget {
@@ -2481,7 +2558,7 @@ class _SettingsHubScreen extends StatelessWidget {
                 _SettingsRow(
                   icon: PhosphorIconsRegular.translate,
                   label: _tx(content, 'profile.language', 'Dil'),
-                  trailingText: user.preferredLocale ?? 'az',
+                  trailingText: _activeAppLocaleName(context),
                   onTap: () {},
                 ),
               ],
@@ -2603,10 +2680,9 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
       TextEditingController(text: widget.user.lastName ?? '');
   late final TextEditingController _bio =
       TextEditingController(text: widget.user.bio ?? '');
-  late final String _locale = widget.user.preferredLocale ?? 'az';
   late final Set<String> _languages =
       widget.user.languages.map((language) => language.code).toSet();
-  late Future<LanguageResponse> _languageFuture = widget.api.languages();
+  late final Future<LanguageResponse> _languageFuture = widget.api.languages();
   late WawatProfileUser _user = widget.user;
   bool _busy = false;
   bool _dirty = false;
@@ -2636,7 +2712,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
         'first_name': _firstName.text.trim(),
         'last_name': _lastName.text.trim(),
         'bio': _bio.text.trim(),
-        'preferred_locale': _locale,
         'languages': _languages.toList(),
       });
       if (!mounted) return;
@@ -2690,14 +2765,18 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   /// refresh the cached [User] so every `userDetails` listener (menu tab, etc.)
   /// shows the new photo immediately.
   Future<void> _syncAfterAvatarChange() async {
-    await _evictAvatar(_user);
     WawatProfileUser fresh;
     try {
       fresh = await widget.api.me();
     } catch (_) {
       fresh = _user;
     }
-    await _evictAvatar(fresh);
+    await AvatarCacheBuster.invalidate([
+      _user.avatarUrl,
+      _user.avatarThumbUrl,
+      fresh.avatarUrl,
+      fresh.avatarThumbUrl,
+    ]);
     if (mounted) {
       setState(() {
         _user = fresh;
@@ -2709,19 +2788,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
       await sl.get<AuthRepository>().customersMe();
     } catch (_) {
       // Cache refresh is best-effort; the upload already succeeded.
-    }
-  }
-
-  Future<void> _evictAvatar(WawatProfileUser user) async {
-    for (final url in [user.avatarUrl, user.avatarThumbUrl]) {
-      if (url != null && url.isNotEmpty) {
-        // Clear BOTH cache layers: evictFromCache drops the on-disk bytes, but
-        // Flutter keeps a decoded copy in PaintingBinding.imageCache keyed by
-        // the provider — without evicting that too, a rebuild with the same URL
-        // repaints the old photo.
-        await CachedNetworkImage.evictFromCache(url);
-        await CachedNetworkImageProvider(url).evict();
-      }
     }
   }
 
@@ -3623,7 +3689,7 @@ class _ProfileAvatar extends StatelessWidget {
       );
 
   Widget _image(String url, {required Widget onError}) => CachedNetworkImage(
-        imageUrl: url,
+        imageUrl: AvatarCacheBuster.resolve(url),
         width: size,
         height: size,
         fit: BoxFit.cover,
@@ -5078,8 +5144,9 @@ String _relativeDate(DateTime? date) {
 String _errorMessage(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
-    if (data is Map && data['message'] != null)
+    if (data is Map && data['message'] != null) {
       return data['message'].toString();
+    }
   }
   return tr('error.operation_failed', 'Əməliyyat alınmadı.');
 }

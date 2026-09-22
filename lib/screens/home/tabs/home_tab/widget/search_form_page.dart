@@ -364,6 +364,12 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
                   ],
                 ),
                 if (widget.showAdvancedToggle) ...[
+                  const SizedBox(height: 14),
+                  ListingTypeFilter(
+                    value: _type,
+                    content: content,
+                    onChanged: (value) => setState(() => _type = value),
+                  ),
                   const SizedBox(height: 12),
                   _AdvancedToggle(
                     label: _contentText(content, 'search.advanced'),
@@ -643,14 +649,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionTitle(
-              _contentText(content, 'search.filter_type', 'Elan tipi')),
-          ListingTypeFilter(
-            value: _type,
-            content: content,
-            onChanged: (value) => setState(() => _type = value),
-          ),
-          const SizedBox(height: 18),
           _SectionTitle(_contentText(content, 'search.filter_package_type')),
           if (_packages.isEmpty)
             LinearProgressIndicator(

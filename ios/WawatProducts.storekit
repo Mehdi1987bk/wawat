@@ -1,0 +1,229 @@
+{
+  "appPolicies": {
+    "eula": "",
+    "policies": [
+      {
+        "locale": "en_US",
+        "policyText": "",
+        "policyURL": ""
+      }
+    ]
+  },
+  "identifier": "B1E7B0A0",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "A1000001",
+      "localizations": [
+        {
+          "description": "Elanı 1 gün VİP et",
+          "displayName": "VİP · 1 gün",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.vip.1d",
+      "referenceName": "VIP 1 gün",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "A1000002",
+      "localizations": [
+        {
+          "description": "Elanı 3 gün VİP et",
+          "displayName": "VİP · 3 gün",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.vip.3d",
+      "referenceName": "VIP 3 gün",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "A1000003",
+      "localizations": [
+        {
+          "description": "Elanı 5 gün VİP et",
+          "displayName": "VİP · 5 gün",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.vip.5d",
+      "referenceName": "VIP 5 gün",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "9.00",
+      "familyShareable": false,
+      "internalID": "A1000004",
+      "localizations": [
+        {
+          "description": "Elanı önə çıxar (kiçik paket)",
+          "displayName": "Önə çıxarılan · Kiçik",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.boost.small",
+      "referenceName": "Boost Kiçik",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "19.00",
+      "familyShareable": false,
+      "internalID": "A1000005",
+      "localizations": [
+        {
+          "description": "Elanı önə çıxar (orta paket)",
+          "displayName": "Önə çıxarılan · Orta",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.boost.medium",
+      "referenceName": "Boost Orta",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "39.00",
+      "familyShareable": false,
+      "internalID": "A1000006",
+      "localizations": [
+        {
+          "description": "Elanı önə çıxar (böyük paket)",
+          "displayName": "Önə çıxarılan · Böyük",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.boost.large",
+      "referenceName": "Boost Böyük",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "A1000010",
+      "localizations": [
+        {
+          "description": "1 additional listing for your Wawat Air account.",
+          "displayName": "Listing limit +1",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.quota.small",
+      "referenceName": "Quota +1",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "A1000011",
+      "localizations": [
+        {
+          "description": "3 additional listings for your Wawat Air account.",
+          "displayName": "Listing limit +3",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.quota.medium",
+      "referenceName": "Quota +3",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "A1000012",
+      "localizations": [
+        {
+          "description": "5 additional listings for your Wawat Air account.",
+          "displayName": "Listing limit +5",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.quota.large",
+      "referenceName": "Quota +5",
+      "type": "Consumable"
+    }
+  ],
+  "settings": {
+    "_askToBuyEnabled": false,
+    "_billingGracePeriodEnabled": false,
+    "_billingIssuesEnabled": false,
+    "_disableDialogs": false,
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_renewalBillingIssuesEnabled": false,
+    "_storefront": "AZE",
+    "_storeKitErrors": [
+      {
+        "current": {
+          "index": 2,
+          "type": "generic"
+        },
+        "enabled": false,
+        "name": "Load Products"
+      },
+      {
+        "current": {
+          "index": 1,
+          "type": "purchase"
+        },
+        "enabled": false,
+        "name": "Purchase"
+      },
+      {
+        "current": {
+          "index": 0,
+          "type": "verification"
+        },
+        "enabled": false,
+        "name": "Verification"
+      },
+      {
+        "enabled": false,
+        "name": "App Store Sync"
+      },
+      {
+        "current": {
+          "index": 2,
+          "type": "generic"
+        },
+        "enabled": false,
+        "name": "Subscription Status"
+      },
+      {
+        "current": {
+          "index": 3,
+          "type": "generic"
+        },
+        "enabled": false,
+        "name": "App Transaction"
+      },
+      {
+        "enabled": false,
+        "name": "Manage Subscriptions Sheet"
+      },
+      {
+        "enabled": false,
+        "name": "Refund Request Sheet"
+      },
+      {
+        "current": {
+          "index": 4,
+          "type": "generic"
+        },
+        "enabled": false,
+        "name": "Offer Code Redeem Sheet"
+      }
+    ],
+    "_timeRate": 0
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}

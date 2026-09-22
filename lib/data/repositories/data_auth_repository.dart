@@ -41,6 +41,7 @@ import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/partner_user_response.dart';
 import '../network/response/privacy_policy_response.dart';
+import '../network/response/popular_routes_response.dart';
 import '../network/response/registration_response.dart';
 import '../network/response/reviews_response.dart';
 import '../network/response/saved_search_response.dart';
@@ -100,10 +101,14 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> customersMe() async {
+  Future<User> customersMe() async {
     try {
       final response = await _authApi.customersMe();
       await _cacheManager.saveUser(response.data);
+      // Return the fresh user straight from the API so callers get the updated
+      // fields immediately, instead of reading them back through the Hive
+      // `userDetails` stream (which is async and can hand back a stale frame).
+      return response.data;
     } catch (e) {
       // Если 401 - очищаем токен
       if (e is DioException && e.response?.statusCode == 401) {
@@ -128,7 +133,9 @@ class DataAuthRepository implements AuthRepository {
 
   @override
   Future<RegistrationResponse> otpVerify(
-      OtpVerifyRequest request, String token) {
+    OtpVerifyRequest request,
+    String token,
+  ) {
     return _authApi.otpVerify(request, token);
   }
 
@@ -151,14 +158,16 @@ class DataAuthRepository implements AuthRepository {
     String about,
     String? callingCode,
   ) {
-    return _authApi.profileEdit(UserRequest(
-      fullname: name,
-      email: email,
-      phone: phone,
-      about: about,
-      locationText: location,
-      callingCode: callingCode,
-    ));
+    return _authApi.profileEdit(
+      UserRequest(
+        fullname: name,
+        email: email,
+        phone: phone,
+        about: about,
+        locationText: location,
+        callingCode: callingCode,
+      ),
+    );
   }
 
   @override
@@ -302,10 +311,16 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<VerificationPayResult> payVerification() async {
+  Future<VerificationPayResult> payVerification({
+    String method = 'card',
+    String? idempotencyKey,
+  }) async {
     final response = await sl.get<Dio>().post<dynamic>(
       '$baseUrl/verification/pay',
-      data: const <String, dynamic>{},
+      data: <String, dynamic>{'method': method},
+      options: idempotencyKey == null
+          ? null
+          : Options(headers: {'Idempotency-Key': idempotencyKey}),
     );
     final body = response.data is Map
         ? Map<String, dynamic>.from(response.data as Map)
@@ -314,9 +329,22 @@ class DataAuthRepository implements AuthRepository {
     if (data is! Map) {
       throw StateError('verification/pay returned no verification');
     }
+    final dataMap = Map<String, dynamic>.from(data);
+    // The hosted-checkout URL can arrive on the payment block (like promo/quota)
+    // or at the response top level — accept either so no client change is needed
+    // when the backend switches verification to the real Kapital gateway.
+    final payment = dataMap['payment'];
+    final checkoutUrl = (payment is Map
+                ? payment['checkout_url']?.toString()
+                : null) ??
+            dataMap['checkout_url']?.toString() ??
+            body['checkout_url']?.toString();
     return VerificationPayResult(
-      state: VerificationState.fromJson(Map<String, dynamic>.from(data)),
+      state: VerificationState.fromJson(dataMap),
       message: body['message']?.toString(),
+      checkoutUrl: (checkoutUrl != null && checkoutUrl.isNotEmpty)
+          ? checkoutUrl
+          : null,
     );
   }
 
@@ -324,9 +352,7 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.addAvatar(avatar);
   }
 
-  Future<void> sendReviews(
-    CreateReviewRequest request,
-  ) {
+  Future<void> sendReviews(CreateReviewRequest request) {
     return _authApi.sendReviews(request);
   }
 
@@ -350,18 +376,18 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.deleteNotification(id);
   }
 
-  Future<void> submitVerification(
-      {required File passport, required File selfie}) {
-    return _authApi.submitVerification(
-      passport: passport,
-      selfie: selfie,
-    );
+  Future<void> submitVerification({
+    required File passport,
+    required File selfie,
+  }) {
+    return _authApi.submitVerification(passport: passport, selfie: selfie);
   }
 
   @override
   Future<List<DocumentType>> getDocumentTypes() async {
-    final response =
-        await sl.get<Dio>().get<dynamic>('$baseUrl/document-types');
+    final response = await sl.get<Dio>().get<dynamic>(
+      '$baseUrl/document-types',
+    );
     final body = response.data;
     final list = body is Map ? body['data'] : body;
     if (list is! List) return const [];
@@ -384,9 +410,9 @@ class DataAuthRepository implements AuthRepository {
       'documents[selfie]': await MultipartFile.fromFile(selfie.path),
     });
     await sl.get<Dio>().post<dynamic>(
-          '$baseUrl/verification/submit',
-          data: form,
-        );
+      '$baseUrl/verification/submit',
+      data: form,
+    );
   }
 
   Future<Pagination<OfferModel>> getFavorites(int page) {
@@ -509,10 +535,7 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Pagination<Listing>> getMyListings({
-    required int page,
-    int? perPage,
-  }) {
+  Future<Pagination<Listing>> getMyListings({required int page, int? perPage}) {
     return _authApi.getMyListings(page, perPage);
   }
 
@@ -608,6 +631,11 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<CitiesResponse> getPopularCities() {
     return _authApi.getPopularCities();
+  }
+
+  @override
+  Future<PopularRoutesResponse> getPopularRoutes() {
+    return _authApi.getPopularRoutes();
   }
 
   @override

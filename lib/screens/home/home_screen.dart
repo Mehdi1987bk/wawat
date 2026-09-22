@@ -19,7 +19,12 @@ import 'tabs/profile_tab/promo/app_review.dart';
 class HomeScreen extends BaseScreen {
   final int? orderId;
 
-  HomeScreen({super.key, this.orderId});
+  /// Bottom-nav tab to open on cold start (0 = Главная, 1 = Поиск). Resolved by
+  /// the backend via [HomeConfig] before this screen is built, so Home renders
+  /// on the right tab from the first frame with no visible jump. Null → Главная.
+  final int? initialTabIndex;
+
+  HomeScreen({super.key, this.orderId, this.initialTabIndex});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -29,7 +34,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<__TabsState> _tabsKey = GlobalKey<__TabsState>();
   final ValueNotifier<bool> optionsNotifier = ValueNotifier(false);
-  int _selectedIndex = 0;
+  late int _selectedIndex = widget.initialTabIndex ?? 0;
 
   @override
   void dispose() {
@@ -147,7 +152,9 @@ class _Tabs extends StatefulWidget {
 
 class __TabsState extends State<_Tabs> {
   late List<Widget> _tabs;
-  final Set<int> _visitedTabs = {0};
+  // Seed with the landing tab so a backend-chosen start tab (e.g. Поиск) is
+  // actually built on the first frame instead of rendering as an empty box.
+  late final Set<int> _visitedTabs = {0, widget.selectedIndex};
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
   final GlobalKey<ChatListScreenState> _chatKey =

@@ -490,30 +490,6 @@ class _RegistrationScreenState
               onPressed: _register,
             ),
             const SizedBox(height: 24),
-            _DividerLabel(text: tr('common.or', 'və ya'), isDark: isDark),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: _OutlineButton(
-                    text: tr('auth.google', 'Google'),
-                    icon: Icons.g_mobiledata,
-                    onPressed: null,
-                    isDark: isDark,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _OutlineButton(
-                    text: tr('auth.apple', 'Apple'),
-                    icon: Icons.apple,
-                    onPressed: null,
-                    isDark: isDark,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
             Center(
               child: Wrap(
                 alignment: WrapAlignment.center,
@@ -661,45 +637,6 @@ class _PrimaryButton extends StatelessWidget {
   }
 }
 
-class _OutlineButton extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final bool isDark;
-
-  const _OutlineButton({
-    required this.text,
-    required this.icon,
-    required this.onPressed,
-    this.isDark = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 22),
-        label: Text(text),
-        style: OutlinedButton.styleFrom(
-          foregroundColor:
-              isDark ? WawatDark.textPrimary : const Color(0xFF111827),
-          disabledForegroundColor:
-              isDark ? WawatDark.textSecondary : const Color(0xFF9CA3AF),
-          side: BorderSide(
-            color: isDark ? WawatDark.border : Colors.black12,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-}
-
 class _AlertBox extends StatelessWidget {
   final String message;
   final bool isDark;
@@ -739,34 +676,6 @@ class _AlertBox extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _DividerLabel extends StatelessWidget {
-  final String text;
-  final bool isDark;
-
-  const _DividerLabel({required this.text, this.isDark = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Divider(color: isDark ? WawatDark.divider : null)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isDark ? WawatDark.textMuted : const Color(0xFF9CA3AF),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: isDark ? WawatDark.divider : null)),
-      ],
     );
   }
 }

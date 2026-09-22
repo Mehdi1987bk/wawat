@@ -12,6 +12,7 @@ import '../../../../../domain/entities/pagination.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
+import '../../../../../presentation/common/locale_aware_refetch.dart';
 import '../../../../../presentation/bloc/utils.dart';
 import '../../../scrollable_tab.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
@@ -68,7 +69,7 @@ class SearchOfferListScreen extends BaseScreen<ListingFeedBloc> {
 
 class _SearchOfferListScreenState
     extends BaseState<SearchOfferListScreen, ListingFeedBloc>
-    with ScrollableTab {
+    with ScrollableTab, LocaleAwareRefetch {
   final ScrollController _scrollController = ScrollController();
   bool _showResults = false;
   bool _currentSearchSaved = false;
@@ -97,6 +98,13 @@ class _SearchOfferListScreenState
 
   @override
   bool get showProgressIndicator => false;
+
+  @override
+  void onLocaleChanged() {
+    // Refresh backend-localized labels; only re-run the query if results show.
+    bloc.reloadLocalizedLabels();
+    if (_showResults) bloc.refreshList();
+  }
 
   @override
   void initState() {

@@ -6,9 +6,8 @@
 #   ./scripts/build_apk.sh debug        # debug-сборка (крупнее и медленнее)
 #   ./scripts/build_apk.sh release --split-per-abi   # отдельный APK на архитектуру
 #
-# Проект закреплён на Flutter 3.27.1 через FVM (.fvmrc). Глобальный flutter
-# новее — с ним падает `pub get` («version solving failed»). Скрипт сам находит
-# нужный SDK и не даёт собрать не той версией.
+# Проект закреплён на Flutter через FVM (.fvmrc). Скрипт сам находит нужный SDK
+# и не даёт собрать другой версией.
 
 set -euo pipefail
 

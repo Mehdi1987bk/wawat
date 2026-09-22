@@ -30,6 +30,7 @@ import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/partner_user_response.dart';
 import '../../data/network/response/privacy_policy_response.dart';
+import '../../data/network/response/popular_routes_response.dart';
 import '../../data/network/response/registration_response.dart';
 import '../../data/network/response/reviews_response.dart';
 import '../../data/network/response/saved_search_response.dart';
@@ -54,14 +55,21 @@ abstract class AuthRepository {
 
   Future<void> sendOtpLogin(int number, int otpCode);
 
-  Future<void> customersMe();
+  /// Refetch /me, refresh the cached user, and return the fresh [User].
+  /// Returning it (rather than only saving) lets callers read server-updated
+  /// fields — e.g. a just-increased listing quota — without racing the Hive
+  /// `userDetails` stream. Callers that only need the cache refresh can ignore
+  /// the value (a `Future<User>` still satisfies a `Future<void>` wrapper).
+  Future<User> customersMe();
 
   Future<ContentResponse> getContent({String? group});
 
   Future<void> registration(RegistrationRequest request);
 
   Future<RegistrationResponse> otpVerify(
-      OtpVerifyRequest request, String token);
+    OtpVerifyRequest request,
+    String token,
+  );
 
   Future<RegistrationResponse> otpSend(String token);
 
@@ -122,7 +130,15 @@ abstract class AuthRepository {
 
   /// Pay the verification activation fee (`POST /verification/pay`). Works only
   /// for an approved-and-unpaid request; returns the updated verification.
-  Future<VerificationPayResult> payVerification();
+  ///
+  /// [method] is the payment method (`card` today). [idempotencyKey] must stay
+  /// stable across retries of the same request so re-tapping never double-charges
+  /// once a real gateway is wired. The result carries a `checkoutUrl` when the
+  /// backend hands off to the Kapital hosted page (mock off).
+  Future<VerificationPayResult> payVerification({
+    String method,
+    String? idempotencyKey,
+  });
 
   Future<void> addAvatar(File avatar);
 
@@ -138,8 +154,10 @@ abstract class AuthRepository {
 
   Future<void> deleteNotification(String id);
 
-  Future<void> submitVerification(
-      {required File passport, required File selfie});
+  Future<void> submitVerification({
+    required File passport,
+    required File selfie,
+  });
 
   /// KYC document types (id_card/passport/driver_license/selfie) with localized
   /// names — never hardcode the list.
@@ -200,10 +218,7 @@ abstract class AuthRepository {
 
   Future<ListingResponse> getListingDetails(String id);
 
-  Future<Pagination<Listing>> getMyListings({
-    required int page,
-    int? perPage,
-  });
+  Future<Pagination<Listing>> getMyListings({required int page, int? perPage});
 
   Future<Pagination<Listing>> getListingFavorites({
     required int page,
@@ -256,6 +271,8 @@ abstract class AuthRepository {
   Future<CitiesResponse> getListingCities(String? search, {int limit = 20});
 
   Future<CitiesResponse> getPopularCities();
+
+  Future<PopularRoutesResponse> getPopularRoutes();
 
   Future<TrendingRoutesResponse> getTrendingRoutes();
 

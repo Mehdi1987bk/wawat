@@ -67,6 +67,31 @@ class PromotionApi {
     return PromotionResponse.fromJson(response.data ?? const {});
   }
 
+  /// Initiates payment for a pending order.
+  /// `POST /promotions/{id}/pay` `{method}` (+ optional `promo_code`).
+  ///
+  /// For `method: 'card'` the response carries
+  /// `data.payment.checkout_url` — a Kapital hosted 3-D Secure page to open in a
+  /// WebView. The backend verifies and activates the promotion idempotently, so
+  /// re-calling pay (e.g. after a network drop) never double-charges.
+  Future<PromotionResponse> payPromotion(
+    String promotionId, {
+    required String method, // 'card' | 'apple' | 'google'
+    String? promoCode,
+    required String idempotencyKey,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '$_baseUrl/promotions/$promotionId/pay',
+      data: {
+        'method': method,
+        if (promoCode != null && promoCode.trim().isNotEmpty)
+          'promo_code': promoCode.trim(),
+      },
+      options: Options(headers: {'Idempotency-Key': idempotencyKey}),
+    );
+    return PromotionResponse.fromJson(response.data ?? const {});
+  }
+
   Future<PromotionResponse> extendPromotion(
     String promotionId,
     PromotionExtendRequest request, {
@@ -74,19 +99,6 @@ class PromotionApi {
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '$_baseUrl/promotions/$promotionId/extend',
-      data: request.toJson(),
-      options: Options(headers: {'Idempotency-Key': idempotencyKey}),
-    );
-    return PromotionResponse.fromJson(response.data ?? const {});
-  }
-
-  Future<PromotionResponse> payPromotion(
-    String promotionId,
-    PromotionPayRequest request, {
-    required String idempotencyKey,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '$_baseUrl/promotions/$promotionId/pay',
       data: request.toJson(),
       options: Options(headers: {'Idempotency-Key': idempotencyKey}),
     );

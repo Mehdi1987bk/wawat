@@ -13,9 +13,16 @@ class VerificationBloc extends BaseBloc {
   Future<VerificationSnapshot> getVerification() =>
       authRepository.getVerification();
 
-  /// Pay the activation fee (`POST /verification/pay`, mock for now).
-  Future<VerificationPayResult> payVerification() =>
-      authRepository.payVerification();
+  /// Pay the activation fee (`POST /verification/pay`). [method] is `card`
+  /// today; [idempotencyKey] stays stable across retries of one request.
+  Future<VerificationPayResult> payVerification({
+    String method = 'card',
+    String? idempotencyKey,
+  }) =>
+      authRepository.payVerification(
+        method: method,
+        idempotencyKey: idempotencyKey,
+      );
 
   Future<List<DocumentType>> loadDocumentTypes() =>
       authRepository.getDocumentTypes();

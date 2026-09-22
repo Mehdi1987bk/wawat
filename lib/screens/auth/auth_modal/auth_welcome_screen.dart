@@ -96,19 +96,6 @@ class _AuthWelcomeScreenState
                 text: tr('auth.login', 'Daxil ol'),
                 onPressed: widget.onLogin,
               ),
-              const SizedBox(height: 16),
-              _DividerLabel(text: tr('common.or', 'və ya')),
-              const SizedBox(height: 16),
-              _OAuthButton(
-                text: tr('auth.continue_with_google', 'Google ilə davam et'),
-                icon: Icons.g_mobiledata,
-              ),
-              const SizedBox(height: 10),
-              _OAuthButton(
-                text: tr('auth.continue_with_apple', 'Apple ilə davam et'),
-                icon: Icons.apple,
-                isDark: true,
-              ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -200,73 +187,6 @@ class _GlassButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _OAuthButton extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final bool isDark;
-
-  const _OAuthButton({
-    required this.text,
-    required this.icon,
-    this.isDark = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final background = isDark ? Colors.black : Colors.white;
-    final foreground = isDark ? Colors.white : const Color(0xFF111827);
-
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton.icon(
-        onPressed: null,
-        icon: Icon(icon, size: 24),
-        label: Text(text),
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          disabledBackgroundColor: background.withValues(alpha: 0.65),
-          disabledForegroundColor: foreground.withValues(alpha: 0.65),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DividerLabel extends StatelessWidget {
-  final String text;
-
-  const _DividerLabel({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.25))),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.25))),
-      ],
     );
   }
 }
