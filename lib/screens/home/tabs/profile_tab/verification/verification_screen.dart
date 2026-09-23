@@ -5,6 +5,10 @@ import 'package:buking/presentation/bloc/error_dispatcher.dart';
 import 'package:buking/presentation/resourses/app_colors.dart';
 import 'package:buking/screens/home/tabs/profile_tab/verification/verification_bloc.dart';
 import 'package:buking/screens/payments/card_checkout_screen.dart';
+import 'package:buking/screens/payments/iap/iap_catalog.dart';
+import 'package:buking/screens/payments/iap/iap_service.dart';
+import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -69,6 +73,13 @@ class _VerificationScreenState
   String? _selectedType;
   bool _typesLoadFailed = false;
 
+  /// Store (App Store / Google Play) product for the verification badge, when
+  /// the backend catalog defines it AND the store returns its localized price.
+  /// Null until resolved — the store tile stays disabled while it is, exactly
+  /// like the promotion/quota flows do for a product not yet live in the store.
+  IapCatalogProduct? _verificationCatalog;
+  ProductDetails? _verificationStoreProduct;
+
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -76,6 +87,41 @@ class _VerificationScreenState
     super.initState();
     _loadVerificationStatus();
     _loadDocumentTypes();
+    _loadVerificationStoreProduct();
+  }
+
+  /// Fetches the verification store product so the payment sheet can offer
+  /// App Store / Google Play. Best-effort: any failure just leaves the store
+  /// tile disabled and the card path fully usable.
+  Future<void> _loadVerificationStoreProduct() async {
+    if (!kIapEnabled) return;
+    try {
+      final products = await IapService.instance.loadProducts(
+        kinds: const {IapProductKind.verification},
+      );
+      IapCatalogProduct? catalog;
+      for (final item in IapService.instance.catalogProducts.value) {
+        if (item.kind == IapProductKind.verification) {
+          catalog = item;
+          break;
+        }
+      }
+      if (catalog == null) return;
+      ProductDetails? store;
+      for (final p in products) {
+        if (p.id == catalog.productId) {
+          store = p;
+          break;
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _verificationCatalog = catalog;
+        _verificationStoreProduct = store;
+      });
+    } catch (_) {
+      /* store unavailable — card path stays fully usable */
+    }
   }
 
   Future<void> _loadDocumentTypes() async {
@@ -631,6 +677,91 @@ class _VerificationScreenState
         ),
       ],
     );
+  }
+
+  /// Let the user pick how to pay the activation fee — the store
+  /// (App Store / Google Play via IAP) or a bank card (Kapital 3-D Secure) —
+  /// exactly like the VIP/quota flows. The store tile is offered only once the
+  /// backend catalog + the store both expose the verification product; until
+  /// then it shows as coming soon and the card path handles payment.
+  Future<void> _choosePaymentMethod(VerificationState state) async {
+    if (_isPaying) return;
+    final isDark = context.read<ThemeManager>().isDarkMode;
+    final storeEnabled = kIapEnabled &&
+        _verificationCatalog != null &&
+        _verificationStoreProduct != null;
+    final storeTitle = Platform.isIOS
+        ? tr('verification.pay.store_apple', 'App Store')
+        : tr('verification.pay.store_google', 'Google Play');
+    final method = await showAppBottomSheet<_VerifyPayMethod>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VerifyPaymentSheet(
+        isDark: isDark,
+        title: tr('verification.pay.method_title', 'Ödəniş üsulu'),
+        storeTitle: storeTitle,
+        storeSubtitle: storeEnabled
+            ? tr('verification.pay.store_sub', 'Mağaza vasitəsilə')
+            : tr('verification.pay.store_soon', 'Tezliklə əlçatan olacaq'),
+        storeTrailing: _verificationStoreProduct?.price,
+        storeEnabled: storeEnabled,
+        cardTitle: tr('verification.pay.card', 'Bank kartı'),
+        cardSubtitle: tr('verification.pay.card_sub', 'AZN ilə ödəniş'),
+      ),
+    );
+    if (method == null || !mounted) return;
+    if (method == _VerifyPayMethod.card) {
+      await _pay();
+      return;
+    }
+    await _payWithStore(state);
+  }
+
+  /// Buy the verification badge through the App Store / Google Play. The receipt
+  /// is validated by our backend inside [IapService.purchase] (routed to
+  /// `/verification/pay`); a confirmed purchase then refreshes the real state
+  /// and lands on the verified screen. Cancel is not a failure.
+  Future<void> _payWithStore(VerificationState state) async {
+    final catalog = _verificationCatalog;
+    if (catalog == null) {
+      _snack(
+        tr('verification.pay.store_soon', 'Tezliklə əlçatan olacaq'),
+        Colors.orange,
+      );
+      return;
+    }
+    setState(() => _isPaying = true);
+    try {
+      final result = await IapService.instance.purchase(
+        catalog.productId,
+        orderId: state.id.isNotEmpty ? state.id : 'verification',
+      );
+      if (!mounted) return;
+      if (result.outcome == IapOutcome.canceled) return;
+      if (!result.isSuccess) {
+        _snack(
+          tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
+          Colors.red,
+        );
+        return;
+      }
+      // Backend already validated the receipt → read the authoritative state.
+      await _loadVerificationStatus();
+      if (mounted && !_isVerified) {
+        _snack(
+          tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
+          Colors.red,
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      _snack(
+        tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
+        Colors.red,
+      );
+    } finally {
+      if (mounted) setState(() => _isPaying = false);
+    }
   }
 
   /// Pay the activation fee with a bank card. Mirrors the VIP/quota card flow:
@@ -1200,7 +1331,7 @@ class _VerificationScreenState
                       label:
                           '${tr('verification.payment.cta', 'Ödə')} · ${_feeText(state.payment.feeAmount, state.payment.currency)}',
                       loading: _isPaying,
-                      onTap: _pay,
+                      onTap: () => _choosePaymentMethod(state),
                     ),
                   ],
                 ),
@@ -1955,4 +2086,189 @@ class DashedBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+enum _VerifyPayMethod { store, card }
+
+/// Payment-method chooser for the verification badge — the store
+/// (App Store / Google Play via IAP) or a bank card (Kapital 3-D Secure).
+/// Mirrors the promotion/quota sheet so paying feels the same everywhere. The
+/// store tile is dimmed and non-tappable until its store product is live.
+class _VerifyPaymentSheet extends StatelessWidget {
+  final bool isDark;
+  final String title;
+  final String storeTitle;
+  final String storeSubtitle;
+  final String? storeTrailing;
+  final bool storeEnabled;
+  final String cardTitle;
+  final String cardSubtitle;
+
+  const _VerifyPaymentSheet({
+    required this.isDark,
+    required this.title,
+    required this.storeTitle,
+    required this.storeSubtitle,
+    required this.storeTrailing,
+    required this.storeEnabled,
+    required this.cardTitle,
+    required this.cardSubtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = isDark ? WawatDark.surface : Colors.white;
+    final screen = isDark ? WawatDark.bg : const Color(0xFFF5F7FA);
+    final textPrimary = isDark ? WawatDark.textPrimary : Colors.black87;
+    final textSecondary =
+        isDark ? WawatDark.textSecondary : Colors.grey.shade600;
+    final brand = AppColors.appColor;
+    return Container(
+      decoration: BoxDecoration(
+        color: screen,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: isDark ? WawatDark.border : const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            _tile(
+              surface: surface,
+              brand: brand,
+              textPrimary: textPrimary,
+              textSecondary: textSecondary,
+              icon: Icons.storefront_outlined,
+              title: storeTitle,
+              subtitle: storeSubtitle,
+              trailing: storeTrailing,
+              enabled: storeEnabled,
+              onTap: storeEnabled
+                  ? () => Navigator.pop(context, _VerifyPayMethod.store)
+                  : null,
+            ),
+            // Bank card is offered on every platform by product-owner decision
+            // (on iOS this is outside Apple's IAP — kept intentionally).
+            _tile(
+              surface: surface,
+              brand: brand,
+              textPrimary: textPrimary,
+              textSecondary: textSecondary,
+              icon: Icons.credit_card,
+              title: cardTitle,
+              subtitle: cardSubtitle,
+              trailing: null,
+              enabled: true,
+              onTap: () => Navigator.pop(context, _VerifyPayMethod.card),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tile({
+    required Color surface,
+    required Color brand,
+    required Color textPrimary,
+    required Color textSecondary,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String? trailing,
+    required bool enabled,
+    required VoidCallback? onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+      child: Opacity(
+        opacity: enabled ? 1.0 : 0.55,
+        child: Material(
+          color: surface,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: brand.withValues(alpha: isDark ? 0.18 : 0.10),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: brand, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            color: textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: textSecondary,
+                            fontSize: 12.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (trailing != null) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      trailing,
+                      style: TextStyle(
+                        color: textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right, color: textSecondary, size: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
