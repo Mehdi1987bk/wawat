@@ -98,8 +98,14 @@ String _quotaFailedText() => tr(
 /// A localized, non-technical message for a store purchase that errored (never
 /// the raw PlatformException). A duplicate/pending transaction gets its own
 /// hint so the user knows to wait a moment and retry.
-String _quotaIapErrorText(String? raw) {
-  final msg = (raw ?? '').toLowerCase();
+String _quotaIapErrorText(String? raw, [String? code]) {
+  final text = (raw ?? '').trim();
+  // A non-null `code` means this came from the backend error envelope
+  // ({message, code}) and is already localized — show the real reason.
+  if (code != null && code.trim().isNotEmpty && text.isNotEmpty) {
+    return text;
+  }
+  final msg = text.toLowerCase();
   if (msg.contains('previous transaction still pending') ||
       msg.contains('duplicate') ||
       msg.contains('pending transaction')) {
@@ -1704,7 +1710,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
         );
         setState(() {
           _paying = false;
-          _error = _quotaIapErrorText(result.message);
+          _error = _quotaIapErrorText(result.message, result.code);
         });
         return;
       }

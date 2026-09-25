@@ -162,15 +162,44 @@ class BackendPurchaseValidator implements PurchaseValidator {
 enum IapOutcome { purchased, restored, canceled, error, pending }
 
 class IapResult {
-  const IapResult(this.outcome, {this.productId, this.message, this.activated});
+  const IapResult(
+    this.outcome, {
+    this.productId,
+    this.message,
+    this.activated,
+    this.code,
+  });
 
   final IapOutcome outcome;
   final String? productId;
   final String? message;
   final bool? activated;
 
+  /// Machine-readable error code from the backend envelope ({message, code}),
+  /// so a screen can branch on the real reason instead of guessing from text.
+  final String? code;
+
   bool get isSuccess =>
       outcome == IapOutcome.purchased || outcome == IapOutcome.restored;
+}
+
+/// The backend answers errors as `{message, code}` and the message is already
+/// localized server-side. Surfacing it tells the user what actually went wrong
+/// — a 409 "already redeemed" and a 503 "store unreachable" are very different
+/// — instead of collapsing every failure into one generic line.
+({String? message, String? code}) backendError(Object error) {
+  if (error is DioException) {
+    final data = error.response?.data;
+    if (data is Map) {
+      final message = data['message']?.toString().trim();
+      final code = data['code']?.toString().trim();
+      return (
+        message: (message == null || message.isEmpty) ? null : message,
+        code: (code == null || code.isEmpty) ? null : code,
+      );
+    }
+  }
+  return (message: null, code: null);
 }
 
 class IapService {
@@ -713,11 +742,15 @@ class IapService {
           } catch (_) {}
         }
       }
+      // Prefer the backend's own (already localized) message over the raw
+      // exception dump, so the user sees the real reason.
+      final backend = backendError(error);
       _emit(
         IapResult(
           IapOutcome.error,
           productId: purchase.productID,
-          message: '$error',
+          message: backend.message ?? '$error',
+          code: backend.code,
         ),
       );
     } finally {

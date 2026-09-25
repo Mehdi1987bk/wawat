@@ -739,8 +739,14 @@ class _VerificationScreenState
       if (!mounted) return;
       if (result.outcome == IapOutcome.canceled) return;
       if (!result.isSuccess) {
+        // Show the backend's own localized reason when it sent one, so
+        // "already redeemed" never reads the same as "store unreachable".
+        final reason = result.message?.trim() ?? '';
+        final hasCode = result.code?.trim().isNotEmpty ?? false;
         _snack(
-          tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
+          hasCode && reason.isNotEmpty
+              ? reason
+              : tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
           Colors.red,
         );
         return;

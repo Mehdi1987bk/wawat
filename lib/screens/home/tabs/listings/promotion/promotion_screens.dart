@@ -760,7 +760,11 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
         );
         setState(() {
           _loading = false;
-          _error = _iapPurchaseErrorText(widget.content, result.message);
+          _error = _iapPurchaseErrorText(
+            widget.content,
+            result.message,
+            result.code,
+          );
         });
         return;
       }
@@ -4733,8 +4737,18 @@ String _apiError(Object error) {
   );
 }
 
-String _iapPurchaseErrorText(Map<String, String> content, String? reason) {
+String _iapPurchaseErrorText(
+  Map<String, String> content,
+  String? reason, [
+  String? code,
+]) {
   final normalized = reason?.trim() ?? '';
+  // A non-null `code` means the text came from the backend error envelope
+  // ({message, code}) and is already localized for this user — show it, so a
+  // "already redeemed" never looks the same as "store unreachable".
+  if (code != null && code.trim().isNotEmpty && normalized.isNotEmpty) {
+    return normalized;
+  }
   if (normalized == 'store product not found') {
     return _tx(
       content,
