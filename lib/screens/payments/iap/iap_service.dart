@@ -725,14 +725,18 @@ class IapService {
       );
     } catch (error, stackTrace) {
       debugPrint('[IAP] validation/completion error: $error\n$stackTrace');
-      // A 404 on the order-scoped /pay path means the backend has no such order
-      // (expired / deleted / never created) — redelivery can never succeed and
-      // would keep hijacking the stream and latching the buy button forever.
-      // Finish it so the queue drains. Every other failure (network, 5xx) is
-      // transient: leave the transaction unfinished so the store can redeliver
-      // it after recovery.
+      final backend = backendError(error);
+      // Two failures are permanent for THIS transaction, so the queue must drain:
+      //  * 404 — the backend has no such order (expired / deleted / never created).
+      //  * PURCHASE_NO_NEW_TRANSACTION — every transaction this receipt carries was
+      //    already redeemed. StoreKit 1 keeps redelivering an unfinished
+      //    transaction, so leaving it here means the same dead transaction is
+      //    re-sent forever and a fresh purchase can never be created.
+      // Every other failure (network, 5xx) is transient: leave the transaction
+      // unfinished so the store can redeliver it after recovery.
       final permanentlyGone =
-          error is DioException && error.response?.statusCode == 404;
+          (error is DioException && error.response?.statusCode == 404) ||
+          backend.code == 'PURCHASE_NO_NEW_TRANSACTION';
       if (permanentlyGone) {
         _unfinishedPurchases.remove(purchase.productID);
         await _forgetPendingOrder(purchase.productID);
@@ -744,7 +748,6 @@ class IapService {
       }
       // Prefer the backend's own (already localized) message over the raw
       // exception dump, so the user sees the real reason.
-      final backend = backendError(error);
       _emit(
         IapResult(
           IapOutcome.error,
