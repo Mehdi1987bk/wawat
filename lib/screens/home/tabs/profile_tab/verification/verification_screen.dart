@@ -753,16 +753,23 @@ class _VerificationScreenState
       }
       // Backend already validated the receipt → read the authoritative state.
       await _loadVerificationStatus();
-      if (mounted && !_isVerified) {
+      // The backend already reported the badge as activated. A status read that
+      // has not caught up yet must NEVER be reported as a failed payment: the
+      // user was charged, and telling them it failed makes them pay again.
+      if (mounted && !_isVerified && result.activated != true) {
         _snack(
           tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
           Colors.red,
         );
       }
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
+      // Show the backend's own localized reason when it sent one.
+      final reason = backendError(error).message?.trim() ?? '';
       _snack(
-        tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
+        reason.isNotEmpty
+            ? reason
+            : tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
         Colors.red,
       );
     } finally {
