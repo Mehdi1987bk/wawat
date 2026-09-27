@@ -7,6 +7,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../data/network/api/listing_quota_api.dart';
 import '../../../../../data/network/response/listing_quota_response.dart';
+import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/receipt.dart';
 import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
@@ -162,15 +163,21 @@ class _QuotaBundle {
 
 /// Entry — open the paid limit-increase flow for a given listing [type]
 /// ('trip' | 'shipment_post'). [currentLimit] is shown on the success screen.
+/// [repostListing] — the purchase interrupted a repost: success continues it.
 Future<void> openListingQuotaFlow(
   BuildContext context, {
   required String type,
   required int currentLimit,
+  Listing? repostListing,
 }) {
   return Navigator.of(context).push(
     MaterialPageRoute(
       fullscreenDialog: true,
-      builder: (_) => QuotaPlansScreen(type: type, currentLimit: currentLimit),
+      builder: (_) => QuotaPlansScreen(
+        type: type,
+        currentLimit: currentLimit,
+        repostListing: repostListing,
+      ),
     ),
   );
 }
@@ -180,11 +187,13 @@ Future<void> openListingQuotaFlow(
 class QuotaPlansScreen extends StatefulWidget {
   final String type;
   final int currentLimit;
+  final Listing? repostListing;
 
   const QuotaPlansScreen({
     super.key,
     required this.type,
     required this.currentLimit,
+    this.repostListing,
   });
 
   @override
@@ -599,6 +608,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
             order: checkout.order,
             type: widget.type,
             currentLimit: widget.currentLimit,
+            repostListing: widget.repostListing,
             serverLimit: checkout.serverLimit,
             receipt: checkout.receipt,
             content: _content,
@@ -616,6 +626,7 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
           method: checkout.method,
           type: widget.type,
           currentLimit: widget.currentLimit,
+          repostListing: widget.repostListing,
           content: _content,
         ),
       ),
@@ -636,6 +647,7 @@ class _QuotaProcessingScreen extends StatefulWidget {
   final _QuotaPayMethod method;
   final String type;
   final int currentLimit;
+  final Listing? repostListing;
   final Map<String, String> content;
 
   const _QuotaProcessingScreen({
@@ -644,6 +656,7 @@ class _QuotaProcessingScreen extends StatefulWidget {
     required this.method,
     required this.type,
     required this.currentLimit,
+    this.repostListing,
     required this.content,
   });
 
@@ -818,6 +831,7 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
           order: o,
           type: widget.type,
           currentLimit: widget.currentLimit,
+          repostListing: widget.repostListing,
           serverLimit: serverLimit,
           receipt: receipt,
           content: _content,
@@ -1084,6 +1098,9 @@ class QuotaSuccessScreen extends StatelessWidget {
   final String type;
   final int currentLimit;
 
+  /// Set when the purchase interrupted a repost — the main button resumes it.
+  final Listing? repostListing;
+
   /// Fresh per-type limit from /me (server-authoritative). Null means the /me
   /// refetch failed — we then hide the concrete "current → new" figure rather
   /// than fabricating it (the honest win is still shown via the "+N listings"
@@ -1099,6 +1116,7 @@ class QuotaSuccessScreen extends StatelessWidget {
     required this.order,
     required this.type,
     required this.currentLimit,
+    this.repostListing,
     this.serverLimit,
     this.receipt,
     required this.content,
@@ -1205,12 +1223,16 @@ class QuotaSuccessScreen extends StatelessWidget {
                         // Exit the whole purchase flow (success → plans → gate),
                         // then open create-post fresh with the grown limit —
                         // so backing out of the form doesn't land on the plans.
+                        // An interrupted repost resumes its pre-filled form.
                         final navigator = Navigator.of(context);
+                        final repost = repostListing;
                         navigator.popUntil((r) => r.isFirst);
                         navigator.push(
                           MaterialPageRoute(
                             fullscreenDialog: true,
-                            builder: (_) => CreatePostScreen(initialType: type),
+                            builder: (_) => repost != null
+                                ? CreatePostScreen(repostListing: repost)
+                                : CreatePostScreen(initialType: type),
                           ),
                         );
                       },
@@ -1242,43 +1264,11 @@ class QuotaSuccessScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (receipt?.isPaid ?? false) ...[
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ReceiptScreen(
-                              receipt: receipt!,
-                              content: content,
-                            ),
-                          ),
-                        ),
-                        child: Container(
-                          height: 44,
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                PhosphorIconsBold.receipt,
-                                color: Colors.white.withValues(alpha: 0.9),
-                                size: 17,
-                              ),
-                              const SizedBox(width: 7),
-                              Text(
-                                tr('listing_quota.view_receipt', 'Qəbzə bax'),
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    _QuotaReceiptLink(
+                      order: order,
+                      receipt: receipt,
+                      content: content,
+                    ),
                   ],
                 ),
               ),
@@ -1286,6 +1276,90 @@ class QuotaSuccessScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// «Qəbzə bax» on the quota success screen. A store purchase can land here
+/// without the receipt (already-paid order, or a lagging read right after the
+/// charge) — then it is fetched once from the order so the link still appears.
+class _QuotaReceiptLink extends StatefulWidget {
+  final QuotaOrder order;
+  final Receipt? receipt;
+  final Map<String, String> content;
+
+  const _QuotaReceiptLink({
+    required this.order,
+    required this.receipt,
+    required this.content,
+  });
+
+  @override
+  State<_QuotaReceiptLink> createState() => _QuotaReceiptLinkState();
+}
+
+class _QuotaReceiptLinkState extends State<_QuotaReceiptLink> {
+  late Receipt? _receipt = widget.receipt;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!(_receipt?.isPaid ?? false)) _loadReceipt();
+  }
+
+  Future<void> _loadReceipt() async {
+    try {
+      final res = await ListingQuotaApi(
+        sl.get<Dio>(),
+      ).getOrder(widget.order.id);
+      if (!mounted || !(res.receipt?.isPaid ?? false)) return;
+      setState(() => _receipt = res.receipt);
+    } catch (_) {
+      // Best-effort: without it the link simply stays hidden.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final receipt = _receipt;
+    if (receipt == null || !receipt.isPaid) return const SizedBox.shrink();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 10),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) =>
+                  ReceiptScreen(receipt: receipt, content: widget.content),
+            ),
+          ),
+          child: Container(
+            height: 44,
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  PhosphorIconsBold.receipt,
+                  color: Colors.white.withValues(alpha: 0.9),
+                  size: 17,
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  tr('listing_quota.view_receipt', 'Qəbzə bax'),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1600,6 +1674,9 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
   bool _paying = false; // store (IAP) purchase in flight over this sheet
   String? _error;
 
+  /// Neutral (blue) note for a deferred store payment — not an error.
+  String? _notice;
+
   // Stable across a double-tap so two taps dedup to a single pending order.
   late final String _idem =
       'quota-order-${widget.type}-${widget.plan.extraListings}-${DateTime.now().microsecondsSinceEpoch}';
@@ -1611,11 +1688,12 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
 
   String get _storeMethod => Platform.isIOS ? 'app_store' : 'google_play';
 
-  /// The bank-card tile is hidden on iOS: charging a card for a digital feature
-  /// outside the App Store breaks Apple guideline 3.1.1 (rejection/removal
-  /// risk), and the quota card path returns 422 server-side anyway. Kept on
-  /// Android at the product owner's request.
-  bool get _showCard => !Platform.isIOS;
+  /// Show the bank-card tile on every platform, matching the promotion flow —
+  /// product-owner decision to offer a card alongside Apple Pay / Google Play
+  /// everywhere. NOTE: on iOS, charging a card for a digital feature outside the
+  /// App Store is against Apple guideline 3.1.1 and can get the app
+  /// rejected/removed; kept intentionally at the owner's request.
+  bool get _showCard => true;
 
   /// Create the pending order. CARD → hand it back so the caller opens the
   /// hosted checkout. STORE → drive the IAP purchase right here, so the StoreKit
@@ -1627,6 +1705,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
     setState(() {
       _creating = true;
       _error = null;
+      _notice = null;
     });
     final QuotaOrder order;
     try {
@@ -1659,6 +1738,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
   ///   transaction is finished inside [IapService], so a retry can't hit
   ///   `storekit_duplicate_product_object`).
   /// * Error → inline message, no new charge.
+  /// * Pending (deferred: Play pending / Ask to Buy) → blue "processing" note.
   /// * Purchased/restored → the shared validator already credited the order
   ///   backend-side; read it back, refresh /me for the fresh limit, and pop with
   ///   the paid result so the caller shows the success screen directly.
@@ -1669,6 +1749,22 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
       _error = null;
     });
     final navigator = Navigator.of(context);
+    // Never charge twice. The order can already be settled — e.g. a previous
+    // successful charge whose success screen the user never saw (a stale read
+    // kept them on the sheet), then they tapped pay again. Go straight to
+    // success instead of opening a second StoreKit charge.
+    if (order.isPaid) {
+      final serverLimit = await _refreshQuotaLimit(widget.type);
+      if (!mounted) return;
+      navigator.pop(
+        _QuotaCheckout.storePaid(
+          order,
+          serverLimit: serverLimit,
+          receipt: null,
+        ),
+      );
+      return;
+    }
     // value + currency — обязательная пара для GA4 по выручке. Берём цену из
     // store-продукта (реальная сумма списания), а не из AZN-суммы заказа.
     Telemetry.instance.event(
@@ -1698,6 +1794,20 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
         });
         return;
       }
+      if (result.outcome == IapOutcome.pending) {
+        // A deferred store payment (Play pending / Ask to Buy): neither paid nor
+        // failed yet. Don't read the order, log a failure or show success — the
+        // store delivers the verdict later and the backend credits it then.
+        setState(() {
+          _paying = false;
+          _error = null;
+          _notice = tr(
+            'common.payment_processing',
+            'Ödəniş emal olunur. Təsdiqlənən kimi avtomatik aktivləşəcək.',
+          );
+        });
+        return;
+      }
       if (result.outcome == IapOutcome.error) {
         Telemetry.instance.event(
           TelemetryEvents.purchaseFailed,
@@ -1714,26 +1824,24 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
         });
         return;
       }
-      // Purchased/restored → the validator already posted to /pay; read back.
-      final res = await widget.api.getOrder(order.id);
-      if (!mounted) return;
-      final paid = res.data;
-      if (!paid.isPaid) {
-        Telemetry.instance.event(
-          TelemetryEvents.purchaseFailed,
-          params: {
-            TelemetryParams.transactionId: paid.id,
-            TelemetryParams.itemCategory: 'listing_quota',
-            TelemetryParams.method: _storeMethod,
-            TelemetryParams.result: paid.status,
-          },
-        );
-        setState(() {
-          _paying = false;
-          _error = paid.isPending ? null : (res.message ?? _quotaFailedText());
-        });
-        return;
+      // Purchased/restored → the shared validator ALREADY posted to /pay and the
+      // backend credited the order, so the payment is done and the money is
+      // taken. getOrder below only enriches the success screen with the fresh
+      // order + receipt; a stale read (replica lag → still "pending") or a
+      // network blip must NEVER keep the user on the sheet — they were charged.
+      // Fall back to the order we have and still show success.
+      QuotaOrder paid = order;
+      Receipt? receipt;
+      try {
+        final res = await widget.api.getOrder(order.id);
+        if (mounted && res.data.isPaid) {
+          paid = res.data;
+          receipt = res.receipt;
+        }
+      } catch (_) {
+        // keep `order`; the confirmed purchase stands.
       }
+      if (!mounted) return;
       Telemetry.instance.event(
         TelemetryEvents.purchase,
         params: {
@@ -1754,7 +1862,7 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
         _QuotaCheckout.storePaid(
           paid,
           serverLimit: serverLimit,
-          receipt: res.receipt,
+          receipt: receipt,
         ),
       );
     } catch (e, st) {
@@ -1990,6 +2098,17 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                       color: isDark
                           ? WawatDark.danger
                           : const Color(0xFFDC2626),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ] else if (_notice != null) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    _notice!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: cBrandText(isDark),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),

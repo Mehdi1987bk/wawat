@@ -375,11 +375,16 @@ class PromotionListingSummary {
   final String? cityFrom;
   final String? cityTo;
 
+  /// Listing status, when the backend embeds it (same values as
+  /// `Listing.status`). Null → unknown, the caller has to look it up.
+  final String? status;
+
   const PromotionListingSummary({
     required this.id,
     this.type,
     this.cityFrom,
     this.cityTo,
+    this.status,
   });
 
   factory PromotionListingSummary.fromJson(Map<String, dynamic> json) {
@@ -388,6 +393,7 @@ class PromotionListingSummary {
       type: json['type']?.toString(),
       cityFrom: json['city_from']?.toString() ?? json['from_city']?.toString(),
       cityTo: json['city_to']?.toString() ?? json['to_city']?.toString(),
+      status: json['status']?.toString(),
     );
   }
 }

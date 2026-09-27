@@ -5,13 +5,9 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:buking/services/localization_service.dart';
 
 import 'app_review.dart';
-import 'promo_api.dart';
-import 'promo_codes_screen.dart';
 
 // ── palette (light from mock + navy dark) ────────────────────────────────────
 const _brand = Color(0xFF017BFE);
-const _brand700 = Color(0xFF024FA3);
-const _accent = Color(0xFFF2FC2A);
 const _ink900 = Color(0xFF0F172A);
 const _ink800 = Color(0xFF1E293B);
 const _ink700 = Color(0xFF334155);
@@ -20,32 +16,15 @@ const _amber = Color(0xFFFBBF24);
 
 const _dBg = Color(0xFF0A0F1A);
 const _dSurface = Color(0xFF141D2E);
-const _dElevated = Color(0xFF1C2740);
 const _dBar = Color(0xFF0F1728);
 const _dLine = Color(0x14FFFFFF);
 const _dText = Color(0xFFEAF0FA);
 const _dMuted = Color(0xFF6B7B93);
 const _dBrandText = Color(0xFF7FB6FF);
 
-// success (toast + 13b check)
+// success (toast + check)
 const _okGreen = Color(0xFF10B981);
 const _dOkGreen = Color(0xFF4FD6A0);
-
-List<String> _azMonths() => [
-      tr('month.jan', 'Yanvar'),
-      tr('month.feb', 'Fevral'),
-      tr('month.mar', 'Mart'),
-      tr('month.apr', 'Aprel'),
-      tr('month.may', 'May'),
-      tr('month.jun', 'İyun'),
-      tr('month.jul', 'İyul'),
-      tr('month.aug', 'Avqust'),
-      tr('month.sep', 'Sentyabr'),
-      tr('month.oct', 'Oktyabr'),
-      tr('month.nov', 'Noyabr'),
-      tr('month.dec', 'Dekabr'),
-    ];
-String _azDate(DateTime d) => '${d.day} ${_azMonths()[d.month - 1]} ${d.year}';
 
 bool _dark(BuildContext c) => Theme.of(c).brightness == Brightness.dark;
 Color _cScreen(bool d) => d ? _dBg : Colors.white;
@@ -59,6 +38,9 @@ Color _cBrandSoft(bool d) =>
     d ? _brand.withValues(alpha: 0.14) : const Color(0xFFEAF3FE);
 Color _cStepBg(bool d) => d ? _dSurface : _ink900.withValues(alpha: 0.02);
 
+/// "Rate app" page. Pure rating: encourages the user, opens the Store listing,
+/// then thanks them. The promo-code reward is intentionally NOT shown or granted
+/// here — that whole feature is parked (see kPromoFeatureEnabled).
 class RateAppScreen extends StatefulWidget {
   const RateAppScreen({super.key});
 
@@ -67,43 +49,19 @@ class RateAppScreen extends StatefulWidget {
 }
 
 class _RateAppScreenState extends State<RateAppScreen> {
-  AppReviewPrompt _prompt = const AppReviewPrompt.fallback();
   bool _rated = false;
   bool _busy = false;
-  ReviewReward? _reward;
 
-  bool get _hasCoupon => _reward?.hasCode == true;
-
-  @override
-  void initState() {
-    super.initState();
-    PromoApi().getReviewPrompt().then((p) {
-      if (p != null && mounted) {
-        setState(() {
-          _prompt = p;
-          _rated = p.alreadyRated;
-          _reward = p.existingReward;
-        });
-      }
-    });
-  }
-
-  /// Kicks straight to the Store listing (the original behaviour), then reports
-  /// `rated` to the backend and reveals the granted coupon inline. No bottom
-  /// sheet, no top toast.
+  /// Opens the Store listing (no reward, no backend call), then shows a thanks
+  /// state on return.
   Future<void> _rate() async {
     if (_rated || _busy) return;
     setState(() => _busy = true);
-    final reward = await AppReviewFlow.requestStoreReview(
-      context,
-      prompt: _prompt,
-      rating: 5,
-    );
+    await AppReviewFlow.openStoreListing(context);
     if (!mounted) return;
     setState(() {
       _busy = false;
       _rated = true;
-      _reward = reward ?? _prompt.existingReward;
     });
   }
 
@@ -144,7 +102,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
         ),
       );
 
-  // ── intro: informational + one button (no in-app rating) ────────────────────
+  // ── intro: informational + one button ───────────────────────────────────────
   Widget _introPage(bool d) {
     return ListView(
       padding: const EdgeInsets.only(bottom: 28),
@@ -160,8 +118,8 @@ class _RateAppScreenState extends State<RateAppScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            tr('app_review.like_subtitle',
-                '1 dəqiqəni ayır, Store-da bizi qiymətləndir — və hədiyyə promokod qazan.'),
+            tr('app_review.like_subtitle_plain',
+                'Bir dəqiqəni ayır və bizi Store-da qiymətləndir. Dəstəyin bizə çox kömək edir.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -170,8 +128,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
                 fontWeight: FontWeight.w500),
           ),
         ),
-        const SizedBox(height: 24),
-        Center(child: _rewardChip(d)),
         const SizedBox(height: 28),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -201,22 +157,17 @@ class _RateAppScreenState extends State<RateAppScreen> {
               _step(
                   d,
                   '1',
-                  tr('app_review.step_open',
-                      'Düyməyə bas — Store-un qiymətləndirmə pəncərəsi açılır')),
+                  tr('app_review.step_open_plain',
+                      'Düyməyə bas — Store səhifəsi açılır')),
               const SizedBox(height: 12),
-              _step(
-                  d,
-                  '2',
-                  tr(
-                      'app_review.step_reward',
-                      '{reward} promokod avtomatik hesabına gəlir',
-                      {'reward': _prompt.rewardLabel()})),
+              _step(d, '2',
+                  tr('app_review.step_stars_plain', 'Ulduz ver və rəyini yaz')),
               const SizedBox(height: 12),
               _step(
                   d,
                   '3',
-                  tr('app_review.step_apply',
-                      'Elanı VİP/önə çəkərkən tətbiq et')),
+                  tr('app_review.step_done_plain',
+                      'Tətbiqə qayıt — hamısı budur')),
             ],
           ),
         ),
@@ -224,20 +175,15 @@ class _RateAppScreenState extends State<RateAppScreen> {
     );
   }
 
-  // ── rated: coupon inline (with validity), or thanks-only when spent ──────────
+  // ── rated: thanks only ───────────────────────────────────────────────────────
   Widget _ratedPage(bool d) {
-    final hasCoupon = _hasCoupon;
     return ListView(
       padding: const EdgeInsets.only(bottom: 28),
       children: [
         const SizedBox(height: 36),
-        Center(child: hasCoupon ? _giftBadge(d) : _checkBadge(d)),
+        Center(child: _checkBadge(d)),
         const SizedBox(height: 20),
-        Text(
-            hasCoupon
-                ? tr('app_review.reward_ready_title',
-                    'Hədiyyə promokodun hazırdır 🎁')
-                : tr('app_review.thanks_title', 'Təşəkkür edirik! ⭐️'),
+        Text(tr('app_review.thanks_title', 'Təşəkkür edirik! ⭐️'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 21, fontWeight: FontWeight.w800)),
@@ -245,11 +191,7 @@ class _RateAppScreenState extends State<RateAppScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            hasCoupon
-                ? tr('app_review.reward_ready_body',
-                    'Rəyin üçün təşəkkür! Bu promokodu VİP/önə çəkərkən tətbiq et:')
-                : tr('app_review.already_rated_body',
-                    'Bu tətbiqi artıq qiymətləndirmisən. Dəstəyin bizə çox kömək edir.'),
+            tr('app_review.thanks_body_short', 'Dəstəyin bizə çox kömək edir.'),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cMuted(d),
@@ -258,51 +200,9 @@ class _RateAppScreenState extends State<RateAppScreen> {
                 fontWeight: FontWeight.w500),
           ),
         ),
-        if (hasCoupon) ...[
-          const SizedBox(height: 22),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _Coupon(reward: _reward!, isDark: d),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _PrimaryButton(
-              label: tr('app_review.view_my_promos', 'Promokodlarıma bax'),
-              icon: PhosphorIconsFill.ticket,
-              onTap: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => PromoCodesScreen()),
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }
-
-  Widget _rewardChip(bool d) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: d
-              ? _accent.withValues(alpha: 0.16)
-              : _accent.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(99),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(PhosphorIconsFill.gift, size: 15, color: _cBrandText(d)),
-            const SizedBox(width: 6),
-            Text(
-                tr('app_review.reward_chip', '{reward} promokod hədiyyə',
-                    {'reward': _prompt.rewardLabel()}),
-                style: TextStyle(
-                    color: _cText2(d),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800)),
-          ],
-        ),
-      );
 
   Widget _starBadge(bool d) => SizedBox(
         width: 96,
@@ -328,36 +228,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
             const Positioned(
                 bottom: 8,
                 left: -4,
-                child:
-                    Icon(PhosphorIconsFill.sparkle, size: 12, color: _amber)),
-          ],
-        ),
-      );
-
-  Widget _giftBadge(bool d) => SizedBox(
-        width: 96,
-        height: 96,
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.center,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: _cBrandSoft(d),
-                borderRadius: BorderRadius.circular(28),
-              ),
-              alignment: Alignment.center,
-              child:
-                  Icon(PhosphorIconsFill.gift, size: 46, color: _cBrandText(d)),
-            ),
-            const Positioned(
-                top: -4,
-                right: 8,
-                child:
-                    Icon(PhosphorIconsFill.sparkle, size: 18, color: _amber)),
-            const Positioned(
-                bottom: 8,
-                left: -2,
                 child:
                     Icon(PhosphorIconsFill.sparkle, size: 12, color: _amber)),
           ],
@@ -405,144 +275,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// The granted coupon rendered inline on the rate page, with its validity
-/// window (days left + expiry date) so the user knows how long they have.
-class _Coupon extends StatelessWidget {
-  final ReviewReward reward;
-  final bool isDark;
-
-  const _Coupon({required this.reward, required this.isDark});
-
-  String? _validity() {
-    final days = reward.daysLeft;
-    if (reward.expiresAt == null || days == null) return null;
-    if (days < 0) return tr('app_review.validity_expired', 'Müddəti bitib');
-    final date = _azDate(reward.expiresAt!);
-    if (days == 0) {
-      return tr(
-          'app_review.validity_today', 'Bu gün bitir · {date}', {'date': date});
-    }
-    return tr('app_review.validity_days', '{days} gün qalıb · son tarix {date}',
-        {'days': '$days', 'date': date});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final d = isDark;
-    final validity = _validity();
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: _cBrandSoft(d),
-              border:
-                  Border.all(color: _brand.withValues(alpha: 0.4), width: 2),
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(tr('app_review.your_promo_label', 'PROMOKODUN'),
-                              style: TextStyle(
-                                  color: (d ? _dBrandText : _brand700)
-                                      .withValues(alpha: 0.7),
-                                  fontSize: 10,
-                                  letterSpacing: 1,
-                                  fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 2),
-                          Text(reward.code,
-                              style: TextStyle(
-                                  color: d ? _dBrandText : _brand700,
-                                  fontSize: 19,
-                                  letterSpacing: 3,
-                                  fontFamily: 'monospace',
-                                  fontWeight: FontWeight.w800)),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: reward.code));
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: d ? _dElevated : _ink900,
-                          content: Text(tr('promo.copied', 'Kod kopyalandı'),
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700)),
-                        ));
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: d ? _dElevated : Colors.white,
-                            borderRadius: BorderRadius.circular(12)),
-                        child: Icon(PhosphorIconsBold.copy,
-                            size: 18, color: _cBrandText(d)),
-                      ),
-                    ),
-                  ],
-                ),
-                if (validity != null) ...[
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(PhosphorIconsFill.clock,
-                          size: 14, color: _cBrandText(d)),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(validity,
-                            style: TextStyle(
-                                color: _cBrandText(d),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700)),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            color: _brand,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(PhosphorIconsFill.tag,
-                    size: 13, color: Colors.white),
-                const SizedBox(width: 6),
-                Text(
-                    tr(
-                        'app_review.coupon_footer_vip',
-                        '{amount} endirim · VİP/önə çəkmə',
-                        {'amount': reward.amountLabel()}),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700)),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

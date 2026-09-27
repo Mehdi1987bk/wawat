@@ -50,3 +50,5 @@ app.*.map.json
 # Firebase service account (secret)
 **/service_account*.json
 scripts/*-key.json
+# Local Gradle diagnostic reports
+android/build/

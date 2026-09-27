@@ -3,6 +3,8 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../data/network/response/listing_response.dart';
 import '../../../../data/network/response/user.dart';
+import '../../../../domain/repositories/auth_repository.dart';
+import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/localization_service.dart';
@@ -23,14 +25,78 @@ const _ink600 = Color(0xFF475569);
 const _ink500 = Color(0xFF64748B);
 const _emerald = Color(0xFF059669);
 
+/// Fresh listing quota for [type] from `/auth/me` — the cached user is usually
+/// stale (a listing may have just been created or deleted). Null when /me
+/// can't be read.
+Future<ListingQuotaItem?> fetchListingQuota(String type) async {
+  try {
+    final me = await sl.get<AuthRepository>().customersMe();
+    return me.listingQuota?.forType(type);
+  } catch (_) {
+    return null;
+  }
+}
+
+/// A repost stops at the limit gate only when the fresh quota says no slot is
+/// left. An unreadable quota lets the form try: the server rejects an
+/// over-limit repost with 422 and the form then falls back to the gate.
+bool repostNeedsLimitGate(ListingQuotaItem? quota) =>
+    quota != null && quota.remaining <= 0;
+
+/// «Repost» of an expired / rejected listing. No slot left (`remaining` is
+/// global) → the limit gate instead of the form, carrying the repost along so
+/// pausing a listing or buying more limit continues it. Otherwise — or when
+/// the quota can't be read, since the server still rejects an over-limit
+/// repost and the form falls back to this gate — the pre-filled repost form.
+Future<void> openRepostFlow(BuildContext context, Listing listing) async {
+  final navigator = Navigator.of(context);
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  // Blocks double taps and shows progress while /me is re-read.
+  final loader = OverlayEntry(
+    builder: (_) => Stack(
+      children: [
+        ModalBarrier(
+          dismissible: false,
+          color: isDark ? WawatDark.scrim : Colors.black.withValues(alpha: 0.2),
+        ),
+        const Center(child: CircularProgressIndicator(color: _brand)),
+      ],
+    ),
+  );
+  Overlay.of(context, rootOverlay: true).insert(loader);
+  final ListingQuotaItem? quota;
+  try {
+    quota = await fetchListingQuota(listing.type);
+  } finally {
+    loader.remove();
+  }
+  await navigator.push(
+    MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => repostNeedsLimitGate(quota)
+          ? ListingLimitGateScreen(
+              type: listing.type,
+              quota: quota!,
+              repostListing: listing,
+            )
+          : CreatePostScreen(repostListing: listing),
+    ),
+  );
+}
+
 class ListingLimitGateScreen extends BaseScreen<ListingLimitGateBloc> {
   final String type;
   final ListingQuotaItem quota;
+
+  /// Set when the gate interrupted a repost: freeing a slot resumes that
+  /// repost instead of starting a brand-new listing.
+  final Listing? repostListing;
 
   ListingLimitGateScreen({
     super.key,
     required this.type,
     required this.quota,
+    this.repostListing,
   });
 
   @override
@@ -166,12 +232,22 @@ class _ListingLimitGateScreenState
   Future<void> _pause(Listing listing) async {
     await bloc.pause(listing, widget.type);
     if (!mounted) return;
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => CreatePostScreen(initialType: widget.type),
-      ),
-    );
+    // A repost carries a pre-filled listing that has no type picker to fall back
+    // to, so it opens its own form (back leaves it directly — no duplication).
+    if (widget.repostListing != null) {
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => CreatePostScreen(repostListing: widget.repostListing),
+        ),
+      );
+      return;
+    }
+    // New listing: a slot is free now. Hand the freed type back to the create
+    // screen that opened this gate so it advances its OWN wizard to the form.
+    // Pushing a second CreatePostScreen would stack another type picker behind
+    // the form, so backing out would pass through the picker twice.
+    Navigator.of(context).pop(widget.type);
   }
 
   void _openMyListings() {
@@ -185,6 +261,7 @@ class _ListingLimitGateScreenState
       context,
       type: widget.type,
       currentLimit: widget.quota.limit,
+      repostListing: widget.repostListing,
     );
   }
 
@@ -411,35 +488,38 @@ class _ActiveListingTile extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: onPause,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? WawatDark.surfaceAlt
-                    : _ink900.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(PhosphorIconsBold.pause,
-                      color: isDark ? WawatDark.icon : _ink700, size: 14),
-                  const SizedBox(width: 5),
-                  Text(
-                    WawatContent.text(content, 'common.pause'),
-                    style: TextStyle(
-                      color: isDark ? WawatDark.textSecondary : _ink700,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+          // Booked listings hold a slot but can't be paused (backend 403).
+          if (listing.canBePaused) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: onPause,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? WawatDark.surfaceAlt
+                      : _ink900.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(PhosphorIconsBold.pause,
+                        color: isDark ? WawatDark.icon : _ink700, size: 14),
+                    const SizedBox(width: 5),
+                    Text(
+                      WawatContent.text(content, 'common.pause'),
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textSecondary : _ink700,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

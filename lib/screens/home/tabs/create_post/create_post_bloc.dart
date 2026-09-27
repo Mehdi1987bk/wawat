@@ -96,6 +96,10 @@ class CreatePostBloc extends BaseBloc {
     return null;
   }
 
+  /// 422 — the server rejected the payload (validation or quota).
+  bool isUnprocessable(Object error) =>
+      error is DioException && error.response?.statusCode == 422;
+
   Map<String, String> parseValidationErrors(Object error) {
     if (error is! DioException) return const {};
     final data = error.response?.data;

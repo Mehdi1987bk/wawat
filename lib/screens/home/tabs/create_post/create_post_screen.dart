@@ -679,7 +679,10 @@ class _CreatePostScreenState
 
   Future<void> _selectType(String type, [ListingQuotaItem? quota]) async {
     if (quota != null && quota.remaining <= 0) {
-      await Navigator.of(context).push(
+      // The gate returns the type when it frees a slot (paused a listing); then
+      // continue THIS wizard into the form instead of stacking a second create
+      // screen, so backing out passes through the type picker only once.
+      final freedType = await Navigator.of(context).push<String>(
         MaterialPageRoute(
           fullscreenDialog: true,
           builder: (_) => ListingLimitGateScreen(
@@ -688,7 +691,15 @@ class _CreatePostScreenState
           ),
         ),
       );
+      if (!mounted) return;
       await _refreshCurrentUser();
+      if (!mounted || freedType == null) return;
+      setState(() {
+        _successResponse = null;
+        _type = freedType;
+        _step = 0;
+        _clearFormFields();
+      });
       return;
     }
     setState(() {
@@ -1036,15 +1047,27 @@ class _CreatePostScreenState
   Widget _buildSuccess(bool isDark, ListingResponse response) {
     return PromotionPostCreateUpsell(
       listing: response.data,
-      onSkip: () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => DeliveryFullListScreen(
-              detailsReturnToHome: true,
-            ),
-          ),
-        );
-      },
+      onSkip: _openMyListings,
+    );
+  }
+
+  /// Created / reposted: promotable listings get the VIP / boost upsell; any
+  /// other status (see [Listing.canBePromoted]) skips it straight to my listings.
+  void _showCreated(ListingResponse response) {
+    if (response.data.canBePromoted) {
+      setState(() => _successResponse = response);
+    } else {
+      _openMyListings();
+    }
+  }
+
+  void _openMyListings() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => DeliveryFullListScreen(
+          detailsReturnToHome: true,
+        ),
+      ),
     );
   }
 
@@ -1260,7 +1283,7 @@ class _CreatePostScreenState
           _idempotencyKey(),
         );
         if (!mounted) return;
-        setState(() => _successResponse = response);
+        _showCreated(response);
         return;
       }
       final response = await bloc.createListing(
@@ -1268,8 +1291,14 @@ class _CreatePostScreenState
         _idempotencyKey(),
       );
       if (!mounted) return;
-      setState(() => _successResponse = response);
+      _showCreated(response);
     } catch (error) {
+      if (!mounted) return;
+      if (widget.repostListing != null &&
+          bloc.isUnprocessable(error) &&
+          await _openLimitGateIfExhausted()) {
+        return;
+      }
       if (!mounted) return;
       final parsed = bloc.parseValidationErrors(error);
       if (parsed.isNotEmpty) {
@@ -1294,6 +1323,27 @@ class _CreatePostScreenState
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  /// A spent quota makes /repost answer 422 with no machine code (the text
+  /// sits in `errors.type`). Don't parse the text: re-read the quota and, if no
+  /// slot is left, swap the form for the same limit gate as at creation.
+  Future<bool> _openLimitGateIfExhausted() async {
+    final listing = widget.repostListing!;
+    final type = _type ?? listing.type;
+    final quota = await fetchListingQuota(type);
+    if (!mounted || !repostNeedsLimitGate(quota)) return false;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => ListingLimitGateScreen(
+          type: type,
+          quota: quota!,
+          repostListing: listing,
+        ),
+      ),
+    );
+    return true;
   }
 
   bool _isRouteField(String field) {

@@ -43,6 +43,7 @@ import '../network/response/partner_user_response.dart';
 import '../network/response/privacy_policy_response.dart';
 import '../network/response/popular_routes_response.dart';
 import '../network/response/registration_response.dart';
+import '../network/response/receipt.dart';
 import '../network/response/reviews_response.dart';
 import '../network/response/saved_search_response.dart';
 import '../network/response/trending_routes_response.dart';
@@ -285,7 +286,10 @@ class DataAuthRepository implements AuthRepository {
         : const <String, dynamic>{};
     final data = body['data'];
     final state = data is Map
-        ? VerificationState.fromJson(Map<String, dynamic>.from(data))
+        ? VerificationState.fromJson(
+            Map<String, dynamic>.from(data),
+            fallbackReceipt: Receipt.fromResponse(body),
+          )
         : null;
     // Fee for the intro: the active request's payment when there is one, else a
     // top-level hint if the backend exposes one for the not-submitted case.
@@ -340,7 +344,10 @@ class DataAuthRepository implements AuthRepository {
             dataMap['checkout_url']?.toString() ??
             body['checkout_url']?.toString();
     return VerificationPayResult(
-      state: VerificationState.fromJson(dataMap),
+      state: VerificationState.fromJson(
+        dataMap,
+        fallbackReceipt: Receipt.fromResponse(body),
+      ),
       message: body['message']?.toString(),
       checkoutUrl: (checkoutUrl != null && checkoutUrl.isNotEmpty)
           ? checkoutUrl

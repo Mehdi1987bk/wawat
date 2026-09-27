@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -870,28 +872,76 @@ void showIOSStyleMessage(
   bool isSuccess = true,
   Duration duration = const Duration(seconds: 2),
 }) {
-  final themeManager = Provider.of<ThemeManager>(context, listen: false);
+  final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-  final isDark = themeManager.isDarkMode;
-
+  // barrierDismissible + tap-to-close are a hard safety net: even if the
+  // auto-dismiss timer somehow never fires, a tap always removes the barrier so
+  // the toast can NEVER trap the user on an unresponsive screen.
   showDialog(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: true,
     barrierColor: Colors.black.withOpacity(0.1),
-    builder: (BuildContext context) {
-      Future.delayed(duration, () {
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
-      });
-      return Center(
+    builder: (_) => _IOSStyleMessage(
+      message: message,
+      isDark: isDark,
+      duration: duration,
+    ),
+  );
+}
+
+/// Self-dismissing toast. The auto-close timer lives in its own [State] so it is
+/// created exactly once (not re-armed on every dialog rebuild) and pops via the
+/// dialog's OWN context — which stays valid while the dialog is up and whose
+/// [State] is disposed (cancelling the timer) the moment the dialog closes, so a
+/// stray pop can never swallow the screen underneath. This replaces the old
+/// builder-scheduled `Future.delayed` guarded by `context.mounted`, which left
+/// the barrier up forever when the caller rebuilt the tree right after showing
+/// it (e.g. verification refreshing its status on success).
+class _IOSStyleMessage extends StatefulWidget {
+  const _IOSStyleMessage({
+    required this.message,
+    required this.isDark,
+    required this.duration,
+  });
+
+  final String message;
+  final bool isDark;
+  final Duration duration;
+
+  @override
+  State<_IOSStyleMessage> createState() => _IOSStyleMessageState();
+}
+
+class _IOSStyleMessageState extends State<_IOSStyleMessage> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(widget.duration, () {
+      if (mounted) Navigator.of(context).maybePop();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.of(context).maybePop(),
+      child: Center(
         child: Material(
           color: Colors.transparent,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 40),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             decoration: BoxDecoration(
-              color: isDark ? WawatDark.surface : Colors.white,
+              color: widget.isDark ? WawatDark.surface : Colors.white,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
@@ -905,19 +955,20 @@ void showIOSStyleMessage(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  message,
+                  widget.message,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? WawatDark.textPrimary : Colors.black87,
+                    color:
+                        widget.isDark ? WawatDark.textPrimary : Colors.black87,
                   ),
                 ),
               ],
             ),
           ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
 }

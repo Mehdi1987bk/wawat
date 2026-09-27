@@ -7,6 +7,7 @@ import 'package:buking/screens/home/tabs/profile_tab/verification/verification_b
 import 'package:buking/screens/payments/card_checkout_screen.dart';
 import 'package:buking/screens/payments/iap/iap_catalog.dart';
 import 'package:buking/screens/payments/iap/iap_service.dart';
+import 'package:buking/screens/payments/receipt_screen.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data/network/response/document_type.dart';
+import '../../../../../data/network/response/receipt.dart';
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_state.dart';
 import '../../../../../generated/l10n.dart';
@@ -106,7 +108,10 @@ class _VerificationScreenState
           break;
         }
       }
-      if (catalog == null) return;
+      if (catalog == null) {
+        debugPrint('[IAP][verify] no verification product in backend catalog');
+        return;
+      }
       ProductDetails? store;
       for (final p in products) {
         if (p.id == catalog.productId) {
@@ -114,13 +119,23 @@ class _VerificationScreenState
           break;
         }
       }
+      // Diagnostic: shows the exact id we asked the store for and whether it
+      // came back or landed in notFoundIDs — the fast way to spot an id mismatch
+      // or an ASC product that isn't queryable yet (store tile stays grey then).
+      debugPrint(
+        '[IAP][verify] catalogId=${catalog.productId} '
+        'storeResolved=${store != null} '
+        'queried=${products.map((p) => p.id).toList()} '
+        'notFound=${IapService.instance.notFoundIds}',
+      );
       if (!mounted) return;
       setState(() {
         _verificationCatalog = catalog;
         _verificationStoreProduct = store;
       });
-    } catch (_) {
-      /* store unavailable — card path stays fully usable */
+    } catch (error) {
+      // store unavailable — card path stays fully usable
+      debugPrint('[IAP][verify] load store product failed: $error');
     }
   }
 
@@ -445,6 +460,12 @@ class _VerificationScreenState
                           ],
                         ),
                       ),
+                      // Paid through the app → its receipt (+ server PDF).
+                      // Admin-verified accounts have no paid request → none.
+                      if (_state?.receipt?.isPaid ?? false) ...[
+                        const SizedBox(height: 16),
+                        _buildReceiptButton(isDark, _state!.receipt!),
+                      ],
                     ],
                   ),
                 ),
@@ -738,6 +759,18 @@ class _VerificationScreenState
       );
       if (!mounted) return;
       if (result.outcome == IapOutcome.canceled) return;
+      if (result.outcome == IapOutcome.pending) {
+        // A deferred store payment (Play pending / Ask to Buy) is not a failure:
+        // the store settles it later and the backend activates the badge then.
+        _snack(
+          tr(
+            'common.payment_processing',
+            'Ödəniş emal olunur. Təsdiqlənən kimi avtomatik aktivləşəcək.',
+          ),
+          cBrandFill,
+        );
+        return;
+      }
       if (!result.isSuccess) {
         // Show the backend's own localized reason when it sent one, so
         // "already redeemed" never reads the same as "store unreachable".
@@ -873,6 +906,34 @@ class _VerificationScreenState
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReceiptButton(bool isDark, Receipt receipt) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ReceiptScreen(receipt: receipt)),
+        ),
+        icon: Icon(Icons.receipt_long_rounded,
+            size: 20, color: cBrandText(isDark)),
+        label: Text(
+          tr('receipt.view', 'Qəbz'),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: cBrandText(isDark),
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: cBrandText(isDark).withOpacity(0.5)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
     );
   }

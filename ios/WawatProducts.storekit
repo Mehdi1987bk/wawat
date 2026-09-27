@@ -146,6 +146,21 @@
       "productID": "wawat.app.quota.large",
       "referenceName": "Quota +5",
       "type": "Consumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "A1000013",
+      "localizations": [
+        {
+          "description": "Activate the verification badge on your Wawat Air profile.",
+          "displayName": "Verification badge",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "wawat.app.verification",
+      "referenceName": "Verification badge",
+      "type": "Consumable"
     }
   ],
   "settings": {

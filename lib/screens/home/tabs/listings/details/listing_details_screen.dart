@@ -20,6 +20,7 @@ import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../../create_post/create_post_screen.dart';
+import '../../create_post/listing_limit_gate_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import '../../profile_tab/tier/tier_badge.dart';
@@ -586,13 +587,9 @@ class _ListingDetailsScreenState
     // (expired) date — that 422s. Instead open the publish form pre-filled from
     // this listing (everything but the date); it submits POST /listings/{id}/
     // repost and shows its own success (new listing → moderation). The form also
-    // surfaces the localized 4xx `message` (past date, quota limit, …).
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => CreatePostScreen(repostListing: listing),
-      ),
-    );
+    // surfaces the localized 4xx `message` (past date, …). With no listing
+    // slot left the limit gate opens instead of the form.
+    await openRepostFlow(context, listing);
   }
 
   Future<void> _openEdit(Listing listing) async {
@@ -1066,13 +1063,32 @@ class _RouteHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _TypeBadge(
-                listing: listing,
-                content: content,
-                muted: muted,
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _TypeBadge(
+                      listing: listing,
+                      content: content,
+                      muted: muted,
+                    ),
+                    // Show VIP / Featured on the owner's own view too — the buyer
+                    // side already gets it via the status column below. Without
+                    // this an owner couldn't tell a promoted listing apart. Match
+                    // the feed card's source of truth: promotion.type first, then
+                    // the flat promotion_type.
+                    if (isOwner && _effectivePromotionType(listing) != null)
+                      _PromotionBadge(
+                        promotionType: _effectivePromotionType(listing)!,
+                        content: content,
+                      ),
+                  ],
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               if (isOwner)
                 _StatusBadge(listing: listing, content: content)
               else if (listing.promotionType != null)
@@ -2778,15 +2794,18 @@ class _ActionBar extends StatelessWidget {
             onTap: onEdit,
           ),
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _ActionButton(
-            label: tr('listing.pause', 'Dayandır'),
-            icon: PhosphorIconsBold.pause,
-            variant: _ActionVariant.secondary,
-            onTap: onPause,
+        // Booked listings can't be paused (the backend answers 403).
+        if (listing.canBePaused) ...[
+          const SizedBox(width: 10),
+          Expanded(
+            child: _ActionButton(
+              label: tr('listing.pause', 'Dayandır'),
+              icon: PhosphorIconsBold.pause,
+              variant: _ActionVariant.secondary,
+              onTap: onPause,
+            ),
           ),
-        ),
+        ],
         const SizedBox(width: 10),
         Expanded(
           child: _ActionButton(
@@ -4150,6 +4169,17 @@ IconData _statusIcon(String status) {
 
 bool _isMutedOwnerStatus(String? status) {
   return status == 'paused' || status == 'expired';
+}
+
+/// The promotion type to badge, matching the feed card: the nested
+/// promotion.type (authoritative) wins, then the flat promotion_type. Null when
+/// the listing carries no promotion.
+String? _effectivePromotionType(Listing listing) {
+  final nested = listing.promotion?.type;
+  if (nested != null && nested.isNotEmpty) return nested;
+  final flat = listing.promotionType;
+  if (flat != null && flat.isNotEmpty) return flat;
+  return null;
 }
 
 _OwnerInfoBanner? _ownerTopBanner(String status) {

@@ -61,6 +61,10 @@ Future<void> openPromotionFlow(
   Promotion? promotion,
   bool forceNew = false,
 }) async {
+  // Every CTA is already hidden for these listings; this is the safety net.
+  if (!listing.canBePromoted) return;
+  // No boost on a VIP listing (VIP on a boosted one is fine).
+  if (type == 'featured' && !listing.canBuyBoost) return;
   await Navigator.of(context).push(
     MaterialPageRoute(
       fullscreenDialog: true,
@@ -236,30 +240,32 @@ class _PromotionPostCreateUpsellState extends State<PromotionPostCreateUpsell> {
                             type: 'vip',
                           ),
                   ),
-                  const SizedBox(height: 12),
-                  _UpsellCard(
-                    content: content,
-                    vip: false,
-                    title: _tx(content, 'promotion.cta.boost', 'Önə çək'),
-                    subtitle: _tx(
-                      content,
-                      'promotion.boost_short',
-                      'Zəmanətli göstərişlər',
+                  if (widget.listing.canBuyBoost) ...[
+                    const SizedBox(height: 12),
+                    _UpsellCard(
+                      content: content,
+                      vip: false,
+                      title: _tx(content, 'promotion.cta.boost', 'Önə çək'),
+                      subtitle: _tx(
+                        content,
+                        'promotion.boost_short',
+                        'Zəmanətli göstərişlər',
+                      ),
+                      price: bundle == null
+                          ? null
+                          : _lowestPromotionPrice(
+                              bundle,
+                              IapProductKind.featured,
+                            ),
+                      onTap: !hasBoostCatalog
+                          ? null
+                          : () => openPromotionFlow(
+                              context,
+                              listing: widget.listing,
+                              type: 'featured',
+                            ),
                     ),
-                    price: bundle == null
-                        ? null
-                        : _lowestPromotionPrice(
-                            bundle,
-                            IapProductKind.featured,
-                          ),
-                    onTap: !hasBoostCatalog
-                        ? null
-                        : () => openPromotionFlow(
-                            context,
-                            listing: widget.listing,
-                            type: 'featured',
-                          ),
-                  ),
+                  ],
                   if (storeUnavailable) ...[
                     const SizedBox(height: 12),
                     _ErrorBanner(
@@ -326,14 +332,47 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
   /// VIP selection — the duration in days.
   int? _selectedDuration;
 
+  /// The server says the listing can't be promoted any more (see
+  /// [_listingStillPromotable]) → nothing is offered, only a way back.
+  bool _listingNotPromotable = false;
+
+  /// A boost was opened for a listing that is VIP by now (stale card) — VIP
+  /// and boost don't mix, so only a way back is offered.
+  bool _boostBlockedByVip = false;
+
   @override
   void initState() {
     super.initState();
     _future = _load();
   }
 
+  /// Fresh server status of the listing. The card that opened this flow may be
+  /// stale (the listing expired while the list sat open) and the backend
+  /// doesn't reject orders by status yet — so re-check before offering a thing.
+  Future<bool> _listingStillPromotable() async {
+    try {
+      final fresh = (await sl.get<AuthRepository>().getListingDetails(
+        widget.listing.id,
+      )).data;
+      _boostBlockedByVip =
+          widget.initialType == 'featured' &&
+          fresh.canBePromoted &&
+          !fresh.canBuyBoost;
+      return fresh.canBePromoted;
+    } on DioException catch (error) {
+      // Gone (deleted) → no. Any other failure → trust the caller's copy,
+      // which [openPromotionFlow] has already checked.
+      return error.response?.statusCode != 404 && widget.listing.canBePromoted;
+    } catch (_) {
+      return widget.listing.canBePromoted;
+    }
+  }
+
   Future<_PromotionBundle> _load() async {
+    final stillPromotable = _listingStillPromotable();
     final base = await _loadPromotionStoreBundle();
+    _listingNotPromotable = !await stillPromotable;
+    if (_listingNotPromotable || _boostBlockedByVip) return base;
     final storeProductsById = base.storeProductsById;
     final iapCatalog = base.iapCatalog;
     Promotion? existing = widget.initialPromotion;
@@ -403,6 +442,17 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
           return _ErrorPage(onRetry: () => setState(() => _future = _load()));
         }
         final bundle = snapshot.data!;
+        if (_listingNotPromotable) {
+          return _NotPromotablePage(content: bundle.content);
+        }
+        if (_boostBlockedByVip) {
+          return _NotPromotablePage(
+            content: bundle.content,
+            messageKey: 'promotion.boost_blocked_by_vip',
+            fallback:
+                'Bu elan artıq VİP-dir. VİP müddəti bitənə qədər onu önə çəkmək olmur.',
+          );
+        }
         final existing = bundle.existingPromotion;
 
         // The backend catalog owns package metadata. StoreKit / Play Billing
@@ -544,6 +594,8 @@ class _PromotionCheckoutScreen extends StatefulWidget {
 }
 
 class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
+  /// Neutral (blue) note for a deferred store payment — not an error.
+  String? _notice;
   final _promoCode = TextEditingController();
   bool _loading = false;
   String? _error;
@@ -675,6 +727,7 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
     setState(() {
       _loading = true;
       _error = null;
+      _notice = null;
     });
     try {
       final Promotion promotion;
@@ -731,6 +784,7 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
   ///   (a retry re-opens the sheet; the just-canceled transaction is finished in
   ///   [IapService] so it can't trigger `storekit_duplicate_product_object`).
   /// * Error → inline message, no new charge.
+  /// * Pending (deferred: Play pending / Ask to Buy) → blue "processing" note.
   /// * Purchased/restored → the backend receipt check already ran inside
   ///   [IapService.purchase]; read the promotion back (polling once more while
   ///   activation is still pending) and move to the status screen.
@@ -746,6 +800,21 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
         setState(() {
           _loading = false;
           _error = null;
+        });
+        return;
+      }
+      if (result.outcome == IapOutcome.pending) {
+        // A deferred store payment (Play pending / Ask to Buy): neither paid nor
+        // failed yet. Don't read the promotion or log a failure — the store
+        // delivers the verdict later and the backend activates it then.
+        setState(() {
+          _loading = false;
+          _error = null;
+          _notice = _tx(
+            widget.content,
+            'common.payment_processing',
+            'Ödəniş emal olunur. Təsdiqlənən kimi avtomatik aktivləşəcək.',
+          );
         });
         return;
       }
@@ -768,13 +837,22 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
         });
         return;
       }
-      var resolved = (await widget.api.getPromotion(promotion.id)).data;
-      if (!_isResolvedPromotionStatus(resolved.status)) {
-        resolved = (await _pollPromotionUntilResolved(
+      // Keep the whole response, not just `.data`: it carries the receipt, and
+      // without it the status screen has no «Qəbz» (card path does the same).
+      var response = await widget.api.getPromotion(promotion.id);
+      if (!_isResolvedPromotionStatus(response.data.status)) {
+        final polled = await _pollPromotionUntilResolved(
           widget.api,
-          resolved,
-        )).data;
+          response.data,
+        );
+        // The latest read wins; a poll that never got through has no receipt,
+        // so the first one stays.
+        response = PromotionResponse(
+          data: polled.data,
+          receipt: polled.receipt ?? response.receipt,
+        );
       }
+      final resolved = response.data;
       Telemetry.instance.event(
         TelemetryEvents.purchase,
         params: {
@@ -797,6 +875,7 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
             listing: widget.listing,
             content: widget.content,
             initialPromotion: resolved,
+            receipt: response.receipt,
             storePriceLabel: _storePrice,
           ),
         ),
@@ -1146,6 +1225,9 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
           if (_error != null) ...[
             const SizedBox(height: 12),
             _ErrorBanner(_error!),
+          ] else if (_notice != null) ...[
+            const SizedBox(height: 12),
+            _ErrorBanner(_notice!, info: true),
           ],
         ],
       ),
@@ -1780,6 +1862,20 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
   void initState() {
     super.initState();
     _receipt = widget.receipt;
+    // Safety net: whoever opened this screen didn't hand over the receipt.
+    // The «Statusu yenilə» button (the other way to get it) is hidden once the
+    // promotion is active, so fetch it here or «Qəbz» never appears.
+    if (_receipt == null) _loadMissingReceipt();
+  }
+
+  Future<void> _loadMissingReceipt() async {
+    try {
+      final response = await widget.api.getPromotion(_promotion.id);
+      if (!mounted || response.receipt == null) return;
+      setState(() => _receipt = response.receipt);
+    } catch (_) {
+      // Silent: the screen still works; only the receipt button stays hidden.
+    }
   }
 
   Future<void> _refresh() async {
@@ -2049,6 +2145,15 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
   int _expiredCount = 0;
   String? _error;
 
+  /// Listing ids whose listing may still be promoted (see
+  /// [Listing.canBePromoted]). Only these get the Uzat / Yenilə chip. Rebuilt
+  /// on every load, so a listing that expired meanwhile loses it on refresh.
+  Set<String> _promotableListingIds = const {};
+
+  /// Listings with a running VIP (from the active list, loaded anyway). A boost
+  /// can't be bought for them, so their boost items get no Uzat / Yenilə.
+  Set<String> _vipListingIds = const {};
+
   @override
   void initState() {
     super.initState();
@@ -2071,16 +2176,63 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
       if (!mounted) return;
       final active = results[0];
       final expired = results[1];
+      final items = _tab == 'active' ? active.data : expired.data;
+      final promotable = await _resolvePromotableListingIds(items);
+      if (!mounted) return;
       setState(() {
         _activeCount = active.meta?.total ?? active.data.length;
         _expiredCount = expired.meta?.total ?? expired.data.length;
-        _items = _tab == 'active' ? active.data : expired.data;
+        _items = items;
+        _promotableListingIds = promotable;
+        _vipListingIds = {
+          for (final item in active.data)
+            if (item.type == 'vip') ?(item.listingId ?? item.listing?.id),
+        };
       });
     } catch (error) {
       if (mounted) setState(() => _error = _apiError(error));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  /// Which of [items]' listings may still be promoted. Uses the status the
+  /// backend embeds in the promotion when present; the rest are looked up in
+  /// the user's own listings (`/listings/my`, usually a single page). Not found
+  /// (deleted) or a failed lookup → no chip: better than selling a promotion
+  /// the listing can't use.
+  Future<Set<String>> _resolvePromotableListingIds(
+    List<Promotion> items,
+  ) async {
+    final promotable = <String>{};
+    final unknown = <String>{};
+    for (final item in items) {
+      final id = item.listingId ?? item.listing?.id;
+      if (id == null || id.isEmpty) continue;
+      final status = item.listing?.status;
+      if (status == null) {
+        unknown.add(id);
+      } else if (Listing.isPromotableStatus(status)) {
+        promotable.add(id);
+      }
+    }
+    try {
+      final repository = sl.get<AuthRepository>();
+      var page = 1;
+      var lastPage = 1;
+      // Walks pages only until every unknown listing is found (capped).
+      while (unknown.isNotEmpty && page <= lastPage && page <= 10) {
+        final result = await repository.getMyListings(page: page, perPage: 50);
+        for (final listing in result.data) {
+          if (unknown.remove(listing.id) && listing.canBePromoted) {
+            promotable.add(listing.id);
+          }
+        }
+        lastPage = result.lastPage;
+        page++;
+      }
+    } catch (_) {}
+    return promotable;
   }
 
   Future<void> _openPromotion(Promotion item) async {
@@ -2145,10 +2297,17 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final item = _items[index];
+                        final listingId = item.listingId ?? item.listing?.id;
+                        // Uzat / Yenilə only for a still-promotable listing,
+                        // and never a boost for a listing that is VIP now.
+                        final canBuy =
+                            _promotableListingIds.contains(listingId) &&
+                            !(item.type == 'featured' &&
+                                _vipListingIds.contains(listingId));
                         return _PromotionHistoryCard(
                           content: _content,
                           promotion: item,
-                          onTap: () => _openPromotion(item),
+                          onTap: canBuy ? () => _openPromotion(item) : null,
                         );
                       },
                     ),
@@ -3534,7 +3693,9 @@ class _CheckoutRow extends StatelessWidget {
 class _PromotionHistoryCard extends StatelessWidget {
   final Map<String, String> content;
   final Promotion promotion;
-  final VoidCallback onTap;
+
+  /// Uzat / Yenilə. Null → the listing can't be promoted, no chip at all.
+  final VoidCallback? onTap;
 
   const _PromotionHistoryCard({
     required this.content,
@@ -3596,43 +3757,44 @@ class _PromotionHistoryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onTap,
-                // Extra transparent margin around the chip → a comfortable,
-                // reliable tap target (the bare chip was easy to miss).
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 8,
-                  ),
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 68,
-                      minHeight: 40,
-                    ),
-                    alignment: Alignment.center,
+              if (onTap != null)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onTap,
+                  // Extra transparent margin around the chip → a comfortable,
+                  // reliable tap target (the bare chip was easy to miss).
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 10,
+                      horizontal: 6,
+                      vertical: 8,
                     ),
-                    decoration: BoxDecoration(
-                      color: accent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      promotion.isExpired
-                          ? _tx(content, 'promotion.action.renew', 'Yenilə')
-                          : _tx(content, 'promotion.action.extend', 'Uzat'),
-                      style: TextStyle(
-                        color: vip ? _ink900 : Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 68,
+                        minHeight: 40,
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        promotion.isExpired
+                            ? _tx(content, 'promotion.action.renew', 'Yenilə')
+                            : _tx(content, 'promotion.action.extend', 'Uzat'),
+                        style: TextStyle(
+                          color: vip ? _ink900 : Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           if (!promotion.isExpired) ...[
@@ -4041,31 +4203,46 @@ class _InfoBanner extends StatelessWidget {
 class _ErrorBanner extends StatelessWidget {
   final String text;
 
-  const _ErrorBanner(this.text);
+  /// Blue "for your information" variant (e.g. payment still processing).
+  final bool info;
+
+  const _ErrorBanner(this.text, {this.info = false});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color background;
+    final Color iconColor;
+    final Color textColor;
+    if (info) {
+      background = isDark ? WawatDark.brandSoft : _brand50;
+      iconColor = isDark ? WawatDark.brandText : _brand;
+      textColor = isDark ? WawatDark.brandText : _brand;
+    } else {
+      background = isDark
+          ? WawatDark.danger.withValues(alpha: 0.14)
+          : const Color(0xFFFEF2F2);
+      iconColor = isDark ? WawatDark.danger : const Color(0xFFEF4444);
+      textColor = isDark ? WawatDark.danger : const Color(0xFFDC2626);
+    }
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: isDark
-            ? WawatDark.danger.withValues(alpha: 0.14)
-            : const Color(0xFFFEF2F2),
+        color: background,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
         children: [
           Icon(
-            PhosphorIconsFill.warningCircle,
-            color: isDark ? WawatDark.danger : const Color(0xFFEF4444),
+            info ? PhosphorIconsFill.clock : PhosphorIconsFill.warningCircle,
+            color: iconColor,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
               style: TextStyle(
-                color: isDark ? WawatDark.danger : const Color(0xFFDC2626),
+                color: textColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -4316,6 +4493,63 @@ class _ErrorPage extends StatelessWidget {
                     'Yenidən cəhd et',
                   ),
                   onTap: onRetry,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shown instead of the packages when the listing turned out not to be
+/// promotable (expired / paused / rejected / deleted…) by the time the flow
+/// opened. Back returns to the list, which refreshes and drops the CTAs.
+class _NotPromotablePage extends StatelessWidget {
+  final Map<String, String> content;
+  final String messageKey;
+  final String fallback;
+
+  const _NotPromotablePage({
+    required this.content,
+    this.messageKey = 'promotion.listing_not_promotable',
+    this.fallback =
+        'Bu elanı hazırda irəli çəkmək olmur. Promosyon yalnız aktiv və ya yoxlamada olan elanlar üçündür.',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      backgroundColor: _cScreen(isDark),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  PhosphorIconsFill.info,
+                  color: isDark ? WawatDark.brandText : _brand,
+                  size: 56,
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  _tx(content, messageKey, fallback),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _cText(isDark),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _PrimaryButton(
+                  label: _tx(content, 'common.back', 'Geri'),
+                  onTap: () => Navigator.of(context).pop(),
                 ),
               ],
             ),

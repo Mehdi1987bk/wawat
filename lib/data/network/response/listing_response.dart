@@ -225,6 +225,46 @@ class Listing {
   /// Some space taken but offers are still possible.
   bool get isPartiallyBooked => status == 'partially_booked';
 
+  /// VIP / boost / extend / renew may only be bought for a live listing or one
+  /// awaiting moderation. Every other status (booked, paused, expired,
+  /// rejected, deleted — or unknown) hides the promotion CTAs entirely. The
+  /// backend doesn't enforce this yet, so the client is the gate.
+  bool get canBePromoted => isPromotableStatus(status);
+
+  /// The rule behind [canBePromoted], for payloads that carry only a status.
+  static bool isPromotableStatus(String? status) =>
+      status == 'active' || status == 'moderation';
+
+  // Owner actions, mirroring the backend's ListingPolicy. In any other status
+  // the endpoint answers 403, so the button isn't rendered at all.
+
+  /// `POST /listings/{id}/pause`.
+  bool get canBePaused => status == 'active' || status == 'moderation';
+
+  /// `POST /listings/{id}/resume`.
+  bool get canBeResumed => status == 'paused';
+
+  /// `POST /listings/{id}/repost` — the way back for a dead listing.
+  bool get canBeReposted => status == 'expired' || status == 'rejected';
+
+  /// The running promotion: `vip` | `featured` | null. The nested
+  /// `promotion.type` wins (as on the card's promotion panel), then the flat
+  /// `promotion_type`. The server clears both once the promotion ends, so no
+  /// date math here.
+  String? get activePromotionType {
+    final nested = promotion?.type;
+    if (nested != null && nested.isNotEmpty) return nested;
+    final flat = promotionType;
+    return flat == null || flat.isEmpty ? null : flat;
+  }
+
+  /// VIP can be bought on any promotable listing — a boosted one included.
+  bool get canBuyVip => canBePromoted;
+
+  /// Boost («Önə çək») is off while the listing is VIP — the backend refuses
+  /// it. A boosted listing may still re-buy / upgrade its boost.
+  bool get canBuyBoost => canBePromoted && activePromotionType != 'vip';
+
   factory Listing.fromJson(Map<String, dynamic> json) =>
       _$ListingFromJson(json);
 

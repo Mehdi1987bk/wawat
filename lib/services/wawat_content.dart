@@ -369,6 +369,19 @@ class WawatContent {
     'promotion.cta.upgrade_tier': 'Zolağı yüksəlt',
     'promotion.pending_activation_note':
         'Elan təsdiqlənən kimi promosyon avtomatik aktivləşəcək.',
+    'common.payment_processing':
+        'Ödəniş emal olunur. Təsdiqlənən kimi avtomatik aktivləşəcək.',
+    'receipt.share': 'Paylaş',
+    'receipt.pdf_saved_downloads': 'Qəbz «Yükləmələr» qovluğunda saxlanıldı.',
+    'receipt.pdf_saved_no_viewer':
+        'Qəbz saxlanıldı, amma telefonda PDF açan proqram tapılmadı.',
+    'receipt.pdf_error_network':
+        'İnternet bağlantısı yoxdur. Bağlantını yoxlayıb yenidən cəhd edin.',
+    'receipt.pdf_error_server':
+        'Server qəbzi göndərə bilmədi. Bir az sonra yenidən cəhd edin.',
+    'receipt.pdf_error_save': 'Qəbzi telefonda saxlamaq alınmadı.',
+    'promotion.listing_not_promotable':
+        'Bu elanı hazırda irəli çəkmək olmur. Promosyon yalnız aktiv və ya yoxlamada olan elanlar üçündür.',
     'promotion.vip_active': 'VİP aktiv',
     'promotion.checkout_title': 'Sifariş yekunu',
     'promotion.promo_code': 'Promokod (varsa)',

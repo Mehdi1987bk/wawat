@@ -349,14 +349,9 @@ class _RegistrationScreenState
               error: _fieldErrors['password_confirmation'],
               isDark: isDark,
             ),
-            const SizedBox(height: 16),
-            _AuthField(
-              label: t('auth.referral_code_label'),
-              hint: t('auth.referral_code_hint'),
-              controller: _referralController,
-              error: _fieldErrors['referral_code'],
-              isDark: isDark,
-            ),
+            // The invite-code field is hidden (product decision). The referral
+            // plumbing stays: a code passed via [initialReferralCode] is still
+            // sent and still shows the "invited by" banner.
             const SizedBox(height: 18),
             Text(
               tr('auth.spoken_languages', 'Danışdığın dillər'),

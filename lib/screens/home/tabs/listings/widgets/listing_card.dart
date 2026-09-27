@@ -201,6 +201,13 @@ class _ListingCardState extends State<ListingCard> {
       widget.listing.promotion?.type ??
       widget.listing.promotionType;
 
+  /// A promotion is running on this listing → its status panel stays visible
+  /// even when the listing can no longer be promoted (only the CTAs go).
+  bool get _hasRunningPromotion {
+    final type = widget.listing.promotion?.type ?? widget.listing.promotionType;
+    return type != null && type.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -223,6 +230,8 @@ class _ListingCardState extends State<ListingCard> {
         : readonly
             ? (isDark ? WawatDark.border : const Color(0x14000000))
             : (isDark ? WawatDark.border : const Color(0x0F0F172A));
+    final ownerActions =
+        widget.isOwner ? _ownerActionButtons(isDark) : const <Widget>[];
 
     return FutureBuilder<Map<String, String>>(
       future: _contentFuture,
@@ -274,16 +283,20 @@ class _ListingCardState extends State<ListingCard> {
                   const SizedBox(height: 14),
                   _buildOwnerStats(textColor, mutedColor, isDark),
                 ],
-                if (widget.actionsEnabled) ...[
+                if (widget.actionsEnabled && !widget.isOwner) ...[
                   const SizedBox(height: 16),
-                  widget.isOwner
-                      ? _buildOwnerActions(isDark)
-                      : _buildPublicActions(textColor, isDark),
+                  _buildPublicActions(textColor, isDark),
+                ],
+                if (widget.actionsEnabled && ownerActions.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildOwnerActions(ownerActions),
                 ],
                 if (widget.isOwner &&
                     (widget.onVipTap != null ||
                         widget.onBoostTap != null ||
-                        widget.onPromotionExtendTap != null)) ...[
+                        widget.onPromotionExtendTap != null) &&
+                    (widget.listing.canBePromoted ||
+                        _hasRunningPromotion)) ...[
                   const SizedBox(height: 14),
                   _buildPromotionActions(
                       textColor, mutedColor, content, isDark),
@@ -915,54 +928,63 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  Widget _buildOwnerActions(bool isDark) {
-    final canResume = widget.listing.status == 'paused';
+  /// Only the actions the backend allows in the current status (see
+  /// [Listing.canBePaused] & co.) — a button that can only end in a 403 isn't
+  /// rendered. Empty for a deleted listing.
+  List<Widget> _ownerActionButtons(bool isDark) {
+    final listing = widget.listing;
+    return [
+      if (listing.canBePaused)
+        _ActionButton(
+          label: tr('listing.pause', 'Dayandır'),
+          icon: PhosphorIconsBold.pause,
+          background: _accentSoftOf(isDark),
+          color: _accentOf(isDark),
+          onTap: widget.onPauseTap == null
+              ? null
+              : () => widget.onPauseTap!(listing),
+        ),
+      if (listing.canBeResumed)
+        _ActionButton(
+          label: tr('listing.activate', 'Aktiv et'),
+          icon: PhosphorIconsFill.arrowClockwise,
+          background: _accentSoftOf(isDark),
+          color: _accentOf(isDark),
+          onTap: widget.onResumeTap == null
+              ? null
+              : () => widget.onResumeTap!(listing),
+        ),
+      if (listing.canBeReposted)
+        _ActionButton(
+          label: tr('listing.repost', 'Repost'),
+          icon: PhosphorIconsBold.arrowClockwise,
+          background: isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE),
+          color: isDark ? WawatDark.brandText : const Color(0xFF0271EB),
+          onTap: widget.onRepostTap == null
+              ? null
+              : () => widget.onRepostTap!(listing),
+        ),
+      if (listing.status != 'deleted')
+        _ActionButton(
+          label: tr('common.delete', 'Sil'),
+          icon: PhosphorIconsRegular.trash,
+          background:
+              isDark ? WawatDark.dangerSoftBg : const Color(0xFFFEE2E2),
+          color: isDark ? WawatDark.dangerText : const Color(0xFFDC2626),
+          onTap: widget.onDeleteTap == null
+              ? null
+              : () => widget.onDeleteTap!(listing),
+        ),
+    ];
+  }
+
+  Widget _buildOwnerActions(List<Widget> actions) {
     return Row(
       children: [
-        Expanded(
-          child: _ActionButton(
-            label: canResume
-                ? tr('listing.activate', 'Aktiv et')
-                : tr('listing.pause', 'Dayandır'),
-            icon: canResume
-                ? PhosphorIconsFill.arrowClockwise
-                : PhosphorIconsBold.pause,
-            background: _accentSoftOf(isDark),
-            color: _accentOf(isDark),
-            onTap: canResume
-                ? (widget.onResumeTap == null
-                    ? null
-                    : () => widget.onResumeTap!(widget.listing))
-                : (widget.onPauseTap == null
-                    ? null
-                    : () => widget.onPauseTap!(widget.listing)),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _ActionButton(
-            label: tr('listing.repost', 'Repost'),
-            icon: PhosphorIconsBold.arrowClockwise,
-            background: isDark ? WawatDark.brandChip : const Color(0xFFEAF3FE),
-            color: isDark ? WawatDark.brandText : const Color(0xFF0271EB),
-            onTap: widget.onRepostTap == null
-                ? null
-                : () => widget.onRepostTap!(widget.listing),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _ActionButton(
-            label: tr('common.delete', 'Sil'),
-            icon: PhosphorIconsRegular.trash,
-            background:
-                isDark ? WawatDark.dangerSoftBg : const Color(0xFFFEE2E2),
-            color: isDark ? WawatDark.dangerText : const Color(0xFFDC2626),
-            onTap: widget.onDeleteTap == null
-                ? null
-                : () => widget.onDeleteTap!(widget.listing),
-          ),
-        ),
+        for (var i = 0; i < actions.length; i++) ...[
+          if (i > 0) const SizedBox(width: 10),
+          Expanded(child: actions[i]),
+        ],
       ],
     );
   }
@@ -977,12 +999,17 @@ class _ListingCardState extends State<ListingCard> {
     final promotionType = promotion?.type ?? widget.listing.promotionType;
     final isVip = promotionType == 'vip';
     final isFeatured = promotionType == 'featured';
+    // Only active / moderation listings get VIP / boost / extend CTAs.
+    final canPromote = widget.listing.canBePromoted;
+    // VIP and boost are exclusive one way: a VIP listing gets no boost CTA, a
+    // boosted listing may still go VIP.
+    final canBoost = widget.listing.canBuyBoost;
 
     if (promotionType == null || promotionType.isEmpty) {
+      if (!canPromote) return const SizedBox.shrink();
       return Column(
         children: [
-          if (widget.listing.status == 'pending' ||
-              widget.listing.status == 'in_moderation')
+          if (widget.listing.status == 'moderation')
             Container(
               width: double.infinity,
               margin: const EdgeInsets.only(bottom: 10),
@@ -1114,36 +1141,32 @@ class _ListingCardState extends State<ListingCard> {
             ],
           ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _ActionButton(
-                label: WawatContent.text(
-                  content,
-                  'promotion.cta.extend',
-                  'Uzat',
+        if (canPromote) ...[
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _ActionButton(
+                  label: WawatContent.text(
+                    content,
+                    'promotion.cta.extend',
+                    'Uzat',
+                  ),
+                  icon: PhosphorIconsFill.clockCounterClockwise,
+                  background: accent,
+                  color: isVip
+                      ? (isDark ? WawatDark.onGold : const Color(0xFF0F172A))
+                      : Colors.white,
+                  onTap: widget.onPromotionExtendTap == null
+                      ? null
+                      : () => widget.onPromotionExtendTap!(widget.listing),
                 ),
-                icon: PhosphorIconsFill.clockCounterClockwise,
-                background: accent,
-                color: isVip
-                    ? (isDark ? WawatDark.onGold : const Color(0xFF0F172A))
-                    : Colors.white,
-                onTap: widget.onPromotionExtendTap == null
-                    ? null
-                    : () => widget.onPromotionExtendTap!(widget.listing),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _ActionButton(
-                label: isVip
-                    ? WawatContent.text(
-                        content,
-                        'promotion.cta.boost_too',
-                        'Önə də çək',
-                      )
-                    : isFeatured
+              if (canBoost) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _ActionButton(
+                    label: isFeatured
                         ? WawatContent.text(
                             content,
                             'promotion.cta.upgrade_tier',
@@ -1154,18 +1177,31 @@ class _ListingCardState extends State<ListingCard> {
                             'promotion.cta.boost',
                             'Önə çək',
                           ),
-                icon: isVip
-                    ? PhosphorIconsFill.rocketLaunch
-                    : PhosphorIconsBold.arrowUp,
-                background: isDark ? cFill(true) : const Color(0xFFF8FAFC),
-                color: isDark ? cText2(true) : const Color(0xFF334155),
-                onTap: widget.onBoostTap == null
-                    ? null
-                    : () => widget.onBoostTap!(widget.listing),
-              ),
+                    icon: PhosphorIconsBold.arrowUp,
+                    background: isDark ? cFill(true) : const Color(0xFFF8FAFC),
+                    color: isDark ? cText2(true) : const Color(0xFF334155),
+                    onTap: widget.onBoostTap == null
+                        ? null
+                        : () => widget.onBoostTap!(widget.listing),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          // A boosted listing can still be upgraded to VIP.
+          if (!isVip && widget.listing.canBuyVip) ...[
+            const SizedBox(height: 10),
+            _ActionButton(
+              label: WawatContent.text(content, 'promotion.cta.vip', 'VİP et'),
+              icon: PhosphorIconsFill.crownSimple,
+              background: isDark ? WawatDark.gold : const Color(0xFFFBBF24),
+              color: isDark ? WawatDark.onGold : const Color(0xFF0F172A),
+              onTap: widget.onVipTap == null
+                  ? null
+                  : () => widget.onVipTap!(widget.listing),
             ),
           ],
-        ),
+        ],
       ],
     );
   }

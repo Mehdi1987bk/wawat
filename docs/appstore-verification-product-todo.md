@@ -34,13 +34,12 @@ wawat.app.verification
 
 ## 3. Бэкенд (уже наш API)
 
-1. Добавить продукт в `GET /api/v1/purchases/catalog`:
+1. Добавить продукт в `GET /api/v1/purchases/catalog` (**без цены** — как VIP/quota;
+   цену даёт магазин, клиент читает её из `ProductDetails`):
    ```json
    {
      "product_id": "wawat.app.verification",
-     "kind": "verification",
-     "price": 0.99,
-     "currency": "USD"
+     "kind": "verification"
    }
    ```
 2. Убедиться, что `POST /verification/pay` принимает чек магазина и активирует бейдж:

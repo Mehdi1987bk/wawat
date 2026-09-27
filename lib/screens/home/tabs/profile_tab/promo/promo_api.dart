@@ -5,8 +5,12 @@ import '../../../../../main.dart';
 /// Feature flag for the promo-codes + app-review-reward feature. The backend
 /// endpoints are still being finalized — while this is `true` the client calls
 /// them but degrades gracefully on 404 (promo list → empty state, review prompt
-/// → not shown). Flip to `false` to hide the menu entry and skip all calls.
-const bool kPromoFeatureEnabled = true;
+/// → not shown). Flip to `false` to hide EVERY promo/rate touchpoint and skip
+/// all calls: the "Promokodlarım" menu row, the promo-code input on VIP/Featured
+/// checkout, the auto review prompt, and the "Rate app" entry (its only purpose
+/// is granting a promo code). Turned OFF for now — the promo feature is parked
+/// until the backend side is ready; flip back to `true` to bring it all back.
+const bool kPromoFeatureEnabled = false;
 
 /// Data-layer for promo codes and the store-review reward prompt.
 ///

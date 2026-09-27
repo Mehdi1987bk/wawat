@@ -1,3 +1,5 @@
+import 'receipt.dart';
+
 /// State of the current user's KYC verification, from `GET /verification`.
 ///
 /// Verification is a PAID, two-step flow: (1) submit documents → admin review,
@@ -20,6 +22,10 @@ class VerificationState {
   final VerificationPayment payment;
   final List<VerificationDocument> documents;
 
+  /// Unified payment receipt (same block as promotions/quota) — «Qəbz» shows
+  /// only once it is paid.
+  final Receipt? receipt;
+
   const VerificationState({
     required this.id,
     required this.status,
@@ -29,6 +35,7 @@ class VerificationState {
     this.reviewedAt,
     required this.payment,
     this.documents = const [],
+    this.receipt,
   });
 
   bool get isPending => status == 'pending' || status == 'processing';
@@ -41,7 +48,12 @@ class VerificationState {
   /// Fully verified through this request (documents approved AND fee paid).
   bool get isPaidVerified => isApproved && payment.paid;
 
-  factory VerificationState.fromJson(Map<String, dynamic> json) {
+  /// [fallbackReceipt] — the receipt when the backend put it at the response
+  /// root instead of inside the verification object.
+  factory VerificationState.fromJson(
+    Map<String, dynamic> json, {
+    Receipt? fallbackReceipt,
+  }) {
     return VerificationState(
       id: json['id']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
@@ -55,6 +67,7 @@ class VerificationState {
           .map((e) =>
               VerificationDocument.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
+      receipt: Receipt.fromJson(_map(json['receipt'])) ?? fallbackReceipt,
     );
   }
 }

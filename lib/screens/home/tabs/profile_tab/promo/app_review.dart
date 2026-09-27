@@ -106,10 +106,24 @@ class AppReviewFlow {
     PromoApi? api,
   }) async {
     final resolved = api ?? PromoApi();
-    await _openStore(context, prompt);
-    return resolved.markReviewRated(
+    // Credit the reward BEFORE opening the store. Launching the store listing
+    // backgrounds the app — on iOS the App Store opens as a separate app and iOS
+    // suspends us within a couple of seconds — so a POST fired afterwards is
+    // routinely cut off mid-flight and returns no code (the "iOS gives no promo"
+    // bug). Fetch the code while we are still foreground, then hand off.
+    final reward = await resolved.markReviewRated(
         promptToken: prompt?.promptToken, rating: rating);
+    if (context.mounted) {
+      await _openStore(context, prompt);
+    }
+    return reward;
   }
+
+  /// Just opens the store listing — no reward, no backend call. Used by the
+  /// "Rate app" page while the promo reward is parked: the user can still rate,
+  /// but nothing about a promo code is shown or granted.
+  static Future<void> openStoreListing(BuildContext context) =>
+      _openStore(context, null);
 
   /// Opens the store listing as reliably as possible: backend-provided URL →
   /// hardcoded Play fallback (we know the package) → native `openStoreListing`.
@@ -193,14 +207,16 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
   Future<void> _goStore() async {
     setState(() => _stage = _Stage.redirecting);
-    // The user explicitly chose to leave a review → send them to the store's
-    // review composer (reliable, real transition). We intentionally do NOT use
-    // InAppReview.requestReview() here: on iOS it's a quota-limited overlay that
-    // often shows nothing and never actually opens the App Store — which is
-    // exactly the "keçid yoxdu" the user hit.
-    await _openStoreUrl();
+    // Credit the reward BEFORE opening the store. Opening the store backgrounds
+    // the app (on iOS the App Store is a separate app and iOS suspends us within
+    // seconds), so a POST fired afterwards is often cut off and returns no code.
+    // Fetch it while foreground, then send the user to the review composer. We
+    // intentionally do NOT use InAppReview.requestReview() here: on iOS it's a
+    // quota-limited overlay that often shows nothing and never opens the App
+    // Store — exactly the "keçid yoxdu" the user hit.
     final reward = await widget.api.markReviewRated(
         promptToken: widget.prompt.promptToken, rating: _rating);
+    await _openStoreUrl();
     if (mounted) {
       setState(() {
         _reward = reward ?? widget.prompt.existingReward;

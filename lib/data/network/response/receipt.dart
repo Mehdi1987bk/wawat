@@ -1,10 +1,10 @@
 /// Unified payment receipt — the backend attaches the SAME `receipt` block to
 /// every payment response (promotions/VIP, listing-quota, and future types), so
-/// the app has one receipt view + one PDF generator for all of them. Differ only
-/// by [kind] for the icon/heading; everything else is printed straight from the
-/// fields (already localized by the backend).
+/// the app has one receipt view for all of them. Differ only by [kind] for the
+/// icon/heading; everything else is printed straight from the fields (already
+/// localized by the backend). The PDF is rendered by the backend ([pdfUrl]).
 class Receipt {
-  final String kind; // promotion | listing_quota
+  final String kind; // promotion | listing_quota | verification
   final String number; // WA-XXXXXXXX
   final String title; // localized, e.g. "VİP · Qızıl · 7 gün"
   final double amount;
@@ -16,6 +16,10 @@ class Receipt {
   final String? reference; // payment number, e.g. mock_…
   final List<ReceiptItem> items; // localized label/value rows for the PDF
   final String supportEmail;
+
+  /// Server-rendered PDF (`GET /receipts/{kind}/{id}/pdf`, Bearer auth).
+  /// Null until the payment has gone through — no PDF button then.
+  final String? pdfUrl;
 
   const Receipt({
     required this.kind,
@@ -30,6 +34,7 @@ class Receipt {
     this.reference,
     this.items = const [],
     required this.supportEmail,
+    this.pdfUrl,
   });
 
   static Receipt? fromJson(Map<String, dynamic>? json) {
@@ -50,6 +55,7 @@ class Receipt {
           .where((e) => e.label.isNotEmpty || e.value.isNotEmpty)
           .toList(growable: false),
       supportEmail: _string(json['support_email']) ?? 'support@wawatair.com',
+      pdfUrl: _string(json['pdf_url']),
     );
   }
 
@@ -74,9 +80,9 @@ class ReceiptItem {
   const ReceiptItem({required this.label, required this.value});
 
   factory ReceiptItem.fromJson(Map<String, dynamic> json) => ReceiptItem(
-        label: _string(json['label']) ?? '',
-        value: _string(json['value']) ?? '',
-      );
+    label: _string(json['label']) ?? '',
+    value: _string(json['value']) ?? '',
+  );
 }
 
 String? _string(Object? v) {
@@ -99,7 +105,7 @@ bool _bool(Object? v) {
 
 List<Map<String, dynamic>> _list(Object? v) => v is List
     ? v
-        .whereType<Map>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList(growable: false)
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(growable: false)
     : const [];

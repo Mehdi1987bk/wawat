@@ -13,7 +13,7 @@ import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/localization_service.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
-import '../../create_post/create_post_screen.dart';
+import '../../create_post/listing_limit_gate_screen.dart';
 import '../../listings/details/listing_details_screen.dart';
 import '../../listings/promotion/promotion_screens.dart';
 import '../../listings/widgets/listing_card.dart';
@@ -281,13 +281,8 @@ class _DeliveryFullListScreenState
     // Don't fire /repost with the old (past) date — it 422s. Open the publish
     // form pre-filled from this listing (minus the date); it submits POST
     // /listings/{id}/repost with the new future date, creating a fresh listing
-    // in moderation, and surfaces any 4xx `message` (past date, quota limit).
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => CreatePostScreen(repostListing: listing),
-      ),
-    );
+    // in moderation. With no listing slot left the limit gate opens instead.
+    await openRepostFlow(context, listing);
   }
 
   Future<void> _confirmDelete(Listing listing) async {
