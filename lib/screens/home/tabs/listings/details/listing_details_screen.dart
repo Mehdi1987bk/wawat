@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:buking/services/push_permission_prompt.dart';
 import 'package:buking/presentation/common/listing_share.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
@@ -124,6 +125,10 @@ Future<void> showListingProposalFlow(
         ),
       ),
     );
+    if (!context.mounted) return;
+    // Предложение отправлено — человек ждёт ответа. Момент, когда уведомления
+    // ему очевидно нужны. См. services/push_permission_prompt.dart.
+    await maybeAskPushPermission(context, PushPromptTrigger.proposalSent);
   } finally {
     _openingProposalListingIds.remove(listing.id);
   }
