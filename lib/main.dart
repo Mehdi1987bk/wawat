@@ -134,11 +134,12 @@ Future<void> _bootstrap() async {
 
   try {
     final pushService = PushNotificationService();
-    pushService.setOnTokenUpdated((token) {
-      sl.get<AuthRepository>().registerFcmToken(token).catchError((e, st) {
-        logger.d('FCM token send to backend failed: $e');
-      });
-    });
+    // Колбэк возвращает Future и НЕ глотает ошибку: по ней сервис понимает,
+    // что токен до бэкенда не доехал, и повторит отправку на следующем
+    // возврате из фона (ошибку он логирует сам).
+    pushService.setOnTokenUpdated(
+      (token) => sl.get<AuthRepository>().registerFcmToken(token),
+    );
     await pushService.initialize();
   } catch (e, st) {
     logger.w(

@@ -48,6 +48,7 @@ class LoginBloc extends BaseBloc {
   String get _deviceName => 'Wawatair mobile';
 
   AuthActionResult _parseDioError(DioException e) {
+    final status = e.response?.statusCode;
     final data = e.response?.data;
 
     if (data is Map<String, dynamic>) {
@@ -71,24 +72,20 @@ class LoginBloc extends BaseBloc {
       return AuthActionResult.failure(
         message: message,
         fieldErrors: fieldErrors,
+        code: data['code']?.toString(),
+        statusCode: status,
       );
     }
 
     return AuthActionResult.failure(
-        message: tr('error.request_failed', 'Ошибка запроса'));
+      message: tr('error.request_failed', 'Ошибка запроса'),
+      statusCode: status,
+    );
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {
-    try {
-      final token = await PushNotificationService().refreshToken();
-      if (token == null || token.isEmpty) {
-        logger.d('FCM token is null/empty right after login');
-        return;
-      }
-      await _authRepository.registerFcmToken(token);
-      logger.d('FCM token sent to backend right after login');
-    } catch (e) {
-      logger.d('FCM token send after login failed: $e');
-    }
+    // Отправляет сам сервис: он ставит метку времени, по которой возврат из
+    // фона решает, нужна ли переотправка, и логирует неудачу.
+    await PushNotificationService().syncToken(reason: 'login');
   }
 }

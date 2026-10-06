@@ -121,8 +121,8 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<ContentResponse> getContent({String? group}) {
-    return _authApi.getContent(group);
+  Future<ContentResponse> getContent({String? group, String? lang}) {
+    return _authApi.getContent(group, lang);
   }
 
   @override
@@ -456,6 +456,11 @@ class DataAuthRepository implements AuthRepository {
         // best-effort — не блокируем выход из аккаунта.
       }
     }
+    // Снимаем токен и с самого устройства, чтобы следующий вход получил новый.
+    // Иначе второй аккаунт на том же телефоне остаётся привязан к тому же
+    // токену, и первый продолжает получать пуши на устройство, которым уже
+    // не владеет.
+    await PushNotificationService().clearTokenAfterLogout();
     // Личность сбрасываем здесь явно, а не полагаемся на поток `userDetails`:
     // `clear()` чистит Hive-бокс целиком, и событие watch по конкретному ключу
     // может не прийти. Иначе события гостя после выхода продолжали бы

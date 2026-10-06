@@ -130,16 +130,7 @@ class RegistrationBloc extends BaseBloc {
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {
-    try {
-      final token = await PushNotificationService().refreshToken();
-      if (token == null || token.isEmpty) {
-        logger.d('FCM token is null/empty right after registration');
-        return;
-      }
-      await _authRepository.registerFcmToken(token);
-      logger.d('FCM token sent to backend right after registration');
-    } catch (e) {
-      logger.d('FCM token send after registration failed: $e');
-    }
+    // См. login_bloc: отправку и логи берёт на себя PushNotificationService.
+    await PushNotificationService().syncToken(reason: 'registration');
   }
 }

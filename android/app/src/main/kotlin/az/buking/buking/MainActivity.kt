@@ -11,6 +11,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import androidx.core.view.WindowCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -61,6 +62,44 @@ class MainActivity: FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        // Экран настроек уведомлений (lib/services/push_permission_prompt.dart)
+        // предлагает открыть системные настройки, если пользователь отказал в
+        // разрешении: системный диалог второй раз уже не покажется.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            NOTIFICATION_SETTINGS_CHANNEL,
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "open" -> result.success(openNotificationSettings())
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    /// Opens this app's notification settings (Android 8+), falling back to the
+    /// app-details screen. False when the device has neither.
+    private fun openNotificationSettings(): Boolean {
+        val candidates = mutableListOf<Intent>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            candidates.add(
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            )
+        }
+        candidates.add(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.fromParts("package", packageName, null))
+        )
+        for (intent in candidates) {
+            try {
+                startActivity(intent)
+                return true
+            } catch (e: ActivityNotFoundException) {
+                // Нет такого экрана — пробуем следующий.
+            }
+        }
+        return false
     }
 
     /// Writes [bytes] to Downloads/[name] through MediaStore (Android 10+, no
@@ -119,5 +158,7 @@ class MainActivity: FlutterActivity() {
 
     companion object {
         private const val RECEIPT_CHANNEL = "az.buking.buking/receipt_files"
+        private const val NOTIFICATION_SETTINGS_CHANNEL =
+            "az.buking.buking/notification_settings"
     }
 }

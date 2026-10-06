@@ -8,6 +8,7 @@ import '../../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../../main.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/localization_service.dart';
+import '../../../../../../services/push_permission_prompt.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -29,11 +30,16 @@ class NotificationSettingsScreen extends StatefulWidget {
       _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState
-    extends State<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
+    with WidgetsBindingObserver {
   final AuthRepository _repository = sl.get<AuthRepository>();
   bool _loading = true;
   bool _saving = false;
+
+  /// Пуши запрещены на уровне системы. Тогда любые тумблеры ниже бессмысленны:
+  /// бэкенд отправит, а телефон не покажет. Включить обратно можно только в
+  /// настройках телефона — системный диалог второй раз не появится.
+  bool _systemDenied = false;
 
   bool notifyPush = true;
   bool notifyEmail = true;
@@ -52,17 +58,42 @@ class _NotificationSettingsScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Вернулись из настроек телефона — предупреждение должно исчезнуть сразу.
+    if (state == AppLifecycleState.resumed) _refreshSystemPermission();
+  }
+
   Future<void> _load() async {
+    final denied = await pushPermissionDenied();
     try {
       await _repository.customersMe();
       final user = await _repository.userDetails.first;
       _apply(user.notifications);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() {
+          _systemDenied = denied;
+          _loading = false;
+        });
+      }
     }
+  }
+
+  Future<void> _refreshSystemPermission() async {
+    final denied = await pushPermissionDenied();
+    if (!mounted || denied == _systemDenied) return;
+    setState(() => _systemDenied = denied);
   }
 
   void _apply(Notifications? settings) {
@@ -102,6 +133,8 @@ class _NotificationSettingsScreenState
                     : ListView(
                         padding: const EdgeInsets.only(bottom: 26),
                         children: [
+                          if (_systemDenied)
+                            const PushPermissionDeniedBanner(),
                           _GroupHeader(
                               tr('notification.group_channels', 'Kanallar')),
                           _SettingsCard(

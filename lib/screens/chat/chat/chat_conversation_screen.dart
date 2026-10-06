@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:buking/services/push_permission_prompt.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -458,6 +459,10 @@ class _ChatConversationScreenState
         _replyTarget = null;
       });
     await bloc.sendMessage(text, image, replyTo: reply);
+    if (!mounted) return;
+    // Написал и ждёт ответа — лучший момент спросить про уведомления.
+    // См. services/push_permission_prompt.dart.
+    await maybeAskPushPermission(context, PushPromptTrigger.messageSent);
   }
 
   Future<void> _pickImage() async {
@@ -474,11 +479,11 @@ class _ChatConversationScreenState
       _showError(
         !supported
             ? _t(
-                'chat.image.unsupported',
+                'chat.image.type_error',
                 'Yalnız JPG, PNG və WEBP şəkilləri dəstəklənir.',
               )
             : _t(
-                'chat.image.too_large',
+                'chat.image.size_error',
                 'Şəklin ölçüsü 30 MB-dan çox ola bilməz.',
               ),
       );
@@ -937,7 +942,7 @@ class _ChatConversationScreenState
       user.id > 0 ? user.id.toString() : null,
     ]);
     if (userId == null) {
-      _showError(_t('chat.profile.unavailable', 'Profil məlumatı tapılmadı.'));
+      _showError(_t('chat.user_not_found', 'Profil məlumatı tapılmadı.'));
       return;
     }
     Navigator.of(context).push(

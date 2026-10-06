@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'dart:ui' show Color;
-
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../firebase_options.dart';
 import 'notification_banner.dart';
@@ -158,10 +158,19 @@ Future<void> _createAndroidNotificationChannels(
 
 /// Сервис Firebase Push Notifications: инициализация, права, показ в foreground,
 /// обработка нажатий и получение FCM токена.
-class PushNotificationService {
+class PushNotificationService with WidgetsBindingObserver {
   PushNotificationService._();
   static final PushNotificationService _instance = PushNotificationService._();
   factory PushNotificationService() => _instance;
+
+  /// Когда токен последний раз успешно ушёл на бэкенд. Лежит в
+  /// SharedPreferences, а не в Hive: Hive-бокс целиком чистится при выходе из
+  /// аккаунта, а нам нужно переживать и выход, и смену пользователя.
+  static const _lastSyncKey = 'push_token_last_sync_ms';
+
+  /// На возврате из фона токен пересылаем не чаще раза в сутки — этого хватает,
+  /// чтобы на бэкенде было видно живые установки, и не создаёт лишних запросов.
+  static const _resyncInterval = Duration(hours: 24);
 
   static final _logger = Logger(printer: SimplePrinter());
   final _messaging = FirebaseMessaging.instance;
@@ -194,22 +203,62 @@ class PushNotificationService {
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpened);
 
-    await requestPermission();
-    await _refreshToken();
+    // Разрешение НЕ спрашивается на первом экране.
+    //
+    // На iOS отказ необратим: без разрешения нет APNs-токена, а без APNs-токена
+    // getToken() возвращает null — устройство навсегда остаётся без пушей, и
+    // именно поэтому живых ios-токенов 16 против 400 android. Поэтому на iOS
+    // спрашиваем после осмысленного действия (maybeAskPushPermission), а здесь
+    // только синхронизируем токен, если разрешение уже выдано.
+    //
+    // На Android токен выдаётся и без разрешения, а системный диалог можно
+    // показать повторно — там поведение не меняем.
+    if (Platform.isAndroid) {
+      await requestPermission();
+    }
+    if (Platform.isAndroid || await hasPermission()) {
+      await syncToken(reason: 'cold_start');
+    }
+
+    // Возврат из фона: FCM меняет токен сам (обновление приложения,
+    // восстановление из бэкапа, очистка данных), поэтому раз в сутки
+    // перепроверяем и переотправляем.
+    WidgetsBinding.instance.addObserver(this);
+
     _messaging.onTokenRefresh.listen((token) {
       _fcmToken = token;
       _logger.d('FCM token refreshed');
-      _onTokenUpdated?.call(token);
+      // Старый токен на бэкенде уже мёртв — отправляем новый сразу.
+      unawaited(_sendToBackend(token, reason: 'token_refresh'));
     });
   }
 
-  /// Вызывается при обновлении FCM токена — можно отправить токен на бэкенд.
-  void Function(String token)? onTokenUpdated;
-  void setOnTokenUpdated(void Function(String token)? callback) {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    unawaited(_syncOnResume());
+  }
+
+  Future<void> _syncOnResume() async {
+    // На iOS без разрешения getToken() всё равно вернёт null — не дёргаем.
+    if (Platform.isIOS && !await hasPermission()) return;
+    final lastSync = await _lastSyncAt();
+    if (lastSync != null &&
+        DateTime.now().difference(lastSync) < _resyncInterval) {
+      return;
+    }
+    await syncToken(reason: 'resume');
+  }
+
+  /// Отправка токена на бэкенд. Колбэк обязан вернуть Future, который падает
+  /// при неудаче: по нему сервис решает, помечать ли синхронизацию успешной.
+  /// Если отправка не удалась, метка не ставится и следующий возврат из фона
+  /// попробует снова.
+  void setOnTokenUpdated(Future<void> Function(String token)? callback) {
     _onTokenUpdated = callback;
   }
 
-  void Function(String token)? _onTokenUpdated;
+  Future<void> Function(String token)? _onTokenUpdated;
 
   Future<void> _initLocalNotifications() async {
     const android = AndroidInitializationSettings(_androidSmallIcon);
@@ -224,18 +273,10 @@ class PushNotificationService {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    final androidPlugin =
-        _localNotifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-    if (androidPlugin != null) {
-      await androidPlugin.requestNotificationsPermission();
-    }
-
-    final iosPlugin = _localNotifications.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
-    if (iosPlugin != null) {
-      await iosPlugin.requestPermissions(alert: true, badge: true, sound: true);
-    }
+    // Разрешение здесь НЕ запрашивается: это делает requestPermission() через
+    // FirebaseMessaging (он же покрывает POST_NOTIFICATIONS на Android 13+).
+    // Раньше диалог всплывал прямо на первом кадре — ровно то поведение, из-за
+    // которого на iOS отказываются и устройство остаётся без пушей навсегда.
   }
 
   void _onNotificationTapped(NotificationResponse response) {
@@ -437,7 +478,23 @@ class PushNotificationService {
     }
   }
 
-  /// Запрос разрешения на уведомления (iOS и Android 13+).
+  /// Текущий статус системного разрешения — без показа диалога.
+  Future<AuthorizationStatus> permissionStatus() async {
+    final settings = await _messaging.getNotificationSettings();
+    return settings.authorizationStatus;
+  }
+
+  /// Разрешение уже выдано (в том числе provisional на iOS).
+  Future<bool> hasPermission() async {
+    final status = await permissionStatus();
+    return status == AuthorizationStatus.authorized ||
+        status == AuthorizationStatus.provisional;
+  }
+
+  /// Показывает системный диалог разрешения (iOS и Android 13+).
+  ///
+  /// Сам токен НЕ отправляет — это делает вызывающая сторона через
+  /// [syncToken], чтобы на холодном старте не уходило два запроса.
   Future<bool> requestPermission() async {
     final settings = await _messaging.requestPermission(
       alert: true,
@@ -461,21 +518,82 @@ class PushNotificationService {
 
   /// Получить текущий FCM token (и сохранить в сервисе).
   Future<String?> refreshToken() async {
-    await _refreshToken();
+    await syncToken(reason: 'manual');
     return _fcmToken;
   }
 
-  Future<void> _refreshToken() async {
+  /// Берёт текущий токен и отправляет его на бэкенд.
+  ///
+  /// Вызывается на каждом холодном старте, после логина и регистрации, при
+  /// onTokenRefresh и на возврате из фона (не чаще раза в сутки). Повторная
+  /// отправка того же токена безопасна — на бэкенде updateOrCreate — и именно
+  /// она двигает `updated_at`, по которому на сервере видно живые установки.
+  Future<void> syncToken({required String reason}) async {
     try {
       if (Platform.isIOS) {
         await _waitForApnsToken();
       }
-      _fcmToken = await _messaging.getToken();
-      _logger.d('FCM token: ${_fcmToken != null ? "ok" : "null"}');
-      if (_fcmToken != null) _onTokenUpdated?.call(_fcmToken!);
+      final token = await _messaging.getToken();
+      _fcmToken = token;
+      _logger.d('FCM token ($reason): ${token != null ? "ok" : "null"}');
+      if (token == null || token.isEmpty) return;
+      await _sendToBackend(token, reason: reason);
     } catch (e, st) {
       _logger.e('FCM getToken error', e, st);
     }
+  }
+
+  Future<void> _sendToBackend(String token, {required String reason}) async {
+    final send = _onTokenUpdated;
+    if (send == null) return;
+    try {
+      await send(token);
+      await _markSynced();
+      _logger.d('FCM token sent to backend ($reason)');
+    } catch (e) {
+      _logger.d('FCM token send failed ($reason): $e');
+    }
+  }
+
+  /// Выход из аккаунта: снимаем токен с устройства, чтобы следующий вход получил
+  /// новый. Иначе два аккаунта на одном телефоне остаются привязаны к одному
+  /// токену, и прежний владелец продолжает получать пуши на чужой телефон.
+  Future<void> clearTokenAfterLogout() async {
+    try {
+      await _messaging.deleteToken();
+    } catch (e) {
+      // iOS без APNs-токена здесь бросает — выход из аккаунта это не ломает.
+      _logger.d('FCM deleteToken failed: $e');
+    }
+    _fcmToken = null;
+    await _clearSyncMark();
+  }
+
+  Future<DateTime?> _lastSyncAt() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final millis = prefs.getInt(_lastSyncKey);
+      if (millis == null) return null;
+      return DateTime.fromMillisecondsSinceEpoch(millis);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _markSynced() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_lastSyncKey, DateTime.now().millisecondsSinceEpoch);
+    } catch (_) {
+      // Метка — только оптимизация частоты. Не смогли сохранить — переотправим.
+    }
+  }
+
+  Future<void> _clearSyncMark() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_lastSyncKey);
+    } catch (_) {}
   }
 
   Future<void> _waitForApnsToken() async {
