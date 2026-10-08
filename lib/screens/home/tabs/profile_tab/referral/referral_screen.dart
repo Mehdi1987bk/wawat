@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/share_origin.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -406,7 +407,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
           _toast(tr('referral.link_copied', 'Link kopyalandı'));
         }, softBrand: true),
         _shareItem(d, PhosphorIconsBold.dotsThree, _cText2(d),
-            tr('referral.share_other', 'Digər'), () => Share.share(_shareText),
+            tr('referral.share_other', 'Digər'),
+            () => Share.share(_shareText,
+                sharePositionOrigin: shareOriginOf(context)),
             neutral: true),
       ],
     );

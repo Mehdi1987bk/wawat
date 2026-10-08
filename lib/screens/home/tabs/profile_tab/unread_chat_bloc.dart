@@ -18,6 +18,7 @@ class UnreadChatBloc extends BaseBloc {
   final _archivedUnreadCountSubject = BehaviorSubject<int>.seeded(0);
   final Set<String> _subscribedConversationIds = {};
   Timer? _fallbackTimer;
+  int _fallbackTick = 0;
   bool _initialized = false;
   bool _syncingRealtime = false;
   int? _myUserId;
@@ -48,9 +49,19 @@ class UnreadChatBloc extends BaseBloc {
     super.init();
     unawaited(fetchUnreadCount());
     unawaited(reconnectRealtime());
-    _fallbackTimer = Timer.periodic(const Duration(seconds: 20), (_) {
-      unawaited(fetchUnreadCount());
-      unawaited(reconnectRealtime());
+    // Настоящий счётчик приходит через Reverb мгновенно. Этот таймер —
+    // только страховка на случай обрыва сокета, поэтому при живом соединении
+    // опрашиваем раз в полторы минуты, а не каждые 20 секунд: раньше только
+    // этот блок давал три запроса в минуту с каждого устройства.
+    _fallbackTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _fallbackTick++;
+      final healthy = _pusherService.isConnected;
+      if (!healthy || _fallbackTick % 3 == 0) {
+        unawaited(fetchUnreadCount());
+      }
+      if (!healthy) {
+        unawaited(reconnectRealtime());
+      }
     });
   }
 

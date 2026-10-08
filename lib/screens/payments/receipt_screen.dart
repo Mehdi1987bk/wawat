@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:buking/presentation/common/share_origin.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -379,6 +380,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       await widget.store.share(
         await _fetchPdf(),
         subject: _t('receipt.title', 'Qəbz'),
+        sharePositionOrigin: shareOriginOf(context),
       );
     } catch (error, stack) {
       _reportPdfError(error, stack, 'share');

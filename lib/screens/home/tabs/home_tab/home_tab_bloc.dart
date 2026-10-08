@@ -1,5 +1,3 @@
-import 'package:buking/data/network/response/offer_type_model.dart';
-import 'package:buking/data/network/response/offer_types_response.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rxdart/rxdart.dart';
@@ -65,7 +63,6 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
   }
 
 
-  Future<OfferTypeResponse> getOfferTypes() => userRepository.getOfferTypes();
 
   Future<CitiesResponse> getCities(String search) async {
     final result = await userRepository.getCities(search);

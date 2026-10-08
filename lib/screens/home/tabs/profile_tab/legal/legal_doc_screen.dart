@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:buking/presentation/common/share_origin.dart';
 import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -79,7 +80,10 @@ class _LegalDocScreenState extends State<LegalDocScreen> {
 
   void _share() {
     final title = _doc?.title ?? widget.title;
-    Share.share('$title\nhttps://wawatair.com/${widget.slug}');
+    Share.share(
+      '$title\nhttps://wawatair.com/${widget.slug}',
+      sharePositionOrigin: shareOriginOf(context),
+    );
   }
 
   @override

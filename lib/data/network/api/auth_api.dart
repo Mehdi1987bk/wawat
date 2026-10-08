@@ -41,7 +41,6 @@ import '../response/login_response_data.dart';
 import '../response/me_response_data.dart';
 import '../response/notification_response.dart';
 import '../response/offer_models.dart';
-import '../response/offer_type_model.dart';
 import '../response/package_types_response.dart';
 import '../response/packages_response.dart';
 import '../response/partner_user_response.dart';
@@ -125,16 +124,12 @@ abstract class AuthApi {
   @POST('/fcm-tokens')
   Future<void> registerFcmToken(@Body() FcmTokenRequest request);
 
-  @POST('/offers')
-  Future<void> createOffers(@Body() CourierOfferModel request);
 
   @PUT('/profile/professional')
   Future<void> createProfessional(@Body() CourierProfile request);
 
-  @GET('/api/packages')
-  Future<PackagesResponse> packages();
 
-  @GET('/dictionaries/package-types')
+  @GET('/package-types')
   Future<PackageTypesResponse> getPackageType();
 
   @GET('/geo/cities')
@@ -143,19 +138,7 @@ abstract class AuthApi {
     @Query("limit") int limit,
   );
 
-  @GET('/dictionaries/offer-types')
-  Future<OfferTypeResponse> getOfferTypes();
 
-  @GET('/offers/my')
-  Future<Pagination<OfferModel>> myOffers(
-    @Query('page') int page,
-  );
-
-  @PATCH('/offers/{id}/status')
-  Future<void> editStatusOffer(
-    @Path() String id,
-    @Body() EditStatusOfferRequest request,
-  );
 
   @GET('/offers')
   Future<Pagination<OfferModel>> searchOffers(

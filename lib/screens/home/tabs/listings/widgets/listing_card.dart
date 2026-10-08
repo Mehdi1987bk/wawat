@@ -425,7 +425,7 @@ class _ListingCardState extends State<ListingCard> {
 
   void _shareListing() {
     // Open the OS share sheet (WhatsApp, Telegram, …) instead of a bare copy.
-    shareListing(widget.listing);
+    shareListing(widget.listing, context);
   }
 
   Widget _buildRoute(Color textColor, Color mutedColor, bool isDark) {

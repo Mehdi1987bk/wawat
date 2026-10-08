@@ -85,6 +85,13 @@ class TelemetryInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    // Отмена — это всегда наше собственное решение (ушли с экрана, нет
+    // токена, перезапустили запрос), а не сбой. В панели ей не место.
+    if (err.type == DioExceptionType.cancel) {
+      handler.next(err);
+      return;
+    }
+
     final options = err.requestOptions;
     final duration = _durationOf(options);
     final endpoint = TelemetryRedactor.endpoint(options.path);

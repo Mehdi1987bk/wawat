@@ -79,6 +79,7 @@ class ChatConversationBloc extends BaseBloc {
   Timer? _typingStopTimer;
   Timer? _remoteTypingTimeout;
   Timer? _fallbackRefreshTimer;
+  int _fallbackTick = 0;
   DateTime? _lastTypingSentAt;
   bool _typingActive = false;
 
@@ -110,7 +111,11 @@ class ChatConversationBloc extends BaseBloc {
         _onMessageDeleted,
       );
     }
-    _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+    // Новые сообщения приходят через Reverb. Перечитываем переписку целиком
+    // только когда сокет лежит, либо раз в минуту для подстраховки.
+    _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      _fallbackTick++;
+      if (_pusherService.isConnected && _fallbackTick % 3 != 0) return;
       unawaited(
         loadMessages(
           showLoading: false,

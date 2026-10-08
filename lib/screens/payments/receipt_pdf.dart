@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show Rect;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -244,12 +245,18 @@ class ReceiptPdfStore {
   }
 
   /// The system share sheet (mail, messengers, «Save to Files», …).
-  Future<void> share(ReceiptPdfFile file, {String? subject}) async {
+  Future<void> share(
+    ReceiptPdfFile file, {
+    String? subject,
+    Rect? sharePositionOrigin,
+  }) async {
     final dir = await getTemporaryDirectory();
     final path = await _write(dir, file);
-    await Share.shareXFiles([
-      XFile(path, mimeType: 'application/pdf'),
-    ], subject: subject);
+    await Share.shareXFiles(
+      [XFile(path, mimeType: 'application/pdf')],
+      subject: subject,
+      sharePositionOrigin: sharePositionOrigin,
+    );
   }
 
   static Future<String> _write(Directory dir, ReceiptPdfFile file) async {

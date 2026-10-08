@@ -833,6 +833,11 @@ class WawatContent {
   }
 
   static Future<Map<String, String>> load({String group = 'listing'}) {
+    // Если словарь уже загружен целиком, отдаём его: он надмножество любой
+    // группы, а [text] ищет по ключу — лишний запрос за той же строкой не нужен.
+    final all = _cache['$_locale|__all__'];
+    if (all != null) return Future.value(all);
+
     final key = '$_locale|$group';
     final cached = _cache[key];
     if (cached != null) return Future.value(cached);
@@ -862,7 +867,12 @@ class WawatContent {
     return result;
   }
 
-  static Future<Map<String, String>> loadDefault() => loadGroups(defaultGroups);
+  /// Раньше здесь шёл цикл по 25 группам — то есть 25 отдельных запросов
+  /// `GET /content?group=…` на каждый холодный старт. Это давало 2180 вызовов
+  /// `/content` в сутки, упиралось в rate limit (91 ответ 429) и растягивало
+  /// старт: `/app/config` отвечал в среднем 29 секунд, потому что стоял в этой
+  /// же очереди. Бэкенд умеет отдать весь словарь одним запросом — берём его.
+  static Future<Map<String, String>> loadDefault() => loadAll();
 
   static String text(
     Map<String, String> content,

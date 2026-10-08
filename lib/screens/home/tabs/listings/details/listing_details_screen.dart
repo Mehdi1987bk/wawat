@@ -621,7 +621,7 @@ class _ListingDetailsScreenState
 
   void _shareListing(Listing listing) {
     // Open the OS share sheet (WhatsApp, Telegram, …) instead of a bare copy.
-    shareListing(listing);
+    shareListing(listing, context);
   }
 
   void _openOwnerProfile(ListingOwner owner) {

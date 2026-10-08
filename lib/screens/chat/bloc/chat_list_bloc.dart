@@ -40,6 +40,7 @@ class ChatListBloc extends BaseBloc {
   final Set<String> _subscribedConversationIds = {};
   Timer? _realtimeRefreshTimer;
   Timer? _fallbackRefreshTimer;
+  int _fallbackTick = 0;
 
   Future<void> init() async {
     if (_isInitialized) return;
@@ -56,8 +57,14 @@ class ChatListBloc extends BaseBloc {
         );
       }
     }
-    _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      unawaited(_fallbackRefresh());
+    // Список обновляется по событию из Reverb (_onConversationEvent).
+    // Опрос каждые 15 секунд поверх этого давал 1322 запроса к /conversations
+    // в сутки — почти все впустую.
+    _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _fallbackTick++;
+      if (!_pusherService.isConnected || _fallbackTick % 3 == 0) {
+        unawaited(_fallbackRefresh());
+      }
     });
   }
 

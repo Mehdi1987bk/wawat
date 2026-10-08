@@ -25,7 +25,6 @@ import '../../data/network/response/language_response.dart';
 import '../../data/network/response/listing_response.dart';
 import '../../data/network/response/notification_response.dart';
 import '../../data/network/response/offer_models.dart';
-import '../../data/network/response/offer_type_model.dart';
 import '../../data/network/response/package_types_response.dart';
 import '../../data/network/response/packages_response.dart';
 import '../../data/network/response/partner_user_response.dart';
@@ -94,17 +93,14 @@ abstract class AuthRepository {
 
   Future<void> resendEmailVerification();
 
-  Future<PackagesResponse> packages();
 
   Future<PackageTypesResponse> getPackageType();
 
   Future<CitiesResponse> getCities(String search);
 
-  Future<void> createOffers(CourierOfferModel request);
 
   Future<void> createProfessional(CourierProfile request);
 
-  Future<OfferTypeResponse> getOfferTypes();
 
   Future<PrivacyPolicyResponse> privacyPolicy();
 
@@ -116,9 +112,7 @@ abstract class AuthRepository {
 
   Stream<AllrequestData> allRequest(String data);
 
-  Future<Pagination<OfferModel>> myOffers(int page);
 
-  Future<void> editStatusOffer(String id, EditStatusOfferRequest request);
 
   Future<bool> firstOpen();
 

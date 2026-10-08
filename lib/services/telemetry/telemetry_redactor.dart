@@ -40,6 +40,16 @@ class TelemetryRedactor {
     caseSensitive: false,
   );
 
+  // ULID (Crockford base32, 26 символов) — именно такие идентификаторы
+  // использует новый API: /conversations/01M42Z1GEH4JKY6JFC47S7R7VR/messages.
+  // Без этой строки правила вида `/conversations/{id}/messages` в
+  // [ApiEventMap] не срабатывали никогда, а панель дробила один эндпоинт
+  // на сотню отдельных записей.
+  static final _pathUlid = RegExp(
+    r'/[0-9A-HJKMNP-TV-Z]{26}(?=/|$)',
+    caseSensitive: false,
+  );
+
   /// Полная чистка произвольной строки (сообщение об ошибке, тело ответа).
   ///
   /// [collapseWhitespace] схлопывает пробелы и переносы в один пробел — это
@@ -81,6 +91,7 @@ class TelemetryRedactor {
     }
     p = p.replaceFirst(RegExp(r'^/api/v\d+'), '');
     p = p.replaceAll(_pathUuid, '/{id}');
+    p = p.replaceAll(_pathUlid, '/{id}');
     p = p.replaceAll(_pathId, '/{id}');
     if (p.isEmpty) p = '/';
     return p.length <= 120 ? p : p.substring(0, 120);

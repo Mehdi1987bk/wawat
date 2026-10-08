@@ -27,7 +27,8 @@ class TelemetryEvents {
   // поэтому свои события называются иначе.
   static const appStarted = 'app_started';
   static const appForeground = 'app_foreground';
-  static const appBackground = 'app_background';
+  // `app_background` зарезервировано Firebase — SDK бросает ArgumentError.
+  static const appBackground = 'app_backgrounded';
   static const offlineGateShown = 'offline_gate_shown';
   static const backOnline = 'back_online';
 
@@ -200,6 +201,23 @@ class TelemetrySchema {
   /// Префиксы, зарезервированные Firebase: событие с таким именем SDK отбросит.
   static const _reservedPrefixes = ['firebase_', 'google_', 'ga_'];
 
+  /// Точные имена, которые Firebase держит за собой. SDK не отбрасывает их
+  /// молча — он бросает ArgumentError, и приложение падает. Один такой промах
+  /// (`app_background`) дал 1060 крашей за месяц, поэтому список проверяется
+  /// здесь, а не держится в головах.
+  static const _reservedNames = {
+    'ad_activeview', 'ad_click', 'ad_exposure', 'ad_impression', 'ad_query',
+    'ad_reward', 'adunit_exposure', 'app_background', 'app_clear_data',
+    'app_exception', 'app_remove', 'app_store_refund',
+    'app_store_subscription_cancel', 'app_store_subscription_convert',
+    'app_store_subscription_renew', 'app_update', 'app_upgrade',
+    'dynamic_link_app_open', 'dynamic_link_app_update',
+    'dynamic_link_first_open', 'error', 'first_open', 'first_visit',
+    'in_app_purchase', 'notification_dismiss', 'notification_foreground',
+    'notification_open', 'notification_receive', 'os_update', 'session_start',
+    'session_start_with_rollout', 'user_engagement',
+  };
+
   static final _illegal = RegExp(r'[^a-z0-9_]');
   static final _leadingNonLetter = RegExp(r'^[^a-z]+');
   static final _repeatedUnderscore = RegExp(r'_{2,}');
@@ -211,6 +229,7 @@ class TelemetrySchema {
     for (final p in _reservedPrefixes) {
       if (s.startsWith(p)) s = 'app_$s';
     }
+    if (_reservedNames.contains(s)) s = '${s}_event';
     if (s.isEmpty) s = 'unknown';
     return s.length <= maxEventNameLength
         ? s

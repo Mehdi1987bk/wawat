@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:buking/services/telemetry/telemetry_events.dart';
+import 'package:buking/services/telemetry/telemetry.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../data/network/response/listing_response.dart';
@@ -116,6 +118,12 @@ class _ListingLimitGateScreenState
   @override
   void initState() {
     super.initState();
+    // Экран открывается только когда человек упёрся в лимит объявлений —
+    // это и есть событие воронки монетизации.
+    Telemetry.instance.event(
+      TelemetryEvents.quotaLimitHit,
+      params: {TelemetryParams.listingType: widget.type},
+    );
     bloc.load(widget.type);
     WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);

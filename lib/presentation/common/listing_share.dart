@@ -1,4 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:share_plus/share_plus.dart';
+
+import 'share_origin.dart';
 
 import '../../data/network/response/listing_response.dart';
 
@@ -18,6 +21,9 @@ String listingShareText(Listing listing) {
 
 /// Open the OS share sheet (WhatsApp, Telegram, Messages, copy, …) for a
 /// listing. Used by every listing "share" affordance so they behave the same.
-Future<void> shareListing(Listing listing) async {
-  await Share.share(listingShareText(listing));
+Future<void> shareListing(Listing listing, [BuildContext? context]) async {
+  await Share.share(
+    listingShareText(listing),
+    sharePositionOrigin: context == null ? null : shareOriginOf(context),
+  );
 }

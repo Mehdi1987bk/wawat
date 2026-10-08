@@ -79,6 +79,30 @@ void main() {
       );
     });
 
+    test('схлопывает ulid — новый API выдаёт именно такие id', () {
+      expect(
+        TelemetryRedactor.endpoint(
+            '/api/v1/conversations/01M42Z1GEH4JKY6JFC47S7R7VR/messages'),
+        '/conversations/{id}/messages',
+      );
+      expect(
+        TelemetryRedactor.endpoint(
+            '/api/v1/listings/01M3ZF099198W9XRH2G8SGKMAN/proposals'),
+        '/listings/{id}/proposals',
+      );
+      expect(
+        TelemetryRedactor.endpoint('/api/v1/listings/01M3TQ19EHEJQ9C4NPWNYRR8AD'),
+        '/listings/{id}',
+      );
+    });
+
+    test('не трогает обычные сегменты пути', () {
+      expect(TelemetryRedactor.endpoint('/api/v1/conversations/unread-count'),
+          '/conversations/unread-count');
+      expect(TelemetryRedactor.endpoint('/api/v1/search/trending-routes'),
+          '/search/trending-routes');
+    });
+
     test('отрезает хост и query', () {
       expect(
         TelemetryRedactor.endpoint(

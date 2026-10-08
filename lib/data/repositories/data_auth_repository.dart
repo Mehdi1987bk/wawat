@@ -36,7 +36,6 @@ import '../network/response/language_response.dart';
 import '../network/response/listing_response.dart';
 import '../network/response/notification_response.dart';
 import '../network/response/offer_models.dart';
-import '../network/response/offer_type_model.dart';
 import '../network/response/package_types_response.dart';
 import '../network/response/packages_response.dart';
 import '../network/response/partner_user_response.dart';
@@ -199,10 +198,6 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.resendEmailVerification();
   }
 
-  @override
-  Future<PackagesResponse> packages() {
-    return _authApi.packages();
-  }
 
   @override
   Future<PackageTypesResponse> getPackageType() {
@@ -214,20 +209,12 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.getCities(search, 200);
   }
 
-  @override
-  Future<void> createOffers(CourierOfferModel request) {
-    return _authApi.createOffers(request);
-  }
 
   @override
   Future<void> createProfessional(CourierProfile request) {
     return _authApi.createProfessional(request);
   }
 
-  @override
-  Future<OfferTypeResponse> getOfferTypes() {
-    return _authApi.getOfferTypes();
-  }
 
   @override
   Future<PrivacyPolicyResponse> privacyPolicy() {
@@ -254,15 +241,7 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.allRequest(data);
   }
 
-  @override
-  Future<Pagination<OfferModel>> myOffers(int page) {
-    return _authApi.myOffers(page);
-  }
 
-  @override
-  Future<void> editStatusOffer(String id, EditStatusOfferRequest request) {
-    return _authApi.editStatusOffer(id, request);
-  }
 
   @override
   Future<bool> firstOpen() {

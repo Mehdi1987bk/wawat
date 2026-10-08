@@ -175,7 +175,6 @@ void _registerDependency() {
   sl.registerLazySingleton<ChatApi>(() => ChatApi(dio));
   sl.registerLazySingleton<AuthRepository>(() => DataAuthRepository());
   sl.registerLazySingleton<CacheManager>(() => DataCacheManager());
-  unawaited(_prefetchOfferTypes());
   sl.registerLazySingleton<UnreadChatBloc>(() {
     final bloc = UnreadChatBloc();
     bloc.init();
@@ -193,20 +192,6 @@ void _registerDependency() {
   NotificationSocketService.instance.init();
 }
 
-/// Прогревает словарь типов объявлений на старте.
-///
-/// Раньше вызов стоял без обработчика ошибок. Любой сбой (`/dictionaries/
-/// offer-types` сейчас отвечает 404) уходил необработанной ошибкой `Future`
-/// в зону — то есть считался бы падением приложения при **каждом** запуске.
-/// Экран и так перезапрашивает словарь, поэтому здесь ошибку достаточно
-/// зафиксировать: она уже видна в панели как `api_failure`.
-Future<void> _prefetchOfferTypes() async {
-  try {
-    await sl.get<AuthRepository>().getOfferTypes();
-  } catch (e, st) {
-    Telemetry.instance.error(e, st, reason: 'prefetch_offer_types');
-  }
-}
 
 /// Привязывает поток телеметрии к текущему пользователю.
 ///
@@ -251,9 +236,17 @@ Dio _initDio() {
 
   dio.options.headers["content-type"] = "application/json";
   dio.options.headers["accept"] = "application/json";
-  dio.options.connectTimeout = Duration(seconds: 120);
-  dio.options.receiveTimeout = Duration(seconds: 120);
-  dio.options.sendTimeout = Duration(seconds: 120);
+  // Сервер отвечает за 90–150 мс. Прежние 120 секунд означали, что при
+  // пропаже сети экран висел две минуты, а телеметрия писала status 0 —
+  // 2513 оборванных запроса за месяц. Ждём ровно столько, сколько имеет
+  // смысл ждать.
+  //
+  // sendTimeout оставлен большим намеренно: он срабатывает только когда мы
+  // отправляем тело, то есть на загрузке аватара и документов верификации.
+  // Для обычного JSON-запроса тело уходит мгновенно и этот лимит недостижим.
+  dio.options.connectTimeout = const Duration(seconds: 10);
+  dio.options.receiveTimeout = const Duration(seconds: 20);
+  dio.options.sendTimeout = const Duration(seconds: 60);
   dio.interceptors.add(CallInterceptor());
   // Тела запросов/ответов содержат токены, телефоны и переписку. В релизе они
   // попадали бы в logcat/os_log, откуда их читает любое приложение с доступом
