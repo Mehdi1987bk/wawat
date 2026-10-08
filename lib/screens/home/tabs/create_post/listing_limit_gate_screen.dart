@@ -8,6 +8,7 @@ import '../../../../main.dart';
 import '../../../../presentation/bloc/base_screen.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 import '../../../../services/wawat_content.dart';
 import '../profile_tab/see_more_offers/delivery_full_list_screen.dart';
 import 'create_post_screen.dart';
@@ -712,19 +713,5 @@ class _EmptyList extends StatelessWidget {
 String _formatDate(String raw) {
   final date = DateTime.tryParse(raw);
   if (date == null) return raw;
-  const months = [
-    'Yan',
-    'Fev',
-    'Mar',
-    'Apr',
-    'May',
-    'İyun',
-    'İyul',
-    'Avq',
-    'Sen',
-    'Okt',
-    'Noy',
-    'Dek',
-  ];
-  return '${date.day} ${months[date.month - 1]}';
+  return '${date.day} ${monthShort(date.month)}';
 }

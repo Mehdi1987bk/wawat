@@ -15,6 +15,8 @@ import '../../../services/localization_service.dart';
 import '../../../wawat_app.dart';
 import '../../home/tabs/profile_tab/promo/promo_api.dart';
 import '../../home/tabs/profile_tab/referral/referral_api.dart';
+import '../email_otp/email_otp_screen.dart';
+import '../email_otp/email_otp_state.dart';
 import '../login/login_screen.dart';
 import 'registration_bloc.dart';
 
@@ -47,6 +49,7 @@ class _RegistrationScreenState
   final _referralController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _termsAccepted = false;
   String? _message;
   Map<String, String> _fieldErrors = {};
@@ -122,11 +125,11 @@ class _RegistrationScreenState
       if (mounted) {
         setState(() {
           _languages = [
-            Language(code: 'az', name: 'Azərbaycanca'),
-            Language(code: 'en', name: 'English'),
-            Language(code: 'ru', name: 'Русский'),
-            Language(code: 'tr', name: 'Türkçe'),
-            Language(code: 'ua', name: 'Українська'),
+            Language(code: 'az', name: tr('common.lang_az', 'Azərbaycanca')),
+            Language(code: 'en', name: tr('common.lang_en', 'English')),
+            Language(code: 'ru', name: tr('common.lang_ru', 'Русский')),
+            Language(code: 'tr', name: tr('common.lang_tr', 'Türkçe')),
+            Language(code: 'ua', name: tr('common.lang_ua', 'Українська')),
           ];
         });
       }
@@ -164,6 +167,11 @@ class _RegistrationScreenState
       // The reward promo is granted server-side the instant registration
       // succeeds — surface it once we've landed on Home.
       if (referral.isNotEmpty) _showReferralPromoToast();
+      // E-mail verification gate (no-op while the backend flag is off). The
+      // server already sent the first code with /register, so don't auto-send
+      // (would hit the 60s rate limit) — just lock the resend button for 60s.
+      EmailOtpState.instance.codeSentThisSession = true;
+      presentEmailOtpIfRequired(autoSend: false, initialCooldownSeconds: 60);
       return;
     }
 
@@ -345,8 +353,22 @@ class _RegistrationScreenState
               label: tr('auth.confirm_password_label', 'Şifrəni təsdiqlə'),
               hint: tr('auth.repeat_hint', 'Təkrar yaz'),
               controller: _confirmPasswordController,
-              obscureText: true,
+              obscureText: _obscureConfirmPassword,
               error: _fieldErrors['password_confirmation'],
+              suffix: IconButton(
+                icon: Icon(
+                  _obscureConfirmPassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: isDark ? WawatDark.iconMuted : null,
+                  size: 20,
+                ),
+                onPressed: () {
+                  setState(
+                    () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                  );
+                },
+              ),
               isDark: isDark,
             ),
             // The invite-code field is hidden (product decision). The referral

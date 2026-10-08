@@ -7,6 +7,17 @@ class WawatContent {
   static final Map<String, Future<Map<String, String>>> _futures = {};
   static final Map<String, Map<String, String>> _cache = {};
   static Map<String, String> _runtimeTranslations = const {};
+
+  /// Текущий язык интерфейса. Нужен, чтобы (а) передавать `lang` в запрос
+  /// `/content` и (б) разделять кэш по языку — иначе смена языка оставит уже
+  /// загруженные группы на старом языке. Выставляется из [LocalizationService].
+  static String _locale = 'az';
+  static set locale(String value) {
+    final c = value.trim().toLowerCase();
+    _locale = c == 'uk' ? 'ua' : (c.isEmpty ? 'az' : c);
+  }
+
+  static String get locale => _locale;
   static const List<String> defaultGroups = [
     'common',
     'listing',
@@ -39,7 +50,6 @@ class WawatContent {
     'common.continue': 'Davam et',
     'common.edit': 'Düzəliş',
     'common.save': 'Yadda saxla',
-    'common.wait': 'Gözləyin...',
     'common.retry': 'Yenidən cəhd et',
     'common.reset': 'Sıfırla',
     'common.today': 'Bu gün',
@@ -85,8 +95,6 @@ class WawatContent {
     'create.step_preview': 'Önizləmə',
     'create.route_trip_title': 'Haradan hara uçursan?',
     'create.route_shipment_title': 'Haradan hara göndərirsən?',
-    'create.route_subtitle':
-        'Şəhərləri seç — sistem uyğun göndərişləri tapacaq.',
     'create.chip.flight_date': 'Uçuş tarixi',
     'create.chip.empty_weight': 'Boş çəki',
     'create.chip.price_per_kg': '1 kq qiyməti',
@@ -96,12 +104,9 @@ class WawatContent {
     'create.quick_select': 'Tez seçim',
     'create.flight_date': 'Uçuş tarixi',
     'create.flight_time': 'Saat',
-    'create.flight_number': 'Reys nömrəsi',
     'create.flight_number_hint': 'məs. J2 5432',
     'create.flight_number_helper': 'Sərnişinlərə etibar üçün — maks 8 simvol.',
     'create.empty_weight': 'Boş çəki',
-    'create.empty_weight_helper': 'Aparacağın maksimum çəki — limit 32 kq.',
-    'create.price_per_kg': 'Qiymət (1 kq üçün)',
     'create.price_helper': 'Maksimum 99 \$/kq.',
     'create.negotiable': 'Qiymətdə danışıq olar',
     'create.delivery_range': 'Çatdırılma aralığı',
@@ -111,7 +116,6 @@ class WawatContent {
     'create.package_selected_count': '{count} seçildi',
     'create.package_min_one': 'Ən azı 1',
     'create.note_label': 'Qeyd · istəyə bağlı',
-    'create.note_hint': 'Nə götürə bilərsən, şərtlər, əlaqə vaxtı...',
     'create.preview_section': 'Elanın belə görünəcək',
     'create.go_preview': 'Önizləməyə keç',
     'create.publish': 'Dərc et',
@@ -223,14 +227,6 @@ class WawatContent {
     'chat.review.title': 'Rəy yaz',
     'chat.review.comment': 'Şərhinizi yazın',
     'chat.typing': 'yazır...',
-    'chat.card.proposal_incoming': 'Çatdırılma təklifi',
-    'chat.card.proposal_sent': 'Təklifin göndərildi',
-    'chat.card.waiting_badge': 'gözlənilir',
-    'chat.card.completed': 'Sövdələşmə tamamlandı',
-    'chat.card.cancelled': 'Sövdələşmə ləğv edildi',
-    'chat.card.reason_prefix': 'Səbəb',
-    'chat.card.review': 'Rəy',
-    'chat.card.support': 'Dəstək',
     'chat.pinbar.your_turn': 'Sizin növbəniz — cavab verin',
     'chat.pinbar.awaiting_reply': 'Cavab gözlənilir',
     'chat.pinbar.accepted_carrier': 'Malı göndərəndən götürün',
@@ -247,9 +243,7 @@ class WawatContent {
     'chat.counter.note_hint': 'Şərti izah et...',
     'chat.counter.submit': 'Yeni təklif göndər',
     'chat.shipment.dispute': 'Problem bildir',
-    'chat.shipment.dispute_hint': 'Nə baş verdiyini yazın',
     'chat.shipment.cancel': 'Sövdələşməni ləğv et',
-    'chat.shipment.cancel_hint': 'Ləğv səbəbini yazın',
     'picker.date_help': 'Tarix seç',
     'picker.time_help': 'Saat seç',
     'validation.city_required': 'Şəhər seçin.',
@@ -394,17 +388,10 @@ class WawatContent {
     'promotion.wallet_title': 'Promokodlarım',
     'promotion.wallet_empty': 'Aktiv promokodun yoxdur.',
     'promotion.wallet_days_left': '{days} gün qalıb',
-    'promotion.payment_title': 'Ödəniş',
     'promotion.payment_method': 'Ödəniş üsulu',
     'promotion.payment_integration_note':
         'Ödəniş sistemi inteqrasiya mərhələsindədir — provayder qoşulan kimi işləyəcək.',
-    'promotion.checkout_open_failed': 'Ödəniş səhifəsini açmaq alınmadı.',
-    'promotion.processing_title': 'Ödəniş emal olunur…',
-    'promotion.processing_subtitle': 'Zəhmət olmasa gözlə. Bu ekranı bağlama.',
-    'promotion.success_title': 'Təbriklər!',
-    'promotion.failed_title': 'Ödəniş alınmadı',
     'promotion.refunded_title': 'Məbləğ balansa qaytarıldı',
-    'promotion.pending_title': 'Təsdiq gözlənilir',
     'promotion.my_title': 'Promosyonlarım',
     'promotion.empty': 'Bu bölmədə promosyon yoxdur.',
     'promotion.vip_description':
@@ -444,17 +431,10 @@ class WawatContent {
     'promotion.checkout.end': 'Bitmə',
     'promotion.checkout.starts_after_approval': 'Təsdiqdən dərhal sonra',
     'promotion.checkout.discount': 'Endirim',
-    'promotion.payment.card': 'Bank kartı',
     'promotion.payment.card_subtitle': 'Visa · Mastercard',
-    'promotion.payment.balance': 'Wawatair balans',
-    'promotion.payment.balance_unavailable': 'Balans: 0.00 \$ — kifayət etmir',
     'promotion.payment.balance_subtitle':
         'Mock ödəniş · real balans inteqrasiyada',
-    'promotion.payment.wallet_pay_subtitle': 'Sürətli və təhlükəsiz ödəniş',
     'promotion.payment.change_method': 'Ödəniş üsulunu dəyiş',
-    'promotion.payment.safety':
-        'Ödənişlər şifrələnir · kart məlumatı serverdə saxlanmır',
-    'promotion.payment.pay_template': 'Ödə · {amount} \$',
     'enum.payment_method.card': 'Bank kartı',
     'enum.payment_method.balance': 'Wawatair balans',
     'promotion.pay.title': 'Ödəniş',
@@ -610,9 +590,7 @@ class WawatContent {
     'deals.dispute.hint':
         'Nə baş verdiyini yazın — admin araşdıracaq. Sövdələşmə «Mübahisəli» statusuna keçəcək.',
     'deals.dispute.submit': 'Problemi göndər',
-    'deals.dispute_reason.not_arrived': 'Mal çatmadı',
     'deals.dispute_reason.damaged': 'Mal zədəli / əskik',
-    'deals.dispute_reason.lost_contact': 'Əlaqə kəsildi',
     'deals.dispute_reason.other': 'Digər',
     'deals.confirm.picked_up.title': 'Malı götürdüyünüzü təsdiqləyirsiniz?',
     'deals.confirm.delivered.title': 'Çatdırdığınızı təsdiqləyirsiniz?',
@@ -623,9 +601,6 @@ class WawatContent {
     'deals.confirm.no': 'İmtina',
     'deals.review.question_template': '{name} ilə təcrübən necə idi?',
     'deals.review.prompt': 'Təcrübəni bir neçə sözlə yaz…',
-    'deals.review.trait.on_time': 'Vaxtında',
-    'deals.review.trait.polite': 'Nəzakətli',
-    'deals.review.trait.careful': 'Diqqətli',
     'deals.review.submit': 'Rəyi göndər',
     // --- i18n sweep: keys pending backend (AZ fallback) ---
     'about.copyright': '© 2026 Wawatair · Bütün hüquqlar qorunur',
@@ -858,24 +833,25 @@ class WawatContent {
   }
 
   static Future<Map<String, String>> load({String group = 'listing'}) {
-    final cached = _cache[group];
+    final key = '$_locale|$group';
+    final cached = _cache[key];
     if (cached != null) return Future.value(cached);
-    return _futures[group] ??= sl
+    return _futures[key] ??= sl
         .get<AuthRepository>()
-        .getContent(group: group)
-        .then((response) => _cache[group] = response.data)
-        .catchError((_) => _cache[group] = const {});
+        .getContent(group: group, lang: _locale)
+        .then((response) => _cache[key] = response.data)
+        .catchError((_) => _cache[key] = const {});
   }
 
   static Future<Map<String, String>> loadAll() {
-    const cacheKey = '__all__';
-    final cached = _cache[cacheKey];
+    final key = '$_locale|__all__';
+    final cached = _cache[key];
     if (cached != null) return Future.value(cached);
-    return _futures[cacheKey] ??= sl
+    return _futures[key] ??= sl
         .get<AuthRepository>()
-        .getContent()
-        .then((response) => _cache[cacheKey] = response.data)
-        .catchError((_) => _cache[cacheKey] = const {});
+        .getContent(lang: _locale)
+        .then((response) => _cache[key] = response.data)
+        .catchError((_) => _cache[key] = const {});
   }
 
   static Future<Map<String, String>> loadGroups(List<String> groups) async {

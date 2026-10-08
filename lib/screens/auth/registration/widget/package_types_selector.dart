@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/package_types_response.dart';
 import '../../../../data/network/response/type_option.dart';
-import '../../../../generated/l10n.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_manager.dart';
 
@@ -31,7 +31,7 @@ class PackageTypesSelector extends StatefulWidget {
 class _PackageTypesSelectorState extends State<PackageTypesSelector> {
   String _getSelectedPackageTypesDisplay() {
     if (widget.selectedPackageTypeCodes.isEmpty) {
-      return S.of(context).gbfbgfbfg4;
+      return t('common.selection');
     }
 
     final selectedNames = <String>[];
@@ -50,14 +50,14 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     }
 
     final result = selectedNames.join(', ');
-    return result.isNotEmpty ? result : S.of(context).gbfbgfbfg4;
+    return result.isNotEmpty ? result : t('common.selection');
   }
 
   void _showPackageTypesBottomSheet(bool isDark) {
     if (widget.packageTypes.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).t53grvfe5),
+          content: Text(t('picker.package_type_loading')),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 3),
         ),
@@ -68,7 +68,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
     if (widget.packageTypes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).bgfbgfbgf4),
+          content: Text(t('picker.package_type_load_failed')),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
@@ -116,7 +116,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        S.of(context).bfgbgfb3,
+                        t('picker.package_type_title'),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -138,7 +138,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                   child: widget.packageTypes.isEmpty
                       ? Center(
                           child: Text(
-                            S.of(context).bgbffgb3,
+                            t('picker.package_type_empty'),
                             style: TextStyle(
                               color: isDark
                                   ? WawatDark.textSecondary
@@ -222,7 +222,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                       elevation: 0,
                     ),
                     child: Text(
-                      S.of(context).bgfbggfbfg3,
+                      t('promotion.apply'),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -309,7 +309,7 @@ class _PackageTypesSelectorState extends State<PackageTypesSelector> {
                           ),
                           child: Text(
                             widget.isLoading
-                                ? S.of(context).bgfbgfb4
+                                ? t('block.loading_more')
                                 : _getSelectedPackageTypesDisplay(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

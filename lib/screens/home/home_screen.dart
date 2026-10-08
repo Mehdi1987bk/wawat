@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
 import '../../presentation/bloc/base_screen.dart';
+import '../auth/email_otp/email_otp_screen.dart';
 import '../../services/notification_router.dart';
 import '../../presentation/resourses/theme_colors.dart';
 import '../chat/chat/chat_list_screen.dart';
@@ -51,6 +52,11 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
         // flush it (SpleshScreen would replace the pushed route on its way to
         // Home); doing it here pushes the target on TOP of Home instead.
         flushPendingNotificationNavigation();
+        // E-mail verification gate, re-read on every cold start (it is a feature
+        // flag, never cached long). No-op while the flag is off or the account
+        // is already verified. Don't auto-send here — a registration code may
+        // still be valid; the user resends from the screen if it expired.
+        _maybeGateEmailVerification();
         // Backend-gated store-review reward prompt (shows only when the API
         // says should_show; frequency/timing is decided server-side).
         Future.delayed(const Duration(milliseconds: 1500), () {
@@ -82,6 +88,12 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
         // }
       },
     );
+  }
+
+  Future<void> _maybeGateEmailVerification() async {
+    final logged = await sl.get<AuthRepository>().isLogged();
+    if (!logged) return;
+    await presentEmailOtpIfRequired(autoSend: false);
   }
 
   @override

@@ -1,11 +1,11 @@
 import 'package:buking/screens/home/tabs/profile_tab/widgte/supported_locale.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:buking/services/theme_manager.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 
@@ -112,7 +112,7 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                           color:
                               isDark ? cText(isDark) : const Color(0xFF000000),
                         ),
-                        child: Text(S.of(context).bgfbgfbg33344343),
+                        child: Text(t('picker.language_single_title')),
                       ),
                     ],
                   ),

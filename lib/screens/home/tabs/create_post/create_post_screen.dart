@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:buking/services/push_permission_prompt.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +18,7 @@ import '../../../../presentation/resourses/theme_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_aware_screen.dart';
 import '../../../../services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 import '../../../../services/theme_manager.dart';
 import '../../../../services/wawat_content.dart';
 import '../home_tab/widget/city_selector.dart';
@@ -38,24 +42,7 @@ String _formatNumber(double value) {
   return value % 1 == 0 ? value.toInt().toString() : value.toStringAsFixed(1);
 }
 
-String _azMonth(int month) {
-  const months = [
-    'Yanvar',
-    'Fevral',
-    'Mart',
-    'Aprel',
-    'May',
-    'İyun',
-    'İyul',
-    'Avqust',
-    'Sentyabr',
-    'Oktyabr',
-    'Noyabr',
-    'Dekabr',
-  ];
-  if (month < 1 || month > 12) return '';
-  return months[month - 1];
-}
+String _azMonth(int month) => monthFull(month);
 
 String _userDisplayName(User? user) {
   if (user == null) return tr('common.you', 'Siz');
@@ -1056,6 +1043,13 @@ class _CreatePostScreenState
   void _showCreated(ListingResponse response) {
     if (response.data.canBePromoted) {
       setState(() => _successResponse = response);
+      // Объявление размещено, экран остаётся на месте — осмысленный момент,
+      // чтобы предложить уведомления: дальше человек ждёт первое предложение.
+      // Второй ветке (pushReplacement) предлагать нельзя: лист уедет вместе с
+      // экраном. См. services/push_permission_prompt.dart.
+      unawaited(
+        maybeAskPushPermission(context, PushPromptTrigger.listingCreated),
+      );
     } else {
       _openMyListings();
     }
@@ -4320,21 +4314,22 @@ class _PackageTypeSheet extends StatelessWidget {
 }
 
 IconData _packageIconFor(PackageType item) {
+  // Ветвимся только по машинному code — локализованное name в других языках
+  // (ru/en/…) не содержит азербайджанских подстрок и иконка ломалась.
   final code = item.code.toLowerCase();
-  final name = item.name.toLowerCase();
-  if (code.contains('doc') || name.contains('sənəd')) {
+  if (code.contains('doc')) {
     return PhosphorIconsFill.fileText;
   }
-  if (code.contains('elect') || name.contains('elektr')) {
+  if (code.contains('elect')) {
     return PhosphorIconsRegular.deviceMobile;
   }
-  if (code.contains('food') || name.contains('qida')) {
+  if (code.contains('food')) {
     return PhosphorIconsRegular.forkKnife;
   }
-  if (code.contains('cloth') || name.contains('geyim')) {
+  if (code.contains('cloth')) {
     return PhosphorIconsRegular.shoppingBag;
   }
-  if (code.contains('small') || name.contains('kiçik')) {
+  if (code.contains('small')) {
     return PhosphorIconsRegular.cube;
   }
   return PhosphorIconsRegular.dotsThreeCircle;

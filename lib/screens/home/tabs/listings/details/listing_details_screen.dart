@@ -16,6 +16,7 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../../services/wawat_content.dart';
@@ -4264,21 +4265,7 @@ String _formatDate(String? value) {
   if (value == null || value.isEmpty) return '';
   final date = DateTime.tryParse(value);
   if (date == null) return value;
-  const months = [
-    'Yan',
-    'Fev',
-    'Mar',
-    'Apr',
-    'May',
-    'İyun',
-    'İyul',
-    'Avq',
-    'Sen',
-    'Okt',
-    'Noy',
-    'Dek'
-  ];
-  return '${date.day} ${months[date.month - 1]}';
+  return '${date.day} ${monthShort(date.month)}';
 }
 
 /// Normalises any time-ish string to `HH:mm` (drops seconds).

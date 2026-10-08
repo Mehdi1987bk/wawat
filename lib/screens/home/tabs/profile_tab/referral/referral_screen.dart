@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:buking/services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 
 import 'referral_api.dart';
 
@@ -46,21 +47,7 @@ Color _cEmeraldBg(bool d) =>
 Color _cEmeraldText(bool d) =>
     d ? const Color(0xFF4FD6A0) : const Color(0xFF059669);
 
-const _azMonths = [
-  'Yanvar',
-  'Fevral',
-  'Mart',
-  'Aprel',
-  'May',
-  'İyun',
-  'İyul',
-  'Avqust',
-  'Sentyabr',
-  'Oktyabr',
-  'Noyabr',
-  'Dekabr',
-];
-String _fmtDate(DateTime d) => '${d.day} ${_azMonths[d.month - 1]}';
+String _fmtDate(DateTime d) => '${d.day} ${monthFull(d.month)}';
 
 PreferredSizeWidget _appBar(BuildContext context, bool d, String title) =>
     AppBar(

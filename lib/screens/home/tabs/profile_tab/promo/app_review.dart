@@ -378,7 +378,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         _closeButton(d),
         _starIconBadge(d),
         const SizedBox(height: 16),
-        Text(_t('title', 'Wawatair-i bəyənirsən?'),
+        Text(_t('title', t('app_review.title')),
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
@@ -401,7 +401,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         _rewardChip(d),
         const SizedBox(height: 16),
         _PrimaryButton(
-          label: _t('cta', 'Store-da qiymətləndir'),
+          label: _t('cta', t('app_review.cta')),
           icon: PhosphorIconsFill.star,
           onTap: () => _onStar(5),
         ),
@@ -504,14 +504,14 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             color: d ? const Color(0xFF4FD6A0) : const Color(0xFF10B981)),
       ),
       const SizedBox(height: 16),
-      Text(_t('thanks_title', 'Təşəkkür edirik! ⭐️'),
+      Text(_t('thanks_title', t('app_review.thanks_title')),
           textAlign: TextAlign.center,
           style: TextStyle(
               color: _cText(d), fontSize: 20, fontWeight: FontWeight.w800)),
       const SizedBox(height: 8),
       Text(
         hasCode
-            ? _t('thanks_body', 'Dəstəyin bizə çox kömək edir. Budur hədiyyən:')
+            ? _t('thanks_body', t('app_review.thanks_body'))
             : tr('app_review.thanks_body_short',
                 'Dəstəyin bizə çox kömək edir.'),
         textAlign: TextAlign.center,

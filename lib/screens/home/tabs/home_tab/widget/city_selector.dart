@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:buking/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../../../../data/network/response/city.dart';
-import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_manager.dart';
@@ -125,7 +125,7 @@ class _CitySelectorState extends State<CitySelector> {
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
-          label: S.of(context).retry,
+          label: t('common.try_again'),
           textColor: Colors.white,
           onPressed: () => _performSearch(_searchController.text),
         ),
@@ -190,7 +190,7 @@ class _CitySelectorState extends State<CitySelector> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      S.of(context).tnhyj5brgbdfg,
+                      t('picker.city_title'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -232,7 +232,7 @@ class _CitySelectorState extends State<CitySelector> {
                           color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
                         decoration: InputDecoration(
-                          hintText: S.of(context).nu6j5yhtge65h4tgre,
+                          hintText: t('picker.city_search'),
                           hintStyle: TextStyle(
                             fontSize: 15,
                             color: isDark
@@ -344,7 +344,7 @@ class _CitySelectorState extends State<CitySelector> {
           ),
           const SizedBox(height: 16),
           Text(
-            S.of(context).nthybgtefr4terfd,
+            t('picker.city_empty'),
             style: TextStyle(
               fontSize: 16,
               color: isDark ? WawatDark.textSecondary : Colors.grey.shade600,

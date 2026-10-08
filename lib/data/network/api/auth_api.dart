@@ -107,6 +107,7 @@ abstract class AuthApi {
   @GET('/content')
   Future<ContentResponse> getContent(
     @Query('group') String? group,
+    @Query('lang') String? lang,
   );
 
   @GET('/languages')

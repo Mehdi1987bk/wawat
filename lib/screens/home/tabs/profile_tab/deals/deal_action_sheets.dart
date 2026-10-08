@@ -17,10 +17,12 @@ const _cancelReasons = [
   'other',
 ];
 
+// Коды спора — канонические имена из CMS (deals.dispute_reason.*). На бэкенд
+// уходит метка ([1]), не код, поэтому переименование безопасно.
 const _disputeReasons = [
-  ['not_arrived', 'Mal çatmadı'],
+  ['not_delivered', 'Mal çatmadı'],
   ['damaged', 'Mal zədəli / əskik'],
-  ['lost_contact', 'Əlaqə kəsildi'],
+  ['no_contact', 'Əlaqə kəsildi'],
   ['other', 'Digər'],
 ];
 
@@ -657,7 +659,7 @@ Future<Map<String, dynamic>?> showDealReviewSheet(
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        tr('deals.review.trait.${trait[0]}', trait[1]),
+                        tr('deals.review_tag.${trait[0]}', trait[1]),
                         style: TextStyle(
                           color: selectedTraits.contains(trait[0])
                               ? (isDark ? WawatDark.success : dealEmerald600)

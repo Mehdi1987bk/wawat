@@ -18,7 +18,6 @@ import '../../../../../data/network/response/document_type.dart';
 import '../../../../../data/network/response/receipt.dart';
 import '../../../../../data/network/response/user.dart';
 import '../../../../../data/network/response/verification_state.dart';
-import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
@@ -99,6 +98,7 @@ class _VerificationScreenState
     if (!kIapEnabled) return;
     try {
       final products = await IapService.instance.loadProducts(
+        forceCatalog: true,
         kinds: const {IapProductKind.verification},
       );
       IapCatalogProduct? catalog;
@@ -274,7 +274,7 @@ class _VerificationScreenState
                       fontWeight: FontWeight.w500,
                       color: isDark ? WawatDark.textPrimary : Colors.black,
                     ),
-                    child: Text(S.of(context).bd3435fvd),
+                    child: Text(t('verification.screen_title')),
                   ),
                 ],
               ),
@@ -359,7 +359,7 @@ class _VerificationScreenState
                           color:
                               isDark ? WawatDark.textPrimary : Colors.black87,
                         ),
-                        child: Text(S.of(context).vfdfv22434),
+                        child: Text(t('verification.verified_exclaim')),
                       ),
                       const SizedBox(height: 16),
                       AnimatedDefaultTextStyle(
@@ -372,7 +372,7 @@ class _VerificationScreenState
                           height: 1.5,
                         ),
                         child: Text(
-                          S.of(context).vfdvfdvfvfdewr44,
+                          t('verification.verified_body'),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -401,8 +401,8 @@ class _VerificationScreenState
                               icon: Icons.task_alt,
                               iconColor: const Color(0xFF4CAF50),
                               iconBgColor: const Color(0xFFE8F5E9),
-                              title: S.of(context).vfdvfdr3r34,
-                              subtitle: S.of(context).vfvfd443r43,
+                              title: t('verification.payment.approved_title'),
+                              subtitle: t('verification.all_checks_passed'),
                               isDark: isDark,
                             ),
                             const SizedBox(height: 16),
@@ -416,8 +416,8 @@ class _VerificationScreenState
                               icon: Icons.check_circle,
                               iconColor: const Color(0xFF4CAF50),
                               iconBgColor: const Color(0xFFE8F5E9),
-                              title: S.of(context).gttbr42435t345,
-                              subtitle: S.of(context).bdfdw432534vfd,
+                              title: t('verification.review_complete'),
+                              subtitle: t('verification.account_verified'),
                               isDark: isDark,
                             ),
                           ],
@@ -453,7 +453,7 @@ class _VerificationScreenState
                                       : Colors.grey[700],
                                 ),
                                 child: Text(
-                                  S.of(context).dfbdf424fdv,
+                                  t('verification.full_access_note'),
                                 ),
                               ),
                             ),
@@ -503,7 +503,7 @@ class _VerificationScreenState
                       fontWeight: FontWeight.w500,
                       color: isDark ? WawatDark.textPrimary : Colors.black,
                     ),
-                    child: Text(S.of(context).vfdgfdvfd42343),
+                    child: Text(t('verification.screen_title')),
                   ),
                 ],
               ),
@@ -537,7 +537,7 @@ class _VerificationScreenState
                           color:
                               isDark ? WawatDark.textPrimary : Colors.black87,
                         ),
-                        child: Text(S.of(context).vdfvfd42422),
+                        child: Text(t('verification.under_review')),
                       ),
                       const SizedBox(height: 16),
                       AnimatedDefaultTextStyle(
@@ -550,7 +550,7 @@ class _VerificationScreenState
                           height: 1.5,
                         ),
                         child: Text(
-                          S.of(context).n13vdf43,
+                          t('verification.submitted_body'),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -579,8 +579,8 @@ class _VerificationScreenState
                               icon: Icons.task_alt,
                               iconColor: const Color(0xFF4CAF50),
                               iconBgColor: const Color(0xFFE8F5E9),
-                              title: S.of(context).vfdvfd22343,
-                              subtitle: S.of(context).vfd233424,
+                              title: t('verification.documents_sent'),
+                              subtitle: t('verification.documents_received'),
                               isDark: isDark,
                             ),
                             const SizedBox(height: 16),
@@ -594,8 +594,8 @@ class _VerificationScreenState
                               icon: Icons.schedule,
                               iconColor: const Color(0xFFF5A623),
                               iconBgColor: const Color(0xFFFFF3E0),
-                              title: S.of(context).juty4545,
-                              subtitle: S.of(context).hy4345,
+                              title: t('verification.in_review'),
+                              subtitle: t('verification.await_results'),
                               isDark: isDark,
                             ),
                           ],
@@ -631,7 +631,7 @@ class _VerificationScreenState
                                       : Colors.grey[700],
                                 ),
                                 child: Text(
-                                  S.of(context).gtrgtr34343,
+                                  t('verification.results_notice'),
                                 ),
                               ),
                             ),
@@ -1568,7 +1568,7 @@ class _VerificationScreenState
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).gregrere4334),
+                      child: Text(t('verification.screen_title')),
                     ),
                   ],
                 ),
@@ -1595,7 +1595,7 @@ class _VerificationScreenState
                   fontWeight: FontWeight.w600,
                   color: isDark ? WawatDark.textPrimary : Colors.black87,
                 ),
-                child: Text(S.of(context).gre43fbd4t3),
+                child: Text(t('verification.account_heading')),
               ),
               const SizedBox(height: 8),
               AnimatedDefaultTextStyle(
@@ -1606,7 +1606,7 @@ class _VerificationScreenState
                   height: 1.4,
                 ),
                 child: Text(
-                  S.of(context).ngre24532vfds,
+                  t('verification.identity_prompt'),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -1639,7 +1639,7 @@ class _VerificationScreenState
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black87,
                       ),
-                      child: Text(S.of(context).gdfgdf4343gre),
+                      child: Text(t('verification.status_heading')),
                     ),
                     const SizedBox(height: 4),
                     AnimatedDefaultTextStyle(
@@ -1649,7 +1649,7 @@ class _VerificationScreenState
                         color:
                             isDark ? WawatDark.textSecondary : Colors.grey[600],
                       ),
-                      child: Text(S.of(context).get42fvfdvs),
+                      child: Text(t('verification.upload_prompt')),
                     ),
                   ],
                 ),
@@ -1666,12 +1666,12 @@ class _VerificationScreenState
                 iconColor: const Color(0xFF4A90D9),
                 iconBgColor: const Color(0xFFE8F2FC),
                 title: _selectedTypeName(),
-                subtitle: S.of(context).vdfvbfd34,
+                subtitle: t('verification.primary_document'),
                 status: _idImage != null
-                    ? S.of(context).gdf43gf
-                    : S.of(context).fbdbdf3434,
+                    ? t('verification.uploaded')
+                    : t('verification.not_uploaded'),
                 statusColor: _idImage != null ? Colors.green : Colors.grey,
-                uploadText: S.of(context).bdf234rffd,
+                uploadText: t('verification.upload_passport'),
                 image: _idImage,
                 onTap: _pickIdImage,
                 isDark: isDark,
@@ -1681,13 +1681,13 @@ class _VerificationScreenState
                 icon: Icons.camera_alt_outlined,
                 iconColor: const Color(0xFF4CAF50),
                 iconBgColor: const Color(0xFFE8F5E9),
-                title: S.of(context).gfdfd3434,
-                subtitle: S.of(context).bfxvdg34,
+                title: t('verification.selfie_with_passport'),
+                subtitle: t('verification.identity_proof'),
                 status: _selfieImage != null
-                    ? S.of(context).hrgrs434
-                    : S.of(context).yghtrdf4343,
+                    ? t('verification.uploaded')
+                    : t('verification.not_uploaded'),
                 statusColor: _selfieImage != null ? Colors.green : Colors.grey,
-                uploadText: S.of(context).fdggg35tr34g,
+                uploadText: t('verification.upload_selfie'),
                 image: _selfieImage,
                 onTap: _pickSelfieImage,
                 showUploadIcon: true,
@@ -1703,7 +1703,7 @@ class _VerificationScreenState
                   ),
                   children: [
                     TextSpan(
-                      text: S.of(context).gbdgb3434 + " ",
+                      text: t('verification.important_label') + " ",
                       style: TextStyle(
                         color: isDark
                             ? WawatDark.brandText
@@ -1712,7 +1712,7 @@ class _VerificationScreenState
                       ),
                     ),
                     TextSpan(
-                      text: S.of(context).grgdfgdfg34t343t,
+                      text: t('verification.review_duration_note'),
                     ),
                   ],
                 ),
@@ -1743,7 +1743,7 @@ class _VerificationScreenState
                           ),
                         )
                       : Text(
-                          S.of(context).bfdbffd24343vfd,
+                          t('verification.send_for_review'),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -1786,7 +1786,7 @@ class _VerificationScreenState
     for (final t in _idDocTypes) {
       if (t.code == _selectedType) return t.name;
     }
-    return S.of(context).vfd43vfd;
+    return t('verification.passport');
   }
 
   Widget _buildTypePicker(bool isDark) {
@@ -1840,7 +1840,7 @@ class _VerificationScreenState
 
   Future<void> _submitVerification() async {
     if (_idImage == null || _selfieImage == null) {
-      _snack(S.of(context).bgfbgd3ttgtebdsdf, Colors.orange);
+      _snack(t('verification.both_documents_required'), Colors.orange);
       return;
     }
     // Document type may be missing only because /document-types didn't load —
@@ -1868,7 +1868,7 @@ class _VerificationScreenState
       );
 
       if (mounted) {
-        showIOSStyleMessage(context, S.of(context).yhtjkuyil43);
+        showIOSStyleMessage(context, t('verification.submit_success'));
         await _loadVerificationStatus();
         // Leave the upload sub-view → land on the "under review" screen.
         if (mounted) setState(() => _showUpload = false);

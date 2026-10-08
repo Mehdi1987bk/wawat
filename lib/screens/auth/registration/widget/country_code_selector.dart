@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/country.dart';
-import '../../../../generated/l10n.dart';
 import '../../../../presentation/resourses/wawat_colors.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_manager.dart';
@@ -193,7 +193,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  S.of(context).nbtynt7,
+                  t('picker.country_title'),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -214,7 +214,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                 color: widget.isDark ? WawatDark.textPrimary : Colors.black,
               ),
               decoration: InputDecoration(
-                hintText: S.of(context).mjh5y,
+                hintText: t('picker.country_search'),
                 hintStyle: TextStyle(
                   color: widget.isDark ? WawatDark.placeholder : Colors.grey,
                 ),

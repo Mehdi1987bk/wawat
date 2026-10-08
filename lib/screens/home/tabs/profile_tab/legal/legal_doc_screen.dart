@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:buking/services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 
 import 'legal_api.dart';
 
@@ -37,21 +38,7 @@ Color _cShimmer(bool d, bool hi) => d
     ? (hi ? _dElevated : _dSurface)
     : (hi ? const Color(0xFFF4F6F9) : const Color(0xFFE7EBF1));
 
-const _azMonths = [
-  'Yanvar',
-  'Fevral',
-  'Mart',
-  'Aprel',
-  'May',
-  'İyun',
-  'İyul',
-  'Avqust',
-  'Sentyabr',
-  'Oktyabr',
-  'Noyabr',
-  'Dekabr',
-];
-String _fmtDate(DateTime d) => '${d.day} ${_azMonths[d.month - 1]} ${d.year}';
+String _fmtDate(DateTime d) => '${d.day} ${monthFull(d.month)} ${d.year}';
 
 class LegalDocScreen extends StatefulWidget {
   final String slug; // terms | privacy

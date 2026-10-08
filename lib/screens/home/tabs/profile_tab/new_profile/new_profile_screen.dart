@@ -18,9 +18,12 @@ import '../../../../../main.dart';
 import '../../../../../services/notification_socket_service.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
+import '../../../../../services/date_labels.dart';
 import '../../../../../services/avatar_cache_buster.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../home_screen.dart';
+import '../../../../auth/email_otp/email_otp_screen.dart';
+import '../../../../auth/email_otp/email_otp_state.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../listings/details/listing_details_screen.dart';
@@ -641,6 +644,17 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
                                 content: bundle.content,
                                 onTap: _openVerification,
                               ),
+                            if (_isSelf &&
+                                EmailOtpState.instance.required &&
+                                !EmailOtpState.instance.verified)
+                              _EmailVerificationBanner(
+                                content: bundle.content,
+                                onTap: () async {
+                                  await presentEmailOtpIfRequired(
+                                      autoSend: false);
+                                  if (mounted) setState(() {});
+                                },
+                              ),
                             _StatsRow(user: user, content: bundle.content),
                             _FollowCounters(
                               user: user,
@@ -1185,6 +1199,56 @@ class _VerificationBanner extends StatelessWidget {
               child: Text(
                 _tx(content, 'profile.verify_account',
                     'Hesabınızı təsdiqləyin'),
+                style: TextStyle(
+                  color: _cText(isDark),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(PhosphorIconsRegular.caretRight, color: _cMuted(isDark)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Non-blocking "e-mail not verified" notice. Same amber style as
+/// [_VerificationBanner] (no new style introduced) — opens the OTP screen.
+class _EmailVerificationBanner extends StatelessWidget {
+  final Map<String, String> content;
+  final VoidCallback onTap;
+
+  const _EmailVerificationBanner({
+    required this.content,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isDark ? WawatDark.warning.withValues(alpha: 0.12) : _amber50,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: (isDark ? WawatDark.warning : _amber)
+                  .withValues(alpha: 0.18)),
+        ),
+        child: Row(
+          children: [
+            Icon(PhosphorIconsFill.envelopeSimple,
+                color: isDark ? WawatDark.warning : _amber),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _tx(content, 'auth.email_not_verified',
+                    'E-poçt təsdiqlənməyib'),
                 style: TextStyle(
                   color: _cText(isDark),
                   fontSize: 13,
@@ -5105,24 +5169,7 @@ String _dateRange(String? from, String? to) {
   return '$a – $b';
 }
 
-String _month(int month) {
-  final months = [
-    '',
-    tr('common.month_jan', 'Yan'),
-    tr('common.month_feb', 'Fev'),
-    tr('common.month_mar', 'Mar'),
-    tr('common.month_apr', 'Apr'),
-    tr('common.month_may', 'May'),
-    tr('common.month_jun', 'İyun'),
-    tr('common.month_jul', 'İyul'),
-    tr('common.month_aug', 'Avq'),
-    tr('common.month_sep', 'Sen'),
-    tr('common.month_oct', 'Okt'),
-    tr('common.month_nov', 'Noy'),
-    tr('common.month_dec', 'Dek'),
-  ];
-  return months[month];
-}
+String _month(int month) => monthShort(month);
 
 String _relativeDate(DateTime? date) {
   if (date == null) return '';

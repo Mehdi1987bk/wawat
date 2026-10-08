@@ -8,7 +8,6 @@ import '../../../../../../data/network/api/chat_api.dart';
 import '../../../../../../data/network/request/create_review_request.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
 import '../../../../../../domain/repositories/auth_repository.dart';
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../main.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
@@ -129,7 +128,7 @@ class CourierProfileCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            S.of(context).hgterfvb4btgv,
+                            t('courier.verified'),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -174,7 +173,7 @@ class CourierProfileCard extends StatelessWidget {
                         ),
                         child: Text(
                             '${stats.ratingAvg} (${stats.ratingCount} ' +
-                                S.of(context).y5rbtvfs4l53),
+                                t('courier.reviews_count_suffix')),
                       ),
                     ],
                   ),
@@ -184,13 +183,13 @@ class CourierProfileCard extends StatelessWidget {
                     children: [
                       _buildStatItem(
                         value: '${data.stats.deliveriesCount}',
-                        label: S.of(context).tbgverfsdclk345frwcs,
+                        label: t('courier.deliveries'),
                         color: Colors.blue,
                         isDark: isDark,
                       ),
                       _buildStatItem(
                         value: '${(data.professional.onTimePercent ?? "0")}%',
-                        label: S.of(context).mftdr4587vfg,
+                        label: t('courier.successful'),
                         color: Colors.green,
                         isDark: isDark,
                       ),
@@ -218,7 +217,7 @@ class CourierProfileCard extends StatelessWidget {
                           icon: Icons.schedule,
                           value: _formatResponseTime(
                               professional.responseTimeMinutes, context),
-                          label: /*S.of(context).brh45hg43g4tgve*/ "",
+                          label: /*t('profile.response')*/ "",
                           sublabel: '',
                           color: isDark ? cFill(true) : const Color(0xFFF5F8FD),
                           isDark: isDark,
@@ -229,8 +228,8 @@ class CourierProfileCard extends StatelessWidget {
                         child: _buildMetricItem(
                           icon: Icons.category,
                           value: '${professional.maxWeightKg ?? 0}',
-                          label: S.of(context).hyrhh6g453grth4ge,
-                          sublabel: S.of(context).brthgteb4h5g4t35g,
+                          label: t('common.kg'),
+                          sublabel: t('courier.max_weight_short'),
                           color: isDark ? cFill(true) : const Color(0xFFF4FDF8),
                           isDark: isDark,
                         ),
@@ -246,7 +245,7 @@ class CourierProfileCard extends StatelessWidget {
                           icon: Icons.shield,
                           value: '\$${professional.insuranceUsd ?? 0}',
                           label: '',
-                          sublabel: S.of(context).nrny5nrnrny5n5y454,
+                          sublabel: t('courier.insurance'),
                           color: isDark ? cFill(true) : const Color(0xFFFBF9FE),
                           isDark: isDark,
                         ),
@@ -257,7 +256,7 @@ class CourierProfileCard extends StatelessWidget {
                           icon: Icons.trending_up,
                           value: '${(professional.onTimePercent ?? 0)}%',
                           label: '',
-                          sublabel: S.of(context).ntnhnhry454,
+                          sublabel: t('deals.review_tag.on_time'),
                           color: isDark ? cFill(true) : const Color(0xFFFBFBF1),
                           isDark: isDark,
                         ),
@@ -289,7 +288,7 @@ class CourierProfileCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         child: Center(
                           child: Text(
-                            S.of(context).nrhnnryhtnyr464,
+                            t('common.write'),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -372,20 +371,20 @@ class CourierProfileCard extends StatelessWidget {
   String _formatResponseTime(String? minutes, BuildContext context) {
     final minutesInt = int.tryParse(minutes ?? '0') ?? 0;
 
-    if (minutesInt == 0) return '0 ' + S.of(context).vre3gg43gv3r3v3rv;
+    if (minutesInt == 0) return '0 ' + t('common.minute_short');
 
     if (minutesInt < 60) {
-      return '$minutesInt ' + S.of(context).vre3gg43gv3r3v3rv;
+      return '$minutesInt ' + t('common.minute_short');
     }
 
     final hours = minutesInt ~/ 60;
     final mins = minutesInt % 60;
     return mins == 0
-        ? '$hours ' + S.of(context).trh34tgvrt4h3g4rwev
+        ? '$hours ' + t('common.hour_short')
         : '$hours ' +
-            S.of(context).trh34tgvrt4h3g4rwev +
+            t('common.hour_short') +
             ' $mins ' +
-            S.of(context).vre3gg43gv3r3v3rv;
+            t('common.minute_short');
   }
 
   void _handleReviewTap(BuildContext context, bool isDark) async {
@@ -608,7 +607,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                       color: widget.isDark ? cText(true) : Colors.black,
                     ),
                     child: Text(
-                      S.of(context).ntnyyh4664bnrgn,
+                      t('courier.rate_title'),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -672,7 +671,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                         color: widget.isDark ? cText(true) : Colors.black,
                       ),
                       decoration: InputDecoration(
-                        hintText: S.of(context).nhthnnhthnty554y54y,
+                        hintText: t('courier.comment_hint'),
                         hintStyle: WawatTextStyles.body.copyWith(
                           color: widget.isDark
                               ? WawatDark.placeholder
@@ -714,7 +713,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                               ),
                             )
                           : Text(
-                              S.of(context).nhtnhtnyth4465645,
+                              t('common.send'),
                               style: WawatTextStyles.button.copyWith(
                                 fontWeight: FontWeight.w500,
                               ),
@@ -736,7 +735,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).rynryyrynrh444646),
+            content: Text(t('courier.rating_required')),
             backgroundColor: WawatColors.error,
           ),
         );
@@ -762,7 +761,7 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        showIOSStyleMessage(context, S.of(context).gergergre335345);
+        showIOSStyleMessage(context, t('courier.review_thanks'));
         widget.onReviewSubmitted(request);
       }
     } catch (e) {

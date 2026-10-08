@@ -359,9 +359,9 @@ class _AuthApi implements AuthApi {
   }
 
   @override
-  Future<ContentResponse> getContent(String? group) async {
+  Future<ContentResponse> getContent(String? group, String? lang) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'group': group};
+    final queryParameters = <String, dynamic>{r'group': group, r'lang': lang};
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;

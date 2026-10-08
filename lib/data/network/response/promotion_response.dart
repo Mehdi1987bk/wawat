@@ -1,3 +1,5 @@
+import 'package:buking/services/localization_service.dart';
+
 import 'receipt.dart';
 
 class PromotionPricingResponse {
@@ -51,7 +53,7 @@ class PromotionProductPricing {
   factory PromotionProductPricing.fromJson(Map<String, dynamic> json) {
     return PromotionProductPricing(
       type: json['type']?.toString() ?? 'vip',
-      label: json['label']?.toString() ?? 'VİP',
+      label: json['label']?.toString() ?? tr('enum.promotion_type.vip', 'VİP'),
       prices: _priceMap(json['prices']),
     );
   }
@@ -71,7 +73,8 @@ class PromotionBoostPricing {
   factory PromotionBoostPricing.fromJson(Map<String, dynamic> json) {
     return PromotionBoostPricing(
       type: json['type']?.toString() ?? 'featured',
-      label: json['label']?.toString() ?? 'Önə çıxarılan',
+      label: json['label']?.toString() ??
+          tr('enum.promotion_type.featured', 'Önə çıxarılan'),
       packages: _list(json['packages'])
           .whereType<Map>()
           .map((item) =>

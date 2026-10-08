@@ -62,7 +62,7 @@ abstract class AuthRepository {
   /// the value (a `Future<User>` still satisfies a `Future<void>` wrapper).
   Future<User> customersMe();
 
-  Future<ContentResponse> getContent({String? group});
+  Future<ContentResponse> getContent({String? group, String? lang});
 
   Future<void> registration(RegistrationRequest request);
 

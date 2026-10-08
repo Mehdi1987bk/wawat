@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/language.dart';
 import '../../../../../../data/network/response/package_types_response.dart';
 import '../../../../../../data/network/response/user.dart';
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
@@ -175,7 +174,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).vdfvfd4rg5ger + '$e'),
+            content: Text(t('picker.language_load_error') + '$e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -206,7 +205,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).vfdvd54gves + ' $e'),
+            content: Text(t('picker.package_type_load_error') + ' $e'),
             backgroundColor: Colors.orange,
             duration: const Duration(seconds: 5),
           ),
@@ -222,7 +221,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
-        throw Exception(S.of(context).vfdv3rgfre42 + ' $timeString');
+        throw Exception(t('courier.invalid_time_format') + ' $timeString');
       }
 
       final hour = int.parse(timeParts[0]);
@@ -257,7 +256,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(S.of(context).vdf3fg3rvs + ' $e'),
+              content: Text(t('error.generic_with_detail') + ' $e'),
               backgroundColor: Colors.red),
         );
       }
@@ -271,7 +270,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       final timeParts = timeString.split(':');
 
       if (timeParts.length != 2) {
-        throw Exception(S.of(context).vfd3fggvrgds + ' $timeString');
+        throw Exception(t('courier.invalid_time_format') + ' $timeString');
       }
 
       final hour = int.parse(timeParts[0]);
@@ -306,7 +305,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(S.of(context).fvdvefr34vfsvd + ' $e'),
+              content: Text(t('error.generic_with_detail') + ' $e'),
               backgroundColor: Colors.red),
         );
       }
@@ -320,7 +319,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     if (_selectedLanguageCodes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).vfd3rvewr3r),
+          content: Text(t('courier.language_required')),
           backgroundColor: Colors.red,
         ),
       );
@@ -330,7 +329,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     if (_selectedPackageTypeCodes.isEmpty && _allPackageTypes.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).yhthrgtr35hg4gd),
+          content: Text(t('courier.specialization_required')),
           backgroundColor: Colors.red,
         ),
       );
@@ -353,7 +352,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
       // 🔥 Проверяем что виджет еще существует
       if (!mounted) return;
 
-      showIOSStyleMessage(context, S.of(context).bgfb4tr3getbger);
+      showIOSStyleMessage(context, t('courier.experience_saved'));
       bloc.customersMe();
     }).catchError((error) {
       // 🔥 Обрабатываем ошибки
@@ -405,7 +404,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).bryh4tb4thb4yhhe),
+                      child: Text(t('courier.work_experience')),
                     ),
                     const SizedBox(height: 8),
                     _buildExperienceSlider(isDark),
@@ -417,7 +416,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).brbt444b3tgsdgetr),
+                      child: Text(t('courier.max_weight_kg')),
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(_maxWeightController, isDark),
@@ -429,7 +428,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).vevrtbgvt5ybtvew + "\$)"),
+                      child: Text(t('courier.insurance') + "\$)"),
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(_insuranceController, isDark),
@@ -441,7 +440,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).bgdbtb4brgd),
+                      child: Text(t('courier.price_range')),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -452,7 +451,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                           fontWeight: FontWeight.w500,
                           color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
-                        child: Text(S.of(context).bgfbgf534tg534g),
+                        child: Text(t('common.range_from')),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -465,7 +464,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).bry5yn4ny4bde),
+                      child: Text(t('common.range_to')),
                     ),
                     const SizedBox(height: 4),
                     _buildInputField(_priceToController, isDark),
@@ -477,7 +476,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).nujnhry4hrt),
+                      child: Text(t('courier.work_hours')),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -495,7 +494,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                       ? WawatDark.textPrimary
                                       : Colors.black,
                                 ),
-                                child: Text(S.of(context).btrb4tdb4tbr),
+                                child: Text(t('common.range_from')),
                               ),
                               const SizedBox(height: 4),
                               _buildTimePickerField(
@@ -522,7 +521,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                       ? WawatDark.textPrimary
                                       : Colors.black,
                                 ),
-                                child: Text(S.of(context).greg54eh3rwgs),
+                                child: Text(t('common.range_to')),
                               ),
                               const SizedBox(height: 4),
                               _buildTimePickerField(
@@ -545,7 +544,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).nybhtgr54terfw3),
+                      child: Text(t('courier.spoken_languages')),
                     ),
                     const SizedBox(height: 8),
                     LanguageSelector(
@@ -567,7 +566,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).greg3greg43grgre),
+                      child: Text(t('courier.specialization')),
                     ),
                     const SizedBox(height: 8),
                     _allPackageTypes.isEmpty && !_isLoadingPackageTypes
@@ -594,7 +593,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                                     : Colors.grey,
                                 fontWeight: FontWeight.w500,
                               ),
-                              child: Text(S.of(context).trh35hteh354heh),
+                              child: Text(t('picker.package_type_unavailable')),
                             ),
                           )
                         : PackageTypesSelector(
@@ -632,7 +631,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
                             ),
                             onPressed: isValid ? _saveChanges : null,
                             child: Text(
-                              S.of(context).htrh4hedh4th4,
+                              t('common.save_changes'),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -763,7 +762,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Text(
-            S.of(context).bgdretr35grdf +
+            t('courier.selected_experience') +
                 ' ${_selectedExperience.toInt()} ${_getYearLabel(_selectedExperience.toInt())}',
             style: const TextStyle(
               fontSize: 14,
@@ -778,12 +777,12 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
 
   String _getYearLabel(int years) {
     if (years % 10 == 1 && years % 100 != 11) {
-      return S.of(context).fregt56hgte;
+      return t('common.year_short');
     } else if ([2, 3, 4].contains(years % 10) &&
         ![12, 13, 14].contains(years % 100)) {
-      return S.of(context).fregt56hgte;
+      return t('common.year_short');
     } else {
-      return S.of(context).myijtyhg34ewfrv;
+      return t('common.year_short');
     }
   }
 
@@ -850,7 +849,7 @@ void showIOSStyleAlert(BuildContext context, String message,
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  S.of(context).ok,
+                  t('common.ok'),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,

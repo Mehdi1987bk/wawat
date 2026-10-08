@@ -1,11 +1,11 @@
 import 'dart:ui';
+import 'package:buking/services/localization_service.dart';
 
 import 'package:buking/screens/home/tabs/profile_tab/unread_chat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../generated/l10n.dart';
 import '../../main.dart';
 import '../../presentation/resourses/theme_colors.dart';
 import '../../presentation/resourses/wawat_dark.dart';
@@ -87,7 +87,7 @@ class _BottomBarState extends State<BottomBar> {
                       BottomNavigationItem(
                         index: 0,
                         selectedIndex: widget.selectedIndex,
-                        label: S.of(context).navDiscover,
+                        label: t('menu.nav_discover'),
                         icon: PhosphorIconsFill.compass,
                         onChanged: widget.onChanged,
                         isDark: isDark,
@@ -95,7 +95,7 @@ class _BottomBarState extends State<BottomBar> {
                       BottomNavigationItem(
                         index: 1,
                         selectedIndex: widget.selectedIndex,
-                        label: S.of(context).searchbtrrevfdsc,
+                        label: t('menu.nav_search'),
                         icon: PhosphorIconsRegular.magnifyingGlass,
                         onChanged: widget.onChanged,
                         isDark: isDark,
@@ -106,7 +106,7 @@ class _BottomBarState extends State<BottomBar> {
                       BottomNavigationItem(
                         index: 3,
                         selectedIndex: widget.selectedIndex,
-                        label: S.of(context).mjhmhjmj5,
+                        label: t('chat.list.title'),
                         icon: PhosphorIconsRegular.chatCircle,
                         onChanged: widget.onChanged,
                         isDark: isDark,
@@ -115,7 +115,7 @@ class _BottomBarState extends State<BottomBar> {
                       BottomNavigationItem(
                         index: 4,
                         selectedIndex: widget.selectedIndex,
-                        label: S.of(context).vfdvfdvfd,
+                        label: t('menu.nav_account'),
                         icon: PhosphorIconsRegular.user,
                         onChanged: widget.onChanged,
                         isDark: isDark,

@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_aware_screen.dart';
@@ -56,7 +56,7 @@ class CourierRatingsTab extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                S.of(context).bgrfw3542rfsd,
+                                t('courier.no_reviews'),
                               ),
                             ),
                           ),

@@ -2,7 +2,6 @@ import 'package:buking/presentation/bloc/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/bloc/error_dispatcher.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
@@ -55,9 +54,12 @@ class _ChangePasswordTabState
     final newPassword = _newPasswordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
+    // Новый пароль — минимум 8 символов (так требует бэкенд; 6 давал 422).
+    // Текущий оставляем ≥6, чтобы старые короткие пароли ещё можно было ввести
+    // для аутентификации — его всё равно проверяет сервер.
     final isValid = currentPassword.length >= 6 &&
-        newPassword.length >= 6 &&
-        confirmPassword.length >= 6 &&
+        newPassword.length >= 8 &&
+        confirmPassword.length >= 8 &&
         newPassword == confirmPassword &&
         currentPassword != newPassword;
 
@@ -79,7 +81,7 @@ class _ChangePasswordTabState
       if (!mounted) return;
 
       if (success) {
-        showIOSStyleMessage(context, S.of(context).vfegt4g3rvsfcfd);
+        showIOSStyleMessage(context, t('auth.password_changed'));
         _currentPasswordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
@@ -160,11 +162,11 @@ class _ChangePasswordTabState
                                       ? WawatDark.textPrimary
                                       : Colors.black,
                                 ),
-                                child: Text(S.of(context).brttt4htg3rfwd),
+                                child: Text(t('auth.change_password_title')),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                S.of(context).brtb5h6h453grbegr,
+                                t('auth.change_password_subtitle'),
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: isDark
@@ -182,7 +184,7 @@ class _ChangePasswordTabState
 
                     // Current password
                     _buildPasswordField(
-                      label: S.of(context).htrh64h5tger,
+                      label: t('auth.current_password'),
                       controller: _currentPasswordController,
                       obscureText: _obscureCurrentPassword,
                       onToggleObscure: () {
@@ -197,7 +199,7 @@ class _ChangePasswordTabState
 
                     // New password
                     _buildPasswordField(
-                      label: S.of(context).htrh56h5656,
+                      label: t('auth.new_password'),
                       controller: _newPasswordController,
                       obscureText: _obscureNewPassword,
                       onToggleObscure: () {
@@ -206,14 +208,14 @@ class _ChangePasswordTabState
                         });
                       },
                       isDark: isDark,
-                      hint: S.of(context).bgrtyhnyn5jh4g3,
+                      hint: t('auth.password_min_hint'),
                     ),
 
                     const SizedBox(height: 16),
 
                     // Confirm password
                     _buildPasswordField(
-                      label: S.of(context).jyrtj57jhrttyh4te,
+                      label: t('auth.confirm_new_password'),
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
                       onToggleObscure: () {
@@ -222,7 +224,7 @@ class _ChangePasswordTabState
                         });
                       },
                       isDark: isDark,
-                      hint: S.of(context).jytuj56j56jj45,
+                      hint: t('auth.repeat_new_password'),
                     ),
 
                     // Password hints
@@ -260,7 +262,7 @@ class _ChangePasswordTabState
                                     ),
                                   )
                                 : Text(
-                                    S.of(context).jt676676756jhr,
+                                    t('auth.save_new_password'),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w500,

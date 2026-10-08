@@ -8,6 +8,8 @@ import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/localization_service.dart';
 import '../../../services/theme_manager.dart';
 import '../../home/home_screen.dart';
+import '../email_otp/email_otp_screen.dart';
+import '../email_otp/email_otp_state.dart';
 import '../forgot_password/forgot_password_modal.dart';
 import '../registration/registration_screen.dart';
 import 'login_bloc.dart';
@@ -34,6 +36,27 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
   bool _obscurePassword = true;
   String? _message;
   Map<String, String> _fieldErrors = {};
+  String? _errorCode;
+  int? _errorStatus;
+
+  // Машинные коды из конверта ответа ({message, code, errors?}). Решение
+  // «аккаунт ограничен» / «неверный вход» принимается по ним, а не по
+  // локализованному тексту — текст у ru/en-пользователя другой и не совпал бы.
+  static const _restrictedCodes = {
+    'account_suspended',
+    'account_limited',
+    'account_blocked',
+    'account_restricted',
+    'account_disabled',
+    'suspended',
+    'banned',
+  };
+  static const _invalidCredentialCodes = {
+    'invalid_credentials',
+    'credentials_invalid',
+    'attempts_remaining',
+    'too_many_attempts',
+  };
 
   @override
   void dispose() {
@@ -46,6 +69,8 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
     setState(() {
       _message = null;
       _fieldErrors = {};
+      _errorCode = null;
+      _errorStatus = null;
     });
 
     final result = await bloc.login(
@@ -61,18 +86,41 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
         MaterialPageRoute(builder: (_) => HomeScreen()),
         (route) => false,
       );
+      // E-mail verification gate (no-op while the backend flag is off). A fresh
+      // session may have no code yet, so this entry point auto-sends one. Reset
+      // the per-run flag first so a previous account's state never leaks in.
+      EmailOtpState.instance.codeSentThisSession = false;
+      presentEmailOtpIfRequired(autoSend: true);
       return;
     }
 
     setState(() {
       _message = result.message;
       _fieldErrors = result.fieldErrors;
+      _errorCode = result.code;
+      _errorStatus = result.statusCode;
     });
   }
 
+  /// Аккаунт ограничен/заблокирован — показываем кнопку «Связаться с поддержкой».
+  /// Основной сигнал — машинный: HTTP 403 или код из [_restrictedCodes].
+  /// Текстовая проверка оставлена лишь как запас для старого бэкенда без code.
   bool get _isSuspendedMessage {
+    final code = (_errorCode ?? '').toLowerCase();
+    if (_restrictedCodes.contains(code)) return true;
+    if (_errorStatus == 403) return true;
     final value = (_message ?? '').toLowerCase();
     return value.contains('məhdud') || value.contains('suspended');
+  }
+
+  /// Мягкая ошибка входа (неверные данные, остались попытки) — жёлтый алерт
+  /// вместо красного. Определяется по коду/статусу, текст — запасной вариант.
+  bool get _isWarningMessage {
+    if (_isSuspendedMessage) return false;
+    final code = (_errorCode ?? '').toLowerCase();
+    if (_invalidCredentialCodes.contains(code)) return true;
+    if (_errorStatus == 401 || _errorStatus == 422) return true;
+    return (_message ?? '').toLowerCase().contains('cəhd');
   }
 
   Future<void> _contactSupport() async {
@@ -139,7 +187,7 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
               const SizedBox(height: 22),
               _AlertBox(
                 message: _message!,
-                isWarning: _message!.toLowerCase().contains('cəhd'),
+                isWarning: _isWarningMessage,
                 isDark: isDark,
               ),
             ],

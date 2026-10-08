@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'package:buking/services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 
 import 'reports_api.dart';
 
@@ -50,21 +51,7 @@ Color _cEmeraldText(bool d) =>
 Color _cGrayBg(bool d) =>
     d ? Colors.white.withValues(alpha: 0.06) : _ink900.withValues(alpha: 0.05);
 
-const _azMonths = [
-  'Yanvar',
-  'Fevral',
-  'Mart',
-  'Aprel',
-  'May',
-  'İyun',
-  'İyul',
-  'Avqust',
-  'Sentyabr',
-  'Oktyabr',
-  'Noyabr',
-  'Dekabr',
-];
-String _fmtDate(DateTime d) => '${d.day} ${_azMonths[d.month - 1]}';
+String _fmtDate(DateTime d) => '${d.day} ${monthFull(d.month)}';
 String _fmtDateTime(DateTime d) {
   final hh = d.hour.toString().padLeft(2, '0');
   final mm = d.minute.toString().padLeft(2, '0');

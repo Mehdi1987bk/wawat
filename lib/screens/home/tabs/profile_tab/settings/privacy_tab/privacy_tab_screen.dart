@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../../../data/network/request/notification_settings.dart';
 import '../../../../../../data/network/request/privacy_settings.dart';
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/localization_service.dart';
@@ -147,7 +146,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                                     ? WawatDark.textPrimary
                                     : Colors.black,
                               ),
-                              child: Text(S.of(context).gret4h5h53g2b),
+                              child: Text(t('settings.privacy_title')),
                             ),
                             const SizedBox(height: 4),
                             AnimatedDefaultTextStyle(
@@ -158,7 +157,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                                     ? WawatDark.textSecondary
                                     : const Color(0xFF8E8E93),
                               ),
-                              child: Text(S.of(context).vfsvf33fr),
+                              child: Text(t('settings.privacy_subtitle')),
                             ),
                           ],
                         ),
@@ -172,23 +171,23 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).vsf3r4gh57j6hnbd),
+                      child: Text(t('menu.privacy')),
                     ),
                     const SizedBox(height: 12),
-                    _buildToggleRow(S.of(context).myiuk7564hd, showPhoneTab,
+                    _buildToggleRow(t('settings.show_phone'), showPhoneTab,
                         (value) {
                       setState(() => showPhoneTab = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
-                    _buildToggleRow(S.of(context).emailnhrtybe, showEmailTab,
+                    _buildToggleRow(t('settings.show_email'), showEmailTab,
                         (value) {
                       setState(() => showEmailTab = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
                     _buildToggleRow(
-                        S.of(context).bgfbgt4ry46hj57jhg, showActivityTime,
+                        t('settings.show_last_seen'), showActivityTime,
                         (value) {
                       setState(() => showActivityTime = value);
                       _checkFormValidity();
@@ -201,22 +200,22 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                         fontWeight: FontWeight.w500,
                         color: isDark ? WawatDark.textPrimary : Colors.black,
                       ),
-                      child: Text(S.of(context).jyntytrk5j34r),
+                      child: Text(t('notifications.title')),
                     ),
                     const SizedBox(height: 12),
                     _buildToggleRow(
-                        S.of(context).trbgtvrger56fd, showNewMessages, (value) {
+                        t('settings.notify_new_messages'), showNewMessages, (value) {
                       setState(() => showNewMessages = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
-                    _buildToggleRow(S.of(context).ger4tr3345, showNewReviews,
+                    _buildToggleRow(t('settings.notify_new_reviews'), showNewReviews,
                         (value) {
                       setState(() => showNewReviews = value);
                       _checkFormValidity();
                     }, isDark),
                     const SizedBox(height: 8),
-                    _buildToggleRow(S.of(context).bfvdeb3gg34, showMarketing,
+                    _buildToggleRow(t('settings.notify_marketing'), showMarketing,
                         (value) {
                       setState(() => showMarketing = value);
                       _checkFormValidity();
@@ -245,7 +244,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                             ),
                             onPressed: isValid ? _addEmployer : null,
                             child: Text(
-                              S.of(context).gbd423g54bd,
+                              t('common.save_changes'),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -323,7 +322,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          tr('privacy_diagnostics_title',
+                          tr('settings.diagnostics_title',
                               'Diaqnostika və analitika'),
                           style: TextStyle(
                             fontSize: 16,
@@ -334,7 +333,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          tr('privacy_diagnostics_subtitle',
+                          tr('settings.diagnostics_subtitle',
                               'Tətbiqdəki nasazlıqları tapmağa kömək edir. Reklam üçün istifadə olunmur.'),
                           style: TextStyle(
                             fontSize: 13,
@@ -351,21 +350,21 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
               ),
               const SizedBox(height: 20),
               _buildToggleRow(
-                tr('privacy_crash_reports', 'Nasazlıq hesabatları'),
+                tr('settings.crash_reports', 'Nasazlıq hesabatları'),
                 consent.crashReportsEnabled,
                 (value) => consent.setCrashReportsEnabled(value),
                 isDark,
               ),
               const SizedBox(height: 8),
               _buildToggleRow(
-                tr('privacy_usage_stats', 'İstifadə statistikası'),
+                tr('settings.usage_stats', 'İstifadə statistikası'),
                 consent.analyticsEnabled,
                 (value) => consent.setAnalyticsEnabled(value),
                 isDark,
               ),
               const SizedBox(height: 12),
               Text(
-                tr('privacy_diagnostics_note',
+                tr('settings.diagnostics_note',
                     'Şəxsi məlumatlar — telefon, e-poçt və mesajların mətni — göndərilmir.'),
                 style: TextStyle(
                   fontSize: 12,
@@ -435,7 +434,7 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
         .then(
       (onValue) {
         bloc.customersMe();
-        showIOSStyleMessage(context, S.of(context).greg5g4g4g3);
+        showIOSStyleMessage(context, t('common.saved'));
       },
     );
     bloc

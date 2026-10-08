@@ -523,7 +523,7 @@ class _SearchOfferListScreenState
     if (saved == true && mounted) {
       setState(() => _currentSearchSaved = true);
       _showSuccess(_contentText(
-          bloc.listingContent.valueOrNull ?? const {}, 'search.saved_success'));
+          bloc.listingContent.valueOrNull ?? const {}, 'search.saved_created'));
     }
   }
 
@@ -537,7 +537,8 @@ class _SearchOfferListScreenState
         break;
       case 'post_opposite':
         _showSuccess(_contentText(bloc.listingContent.valueOrNull ?? const {},
-            'search.post_opposite_soon'));
+            'search.post_opposite_soon',
+            'Əks elan yaratmaq tezliklə əlçatan olacaq.'));
         break;
     }
   }

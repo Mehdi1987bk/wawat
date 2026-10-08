@@ -1,4 +1,5 @@
 import 'package:buking/presentation/bloc/base_screen.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../../../data/network/response/reviews_response.dart';
-import '../../../../generated/l10n.dart';
 import '../home_tab/courier_screen/courier_details_bloc.dart';
 import '../home_tab/courier_screen/courier_screen.dart';
 
@@ -175,7 +175,7 @@ class _MyRevievsScreenState
                     color: isDark ? cText(isDark) : const Color(0xFF1A1A1A),
                   ),
                   child: Text(
-                    S.of(context).listingHistory,
+                    t('review.history_title'),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -226,9 +226,9 @@ class _MyRevievsScreenState
       child: Row(
         children: [
           _buildTabButton(
-              index: 0, title: S.of(context).hbfgh3, isDark: isDark),
+              index: 0, title: t('review.received_tab'), isDark: isDark),
           _buildTabButton(
-              index: 1, title: S.of(context).gert3tger, isDark: isDark),
+              index: 1, title: t('review.given_tab'), isDark: isDark),
         ],
       ),
     );
@@ -283,7 +283,7 @@ class _MyRevievsScreenState
       child: Column(
         children: [
           if (reviews.isEmpty)
-            _buildEmptyState(S.of(context).bvfdgb43, isDark)
+            _buildEmptyState(t('review.given_empty'), isDark)
           else
             ...reviews.map((review) {
               return _buildLeftReviewCard(
@@ -307,7 +307,7 @@ class _MyRevievsScreenState
       child: Column(
         children: [
           if (reviews.isEmpty)
-            _buildEmptyState(S.of(context).bfdtw4ew4, isDark)
+            _buildEmptyState(t('review.given_empty'), isDark)
           else
             ...reviews.map((review) {
               return _buildLeftReviewCard(

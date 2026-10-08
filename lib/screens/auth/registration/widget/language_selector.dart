@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../data/network/response/language.dart';
-import '../../../../generated/l10n.dart';
 import '../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../services/theme_manager.dart';
 
@@ -33,7 +33,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
         '_getSelectedLanguagesDisplay called: selectedCodes=${widget.selectedLanguageCodes}, allLanguages=${widget.languages.length}');
 
     if (widget.selectedLanguageCodes.isEmpty) {
-      return S.of(context).nhgngn5;
+      return t('common.selection');
     }
 
     final selectedNames = <String>[];
@@ -48,7 +48,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     }
 
     final result = selectedNames.join(', ');
-    return result.isNotEmpty ? result : S.of(context).nhgngn5;
+    return result.isNotEmpty ? result : t('common.selection');
   }
 
   void _showLanguagesBottomSheet() {
@@ -60,7 +60,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     if (widget.languages.isEmpty && widget.isLoading) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).vfd34),
+          content: Text(t('picker.language_loading')),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 3),
         ),
@@ -71,7 +71,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     if (widget.languages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).bgdfbgfd3),
+          content: Text(t('picker.language_load_failed')),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
@@ -127,7 +127,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                           fontWeight: FontWeight.w500,
                           color: isDark ? WawatDark.textPrimary : Colors.black,
                         ),
-                        child: Text(S.of(context).bgvfd3),
+                        child: Text(t('picker.language_title')),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
@@ -148,7 +148,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                             style: TextStyle(
                               color: isDark ? WawatDark.textMuted : Colors.grey,
                             ),
-                            child: Text(S.of(context).bdg3),
+                            child: Text(t('picker.language_empty')),
                           ),
                         )
                       : ListView.builder(
@@ -171,7 +171,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                                       : Colors.black,
                                 ),
                                 child:
-                                    Text(language.name ?? S.of(context).nhtg5),
+                                    Text(language.name ?? t('picker.language_unknown')),
                               ),
                               subtitle: AnimatedDefaultTextStyle(
                                 duration: const Duration(milliseconds: 300),
@@ -182,7 +182,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                                       : Colors.grey,
                                 ),
                                 child: Text(
-                                    S.of(context).bmy5 + ' ${language.code}'),
+                                    t('picker.code_label') + ' ${language.code}'),
                               ),
                               trailing: isSelected
                                   ? Icon(
@@ -229,7 +229,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                       elevation: 0,
                     ),
                     child: Text(
-                      S.of(context).bnht,
+                      t('promotion.apply'),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -307,7 +307,7 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                           ),
                           child: Text(
                             widget.isLoading
-                                ? S.of(context).bgfbgfb4
+                                ? t('block.loading_more')
                                 : _getSelectedLanguagesDisplay(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

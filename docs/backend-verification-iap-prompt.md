@@ -40,6 +40,9 @@
 
 Создать тот же продукт `wawat.app.verification` (0.99 USD) → **Activate**.
 
+Полный контракт, права service account и checklist проверки описаны в
+[`backend-verification-google-play-iap.md`](backend-verification-google-play-iap.md).
+
 ---
 
 После пунктов 1–3 плитка «App Store / Google Play» в приложении загорится

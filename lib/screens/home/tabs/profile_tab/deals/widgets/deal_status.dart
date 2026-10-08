@@ -3,6 +3,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/localization_service.dart';
+import 'package:buking/services/date_labels.dart';
 import '../../../../../../services/wawat_content.dart';
 
 const dealBrand = Color(0xFF017BFE);
@@ -123,27 +124,12 @@ IconData dealActionIcon(String action) {
 String dealNormalizeAction(String action) =>
     action == 'picked_up' ? 'picked-up' : action;
 
-const _azMonths = [
-  'yanvar',
-  'fevral',
-  'mart',
-  'aprel',
-  'may',
-  'iyun',
-  'iyul',
-  'avqust',
-  'sentyabr',
-  'oktyabr',
-  'noyabr',
-  'dekabr',
-];
-
-/// Formats an ISO date/datetime string as "24 iyul", matching the mockup's date style.
+/// Formats an ISO date/datetime string as "24 İyul", using the CMS month names.
 String dealShortDate(String? iso) {
   if (iso == null || iso.isEmpty) return '';
   final date = DateTime.tryParse(iso);
   if (date == null) return '';
-  return '${date.day} ${_azMonths[date.month - 1]}';
+  return '${date.day} ${monthFull(date.month)}';
 }
 
 String dealPackageLabel(String? code) {

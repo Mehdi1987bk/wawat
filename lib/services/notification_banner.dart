@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
+import 'localization_service.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../presentation/resourses/wawat_dark.dart';
@@ -49,8 +51,10 @@ class NotificationBannerData {
     final messageType = s('messageType') ?? 'text';
     final message = m['message']?.toString().trim() ?? '';
     final preview = messageType == 'image'
-        ? (message.isEmpty ? '📷 Şəkil' : message)
-        : (message.isEmpty ? 'Yeni mesaj' : message);
+        ? (message.isEmpty ? tr('chat.preview.image', '📷 Şəkil') : message)
+        : (message.isEmpty
+            ? tr('notification.new_message.title', 'Yeni mesaj')
+            : message);
     return NotificationBannerData._(
       kind: BannerKind.chat,
       title: s('senderName') ?? 'Wawat Air',

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:buking/generated/l10n.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/city.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
@@ -89,7 +89,7 @@ class _CitySelectorState extends State<CitySelector> {
                     fontWeight: FontWeight.w500,
                     color: widget.isDark ? WawatDark.textPrimary : Colors.black,
                   ),
-                  child: Text(S.of(context).bgrhtrgrfr445),
+                  child: Text(t('picker.city_title')),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -124,7 +124,7 @@ class _CitySelectorState extends State<CitySelector> {
                   color: widget.isDark ? WawatDark.textPrimary : Colors.black,
                 ),
                 decoration: InputDecoration(
-                  hintText: S.of(context).hyrh5h4tgerwfs,
+                  hintText: t('picker.city_search'),
                   hintStyle: TextStyle(
                     fontSize: 15,
                     color: widget.isDark
@@ -207,8 +207,8 @@ class _CitySelectorState extends State<CitySelector> {
                               ),
                               child: Text(
                                 _searchController.text.isEmpty
-                                    ? S.of(context).juu76j5yh4rtge
-                                    : S.of(context).tyju65y4htge3rwfs,
+                                    ? t('picker.city_hint')
+                                    : t('picker.city_empty'),
                               ),
                             ),
                           ],

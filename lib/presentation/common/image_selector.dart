@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../generated/l10n.dart';
 
 Future<ImageSource> showSelectImageSourceAlert(
   BuildContext context,
@@ -10,17 +10,17 @@ Future<ImageSource> showSelectImageSourceAlert(
   ImageSource source = await showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(
-            title: Text(S.of(context).chooseImage),
+            title: Text(t('picker.image_title')),
             actions: <Widget>[
               CupertinoActionSheetAction(
-                child: Text(S.of(context).gallery),
+                child: Text(t('picker.gallery')),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true)
                       .pop(ImageSource.gallery);
                 },
               ),
               CupertinoActionSheetAction(
-                child: Text(S.of(context).camera),
+                child: Text(t('picker.camera')),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true)
                       .pop(ImageSource.camera);
@@ -28,7 +28,7 @@ Future<ImageSource> showSelectImageSourceAlert(
               ),
             ],
             cancelButton: CupertinoActionSheetAction(
-              child: Text(S.of(context).cancel),
+              child: Text(t('common.cancel')),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },

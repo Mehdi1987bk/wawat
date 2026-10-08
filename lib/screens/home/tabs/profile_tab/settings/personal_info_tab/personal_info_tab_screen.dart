@@ -13,7 +13,6 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../../../../data/network/response/country.dart';
 import '../../../../../../data/network/response/user.dart';
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/common/image_selector.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
@@ -155,10 +154,10 @@ class _PersonalInfoTabState
                             ? WawatDark.textSecondary
                             : const Color(0xFF8E8E93),
                       ),
-                      child: Text(S.of(context).bvfdb4btevsf),
+                      child: Text(t('profile.change_photo_hint')),
                     ),
                     const SizedBox(height: 24),
-                    _buildTextField(S.of(context).vrebveg34g3sd,
+                    _buildTextField(t('profile.full_name'),
                         _fullNameController, isDark),
                     const SizedBox(height: 16),
                     _buildTextField(tr('profile.email_label', 'Email'),
@@ -170,7 +169,7 @@ class _PersonalInfoTabState
 
                     // const SizedBox(height: 16),
                     // _buildTextField(
-                    //     S.of(context).bebfdb34g3vs, _locationController, isDark),
+                    //     t('profile.location'), _locationController, isDark),
                     const SizedBox(height: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +182,7 @@ class _PersonalInfoTabState
                             color:
                                 isDark ? WawatDark.textPrimary : Colors.black,
                           ),
-                          child: Text(S.of(context).vrevre43),
+                          child: Text(t('profile.about')),
                         ),
                         const SizedBox(height: 8),
                         TextField(
@@ -268,7 +267,7 @@ class _PersonalInfoTabState
                                     ),
                                   )
                                 : Text(
-                                    S.of(context).grvge3g5,
+                                    t('common.save_changes'),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w500,
@@ -302,7 +301,7 @@ class _PersonalInfoTabState
             fontWeight: FontWeight.w500,
             color: isDark ? WawatDark.textPrimary : Colors.black,
           ),
-          child: Text(S.of(context).vsf3grevsf43),
+          child: Text(t('common.phone')),
         ),
         const SizedBox(height: 8),
         Row(
@@ -423,7 +422,7 @@ class _PersonalInfoTabState
           // 🔥 Проверяем mounted после async операции
           if (!mounted) return;
 
-          showIOSStyleMessage(context, S.of(context).gregre3rg);
+          showIOSStyleMessage(context, t('common.saved'));
           Future.delayed(const Duration(seconds: 2)).then((onValue) {
             if (mounted) {
               bloc.customersMe();
@@ -601,7 +600,7 @@ class _PersonalInfoTabState
       _initialCountry = _selectedCountry;
       bloc.customersMe();
 
-      showIOSStyleMessage(context, S.of(context).nyh5jj53ge);
+      showIOSStyleMessage(context, t('common.saved'));
       _validateForm(); // Пересчитываем валидацию
     } catch (error) {
       if (mounted) {

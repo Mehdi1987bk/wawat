@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_bloc.dart';
-import 'generated/l10n.dart';
 import 'main.dart';
 import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';
@@ -104,8 +103,9 @@ class App extends StatelessWidget {
                 theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
                 darkTheme: _buildDarkTheme(),
                 themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-                localizationsDelegates: [
-                  S.delegate,
+                // UI-строки приходят из CMS через t()/tr(); здесь остаются
+                // только фреймворк-делегаты (системные строки Material/Cupertino).
+                localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
@@ -362,7 +362,7 @@ class _OfflineScreenState extends State<_OfflineScreen> {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          content: Text(S.of(context).noInternetConnection),
+          content: Text(t('error.no_connection')),
         ),
       );
     }
@@ -395,7 +395,7 @@ class _OfflineScreenState extends State<_OfflineScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                S.of(context).noInternetConnection,
+                t('error.no_connection'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: titleColor,
@@ -405,7 +405,8 @@ class _OfflineScreenState extends State<_OfflineScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'İnternet bağlantını yoxla və yenidən cəhd et.',
+                tr('block.error.body',
+                    'İnternet bağlantını yoxla və yenidən cəhd et.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: subColor,
@@ -435,7 +436,7 @@ class _OfflineScreenState extends State<_OfflineScreen> {
                                 strokeWidth: 2.4, color: Colors.white),
                           )
                         : Text(
-                            S.of(context).retry,
+                            t('common.try_again'),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,

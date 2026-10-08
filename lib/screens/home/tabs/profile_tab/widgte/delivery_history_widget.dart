@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import '../../../../../data/network/response/offer_models.dart';
-import '../../../../../generated/l10n.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../home_tab/widget/wawat_courier_card.dart';
@@ -28,7 +28,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
           border: isDark ? Border.all(color: WawatDark.border) : null,
         ),
         child: Text(
-          S.of(context).gbdyh5g,
+          t('deals.history_empty'),
           style: TextStyle(
             fontSize: 16,
             color: isDark ? WawatDark.textMuted : Color(0xFF6B7280),
@@ -55,7 +55,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  S.of(context).bfdgbt5,
+                  t('deals.section.history'),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class DeliveryHistoryWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      S.of(context).bgnhju46,
+                      t('common.show_all'),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

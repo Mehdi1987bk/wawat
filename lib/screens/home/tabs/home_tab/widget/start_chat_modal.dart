@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:buking/presentation/resourses/wawat_dark.dart';
-import '../../../../../generated/l10n.dart';
 import '../../../../../services/theme_manager.dart';
 import '../../profile_tab/settings/experience_tab/experience_tab_screen.dart';
 
@@ -64,7 +64,7 @@ class _StartChatContentState extends State<_StartChatContent> {
 
     if (message.isEmpty) {
       setState(() {
-        _errorMessage = S.of(context).by5htg4refg4tr3few;
+        _errorMessage = t('chat.start.message_required');
       });
       return;
     }
@@ -73,7 +73,7 @@ class _StartChatContentState extends State<_StartChatContent> {
 
     widget.onSuccess?.call(message);
 
-    showIOSStyleMessage(context, S.of(context).ybrfsg4t34gtgrvfedvfd);
+    showIOSStyleMessage(context, t('chat.start.message_sent'));
   }
 
   @override
@@ -156,9 +156,9 @@ class _StartChatContentState extends State<_StartChatContent> {
                                   fontWeight: FontWeight.w500,
                                 ),
                                 child: Text(
-                                  S.of(context).rth435gtre +
+                                  t('common.you') +
                                       ' ${widget.userName} ' +
-                                      S.of(context).brtevrfg45rfs,
+                                      t('chat.start.direct_notice'),
                                 ),
                               ),
                             ),
@@ -177,7 +177,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                               ? WawatDark.textPrimary
                               : const Color(0xFF1A1A1A),
                         ),
-                        child: Text(S.of(context).hrt4h5hte43h454),
+                        child: Text(t('chat.start.message_label')),
                       ),
 
                       const SizedBox(height: 16),
@@ -204,7 +204,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                           maxLines: 5,
                           maxLength: 500,
                           decoration: InputDecoration(
-                            hintText: S.of(context).rthh4ger34f34,
+                            hintText: t('chat.start.message_hint'),
                             hintStyle: TextStyle(
                               color: isDark
                                   ? WawatDark.placeholder
@@ -274,7 +274,7 @@ class _StartChatContentState extends State<_StartChatContent> {
                             borderRadius: BorderRadius.circular(16),
                             child: Center(
                               child: Text(
-                                S.of(context).brg353gffvw34fr3,
+                                t('common.send'),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,

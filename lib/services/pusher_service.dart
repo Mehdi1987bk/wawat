@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
-import 'dart:ui';
+
+import 'localization_service.dart';
 
 typedef PusherMessageCallback = void Function(Map<String, dynamic> data);
 
@@ -568,10 +569,11 @@ class PusherService {
   }
 
   String _languageCode() {
-    final code = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-    if (code == 'uk') return 'ua';
-    const supported = {'az', 'en', 'ru', 'tr', 'ua'};
-    return supported.contains(code) ? code : 'en';
+    // Язык, выбранный в приложении (не язык телефона) — тот же, что уходит
+    // в остальных запросах.
+    final code = LocalizationService.instance.locale;
+    const supported = {'az', 'en', 'ru', 'tr', 'ua', 'es'};
+    return supported.contains(code) ? code : 'az';
   }
 
   void _log(

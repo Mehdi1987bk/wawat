@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:buking/services/localization_service.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../data/network/response/partner_user_response.dart';
-import '../../../../../../generated/l10n.dart';
 import '../../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/theme_manager.dart';
@@ -68,14 +68,14 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isDark ? cText(true) : Colors.black,
                 ),
-                child: Text(S.of(context).bteg4r5344wfvsfdg34wf),
+                child: Text(t('courier.contacts')),
               ),
             ],
           ),
           const SizedBox(height: 16),
           _buildContactItem(
             icon: Icons.phone,
-            title: S.of(context).tbergwf35grwfsvfg43,
+            title: t('common.phone'),
             value: data.user.phone ?? '--',
             iconColor: Colors.green,
             isDark: isDark,
@@ -83,7 +83,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.email,
-            title: S.of(context).emailg34rfvfs,
+            title: t('auth.email_label'),
             value: data.user.email ?? '--',
             iconColor: Colors.grey,
             isDark: isDark,
@@ -91,17 +91,17 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.calendar_today,
-            title: S.of(context).btegr4tfwrg3frwv,
+            title: t('courier.on_platform'),
             value: data.stats.yearsOnPlatform.toString() +
                 " " +
-                S.of(context).etghrwf3fr3,
+                t('receipt.days'),
             iconColor: Colors.purple,
             isDark: isDark,
           ),
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.access_time,
-            title: S.of(context).btergwfe5g34rfecerv,
+            title: t('courier.last_seen'),
             value: _formatResponseTime(data.user.lastSeenAt, context),
             iconColor: Colors.red,
             isDark: isDark,
@@ -125,20 +125,20 @@ class CourierDocumentsTab extends StatelessWidget {
   String _formatResponseTime(String? minutes, BuildContext context) {
     final minutesInt = int.tryParse(minutes ?? '0') ?? 0;
 
-    if (minutesInt == 0) return '0 ' + S.of(context).vre3gg43gv3r3v3rv;
+    if (minutesInt == 0) return '0 ' + t('common.minute_short');
 
     if (minutesInt < 60) {
-      return '$minutesInt ' + S.of(context).vre3gg43gv3r3v3rv;
+      return '$minutesInt ' + t('common.minute_short');
     }
 
     final hours = minutesInt ~/ 60;
     final mins = minutesInt % 60;
     return mins == 0
-        ? '$hours ' + S.of(context).trh34tgvrt4h3g4rwev
+        ? '$hours ' + t('common.hour_short')
         : '$hours ' +
-            S.of(context).trh34tgvrt4h3g4rwev +
+            t('common.hour_short') +
             ' $mins ' +
-            S.of(context).vre3gg43gv3r3v3rv;
+            t('common.minute_short');
   }
 
   Widget _buildProfessionalInfo(bool isDark, BuildContext context) {
@@ -177,17 +177,17 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isDark ? cText(true) : Colors.black,
                 ),
-                child: Text(S.of(context).bterv4gg353r5r35),
+                child: Text(t('courier.professional_info')),
               ),
             ],
           ),
           const SizedBox(height: 16),
           _buildContactItem(
             icon: Icons.stars,
-            title: S.of(context).bteettgr3gt4g3t4tg3,
+            title: t('courier.work_experience'),
             value: professional.experienceYears != null
                 ? '${professional.experienceYears} ' +
-                    S.of(context).tebh4gterw4htgerwf
+                    t('common.year_short')
                 : '--',
             iconColor: Colors.orange,
             isDark: isDark,
@@ -195,10 +195,10 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.fitness_center,
-            title: S.of(context).evr4g653twgrv43gr,
+            title: t('courier.max_weight'),
             value: professional.maxWeightKg != null
                 ? '${professional.maxWeightKg} ' +
-                    S.of(context).ethgr46htgbevgte
+                    t('common.kg')
                 : '--',
             iconColor: Colors.blue,
             isDark: isDark,
@@ -206,7 +206,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.security,
-            title: S.of(context).brtg3rtvebt4rgvbfd,
+            title: t('courier.insurance'),
             value: professional.insuranceUsd != null
                 ? '\$${professional.insuranceUsd}'
                 : '--',
@@ -216,7 +216,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.attach_money,
-            title: S.of(context).vervrefg3gr45t3t4fwr34,
+            title: t('courier.price_range'),
             value:
                 professional.priceFrom != null && professional.priceTo != null
                     ? '\$${professional.priceFrom} - \$${professional.priceTo}'
@@ -227,7 +227,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.schedule,
-            title: S.of(context).beg53gt342feg35g2fw,
+            title: t('courier.work_hours'),
             value: professional.workTimeFrom != null &&
                     professional.workTimeTo != null
                 ? '${_hhmm(professional.workTimeFrom)} - ${_hhmm(professional.workTimeTo)}'
@@ -238,7 +238,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.timer,
-            title: S.of(context).btrg3243g5vfed34ft,
+            title: t('courier.response_time'),
             value: _formatResponseTime(
                 data.professional.responseTimeMinutes, context),
             iconColor: Colors.deepOrange,
@@ -247,7 +247,7 @@ class CourierDocumentsTab extends StatelessWidget {
           const SizedBox(height: 12),
           _buildContactItem(
             icon: Icons.check_circle,
-            title: S.of(context).tegr4rt3542frg3r,
+            title: t('courier.on_time_deliveries'),
             value: professional.onTimePercent != null
                 ? '${professional.onTimePercent}%'
                 : '--',
@@ -333,7 +333,7 @@ class CourierDocumentsTab extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: isDark ? cText(true) : Colors.black,
                 ),
-                child: Text(S.of(context).ki7ju6h5ytg4erf53fw),
+                child: Text(t('courier.spoken_languages')),
               ),
             ],
           ),

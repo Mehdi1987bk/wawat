@@ -437,7 +437,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
                     Navigator.pop(context);
                     if (!conversation.user.hasApiId) {
                       showTopSnackbar(
-                        _t('chat.profile.unavailable',
+                        _t('chat.user_not_found',
                             'İstifadəçi məlumatı tapılmadı.'),
                         false,
                         context,

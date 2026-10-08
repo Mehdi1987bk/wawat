@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ресурсы, на которые ссылаются только по строковому имени (Dart /
+     flutter_local_notifications / android.resource:// URI звука канала в
+     WawatApplication.kt). Шринкер ресурсов таких ссылок не видит и вырезает их
+     из release: без raw/airplane пуш при закрытом приложении приходит без звука. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/airplane,@drawable/ic_notification_large,@drawable/ic_stat_wawat" />

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../generated/l10n.dart';
 import '../../services/localization_service.dart';
 import '../../services/theme_manager.dart';
 import 'base_bloc.dart';
@@ -148,8 +147,8 @@ void showTopSnackbar(
                               children: [
                                 Text(
                                   isSuccess
-                                      ? S.of(context).bfdbdffbdsbf
-                                      : S.of(context).bfdbsdbadfb,
+                                      ? t('common.success_title')
+                                      : t('common.error_title'),
                                   style: TextStyle(
                                     color: isDark ? Colors.white : Colors.black,
                                     fontSize: 16,

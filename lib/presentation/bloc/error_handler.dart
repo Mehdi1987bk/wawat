@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'package:buking/services/localization_service.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../generated/l10n.dart';
 import '../../main.dart';
 
 String parseError(dynamic error, BuildContext context) {
@@ -27,13 +27,13 @@ String? _parseDioError(
   switch (error.type) {
     case DioErrorType.unknown: // Updated from "other" to "unknown"
       if (error.error is SocketException) {
-        message = S.of(context).noInternetConnection;
+        message = t('error.no_connection');
       } else {
         if (error.error is Response) {
           final dioError = (error.error as Response).data.toString();
           message = dioError;
         } else {
-          message = S.of(context).somethingWentWrong;
+          message = t('common.error');
         }
       }
       break;
@@ -46,7 +46,7 @@ String? _parseDioError(
       }
       break;
     default:
-      message = S.of(context).somethingWentWrong;
+      message = t('common.error');
   }
   return message;
 }

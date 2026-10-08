@@ -41,6 +41,9 @@ class LocalizationService extends ChangeNotifier {
   /// сверка с сервером по ETag (в фоне; 304 → кэш актуален).
   Future<void> load(String locale, {bool force = false}) async {
     _locale = normalize(locale);
+    // Держим WawatContent в курсе языка: от него зависит ключ кэша групп и
+    // параметр lang группового запроса /content.
+    WawatContent.locale = _locale;
     final prefs = await SharedPreferences.getInstance();
 
     // 1) мгновенно из диска — чтобы UI не ждал сеть.
@@ -99,11 +102,14 @@ class LocalizationService extends ChangeNotifier {
   }
 
   /// Перевод ключа `group.key`. Подстановка {placeholder} из [params].
-  /// Fallback: AZ-строка из [WawatContent.fallbacks], иначе сам ключ.
+  ///
+  /// Fallback: CMS-значение → аварийная AZ-строка из [WawatContent.fallbacks] →
+  /// пустая строка. Сам ключ пользователю НЕ показываем никогда (требование
+  /// владельца): лучше пусто, чем `search.post_opposite_soon` в тосте.
   String t(String key, [Map<String, String>? params]) {
     final raw = _map[key];
     var value = (raw == null || raw.trim().isEmpty || raw == key)
-        ? (WawatContent.fallbacks[key] ?? key)
+        ? (WawatContent.fallbacks[key] ?? '')
         : raw;
     if (params != null && params.isNotEmpty) {
       params.forEach((k, v) => value = value.replaceAll('{$k}', v));

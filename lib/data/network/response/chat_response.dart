@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:buking/services/localization_service.dart';
+
 enum ChatMessageDeliveryStatus {
   sending,
   sent,
@@ -122,16 +124,25 @@ class ChatUser {
     if (lastSeen == null) return '';
     final now = DateTime.now();
     final diff = now.difference(lastSeen);
-    if (diff.inMinutes < 1) return 'indicə aktiv idi';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} dəq əvvəl aktiv';
+    if (diff.inMinutes < 1) {
+      return tr('chat.presence.just_now', 'indicə aktiv idi');
+    }
+    if (diff.inMinutes < 60) {
+      return tr('chat.presence.minutes_ago', '{count} dəq əvvəl aktiv',
+          {'count': '${diff.inMinutes}'});
+    }
 
     String two(int v) => v.toString().padLeft(2, '0');
     final time = '${two(lastSeen.hour)}:${two(lastSeen.minute)}';
     final today = DateTime(now.year, now.month, now.day);
     final thatDay = DateTime(lastSeen.year, lastSeen.month, lastSeen.day);
     final dayGap = today.difference(thatDay).inDays;
-    if (dayGap == 0) return 'bu gün $time';
-    if (dayGap == 1) return 'dünən $time';
+    if (dayGap == 0) {
+      return tr('chat.presence.today_at', 'bu gün {time}', {'time': time});
+    }
+    if (dayGap == 1) {
+      return tr('chat.presence.yesterday_at', 'dünən {time}', {'time': time});
+    }
     return '${two(lastSeen.day)}.${two(lastSeen.month)}.${lastSeen.year}';
   }
 }
@@ -232,8 +243,8 @@ class ChatReplyRef {
 
   /// One-line preview for the quote / reply bar.
   String get previewText {
-    if (type == 'image') return 'Şəkil';
-    if (type == 'system_card') return body ?? 'Sövdələşmə';
+    if (type == 'image') return tr('chat.attach.image', 'Şəkil');
+    if (type == 'system_card') return body ?? tr('deals.status_deal', 'Sövdələşmə');
     return body ?? '';
   }
 
@@ -245,7 +256,7 @@ class ChatReplyRef {
   }) {
     final img = message.image?.url ?? message.file?.url;
     final name = quotedIsMine
-        ? 'Sən'
+        ? tr('chat.preview.you', 'Sən')
         : (message.user?.fullname.trim().isNotEmpty ?? false
             ? message.user!.fullname
             : (peerName ?? ''));
@@ -421,7 +432,7 @@ class ChatMessage {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
     if (messageDate == today.subtract(const Duration(days: 1))) {
-      return 'Dünən';
+      return tr('common.yesterday', 'Dünən');
     }
     return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
   }
@@ -476,9 +487,9 @@ class Conversation {
   String lastMessagePreview(BuildContext context) {
     if (lastMessage == null) return '';
     if (lastMessage!.isDeleted) return '';
-    if (lastMessage!.type == 'image') return 'Şəkil';
+    if (lastMessage!.type == 'image') return tr('chat.attach.image', 'Şəkil');
     if (lastMessage!.type == 'system_card') {
-      return lastMessage!.card?.label ?? 'Təklif';
+      return lastMessage!.card?.label ?? tr('deals.proposal', 'Təklif');
     }
     return lastMessage!.body ?? '';
   }
