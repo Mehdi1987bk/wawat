@@ -61,17 +61,23 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
           icon: PhosphorIconsBold.squaresFour,
           accent: _Accent.brand,
         ),
+        // Вопрос звучит «Кого вы ищете?», значит ответ — человек в винительном
+        // падеже: «Путешественника» / «Отправителя». Ключи search.type_* как раз
+        // в этом падеже и уже используются на вкладке поиска. Здесь по ошибке
+        // стояли enum.listing_type.*, то есть название типа объявления
+        // («Поездка» / «Отправление»), и на главном экране ответ не согласовался
+        // с вопросом.
         _TypeOption(
           value: 'trip',
           label: WawatContent.text(
-              widget.content, 'enum.listing_type.trip', 'Səfər'),
+              widget.content, 'search.type_trip', 'Səyahətçi'),
           icon: PhosphorIconsBold.airplaneTilt,
           accent: _Accent.brand,
         ),
         _TypeOption(
           value: 'shipment_post',
           label: WawatContent.text(
-              widget.content, 'enum.listing_type.shipment_post', 'Göndəriş'),
+              widget.content, 'search.type_shipment', 'Göndərən'),
           icon: PhosphorIconsBold.package,
           accent: _Accent.amber,
         ),
