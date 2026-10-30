@@ -100,6 +100,17 @@ class _BottomBarState extends State<BottomBar> {
                         onChanged: widget.onChanged,
                         isDark: isDark,
                       ),
+                      // Радар — такая же вкладка, как остальные: индекс 5,
+                      // свой корневой экран в стеке вкладок. В ряду он стоит
+                      // третьим, как в макете.
+                      BottomNavigationItem(
+                        index: 5,
+                        selectedIndex: widget.selectedIndex,
+                        label: tr('menu.nav_radar', 'Radar'),
+                        icon: PhosphorIconsRegular.globeHemisphereEast,
+                        onChanged: widget.onChanged,
+                        isDark: isDark,
+                      ),
                       _CenterPostButton(
                         onTap: () => widget.onChanged(2),
                       ),

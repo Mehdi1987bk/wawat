@@ -27,6 +27,7 @@ import '../listings/details/listing_details_screen.dart';
 import '../listings/listing_feed_bloc.dart';
 import '../../../../services/telemetry/telemetry.dart';
 import '../../../../services/telemetry/telemetry_events.dart';
+import '../../../flight/ui/flight_entry_card.dart';
 import '../listings/widgets/listing_card.dart';
 import 'home_tab_bloc.dart';
 import 'notification/notification_screen.dart';
@@ -147,6 +148,11 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
                         notificationBloc: _notificationBloc,
                         listingBloc: _listingBloc,
                         content: content,
+                      ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: FlightEntryCard(
+                        margin: EdgeInsets.only(left: 24, right: 24, top: 20),
                       ),
                     ),
                     SliverToBoxAdapter(

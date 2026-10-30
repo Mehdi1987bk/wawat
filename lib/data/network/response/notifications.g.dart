@@ -28,13 +28,14 @@ class NotificationsAdapter extends TypeAdapter<Notifications> {
       notifySavedSearch: fields[8] as bool?,
       quietHoursStart: fields[9] as String?,
       quietHoursEnd: fields[10] as String?,
+      notifyFlights: fields[11] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Notifications obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.notifyNewMessages)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class NotificationsAdapter extends TypeAdapter<Notifications> {
       ..writeByte(9)
       ..write(obj.quietHoursStart)
       ..writeByte(10)
-      ..write(obj.quietHoursEnd);
+      ..write(obj.quietHoursEnd)
+      ..writeByte(11)
+      ..write(obj.notifyFlights);
   }
 
   @override
@@ -87,6 +90,7 @@ Notifications _$NotificationsFromJson(Map<String, dynamic> json) =>
       notifySavedSearch: json['notify_saved_search'] as bool?,
       quietHoursStart: json['quiet_hours_start'] as String?,
       quietHoursEnd: json['quiet_hours_end'] as String?,
+      notifyFlights: json['notify_flights'] as bool?,
     );
 
 Map<String, dynamic> _$NotificationsToJson(Notifications instance) =>
@@ -102,4 +106,5 @@ Map<String, dynamic> _$NotificationsToJson(Notifications instance) =>
       'notify_saved_search': instance.notifySavedSearch,
       'quiet_hours_start': instance.quietHoursStart,
       'quiet_hours_end': instance.quietHoursEnd,
+      'notify_flights': instance.notifyFlights,
     };
