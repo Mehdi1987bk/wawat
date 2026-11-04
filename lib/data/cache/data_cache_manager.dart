@@ -19,9 +19,6 @@ const _userKey = 'UserKey';
 const _firstOpen = 'FirstOpen';
 late final Box settingsBox;
 
-// Поддерживаемые языки приложения — держать в синхроне с
-// MaterialApp.supportedLocales в wawat_app.dart (иначе телефон на этом языке при
-// первом запуске откроется на английском вместо своего языка).
 const _supportedLanguageCodes = ['ru', 'uk', 'az', 'en', 'tr', 'es'];
 
 class DataCacheManager implements CacheManager {
@@ -126,18 +123,14 @@ class DataCacheManager implements CacheManager {
     }
   }
 
-  /// Определяет подходящий язык на основе системного языка устройства
   Locale _getDeviceLocaleIfSupported() {
-    // Получаем системный язык устройства
     final deviceLocale = PlatformDispatcher.instance.locale;
     final deviceLanguageCode = deviceLocale.languageCode;
 
-    // Если системный язык поддерживается - используем его
     if (_supportedLanguageCodes.contains(deviceLanguageCode)) {
       return Locale(deviceLanguageCode);
     }
 
-    // Иначе возвращаем английский по умолчанию
     return const Locale('en');
   }
 
@@ -146,11 +139,9 @@ class DataCacheManager implements CacheManager {
     final box = await _settingsBox;
     final savedLocale = box.get(_localeKey);
 
-    // Если локаль не была сохранена ранее - определяем по системному языку
     Locale initialLocale;
     if (savedLocale == null) {
       initialLocale = _getDeviceLocaleIfSupported();
-      // Сохраняем определённый язык для последующих запусков
       await box.put(_localeKey, initialLocale.languageCode);
     } else {
       initialLocale = Locale(savedLocale);
@@ -172,9 +163,6 @@ class DataCacheManager implements CacheManager {
 
   @override
   Locale? getLocale() {
-    // Uses the already-open settings box synchronously; if it isn't open yet or
-    // no locale was saved, fall back to the device language instead of crashing
-    // on Locale(null). (getLocaleAsync is the async-safe path used at boot.)
     try {
       final code = Hive.box(_settingsCache).get(_localeKey) as String?;
       if (code == null || code.isEmpty) return _getDeviceLocaleIfSupported();
@@ -189,7 +177,6 @@ class DataCacheManager implements CacheManager {
     final box = await _settingsBox;
     final languageCode = box.get(_localeKey);
     if (languageCode == null) {
-      // Если не сохранено - вернуть системный язык
       return _getDeviceLocaleIfSupported();
     }
     return Locale(languageCode);

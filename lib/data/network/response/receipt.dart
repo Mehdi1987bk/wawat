@@ -1,24 +1,17 @@
-/// Unified payment receipt — the backend attaches the SAME `receipt` block to
-/// every payment response (promotions/VIP, listing-quota, and future types), so
-/// the app has one receipt view for all of them. Differ only by [kind] for the
-/// icon/heading; everything else is printed straight from the fields (already
-/// localized by the backend). The PDF is rendered by the backend ([pdfUrl]).
 class Receipt {
-  final String kind; // promotion | listing_quota | verification
-  final String number; // WA-XXXXXXXX
-  final String title; // localized, e.g. "VİP · Qızıl · 7 gün"
+  final String kind;
+  final String number;
+  final String title;
   final double amount;
   final String currency;
-  final String status; // paid | awaiting_provider | failed | refunded | none
-  final bool isPaid; // show the "receipt" button ONLY when true
+  final String status;
+  final bool isPaid;
   final String? paidAt;
-  final String? method; // card | balance | null
-  final String? reference; // payment number, e.g. mock_…
-  final List<ReceiptItem> items; // localized label/value rows for the PDF
+  final String? method;
+  final String? reference;
+  final List<ReceiptItem> items;
   final String supportEmail;
 
-  /// Server-rendered PDF (`GET /receipts/{kind}/{id}/pdf`, Bearer auth).
-  /// Null until the payment has gone through — no PDF button then.
   final String? pdfUrl;
 
   const Receipt({
@@ -59,8 +52,6 @@ class Receipt {
     );
   }
 
-  /// Pulls the receipt out of a payment response body, tolerating either a
-  /// root-level `receipt` or a nested `data.receipt`.
   static Receipt? fromResponse(Map<String, dynamic>? body) {
     if (body == null) return null;
     final root = body['receipt'];

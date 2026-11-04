@@ -9,12 +9,9 @@ import '../../../../../presentation/bloc/base_bloc.dart';
 class VerificationBloc extends BaseBloc {
   final authRepository = sl.get<AuthRepository>();
 
-  /// Current verification state + intro fee (`GET /verification`).
   Future<VerificationSnapshot> getVerification() =>
       authRepository.getVerification();
 
-  /// Pay the activation fee (`POST /verification/pay`). [method] is `card`
-  /// today; [idempotencyKey] stays stable across retries of one request.
   Future<VerificationPayResult> payVerification({
     String method = 'card',
     String? idempotencyKey,
@@ -27,7 +24,6 @@ class VerificationBloc extends BaseBloc {
   Future<List<DocumentType>> loadDocumentTypes() =>
       authRepository.getDocumentTypes();
 
-  /// Submit the chosen ID document type + selfie in one request.
   Future<void> submitVerification({
     required String idType,
     required File idFile,

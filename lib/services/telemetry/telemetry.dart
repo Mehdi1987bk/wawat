@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart' show DioException;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
@@ -11,28 +12,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../network_failure.dart';
 import 'backend_telemetry_sink.dart';
 import 'telemetry_consent.dart';
 import 'telemetry_events.dart';
 import 'telemetry_redactor.dart';
 
-/// Единая точка входа для всей телеметрии приложения.
-///
-/// Один вызов — три приёмника:
-///  • **Firebase Analytics** — продуктовые события и экраны (воронки, retention);
-///  • **Firebase Crashlytics** — падения, не-фатальные ошибки, хлебные крошки;
-///  • **Панель бэкенда** — то же самое, но в одном окне вместе с серверными
-///    ошибками (см. [BackendTelemetrySink] и `docs/backend-observability-PROMPT.md`).
-///
-/// Три принципа, на которых держится этот класс:
-///  1. **Телеметрия не имеет права уронить приложение.** Каждый внешний вызов
-///     обёрнут; при отсутствии Google Play Services (Firebase не поднялся)
-///     фасад молча работает вхолостую — приложение уже рассчитано на это,
-///     см. `main.dart`.
-///  2. **Персональные данные не покидают устройство.** Всё проходит через
-///     [TelemetryRedactor] — это то, что мы заявляем в App Privacy и Data safety.
-///  3. **Согласие уважается на лету.** Выключение тумблера в настройках
-///     немедленно останавливает сбор во всех трёх приёмниках.
 class Telemetry with WidgetsBindingObserver {
   Telemetry._();
 
@@ -52,22 +37,14 @@ class Telemetry with WidgetsBindingObserver {
   String? _currentScreen;
   String? _userId;
 
-  /// Готов ли Firebase. `false` на устройствах без Play Services — тогда
-  /// работает только зеркало на бэкенд.
   bool get isFirebaseReady => _firebaseReady;
 
   String? get currentScreen => _currentScreen;
 
   FirebaseAnalytics? get analytics => _analytics;
 
-  /// Снимок окружения: версия приложения, модель, ОС. Уходит и в Crashlytics
-  /// (как custom keys), и в каждую пачку на бэкенд.
   Map<String, Object?> get context => Map.unmodifiable(_context);
 
-  // ── Инициализация ───────────────────────────────────────────────────────
-
-  /// [firebaseReady] — результат `Firebase.initializeApp()` в `main()`.
-  /// Вызывать **после** `Firebase.initializeApp`, но **до** `runApp`.
   Future<void> init({
     required bool firebaseReady,
     required String baseUrl,
@@ -91,8 +68,6 @@ class Telemetry with WidgetsBindingObserver {
         await _applyConsent();
         await _pushContextToCrashlytics();
       } catch (e) {
-        // Firebase есть, но какой-то из модулей не поднялся — работаем дальше
-        // на тех, что есть.
         debugPrint('Telemetry: Firebase modules partially unavailable: $e');
       }
     }
@@ -120,33 +95,12 @@ class Telemetry with WidgetsBindingObserver {
     }
   }
 
-  /// Оборачивает **весь** `main`, чтобы асинхронные ошибки вне дерева виджетов
-  /// (таймеры, стримы, `Future` без `catchError`) тоже доезжали до Crashlytics.
-  ///
-  /// `PlatformDispatcher.onError` ловит не всё: ошибки, возникшие в зоне,
-  /// созданной до его установки, проходят мимо. Поэтому — обе защиты сразу.
-  ///
-  /// Внутрь обязательно должен попасть и `WidgetsFlutterBinding
-  /// .ensureInitialized()`: биндинг и `runApp` в разных зонах дают
-  /// «Zone mismatch» от `BindingBase.debugCheckZone`.
   static void runGuarded(void Function() body) {
     runZonedGuarded(body, (error, stack) {
       Telemetry.instance._reportUncaught(error, stack, 'uncaught_zone_error');
     });
   }
 
-  /// Необработанная асинхронная ошибка Dart.
-  ///
-  /// Пишется как **non-fatal**, и это осознанно. В release необработанная
-  /// ошибка `Future` не убивает процесс — приложение продолжает работать.
-  /// Если помечать такие ошибки фатальными, один «висячий» `Future` (например,
-  /// прогрев словаря, который ответил 404) превращает каждый запуск в
-  /// «падение»: crash-free rate уезжает в ноль, Android vitals поднимает флаг
-  /// плохого поведения, а реальные падения тонут в этом шуме. Настоящие
-  /// падения процесса ловит нативный SDK Crashlytics и помечает фатальными сам.
-  ///
-  /// В нашей панели такая ошибка всё равно приходит с severity `error` и
-  /// отправляется немедленно, так что видно её сразу.
   void _reportUncaught(Object error, StackTrace? stack, String reason) {
     error0(error, stack, reason: reason, urgent: true);
   }
@@ -155,8 +109,6 @@ class Telemetry with WidgetsBindingObserver {
     final previousOnError = FlutterError.onError;
 
     FlutterError.onError = (FlutterErrorDetails details) {
-      // В debug оставляем красный экран и вывод в консоль — иначе разработка
-      // превращается в угадайку.
       previousOnError?.call(details);
       if (kDebugMode) {
         FlutterError.presentError(details);
@@ -164,13 +116,11 @@ class Telemetry with WidgetsBindingObserver {
       unawaited(_recordFlutterError(details));
     };
 
-    // Ошибки движка/платформы вне зоны Flutter (жесты, каналы, микротаски).
     PlatformDispatcher.instance.onError = (error, stack) {
       _reportUncaught(error, stack, 'platform_dispatcher');
       return true;
     };
 
-    // Падения в фоновых изолятах (парсинг JSON через compute и т.п.).
     Isolate.current.addErrorListener(RawReceivePort((dynamic pair) {
       final list = pair as List<dynamic>;
       final err = list.first;
@@ -182,6 +132,7 @@ class Telemetry with WidgetsBindingObserver {
   }
 
   Future<void> _recordFlutterError(FlutterErrorDetails details) async {
+    if (_reportedAsConnectivity(details.exception, details.library)) return;
     if (!TelemetryConsent.instance.crashReportsEnabled) return;
     final library = details.library ?? 'flutter';
     try {
@@ -206,8 +157,6 @@ class Telemetry with WidgetsBindingObserver {
       TelemetryParams.screen: _currentScreen,
     });
   }
-
-  // ── Согласие и контекст ─────────────────────────────────────────────────
 
   Future<void> _applyConsent() async {
     final consent = TelemetryConsent.instance;
@@ -262,10 +211,6 @@ class Telemetry with WidgetsBindingObserver {
     }
   }
 
-  // ── Идентификация пользователя ──────────────────────────────────────────
-
-  /// Привязывает поток к пользователю. [userId] — внутренний id, **не** телефон
-  /// и не e-mail: Firebase прямо запрещает класть PII в `setUserId`.
   Future<void> identify(
     String? userId, {
     Map<String, String?> properties = const {},
@@ -284,11 +229,6 @@ class Telemetry with WidgetsBindingObserver {
     await setUserProperties(properties);
   }
 
-  /// Обновляет свойства, **не трогая** личность пользователя.
-  ///
-  /// Отдельный метод нужен, потому что часть свойств известна вне зависимости
-  /// от логина (разрешение на пуши, тема, язык), а вызов `identify(null, …)`
-  /// ради них стёр бы `user_id` и разорвал связь событий с пользователем.
   Future<void> setUserProperties(Map<String, String?> properties) async {
     for (final entry in properties.entries) {
       final value = entry.value;
@@ -307,8 +247,6 @@ class Telemetry with WidgetsBindingObserver {
     }
   }
 
-  /// Сбрасывает личность при логауте, чтобы события гостя не приписались
-  /// предыдущему пользователю.
   Future<void> clearIdentity() async {
     _userId = null;
     _context.remove('user_id');
@@ -320,14 +258,6 @@ class Telemetry with WidgetsBindingObserver {
     } catch (_) {}
   }
 
-  // ── События ─────────────────────────────────────────────────────────────
-
-  /// Продуктовое событие. Имя и параметры нормализуются под лимиты Firebase.
-  ///
-  /// [severity] влияет только на зеркало в панели: она ранжирует проблемы по
-  /// весу серьёзности, поэтому сетевой сбой должен приезжать как `warning`/
-  /// `error`, а не теряться среди обычных `info`-событий. В Firebase Analytics
-  /// уходит одинаково — там понятия severity нет.
   void event(
     String name, {
     Map<String, Object?>? params,
@@ -348,8 +278,6 @@ class Telemetry with WidgetsBindingObserver {
     );
   }
 
-  /// Просмотр экрана. Вызывается автоматически из `BaseState.initState`
-  /// и из [TelemetryRouteObserver], руками — только для экранов вне них.
   Future<void> screen(String name, {String? screenClass}) async {
     final safe = TelemetrySchema.name(name);
     if (_currentScreen == safe) return;
@@ -373,9 +301,6 @@ class Telemetry with WidgetsBindingObserver {
     );
   }
 
-  /// Хлебная крошка: не уходит в Analytics, но прикрепляется к следующему
-  /// отчёту об ошибке — именно она отвечает на вопрос «что юзер делал перед
-  /// падением».
   void breadcrumb(String message) {
     final line =
         '${DateTime.now().toIso8601String()} ${TelemetryRedactor.redact(message, maxLength: 160)}';
@@ -389,9 +314,6 @@ class Telemetry with WidgetsBindingObserver {
     } catch (_) {}
   }
 
-  /// Ошибка приложения. [fatal] `true` — только для действительно фатальных
-  /// (необработанные исключения); всё остальное — non-fatal, чтобы не портить
-  /// crash-free rate, по которому нас оценивают сторы.
   Future<void> error(
     Object error,
     StackTrace? stack, {
@@ -402,12 +324,6 @@ class Telemetry with WidgetsBindingObserver {
     error0(error, stack, reason: reason, fatal: fatal, context: context);
   }
 
-  /// Синхронный вариант [error] — нужен в местах, где нельзя ждать `Future`
-  /// (обработчики `PlatformDispatcher.onError`, `Isolate.addErrorListener`).
-  ///
-  /// [urgent] отправляет пачку на бэкенд немедленно, не дожидаясь планового
-  /// сброса: после необработанной ошибки приложение может не пережить
-  /// следующие 30 секунд.
   void error0(
     Object error,
     StackTrace? stack, {
@@ -416,6 +332,8 @@ class Telemetry with WidgetsBindingObserver {
     bool urgent = false,
     Map<String, Object?>? context,
   }) {
+    if (!fatal && _reportedAsConnectivity(error, reason)) return;
+
     final type = error.runtimeType.toString();
     final message = TelemetryRedactor.redact(error.toString());
 
@@ -433,7 +351,6 @@ class Telemetry with WidgetsBindingObserver {
           ],
         ));
       } catch (_) {
-        // SDK недоступен — не мешаем работе приложения.
       }
     }
 
@@ -448,8 +365,6 @@ class Telemetry with WidgetsBindingObserver {
 
     _sendToBackend(
       type: 'error',
-      // Необработанные ошибки отделяем от «пойманных, но записанных»:
-      // в панели это разные по срочности вещи.
       name: fatal
           ? 'fatal_error'
           : (urgent ? 'uncaught_error' : TelemetryEvents.appError),
@@ -470,10 +385,26 @@ class Telemetry with WidgetsBindingObserver {
     }
   }
 
-  // ── Firebase Performance ────────────────────────────────────────────────
+  bool _reportedAsConnectivity(Object error, String? reason) {
+    if (error is DioException &&
+        NetworkFailure.of(error).kind == NetworkFailureKind.rateLimited) {
+      return true;
+    }
+    if (!NetworkFailure.isConnectivity(error)) return false;
+    if (error is! DioException) {
+      event(
+        TelemetryEvents.networkError,
+        params: {
+          TelemetryParams.errorType: error.runtimeType.toString(),
+          TelemetryParams.reason: reason,
+          TelemetryParams.isOffline: NetworkFailure.isNoLink(error),
+        },
+        severity: 'warning',
+      );
+    }
+    return true;
+  }
 
-  /// Замеряет длительность произвольной операции (открытие экрана, парсинг,
-  /// генерация PDF). Возвращает результат [body] как есть; ошибки пробрасывает.
   Future<T> trace<T>(
     String name,
     Future<T> Function() body, {
@@ -500,11 +431,6 @@ class Telemetry with WidgetsBindingObserver {
     }
   }
 
-  /// Метрика сетевого запроса для Performance Monitoring.
-  ///
-  /// Автоматическая инструментализация Firebase не видит запросы Dio: трафик
-  /// идёт через `dart:io` HttpClient мимо OkHttp/NSURLSession-свизлинга.
-  /// Поэтому метрику заводим руками из [TelemetryInterceptor].
   HttpMetric? newHttpMetric(String url, HttpMethod method) {
     if (!TelemetryConsent.instance.analyticsEnabled) return null;
     try {
@@ -513,8 +439,6 @@ class Telemetry with WidgetsBindingObserver {
       return null;
     }
   }
-
-  // ── Жизненный цикл приложения ───────────────────────────────────────────
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -525,8 +449,6 @@ class Telemetry with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         event(TelemetryEvents.appBackground);
-        // Последний шанс доставить накопленное до того, как ОС заморозит
-        // или убьёт процесс.
         unawaited(BackendTelemetrySink.instance.flushOnPause());
         break;
       default:
@@ -534,19 +456,23 @@ class Telemetry with WidgetsBindingObserver {
     }
   }
 
-  // ── Внутреннее ──────────────────────────────────────────────────────────
-
   void _logAnalytics(String name, Map<String, Object?> params) {
     if (!TelemetryConsent.instance.analyticsEnabled) return;
     final a = _analytics;
     if (a == null) return;
+    final safeName = TelemetrySchema.name(name);
     try {
       final safe = TelemetrySchema.params(params);
-      unawaited(a.logEvent(
-        name: TelemetrySchema.name(name),
-        parameters: safe.isEmpty ? null : safe,
-      ));
-    } catch (_) {}
+      unawaited(
+        a
+            .logEvent(name: safeName, parameters: safe.isEmpty ? null : safe)
+            .catchError((Object e) {
+          debugPrint('Analytics отклонил событие "$safeName": $e');
+        }),
+      );
+    } catch (e) {
+      debugPrint('Analytics отклонил событие "$safeName": $e');
+    }
   }
 
   void _sendToBackend({
@@ -558,12 +484,6 @@ class Telemetry with WidgetsBindingObserver {
     String? fingerprint,
     bool withBreadcrumbs = false,
   }) {
-    // Всё, что выше `info`, — диагностика (падения, сбои сети, медленные
-    // запросы) и подчиняется тумблеру «Nasazlıq hesabatları». Обычные
-    // продуктовые события — тумблеру «İstifadə statistikası». Разделение
-    // именно такое, потому что так эти два тумблера и подписаны для
-    // пользователя; иначе выключение «статистики» тихо гасило бы и
-    // сообщения о поломках.
     final isDiagnostic = severity != 'info';
     final allowed = isDiagnostic
         ? TelemetryConsent.instance.crashReportsEnabled
@@ -590,9 +510,6 @@ class Telemetry with WidgetsBindingObserver {
     ));
   }
 
-  /// Стабильный ключ группировки: тип ошибки + первые кадры стека без номеров
-  /// строк. Даёт то же поведение, что и группировка Crashlytics, но на нашей
-  /// стороне — панель показывает «одна проблема, 412 раз», а не 412 строк.
   String _fingerprint(String type, StackTrace? stack) {
     final frames = (stack?.toString() ?? '')
         .split('\n')
@@ -605,7 +522,6 @@ class Telemetry with WidgetsBindingObserver {
   }
 
   static String _hash(String input) {
-    // FNV-1a 32-bit: короткий, детерминированный, без зависимостей.
     var hash = 0x811c9dc5;
     for (final code in input.codeUnits) {
       hash ^= code;
@@ -626,8 +542,5 @@ class Telemetry with WidgetsBindingObserver {
     );
   }
 
-  /// Тестовое падение — нужно один раз после подключения, чтобы убедиться, что
-  /// dSYM/mapping загружены и отчёт доходит до консоли.
-  /// Вызывать только вручную из отладочной сборки.
   void forceCrashForTesting() => _crashlytics?.crash();
 }

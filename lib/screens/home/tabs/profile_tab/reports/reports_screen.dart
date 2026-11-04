@@ -7,7 +7,6 @@ import 'package:buking/services/date_labels.dart';
 
 import 'reports_api.dart';
 
-// ── palette ──────────────────────────────────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _ink900 = Color(0xFF0F172A);
 const _ink700 = Color(0xFF334155);
@@ -367,7 +366,6 @@ String _reportTitle(String type) {
   }
 }
 
-// ── Detail ───────────────────────────────────────────────────────────────────
 class ReportDetailScreen extends StatefulWidget {
   final Report report;
 
@@ -557,7 +555,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
 class _Step {
   final String title;
   final String? subtitle;
-  final String state; // done | active | future
+  final String state;
   const _Step(this.title, this.subtitle, this.state);
 }
 
@@ -641,7 +639,6 @@ class _Timeline extends StatelessWidget {
   }
 }
 
-// ── Skeleton + error ─────────────────────────────────────────────────────────
 class _Skeleton extends StatelessWidget {
   const _Skeleton();
 

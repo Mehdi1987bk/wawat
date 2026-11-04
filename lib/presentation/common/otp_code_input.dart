@@ -5,12 +5,6 @@ import 'package:provider/provider.dart';
 import '../resourses/wawat_dark.dart';
 import '../../services/theme_manager.dart';
 
-/// Reusable OTP code field: a row of rounded cells with digit-only input,
-/// auto-advance, backspace-to-previous, whole-code paste distribution and
-/// platform one-time-code autofill.
-///
-/// Each cell animates as it fills / focuses (brand-tinted fill + border + a
-/// soft lift) so entering the code feels responsive.
 class OtpCodeInput extends StatefulWidget {
   const OtpCodeInput({
     super.key,
@@ -22,18 +16,14 @@ class OtpCodeInput extends StatefulWidget {
     this.resetToken = 0,
   });
 
-  /// Called on every change with the full joined code (may be < [length]).
   final ValueChanged<String> onChanged;
 
-  /// Called once the code reaches [length] digits.
   final ValueChanged<String>? onCompleted;
 
   final int length;
   final bool enabled;
   final bool hasError;
 
-  /// Bump this value to clear every cell and focus the first one (used after a
-  /// failed verify or a resend).
   final int resetToken;
 
   @override
@@ -51,8 +41,6 @@ class _OtpCodeInputState extends State<OtpCodeInput> {
     super.initState();
     _controllers = List.generate(widget.length, (_) => TextEditingController());
     _nodes = List.generate(widget.length, (_) => FocusNode());
-    // Repaint the cells as they fill (controller) and focus (node) so the
-    // active / filled styling tracks the real state.
     for (final c in _controllers) {
       c.addListener(_repaint);
     }
@@ -97,9 +85,6 @@ class _OtpCodeInputState extends State<OtpCodeInput> {
     }
   }
 
-  /// Spread a pasted / autofilled multi-digit string across the cells from the
-  /// first one. Setting `.text` programmatically does not re-fire onChanged, so
-  /// there is no recursion here.
   void _distribute(String digits) {
     final take = digits.length > widget.length
         ? digits.substring(0, widget.length)

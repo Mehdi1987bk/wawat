@@ -19,8 +19,6 @@ class ConversationItem extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onTapMenu;
 
-  /// Localized "message deleted" text, shown as the preview when the last
-  /// message is a deleted tombstone.
   final String? deletedLabel;
 
   const ConversationItem({
@@ -43,7 +41,6 @@ class ConversationItem extends StatelessWidget {
           : (isDark ? WawatDark.surface : Colors.white),
       child: InkWell(
         onTap: onTap,
-        // Long-press anywhere on the row opens the same options as the 3-dots.
         onLongPress: onTapMenu,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -199,8 +196,6 @@ class _Avatar extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // Dim the avatar a touch when the peer is blocked, so the row reads as
-        // muted even before the badge registers.
         Opacity(
           opacity: blocked ? 0.55 : 1,
           child: CircleAvatar(
@@ -223,8 +218,6 @@ class _Avatar extends StatelessWidget {
                 : null,
           ),
         ),
-        // Blocked takes precedence over the online dot — a blocked peer must not
-        // read as "online".
         if (blocked)
           Positioned(
             right: -2,
@@ -270,8 +263,6 @@ class _PreviewIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // A deleted last message overrides its original type icon with a prohibit
-    // mark, matching the tombstone in the thread.
     final icon = deleted
         ? PhosphorIconsRegular.prohibit
         : switch (type) {

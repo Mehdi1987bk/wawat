@@ -62,7 +62,7 @@ class PromoCodesBloc extends BaseBloc {
 class PromoState {
   final Map<String, String> content;
   final List<PromoCode> items;
-  final String tab; // active | used | expired
+  final String tab;
   final int activeCount;
   final bool loading;
   final Object? error;

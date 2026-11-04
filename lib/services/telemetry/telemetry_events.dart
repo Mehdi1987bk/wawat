@@ -1,43 +1,18 @@
 import 'dart:convert';
 
-/// Единая таксономия событий приложения.
-///
-/// Одни и те же имена уходят в три места — Firebase Analytics, хлебные крошки
-/// Crashlytics и панель бэкенда (`POST /telemetry/batch`), — поэтому таксономия
-/// живёт в одном файле, а не растекается по вызовам.
-///
-/// Где возможно, взяты **рекомендованные GA4-имена** (`login`, `sign_up`,
-/// `search`, `view_item`, `add_to_wishlist`, `begin_checkout`, `purchase`,
-/// `share`): для них Firebase рисует готовые отчёты (воронки, LTV, retention)
-/// без ручной настройки. Остальное — кастомные события.
-///
-/// Ограничения Firebase Analytics, которые соблюдает [TelemetrySchema]:
-///  • имя события: ≤40 символов, `[A-Za-z0-9_]`, начинается с буквы;
-///  • ≤25 параметров на событие, имя параметра ≤40 символов;
-///  • строковое значение ≤100 символов;
-///  • имя user property ≤24 символов, значение ≤36;
-///  • зарезервированные имена (`app_open`, `session_start`, `first_open`,
-///    `user_engagement`, `notification_*`, `ad_*`, префиксы `firebase_`,
-///    `google_`, `ga_`) использовать нельзя — SDK собирает их сам.
 class TelemetryEvents {
   TelemetryEvents._();
 
-  // ── Жизненный цикл ──────────────────────────────────────────────────────
-  // NB: `app_open` / `session_start` / `first_open` — зарезервированы Firebase,
-  // поэтому свои события называются иначе.
   static const appStarted = 'app_started';
   static const appForeground = 'app_foreground';
-  // `app_background` зарезервировано Firebase — SDK бросает ArgumentError.
   static const appBackground = 'app_backgrounded';
   static const offlineGateShown = 'offline_gate_shown';
   static const backOnline = 'back_online';
 
-  // ── Онбординг ───────────────────────────────────────────────────────────
   static const introViewed = 'intro_viewed';
   static const introCompleted = 'intro_completed';
   static const introSkipped = 'intro_skipped';
 
-  // ── Аутентификация (GA4: login / sign_up) ───────────────────────────────
   static const login = 'login';
   static const loginFailed = 'login_failed';
   static const signUp = 'sign_up';
@@ -50,8 +25,7 @@ class TelemetryEvents {
   static const passwordResetCompleted = 'password_reset_completed';
   static const sessionExpired = 'session_expired';
 
-  // ── Объявления ──────────────────────────────────────────────────────────
-  static const viewItem = 'view_item'; // GA4: просмотр карточки объявления
+  static const viewItem = 'view_item';
   static const listingCreateStarted = 'listing_create_started';
   static const listingCreateSubmitted = 'listing_create_submitted';
   static const listingCreated = 'listing_created';
@@ -61,21 +35,19 @@ class TelemetryEvents {
   static const listingResumed = 'listing_resumed';
   static const listingReposted = 'listing_reposted';
   static const listingDeleted = 'listing_deleted';
-  static const addToWishlist = 'add_to_wishlist'; // GA4: в избранное
-  static const removeFromWishlist = 'remove_from_wishlist'; // GA4: из избранного
+  static const addToWishlist = 'add_to_wishlist';
+  static const removeFromWishlist = 'remove_from_wishlist';
   static const proposalSent = 'proposal_sent';
   static const listingReported = 'listing_reported';
-  static const share = 'share'; // GA4
+  static const share = 'share';
 
-  // ── Поиск ───────────────────────────────────────────────────────────────
-  static const search = 'search'; // GA4
+  static const search = 'search';
   static const searchFiltersApplied = 'search_filters_applied';
   static const searchNoResults = 'search_no_results';
   static const savedSearchCreated = 'saved_search_created';
   static const savedSearchDeleted = 'saved_search_deleted';
   static const trendingRouteTapped = 'trending_route_tapped';
 
-  // ── Чат ─────────────────────────────────────────────────────────────────
   static const chatOpened = 'chat_opened';
   static const chatMessageSent = 'chat_message_sent';
   static const chatMessageFailed = 'chat_message_failed';
@@ -83,12 +55,10 @@ class TelemetryEvents {
   static const chatMessageDeleted = 'chat_message_deleted';
   static const chatSocketDropped = 'chat_socket_dropped';
 
-  // ── Сделки (Sövdələşmələrim) ────────────────────────────────────────────
   static const dealViewed = 'deal_viewed';
   static const dealAction = 'deal_action';
   static const dealActionFailed = 'deal_action_failed';
 
-  // ── Монетизация (GA4: begin_checkout / purchase) ────────────────────────
   static const beginCheckout = 'begin_checkout';
   static const purchase = 'purchase';
   static const purchaseFailed = 'purchase_failed';
@@ -97,7 +67,6 @@ class TelemetryEvents {
   static const receiptOpened = 'receipt_opened';
   static const receiptDownloaded = 'receipt_downloaded';
 
-  // ── Профиль и верификация ───────────────────────────────────────────────
   static const profileUpdated = 'profile_updated';
   static const avatarUploaded = 'avatar_uploaded';
   static const verificationStarted = 'verification_started';
@@ -113,23 +82,20 @@ class TelemetryEvents {
   static const languageChanged = 'language_changed';
   static const themeChanged = 'theme_changed';
 
-  // ── Уведомления ─────────────────────────────────────────────────────────
   static const pushPermissionResult = 'push_permission_result';
   static const pushReceivedForeground = 'push_received_fg';
   static const pushOpened = 'push_opened';
   static const inAppBannerTapped = 'in_app_banner_tapped';
 
-  // ── Техническое здоровье (питает панель «проблем») ──────────────────────
   static const apiFailure = 'api_failure';
   static const apiSlow = 'api_slow';
-  static const appError = 'app_error'; // обработанное исключение (non-fatal)
-  static const renderError = 'render_error'; // ошибка из FlutterError.onError
+  static const networkError = 'network_error';
+  static const appError = 'app_error';
+  static const renderError = 'render_error';
   static const featureUnavailable = 'feature_unavailable';
-  static const screenView = 'screen_view'; // логируется через logScreenView
+  static const screenView = 'screen_view';
 }
 
-/// Имена параметров событий. Держим в одном месте, чтобы `listing_id` не стал
-/// где-то `listingId` — в GA4 это были бы две несводимые колонки.
 class TelemetryParams {
   TelemetryParams._();
 
@@ -140,23 +106,23 @@ class TelemetryParams {
   static const result = 'result';
   static const reason = 'reason';
 
-  static const itemId = 'item_id'; // GA4
-  static const itemCategory = 'item_category'; // GA4
+  static const itemId = 'item_id';
+  static const itemCategory = 'item_category';
   static const listingId = 'listing_id';
   static const listingType = 'listing_type';
   static const fromCity = 'from_city';
   static const toCity = 'to_city';
 
-  static const searchTerm = 'search_term'; // GA4
+  static const searchTerm = 'search_term';
   static const filterCount = 'filter_count';
   static const resultCount = 'result_count';
 
   static const conversationId = 'conversation_id';
   static const messageLength = 'message_length';
 
-  static const value = 'value'; // GA4 (сумма)
-  static const currency = 'currency'; // GA4 (ISO-4217, обязателен с value)
-  static const transactionId = 'transaction_id'; // GA4
+  static const value = 'value';
+  static const currency = 'currency';
+  static const transactionId = 'transaction_id';
   static const packageId = 'package_id';
   static const durationDays = 'duration_days';
 
@@ -168,13 +134,13 @@ class TelemetryParams {
   static const errorMessage = 'error_message';
   static const isOffline = 'is_offline';
   static const attempt = 'attempt';
+  static const failureKind = 'failure_kind';
 }
 
-/// User properties. Имя ≤24 символов, значение ≤36 — Firebase режет молча.
 class TelemetryUserProps {
   TelemetryUserProps._();
 
-  static const userType = 'user_type'; // guest | user | courier | pro
+  static const userType = 'user_type';
   static const isVerified = 'is_verified';
   static const appLocale = 'app_locale';
   static const themeMode = 'theme_mode';
@@ -183,11 +149,6 @@ class TelemetryUserProps {
   static const pushEnabled = 'push_enabled';
 }
 
-/// Приведение имён и значений к тому, что Firebase Analytics реально примет.
-///
-/// Вызывается один раз на входе в [Telemetry.event] — вызывающему коду не нужно
-/// помнить лимиты. Всё, что не влезает, обрезается, а не роняет событие: тихо
-/// отброшенное событие хуже, чем обрезанное.
 class TelemetrySchema {
   TelemetrySchema._();
 
@@ -198,19 +159,14 @@ class TelemetrySchema {
   static const int maxUserPropNameLength = 24;
   static const int maxUserPropValueLength = 36;
 
-  /// Префиксы, зарезервированные Firebase: событие с таким именем SDK отбросит.
   static const _reservedPrefixes = ['firebase_', 'google_', 'ga_'];
 
-  /// Точные имена, которые Firebase держит за собой. SDK не отбрасывает их
-  /// молча — он бросает ArgumentError, и приложение падает. Один такой промах
-  /// (`app_background`) дал 1060 крашей за месяц, поэтому список проверяется
-  /// здесь, а не держится в головах.
   static const _reservedNames = {
     'ad_activeview', 'ad_click', 'ad_exposure', 'ad_impression', 'ad_query',
     'ad_reward', 'adunit_exposure', 'app_background', 'app_clear_data',
     'app_exception', 'app_remove', 'app_store_refund',
     'app_store_subscription_cancel', 'app_store_subscription_convert',
-    'app_store_subscription_renew', 'app_update', 'app_upgrade',
+    'app_store_subscription_renew', 'app_uninstall', 'app_update', 'app_upgrade',
     'dynamic_link_app_open', 'dynamic_link_app_update',
     'dynamic_link_first_open', 'error', 'first_open', 'first_visit',
     'in_app_purchase', 'notification_dismiss', 'notification_foreground',
@@ -222,7 +178,6 @@ class TelemetrySchema {
   static final _leadingNonLetter = RegExp(r'^[^a-z]+');
   static final _repeatedUnderscore = RegExp(r'_{2,}');
 
-  /// `Listing Details/Screen` → `listing_details_screen`.
   static String name(String raw) {
     var s = raw.trim().toLowerCase().replaceAll(_illegal, '_');
     s = s.replaceAll(_repeatedUnderscore, '_').replaceAll(_leadingNonLetter, '');
@@ -236,9 +191,6 @@ class TelemetrySchema {
         : s.substring(0, maxEventNameLength);
   }
 
-  /// Firebase принимает только `String` и `num`. `bool` → `'true'/'false'`
-  /// (в консоли читается лучше, чем 1/0), коллекции → компактный JSON,
-  /// `null` — выбрасываем, иначе SDK отбросит событие целиком.
   static Map<String, Object> params(Map<String, Object?>? raw) {
     final out = <String, Object>{};
     if (raw == null || raw.isEmpty) return out;

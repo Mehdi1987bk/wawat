@@ -4,11 +4,6 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'iap_catalog.dart';
 import 'iap_service.dart';
 
-/// App Store / Google Play promotion products development screen.
-///
-/// Backend-siz işləyir: `ios/Runner/WawatProducts.storekit` yerli StoreKit
-/// konfiqurasiyası sayəsində simulyatorda Apple-ın həqiqi alış pəncərəsi açılır.
-/// Bu ekran `lib/dev_iap.dart` giriş nöqtəsindən açılır — tətbiqə girmədən.
 class IapDemoScreen extends StatefulWidget {
   const IapDemoScreen({super.key});
 

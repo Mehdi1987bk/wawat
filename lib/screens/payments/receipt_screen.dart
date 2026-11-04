@@ -8,19 +8,15 @@ import '../../main.dart';
 import '../../presentation/common/async_button.dart';
 import '../../presentation/resourses/theme_colors.dart';
 import '../../presentation/resourses/wawat_dark.dart';
+import '../../services/network_failure.dart';
 import '../../services/telemetry/telemetry.dart';
 import '../../services/wawat_content.dart';
 import 'receipt_pdf.dart';
 
-/// One receipt screen for EVERY payment type (promotions/VIP, listing-quota,
-/// future). Everything is printed straight from the backend's [Receipt] block
-/// (already localized); only the header icon/label differ by [Receipt.kind].
-/// The PDF is the backend's ([Receipt.pdfUrl]) — see receipt_pdf.dart.
 class ReceiptScreen extends StatefulWidget {
   final Receipt receipt;
   final Map<String, String> content;
 
-  /// Test seams; default to the app's authenticated Dio and the native store.
   final Dio? dio;
   final ReceiptPdfStore store;
 
@@ -42,12 +38,8 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
 
   String _t(String key, String fb) => WawatContent.text(_c, key, fb);
 
-  /// Downloaded once per screen — a second tap re-saves/re-opens the same
-  /// bytes instead of hitting the (rate-limited) endpoint again.
   ReceiptPdfFile? _pdf;
 
-  /// Android opens the PDF in another app, so a snackbar shown right away
-  /// expires unseen — it is shown when the user comes back instead.
   AppLifecycleListener? _onReturn;
 
   @override
@@ -91,8 +83,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           children: [_card(isDark, paid, statusColor)],
         ),
       ),
-      // As the Scaffold's bottom bar (not inside the body) so the "saved" /
-      // error snackbar rises above the buttons instead of covering them.
       bottomNavigationBar: _r.isPaid && _r.pdfUrl != null
           ? _bottomBar(isDark)
           : null,
@@ -119,7 +109,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
             child: Column(
               children: [
-                // Brand mark.
                 Container(
                   width: 44,
                   height: 44,
@@ -147,7 +136,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Status pill.
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -190,8 +178,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             ),
           ),
           _dashed(isDark),
-          // Service line (title) + receipt number — the only kind-specific bit
-          // is the leading icon.
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
             child: Row(
@@ -241,7 +227,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             ),
           ),
           _dashed(isDark),
-          // Line items — printed verbatim (backend-localized).
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             child: Column(
@@ -311,8 +296,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            // Sharing stays available, but as a separate secondary action —
-            // the main button really saves the file.
             SizedBox(
               width: 52,
               child: AsyncActionButton(
@@ -345,8 +328,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
   Future<ReceiptPdfFile> _fetchPdf() async =>
       _pdf ??= await downloadReceiptPdf(widget.dio ?? sl.get<Dio>(), _r);
 
-  /// «PDF yüklə»: download the server PDF, save it where the user can find it
-  /// (Android → Downloads, iOS → Documents) and open it.
   Future<void> _downloadPdf() async {
     try {
       final saved = await widget.store.save(await _fetchPdf());
@@ -387,26 +368,34 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
     }
   }
 
-  /// Every failure goes to Crashlytics with its real cause; the user gets a
-  /// text that says WHICH side failed (connection / server / device).
   void _reportPdfError(Object error, StackTrace stack, String action) {
     final failure = error is ReceiptPdfException
         ? error.failure
         : (error is DioException
               ? ReceiptPdfFailure.network
               : ReceiptPdfFailure.save);
-    Telemetry.instance.error(
-      error,
-      stack,
-      reason: 'receipt_pdf_failed',
-      context: {
-        'action': action,
-        'kind': _r.kind,
-        'failure': failure.name,
-        if (error is ReceiptPdfException && error.statusCode != null)
-          'status': error.statusCode,
-      },
-    );
+    final cause = error is ReceiptPdfException ? error.cause : error;
+    final serverSpoke =
+        error is ReceiptPdfException && error.serverMessage != null;
+    final offline = (error is ReceiptPdfException &&
+            error.failure == ReceiptPdfFailure.network) ||
+        (cause is DioException &&
+            (NetworkFailure.of(cause).kind == NetworkFailureKind.rateLimited ||
+                (!serverSpoke && NetworkFailure.isConnectivity(cause))));
+    if (!offline) {
+      Telemetry.instance.error(
+        error,
+        stack,
+        reason: 'receipt_pdf_failed',
+        context: {
+          'action': action,
+          'kind': _r.kind,
+          'failure': failure.name,
+          if (error is ReceiptPdfException && error.statusCode != null)
+            'status': error.statusCode,
+        },
+      );
+    }
     if (!mounted) return;
     _snack(_pdfErrorText(error, failure));
   }
@@ -453,8 +442,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       ..showSnackBar(SnackBar(content: Text(text)));
   }
 
-  // ── status/kind helpers ──
-
   Color _statusFg(String status, bool paid, bool isDark) {
     if (paid || status == 'paid') {
       return isDark ? WawatDark.success : const Color(0xFF059669);
@@ -464,7 +451,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
         return isDark ? WawatDark.warning : const Color(0xFFB45309);
       case 'refunded':
         return isDark ? WawatDark.textSecondary : const Color(0xFF64748B);
-      default: // failed | none
+      default:
         return isDark ? WawatDark.danger : const Color(0xFFEF4444);
     }
   }
@@ -482,8 +469,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
   }
 
   String _statusLabel(String status, bool paid) {
-    // Honor `paid` like _statusFg/_statusIcon do (fromJson coerces an
-    // empty status to 'none', so a paid receipt must still read "Ödənildi").
     final key = (paid || status == 'paid') ? 'paid' : status;
     const fallbacks = {
       'paid': 'Ödənildi',
@@ -512,15 +497,12 @@ IconData _kindIcon(String kind) {
   }
 }
 
-/// "6.99 AZN" — integer amounts drop the decimals.
 String _money(double amount, String currency) {
   final n = amount == amount.roundToDouble()
       ? amount.toInt().toString()
       : amount.toStringAsFixed(2);
   return currency.isEmpty ? n : '$n $currency';
 }
-
-// ══════════════════════ small widgets ══════════════════════
 
 class _ReceiptRow extends StatelessWidget {
   final String label;

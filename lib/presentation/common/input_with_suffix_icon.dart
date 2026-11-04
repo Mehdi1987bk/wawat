@@ -47,7 +47,6 @@ class _TextInputWithIconState extends State<TextInputWithIcon> {
 
   @override
   Widget build(BuildContext context) {
-    // ← ДОБАВЛЕНО: Определяем тему
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -55,12 +54,12 @@ class _TextInputWithIconState extends State<TextInputWithIcon> {
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white, // ← ДОБАВЛЕНО
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isDark
                 ? Colors.grey.withOpacity(0.5)
-                : Colors.grey.withOpacity(0.3), // ← ИСПРАВЛЕНО
+                : Colors.grey.withOpacity(0.3),
             width: 2,
           ),
         ),
@@ -78,9 +77,9 @@ class _TextInputWithIconState extends State<TextInputWithIcon> {
               maxLines: 1,
               focusNode: _focusNode,
               cursorColor: AppColors.appColor,
-              keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО ДЛЯ КЛАВИАТУРЫ
+              keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
               style: TextStyle(
-                  color: isDark ? Colors.white : AppColors.darkBlue, // ← ИСПРАВЛЕНО
+                  color: isDark ? Colors.white : AppColors.darkBlue,
                   fontSize: 20
               ),
               decoration: InputDecoration(
@@ -90,7 +89,7 @@ class _TextInputWithIconState extends State<TextInputWithIcon> {
                 border: InputBorder.none,
                 hintStyle: TextStyle(
                     color: finKodNumberFocus || widget._cartController.text.trim().isEmpty
-                        ? (isDark ? Colors.white70 : Colors.black54) // ← ИСПРАВЛЕНО
+                        ? (isDark ? Colors.white70 : Colors.black54)
                         : Colors.transparent,
                     fontSize: 18),
                 hintText: widget.labelText,

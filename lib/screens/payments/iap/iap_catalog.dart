@@ -1,6 +1,5 @@
 library;
 
-/// Product kind returned by `GET /api/v1/purchases/catalog`.
 enum IapProductKind {
   vip('vip'),
   featured('featured'),
@@ -20,11 +19,6 @@ enum IapProductKind {
   }
 }
 
-/// A consumable product defined by the Wawatair backend catalogue.
-///
-/// Product identifiers and fallback prices are never sourced from the app in
-/// production. The backend catalogue selects the store product, while
-/// App Store / Google Play remains the source of the displayed localized price.
 class IapCatalogProduct {
   const IapCatalogProduct({
     required this.productId,
@@ -70,7 +64,6 @@ class IapCatalogProduct {
   final String currency;
   final String? packageId;
 
-  /// Localized by the backend according to `Accept-Language`.
   final String? name;
   final String? description;
   final int? durationDays;
@@ -123,8 +116,6 @@ IapCatalogProduct? iapProductForPromotion(
   return null;
 }
 
-/// Local StoreKit catalogue used only by `lib/dev_iap.dart`.
-/// Production replaces it with `GET /purchases/catalog` before querying stores.
 const List<IapCatalogProduct> kDevIapProducts = [
   IapCatalogProduct(
     productId: 'wawat.app.vip.1d',
@@ -207,8 +198,6 @@ bool? _bool(dynamic value) {
   return null;
 }
 
-/// The backend contract is ready. It can still be disabled explicitly with
-/// `--dart-define=IAP_ENABLED=false` for emergency rollback builds.
 const bool kIapEnabled = bool.fromEnvironment(
   'IAP_ENABLED',
   defaultValue: true,

@@ -25,7 +25,7 @@ String? _parseDioError(
     ) {
   String? message;
   switch (error.type) {
-    case DioErrorType.unknown: // Updated from "other" to "unknown"
+    case DioErrorType.unknown:
       if (error.error is SocketException) {
         message = t('error.no_connection');
       } else {
@@ -37,7 +37,7 @@ String? _parseDioError(
         }
       }
       break;
-    case DioErrorType.badResponse: // Updated from "response" to "badResponse"
+    case DioErrorType.badResponse:
       try {
         message = error.message;
       } catch (e) {

@@ -8,9 +8,6 @@ class WawatContent {
   static final Map<String, Map<String, String>> _cache = {};
   static Map<String, String> _runtimeTranslations = const {};
 
-  /// Текущий язык интерфейса. Нужен, чтобы (а) передавать `lang` в запрос
-  /// `/content` и (б) разделять кэш по языку — иначе смена языка оставит уже
-  /// загруженные группы на старом языке. Выставляется из [LocalizationService].
   static String _locale = 'az';
   static set locale(String value) {
     final c = value.trim().toLowerCase();
@@ -57,6 +54,26 @@ class WawatContent {
     'common.operation_completed': 'Əməliyyat tamamlandı',
     'common.error': 'Xəta baş verdi. Yenidən cəhd edin.',
     'common.back': 'Geri',
+    'update.ota_title':
+        'Yeniləmə mövcuddur',
+    'update.ota_body':
+        'Wawatair-in yeni versiyası hazırdır. Düyməyə basın — tətbiq onu yükləyib özü yenidən açılacaq.',
+    'update.ota_downloading_body':
+        'Yeni versiya yüklənir. Bu bir neçə saniyə çəkəcək.',
+    'update.ota_downloading_button':
+        'Yüklənir…',
+    'update.ota_done_title':
+        'Yeniləndi',
+    'update.ota_restarting_body':
+        'Tətbiq indi özü yenidən açılacaq.',
+    'update.ota_restarting_button':
+        'Yenidən açılır…',
+    'update.ota_next_launch_body':
+        'Yeni versiya yükləndi. Tətbiqi növbəti dəfə açanda işə düşəcək.',
+    'update.ota_failed_title':
+        'Yeniləmək alınmadı',
+    'update.ota_failed_body':
+        'İnterneti yoxlayın və yenidən cəhd edin.',
     'update.title': 'Yeniləmə tələb olunur',
     'update.description':
         'Wawatair-in yeni versiyası mövcuddur. Davam etmək üçün tətbiqi yeniləyin.',
@@ -294,9 +311,6 @@ class WawatContent {
     'promotion.upsell_title': 'Elanını daha çox insana çatdır',
     'promotion.vip_short': 'Ən yuxarıda, ayrıca bölmədə',
     'promotion.boost_short': 'Zəmanətli göstərişlər',
-    // Boost = guaranteed-impressions packages (large / medium / small). Package
-    // names + labels also arrive directly on the pricing/promotion payload; the
-    // keys below are the shared-dictionary copies + boost-only strings.
     'enum.promotion_package.large': 'Böyük',
     'enum.promotion_package.medium': 'Orta',
     'enum.promotion_package.small': 'Kiçik',
@@ -315,8 +329,6 @@ class WawatContent {
     'promotion.boost_capacity_full':
         'Paketlər müvəqqəti olaraq doludur. Bir azdan yenidən cəhd edin.',
     'promotion.invalid_package': 'Seçilmiş paket mövcud deyil.',
-    // Paid KYC verification: documents → approval → pay (mock) → badge.
-    // Backend-provided keys (localized live); the rest are app-screen keys.
     'verification.awaiting_payment':
         'Sənədlər təsdiqləndi. Nişanı aktivləşdirmək üçün ödə.',
     'verification.activated': 'Ödəniş uğurlu oldu. Hesab təsdiqləndi.',
@@ -602,7 +614,6 @@ class WawatContent {
     'deals.review.question_template': '{name} ilə təcrübən necə idi?',
     'deals.review.prompt': 'Təcrübəni bir neçə sözlə yaz…',
     'deals.review.submit': 'Rəyi göndər',
-    // --- i18n sweep: keys pending backend (AZ fallback) ---
     'about.copyright': '© 2026 Wawatair · Bütün hüquqlar qorunur',
     'about.follow_us': 'Bizi izlə',
     'about.licenses': 'Lisenziyalar',
@@ -625,7 +636,12 @@ class WawatContent {
     'common.load_failed_generic':
         'Məlumatı yükləyə bilmədik. İnternet bağlantını yoxla.',
     'common.no_connection': 'Bağlantı yoxdur',
+    'deals.action.unsupported': 'Bu əməliyyat üçün tətbiqi yeniləyin.',
     'deals.coming_soon': 'Tezliklə aktiv olacaq.',
+    'deals.confirm.cancel': 'Ləğv et',
+    'deals.confirm.sure': 'Əminsiniz?',
+    'deals.dispute.min_length': 'Ən azı {count} simvol yazın',
+    'deals.dispute.question': 'Nə baş verdi?',
     'deals.operation_failed': 'Əməliyyat alınmadı. Yenidən cəhd edin.',
     'deals.review_sent': 'Rəy göndərildi',
     'enum.report_reason_code.spam': 'Spam',
@@ -816,25 +832,16 @@ class WawatContent {
     'time.now': 'indi',
   };
 
-  /// Сбросить кэш контента (все группы + loadAll). Вызывать при смене языка,
-  /// иначе экраны, читающие через [load]/[loadAll], останутся на старом языке.
   static void clearCache() {
     _cache.clear();
     _futures.clear();
   }
 
-  /// Актуальная глобальная карта выбранного языка.
-  ///
-  /// Экраны могут продолжать хранить загруженный ранее [content], но [text]
-  /// всегда сначала читает эту карту. Поэтому смена языка не требует повторной
-  /// загрузки данных экрана или пересоздания его State.
   static void setRuntimeTranslations(Map<String, String> translations) {
     _runtimeTranslations = Map<String, String>.unmodifiable(translations);
   }
 
   static Future<Map<String, String>> load({String group = 'listing'}) {
-    // Если словарь уже загружен целиком, отдаём его: он надмножество любой
-    // группы, а [text] ищет по ключу — лишний запрос за той же строкой не нужен.
     final all = _cache['$_locale|__all__'];
     if (all != null) return Future.value(all);
 
@@ -867,11 +874,6 @@ class WawatContent {
     return result;
   }
 
-  /// Раньше здесь шёл цикл по 25 группам — то есть 25 отдельных запросов
-  /// `GET /content?group=…` на каждый холодный старт. Это давало 2180 вызовов
-  /// `/content` в сутки, упиралось в rate limit (91 ответ 429) и растягивало
-  /// старт: `/app/config` отвечал в среднем 29 секунд, потому что стоял в этой
-  /// же очереди. Бэкенд умеет отдать весь словарь одним запросом — берём его.
   static Future<Map<String, String>> loadDefault() => loadAll();
 
   static String text(
@@ -892,11 +894,6 @@ class WawatContent {
     return value;
   }
 
-  /// Price labels for the search filters. The CMS still serves them per
-  /// language in whatever shape the translator picked: some carry the AZN
-  /// symbol (₼) the app no longer prices in, and the per-kilogram unit is
-  /// written both ways. Normalise both — USD, and the unit kilogram-first as
-  /// `kq/$`, the way the negotiable-price pill on the listing card reads.
   static String priceLabel(
     Map<String, String> content,
     String key, [
@@ -907,9 +904,6 @@ class WawatContent {
     fallback,
   ).replaceAll('₼', r'$').replaceAll(_perKgUnit, r'kq/$');
 
-  /// `$/kq`, `$ / кг`, an already-correct `kq/$` or a bare `$` — every shape the
-  /// CMS serves collapses to `kq/$`. Ordered alternation, so the per-kg forms
-  /// win over the bare currency symbol and the rewrite stays idempotent.
   static final RegExp _perKgUnit = RegExp(
     r'\$\s*/\s*(?:kq|kg|кг)|(?:kq|kg|кг)\s*/\s*\$|\$',
     caseSensitive: false,

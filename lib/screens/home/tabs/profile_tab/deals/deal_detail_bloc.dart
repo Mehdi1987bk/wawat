@@ -26,23 +26,29 @@ class DealDetailBloc extends BaseBloc {
     load();
   }
 
+  int _loadSeq = 0;
+
   Future<void> load() async {
+    final seq = ++_loadSeq;
     _emit(value.copyWith(loading: true, clearError: true));
     try {
       final results = await Future.wait<dynamic>([
         WawatContent.loadAll(),
         _api.getShipment(shipmentId),
       ]);
+      if (seq != _loadSeq) return;
       final response = results[1] as ShipmentResponse;
       _emit(
         value.copyWith(
           content: results[0] as Map<String, String>,
           shipment: response.data,
           loading: false,
+          actionsStale: false,
           clearError: true,
         ),
       );
     } catch (error) {
+      if (seq != _loadSeq) return;
       _emit(value.copyWith(loading: false, error: error));
     }
   }
@@ -51,6 +57,7 @@ class DealDetailBloc extends BaseBloc {
     _emit(value.copyWith(acting: true));
     try {
       final message = await _api.shipmentAction(shipmentId, action, body: body);
+      _emit(value.copyWith(actionsStale: true));
       await load();
       return message;
     } catch (error) {
@@ -83,6 +90,8 @@ class DealDetailState {
   final ShipmentData? shipment;
   final bool loading;
   final bool acting;
+
+  final bool actionsStale;
   final Object? error;
 
   const DealDetailState({
@@ -90,6 +99,7 @@ class DealDetailState {
     required this.shipment,
     required this.loading,
     required this.acting,
+    this.actionsStale = false,
     this.error,
   });
 
@@ -98,6 +108,7 @@ class DealDetailState {
         shipment = null,
         loading = false,
         acting = false,
+        actionsStale = false,
         error = null;
 
   DealDetailState copyWith({
@@ -105,6 +116,7 @@ class DealDetailState {
     ShipmentData? shipment,
     bool? loading,
     bool? acting,
+    bool? actionsStale,
     Object? error,
     bool clearError = false,
   }) {
@@ -113,6 +125,7 @@ class DealDetailState {
       shipment: shipment ?? this.shipment,
       loading: loading ?? this.loading,
       acting: acting ?? this.acting,
+      actionsStale: actionsStale ?? this.actionsStale,
       error: clearError ? null : error ?? this.error,
     );
   }

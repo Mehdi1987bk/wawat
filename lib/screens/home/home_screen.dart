@@ -21,9 +21,6 @@ import 'tabs/profile_tab/promo/app_review.dart';
 class HomeScreen extends BaseScreen {
   final int? orderId;
 
-  /// Bottom-nav tab to open on cold start (0 = Главная, 1 = Поиск). Resolved by
-  /// the backend via [HomeConfig] before this screen is built, so Home renders
-  /// on the right tab from the first frame with no visible jump. Null → Главная.
   final int? initialTabIndex;
 
   HomeScreen({super.key, this.orderId, this.initialTabIndex});
@@ -49,44 +46,11 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        // Route a cold-start push tap now that Home is mounted. main() cannot
-        // flush it (SpleshScreen would replace the pushed route on its way to
-        // Home); doing it here pushes the target on TOP of Home instead.
         flushPendingNotificationNavigation();
-        // E-mail verification gate, re-read on every cold start (it is a feature
-        // flag, never cached long). No-op while the flag is off or the account
-        // is already verified. Don't auto-send here — a registration code may
-        // still be valid; the user resends from the screen if it expired.
         _maybeGateEmailVerification();
-        // Backend-gated store-review reward prompt (shows only when the API
-        // says should_show; frequency/timing is decided server-side).
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (mounted) AppReviewFlow.maybePrompt(context);
         });
-        // if (widget.purchasedProduct != null) {
-        //   showDialog(
-        //     context: context,
-        //     builder: (_) {
-        //       return RateDialog(
-        //         onchanged: (rate) {
-        //           bloc
-        //               .raiting(RaitingRequest(
-        //               productId: widget.purchasedProduct?.id ?? 0,
-        //               orderId: widget.orderId ?? 0,
-        //               point: rate))
-        //               .then(
-        //                 (value) => showDialog(
-        //               context: context,
-        //               builder: (_) {
-        //                 return RateTrue();
-        //               },
-        //             ),
-        //           );
-        //         },
-        //       );
-        //     },
-        //   );
-        // }
       },
     );
   }
@@ -112,10 +76,6 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
             alignment: Alignment.bottomCenter,
             child: BottomBar(
               onChanged: (index) async {
-                // Re-tapping the already-active tab scrolls it back to the top.
-                // Switching to a different tab just restores where you left off
-                // (the tabs live in an IndexedStack, so offset is preserved) —
-                // only a second tap on that tab scrolls it up.
                 if (index == _selectedIndex && index != 2) {
                   _tabsKey.currentState?.scrollActiveTabToTop();
                   return;
@@ -148,7 +108,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
   }
 
   @override
-  bool get resizeToAvoidBottomInset => false; // ← ДОБАВЛЕНА ЭТА СТРОКА
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   HomeBloc provideBloc() {
@@ -167,8 +127,6 @@ class _Tabs extends StatefulWidget {
 
 class __TabsState extends State<_Tabs> {
   late List<Widget> _tabs;
-  // Seed with the landing tab so a backend-chosen start tab (e.g. Поиск) is
-  // actually built on the first frame instead of rendering as an empty box.
   late final Set<int> _visitedTabs = {0, widget.selectedIndex};
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _searchKey = GlobalKey();
@@ -196,8 +154,6 @@ class __TabsState extends State<_Tabs> {
     ];
   }
 
-  /// Scrolls the currently-selected tab back to the top (used when its own tab
-  /// button is tapped again). Tabs implement [ScrollableTab].
   void scrollActiveTabToTop() {
     State? state;
     switch (widget.selectedIndex) {
@@ -214,8 +170,6 @@ class __TabsState extends State<_Tabs> {
         state = _profileKey.currentState;
         break;
     }
-    // `state` is typed as State, so `is` doesn't promote to the unrelated
-    // ScrollableTab mixin — cast explicitly (guarded by the check).
     if (state is ScrollableTab) (state as ScrollableTab).scrollToTop();
   }
 

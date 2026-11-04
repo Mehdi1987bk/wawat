@@ -14,17 +14,13 @@ class ChatUser {
   final String? username;
   final String fullname;
 
-  /// Ready full-size url (`avatar_url`, up to 1080px) — for the big/tap avatar.
   final String? avatarFull;
 
-  /// Ready 96×96 thumbnail url (`avatar_thumb_url`) — for list/bubble/header.
   final String? avatarThumb;
   final bool isVerified;
   final String? lastActiveAt;
   final bool isBlocked;
 
-  /// Server-reported presence (`is_online`). Null when the field is absent —
-  /// then presence is derived from [lastActiveAt].
   final bool? isOnlineRaw;
 
   const ChatUser({
@@ -62,13 +58,8 @@ class ChatUser {
     );
   }
 
-  /// Server id for moderation/profile/follow calls. Prefers the public_id
-  /// (ULID string the backend now sends in `other_user.id`); falls back to the
-  /// numeric id only when it is a real (> 0) value.
   Object get apiId => publicId ?? id;
 
-  /// Whether [apiId] points at a real user. Guards against firing
-  /// `/users//block` or `/users/0/block` when the conversation carries no id.
   bool get hasApiId =>
       (publicId != null && publicId!.trim().isNotEmpty) || id > 0;
 
@@ -79,11 +70,8 @@ class ChatUser {
     return 'https://api.wawatair.com/storage/$v';
   }
 
-  /// Full-size avatar — use ONLY for a large/tap-to-open avatar.
   String get avatarUrl => _resolveAvatar(avatarFull);
 
-  /// Small 96×96 thumbnail — use for list rows, bubbles and headers. Falls back
-  /// to the full url when the backend didn't send a thumb.
   String get avatarThumbUrl {
     final thumb = _resolveAvatar(avatarThumb);
     return thumb.isNotEmpty ? thumb : avatarUrl;
@@ -100,10 +88,6 @@ class ChatUser {
   DateTime? get _lastActive =>
       lastActiveAt == null ? null : DateTime.tryParse(lastActiveAt!)?.toLocal();
 
-  /// Online when the last activity is within the server's 3-minute window.
-  /// Deriving it from [lastActiveAt] lets the badge decay on its own while the
-  /// screen stays open; [isOnlineRaw] is only a fallback when no timestamp came
-  /// through. Privacy off → both are absent → offline.
   bool get isOnline {
     final lastSeen = _lastActive;
     if (lastSeen != null) {
@@ -112,12 +96,8 @@ class ChatUser {
     return isOnlineRaw ?? false;
   }
 
-  /// Whether there is anything to show. Respects the privacy rule: no
-  /// timestamp and not online → render nothing (see [getLastSeenText]).
   bool get hasPresence => isOnline || _lastActive != null;
 
-  /// Relative "last seen" line: onlayn / indicə / N dəq əvvəl / bu gün HH:mm /
-  /// dünən HH:mm / dd.MM.yyyy. Empty string when there's nothing to show.
   String getLastSeenText(BuildContext context) {
     if (isOnline) return 'onlayn';
     final lastSeen = _lastActive;
@@ -187,11 +167,62 @@ class ChatFile {
   bool get isPdf => mime == 'application/pdf';
 }
 
+class DealAction {
+  final String key;
+
+  final String label;
+
+  final String style;
+
+  final String endpoint;
+
+  final bool needsInput;
+
+  final bool confirm;
+
+  const DealAction({
+    required this.key,
+    required this.label,
+    required this.endpoint,
+    this.style = 'secondary',
+    this.needsInput = false,
+    this.confirm = false,
+  });
+
+  bool get isPrimary => style == 'primary';
+  bool get isDanger => style == 'danger';
+
+  factory DealAction.fromJson(Map<String, dynamic> json) {
+    return DealAction(
+      key: _string(json['key'])?.trim() ?? '',
+      label: _string(json['label'])?.trim() ?? '',
+      style: _string(json['style'])?.trim() ?? 'secondary',
+      endpoint: _string(json['endpoint'])?.trim() ?? '',
+      needsInput: _bool(json['needs_input']),
+      confirm: _bool(json['confirm']),
+    );
+  }
+
+  static List<DealAction> listFromJson(dynamic value) {
+    if (value is! List) return const [];
+    return value
+        .whereType<Map>()
+        .map((item) => DealAction.fromJson(_map(item) ?? const {}))
+        .where((action) => action.label.isNotEmpty && action.endpoint.isNotEmpty)
+        .toList();
+  }
+}
+
 class ChatCard {
   final String type;
   final String label;
+
   final bool isInteractive;
   final String? shipmentId;
+
+  final String? shipmentStatus;
+
+  final List<DealAction> actions;
   final Map<String, dynamic> payload;
 
   const ChatCard({
@@ -199,6 +230,8 @@ class ChatCard {
     required this.label,
     required this.isInteractive,
     this.shipmentId,
+    this.shipmentStatus,
+    this.actions = const [],
     required this.payload,
   });
 
@@ -208,24 +241,31 @@ class ChatCard {
       label: _string(json['label']) ?? '',
       isInteractive: _bool(json['is_interactive']),
       shipmentId: _string(json['shipment_id']),
+      shipmentStatus: _string(json['shipment_status']),
+      actions: DealAction.listFromJson(json['actions']),
       payload: _map(json['payload']) ?? const {},
+    );
+  }
+
+  ChatCard withoutActions() {
+    if (actions.isEmpty) return this;
+    return ChatCard(
+      type: type,
+      label: label,
+      isInteractive: isInteractive,
+      shipmentId: shipmentId,
+      shipmentStatus: shipmentStatus,
+      payload: payload,
     );
   }
 }
 
-/// Lightweight reference to a quoted message (WhatsApp-style reply).
-///
-/// The backend does not yet return `reply_to` (see chat guide §12); this is
-/// populated optimistically when the user sends a reply, and parsed from
-/// `reply_to` / `reply_to_message` as soon as the API starts sending it.
 class ChatReplyRef {
   final String messageId;
 
-  /// Display name of the quoted message's author ("Sən" when it was mine).
   final String authorName;
   final bool authorIsMine;
 
-  /// `text` | `image` | `system_card`.
   final String type;
   final String? body;
   final String? imageUrl;
@@ -241,14 +281,12 @@ class ChatReplyRef {
 
   bool get isImage => type == 'image' && (imageUrl?.isNotEmpty ?? false);
 
-  /// One-line preview for the quote / reply bar.
   String get previewText {
     if (type == 'image') return tr('chat.attach.image', 'Şəkil');
     if (type == 'system_card') return body ?? tr('deals.status_deal', 'Sövdələşmə');
     return body ?? '';
   }
 
-  /// Build a quote from a message the user is replying to.
   factory ChatReplyRef.fromMessage(
     ChatMessage message, {
     required bool quotedIsMine,
@@ -298,18 +336,12 @@ class ChatMessage {
   final String createdAt;
   final String? editedAt;
 
-  /// Server tombstone: the message was deleted for everyone. When true the
-  /// content (body/image/file/card/quote) is empty and the bubble renders a
-  /// "deleted" plate instead. [deletedAt] carries when it happened.
   final bool isDeleted;
   final String? deletedAt;
   final bool isMine;
   final bool? isRead;
   final ChatReplyRef? replyTo;
 
-  /// When the peer read this message (iso8601). Only meaningful for my own
-  /// messages; null for incoming ones. Kept for completeness — the blue
-  /// read-receipt is driven by [isRead].
   final String? readAt;
   final ChatMessageDeliveryStatus deliveryStatus;
   final String? localImagePath;
@@ -400,11 +432,6 @@ class ChatMessage {
     );
   }
 
-  /// Local tombstone: turn this message into a "deleted" placeholder with all
-  /// content stripped (body/image/file/card/quote), preserving identity,
-  /// authorship and timestamp so the bubble keeps its slot and picks the right
-  /// "you/other" copy. Used after a 204 delete and on the realtime
-  /// `message.deleted` event (neither returns a full message body).
   ChatMessage asDeleted({String? deletedAt}) {
     return ChatMessage(
       id: id,
@@ -479,9 +506,6 @@ class Conversation {
     );
   }
 
-  /// Whether the conversation's last message is a "deleted" tombstone — the
-  /// preview must then show the localized "message deleted" plate, not the
-  /// stale body or the image label. Callers resolve the CMS string themselves.
   bool get lastMessageIsDeleted => lastMessage?.isDeleted == true;
 
   String lastMessagePreview(BuildContext context) {
@@ -573,13 +597,8 @@ class MetaData {
   final int lastPage;
   final String? locale;
 
-  /// How far the peer has read this conversation (iso8601), from the messages
-  /// list envelope. Any of my messages created at or before this are read.
   final DateTime? peerLastReadAt;
 
-  /// Chat header shipped alongside the messages list (`meta.conversation`) — the
-  /// source of truth for the other user's name/avatar/presence, so the header
-  /// fills in from one request even when the conversation list isn't loaded.
   final Conversation? conversation;
 
   const MetaData({
@@ -628,7 +647,10 @@ class ShipmentData {
   final String status;
   final String statusLabel;
   final bool isAwaitingMe;
+
   final List<String> availableActions;
+
+  final List<DealAction>? actions;
   final String? packageTypeCode;
   final double? weightKg;
   final double? priceTotal;
@@ -662,6 +684,7 @@ class ShipmentData {
     required this.statusLabel,
     required this.isAwaitingMe,
     required this.availableActions,
+    this.actions,
     this.packageTypeCode,
     this.weightKg,
     this.priceTotal,
@@ -702,6 +725,9 @@ class ShipmentData {
           (json['available_actions'] as List<dynamic>? ?? const [])
               .map((e) => e.toString())
               .toList(),
+      actions: json['actions'] is List
+          ? DealAction.listFromJson(json['actions'])
+          : null,
       packageTypeCode: _string(json['package_type_code']),
       weightKg: _double(json['weight_kg']),
       priceTotal: _double(json['price_total']),
@@ -768,18 +794,13 @@ class ShipmentParty {
     );
   }
 
-  /// Identifier for opening this user's public profile. The /users/{id}
-  /// endpoint accepts either a numeric id or a username, so fall back to the
-  /// username when the backend omits the id. Null when neither is present.
   String? get profileId {
     final resolved = (id ?? username ?? '').trim();
     return resolved.isEmpty ? null : resolved;
   }
 
-  /// Full avatar url. Empty when none.
   String get avatarUrl => ChatUser._resolveAvatar(avatarFull);
 
-  /// Thumbnail url — for the small counterpart avatar on deal cards/sheets.
   String get avatarThumbUrl {
     final thumb = ChatUser._resolveAvatar(avatarThumb);
     return thumb.isNotEmpty ? thumb : avatarUrl;

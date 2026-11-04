@@ -2,28 +2,13 @@ import 'package:dio/dio.dart';
 
 import '../../../../../main.dart';
 
-/// Feature flag for the promo-codes + app-review-reward feature. The backend
-/// endpoints are still being finalized — while this is `true` the client calls
-/// them but degrades gracefully on 404 (promo list → empty state, review prompt
-/// → not shown). Flip to `false` to hide EVERY promo/rate touchpoint and skip
-/// all calls: the "Promokodlarım" menu row, the promo-code input on VIP/Featured
-/// checkout, the auto review prompt, and the "Rate app" entry (its only purpose
-/// is granting a promo code). Turned OFF for now — the promo feature is parked
-/// until the backend side is ready; flip back to `true` to bring it all back.
 const bool kPromoFeatureEnabled = false;
 
-/// Data-layer for promo codes and the store-review reward prompt.
-///
-/// Mirrors [BlockedUsersApi]: manual `fromJson`, `sl.get<Dio>()`, global
-/// [baseUrl]. Every call is defensive — a 404 (endpoint not live yet) or a
-/// malformed body resolves to an empty/placeholder result instead of throwing,
-/// so nothing fake is ever shown and the UI just falls back to empty/skip.
 class PromoApi {
   PromoApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
   final Dio _dio;
 
-  /// GET /me/promo-codes?status=active|used|expired
   Future<PromoCodesPage> getPromoCodes({String status = 'active'}) async {
     if (!kPromoFeatureEnabled) return const PromoCodesPage.empty();
     try {
@@ -33,14 +18,11 @@ class PromoApi {
       );
       return PromoCodesPage.fromJson(response.data ?? const {});
     } on DioException catch (error) {
-      // Endpoint not live yet / nothing to show → empty, never fake data.
       if (_isMissing(error)) return const PromoCodesPage.empty();
       rethrow;
     }
   }
 
-  /// GET /me/app-review-prompt → whether to show the store-review alert now.
-  /// Returns `null` when the feature is off or the endpoint is missing.
   Future<AppReviewPrompt?> getReviewPrompt() async {
     if (!kPromoFeatureEnabled) return null;
     try {
@@ -54,23 +36,12 @@ class PromoApi {
     }
   }
 
-  /// POST /me/app-review-prompt/{shown|dismissed}. `prompt_token` is OPTIONAL —
-  /// sent only when we have one (e.g. the "Rate app" page may have none).
-  /// Fire-and-forget: telemetry must never block or break the UI, so failures
-  /// are swallowed.
   Future<void> markReviewShown({String? promptToken}) =>
       _postReview('shown', body: _tokenBody(promptToken));
 
   Future<void> markReviewDismissed({String? promptToken}) =>
       _postReview('dismissed', body: _tokenBody(promptToken));
 
-  /// POST /me/app-review-prompt/rated {prompt_token?, rating?}. `prompt_token`
-  /// is OPTIONAL: the backend grants the reward without it (used by the standalone
-  /// "Rate app" page); when present it additionally rejects a stale in-flight
-  /// prompt. The backend credits the promo code once and returns the full reward
-  /// (code + amount + expiry). Resolves to that reward, or `null` when none is
-  /// granted / already spent (already-rated re-taps return `{ granted: false }` →
-  /// null — the "one reward per user" guarantee is enforced server-side).
   Future<ReviewReward?> markReviewRated(
       {String? promptToken, int? rating}) async {
     if (!kPromoFeatureEnabled) return null;
@@ -104,7 +75,6 @@ class PromoApi {
         data: body,
       );
     } catch (_) {
-      // best-effort telemetry — ignore.
     }
   }
 
@@ -114,15 +84,14 @@ class PromoApi {
   }
 }
 
-/// A single promo code (coupon) owned by the user.
 class PromoCode {
   final String id;
   final String code;
   final num amount;
-  final String currency; // e.g. "$" or "AZN"
-  final String status; // active | used | expired
-  final String source; // rate_review | referral | welcome | admin
-  final String sourceLabel; // localized, straight from backend
+  final String currency;
+  final String status;
+  final String source;
+  final String sourceLabel;
   final num? minOrderAmount;
   final DateTime? expiresAt;
   final DateTime? usedAt;
@@ -146,7 +115,6 @@ class PromoCode {
   bool get isUsed => status == 'used';
   bool get isExpired => status == 'expired';
 
-  /// "5$" — integer amounts drop the decimals.
   String get amountLabel {
     final symbol = currency == 'AZN' ? '\$' : currency;
     final rounded = amount == amount.roundToDouble()
@@ -155,7 +123,6 @@ class PromoCode {
     return '$rounded$symbol';
   }
 
-  /// Whole days until expiry (null when no expiry). Negative → already past.
   int? get daysLeft {
     if (expiresAt == null) return null;
     final now = DateTime.now();
@@ -184,7 +151,6 @@ class PromoCode {
   }
 }
 
-/// A page of promo codes + the active-count meta used by the menu badge.
 class PromoCodesPage {
   final List<PromoCode> data;
   final int activeCount;
@@ -215,8 +181,6 @@ class PromoCodesPage {
   }
 }
 
-/// The store-review reward prompt payload. Timing/frequency is 100% backend
-/// driven — the client only reads [shouldShow] and renders.
 class AppReviewPrompt {
   final bool shouldShow;
   final bool alreadyRated;
@@ -246,8 +210,6 @@ class AppReviewPrompt {
     required this.content,
   });
 
-  /// A neutral default so the standalone rate page can still function (native
-  /// review) before the backend endpoint is live. Never shows fake reward data.
   const AppReviewPrompt.fallback()
       : shouldShow = true,
         alreadyRated = false,
@@ -270,8 +232,6 @@ class AppReviewPrompt {
     return '$rounded $symbol';
   }
 
-  /// The reward the user already holds (already-rated, code still valid), or
-  /// `null` when there's no active code to show.
   ReviewReward? get existingReward => (rewardCode ?? '').isEmpty
       ? null
       : ReviewReward(
@@ -309,9 +269,6 @@ class AppReviewPrompt {
   }
 }
 
-/// The promo code the backend grants for a store review — code + amount +
-/// validity window. Returned by [PromoApi.markReviewRated] and surfaced inline
-/// on the rate page so the user sees exactly how long they have to use it.
 class ReviewReward {
   final String code;
   final num amount;
@@ -329,7 +286,6 @@ class ReviewReward {
 
   bool get hasCode => code.isNotEmpty;
 
-  /// "5 $" — integer amounts drop the decimals.
   String amountLabel() {
     final symbol = currency == 'AZN' ? '\$' : currency;
     final rounded = amount == amount.roundToDouble()
@@ -338,7 +294,6 @@ class ReviewReward {
     return '$rounded $symbol';
   }
 
-  /// Whole days until expiry (null when no expiry). Negative → already past.
   int? get daysLeft {
     if (expiresAt == null) return null;
     final now = DateTime.now();

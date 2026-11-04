@@ -3,9 +3,6 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../presentation/resourses/wawat_dark.dart';
 
-/// Icon + accent + background for a notification [type]. Shared by the in-app
-/// notification list and the live banner so both stay in lock-step (add a new
-/// type once, here).
 class NotificationVisual {
   final IconData icon;
   final Color color;

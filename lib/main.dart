@@ -38,6 +38,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/push_notification_service.dart';
 import 'services/network_status_service.dart';
 import 'services/notification_socket_service.dart';
+import 'services/retry_gate.dart';
 import 'services/telemetry/telemetry.dart';
 import 'services/telemetry/telemetry_events.dart';
 import 'services/telemetry/telemetry_interceptor.dart';
@@ -51,34 +52,21 @@ const baseUrl = 'https://api.wawatair.com/api/v1';
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
 
-/// Навигационные хлебные крошки для Crashlytics — см. wawat_app.dart.
 final telemetryRouteObserver = TelemetryRouteObserver();
 
 late ThemeManager themeManager;
 
 void main() {
-  // Всё — инициализация биндинга и runApp — внутри одной зоны.
-  //
-  // runZonedGuarded ловит асинхронные ошибки, до которых не дотягивается
-  // PlatformDispatcher.onError (таймеры, стримы, Future без catchError).
-  // Но если вызвать ensureInitialized() снаружи зоны, а runApp внутри,
-  // Flutter репортит «Zone mismatch» (BindingBase.debugCheckZone) — и этот
-  // отчёт уходил бы в Crashlytics при каждом запуске отладочной сборки.
   Telemetry.runGuarded(_bootstrap);
 }
 
 Future<void> _bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase и пуши требуют Google Play Services. На устройствах без них или с отключённым Play — не падаем, работаем без пушей.
-  // Тот же флаг решает, поднимутся ли Crashlytics/Analytics/Performance:
-  // без Firebase телеметрия уходит только на собственный бэкенд.
   var firebaseReady = false;
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
-    // Must be registered immediately after Firebase.initializeApp(), before runApp().
-    // Must be a top-level function — see push_notification_service.dart.
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     firebaseReady = true;
   } catch (e) {
@@ -109,9 +97,6 @@ Future<void> _bootstrap() async {
   themeManager = await ThemeManager.create();
   await NetworkStatusService.instance.initialize();
 
-  // Телеметрия поднимается до пушей и до runApp, чтобы поймать ошибки самого
-  // старта. Зависит от CacheManager (токен) и NetworkStatusService (не слать
-  // пачки в офлайне), поэтому идёт после _registerDependency().
   await Telemetry.instance.init(
     firebaseReady: firebaseReady,
     baseUrl: baseUrl,
@@ -120,23 +105,16 @@ Future<void> _bootstrap() async {
   );
   _bindUserIdentity();
 
-  // The standalone dev_iap.dart entry keeps using local catalogue/validation
-  // seams. The production app loads the authenticated backend catalogue.
   if (kIapEnabled) {
     unawaited(_initializeIap());
   }
 
-  // Локализация из CMS: диск-кэш грузится мгновенно, затем рефетч по ETag.
-  // Не блокируем старт — UI пересоберётся, когда карта готова (notifyListeners).
   final savedLocale = await sl.get<CacheManager>().getLocaleAsync();
   unawaited(
       LocalizationService.instance.load(savedLocale?.languageCode ?? 'az'));
 
   try {
     final pushService = PushNotificationService();
-    // Колбэк возвращает Future и НЕ глотает ошибку: по ней сервис понимает,
-    // что токен до бэкенда не доехал, и повторит отправку на следующем
-    // возврате из фона (ошибку он логирует сам).
     pushService.setOnTokenUpdated(
       (token) => sl.get<AuthRepository>().registerFcmToken(token),
     );
@@ -150,11 +128,6 @@ Future<void> _bootstrap() async {
   }
 
   runApp(WawatApp());
-  // NOTE: a cold-start push tap is NOT flushed here. At first frame the only
-  // route is SpleshScreen, and SpleshScreen replaces the top route with Home
-  // after its delay — which would destroy any screen pushed now. The pending
-  // tap is flushed from HomeScreen.initState instead, so the target lands on
-  // top of Home. See flushPendingNotificationNavigation() / notification_router.
 }
 
 Future<void> _initializeIap() async {
@@ -186,22 +159,9 @@ void _registerDependency() {
     return bloc;
   });
 
-  // Global new-message banner + badge over the shared Reverb socket. Adds the
-  // app-resume observer and makes the first (idempotent) connect attempt; the
-  // realtime loop keeps the personal channel joined after login.
   NotificationSocketService.instance.init();
 }
 
-
-/// Привязывает поток телеметрии к текущему пользователю.
-///
-/// Слушаем кэш, а не точки логина: `saveUser` вызывается и при логине, и при
-/// регистрации, и при каждом `/auth/me`, поэтому один подписчик покрывает все
-/// пути входа — включая восстановление сессии при холодном старте.
-///
-/// В `setUserId` уходит **внутренний id**, не телефон и не e-mail: Firebase
-/// прямо запрещает класть туда персональные данные, и на этом ловятся ревью
-/// в сторах.
 void _bindUserIdentity() {
   sl.get<CacheManager>().userDetails.listen(
     (user) {
@@ -236,28 +196,15 @@ Dio _initDio() {
 
   dio.options.headers["content-type"] = "application/json";
   dio.options.headers["accept"] = "application/json";
-  // Сервер отвечает за 90–150 мс. Прежние 120 секунд означали, что при
-  // пропаже сети экран висел две минуты, а телеметрия писала status 0 —
-  // 2513 оборванных запроса за месяц. Ждём ровно столько, сколько имеет
-  // смысл ждать.
-  //
-  // sendTimeout оставлен большим намеренно: он срабатывает только когда мы
-  // отправляем тело, то есть на загрузке аватара и документов верификации.
-  // Для обычного JSON-запроса тело уходит мгновенно и этот лимит недостижим.
   dio.options.connectTimeout = const Duration(seconds: 10);
   dio.options.receiveTimeout = const Duration(seconds: 20);
   dio.options.sendTimeout = const Duration(seconds: 60);
+  dio.interceptors.add(RetryGate());
   dio.interceptors.add(CallInterceptor());
-  // Тела запросов/ответов содержат токены, телефоны и переписку. В релизе они
-  // попадали бы в logcat/os_log, откуда их читает любое приложение с доступом
-  // к логам устройства — это прямое нарушение того, что мы декларируем в
-  // App Privacy и Data safety. Поэтому подробный лог только в debug.
   if (kDebugMode) {
     dio.interceptors.add(LogInterceptor(
         requestBody: true, responseBody: true, logPrint: logger.d));
   }
-  // Ставится последним: видит финальные заголовки от CallInterceptor и все
-  // ошибки, пропущенные им дальше по цепочке.
   dio.interceptors.add(TelemetryInterceptor());
   sl.registerLazySingleton<Dio>(() => dio);
 

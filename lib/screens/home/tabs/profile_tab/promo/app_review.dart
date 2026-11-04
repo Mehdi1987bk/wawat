@@ -9,7 +9,6 @@ import 'package:buking/services/localization_service.dart';
 import '../../../../../presentation/common/app_bottom_sheet.dart';
 import 'promo_api.dart';
 
-// ── Wawatair navy palette (shared spec) ──────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _brand700 = Color(0xFF024FA3);
 const _accent = Color(0xFFF2FC2A);
@@ -38,13 +37,9 @@ Color _cBrandText(bool d) => d ? _dBrandText : _brand;
 Color _cBrandSoft(bool d) =>
     d ? _brand.withValues(alpha: 0.14) : const Color(0xFFEAF3FE);
 
-/// Orchestrates the store-review reward flow. Timing/frequency is 100% backend
-/// driven (see [PromoApi.getReviewPrompt]) — this only renders and reports back.
 class AppReviewFlow {
   AppReviewFlow._();
 
-  /// Fetches the prompt and, if the backend says `should_show`, shows the alert.
-  /// Safe to call on app start — silently no-ops when disabled / not due.
   static Future<void> maybePrompt(BuildContext context, {PromoApi? api}) async {
     if (!kPromoFeatureEnabled) return;
     final prompt = await (api ?? PromoApi()).getReviewPrompt();
@@ -53,7 +48,6 @@ class AppReviewFlow {
     await show(context, prompt: prompt, api: api);
   }
 
-  /// Shows the alert immediately (used by the "Tətbiqi qiymətləndir" earn card).
   static Future<void> show(
     BuildContext context, {
     AppReviewPrompt? prompt,
@@ -70,9 +64,6 @@ class AppReviewFlow {
     );
   }
 
-  /// Same review flow as [show], but presented as a bottom sheet — used by the
-  /// explicit "Rate app" button so a tap opens a sheet (stars → store), never
-  /// launches the store straight away. Resolves to the granted reward, if any.
   static Future<ReviewReward?> showSheet(
     BuildContext context, {
     AppReviewPrompt? prompt,
@@ -91,14 +82,6 @@ class AppReviewFlow {
     );
   }
 
-  /// Explicit "Rate in Store" tap → open the store listing, then report `rated`
-  /// to the backend and resolve to the granted reward (code + amount + expiry)
-  /// or `null`. Reusable by the rate page.
-  ///
-  /// NOTE: this deliberately does NOT use `InAppReview.requestReview()` — the
-  /// in-app review overlay is quota-limited by Google/Apple and very often shows
-  /// nothing, which made the button feel dead. In-app review is only appropriate
-  /// for the automatic prompt (see the dialog), never for an explicit button.
   static Future<ReviewReward?> requestStoreReview(
     BuildContext context, {
     AppReviewPrompt? prompt,
@@ -106,11 +89,6 @@ class AppReviewFlow {
     PromoApi? api,
   }) async {
     final resolved = api ?? PromoApi();
-    // Credit the reward BEFORE opening the store. Launching the store listing
-    // backgrounds the app — on iOS the App Store opens as a separate app and iOS
-    // suspends us within a couple of seconds — so a POST fired afterwards is
-    // routinely cut off mid-flight and returns no code (the "iOS gives no promo"
-    // bug). Fetch the code while we are still foreground, then hand off.
     final reward = await resolved.markReviewRated(
         promptToken: prompt?.promptToken, rating: rating);
     if (context.mounted) {
@@ -119,14 +97,9 @@ class AppReviewFlow {
     return reward;
   }
 
-  /// Just opens the store listing — no reward, no backend call. Used by the
-  /// "Rate app" page while the promo reward is parked: the user can still rate,
-  /// but nothing about a promo code is shown or granted.
   static Future<void> openStoreListing(BuildContext context) =>
       _openStore(context, null);
 
-  /// Opens the store listing as reliably as possible: backend-provided URL →
-  /// hardcoded Play fallback (we know the package) → native `openStoreListing`.
   static Future<void> _openStore(
       BuildContext context, AppReviewPrompt? prompt) async {
     final isIos = Theme.of(context).platform == TargetPlatform.iOS;
@@ -141,8 +114,6 @@ class AppReviewFlow {
         return;
       }
     }
-    // Last resort: Android opens the Play page for the running package with no
-    // URL; iOS needs the App Store id, so it only works once _appStoreId is set.
     try {
       await InAppReview.instance.openStoreListing(
           appStoreId: _appStoreId.isEmpty ? null : _appStoreId);
@@ -150,18 +121,11 @@ class AppReviewFlow {
   }
 }
 
-/// Play Store listing for this app's package — the guaranteed fallback so the
-/// "Rate in Store" button always opens something even before the backend prompt
-/// endpoint (which supplies platform store URLs) is live.
 const String _fallbackAndroidStoreUrl =
     'https://play.google.com/store/apps/details?id=az.buking.buking';
 
-/// Numeric App Store id for `wawat.app` (Wawat Air) — resolved from the live
-/// App Store listing. REQUIRED for iOS: apps.apple.com links and openStoreListing
-/// both need it, otherwise iOS has no way to deep-link to the listing.
 const String _appStoreId = '6755226789';
 
-/// iOS App Store review composer for this app — null until [_appStoreId] is set.
 String? get _fallbackIosStoreUrl => _appStoreId.isEmpty
     ? null
     : 'https://apps.apple.com/app/id$_appStoreId?action=write-review';
@@ -170,8 +134,6 @@ class _ReviewDialog extends StatefulWidget {
   final AppReviewPrompt prompt;
   final PromoApi api;
 
-  /// Render as a bottom sheet (rounded top + drag handle) instead of a centered
-  /// dialog. Used by the "Rate app" button so it opens a sheet, not the store.
   final bool asSheet;
 
   const _ReviewDialog(
@@ -207,13 +169,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
   Future<void> _goStore() async {
     setState(() => _stage = _Stage.redirecting);
-    // Credit the reward BEFORE opening the store. Opening the store backgrounds
-    // the app (on iOS the App Store is a separate app and iOS suspends us within
-    // seconds), so a POST fired afterwards is often cut off and returns no code.
-    // Fetch it while foreground, then send the user to the review composer. We
-    // intentionally do NOT use InAppReview.requestReview() here: on iOS it's a
-    // quota-limited overlay that often shows nothing and never opens the App
-    // Store — exactly the "keçid yoxdu" the user hit.
     final reward = await widget.api.markReviewRated(
         promptToken: widget.prompt.promptToken, rating: _rating);
     await _openStoreUrl();

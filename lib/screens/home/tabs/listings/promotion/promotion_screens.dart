@@ -39,8 +39,6 @@ const _ink300 = Color(0xFFCBD5E1);
 const _screen = Color(0xFFEEF1F6);
 const _emerald = Color(0xFF10B981);
 
-// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не
-// меняется), тёмная ветка = единый графит из [WawatDark].
 Color _cScreen(bool d) => d ? WawatDark.bg : _screen;
 Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
 Color _cFill(bool d) =>
@@ -61,9 +59,7 @@ Future<void> openPromotionFlow(
   Promotion? promotion,
   bool forceNew = false,
 }) async {
-  // Every CTA is already hidden for these listings; this is the safety net.
   if (!listing.canBePromoted) return;
-  // No boost on a VIP listing (VIP on a boosted one is fine).
   if (type == 'featured' && !listing.canBuyBoost) return;
   await Navigator.of(context).push(
     MaterialPageRoute(
@@ -326,18 +322,12 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
   late final PromotionApi _api = PromotionApi(sl.get<Dio>());
   late Future<_PromotionBundle> _future;
 
-  /// Boost selection — the package code (`large` | `medium` | `small`).
   String? _selectedPackage;
 
-  /// VIP selection — the duration in days.
   int? _selectedDuration;
 
-  /// The server says the listing can't be promoted any more (see
-  /// [_listingStillPromotable]) → nothing is offered, only a way back.
   bool _listingNotPromotable = false;
 
-  /// A boost was opened for a listing that is VIP by now (stale card) — VIP
-  /// and boost don't mix, so only a way back is offered.
   bool _boostBlockedByVip = false;
 
   @override
@@ -346,9 +336,6 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
     _future = _load();
   }
 
-  /// Fresh server status of the listing. The card that opened this flow may be
-  /// stale (the listing expired while the list sat open) and the backend
-  /// doesn't reject orders by status yet — so re-check before offering a thing.
   Future<bool> _listingStillPromotable() async {
     try {
       final fresh = (await sl.get<AuthRepository>().getListingDetails(
@@ -360,8 +347,6 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
           !fresh.canBuyBoost;
       return fresh.canBePromoted;
     } on DioException catch (error) {
-      // Gone (deleted) → no. Any other failure → trust the caller's copy,
-      // which [openPromotionFlow] has already checked.
       return error.response?.statusCode != 404 && widget.listing.canBePromoted;
     } catch (_) {
       return widget.listing.canBePromoted;
@@ -455,8 +440,6 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
         }
         final existing = bundle.existingPromotion;
 
-        // The backend catalog owns package metadata. StoreKit / Play Billing
-        // owns product availability, localized currency and the charged price.
         if (widget.initialType == 'vip') {
           final vipProducts = <int, ProductDetails>{};
           final vipCatalog = <int, IapCatalogProduct>{};
@@ -512,7 +495,6 @@ class _PromotionPurchaseScreenState extends State<PromotionPurchaseScreen> {
           );
         }
 
-        // Boost — guaranteed-impressions packages (no tiers, no days).
         final boostOffers = _boostStoreOffers(bundle);
         final selected = boostOffers
             .where((offer) => offer.package == _selectedPackage)
@@ -559,11 +541,8 @@ class _PromotionCheckoutScreen extends StatefulWidget {
   final Map<String, String> content;
   final String type;
 
-  /// VIP duration in days — null for boost (which has no days).
   final int? duration;
 
-  /// Boost package code + label and its guaranteed-impressions range. Null for
-  /// VIP.
   final String? package;
   final String? packageLabel;
   final int? guaranteedMin;
@@ -594,28 +573,21 @@ class _PromotionCheckoutScreen extends StatefulWidget {
 }
 
 class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
-  /// Neutral (blue) note for a deferred store payment — not an error.
   String? _notice;
   final _promoCode = TextEditingController();
   bool _loading = false;
   String? _error;
 
-  /// The pending order — created lazily (either when the user applies a promo,
-  /// so we have an id to quote against, or on "checkout"). Kept so we never
-  /// create the order twice. The extend flow (`existingPromotion != null`) has
-  /// no promo step and never touches this.
   Promotion? _order;
   late final String _createKey =
       'promotion-${DateTime.now().microsecondsSinceEpoch}';
 
-  PromotionQuote? _quote; // last APPLICABLE quote (drives discount + total)
+  PromotionQuote? _quote;
   bool _quoting = false;
-  String? _promoMessage; // non-applicable reason / quote error, shown in red
+  String? _promoMessage;
 
   bool get _isNew => widget.existingPromotion == null;
   bool get _isBoost => widget.type == 'featured';
-  // Store purchases do not accept application promo codes. Apple/Google offer
-  // codes can be integrated here later as a separate store-native feature.
   bool get _supportsPromoCodes => false;
   bool get _hasDiscount => _quote != null && _quote!.applicable;
   String get _storePrice => widget.storeProduct.price;
@@ -626,8 +598,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
     super.dispose();
   }
 
-  /// Create the pending order once (NO promo at create — the code rides on quote
-  /// + pay per the backend contract) and reuse it thereafter.
   Future<Promotion> _ensureOrder() async {
     final existing = _order;
     if (existing != null) return existing;
@@ -704,8 +674,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
 
   Future<void> _continue() async {
     if (_loading) return;
-    // Let the user pick how to pay: the store (Apple Pay / Google Play via IAP)
-    // or a bank card (Kapital hosted 3-D Secure). Dismissing the sheet aborts.
     final method = await showAppBottomSheet<_PayMethod>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -734,8 +702,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
       if (_isNew) {
         promotion = await _ensureOrder();
       } else {
-        // Boost re-buy = empty body (same package, fresh guarantee); VIP adds
-        // days. Sending duration_days for boost would 422.
         final response = await widget.api.extendPromotion(
           widget.existingPromotion!.id,
           _isBoost
@@ -763,10 +729,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
         await _startCardPayment(promotion);
         return;
       }
-      // Store (App Store / Play) IAP: launch the purchase sheet directly over
-      // THIS checkout screen, keeping the button in its loading state. We never
-      // push a processing screen first — the system sheet must appear over
-      // checkout, not over a spinner. Only a confirmed purchase advances.
       await _startStorePayment(promotion);
     } catch (error) {
       if (!mounted) return;
@@ -777,17 +739,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
     }
   }
 
-  /// Runs the App Store / Play purchase for [promotion] with the checkout button
-  /// in its loading state, so the StoreKit sheet appears over this screen.
-  ///
-  /// * Cancel (X) → not a failure: stay here, reset the button, ready to retry
-  ///   (a retry re-opens the sheet; the just-canceled transaction is finished in
-  ///   [IapService] so it can't trigger `storekit_duplicate_product_object`).
-  /// * Error → inline message, no new charge.
-  /// * Pending (deferred: Play pending / Ask to Buy) → blue "processing" note.
-  /// * Purchased/restored → the backend receipt check already ran inside
-  ///   [IapService.purchase]; read the promotion back (polling once more while
-  ///   activation is still pending) and move to the status screen.
   Future<void> _startStorePayment(Promotion promotion) async {
     final method = Platform.isIOS ? 'app_store' : 'google_play';
     try {
@@ -804,9 +755,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
         return;
       }
       if (result.outcome == IapOutcome.pending) {
-        // A deferred store payment (Play pending / Ask to Buy): neither paid nor
-        // failed yet. Don't read the promotion or log a failure — the store
-        // delivers the verdict later and the backend activates it then.
         setState(() {
           _loading = false;
           _error = null;
@@ -837,16 +785,12 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
         });
         return;
       }
-      // Keep the whole response, not just `.data`: it carries the receipt, and
-      // without it the status screen has no «Qəbz» (card path does the same).
       var response = await widget.api.getPromotion(promotion.id);
       if (!_isResolvedPromotionStatus(response.data.status)) {
         final polled = await _pollPromotionUntilResolved(
           widget.api,
           response.data,
         );
-        // The latest read wins; a poll that never got through has no receipt,
-        // so the first one stays.
         response = PromotionResponse(
           data: polled.data,
           receipt: polled.receipt ?? response.receipt,
@@ -856,7 +800,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
       Telemetry.instance.event(
         TelemetryEvents.purchase,
         params: {
-          // Store price is the real amount charged — never the backend AZN.
           TelemetryParams.value: widget.storeProduct.rawPrice,
           TelemetryParams.currency: widget.storeProduct.currencyCode,
           TelemetryParams.transactionId: resolved.id,
@@ -903,9 +846,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
     }
   }
 
-  /// Card path: ask the backend for the Kapital hosted checkout URL, open it in
-  /// a WebView, then confirm the real status server-side (the redirect is only a
-  /// hint; the backend activates idempotently).
   Future<void> _startCardPayment(Promotion order) async {
     final response = await widget.api.payPromotion(
       order.id,
@@ -916,11 +856,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
     final paid = response.data;
     final checkoutUrl = paid.payment?.checkoutUrl;
     if (checkoutUrl == null || checkoutUrl.isEmpty) {
-      // The mock/dev gateway settles the order server-side and returns no hosted
-      // Kapital page. An already-paid order (active / pending_activation) is a
-      // success, not a failure — confirm it on the result screen instead of
-      // showing "payment failed". A real card charge (mock off) always returns a
-      // checkout_url, so this branch only fires while mock_payments is on.
       if (paid.status == 'active' || paid.status == 'pending_activation') {
         if (!mounted) return;
         await Navigator.of(context).push(
@@ -954,7 +889,6 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
       ),
     );
     if (!mounted) return;
-    // Closed the bank page without a verdict → stay on checkout to retry.
     if (outcome == null || outcome == CardCheckoutResult.abandoned) {
       setState(() => _loading = false);
       return;
@@ -1245,11 +1179,8 @@ class _PromotionCheckoutScreenState extends State<_PromotionCheckoutScreen> {
   }
 }
 
-/// How the user chose to pay for a promotion.
 enum _PayMethod { store, card }
 
-/// Bottom sheet that lets the user pick the payment method: the app store
-/// (Apple Pay / Google Play via IAP) or a bank card (Kapital 3-D Secure).
 class _PaymentMethodSheet extends StatelessWidget {
   final Map<String, String> content;
   final String storePrice;
@@ -1259,8 +1190,6 @@ class _PaymentMethodSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // On iOS the store tile is an App Store in-app purchase, not Apple Pay —
-    // label it accurately so users aren't looking for an Apple Pay sheet.
     final storeTitle = Platform.isIOS
         ? _tx(content, 'promotion.pay.store_apple', 'App Store')
         : _tx(content, 'promotion.pay.store_google', 'Google Play');
@@ -1309,11 +1238,6 @@ class _PaymentMethodSheet extends StatelessWidget {
               trailing: storePrice,
               onTap: () => Navigator.pop(context, _PayMethod.store),
             ),
-            // Bank card (Kapital hosted 3-D Secure) is offered on every
-            // platform by product-owner decision. NOTE: on iOS, charging a
-            // card for a digital promotion outside the App Store is against
-            // Apple guideline 3.1.1 and can get the app rejected/removed —
-            // kept intentionally at the owner's request.
             _PayMethodTile(
               isDark: isDark,
               icon: PhosphorIconsBold.creditCard,
@@ -1423,10 +1347,6 @@ class _PayMethodTile extends StatelessWidget {
   }
 }
 
-/// After the Kapital WebView closes, confirms the promotion's real status with
-/// `GET /promotions/{id}` (polling while it's still processing) and hands off to
-/// [PromotionStatusScreen]. The backend activates idempotently, so re-entering
-/// here can never double-charge.
 class _CardResultScreen extends StatefulWidget {
   final PromotionApi api;
   final Listing listing;
@@ -1573,9 +1493,6 @@ class _CardResultScreenState extends State<_CardResultScreen> {
   }
 }
 
-/// Bottom sheet listing the user's active promo codes (GET /me/promo-codes).
-/// Tapping one pops the sheet with that [PromoCode]; the checkout screen then
-/// fills the field with its code and re-quotes.
 class _PromoWalletSheet extends StatefulWidget {
   final Map<String, String> content;
 
@@ -1801,10 +1718,6 @@ class _PromoWalletTile extends StatelessWidget {
   }
 }
 
-/// Polls `GET /promotions/{id}` until the promotion reaches a terminal status
-/// (active / failed / …) so a freshly paid IAP still `pending_activation`
-/// server-side resolves before the status screen renders. Bounded, so it can
-/// never hang the UI.
 Future<PromotionResponse> _pollPromotionUntilResolved(
   PromotionApi api,
   Promotion promotion,
@@ -1830,13 +1743,8 @@ class PromotionStatusScreen extends StatefulWidget {
   final Map<String, String> content;
   final Promotion initialPromotion;
 
-  /// Unified payment receipt — the "Qəbz" button shows only when it's paid.
   final Receipt? receipt;
 
-  /// For App Store / Play (IAP) payments, the real localized price the store
-  /// charged (e.g. `$1.99`). When set, the amount row shows THIS instead of the
-  /// backend `amount` in AZN — the two differ (Apple price tier vs backend
-  /// price) and the store value is what the user actually paid. Null for card.
   final String? storePriceLabel;
 
   const PromotionStatusScreen({
@@ -1862,9 +1770,6 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
   void initState() {
     super.initState();
     _receipt = widget.receipt;
-    // Safety net: whoever opened this screen didn't hand over the receipt.
-    // The «Statusu yenilə» button (the other way to get it) is hidden once the
-    // promotion is active, so fetch it here or «Qəbz» never appears.
     if (_receipt == null) _loadMissingReceipt();
   }
 
@@ -1874,7 +1779,6 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
       if (!mounted || response.receipt == null) return;
       setState(() => _receipt = response.receipt);
     } catch (_) {
-      // Silent: the screen still works; only the receipt button stays hidden.
     }
   }
 
@@ -1898,12 +1802,6 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final status = _promotion.status;
-    // pending_activation is NOT a success: the payment was taken but the promo
-    // only starts once the listing is approved (listing still in moderation).
-    // Keep it out of `active` so it renders the honest amber "waiting" state
-    // (hourglass + "starts after approval" note + a recheck button) instead of
-    // the green celebration, which would falsely tell the user the listing is
-    // already VIP/boosted.
     final active = status == 'active';
     final pendingActivation = status == 'pending_activation';
     final failed = status == 'failed';
@@ -2039,7 +1937,6 @@ class _PromotionStatusScreenState extends State<PromotionStatusScreen> {
                         'promotion.status.amount',
                         'Məbləğ',
                       ),
-                      // IAP: show the store's real charged price; card: AZN.
                       value:
                           widget.storePriceLabel ??
                           '${_money(_promotion.amount)} AZN',
@@ -2145,13 +2042,8 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
   int _expiredCount = 0;
   String? _error;
 
-  /// Listing ids whose listing may still be promoted (see
-  /// [Listing.canBePromoted]). Only these get the Uzat / Yenilə chip. Rebuilt
-  /// on every load, so a listing that expired meanwhile loses it on refresh.
   Set<String> _promotableListingIds = const {};
 
-  /// Listings with a running VIP (from the active list, loaded anyway). A boost
-  /// can't be bought for them, so their boost items get no Uzat / Yenilə.
   Set<String> _vipListingIds = const {};
 
   @override
@@ -2196,11 +2088,6 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
     }
   }
 
-  /// Which of [items]' listings may still be promoted. Uses the status the
-  /// backend embeds in the promotion when present; the rest are looked up in
-  /// the user's own listings (`/listings/my`, usually a single page). Not found
-  /// (deleted) or a failed lookup → no chip: better than selling a promotion
-  /// the listing can't use.
   Future<Set<String>> _resolvePromotableListingIds(
     List<Promotion> items,
   ) async {
@@ -2220,7 +2107,6 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
       final repository = sl.get<AuthRepository>();
       var page = 1;
       var lastPage = 1;
-      // Walks pages only until every unknown listing is found (capped).
       while (unknown.isNotEmpty && page <= lastPage && page <= 10) {
         final result = await repository.getMyListings(page: page, perPage: 50);
         for (final listing in result.data) {
@@ -2298,8 +2184,6 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
                       itemBuilder: (context, index) {
                         final item = _items[index];
                         final listingId = item.listingId ?? item.listing?.id;
-                        // Uzat / Yenilə only for a still-promotable listing,
-                        // and never a boost for a listing that is VIP now.
                         final canBuy =
                             _promotableListingIds.contains(listingId) &&
                             !(item.type == 'featured' &&
@@ -2319,13 +2203,6 @@ class _MyPromotionsScreenState extends State<MyPromotionsScreen> {
   }
 }
 
-/// Boost = pick one of three guaranteed-impressions packages (large / medium /
-/// small). No tier band, no days — the listing stays boosted until it hits its
-/// target impressions. When [existing] is set (an active boost), this becomes a
-/// "re-buy the same package" screen: the current progress is shown on top and
-/// only that package is offered (the extend endpoint always re-buys the same
-/// one). Product availability and prices come from the store. Localized names
-/// and guarantee ranges come from the backend purchase catalog.
 class _BoostPackagePage extends StatelessWidget {
   final Listing listing;
   final Map<String, String> content;
@@ -2508,9 +2385,6 @@ class _BoostPackagePage extends StatelessWidget {
   }
 }
 
-/// One guaranteed-impressions package card: name + flat price + guaranteed
-/// impression range. Radio-style single select; the recommended (largest)
-/// package carries a soft brand border and a "recommended" pill.
 class _BoostPackageCard extends StatelessWidget {
   final _BoostStoreOffer offer;
   final Map<String, String> content;
@@ -2679,9 +2553,6 @@ class _BoostPackageCard extends StatelessWidget {
   }
 }
 
-/// Small "payment is non-refundable" note shown under the package list — the
-/// backend copy (`promotion.boost.no_refund_note`) spells out that an unmet
-/// guarantee is handled manually via support.
 class _NoRefundNote extends StatelessWidget {
   final Map<String, String> content;
 
@@ -3487,7 +3358,6 @@ class _CheckoutSummaryCard extends StatelessWidget {
   final int? guaranteedMin;
   final int? guaranteedMax;
 
-  /// VIP duration in days — null for boost.
   final int? duration;
   final Map<String, String> content;
 
@@ -3591,8 +3461,6 @@ class _CheckoutSummaryCard extends StatelessWidget {
                             ))
                       : _tx(content, 'enum.promotion_type.vip', 'VİP'),
                 ),
-                // Boost = guaranteed impressions, no days/start/end. VIP keeps
-                // the duration + start + end summary.
                 if (boost && guaranteedMin != null && guaranteedMax != null)
                   _CheckoutRow(
                     label: _tx(
@@ -3694,7 +3562,6 @@ class _PromotionHistoryCard extends StatelessWidget {
   final Map<String, String> content;
   final Promotion promotion;
 
-  /// Uzat / Yenilə. Null → the listing can't be promoted, no chip at all.
   final VoidCallback? onTap;
 
   const _PromotionHistoryCard({
@@ -3761,8 +3628,6 @@ class _PromotionHistoryCard extends StatelessWidget {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: onTap,
-                  // Extra transparent margin around the chip → a comfortable,
-                  // reliable tap target (the bare chip was easy to miss).
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
@@ -4125,8 +3990,6 @@ class _StepTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Кружок-номер остаётся бренд/amber ЗАЛИВКОЙ; подпись как ТЕКСТ должна быть
-    // читаемой на тёмном (brandText / warning), light-ветку не трогаем.
     final Color labelColor = isDark
         ? (color == _amber ? WawatDark.warning : WawatDark.brandText)
         : color;
@@ -4203,7 +4066,6 @@ class _InfoBanner extends StatelessWidget {
 class _ErrorBanner extends StatelessWidget {
   final String text;
 
-  /// Blue "for your information" variant (e.g. payment still processing).
   final bool info;
 
   const _ErrorBanner(this.text, {this.info = false});
@@ -4503,9 +4365,6 @@ class _ErrorPage extends StatelessWidget {
   }
 }
 
-/// Shown instead of the packages when the listing turned out not to be
-/// promotable (expired / paused / rejected / deleted…) by the time the flow
-/// opened. Back returns to the list, which refreshes and drops the CTAs.
 class _NotPromotablePage extends StatelessWidget {
   final Map<String, String> content;
   final String messageKey;
@@ -4569,10 +4428,6 @@ Future<_PromotionBundle> _loadPromotionStoreBundle() async {
         .catchError((_) => null),
     WawatContent.loadDefault().catchError((_) => const <String, String>{}),
     _loadPackageNames(),
-    // A store/catalog failure must not blank the whole screen. Like the
-    // listing-quota sheet, degrade to "no store products" so pricing still
-    // renders (Android keeps the card; iOS shows the store-unavailable note)
-    // instead of throwing out of Future.wait into the full-screen error page.
     IapService.instance
         .loadProducts(
           forceCatalog: true,
@@ -4835,8 +4690,6 @@ String _money(double value) {
       .replaceFirst(RegExp(r'\.$'), '');
 }
 
-/// Guaranteed-impressions range shown on package cards / checkout, e.g.
-/// `410–510`. Collapses to a single number if min == max.
 String _impressionRange(int? min, int? max) {
   final lo = min ?? 0;
   final hi = max ?? 0;
@@ -4845,8 +4698,6 @@ String _impressionRange(int? min, int? max) {
   return '$lo–$hi';
 }
 
-/// Progress fraction (0..1) for a promotion's progress bar. Boost uses the
-/// server impression percent; VIP falls back to elapsed-time progress.
 double _progressValue(Promotion promotion) {
   final impressions = promotion.impressions;
   if (promotion.isBoost && impressions != null) {
@@ -4855,8 +4706,6 @@ double _progressValue(Promotion promotion) {
   return _promotionProgress(promotion);
 }
 
-/// Meta line under a promotion's route on the "My promotions" card / active
-/// panel. Boost shows delivered-of-target impressions; VIP shows time left.
 String _promotionMetaLabel(Promotion promotion, Map<String, String> content) {
   final impressions = promotion.impressions;
   if (promotion.isBoost && impressions != null) {
@@ -4977,9 +4826,6 @@ String _iapPurchaseErrorText(
   String? code,
 ]) {
   final normalized = reason?.trim() ?? '';
-  // A non-null `code` means the text came from the backend error envelope
-  // ({message, code}) and is already localized for this user — show it, so a
-  // "already redeemed" never looks the same as "store unreachable".
   if (code != null && code.trim().isNotEmpty && normalized.isNotEmpty) {
     return normalized;
   }
@@ -5017,9 +4863,6 @@ String _iapPurchaseErrorText(
   return normalized.isEmpty ? generic : '$generic\n[$normalized]';
 }
 
-/// Human message for a quote's `applicable:false` reason code. Falls back to the
-/// generic "not applied" text for unknown/`null` reasons so a code never silently
-/// looks accepted.
 String _promoReasonText(Map<String, String> content, String? reason) {
   switch (reason) {
     case 'invalid':

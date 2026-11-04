@@ -61,11 +61,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>The camera is used only for scanning QR codes in stores to receive discounts and add stores to your history.</string>
+	<string>The camera is used to take your profile photo and the selfie required for account verification.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Your location is used to show nearby stores where discounts are available.</string>
+	<string>Your location is used to find airports near you in the flight radar.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location is used to show nearby stores where discounts are available.</string>
+	<string>Your location is used to find airports near you in the flight radar.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>The microphone may be used if you choose to record audio notes inside the app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

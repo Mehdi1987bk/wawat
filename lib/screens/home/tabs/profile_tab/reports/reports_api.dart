@@ -4,17 +4,11 @@ import 'package:buking/services/localization_service.dart';
 
 import '../../../../../main.dart';
 
-/// Data-layer for "Şikayətlərim" (my reports), wired to the live API.
-/// GET /reports returns full objects, so the detail screen reuses the list item
-/// (no extra fetch). Mirrors [BlockedUsersApi]: `sl.get<Dio>()`, global
-/// [baseUrl], manual `fromJson`, defensive on 404 (empty list). Creating a
-/// report happens from listing/user/chat screens (POST /reports).
 class ReportsApi {
   ReportsApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
   final Dio _dio;
 
-  /// GET /reports → the reports the current user has filed.
   Future<List<Report>> getReports({int page = 1}) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
@@ -38,11 +32,11 @@ class ReportsApi {
 
 class Report {
   final String id;
-  final String targetType; // listing | user | message
+  final String targetType;
   final String reasonCode;
-  final String note; // the user's explanation ("İzah")
-  final String status; // pending | reviewing | resolved | rejected
-  final String resolutionNote; // moderation response
+  final String note;
+  final String status;
+  final String resolutionNote;
   final bool hasEvidence;
   final DateTime? createdAt;
 
@@ -70,10 +64,6 @@ class Report {
     );
   }
 
-  /// reason_code → localized label via the canonical CMS keys
-  /// `enum.report_reason_code.*` (matches backend App\Enums\ReportReasonCode:
-  /// spam, fraud, abuse, fake, inappropriate, other). Legacy aliases from older
-  /// data are folded into the canonical set; unknown codes fall back to the key.
   String get reasonLabel {
     if (reasonCode.isEmpty) return '';
     const legacy = {

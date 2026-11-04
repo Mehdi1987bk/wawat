@@ -2,14 +2,11 @@ import 'package:dio/dio.dart';
 
 import '../../../../../main.dart';
 
-/// Data-layer for CMS legal pages (Qaydalar & şərtlər / Məxfilik siyasəti).
-/// GET /pages/{slug} (public). Content is localized by Accept-Language.
 class LegalApi {
   LegalApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
   final Dio _dio;
 
-  /// GET /pages/{slug} → { slug, title, body (markdown), updated_at }.
   Future<PageDoc> getPage(String slug) async {
     final res = await _dio.get<Map<String, dynamic>>('$baseUrl/pages/$slug');
     final data = res.data?['data'] is Map
@@ -22,7 +19,7 @@ class LegalApi {
 class PageDoc {
   final String slug;
   final String title;
-  final String body; // markdown
+  final String body;
   final DateTime? updatedAt;
 
   const PageDoc({

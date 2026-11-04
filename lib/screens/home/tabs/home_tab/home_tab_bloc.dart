@@ -31,9 +31,6 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
         customersMe();
       }
     });
-    // onReflash.listen((event) {
-    //   load(refresh: true);
-    // });
   }
 
   Future<void> loadList() async {
@@ -61,8 +58,6 @@ class HomeTabBloc extends PaginableBloc<OfferModel> {
     final dateFormat = DateFormat('y-M-d');
     return userRepository.allRequest(dateFormat.format(dateTimeNow).toString());
   }
-
-
 
   Future<CitiesResponse> getCities(String search) async {
     final result = await userRepository.getCities(search);

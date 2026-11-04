@@ -11,9 +11,6 @@ import '../../../../../services/wawat_content.dart';
 import '../new_profile/profile_api.dart';
 import '../verification/verification_screen.dart';
 
-/// "Statusum" — data-driven tier / level page backed by `GET /me/tier-status`.
-/// Nothing about thresholds, progress or the ladder is computed client-side —
-/// every value (labels, requirements, ranges, met-flags) comes from the API.
 class TierStatusScreen extends StatefulWidget {
   const TierStatusScreen({super.key});
 
@@ -50,7 +47,6 @@ class _TierStatusScreenState extends State<TierStatusScreen> {
       );
       if (mounted) _reload();
     } catch (_) {
-      /* verification unavailable — silently ignore */
     }
   }
 
@@ -97,8 +93,6 @@ class _TierStatusScreenState extends State<TierStatusScreen> {
               onRetry: _reload,
             );
           }
-          // text() returns AZ fallbacks even before the CMS map resolves, so
-          // there is no need to block rendering on _content.
           return _body(isDark, snap.data!.data);
         },
       ),
@@ -107,8 +101,6 @@ class _TierStatusScreenState extends State<TierStatusScreen> {
 
   Widget _body(bool d, TierStatus data) {
     return ListView(
-      // Reserve the Android system-nav inset so the last row (and the footnote)
-      // clears the gesture bar instead of being cut off at the screen bottom.
       padding: EdgeInsets.fromLTRB(
           16, 20, 16, 28 + MediaQuery.of(context).viewPadding.bottom),
       children: [
@@ -137,10 +129,6 @@ class _TierStatusScreenState extends State<TierStatusScreen> {
     );
   }
 }
-
-// ════════════════════════════════════════════════════════════════════════
-//  HERO
-// ════════════════════════════════════════════════════════════════════════
 
 class _HeroCard extends StatelessWidget {
   const _HeroCard({required this.d, required this.data, required this.t});
@@ -250,10 +238,6 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-//  PROGRESS (to next tier) — brand / amber / ready / only-KYC variants
-// ════════════════════════════════════════════════════════════════════════
-
 class _ProgressSection extends StatelessWidget {
   const _ProgressSection({
     required this.d,
@@ -274,9 +258,6 @@ class _ProgressSection extends StatelessWidget {
     final numeric = reqs.where((r) => !r.isVerification).toList();
     final kyc = _kycOf(reqs);
 
-    // Degenerate: a next tier with no requirements at all (only reachable via a
-    // malformed/partial payload). Showing a "keçmək üçün" card with "0 şərt
-    // qalıb" would be misleading — render nothing instead.
     if (numeric.isEmpty && kyc == null) return const SizedBox.shrink();
 
     final numericAllMet = numeric.every((r) => r.met);
@@ -288,8 +269,6 @@ class _ProgressSection extends StatelessWidget {
     if (data.isReadyForPromotion) {
       return _readyCard(next, numeric, kyc);
     }
-    // Only KYC left: EVERY numeric requirement (deliveries AND rating) is met,
-    // and the only blocker is an unmet verification requirement.
     if (numericAllMet && kyc != null && !kyc.met) {
       return _onlyKycCard(next, numeric, kyc);
     }
@@ -297,7 +276,6 @@ class _ProgressSection extends StatelessWidget {
     return _standardCard(next, numeric, kyc, amber: amber);
   }
 
-  // ── default (brand-tinted) / amber (rating blocker) ──
   Widget _standardCard(
     TierRef next,
     List<TierRequirement> numeric,
@@ -335,7 +313,6 @@ class _ProgressSection extends StatelessWidget {
     );
   }
 
-  // ── all requirements met → positive emerald banner ──
   Widget _readyCard(
     TierRef next,
     List<TierRequirement> numeric,
@@ -367,7 +344,6 @@ class _ProgressSection extends StatelessWidget {
     );
   }
 
-  // ── only KYC left → prominent last-step card with big CTA ──
   Widget _onlyKycCard(
     TierRef next,
     List<TierRequirement> numeric,
@@ -501,10 +477,6 @@ class _ProgressSection extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-//  DEMOTION
-// ════════════════════════════════════════════════════════════════════════
-
 class _DemotionSection extends StatelessWidget {
   const _DemotionSection({
     required this.d,
@@ -611,10 +583,6 @@ class _DemotionSection extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-//  REQUIREMENT BAR
-// ════════════════════════════════════════════════════════════════════════
-
 class _ReqBar extends StatelessWidget {
   const _ReqBar({required this.d, required this.req, required this.t});
 
@@ -691,9 +659,6 @@ class _ReqBar extends StatelessWidget {
               ? _warnText(d)
               : cMuted(d),
       showCheck: req.met,
-      // Below-threshold rating stays a plain amber number (no ✗) — matching the
-      // deliveries row and 3 of the design's 4 low-rating states. The amber
-      // value + amber caption already signal the unmet state.
       barValue: req.met
           ? 1
           : hasVal
@@ -768,7 +733,6 @@ class _ReqBar extends StatelessWidget {
   }
 }
 
-/// Compact single-line requirement row (used inside the only-KYC card).
 class _MiniReqRow extends StatelessWidget {
   const _MiniReqRow({
     required this.d,
@@ -866,10 +830,6 @@ class _MiniReqRow extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-//  KYC BOX
-// ════════════════════════════════════════════════════════════════════════
-
 class _KycBox extends StatelessWidget {
   const _KycBox({
     required this.d,
@@ -966,10 +926,6 @@ class _KycBox extends StatelessWidget {
     );
   }
 }
-
-// ════════════════════════════════════════════════════════════════════════
-//  LADDER (all tiers)
-// ════════════════════════════════════════════════════════════════════════
 
 class _LadderSection extends StatelessWidget {
   const _LadderSection({required this.d, required this.data, required this.t});
@@ -1212,10 +1168,6 @@ class _LadderRow extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-//  SHARED PRIMITIVES
-// ════════════════════════════════════════════════════════════════════════
-
 class _Card extends StatelessWidget {
   const _Card({
     required this.d,
@@ -1247,7 +1199,6 @@ class _Card extends StatelessWidget {
   }
 }
 
-/// Card with a solid coloured header strip (ready / only-KYC variants).
 class _StripCard extends StatelessWidget {
   const _StripCard({
     required this.d,
@@ -1615,10 +1566,6 @@ class _InfoNote extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-//  SKELETON / ERROR
-// ════════════════════════════════════════════════════════════════════════
-
 class _TierSkeleton extends StatefulWidget {
   const _TierSkeleton({required this.d});
 
@@ -1703,7 +1650,6 @@ class _TierSkeletonState extends State<_TierSkeleton>
           end: Alignment.centerRight,
           colors: [base, hi, base],
           stops: const [0.1, 0.5, 0.9],
-          // Sweep the highlight band across the block (design: sk 1.3s loop).
           transform: _SlideGradient(-1.0 + 2.0 * phase),
         ),
       ),
@@ -1711,7 +1657,6 @@ class _TierSkeletonState extends State<_TierSkeleton>
   }
 }
 
-/// Slides a gradient horizontally by [slide] × width (used for the shimmer).
 class _SlideGradient extends GradientTransform {
   const _SlideGradient(this.slide);
 
@@ -1789,10 +1734,6 @@ class _TierError extends StatelessWidget {
     );
   }
 }
-
-// ════════════════════════════════════════════════════════════════════════
-//  helpers
-// ════════════════════════════════════════════════════════════════════════
 
 const Color _kStar = Color(0xFFF5A524);
 const Color _kEmeraldBar = Color(0xFF10B981);

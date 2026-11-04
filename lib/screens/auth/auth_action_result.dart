@@ -3,11 +3,8 @@ class AuthActionResult {
   final String? message;
   final Map<String, String> fieldErrors;
 
-  /// Машинный код ошибки из конверта ответа ({message, code, errors?}).
-  /// По нему, а не по локализованному тексту, определяется состояние аккаунта.
   final String? code;
 
-  /// HTTP-статус ответа (403 → аккаунт ограничен, 401/422 → неверный вход).
   final int? statusCode;
 
   const AuthActionResult._({

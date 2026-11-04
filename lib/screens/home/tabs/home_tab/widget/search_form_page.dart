@@ -25,8 +25,6 @@ String _contentText(Map<String, String> content, String key,
   return WawatContent.text(content, key, fallback);
 }
 
-/// Price fields show a per-kilogram price, so they go through the shared CMS
-/// normaliser: USD instead of any leftover ₼, and the unit as `kq/$`.
 String _priceLabel(Map<String, String> content, String key) =>
     WawatContent.priceLabel(content, key);
 
@@ -36,8 +34,6 @@ class SearchFormWidget extends StatefulWidget {
   final bool advanced;
   final ValueChanged<ListingFilterState>? onSearch;
 
-  /// Search-entry mode (screens 1/1b): hides the standalone type segment and
-  /// shows an «Ətraflı» accordion toggle that reveals the filters inline.
   final bool showAdvancedToggle;
   final bool advancedOpen;
   final ValueChanged<bool>? onAdvancedToggle;
@@ -624,8 +620,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     String key,
     String? value,
   ) {
-    // Single-select minimum-tier threshold ("value and above"); "Any" (null)
-    // clears it. Sent to the API as `tier_min`.
     return _FilterChip(
       label: _contentText(content, key),
       selected: _tierMin == value,
@@ -633,8 +627,6 @@ class _SearchFormWidgetState extends State<SearchFormWidget> {
     );
   }
 
-  /// Inline filters shown under the «Ətraflı» accordion (design screen 1b).
-  /// Same fields/order/components as the full-screen filter panel (screen 8).
   Widget _buildInlineFilters(Map<String, String> content) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
@@ -806,8 +798,6 @@ class _AdvancedToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final brand = cBrandText(isDark);
-    // Soft-brand pill so the "open more filters" toggle reads as an emphasised
-    // button rather than a plain text link.
     return Center(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -1083,8 +1073,6 @@ class _NumberBox extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      // Numeric keyboards have no return/Done key on Android, so tapping
-      // anywhere outside the field must close it.
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(color: cText(isDark)),
       decoration: InputDecoration(

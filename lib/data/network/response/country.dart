@@ -20,7 +20,6 @@ class Country {
 
   Map<String, dynamic> toJson() => _$CountryToJson(this);
 
-  /// Получить флаг эмодзи по коду страны
   String get flagEmoji {
     final codePoints = code.toUpperCase().codeUnits
         .map((char) => char - 0x41 + 0x1F1E6)

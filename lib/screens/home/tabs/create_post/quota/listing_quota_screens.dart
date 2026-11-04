@@ -25,13 +25,6 @@ import '../../../../payments/iap/iap_service.dart';
 import '../../../../payments/receipt_screen.dart';
 import '../create_post_screen.dart';
 
-/// Paid "increase listing limit" flow (real payment, like VIP promo):
-/// plans → confirm sheet (pick Apple Pay·Google Play / bank card + create order)
-/// → pay (IAP or hosted 3-D Secure) → success/failure → receipt(PDF).
-/// Prices/labels come from the backend; static chrome from CMS `listing_quota.*`
-/// (with AZ fallbacks passed inline so it renders before /content resolves).
-
-/// Currency glyph — matches the app-wide convention (AZN rendered as `$`).
 const _kCurrency = r'$';
 
 String _money(double v) {
@@ -44,19 +37,8 @@ String _money(double v) {
 
 String _price(double v) => '${_money(v)} $_kCurrency';
 
-/// How the user chose to pay for a limit increase — mirrors the VIP flow: the
-/// app store (Apple Pay / Google Play via IAP) or a bank card (hosted 3-D Secure).
 enum _QuotaPayMethod { store, card }
 
-/// Result of the confirm sheet.
-///
-/// * [_QuotaCheckout.card] — the pending order to pay with the hosted card
-///   checkout; the caller opens the processing screen (WebView + poll).
-/// * [_QuotaCheckout.storePaid] — the App Store / Play purchase already ran and
-///   succeeded *inside the sheet* (so the StoreKit sheet appeared over the
-///   confirm sheet, never over a processing spinner), and the backend credited
-///   the order. The caller goes straight to the success screen, carrying the
-///   fresh per-type [serverLimit] and the [receipt].
 class _QuotaCheckout {
   final _QuotaPayMethod method;
   final QuotaOrder order;
@@ -75,12 +57,6 @@ class _QuotaCheckout {
       storePaid = true;
 }
 
-/// After a paid order, refresh /me so create-post's `userDetails` StreamBuilder
-/// re-reads the grown limit on its own, and return the fresh server-authoritative
-/// per-type limit for the success screen. Reads the user straight off the
-/// refetch (no Hive-stream round-trip, which could hand back a stale frame).
-/// Null means the /me refetch failed — the caller then omits the concrete new
-/// number rather than inventing it (payment still went through).
 Future<int?> _refreshQuotaLimit(String type) async {
   try {
     final me = await sl.get<AuthRepository>().customersMe();
@@ -96,13 +72,8 @@ String _quotaFailedText() => tr(
   'Məbləğ tutulmadı və limit dəyişmədi. Yenidən cəhd et.',
 );
 
-/// A localized, non-technical message for a store purchase that errored (never
-/// the raw PlatformException). A duplicate/pending transaction gets its own
-/// hint so the user knows to wait a moment and retry.
 String _quotaIapErrorText(String? raw, [String? code]) {
   final text = (raw ?? '').trim();
-  // A non-null `code` means this came from the backend error envelope
-  // ({message, code}) and is already localized — show the real reason.
   if (code != null && code.trim().isNotEmpty && text.isNotEmpty) {
     return text;
   }
@@ -132,10 +103,6 @@ String _apiError(Object error) {
 String _qt(Map<String, String> content, String key, String fallback) =>
     WawatContent.text(content, key, fallback);
 
-/// Everything the plan screen needs: backend plans + (when the store is
-/// reachable) the App Store / Play products that own the localized price and the
-/// real charge. Store products are keyed by `extra_listings` so a plan maps to
-/// its product; a missing product simply falls back to the backend price.
 class _QuotaBundle {
   final List<QuotaPlan> plans;
   final String typeLabel;
@@ -153,7 +120,6 @@ class _QuotaBundle {
   IapCatalogProduct? catalogFor(QuotaPlan plan) =>
       catalogByExtra[plan.extraListings];
 
-  /// Localized store price when the product resolved, else the backend price.
   String priceFor(QuotaPlan plan) {
     final store = storeFor(plan);
     if (store != null && store.price.isNotEmpty) return store.price;
@@ -161,9 +127,6 @@ class _QuotaBundle {
   }
 }
 
-/// Entry — open the paid limit-increase flow for a given listing [type]
-/// ('trip' | 'shipment_post'). [currentLimit] is shown on the success screen.
-/// [repostListing] — the purchase interrupted a repost: success continues it.
 Future<void> openListingQuotaFlow(
   BuildContext context, {
   required String type,
@@ -181,8 +144,6 @@ Future<void> openListingQuotaFlow(
     ),
   );
 }
-
-// ══════════════════════ 1/2 · Plan selection ══════════════════════
 
 class QuotaPlansScreen extends StatefulWidget {
   final String type;
@@ -219,10 +180,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
     });
   }
 
-  /// Backend plans + store products. The store lookup is best-effort: any
-  /// failure (store unavailable, catalog without quota entries, IAP disabled)
-  /// leaves the maps empty and the UI falls back to backend prices with the
-  /// card-only payment path.
   Future<_QuotaBundle> _loadBundle() async {
     final results = await Future.wait<dynamic>([
       _api.getPricing(),
@@ -255,7 +212,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
       if (item.kind != IapProductKind.quota) continue;
       final extra = item.extraListings;
       if (extra == null) continue;
-      // A quota product may target one listing type; null applies to both.
       if (item.listingType != null && item.listingType != widget.type) {
         continue;
       }
@@ -297,7 +253,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
             if (snapshot.hasError || bundle == null || plans.isEmpty) {
               return _error(isDark);
             }
-            // Default selection: the "best value" plan, else the +3 pack, else first.
             _selectedExtra ??= plans
                 .firstWhere(
                   (p) => p.isBestValue,
@@ -417,8 +372,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
                 _StickyBottom(
                   isDark: isDark,
                   children: [
-                    // Opens the confirm sheet (instant) — no loader here; the
-                    // sheet owns the create-order spinner.
                     _FilledButton(
                       color: cBrandFill,
                       onTap: selected == null
@@ -555,19 +508,8 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
     ],
   );
 
-  // ── 3 · Confirm sheet → pick method, pay, then success ──
-  //
-  // The confirm sheet is the checkout surface. For the STORE path the sheet
-  // itself creates the order and drives the IAP purchase, so the StoreKit sheet
-  // appears over the confirm sheet (never over a "processing" spinner) and a
-  // cancel simply returns to it — mirroring the VIP flow. Only a completed store
-  // purchase advances here, straight to success. The CARD path still hands the
-  // pending order to the processing screen, which opens the hosted 3-D Secure
-  // WebView and polls.
   Future<void> _confirm(_QuotaBundle bundle, QuotaPlan plan) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Store (Apple Pay / Google Play via IAP) is offered only when the catalog
-    // resolved a real store product for this plan.
     final storeProduct = bundle.storeFor(plan);
     final catalogProduct = bundle.catalogFor(plan);
     final storeAvailable =
@@ -575,9 +517,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
         storeProduct != null &&
         catalogProduct != null &&
         (Platform.isIOS || Platform.isAndroid);
-    // The sheet is non-dismissible while an order is being created or a store
-    // purchase is in flight, so a stray barrier tap / swipe / back can't orphan
-    // an in-flight order or charge.
     final checkout = await showAppBottomSheet<_QuotaCheckout>(
       context: context,
       isScrollControlled: true,
@@ -599,8 +538,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
       ),
     );
     if (!mounted || checkout == null) return;
-    // Store purchase already completed inside the sheet → success directly,
-    // with the fresh limit the sheet read back from /me.
     if (checkout.storePaid) {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -617,7 +554,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
       );
       return;
     }
-    // Card → processing screen (hosted checkout WebView + poll).
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _QuotaProcessingScreen(
@@ -634,13 +570,6 @@ class _QuotaPlansScreenState extends State<QuotaPlansScreen> {
   }
 }
 
-// ══════════════════════ 4/6 · Processing (+ inline failure) ══════════════════════
-
-/// Card-only checkout runner: opens the hosted bank checkout (3-D Secure) in a
-/// WebView and polls the order to its verdict. The store (IAP) path never lands
-/// here — it runs inside the confirm sheet so the StoreKit sheet appears over
-/// the checkout, not over this screen's spinner. [method] is kept (always
-/// `card` today) for the telemetry label and to leave the door open.
 class _QuotaProcessingScreen extends StatefulWidget {
   final ListingQuotaApi api;
   final QuotaOrder order;
@@ -665,7 +594,6 @@ class _QuotaProcessingScreen extends StatefulWidget {
 }
 
 class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
-  // Stable across retries so re-tapping never double-charges.
   late final String _idempotencyKey =
       'quota-pay-${widget.order.id}-${DateTime.now().microsecondsSinceEpoch}';
   bool _paying = true;
@@ -680,16 +608,11 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
     _submitCardPayment();
   }
 
-  /// Card path — ask the backend for the hosted checkout URL, open it in a
-  /// WebView, then confirm the real status server-side (the redirect is only a
-  /// hint; the backend activates idempotently). Mirrors the VIP card flow.
   Future<void> _submitCardPayment() async {
     setState(() {
       _paying = true;
       _error = null;
     });
-    // value + currency — обязательная пара для GA4, иначе платёж не попадёт
-    // в отчёты по выручке. Логируем из экрана: интерцептор суммы не знает.
     Telemetry.instance.event(
       TelemetryEvents.beginCheckout,
       params: {
@@ -703,7 +626,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
       },
     );
     try {
-      // Re-tapping never double-charges: same order, same stable idempotency key.
       final pay = await widget.api.payOrder(
         _order.id,
         method: 'card',
@@ -711,7 +633,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
       );
       if (!mounted) return;
       final payData = pay.data;
-      // Idempotent replay may already be paid (a committed-but-timed-out retry).
       if (payData.isPaid) {
         await _onCardPaid(payData, pay.receipt);
         return;
@@ -729,7 +650,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
         ),
       );
       if (!mounted) return;
-      // Closed the bank page without a verdict → let the user retry.
       if (outcome == null || outcome == CardCheckoutResult.abandoned) {
         setState(() {
           _paying = false;
@@ -740,7 +660,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
         });
         return;
       }
-      // The redirect is only a hint — confirm the real status server-side.
       final res = await _pollOrder();
       if (!mounted) return;
       final o = res.data;
@@ -772,8 +691,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
           TelemetryParams.errorType: e.runtimeType.toString(),
         },
       );
-      // Сорванная оплата стоит денег — репортим как non-fatal даже для
-      // DioException, которые интерцептор считает обычной сетевой ошибкой.
       Telemetry.instance.error(e, st, reason: 'quota_payment_failed');
       if (!mounted) return;
       setState(() {
@@ -799,7 +716,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
     await _goToSuccess(o, receipt);
   }
 
-  /// Poll the order until it resolves (paid/failed), like the VIP card result.
   Future<QuotaOrderResponse> _pollOrder() async {
     QuotaOrderResponse? last;
     var current = _order;
@@ -816,13 +732,7 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
     return last ?? await widget.api.getOrder(_order.id);
   }
 
-  /// Refetch /me (so create-post's `userDetails` StreamBuilder re-reads the
-  /// grown limit) and take the fresh per-type limit for the success screen.
   Future<void> _goToSuccess(QuotaOrder o, Receipt? receipt) async {
-    // Reads the user straight off the /me refetch — no stale Hive-stream frame.
-    // Оплата прошла и бэкенд уже увеличил лимит; если локальный рефреш /me не
-    // удался, серверный лимит вернётся null и экран успеха просто спрячет
-    // неподтверждённую цифру (не выдумываем её). Ошибка репортится внутри хелпера.
     final serverLimit = await _refreshQuotaLimit(widget.type);
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
@@ -873,7 +783,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final failed = _error != null;
-    // Block system back / iOS edge-swipe while the payment is in flight.
     return PopScope(
       canPop: !_paying,
       child: Scaffold(
@@ -971,7 +880,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
                             ),
                           ),
                         ] else ...[
-                          // pending (provider still processing)
                           SizedBox(
                             width: 72,
                             height: 72,
@@ -1007,9 +915,6 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
                             color: cBrandFill,
                             height: 52,
                             borderRadius: 16,
-                            // Re-attempt the SAME order with the SAME stable
-                            // idempotency key — never mints a new order, so the
-                            // server dedups (recovers a timed-out but-committed pay).
                             onPressed: _submitCardPayment,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1091,23 +996,15 @@ class _QuotaProcessingScreenState extends State<_QuotaProcessingScreen> {
   }
 }
 
-// ══════════════════════ 5 · Success ══════════════════════
-
 class QuotaSuccessScreen extends StatelessWidget {
   final QuotaOrder order;
   final String type;
   final int currentLimit;
 
-  /// Set when the purchase interrupted a repost — the main button resumes it.
   final Listing? repostListing;
 
-  /// Fresh per-type limit from /me (server-authoritative). Null means the /me
-  /// refetch failed — we then hide the concrete "current → new" figure rather
-  /// than fabricating it (the honest win is still shown via the "+N listings"
-  /// subtitle, which comes straight from the paid order).
   final int? serverLimit;
 
-  /// Unified payment receipt — the "Qəbz" button shows only when it's paid.
   final Receipt? receipt;
   final Map<String, String> content;
 
@@ -1124,8 +1021,6 @@ class QuotaSuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Only the server-confirmed limit is shown as a concrete number; if /me
-    // didn't come back, the delta tile is hidden entirely (no fabrication).
     final int? newLimit = serverLimit;
     return Scaffold(
       backgroundColor: cBrandFill,
@@ -1220,10 +1115,6 @@ class QuotaSuccessScreen extends StatelessWidget {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
-                        // Exit the whole purchase flow (success → plans → gate),
-                        // then open create-post fresh with the grown limit —
-                        // so backing out of the form doesn't land on the plans.
-                        // An interrupted repost resumes its pre-filled form.
                         final navigator = Navigator.of(context);
                         final repost = repostListing;
                         navigator.popUntil((r) => r.isFirst);
@@ -1280,9 +1171,6 @@ class QuotaSuccessScreen extends StatelessWidget {
   }
 }
 
-/// «Qəbzə bax» on the quota success screen. A store purchase can land here
-/// without the receipt (already-paid order, or a lagging read right after the
-/// charge) — then it is fetched once from the order so the link still appears.
 class _QuotaReceiptLink extends StatefulWidget {
   final QuotaOrder order;
   final Receipt? receipt;
@@ -1315,7 +1203,6 @@ class _QuotaReceiptLinkState extends State<_QuotaReceiptLink> {
       if (!mounted || !(res.receipt?.isPaid ?? false)) return;
       setState(() => _receipt = res.receipt);
     } catch (_) {
-      // Best-effort: without it the link simply stays hidden.
     }
   }
 
@@ -1363,8 +1250,6 @@ class _QuotaReceiptLinkState extends State<_QuotaReceiptLink> {
     );
   }
 }
-
-// ══════════════════════ Shared little widgets ══════════════════════
 
 class _QuotaAppBar extends StatelessWidget {
   final String title;
@@ -1437,8 +1322,6 @@ class _StickyBottom extends StatelessWidget {
   }
 }
 
-/// Plain filled CTA — for actions that are instant (e.g. opening a sheet), where
-/// an [AsyncActionButton] loader would be wrong. Null [onTap] renders disabled.
 class _FilledButton extends StatelessWidget {
   final Color color;
   final VoidCallback? onTap;
@@ -1639,18 +1522,12 @@ class _ConfirmSheet extends StatefulWidget {
   final ListingQuotaApi api;
   final QuotaPlan plan;
 
-  /// Localized store price (or backend price) — already resolved by the caller.
   final String priceText;
   final String type;
   final Map<String, String> content;
 
-  /// Whether the App Store / Play product resolved for this plan. Controls
-  /// whether the store (Apple Pay / Google Play) tile is offered.
   final bool storeAvailable;
 
-  /// The App Store / Play product for this plan — owns the localized price and
-  /// the real charge. Present iff [storeAvailable]; the sheet drives the IAP
-  /// purchase with it so StoreKit appears over this sheet.
   final ProductDetails? storeProduct;
   final IapCatalogProduct? catalogProduct;
 
@@ -1670,14 +1547,12 @@ class _ConfirmSheet extends StatefulWidget {
 }
 
 class _ConfirmSheetState extends State<_ConfirmSheet> {
-  bool _creating = false; // order being created
-  bool _paying = false; // store (IAP) purchase in flight over this sheet
+  bool _creating = false;
+  bool _paying = false;
   String? _error;
 
-  /// Neutral (blue) note for a deferred store payment — not an error.
   String? _notice;
 
-  // Stable across a double-tap so two taps dedup to a single pending order.
   late final String _idem =
       'quota-order-${widget.type}-${widget.plan.extraListings}-${DateTime.now().microsecondsSinceEpoch}';
 
@@ -1688,17 +1563,8 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
 
   String get _storeMethod => Platform.isIOS ? 'app_store' : 'google_play';
 
-  /// Show the bank-card tile on every platform, matching the promotion flow —
-  /// product-owner decision to offer a card alongside Apple Pay / Google Play
-  /// everywhere. NOTE: on iOS, charging a card for a digital feature outside the
-  /// App Store is against Apple guideline 3.1.1 and can get the app
-  /// rejected/removed; kept intentionally at the owner's request.
   bool get _showCard => true;
 
-  /// Create the pending order. CARD → hand it back so the caller opens the
-  /// hosted checkout. STORE → drive the IAP purchase right here, so the StoreKit
-  /// sheet appears over THIS sheet (never over a processing spinner) and a
-  /// cancel just returns to it.
   Future<void> _pay(_QuotaPayMethod method) async {
     if (_busy) return;
     final navigator = Navigator.of(context);
@@ -1731,17 +1597,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
     await _payWithStore(order);
   }
 
-  /// Runs the App Store / Play purchase for [order] with the sheet in a loading
-  /// state, so the StoreKit sheet appears over this confirm sheet.
-  ///
-  /// * Cancel (X) → not a failure: reset the sheet, ready to retry (the canceled
-  ///   transaction is finished inside [IapService], so a retry can't hit
-  ///   `storekit_duplicate_product_object`).
-  /// * Error → inline message, no new charge.
-  /// * Pending (deferred: Play pending / Ask to Buy) → blue "processing" note.
-  /// * Purchased/restored → the shared validator already credited the order
-  ///   backend-side; read it back, refresh /me for the fresh limit, and pop with
-  ///   the paid result so the caller shows the success screen directly.
   Future<void> _payWithStore(QuotaOrder order) async {
     setState(() {
       _creating = false;
@@ -1749,10 +1604,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
       _error = null;
     });
     final navigator = Navigator.of(context);
-    // Never charge twice. The order can already be settled — e.g. a previous
-    // successful charge whose success screen the user never saw (a stale read
-    // kept them on the sheet), then they tapped pay again. Go straight to
-    // success instead of opening a second StoreKit charge.
     if (order.isPaid) {
       final serverLimit = await _refreshQuotaLimit(widget.type);
       if (!mounted) return;
@@ -1765,8 +1616,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
       );
       return;
     }
-    // value + currency — обязательная пара для GA4 по выручке. Берём цену из
-    // store-продукта (реальная сумма списания), а не из AZN-суммы заказа.
     Telemetry.instance.event(
       TelemetryEvents.beginCheckout,
       params: {
@@ -1787,7 +1636,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
       );
       if (!mounted) return;
       if (result.outcome == IapOutcome.canceled) {
-        // Stay on the sheet, tiles back, ready to retry.
         setState(() {
           _paying = false;
           _error = null;
@@ -1795,9 +1643,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
         return;
       }
       if (result.outcome == IapOutcome.pending) {
-        // A deferred store payment (Play pending / Ask to Buy): neither paid nor
-        // failed yet. Don't read the order, log a failure or show success — the
-        // store delivers the verdict later and the backend credits it then.
         setState(() {
           _paying = false;
           _error = null;
@@ -1824,12 +1669,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
         });
         return;
       }
-      // Purchased/restored → the shared validator ALREADY posted to /pay and the
-      // backend credited the order, so the payment is done and the money is
-      // taken. getOrder below only enriches the success screen with the fresh
-      // order + receipt; a stale read (replica lag → still "pending") or a
-      // network blip must NEVER keep the user on the sheet — they were charged.
-      // Fall back to the order we have and still show success.
       QuotaOrder paid = order;
       Receipt? receipt;
       try {
@@ -1839,7 +1678,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
           receipt = res.receipt;
         }
       } catch (_) {
-        // keep `order`; the confirmed purchase stands.
       }
       if (!mounted) return;
       Telemetry.instance.event(
@@ -1887,8 +1725,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Block system-back while an order is being created or a store purchase is
-    // in flight over the sheet.
     return PopScope(
       canPop: !_busy,
       child: SafeArea(
@@ -2020,8 +1856,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Store tile (App Store / Google Play via IAP) appears only when
-                // the catalog resolved a real store product.
                 if (widget.storeAvailable) ...[
                   _QuotaMethodTile(
                     isDark: isDark,
@@ -2038,8 +1872,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                   ),
                   if (_showCard) const SizedBox(height: 8),
                 ],
-                // Bank card — hidden on iOS (see [_showCard]). Carries the price
-                // when it's the only tile shown.
                 if (_showCard)
                   _QuotaMethodTile(
                     isDark: isDark,
@@ -2052,9 +1884,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                     trailing: widget.storeAvailable ? null : widget.priceText,
                     onTap: () => _pay(_QuotaPayMethod.card),
                   ),
-                // iOS with no resolved store product → nothing safe to charge:
-                // offering a card would break Apple's rule and 422 on the
-                // backend. Show an honest "try later" note instead of a dead tile.
                 if (!widget.storeAvailable && !_showCard)
                   Container(
                     width: double.infinity,
@@ -2129,8 +1958,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
   }
 }
 
-/// One payment-method row on the confirm sheet (store or card), mirroring the
-/// VIP payment sheet: icon, title, subtitle, optional trailing price, chevron.
 class _QuotaMethodTile extends StatelessWidget {
   final bool isDark;
   final IconData icon;

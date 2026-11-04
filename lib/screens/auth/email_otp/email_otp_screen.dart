@@ -4,21 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/network/api/email_otp_api.dart';
+import '../../../domain/repositories/auth_repository.dart';
+import '../../../main.dart';
 import '../../../presentation/common/async_button.dart';
 import '../../../presentation/common/otp_code_input.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/localization_service.dart';
+import '../../../services/push_notification_service.dart';
 import '../../../services/theme_manager.dart';
 import '../../../wawat_app.dart';
+import '../../home/home_screen.dart';
 import 'email_otp_state.dart';
 
-/// Opens the e-mail OTP screen when the backend flag is on and the account is
-/// not yet verified. A single funnel for every trigger (register, login,
-/// cold-start, a global 403, the profile banner) so the `busy` guard can stop
-/// the screen from being stacked when two triggers fire at once.
-///
-/// It is a no-op while the flag is off (`required == false`) — exactly today's
-/// behaviour — so wiring it in is safe before the flag is ever flipped.
 Future<void> presentEmailOtpIfRequired({
   required bool autoSend,
   int initialCooldownSeconds = 0,
@@ -28,18 +25,23 @@ Future<void> presentEmailOtpIfRequired({
   if (state.busy) return;
   state.busy = true;
   try {
+    final auth = sl.get<AuthRepository>();
     if (forceRefresh) {
       try {
         await state.refresh();
       } catch (_) {
-        return; // offline / not authed → never block the user.
+        return;
       }
     }
-    if (!state.required || state.verified) return;
+    if (!state.required || state.verified) {
+      if (auth.awaitingEmailVerification) await _enterApp(auth);
+      return;
+    }
     final nav = navigatorKey.currentState;
     if (nav == null) return;
-    await nav.push(
-      MaterialPageRoute(
+    if (!await auth.holdSessionForEmailVerification()) return;
+    final verified = await nav.push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => EmailOtpScreen(
           email: state.email,
           autoSend: autoSend,
@@ -47,9 +49,37 @@ Future<void> presentEmailOtpIfRequired({
         ),
       ),
     );
+    if (verified == true) {
+      await _enterApp(auth);
+      return;
+    }
+    auth.dropSession();
+    _restartHome();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          tr('auth.email_not_verified', 'E-poçt təsdiqlənməyib'),
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
   } finally {
     state.busy = false;
   }
+}
+
+Future<void> _enterApp(AuthRepository auth) async {
+  await auth.confirmSession();
+  unawaited(PushNotificationService().syncToken(reason: 'email_verified'));
+  _restartHome();
+}
+
+void _restartHome() {
+  navigatorKey.currentState?.pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => HomeScreen()),
+    (route) => false,
+  );
 }
 
 class EmailOtpScreen extends StatefulWidget {
@@ -62,12 +92,8 @@ class EmailOtpScreen extends StatefulWidget {
 
   final String email;
 
-  /// Request a code as the screen opens (login / 403 — no fresh code yet). On
-  /// register this is false: the server already sent the first code.
   final bool autoSend;
 
-  /// Seconds the resend button stays locked when the screen opens (60 right
-  /// after register, where the server just sent a code).
   final int initialCooldownSeconds;
 
   @override
@@ -120,8 +146,6 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
     });
   }
 
-  /// CMS key `auth.otp_resend_wait` ships a `:seconds` token (colon style),
-  /// which `tr()` does not substitute — handle both `{seconds}` and `:seconds`.
   String _resendWaitText() {
     final secs = '$_cooldown';
     var s = tr('auth.otp_resend_wait', '{seconds} saniyə gözləyin',
@@ -160,8 +184,6 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
             tr('auth.email_already_verified', 'E-poçt artıq təsdiqlənib.'));
         return;
       }
-      // Rate-limited or send-limit: show the server text, keep the timer honest
-      // (never unlock the button early), honour a server-sent cooldown.
       if (_cooldown == 0 &&
           (e.resendAvailableInSeconds ?? 0) > 0) {
         _startCooldown(e.resendAvailableInSeconds!);
@@ -194,8 +216,6 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
         return;
       }
       _showInlineError(e.message ?? tr('auth.otp_invalid', 'Kod yanlışdır.'));
-      // "Code not requested" recovery: if nothing was sent this run and resend
-      // is free, request a fresh code automatically (spec endpoint-2 fallback).
       if (!EmailOtpState.instance.codeSentThisSession && _cooldown == 0) {
         _send();
       }
@@ -358,9 +378,6 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
     );
   }
 
-  /// Subtitle with the e-mail address highlighted in brand colour. The CMS
-  /// string carries the address via a `{email}` placeholder, so we resolve it,
-  /// then split on the address to colour just that span.
   Widget _buildSubtitle(bool isDark, Color bodyColor) {
     final resolved = tr(
       'auth.email_otp_subtitle',
@@ -396,8 +413,6 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
     );
   }
 
-  /// Resend row: a muted countdown while locked, a tappable brand link once the
-  /// cooldown clears. Each carries a small leading icon.
   Widget _buildResend(bool isDark, Color bodyColor) {
     final brandColor = isDark ? WawatDark.brandText : _brand;
     if (_cooldown > 0) {
@@ -443,7 +458,6 @@ class _EmailOtpScreenState extends State<EmailOtpScreen> {
   }
 }
 
-/// A soft red pill that holds the inline verify error (wrong / expired code).
 class _ErrorPill extends StatelessWidget {
   const _ErrorPill({required this.message, required this.isDark});
 

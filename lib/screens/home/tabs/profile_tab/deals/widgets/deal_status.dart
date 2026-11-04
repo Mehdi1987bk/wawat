@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../../../../../../data/network/response/chat_response.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../../services/localization_service.dart';
 import 'package:buking/services/date_labels.dart';
@@ -45,9 +46,6 @@ class DealVisual {
 }
 
 DealVisual dealStatusVisual(String status, [bool isDark = false]) {
-  // Тёмный режим: пастельные подложки → мягкий графит-акцент, тёмно-синие/зелёные
-  // акценты → яркие читаемые. cancelled и declined → красный (явно «отменено/
-  // отклонено»); expired остаётся нейтральным графитом (истёк срок, не отказ).
   final Color brandColor = isDark ? WawatDark.brand : dealBrand700;
   final Color brandBg = isDark ? WawatDark.brandSoft : dealBrand50;
   final Color amberColor = isDark ? WawatDark.warning : dealAmber700;
@@ -95,6 +93,7 @@ String dealActionLabel(Map<String, String> content, String action) {
     'complete': tr('deals.action.complete', 'Malı aldım, təsdiqlə'),
     'dispute': tr('deals.action.dispute', 'Problem bildir'),
     'cancel': tr('deals.action.cancel', 'Ləğv et'),
+    'withdraw': tr('deals.action.withdraw', 'Təklifi geri götür'),
     'review': tr('deals.action.review', 'Rəy yaz'),
   };
   final key = action == 'picked-up' ? 'picked_up' : action;
@@ -120,11 +119,9 @@ IconData dealActionIcon(String action) {
   };
 }
 
-/// Normalizes the API's `picked_up` action id to the mockup/UI's `picked-up` spelling.
 String dealNormalizeAction(String action) =>
     action == 'picked_up' ? 'picked-up' : action;
 
-/// Formats an ISO date/datetime string as "24 İyul", using the CMS month names.
 String dealShortDate(String? iso) {
   if (iso == null || iso.isEmpty) return '';
   final date = DateTime.tryParse(iso);
@@ -156,4 +153,56 @@ List<String> dealSupportedActions(List<String> actions) {
     'cancel',
   };
   return actions.map(dealNormalizeAction).where(supported.contains).toList();
+}
+
+List<DealAction> dealActionsOf(
+    ShipmentData shipment, Map<String, String> content) {
+  final actions = shipment.actions;
+  if (actions != null) return actions;
+
+  DealAction legacy(
+    String key, {
+    required String style,
+    String? endpoint,
+    bool needsInput = false,
+    bool confirm = false,
+  }) =>
+      DealAction(
+        key: key,
+        label: dealActionLabel(content, key),
+        style: style,
+        endpoint: endpoint ?? key,
+        needsInput: needsInput,
+        confirm: confirm,
+      );
+
+  if (shipment.status == 'proposal_pending' && !shipment.isAwaitingMe) {
+    return [
+      legacy('withdraw', style: 'danger', endpoint: 'cancel', needsInput: true),
+    ];
+  }
+
+  final result = <DealAction>[];
+  for (final id in dealSupportedActions(shipment.availableActions)) {
+    switch (id) {
+      case 'accept':
+        result.add(legacy('accept', style: 'primary'));
+      case 'decline':
+        result.add(legacy('decline', style: 'danger'));
+      case 'counter':
+        result.add(legacy('counter', style: 'secondary', needsInput: true));
+      case 'picked-up':
+        result.add(legacy('picked_up',
+            style: 'primary', endpoint: 'picked-up', confirm: true));
+      case 'delivered':
+        result.add(legacy('delivered', style: 'primary', confirm: true));
+      case 'complete':
+        result.add(legacy('complete', style: 'primary', confirm: true));
+      case 'dispute':
+        result.add(legacy('dispute', style: 'danger', needsInput: true));
+      case 'cancel':
+        result.add(legacy('cancel', style: 'danger', needsInput: true));
+    }
+  }
+  return result;
 }

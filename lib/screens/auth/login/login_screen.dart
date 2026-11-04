@@ -39,9 +39,6 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
   String? _errorCode;
   int? _errorStatus;
 
-  // Машинные коды из конверта ответа ({message, code, errors?}). Решение
-  // «аккаунт ограничен» / «неверный вход» принимается по ним, а не по
-  // локализованному тексту — текст у ru/en-пользователя другой и не совпал бы.
   static const _restrictedCodes = {
     'account_suspended',
     'account_limited',
@@ -86,9 +83,6 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
         MaterialPageRoute(builder: (_) => HomeScreen()),
         (route) => false,
       );
-      // E-mail verification gate (no-op while the backend flag is off). A fresh
-      // session may have no code yet, so this entry point auto-sends one. Reset
-      // the per-run flag first so a previous account's state never leaks in.
       EmailOtpState.instance.codeSentThisSession = false;
       presentEmailOtpIfRequired(autoSend: true);
       return;
@@ -102,9 +96,6 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
     });
   }
 
-  /// Аккаунт ограничен/заблокирован — показываем кнопку «Связаться с поддержкой».
-  /// Основной сигнал — машинный: HTTP 403 или код из [_restrictedCodes].
-  /// Текстовая проверка оставлена лишь как запас для старого бэкенда без code.
   bool get _isSuspendedMessage {
     final code = (_errorCode ?? '').toLowerCase();
     if (_restrictedCodes.contains(code)) return true;
@@ -113,8 +104,6 @@ class _LoginScreenState extends BaseState<LoginScreen, LoginBloc> {
     return value.contains('məhdud') || value.contains('suspended');
   }
 
-  /// Мягкая ошибка входа (неверные данные, остались попытки) — жёлтый алерт
-  /// вместо красного. Определяется по коду/статусу, текст — запасной вариант.
   bool get _isWarningMessage {
     if (_isSuspendedMessage) return false;
     final code = (_errorCode ?? '').toLowerCase();

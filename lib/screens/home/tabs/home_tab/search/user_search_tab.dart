@@ -13,6 +13,7 @@ import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import '../../profile_tab/new_profile/profile_api.dart';
 import '../../profile_tab/tier/tier_badge.dart';
+import '../widget/auth_modal_utils.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -23,7 +24,7 @@ const _ink400 = Color(0xFF94A3B8);
 const _ink300 = Color(0xFFCBD5E1);
 const _amber = Color(0xFFF59E0B);
 const _emerald = Color(0xFF22C55E);
-const _hlBg = Color(0x73F2FC2A); // accent yellow @ ~45%
+const _hlBg = Color(0x73F2FC2A);
 
 Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
 Color _cText2(bool d) => d ? WawatDark.textSecondary : _ink700;
@@ -37,11 +38,7 @@ const _kRecentKey = 'user_search_recent_v1';
 const _kMinChars = 2;
 const _kPerPage = 20;
 
-/// Second tab of the Search screen: elastic people search (GET /users/search)
-/// with the six states from the design — initial (recent), <2 chars, skeleton,
-/// results, empty, and the 429/network error banners.
 class UserSearchTab extends StatefulWidget {
-  /// The shared segmented [Marşrut | İstifadəçi] control, rendered at the top.
   final Widget tabsBar;
 
   const UserSearchTab({super.key, required this.tabsBar});
@@ -50,7 +47,7 @@ class UserSearchTab extends StatefulWidget {
   State<UserSearchTab> createState() => _UserSearchTabState();
 }
 
-enum _Phase { initial, tooShort, loading, results, empty, error }
+enum _Phase { initial, tooShort, loading, results, empty, error, authRequired }
 
 class _UserSearchTabState extends State<UserSearchTab> {
   final _api = WawatProfileApi();
@@ -60,11 +57,11 @@ class _UserSearchTabState extends State<UserSearchTab> {
 
   Timer? _debounce;
   Timer? _retryTicker;
-  int _reqId = 0; // bumps on every query → stale responses are ignored
+  int _reqId = 0;
 
   String _query = '';
   _Phase _phase = _Phase.initial;
-  int _retryAfter = 0; // seconds left in the 429 cooldown (0 → network error)
+  int _retryAfter = 0;
 
   final List<UserSearchItem> _items = [];
   int _page = 1;
@@ -72,7 +69,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
   bool _loadingMore = false;
 
   List<UserSearchItem> _recent = [];
-  // Optimistic follow state per user id (absent → default "İzlə").
   final Map<String, bool> _following = {};
 
   bool get _rateLimited => _retryAfter > 0;
@@ -94,7 +90,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
     super.dispose();
   }
 
-  // ── recent (local) ────────────────────────────────────────────────────────
   Future<void> _loadRecent() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -108,7 +103,7 @@ class _UserSearchTabState extends State<UserSearchTab> {
           .where((u) => u.id.isNotEmpty)
           .toList();
       if (mounted) setState(() => _recent = parsed);
-    } catch (_) {/* ignore corrupt cache */}
+    } catch (_) { }
   }
 
   Future<void> _persistRecent() async {
@@ -139,7 +134,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
     _persistRecent();
   }
 
-  // ── query / search ────────────────────────────────────────────────────────
   void _onChanged(String text) {
     _query = text;
     _debounce?.cancel();
@@ -151,7 +145,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
       });
       return;
     }
-    // Debounce 350ms; a stale in-flight request is dropped by _reqId.
     _debounce =
         Timer(const Duration(milliseconds: 350), () => _search(reset: true));
   }
@@ -165,7 +158,7 @@ class _UserSearchTabState extends State<UserSearchTab> {
   Future<void> _search({required bool reset}) async {
     final q = _query.trim();
     if (q.length < _kMinChars) return;
-    if (_rateLimited) return; // honor the cooldown — don't spam
+    if (_rateLimited) return;
 
     final token = ++_reqId;
     final page = reset ? 1 : _page + 1;
@@ -180,7 +173,7 @@ class _UserSearchTabState extends State<UserSearchTab> {
 
     try {
       final res = await _api.searchUsers(q, page: page, perPage: _kPerPage);
-      if (!mounted || token != _reqId) return; // superseded → ignore
+      if (!mounted || token != _reqId) return;
       setState(() {
         if (reset) {
           _items
@@ -198,6 +191,13 @@ class _UserSearchTabState extends State<UserSearchTab> {
       if (!mounted || token != _reqId) return;
       if (e.response?.statusCode == 429) {
         _enterRateLimit(e.response);
+      } else if (e.response?.statusCode == 401 ||
+          e.error == 'skipped: not signed in') {
+        setState(() {
+          _items.clear();
+          _loadingMore = false;
+          _phase = _Phase.authRequired;
+        });
       } else {
         setState(() {
           _loadingMore = false;
@@ -220,9 +220,10 @@ class _UserSearchTabState extends State<UserSearchTab> {
       seconds = int.tryParse(body['retry_after'].toString()) ?? 0;
     }
     if (seconds <= 0) {
-      final header = response?.headers.value('retry-after');
+      final header = response?.headers['retry-after']?.firstOrNull;
       seconds = int.tryParse(header ?? '') ?? 5;
     }
+    if (seconds < 5) seconds = 5;
     setState(() {
       _loadingMore = false;
       _retryAfter = seconds;
@@ -258,12 +259,11 @@ class _UserSearchTabState extends State<UserSearchTab> {
     _search(reset: false);
   }
 
-  // ── follow (optimistic) ───────────────────────────────────────────────────
   bool _isFollowing(UserSearchItem u) => _following[u.id] ?? false;
 
   Future<void> _toggleFollow(UserSearchItem u) async {
     final next = !_isFollowing(u);
-    setState(() => _following[u.id] = next); // optimistic
+    setState(() => _following[u.id] = next);
     try {
       if (next) {
         await _api.follow(u.id);
@@ -271,7 +271,7 @@ class _UserSearchTabState extends State<UserSearchTab> {
         await _api.unfollow(u.id);
       }
     } catch (_) {
-      if (mounted) setState(() => _following[u.id] = !next); // rollback
+      if (mounted) setState(() => _following[u.id] = !next);
     }
   }
 
@@ -337,6 +337,9 @@ class _UserSearchTabState extends State<UserSearchTab> {
                 decoration: InputDecoration(
                   isCollapsed: true,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
                   hintText: tr('search.user_hint', 'Ad, soyad və ya @username'),
                   hintStyle: TextStyle(
                     color: _cMuted(d),
@@ -365,11 +368,12 @@ class _UserSearchTabState extends State<UserSearchTab> {
     );
   }
 
+  double get _listBottom => MediaQuery.of(context).padding.bottom + 88;
+
   Widget _content(bool d) {
-    // Error banners sit above whatever content is available.
     if (_phase == _Phase.error) {
       return ListView(
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
+        padding: EdgeInsets.fromLTRB(12, 4, 12, _listBottom),
         children: [
           if (_rateLimited) _rateBanner(d) else _networkBanner(d),
         ],
@@ -386,16 +390,17 @@ class _UserSearchTabState extends State<UserSearchTab> {
         return _emptyView(d);
       case _Phase.results:
         return _resultsView(d);
+      case _Phase.authRequired:
+        return _authView(d);
       case _Phase.error:
         return const SizedBox.shrink();
     }
   }
 
-  // ── state: recent (initial) ───────────────────────────────────────────────
   Widget _recentView(bool d) {
     if (_recent.isEmpty) return _promptView(d);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
+      padding: EdgeInsets.fromLTRB(16, 6, 16, _listBottom),
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -478,7 +483,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
     );
   }
 
-  // ── state: prompt / too short ─────────────────────────────────────────────
   Widget _promptView(bool d) => _centered(
         d,
         icon: PhosphorIconsRegular.magnifyingGlass,
@@ -511,21 +515,19 @@ class _UserSearchTabState extends State<UserSearchTab> {
     );
   }
 
-  // ── state: skeleton ───────────────────────────────────────────────────────
   Widget _skeletonView(bool d) {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, _listBottom),
       itemCount: 6,
       itemBuilder: (_, __) => _SkeletonRow(isDark: d),
       separatorBuilder: (_, __) => const SizedBox(height: 10),
     );
   }
 
-  // ── state: results ────────────────────────────────────────────────────────
   Widget _resultsView(bool d) {
     return ListView.separated(
       controller: _scroll,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, _listBottom),
       itemCount: _items.length + (_page < _lastPage ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
@@ -563,7 +565,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
         ),
       );
 
-  // ── state: empty ──────────────────────────────────────────────────────────
   Widget _emptyView(bool d) => _centered(
         d,
         icon: PhosphorIconsRegular.userFocus,
@@ -577,7 +578,31 @@ class _UserSearchTabState extends State<UserSearchTab> {
         ),
       );
 
-  // ── banners ───────────────────────────────────────────────────────────────
+  Widget _authView(bool d) => _centered(
+        d,
+        icon: PhosphorIconsFill.userCirclePlus,
+        iconBg: d ? WawatDark.brandChip : _brand50,
+        iconColor: d ? WawatDark.brandText : _brand,
+        title: tr('search.user_auth_title', 'Hesabına daxil olmamısan'),
+        subtitle: tr('search.user_auth_subtitle',
+            'İstifadəçiləri axtarmaq üçün hesabına daxil ol.'),
+        action: GestureDetector(
+          onTap: () => AuthModalUtils.showAuthRequiredModal(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            decoration: BoxDecoration(
+              color: _brand,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(tr('auth.login_register', 'Daxil ol / Qeydiyyat'),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ),
+      );
+
   Widget _rateBanner(bool d) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -668,7 +693,6 @@ class _UserSearchTabState extends State<UserSearchTab> {
     );
   }
 
-  // ── shared empty/prompt layout ────────────────────────────────────────────
   Widget _centered(
     bool d, {
     required IconData icon,
@@ -676,10 +700,11 @@ class _UserSearchTabState extends State<UserSearchTab> {
     required Color iconColor,
     required String title,
     required String subtitle,
+    Widget? action,
   }) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(32, 90, 32, 32),
+        padding: EdgeInsets.fromLTRB(32, 90, 32, _listBottom),
         child: Column(
           children: [
             Container(
@@ -706,6 +731,10 @@ class _UserSearchTabState extends State<UserSearchTab> {
                     fontSize: 13,
                     height: 1.35,
                     fontWeight: FontWeight.w600)),
+            if (action != null) ...[
+              const SizedBox(height: 18),
+              action,
+            ],
           ],
         ),
       ),
@@ -713,9 +742,8 @@ class _UserSearchTabState extends State<UserSearchTab> {
   }
 }
 
-/// Segmented [Marşrut | İstifadəçi] control shared by both search tabs.
 class SearchSegmentTabs extends StatelessWidget {
-  final int index; // 0 = routes, 1 = users
+  final int index;
   final ValueChanged<int> onChanged;
 
   const SearchSegmentTabs({
@@ -789,7 +817,6 @@ class SearchSegmentTabs extends StatelessWidget {
   }
 }
 
-// ── result card ─────────────────────────────────────────────────────────────
 class _UserCard extends StatelessWidget {
   final UserSearchItem item;
   final bool isDark;
@@ -961,7 +988,6 @@ class _UserCard extends StatelessWidget {
   }
 }
 
-// ── avatar with online dot ──────────────────────────────────────────────────
 class _Avatar extends StatelessWidget {
   final UserSearchItem item;
   final double size;
@@ -1049,7 +1075,6 @@ class _Avatar extends StatelessWidget {
   }
 }
 
-// ── matched-substring highlight ─────────────────────────────────────────────
 class _Highlighted extends StatelessWidget {
   final String text;
   final List<String> words;
@@ -1068,7 +1093,6 @@ class _Highlighted extends StatelessWidget {
           maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
     }
     final lower = text.toLowerCase();
-    // Mark every character covered by any query word, then coalesce runs.
     final marked = List<bool>.filled(text.length, false);
     for (final w in words) {
       if (w.isEmpty) continue;
@@ -1109,7 +1133,6 @@ class _Highlighted extends StatelessWidget {
   }
 }
 
-// ── skeleton row ────────────────────────────────────────────────────────────
 class _SkeletonRow extends StatelessWidget {
   final bool isDark;
 

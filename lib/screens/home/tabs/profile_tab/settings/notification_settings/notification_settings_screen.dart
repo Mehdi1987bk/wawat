@@ -36,9 +36,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool _loading = true;
   bool _saving = false;
 
-  /// Пуши запрещены на уровне системы. Тогда любые тумблеры ниже бессмысленны:
-  /// бэкенд отправит, а телефон не покажет. Включить обратно можно только в
-  /// настройках телефона — системный диалог второй раз не появится.
   bool _systemDenied = false;
 
   bool notifyPush = true;
@@ -70,7 +67,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Вернулись из настроек телефона — предупреждение должно исчезнуть сразу.
     if (state == AppLifecycleState.resumed) _refreshSystemPermission();
   }
 

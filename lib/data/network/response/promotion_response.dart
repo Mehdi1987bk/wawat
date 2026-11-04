@@ -84,12 +84,6 @@ class PromotionBoostPricing {
   }
 }
 
-/// One guaranteed-impressions boost package (large / medium / small). Price is
-/// flat — there are no days. The listing stays boosted until it reaches its
-/// target impressions, then finishes automatically. `guaranteedMin`–
-/// `guaranteedMax` is the promised impression range, computed server-side from
-/// the active-user count, so it must never be hardcoded — always read the fresh
-/// values from `/promotions/pricing`.
 class PromotionBoostPackage {
   final String package;
   final String label;
@@ -146,10 +140,6 @@ class PromotionQuoteResponse {
   }
 }
 
-/// Preview of a promo code applied to a pending promotion order — returned by
-/// `POST /promotions/{id}/quote`. `applicable` gates the discount; when it's
-/// false, `reason` explains why (invalid | below_min_order | currency_mismatch
-/// | feature_disabled | listing_not_active | no_promo_code).
 class PromotionQuote {
   final double baseAmount;
   final double discount;
@@ -212,20 +202,14 @@ class Promotion {
   final String? tier;
   final String? tierLabel;
 
-  /// Boost package code / label (`large` | `medium` | `small`). Null for VIP.
   final String? package;
   final String? packageLabel;
 
-  /// Guaranteed-impressions progress for a boost promotion. Null for VIP, where
-  /// [durationDays] / [endsAt] / [remainingSeconds] drive the countdown instead.
   final PromotionImpressions? impressions;
 
   final int durationDays;
   final double amount;
 
-  /// Promo discount / net charged — present only on the pay response
-  /// (`discount_amount` / `final_amount`). Null on the pending order, where only
-  /// [amount] (base price) is known.
   final double? discountAmount;
   final double? finalAmount;
   final String currency;
@@ -267,8 +251,6 @@ class Promotion {
     this.listing,
   });
 
-  /// The amount actually charged — the discounted total when a promo applied,
-  /// otherwise the base price. Use this for revenue telemetry.
   double get chargedAmount => finalAmount ?? amount;
 
   factory Promotion.fromJson(Map<String, dynamic> json) {
@@ -308,7 +290,6 @@ class Promotion {
 
   bool get isVip => type == 'vip';
 
-  /// Boost = the guaranteed-impressions product (server `type` == `featured`).
   bool get isBoost => type == 'featured';
   bool get isActive => status == 'active';
   bool get isExpired => status == 'expired';
@@ -316,9 +297,6 @@ class Promotion {
       status == 'pending_payment' || status == 'pending_activation';
 }
 
-/// Guaranteed-impressions progress for a boost promotion. The backend counts an
-/// impression each time the listing surfaces in the feed/search or its card is
-/// opened (owner's own views excluded); `percent` is server-computed 0–100.
 class PromotionImpressions {
   final int target;
   final int delivered;
@@ -378,8 +356,6 @@ class PromotionListingSummary {
   final String? cityFrom;
   final String? cityTo;
 
-  /// Listing status, when the backend embeds it (same values as
-  /// `Listing.status`). Null → unknown, the caller has to look it up.
   final String? status;
 
   const PromotionListingSummary({

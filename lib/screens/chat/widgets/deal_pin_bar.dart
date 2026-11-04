@@ -11,9 +11,6 @@ const _brand50 = Color(0xFFEAF3FE);
 const _brand700 = Color(0xFF024FA3);
 const _ink900 = Color(0xFF0F172A);
 
-/// Sticky bar under the thread header showing the conversation's active deal
-/// (§3A.2). Colour/icon/hint follow the shipment status; amber when it's the
-/// current user's turn. Tapping opens the deal detail screen.
 class DealPinBar extends StatelessWidget {
   final ShipmentData shipment;
   final Map<String, String> content;
@@ -30,8 +27,6 @@ class DealPinBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final visual = _visual();
-    // On graphite, lift the deliberately-dark hint hues to their palette
-    // equivalents so they stay legible; light mode keeps the exact hint colour.
     final hintColor = isDark ? _darkHint(visual.hintColor) : visual.hintColor;
     final tileColor = isDark ? _darkHint(visual.tileColor) : visual.tileColor;
     final title = [
@@ -149,20 +144,18 @@ class DealPinBar extends StatelessWidget {
 
   String _money(double value) => '${value.toStringAsFixed(0)} \$';
 
-  /// Maps a light-mode status hue to its graphite-palette equivalent so text
-  /// and icons stay legible on the dark surface. Brand blue stays brand blue.
   Color _darkHint(Color light) {
     if (light == const Color(0xFF8A5D00) || light == const Color(0xFFB67C00)) {
-      return WawatDark.warning; // pending amber
+      return WawatDark.warning;
     }
     if (light == _brand700) {
-      return WawatDark.brand; // accepted/picked/delivered dark blue
+      return WawatDark.brand;
     }
     if (light == const Color(0xFFDC2626)) {
-      return WawatDark.danger; // disputed red
+      return WawatDark.danger;
     }
     if (light == const Color(0xFF059669)) {
-      return WawatDark.success; // completed green
+      return WawatDark.success;
     }
     return light;
   }

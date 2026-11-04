@@ -24,7 +24,6 @@ class _NumberFildState extends State<NumberFild> {
 
   @override
   Widget build(BuildContext context) {
-    // ← ДОБАВЛЕНО: Определяем тему
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -33,12 +32,12 @@ class _NumberFildState extends State<NumberFild> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white, // ← ДОБАВЛЕНО
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isDark
               ? Colors.grey.withOpacity(0.5)
-              : Colors.grey.withOpacity(0.3), // ← ИСПРАВЛЕНО
+              : Colors.grey.withOpacity(0.3),
           width: 2,
         ),
       ),
@@ -46,7 +45,6 @@ class _NumberFildState extends State<NumberFild> {
         children: [
           GestureDetector(
             onTap: () {
-              // Тут можно открыть выбор страны
             },
             child: Row(
               children: [
@@ -54,13 +52,13 @@ class _NumberFildState extends State<NumberFild> {
                   countryCode,
                   style: TextStyle(
                     fontSize: 18,
-                    color: isDark ? Colors.white : Colors.black87, // ← ИСПРАВЛЕНО
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
                   Icons.keyboard_arrow_down_outlined,
-                  color: isDark ? Colors.white70 : Colors.black54, // ← ИСПРАВЛЕНО
+                  color: isDark ? Colors.white70 : Colors.black54,
                 ),
               ],
             ),
@@ -69,7 +67,7 @@ class _NumberFildState extends State<NumberFild> {
             padding: const EdgeInsets.only(top: 15, bottom: 15),
             child: VerticalDivider(
               thickness: 1,
-              color: isDark ? Colors.grey[700] : Colors.grey, // ← ИСПРАВЛЕНО
+              color: isDark ? Colors.grey[700] : Colors.grey,
               width: 20,
             ),
           ),
@@ -79,7 +77,7 @@ class _NumberFildState extends State<NumberFild> {
               validator: widget.validator,
               autovalidateMode: widget.autovalidateMode,
               keyboardType: TextInputType.phone,
-              keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО ДЛЯ КЛАВИАТУРЫ
+              keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
               inputFormatters: [
                 LengthLimitingTextInputFormatter(9),
                 FilteringTextInputFormatter.digitsOnly,
@@ -88,14 +86,14 @@ class _NumberFildState extends State<NumberFild> {
                 border: InputBorder.none,
                 hintText: '-- -- -- --',
                 hintStyle: TextStyle(
-                  color: isDark ? Colors.grey[600] : Colors.grey, // ← ИСПРАВЛЕНО
+                  color: isDark ? Colors.grey[600] : Colors.grey,
                   letterSpacing: 2.0,
                 ),
                 contentPadding: EdgeInsets.zero,
               ),
               style: TextStyle(
                 fontSize: 18,
-                color: isDark ? Colors.white : Colors.black87, // ← ИСПРАВЛЕНО
+                color: isDark ? Colors.white : Colors.black87,
                 letterSpacing: 2.0,
               ),
             ),

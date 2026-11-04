@@ -6,9 +6,6 @@ import '../../../../../domain/repositories/auth_repository.dart';
 import '../../../../../main.dart';
 import '../../../../../presentation/bloc/base_bloc.dart';
 
-/// Thrown by [NotificationBloc.runInlineShipmentAction] when the notification
-/// carries no shipment id, so the caller can fall back to opening the deal
-/// screen instead of surfacing an error.
 class MissingShipmentException implements Exception {
   const MissingShipmentException();
 }
@@ -58,14 +55,6 @@ class NotificationBloc extends BaseBloc {
     }
   }
 
-  /// Live refresh for realtime/app-resume: re-reads the freshest page and
-  /// updates ONLY the `is_interactive` flag on already-loaded items (a deal
-  /// accepted/declined/confirmed elsewhere flips it to false, hiding the inline
-  /// buttons). Unlike [loadNotifications] with refresh:true, this never resets
-  /// pagination, truncates the list, moves the scroll, or overwrites local
-  /// read-state — so an unrelated notification or an in-flight mark-as-read is
-  /// left untouched. Pending-deal notifications live on the newest page, so a
-  /// single page-1 read covers them.
   Future<void> refreshInteractiveFlags() async {
     try {
       final response = await _repository.notifications(
@@ -87,17 +76,9 @@ class NotificationBloc extends BaseBloc {
       if (changed) notifications.add(updated);
       await fetchUnreadCount();
     } catch (_) {
-      // Best-effort — a manual pull-to-refresh still reconciles everything.
     }
   }
 
-  /// Performs the REAL proposal accept/decline behind an inline notification
-  /// button — the same one-tap path the chat deal card uses (accept/decline
-  /// never need a body). On success it optimistically resolves the item (marks
-  /// it read and clears `is_interactive`) so the buttons vanish at once, and
-  /// returns the server's message. Throws [MissingShipmentException] when the
-  /// notification has no shipment id (caller opens the deal screen instead), and
-  /// rethrows API errors (caller shows them and leaves the buttons in place).
   Future<String?> runInlineShipmentAction(
     NotificationItem item,
     String action,

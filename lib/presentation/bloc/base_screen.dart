@@ -31,25 +31,17 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
   @override
   void initState() {
     super.initState();
-    // Единственная точка, через которую проходит открытие любого экрана на
-    // BaseScreen. Логировать здесь надёжнее, чем в NavigatorObserver: там
-    // безымянные MaterialPageRoute неотличимы друг от друга.
-    // Экран можно переименовать для аналитики, переопределив screenName.
     unawaited(Telemetry.instance
         .screen(screenName, screenClass: widget.runtimeType.toString()));
     bloc = provideBloc();
     bloc.init();
   }
 
-  /// Имя экрана в аналитике. По умолчанию — имя класса виджета
-  /// (`ListingDetailsScreen` → `listing_details_screen`).
   String get screenName => widget.runtimeType.toString();
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    // Перестраиваем только виджеты текущего экрана при смене языка. State,
-    // Navigator, скролл и введённые пользователем данные остаются на месте.
     context.watch<LocalizationService>();
     return BlocProvider<Bloc>(
       bloc: bloc,
@@ -75,15 +67,12 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
             ),
           );
 
-          // Только главный экран управляет системными цветами
           if (useSystemOverlay) {
             return AnnotatedRegion<SystemUiOverlayStyle>(
               value: SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
                 statusBarIconBrightness:
                     isDark ? Brightness.light : Brightness.dark,
-                // ← ИСПРАВЛЕНО: инвертирована логика для клавиатуры (iOS)
-                // Brightness.light = темная клавиатура, Brightness.dark = светлая клавиатура
                 statusBarBrightness:
                     isDark ? Brightness.dark : Brightness.light,
                 systemNavigationBarColor: isDark ? WawatDark.bar : Colors.white,
@@ -177,7 +166,6 @@ abstract class BaseState<T extends BaseScreen, Bloc extends BaseBloc>
 
   bool get resizeToAvoidBottomInset => true;
 
-  // Переопределите на false для табов внутри IndexedStack
   bool get useSystemOverlay => true;
 }
 

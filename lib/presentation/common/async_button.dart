@@ -2,18 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// A button that runs a backend action, showing a centered loader in place of
-/// its content while the action is in flight and swallowing repeat taps.
-///
-/// The loading state can be driven two ways (they combine with OR):
-///  * Return a `Future` from [onPressed] — the button awaits it, shows the
-///    spinner for exactly that duration and blocks double-submits on its own.
-///    This is the preferred wiring: the handler just `await`s its bloc call.
-///  * Pass [loading] explicitly — e.g. when the flag already comes from a
-///    `bloc.loadingStream`. Effective loading = `loading || <onPressed running>`.
-///
-/// While loading the [child] (label + icons) is fully hidden — only the loader
-/// shows — and the button keeps its size so it doesn't jump.
 class AsyncActionButton extends StatefulWidget {
   const AsyncActionButton({
     super.key,
@@ -35,15 +23,10 @@ class AsyncActionButton extends StatefulWidget {
     this.boxShadow,
   });
 
-  /// The action to run on tap. Return a `Future` so the button can await it and
-  /// keep the loader up until the backend call settles. `null` disables the tap.
   final FutureOr<void> Function()? onPressed;
 
-  /// Normal button content (usually a `Text` or a `Row` of icon + text).
   final Widget child;
 
-  /// Full decoration override. When null one is built from [color]/[gradient]
-  /// and [borderRadius].
   final BoxDecoration? decoration;
   final Color? color;
   final Gradient? gradient;
@@ -58,11 +41,8 @@ class AsyncActionButton extends StatefulWidget {
   final double loaderSize;
   final double loaderStrokeWidth;
 
-  /// External loading flag (e.g. from a bloc stream). ORs with the internal
-  /// in-flight state.
   final bool loading;
 
-  /// Renders as non-interactive at [disabledOpacity] without a spinner.
   final bool disabled;
   final double disabledOpacity;
 
@@ -76,7 +56,6 @@ class _AsyncActionButtonState extends State<AsyncActionButton> {
   bool get _isLoading => _busy || widget.loading;
 
   Future<void> _handleTap() async {
-    // One tap only: ignore while a call is in flight or the button is disabled.
     if (_isLoading || widget.disabled || widget.onPressed == null) return;
     setState(() => _busy = true);
     try {
@@ -104,7 +83,6 @@ class _AsyncActionButtonState extends State<AsyncActionButton> {
     Widget content = Stack(
       alignment: Alignment.center,
       children: [
-        // Keep the label laid out (just invisible) so the button size holds.
         Opacity(opacity: _isLoading ? 0 : 1, child: widget.child),
         if (_isLoading)
           SizedBox(

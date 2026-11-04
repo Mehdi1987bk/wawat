@@ -59,10 +59,6 @@ class NotificationMeta {
       };
 }
 
-/// The person who caused a notification (proposals, deals, reviews, follows, …).
-/// Null for system notifications — the banner/list then falls back to the
-/// type icon. In push payloads the same fields arrive flat as actor_name /
-/// actor_avatar_thumb_url.
 class NotificationActor {
   final String? id;
   final String? name;
@@ -95,12 +91,8 @@ class NotificationItem {
   final bool isInteractive;
   final NotificationData data;
 
-  /// Who triggered this notification (avatar+name). Null for system types.
   final NotificationActor? actor;
 
-  /// Unified navigation object — the single source of truth for where a tap
-  /// on this notification should go (same shape as the push payload). Drive
-  /// navigation from [target], never from [type] or [data].
   final NotificationTarget target;
   final String? readAt;
   final String createdAt;
@@ -120,8 +112,6 @@ class NotificationItem {
 
   bool get isUnread => readAt == null || readAt!.isEmpty;
 
-  /// review_received extras — the star rating (1–5) and the comment text, read
-  /// from the notification `data`.
   int? get reviewRating {
     final r = data.raw['rating'];
     if (r is int) return r;
@@ -195,10 +185,6 @@ class NotificationItem {
       };
 }
 
-/// Unified navigation descriptor present on every notification (in-app + push).
-/// [type] is one of the 14 target kinds; [id] is a public_id/username or null
-/// (null ⇒ open a screen, not an entity); [params] holds secondary navigation
-/// (e.g. conversation_id, saved_search_id).
 class NotificationTarget {
   final String type;
   final String? id;

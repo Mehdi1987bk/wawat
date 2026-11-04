@@ -1,12 +1,9 @@
 import '../../../domain/entities/pagination.dart';
 import 'listing_response.dart';
 
-/// One entry of the data-driven "Мои объявления" filter dropdown. Rendered
-/// entirely from the API (`meta.filters`) — key/label/count/order all come from
-/// the backend; the client never hardcodes them.
 class ListingFilterOption {
-  final String key; // e.g. all | active | promoted | booked | ...
-  final String label; // already localized for the user's language
+  final String key;
+  final String label;
   final int count;
 
   const ListingFilterOption({
@@ -23,11 +20,10 @@ class ListingFilterOption {
       );
 }
 
-/// A page of `/listings/my` together with the (page-1-only) filter metadata.
 class MyListingsResult {
   final Pagination<Listing> page;
-  final List<ListingFilterOption> filters; // empty on pages > 1
-  final String? activeFilter; // server's currently-selected filter (page 1)
+  final List<ListingFilterOption> filters;
+  final String? activeFilter;
 
   const MyListingsResult({
     required this.page,

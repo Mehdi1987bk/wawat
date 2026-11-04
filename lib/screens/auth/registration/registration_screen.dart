@@ -23,8 +23,6 @@ import 'registration_bloc.dart';
 class RegistrationScreen extends BaseScreen<RegistrationBloc> {
   final VoidCallback? onLogin;
 
-  /// Optional friend's invite code to prefill (e.g. resolved from an invite
-  /// deep link). Left null for a normal registration.
   final String? initialReferralCode;
 
   RegistrationScreen({
@@ -63,7 +61,6 @@ class _RegistrationScreenState
   void initState() {
     super.initState();
     _loadLanguages();
-    // Manual entry: resolve "who invited" as the user types the code (debounced).
     _referralController.addListener(_onReferralChanged);
     final code = widget.initialReferralCode?.trim();
     if (code != null && code.isNotEmpty) {
@@ -87,14 +84,10 @@ class _RegistrationScreenState
     });
   }
 
-  /// Resolve who invited (public GET /referral/{code}) to show a friendly
-  /// banner and confirm the code. Best-effort: an unknown code (404) clears the
-  /// banner and never blocks registration.
   Future<void> _resolveInviter(String code) async {
     try {
       final inviter = await ReferralApi().getInviter(code);
       if (!mounted) return;
-      // Ignore a stale response if the field has moved on to another code.
       if (_referralController.text.trim() != code) return;
       final show = inviter != null && inviter.referrerName.isNotEmpty;
       setState(() => _inviter = show ? inviter : null);
@@ -164,12 +157,7 @@ class _RegistrationScreenState
         MaterialPageRoute(builder: (_) => HomeScreen()),
         (route) => false,
       );
-      // The reward promo is granted server-side the instant registration
-      // succeeds — surface it once we've landed on Home.
       if (referral.isNotEmpty) _showReferralPromoToast();
-      // E-mail verification gate (no-op while the backend flag is off). The
-      // server already sent the first code with /register, so don't auto-send
-      // (would hit the 60s rate limit) — just lock the resend button for 60s.
       EmailOtpState.instance.codeSentThisSession = true;
       presentEmailOtpIfRequired(autoSend: false, initialCooldownSeconds: 60);
       return;
@@ -181,8 +169,6 @@ class _RegistrationScreenState
     });
   }
 
-  /// After a referral registration the new user already owns a promo code.
-  /// Fetch the wallet and toast the referral reward. Best-effort, never blocks.
   Future<void> _showReferralPromoToast() async {
     try {
       final page = await PromoApi().getPromoCodes(status: 'active');
@@ -371,9 +357,6 @@ class _RegistrationScreenState
               ),
               isDark: isDark,
             ),
-            // The invite-code field is hidden (product decision). The referral
-            // plumbing stays: a code passed via [initialReferralCode] is still
-            // sent and still shows the "invited by" banner.
             const SizedBox(height: 18),
             Text(
               tr('auth.spoken_languages', 'Danışdığın dillər'),

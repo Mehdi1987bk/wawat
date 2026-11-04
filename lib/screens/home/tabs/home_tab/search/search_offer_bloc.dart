@@ -4,7 +4,6 @@ import '../../../../../main.dart';
 import '../../../../../presentation/bloc/paginable_bloc.dart';
 import '../../../../../data/network/response/offer_models.dart';
 import '../../../../../domain/entities/pagination.dart';
-// SearchOfferBloc (альтернативный вариант)
 class SearchOfferBloc extends PaginableBloc<OfferModel> {
   final authRepository = sl.get<AuthRepository>();
   final Stream onReflash;

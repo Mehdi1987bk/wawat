@@ -1,19 +1,3 @@
-/// Снимок главной страницы приложения — то, что видит пользователь на старте.
-///
-/// Запуск (Flutter из `.fvmrc`, см. KNOWN_ISSUES):
-///   flutter test tool/screenshots/home_tab_screenshot.dart
-///
-/// Файл лежит вне `test/` намеренно: `flutter test` без аргументов его не
-/// подхватывает. Он ходит в боевой API (api.wawatair.com), ждёт сеть и пишет
-/// PNG на диск — такому «тесту» не место в обычном прогоне и в CI.
-///
-/// Почему снимок делается тестовым биндингом, а не сборкой приложения:
-/// на машине агента нет Android SDK и эмулятора, а web-сборка невозможна —
-/// два десятка файлов приложения импортируют `dart:io`. Виджет-тест остаётся
-/// единственным способом отрисовать настоящий экран настоящими данными.
-///
-// Файл живёт вне `test/`, поэтому анализатор не считает его тестом и ругается
-// на тестовые хелперы плагинов. Здесь они по назначению.
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 library;
 
@@ -46,13 +30,10 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Куда складывать кадры. Каталог показывается оператору в чате.
 const _shotsDir = '.project-ai/shots';
 
-/// Префикс имени файла задаёт запускающий: `SHOT_PREFIX=... flutter test …`.
 final String _shotPrefix = Platform.environment['SHOT_PREFIX'] ?? 'home-tab';
 
-/// Логический размер кадра — обычный современный телефон.
 const Size _screen = Size(390, 844);
 const double _pixelRatio = 2;
 
@@ -62,8 +43,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    // flutter_test подменяет HttpClient заглушкой, которая на любой запрос
-    // отвечает 400. Экрану нужен живой API — снимаем подмену.
     HttpOverrides.global = null;
 
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -76,16 +55,12 @@ void main() {
     _registerDependencies();
 
     app.themeManager = await ThemeManager.create();
-    // Тексты главной приходят из CMS (`GET /content`), а не из ARB.
     await LocalizationService.instance.load('az');
   });
 
   testWidgets('главная страница', (tester) async {
     await _pumpHome(tester);
 
-    // Лента, словари пакетов и CMS-тексты грузятся тремя независимыми
-    // запросами; ждём их реальным временем, а не pumpAndSettle (на экране
-    // живут бесконечные анимации скелетона).
     await _waitForNetwork(tester, const Duration(seconds: 12));
     await _capture(tester, '$_shotPrefix-1.png');
 
@@ -97,9 +72,6 @@ void main() {
     await _waitForNetwork(tester, const Duration(seconds: 4));
     await _capture(tester, '$_shotPrefix-3.png');
 
-    // Тёмная тема — та же верхушка главной, чтобы было с чем сравнивать.
-    // Возврат наверх неизбежно задевает pull-to-refresh, поэтому после него
-    // ждём дольше: пока обновление не закончится, спиннер висит поверх шапки.
     await app.themeManager.toggleTheme();
     await _scroll(tester, 760);
     await _scroll(tester, 760);
@@ -143,7 +115,6 @@ Future<void> _pumpHome(WidgetTester tester) async {
               Locale('uk'),
               Locale('es'),
             ],
-            // Вырезы телефона: без них шапка прилипает к верхней грани кадра.
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context).copyWith(
                 padding: const EdgeInsets.only(top: 47, bottom: 34),
@@ -160,16 +131,12 @@ Future<void> _pumpHome(WidgetTester tester) async {
   await tester.pump();
 }
 
-/// Приложение собирает тёмную тему приватным методом в `wawat_app.dart`.
-/// Экранам оттуда нужна только яркость — конкретные цвета они берут из
-/// `wawat_dark.dart`, поэтому для снимка хватает минимальной копии.
 final ThemeData _darkTheme = ThemeData(
   brightness: Brightness.dark,
   fontFamily: 'Instrument Sans',
   fontFamilyFallback: const ['Noto Sans'],
 );
 
-/// Крутит ленту на [dy] логических пикселей (отрицательное — вниз по списку).
 Future<void> _scroll(WidgetTester tester, double dy) async {
   await tester.drag(
     find.byType(CustomScrollView).first,
@@ -179,8 +146,6 @@ Future<void> _scroll(WidgetTester tester, double dy) async {
   await tester.pump();
 }
 
-/// Даёт запросам реальное время: `runAsync` пускает настоящие таймеры и
-/// сокеты, `pump` после него отрисовывает то, что успело приехать.
 Future<void> _waitForNetwork(WidgetTester tester, Duration total) async {
   const step = Duration(milliseconds: 250);
   for (var spent = Duration.zero; spent < total; spent += step) {
@@ -190,15 +155,12 @@ Future<void> _waitForNetwork(WidgetTester tester, Duration total) async {
 }
 
 Future<void> _capture(WidgetTester tester, String name) async {
-  // Картинки декодируются только в реальном времени — иначе в кадр попадут
-  // пустые места вместо логотипа и фотографий объявлений.
   await tester.runAsync(() async {
     for (final element in tester.elementList(find.byType(Image))) {
       final image = element.widget as Image;
       try {
         await precacheImage(image.image, element);
       } catch (_) {
-        // Недоступная картинка не должна ронять съёмку.
       }
     }
   });
@@ -220,17 +182,12 @@ Future<void> _capture(WidgetTester tester, String name) async {
   print('screenshot: ${file.path} (${bytes.length ~/ 1024} KB)');
 }
 
-/// Открытые сокеты и таймауты dio переживают тест, и биндинг валит его на
-/// «A Timer is still pending even after the widget tree was disposed».
-/// Закрываем клиент и прокручиваем время, чтобы таймеры успели отработать.
 Future<void> _closeNetwork(WidgetTester tester) async {
   app.sl.get<Dio>().close(force: true);
   await _waitForNetwork(tester, const Duration(seconds: 2));
   await tester.pump(const Duration(minutes: 2));
 }
 
-/// Тот же граф зависимостей, что собирает `main._registerDependency()`,
-/// но без Firebase, пушей и сокетов — экрану нужны только API и кэш.
 void _registerDependencies() {
   final dio = Dio()
     ..options.headers['content-type'] = 'application/json'
@@ -249,9 +206,6 @@ void _registerDependencies() {
   );
 }
 
-/// В виджет-тестах весь текст рисуется заглушкой Ahem — прямоугольниками.
-/// Подкладываем настоящие шрифты приложения, шрифт иконок Phosphor и
-/// Material Icons, иначе кадр невозможно смотреть.
 Future<void> _loadRealFonts() async {
   await _loadFamily('Instrument Sans', [
     'assets/fonts/InstrumentSans-Regular.ttf',
@@ -277,8 +231,6 @@ Future<void> _loadRealFonts() async {
       'PhosphorDuotone': 'Phosphor-Duotone.ttf',
     };
     for (final entry in families.entries) {
-      // Иконки объявлены с `fontPackage`, поэтому движок ищет их семейство
-      // под именем `packages/<пакет>/<семейство>` — под ним и регистрируем.
       await _loadFamily(
         'packages/phosphor_flutter/${entry.key}',
         ['$phosphor/lib/fonts/${entry.value}'],
@@ -322,8 +274,6 @@ String? _packageRoot(String package) {
   return null;
 }
 
-/// Плагина path_provider в тестовом окружении нет, а кэш картинок без него
-/// не стартует. Отдаём ему временный каталог.
 void _stubPathProvider(String path) {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(

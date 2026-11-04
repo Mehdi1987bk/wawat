@@ -7,6 +7,7 @@ import '../../../../../data/network/response/listing_response.dart';
 import '../../../../../data/network/response/my_listings_result.dart';
 import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/bloc/utils.dart';
+import '../../../../../services/api_error.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/theme_aware_screen.dart';
@@ -73,8 +74,6 @@ class _DeliveryFullListScreenState
     }
   }
 
-  /// Label of the active filter when it is a specific (non-`all`) one — used to
-  /// tailor the empty state ("no listings under <filter>"). Null for `all`.
   String? _activeFilterLabel() {
     final key = bloc.activeFilterKey;
     if (key == 'all') return null;
@@ -250,9 +249,9 @@ class _DeliveryFullListScreenState
       final message = await bloc.pauseListing(listing);
       if (!mounted) return;
       _showSuccess(message ?? _t('listing.paused'));
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      _showError(_t('common.operation_failed'));
+      _showError(errorMessage(e, _t('common.operation_failed')));
     }
   }
 
@@ -266,22 +265,16 @@ class _DeliveryFullListScreenState
     );
     if (!confirmed) return;
     try {
-      // Resume may return to moderation (not active) — show the backend's
-      // localized message; loadList() already refreshes the shown status.
       final message = await bloc.resumeListing(listing);
       if (!mounted) return;
       _showSuccess(message ?? _t('listing.resumed'));
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      _showError(_t('common.operation_failed'));
+      _showError(errorMessage(e, _t('common.operation_failed')));
     }
   }
 
   Future<void> _confirmRepost(Listing listing) async {
-    // Don't fire /repost with the old (past) date — it 422s. Open the publish
-    // form pre-filled from this listing (minus the date); it submits POST
-    // /listings/{id}/repost with the new future date, creating a fresh listing
-    // in moderation. With no listing slot left the limit gate opens instead.
     await openRepostFlow(context, listing);
   }
 
@@ -307,9 +300,9 @@ class _DeliveryFullListScreenState
       await bloc.deleteListing(listing, reasonCode: reason);
       if (!mounted) return;
       _showSuccess(_t('listing.deleted'));
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      _showError(_t('common.operation_failed'));
+      _showError(errorMessage(e, _t('common.operation_failed')));
     }
   }
 
@@ -424,8 +417,6 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// Data-driven filter trigger. Fully rendered from `meta.filters`: the active
-/// option's label + count and a chevron; tapping opens the picker sheet.
 class _FilterDropdown extends StatelessWidget {
   final bool isDark;
   final Map<String, String> content;
@@ -493,7 +484,6 @@ class _FilterDropdown extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Row(
                 children: [
-                  // Brand icon chip — gives the control visual weight.
                   Container(
                     width: 40,
                     height: 40,
@@ -547,7 +537,6 @@ class _FilterDropdown extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Caret chip — clear "opens a dropdown" affordance.
                   Container(
                     width: 30,
                     height: 30,
@@ -569,8 +558,6 @@ class _FilterDropdown extends StatelessWidget {
   }
 }
 
-/// Bottom-sheet picker listing every option from `meta.filters` — label +
-/// count badge, the active one highlighted. Returns the chosen key.
 class _FilterSheet extends StatelessWidget {
   final Map<String, String> content;
   final List<ListingFilterOption> filters;
@@ -590,7 +577,6 @@ class _FilterSheet extends StatelessWidget {
         color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      // Reserve the OS navigation-bar inset (the sheet helper doesn't).
       padding: EdgeInsets.fromLTRB(
           20, 10, 20, 20 + MediaQuery.paddingOf(context).bottom),
       child: Column(
@@ -691,7 +677,6 @@ class _FilterRow extends StatelessWidget {
   }
 }
 
-/// Small brand-tinted count pill (e.g. the «(2)» after a filter label).
 class _CountBadge extends StatelessWidget {
   final int count;
   final bool isDark;
@@ -750,8 +735,6 @@ class _DeleteReasonSheet extends StatelessWidget {
         color: isDark ? cCard(isDark) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      // Reserve the OS navigation-bar inset so the last reason clears the
-      // gesture/back bar (showAppBottomSheet doesn't apply bottom safe-area).
       padding: EdgeInsets.fromLTRB(
           20, 10, 20, 26 + MediaQuery.paddingOf(context).bottom),
       child: Column(
@@ -951,9 +934,6 @@ class _MyListingsSkeleton extends StatelessWidget {
 class _EmptyMine extends StatelessWidget {
   final Map<String, String> content;
 
-  /// When a specific (non-`all`) filter is active but yields nothing, this is
-  /// its label — the copy then reads "no listings under <filter>" instead of
-  /// the first-time "create your first listing" prompt.
   final String? filterLabel;
 
   const _EmptyMine({required this.content, this.filterLabel});

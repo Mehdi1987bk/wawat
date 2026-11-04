@@ -29,10 +29,6 @@ class PromotionApi {
     return PromotionResponse.fromJson(response.data ?? const {});
   }
 
-  /// Preview a promo code against a pending order without charging.
-  /// `POST /promotions/{id}/quote` `{promo_code}` → discount + final amount.
-  /// `promoCode` may be the raw code the user typed OR a wallet promo id —
-  /// the backend accepts either.
   Future<PromotionQuoteResponse> quotePromotion(
     String promotionId,
     String promoCode,
@@ -67,16 +63,9 @@ class PromotionApi {
     return PromotionResponse.fromJson(response.data ?? const {});
   }
 
-  /// Initiates payment for a pending order.
-  /// `POST /promotions/{id}/pay` `{method}` (+ optional `promo_code`).
-  ///
-  /// For `method: 'card'` the response carries
-  /// `data.payment.checkout_url` — a Kapital hosted 3-D Secure page to open in a
-  /// WebView. The backend verifies and activates the promotion idempotently, so
-  /// re-calling pay (e.g. after a network drop) never double-charges.
   Future<PromotionResponse> payPromotion(
     String promotionId, {
-    required String method, // 'card' | 'apple' | 'google'
+    required String method,
     String? promoCode,
     required String idempotencyKey,
   }) async {

@@ -1,8 +1,3 @@
-/// Models for the paid "increase listing limit" flow (mock payment, like VIP
-/// promo). Hand-written tolerant parsing — no json_serializable/codegen —
-/// mirroring [promotion_response.dart]. All user-facing labels
-/// (`label` / `package_label` / `type_label` / `status_label`) arrive already
-/// localized from the backend; render them directly, do not hardcode.
 
 import 'receipt.dart';
 
@@ -40,8 +35,6 @@ bool _bool(Object? value) {
   return s == 'true' || s == '1';
 }
 
-// ─────────────────────────────── Pricing ───────────────────────────────
-
 class QuotaPricingResponse {
   final QuotaPricing data;
 
@@ -66,7 +59,6 @@ class QuotaPricing {
             .toList(growable: false),
       );
 
-  /// Plans for a given listing type ('trip' | 'shipment_post'), or null.
   QuotaTypePricing? forType(String type) {
     for (final t in types) {
       if (t.type == type) return t;
@@ -76,8 +68,8 @@ class QuotaPricing {
 }
 
 class QuotaTypePricing {
-  final String type; // trip | shipment_post
-  final String label; // already localized
+  final String type;
+  final String label;
   final List<QuotaPlan> plans;
 
   const QuotaTypePricing({
@@ -97,12 +89,12 @@ class QuotaTypePricing {
 }
 
 class QuotaPlan {
-  final int extraListings; // 1 | 3 | 5
+  final int extraListings;
   final double price;
   final String currency;
   final double? perListing;
-  final String packageLabel; // localized "+3 səfər elanı"
-  final String? badge; // "best_value" | null
+  final String packageLabel;
+  final String? badge;
 
   const QuotaPlan({
     required this.extraListings,
@@ -126,8 +118,6 @@ class QuotaPlan {
   bool get isBestValue => badge == 'best_value';
 }
 
-// ─────────────────────────────── Order ─────────────────────────────────
-
 class QuotaOrderResponse {
   final QuotaOrder data;
   final String? message;
@@ -144,14 +134,14 @@ class QuotaOrderResponse {
 }
 
 class QuotaOrder {
-  final String id; // public_id (use this in URLs, never a number)
+  final String id;
   final String type;
   final String typeLabel;
   final int extraListings;
   final String packageLabel;
   final double amount;
   final String currency;
-  final String status; // pending_payment | paid | failed | canceled
+  final String status;
   final String statusLabel;
   final String? providerRef;
   final String? paidAt;
@@ -197,13 +187,11 @@ class QuotaOrder {
   bool get isFailed => status == 'failed' || status == 'canceled';
   bool get isPending => status == 'pending_payment';
 
-  /// Provider checkout url — non-null only once a real provider is wired
-  /// (mock keeps it null). When present, open it in a WebView.
   String? get checkoutUrl => payment?.checkoutUrl;
 }
 
 class QuotaPayment {
-  final String? method; // card | balance
+  final String? method;
   final String? reference;
   final String? status;
   final String? checkoutUrl;

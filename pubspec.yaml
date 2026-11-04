@@ -45,6 +45,9 @@ dependencies:
   carousel_slider: ^5.0.0
   expandable: 5.0.1
   image_picker: 1.1.2
+  # Camera/photos permission handling: lets us prompt on every tap and route to
+  # app settings once the OS stops showing its own prompt (verification photos).
+  permission_handler: ^11.3.1
   cached_network_image: 3.3.1
   url_launcher: 6.1.6
   in_app_review: ^2.0.9
@@ -90,13 +93,25 @@ dependencies:
   firebase_crashlytics: ^4.3.10
   firebase_analytics: ^11.6.0
   firebase_performance: ^0.10.1+10
+  # ClientException: network_failure.dart tells "no network" from a real error.
+  http: ^1.2.0
+  shorebird_code_push: ^2.0.7
+  # Карта раздела рейсов. Плитки — Esri Light/Dark Gray Canvas, ключа не
+  # требуют, как в прототипе; google_maps_flutter для этого не годится —
+  # он лежит в проекте без ключа и платный.
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+
+  # Экран «Yaxınlıqda» в разделе рейсов: `/airports/nearby` принимает только
+  # координаты, поиска по IP у провайдера нет. Нужна грубая точность —
+  # аэропорты ищутся в радиусе сотен километров.
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: 5.0.0
   googleapis_auth: ^2.0.0
-  http: ^1.2.0
   retrofit_generator: 9.6.0
   build_runner: 2.4.15
   json_serializable: 6.9.5
@@ -180,6 +195,7 @@ flutter:
     - assets/fonts/NotoSans-Regular.ttf
     - assets/fonts/NotoSans-Bold.ttf
     - asset/icon.png
+    - shorebird.yaml
 
   fonts:
     - family: Instrument Sans

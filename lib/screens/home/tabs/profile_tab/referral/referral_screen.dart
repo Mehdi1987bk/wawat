@@ -10,7 +10,6 @@ import 'package:buking/services/date_labels.dart';
 
 import 'referral_api.dart';
 
-// ── palette ──────────────────────────────────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _brand700 = Color(0xFF024FA3);
 const _accent = Color(0xFFF2FC2A);
@@ -508,7 +507,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
       Container(width: 1, height: 32, color: _cLine(d));
 }
 
-// ── Invited list ─────────────────────────────────────────────────────────────
 class ReferralInvitesScreen extends StatefulWidget {
   final num rewardAmount;
 
@@ -730,7 +728,6 @@ class _ReferralInvitesScreenState extends State<ReferralInvitesScreen> {
   }
 }
 
-// ── Shared error view ────────────────────────────────────────────────────────
 class _ErrorView extends StatelessWidget {
   final Future<void> Function() onRetry;
 

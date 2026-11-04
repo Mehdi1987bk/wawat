@@ -5,10 +5,6 @@ import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 
-/// Compact tier badge — a mini gradient medal + the (localized) tier label,
-/// tinted in the tier's colour. Matches the "Statusum" page so a user's level
-/// reads the same everywhere (profile header, public profile). Works for every
-/// tier including `new`/`standard`.
 class TierBadge extends StatelessWidget {
   final String tier;
   final Map<String, String> content;
@@ -75,8 +71,6 @@ class _MiniMedal extends StatelessWidget {
   }
 }
 
-// ── tier visuals (shared with the Statusum page's design language) ──
-
 IconData tierIcon(String key) {
   switch (key) {
     case 'new':
@@ -115,8 +109,6 @@ List<Color> tierGradient(String key) {
   }
 }
 
-/// Localized tier labels via CMS `enum.user_tier.{key}`, with the AZ text as
-/// inline fallback (same keys the badge resolves at its render site).
 String tierLabel(String key) {
   switch (key) {
     case 'new':
@@ -136,7 +128,6 @@ String tierLabel(String key) {
   }
 }
 
-/// (background, foreground) for the badge pill, per tier + theme.
 (Color, Color) tierBadgeColors(String key, bool isDark) {
   if (isDark) {
     return switch (key) {

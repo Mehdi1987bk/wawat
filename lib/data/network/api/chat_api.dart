@@ -84,7 +84,6 @@ class ChatApi {
     final trimmedCaption = caption?.trim() ?? '';
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(file.path),
-      // Optional photo caption (≤1000). Saved as the image message's body.
       if (trimmedCaption.isNotEmpty) 'caption': trimmedCaption,
     });
     final response = await _dio.post<Map<String, dynamic>>(
@@ -123,9 +122,6 @@ class ChatApi {
     );
   }
 
-  /// Unread badges: total unread conversations + how many ARCHIVED chats have
-  /// unread messages (per chat, not per message). `/conversations/unread-count`
-  /// → `{ unread_count, archived_unread_count }`.
   Future<({int unread, int archived})> getUnreadCount() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '$_baseUrl/conversations/unread-count',
@@ -183,8 +179,6 @@ class ChatApi {
     await _dio.delete<void>('$_baseUrl/users/${_moderationId(body)}/block');
   }
 
-  /// Resolve the target user id (public_id/ULID) for block/unblock, refusing
-  /// empty or `0` values so we never post to `/users//block` or `/users/0/block`.
   String _moderationId(Map<String, dynamic> body) {
     final raw = (body['user_id'] ?? body['target_user_id'] ?? body['id'])
             ?.toString()

@@ -13,7 +13,6 @@ import 'app_review.dart';
 import 'promo_api.dart';
 import 'promo_codes_bloc.dart';
 
-// ── Wawatair palette (light from mock + navy dark from spec) ─────────────────
 const _brand = Color(0xFF017BFE);
 const _brand50 = Color(0xFFEAF3FE);
 const _brand700 = Color(0xFF024FA3);
@@ -289,7 +288,6 @@ class _PromoCodesScreenState
   }
 }
 
-// ── Info hint ────────────────────────────────────────────────────────────────
 class _InfoHint extends StatelessWidget {
   final Map<String, String> content;
 
@@ -326,7 +324,6 @@ class _InfoHint extends StatelessWidget {
   }
 }
 
-// ── Segment (Aktiv / İstifadə olunmuş / Vaxtı keçmiş) ─────────────────────────
 class _Segment extends StatelessWidget {
   final PromoState state;
   final ValueChanged<String> onTab;
@@ -428,7 +425,6 @@ class _Segment extends StatelessWidget {
   }
 }
 
-// ── Ticket (coupon) ──────────────────────────────────────────────────────────
 class _PromoTicket extends StatelessWidget {
   final PromoCode promo;
   final Color notchColor;
@@ -844,7 +840,6 @@ class _DashPainter extends CustomPainter {
   bool shouldRepaint(covariant _DashPainter old) => old.color != color;
 }
 
-// ── Empty (onboarding) ───────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final Map<String, String> content;
   final VoidCallback onRate;
@@ -999,7 +994,6 @@ class _EarnCard extends StatelessWidget {
   }
 }
 
-// ── Detail bottom-sheet ──────────────────────────────────────────────────────
 class _DetailSheet extends StatelessWidget {
   final PromoCode promo;
   final Map<String, String> content;
@@ -1152,7 +1146,6 @@ class _DetailSheet extends StatelessWidget {
   }
 }
 
-// ── Skeleton ─────────────────────────────────────────────────────────────────
 class _PromoSkeleton extends StatelessWidget {
   const _PromoSkeleton();
 
@@ -1222,7 +1215,6 @@ class _ShimmerState extends State<_Shimmer>
   }
 }
 
-// ── Network error ────────────────────────────────────────────────────────────
 class _LoadError extends StatelessWidget {
   final Map<String, String> content;
   final Future<void> Function() onRetry;

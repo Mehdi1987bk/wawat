@@ -75,6 +75,34 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        // Обновление «по воздуху» (lib/ota_update_prompt.dart) включается только
+        // после холодного старта: поднимаем приложение заново и гасим процесс.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            APP_RESTART_CHANNEL,
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "restart" -> {
+                    val component =
+                        packageManager.getLaunchIntentForPackage(packageName)?.component
+                    if (component == null) {
+                        result.success(false)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        startActivity(Intent.makeRestartActivityTask(component))
+                    } catch (e: Exception) {
+                        result.success(false)
+                        return@setMethodCallHandler
+                    }
+                    // Сразу, без задержек: иначе новая активность успеет
+                    // подняться в старом процессе и обновление не включится.
+                    Runtime.getRuntime().exit(0)
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 
     /// Opens this app's notification settings (Android 8+), falling back to the
@@ -160,5 +188,6 @@ class MainActivity: FlutterActivity() {
         private const val RECEIPT_CHANNEL = "az.buking.buking/receipt_files"
         private const val NOTIFICATION_SETTINGS_CHANNEL =
             "az.buking.buking/notification_settings"
+        private const val APP_RESTART_CHANNEL = "az.buking.buking/app_restart"
     }
 }

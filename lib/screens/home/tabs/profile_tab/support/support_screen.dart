@@ -5,7 +5,6 @@ import 'package:buking/services/localization_service.dart';
 
 import 'support_api.dart';
 
-// ── palette (light from mock + navy dark) ────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _brand700 = Color(0xFF024FA3);
 const _ink900 = Color(0xFF0F172A);
@@ -93,7 +92,6 @@ class _SupportScreenState extends State<SupportScreen> {
       final ticket =
           await _api.submit(category: _topic, subject: subject, body: body);
       if (ticket == null) {
-        // Endpoint not live yet → open a mail draft so nothing is lost.
         await _api.mailtoDraft(subject: subject, body: body);
       }
       if (!mounted) return;
@@ -138,7 +136,6 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  // ── form ────────────────────────────────────────────────────────────────────
   Widget _form(bool d) {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -292,7 +289,6 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
-  // ── success ─────────────────────────────────────────────────────────────────
   Widget _successView(bool d) {
     return Center(
       child: Padding(

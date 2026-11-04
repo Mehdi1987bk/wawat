@@ -2,44 +2,41 @@ import 'package:dio/dio.dart';
 
 import '../../../main.dart';
 
-/// Data-layer for e-mail verification by one-time code (OTP).
-///
-/// Three authed endpoints (the Bearer token is added by [CallInterceptor]):
-///   GET  /auth/email/otp         → status {required, verified, email, attempts_left}
-///   POST /auth/email/otp         → send / resend a code
-///   POST /auth/email/otp/verify  → verify a code {otp}
-///
-/// Kept on the raw [Dio] (not Retrofit) because the generator is blocked by a
-/// pub conflict — this way no `*.g.dart` has to be hand-edited for it.
 class EmailOtpApi {
   EmailOtpApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
   final Dio _dio;
 
-  /// Current status. The source of truth for whether the feature flag is on
-  /// (`required`) and whether this account is already verified.
+  static String? pendingToken;
+
+  Options? get _auth {
+    final token = pendingToken;
+    if (token == null) return null;
+    return Options(headers: {'Authorization': 'Bearer $token'});
+  }
+
   Future<EmailOtpStatus> getStatus() async {
-    final res = await _dio.get<dynamic>('$baseUrl/auth/email/otp');
+    final res =
+        await _dio.get<dynamic>('$baseUrl/auth/email/otp', options: _auth);
     return EmailOtpStatus.fromJson(_data(res.data));
   }
 
-  /// Send (or resend) a code. Throws [EmailOtpException] on 429/409/etc.
   Future<EmailOtpSendResult> sendCode() async {
     try {
-      final res = await _dio.post<dynamic>('$baseUrl/auth/email/otp');
+      final res =
+          await _dio.post<dynamic>('$baseUrl/auth/email/otp', options: _auth);
       return EmailOtpSendResult.fromJson(_data(res.data));
     } on DioException catch (e) {
       throw EmailOtpException.fromDio(e);
     }
   }
 
-  /// Verify a 6-digit code. Returns true on success; throws
-  /// [EmailOtpException] (422 VALIDATION_ERROR with a server message) otherwise.
   Future<bool> verify(String otp) async {
     try {
       final res = await _dio.post<dynamic>(
         '$baseUrl/auth/email/otp/verify',
         data: <String, dynamic>{'otp': otp},
+        options: _auth,
       );
       return _data(res.data)['verified'] == true;
     } on DioException catch (e) {
@@ -47,7 +44,6 @@ class EmailOtpApi {
     }
   }
 
-  /// Unwrap the Laravel `{data: {...}}` envelope, tolerating a flat body.
   Map<String, dynamic> _data(dynamic body) {
     if (body is Map) {
       final d = body['data'];
@@ -98,9 +94,6 @@ class EmailOtpSendResult {
       );
 }
 
-/// A typed error for the send/verify endpoints: carries the machine [code]
-/// (RATE_LIMITED / CONFLICT / VALIDATION_ERROR) and the server [message] so the
-/// screen can show the backend text verbatim (never invent its own).
 class EmailOtpException implements Exception {
   final int? statusCode;
   final String? code;

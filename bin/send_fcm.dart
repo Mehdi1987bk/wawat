@@ -1,10 +1,3 @@
-// Отправка тестового FCM (HTTP v1). Без gcloud — только JSON сервисного аккаунта.
-//
-// Использование:
-//   dart run bin/send_fcm.dart <FCM_TOKEN>
-//   dart run bin/send_fcm.dart <путь_к_service_account.json> <FCM_TOKEN>
-//
-// Если путь не указан — ищется любой *service_account*.json или *firebase*adminsdk*.json в scripts/
 
 import 'dart:convert';
 import 'dart:io';

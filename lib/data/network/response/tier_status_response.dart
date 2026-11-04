@@ -1,6 +1,3 @@
-/// Models for the "Statusum" (tier/level) page. Fully data-driven from
-/// `GET /me/tier-status` — nothing is computed client-side. Hand-written
-/// tolerant parsing (no codegen). All `label`s arrive already localized.
 
 Map<String, dynamic>? _map(Object? v) =>
     v is Map ? Map<String, dynamic>.from(v) : null;
@@ -24,7 +21,6 @@ int _int(Object? v, [int fb = 0]) {
   return int.tryParse(v?.toString() ?? '') ?? fb;
 }
 
-/// Numeric value or null. Booleans (e.g. verification `required:true`) → null.
 double? _numOrNull(Object? v) {
   if (v is bool) return null;
   if (v is num) return v.toDouble();
@@ -83,21 +79,18 @@ class TierStatus {
     );
   }
 
-  /// Already at Platin — no next level.
   bool get isMax => nextTier == null;
 
-  /// Level went down (rating dropped).
   bool get isDemoted => demotedFrom != null;
 
-  /// Every requirement met → next delivery / recompute will promote.
   bool get isReadyForPromotion =>
       nextTierRequirements.isNotEmpty &&
       nextTierRequirements.every((r) => r.met);
 }
 
 class TierRef {
-  final String key; // new|standard|bronze|silver|gold|platinum
-  final String label; // localized
+  final String key;
+  final String label;
   final int? index;
 
   const TierRef({required this.key, required this.label, this.index});
@@ -111,7 +104,7 @@ class TierRef {
 
 class TierMetrics {
   final int completedDeliveries;
-  final double? ratingAvg; // null when ratingCount == 0
+  final double? ratingAvg;
   final int ratingCount;
 
   const TierMetrics({
@@ -131,9 +124,9 @@ class TierMetrics {
 }
 
 class TierRequirement {
-  final String type; // deliveries | rating | verification
-  final double? requiredNum; // null for verification
-  final double? currentNum; // null for verification (or no rating yet)
+  final String type;
+  final double? requiredNum;
+  final double? currentNum;
   final bool met;
 
   const TierRequirement({
@@ -155,14 +148,12 @@ class TierRequirement {
   bool get isRating => type == 'rating';
   bool get isVerification => type == 'verification';
 
-  /// How much is still missing (numeric requirements only).
   double? get remaining {
     if (requiredNum == null || currentNum == null) return null;
     final diff = requiredNum! - currentNum!;
     return diff > 0 ? diff : 0;
   }
 
-  /// 0..1 progress for the bar (numeric requirements only).
   double get progress {
     if (met) return 1;
     if (requiredNum == null || requiredNum == 0 || currentNum == null) return 0;
@@ -175,7 +166,7 @@ class TierLadderItem {
   final String key;
   final String label;
   final int minDeliveries;
-  final int? maxDeliveries; // null → open-ended ("18+")
+  final int? maxDeliveries;
   final double minRating;
   final bool requiresVerification;
 

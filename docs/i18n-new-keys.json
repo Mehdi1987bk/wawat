@@ -1600,6 +1600,16 @@
     "es": ""
   },
   {
+    "key": "deals.action.unsupported",
+    "group": "deals",
+    "az": "Bu əməliyyat üçün tətbiqi yeniləyin.",
+    "en": "Update the app to use this action.",
+    "ru": "Обновите приложение, чтобы выполнить это действие.",
+    "tr": "Bu işlem için uygulamayı güncelleyin.",
+    "ua": "Оновіть застосунок, щоб виконати цю дію.",
+    "es": "Actualiza la app para usar esta acción."
+  },
+  {
     "key": "deals.action_accept",
     "group": "deals",
     "az": "Qəbul",
@@ -1730,6 +1740,26 @@
     "es": ""
   },
   {
+    "key": "deals.confirm.cancel",
+    "group": "deals",
+    "az": "Ləğv et",
+    "en": "Cancel",
+    "ru": "Отмена",
+    "tr": "Vazgeç",
+    "ua": "Скасувати",
+    "es": "Cancelar"
+  },
+  {
+    "key": "deals.confirm.sure",
+    "group": "deals",
+    "az": "Əminsiniz?",
+    "en": "Are you sure?",
+    "ru": "Вы уверены?",
+    "tr": "Emin misiniz?",
+    "ua": "Ви впевнені?",
+    "es": "¿Estás seguro?"
+  },
+  {
     "key": "deals.deal_cancelled",
     "group": "deals",
     "az": "Sövdələşmə ləğv edildi",
@@ -1768,6 +1798,26 @@
     "tr": "",
     "ua": "",
     "es": ""
+  },
+  {
+    "key": "deals.dispute.min_length",
+    "group": "deals",
+    "az": "Ən azı {count} simvol yazın",
+    "en": "Enter at least {count} characters",
+    "ru": "Введите не менее {count} символов",
+    "tr": "En az {count} karakter yazın",
+    "ua": "Введіть щонайменше {count} символів",
+    "es": "Escribe al menos {count} caracteres"
+  },
+  {
+    "key": "deals.dispute.question",
+    "group": "deals",
+    "az": "Nə baş verdi?",
+    "en": "What happened?",
+    "ru": "Что случилось?",
+    "tr": "Ne oldu?",
+    "ua": "Що сталося?",
+    "es": "¿Qué pasó?"
   },
   {
     "key": "deals.disputed",
@@ -13870,6 +13920,36 @@
     "es": ""
   },
   {
+    "key": "permission.camera_body",
+    "group": "permission",
+    "az": "Şəkil çəkmək üçün Parametrlərdə kameraya icazə verin.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "permission.camera_title",
+    "group": "permission",
+    "az": "Kamera icazəsi lazımdır",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "permission.open_settings",
+    "group": "permission",
+    "az": "Parametrləri aç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
     "key": "privacy.load_error",
     "group": "privacy",
     "az": "Error loading privacy policy",
@@ -15280,6 +15360,26 @@
     "es": ""
   },
   {
+    "key": "search.user_auth_subtitle",
+    "group": "search",
+    "az": "İstifadəçiləri axtarmaq üçün hesabına daxil ol.",
+    "en": "Sign in to search for users.",
+    "ru": "Войдите в аккаунт, чтобы искать пользователей.",
+    "tr": "Kullanıcıları aramak için hesabına giriş yap.",
+    "ua": "Увійдіть в акаунт, щоб шукати користувачів.",
+    "es": "Inicia sesión para buscar usuarios."
+  },
+  {
+    "key": "search.user_auth_title",
+    "group": "search",
+    "az": "Hesabına daxil olmamısan",
+    "en": "You're not signed in",
+    "ru": "Вы не вошли в аккаунт",
+    "tr": "Hesabına giriş yapmadın",
+    "ua": "Ви не увійшли в акаунт",
+    "es": "No has iniciado sesión"
+  },
+  {
     "key": "search.user_empty_subtitle",
     "group": "search",
     "az": "«{query}» üzrə nəticə yoxdur. Adı və ya @username-i yoxla.",
@@ -15870,6 +15970,106 @@
     "es": ""
   },
   {
+    "key": "update.ota_body",
+    "group": "update",
+    "az": "Wawatair-in yeni versiyası hazırdır. Düyməyə basın — tətbiq onu yükləyib özü yenidən açılacaq.",
+    "en": "A new version of Wawatair is ready. Tap the button — the app will download it and restart on its own.",
+    "ru": "Новая версия Wawatair уже готова. Нажмите кнопку — приложение скачает её и перезапустится само.",
+    "tr": "Wawatair'in yeni sürümü hazır. Düğmeye dokunun — uygulama onu indirip kendiliğinden yeniden başlayacak.",
+    "ua": "Нова версія Wawatair вже готова. Натисніть кнопку — застосунок завантажить її та перезапуститься сам.",
+    "es": "La nueva versión de Wawatair está lista. Pulsa el botón: la app la descargará y se reiniciará sola."
+  },
+  {
+    "key": "update.ota_done_title",
+    "group": "update",
+    "az": "Yeniləndi",
+    "en": "Updated",
+    "ru": "Обновлено",
+    "tr": "Güncellendi",
+    "ua": "Оновлено",
+    "es": "Actualizado"
+  },
+  {
+    "key": "update.ota_downloading_body",
+    "group": "update",
+    "az": "Yeni versiya yüklənir. Bu bir neçə saniyə çəkəcək.",
+    "en": "Downloading the new version. This will take a few seconds.",
+    "ru": "Загружается новая версия. Это займёт несколько секунд.",
+    "tr": "Yeni sürüm indiriliyor. Bu birkaç saniye sürecek.",
+    "ua": "Завантажується нова версія. Це займе кілька секунд.",
+    "es": "Descargando la nueva versión. Tardará unos segundos."
+  },
+  {
+    "key": "update.ota_downloading_button",
+    "group": "update",
+    "az": "Yüklənir…",
+    "en": "Downloading…",
+    "ru": "Загрузка…",
+    "tr": "İndiriliyor…",
+    "ua": "Завантаження…",
+    "es": "Descargando…"
+  },
+  {
+    "key": "update.ota_failed_body",
+    "group": "update",
+    "az": "İnterneti yoxlayın və yenidən cəhd edin.",
+    "en": "Check your internet connection and try again.",
+    "ru": "Проверьте интернет и попробуйте ещё раз.",
+    "tr": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
+    "ua": "Перевірте інтернет і спробуйте ще раз.",
+    "es": "Comprueba tu conexión a internet e inténtalo de nuevo."
+  },
+  {
+    "key": "update.ota_failed_title",
+    "group": "update",
+    "az": "Yeniləmək alınmadı",
+    "en": "Couldn't update",
+    "ru": "Не удалось обновить",
+    "tr": "Güncellenemedi",
+    "ua": "Не вдалося оновити",
+    "es": "No se pudo actualizar"
+  },
+  {
+    "key": "update.ota_next_launch_body",
+    "group": "update",
+    "az": "Yeni versiya yükləndi. Tətbiqi növbəti dəfə açanda işə düşəcək.",
+    "en": "The new version has been downloaded. It will turn on the next time you open the app.",
+    "ru": "Новая версия скачана. Она включится при следующем открытии приложения.",
+    "tr": "Yeni sürüm indirildi. Uygulamayı bir sonraki açtığınızda etkinleşecek.",
+    "ua": "Нову версію завантажено. Вона ввімкнеться під час наступного відкриття застосунку.",
+    "es": "La nueva versión se ha descargado. Se activará la próxima vez que abras la app."
+  },
+  {
+    "key": "update.ota_restarting_body",
+    "group": "update",
+    "az": "Tətbiq indi özü yenidən açılacaq.",
+    "en": "The app will now restart on its own.",
+    "ru": "Приложение сейчас перезапустится само.",
+    "tr": "Uygulama şimdi kendiliğinden yeniden başlayacak.",
+    "ua": "Застосунок зараз перезапуститься сам.",
+    "es": "La app se reiniciará sola ahora."
+  },
+  {
+    "key": "update.ota_restarting_button",
+    "group": "update",
+    "az": "Yenidən açılır…",
+    "en": "Restarting…",
+    "ru": "Перезапуск…",
+    "tr": "Yeniden başlatılıyor…",
+    "ua": "Перезапуск…",
+    "es": "Reiniciando…"
+  },
+  {
+    "key": "update.ota_title",
+    "group": "update",
+    "az": "Yeniləmə mövcuddur",
+    "en": "Update available",
+    "ru": "Доступно обновление",
+    "tr": "Güncelleme mevcut",
+    "ua": "Доступне оновлення",
+    "es": "Actualización disponible"
+  },
+  {
     "key": "verification.doc_types_load_failed",
     "group": "verification",
     "az": "Sənəd növləri yüklənə bilmədi. Yenidən cəhd et.",
@@ -15893,6 +16093,146 @@
     "key": "verification.submit_failed",
     "group": "verification",
     "az": "Göndərmək alınmadı. Yenidən cəhd et.",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.fri",
+    "group": "weekday",
+    "az": "cümə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.mon",
+    "group": "weekday",
+    "az": "bazar ertəsi",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.sat",
+    "group": "weekday",
+    "az": "şənbə",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_fri",
+    "group": "weekday",
+    "az": "C",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_mon",
+    "group": "weekday",
+    "az": "B.e",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_sat",
+    "group": "weekday",
+    "az": "Ş",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_sun",
+    "group": "weekday",
+    "az": "B",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_thu",
+    "group": "weekday",
+    "az": "C.a",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_tue",
+    "group": "weekday",
+    "az": "Ç.a",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.short_wed",
+    "group": "weekday",
+    "az": "Ç",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.sun",
+    "group": "weekday",
+    "az": "bazar",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.thu",
+    "group": "weekday",
+    "az": "cümə axşamı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.tue",
+    "group": "weekday",
+    "az": "çərşənbə axşamı",
+    "en": "",
+    "ru": "",
+    "tr": "",
+    "ua": "",
+    "es": ""
+  },
+  {
+    "key": "weekday.wed",
+    "group": "weekday",
+    "az": "çərşənbə",
     "en": "",
     "ru": "",
     "tr": "",

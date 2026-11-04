@@ -3,13 +3,11 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Одна запись телеметрии в том виде, в каком её принимает бэкенд.
-///
-/// Формат намеренно плоский и одинаковый для событий, ошибок и HTTP-сбоев:
-/// панели нужен один поток, который можно фильтровать по `type`/`severity`,
-/// а не три разных таблицы.
+import '../network_failure.dart';
+
 class TelemetryRecord {
   TelemetryRecord({
     required this.type,
@@ -23,18 +21,14 @@ class TelemetryRecord {
     this.breadcrumbs = const [],
   });
 
-  /// `event` | `error` | `screen` | `http`
   final String type;
   final String name;
 
-  /// `info` | `warning` | `error` | `fatal`
   final String severity;
   final DateTime occurredAt;
   final Map<String, Object?> params;
   final String? stack;
 
-  /// Стабильный ключ группировки: одинаковые падения схлопываются в одну
-  /// строку панели, как это делает Crashlytics.
   final String? fingerprint;
   final String? screen;
   final List<String> breadcrumbs;
@@ -73,36 +67,36 @@ class TelemetryRecord {
   }
 }
 
-/// Зеркалирует телеметрию на собственный бэкенд, чтобы **одна** панель
-/// показывала и падения, и продуктовые события, и сетевые сбои.
-///
-/// Почему не хватает одного Firebase: Crashlytics и Analytics живут в разных
-/// консолях, отдают данные с задержкой (Analytics — часы) и не знают ничего о
-/// серверных ошибках. Панель бэкенда сшивает клиентский поток с серверным по
-/// `user_id`/`request_id` и показывает всё в одном месте — это и просил заказчик.
-///
-/// Устройство работы:
-///  • очередь в памяти, сброс пачкой по 20 записей / раз в 30 с / при уходе
-///    приложения в фон / принудительно при фатальной ошибке;
-///  • не отправленное переживает перезапуск (SharedPreferences, до 300 записей,
-///    вытесняются самые старые);
-///  • **отдельный [Dio]**, не тот, что у приложения: иначе телеметрия попала бы
-///    в собственный интерцептор (бесконечная рекурсия) и в обработчик 402,
-///    который выкидывает пользователя на логин;
-///  • если бэкенд ещё не выкатил эндпоинт (404/405/501), сток тихо выключается
-///    до перезапуска — приложение не должно долбиться в несуществующий URL.
 class BackendTelemetrySink {
   BackendTelemetrySink._();
+
+  @visibleForTesting
+  BackendTelemetrySink.forTest();
 
   static final BackendTelemetrySink instance = BackendTelemetrySink._();
 
   static const _outboxKey = 'telemetry_outbox_v1';
   static const int _batchSize = 20;
   static const int _outboxCap = 300;
+
+  static const int _maxPerSend = 50;
   static const Duration _flushInterval = Duration(seconds: 30);
+
+  static const Duration _minSendGap = Duration(seconds: 5);
+
+  static const List<Duration> _retryPauses = [
+    Duration(minutes: 1),
+    Duration(minutes: 3),
+    Duration(minutes: 9),
+  ];
+
+  static const Duration _exhaustedPause = Duration(minutes: 15);
+
+  static const Duration _rateLimitPause = Duration(minutes: 1);
 
   final List<TelemetryRecord> _queue = [];
   final _random = Random();
+  DateTime Function() _now = DateTime.now;
 
   Dio? _dio;
   String? _path;
@@ -111,28 +105,41 @@ class BackendTelemetrySink {
   bool Function()? _isOffline;
 
   Timer? _timer;
+  Timer? _deferred;
   bool _enabled = false;
   bool _flushing = false;
+
+  bool _dirty = false;
   int _consecutiveFailures = 0;
+
+  DateTime? _lastSendAt;
+
+  DateTime? _retryAt;
+
+  DateTime? _blockedUntil;
   late final String _sessionId = _newId();
 
   String get sessionId => _sessionId;
 
+  @visibleForTesting
+  bool get hasDeferredSend => _deferred != null;
+
   bool get isEnabled => _enabled;
 
-  /// [baseUrl] — тот же, что у API приложения (`…/api/v1`).
-  /// [contextProvider] отдаёт снимок устройства/версии на момент отправки.
   Future<void> init({
     required String baseUrl,
     required Future<String?> Function() tokenProvider,
     required Map<String, Object?> Function() contextProvider,
     bool Function()? isOffline,
+    Dio? dio,
+    DateTime Function()? clock,
   }) async {
     _path = '$baseUrl/telemetry/batch';
     _tokenProvider = tokenProvider;
     _contextProvider = contextProvider;
     _isOffline = isOffline;
-    _dio = Dio(
+    if (clock != null) _now = clock;
+    _dio = dio ?? Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 15),
         sendTimeout: const Duration(seconds: 20),
@@ -141,39 +148,54 @@ class BackendTelemetrySink {
           'content-type': 'application/json',
           'accept': 'application/json',
         },
-        // Разбираем статус сами — нам важно отличить «эндпоинта нет»
-        // от «сеть отвалилась».
         validateStatus: (_) => true,
       ),
     );
     _enabled = true;
     await _restoreOutbox();
     _timer?.cancel();
-    _timer = Timer.periodic(_flushInterval, (_) => unawaited(flush()));
+    _timer = Timer.periodic(_flushInterval, (_) => unawaited(tick()));
+  }
+
+  @visibleForTesting
+  Future<void> tick() async {
+    await flush();
+    if (_dirty) await _persistOutbox();
   }
 
   void add(TelemetryRecord record) {
     if (!_enabled) return;
     _queue.add(record);
+    _dirty = true;
     if (_queue.length > _outboxCap) {
       _queue.removeRange(0, _queue.length - _outboxCap);
     }
     if (_queue.length >= _batchSize) unawaited(flush());
   }
 
-  /// Отправляет накопленное. Никогда не бросает: телеметрия не имеет права
-  /// ронять приложение или всплывать пользователю.
   Future<void> flush({bool force = false}) async {
-    if (!_enabled || _flushing || _queue.isEmpty) return;
+    if (!_enabled || _queue.isEmpty) return;
+    if (_flushing) {
+      if (force) _deferUrgent(_minSendGap);
+      return;
+    }
     if (_dio == null || _path == null) return;
     if (!force && (_isOffline?.call() ?? false)) return;
-    // Мягкий backoff: после серии неудач не пытаемся каждые 30 секунд.
-    if (!force && _consecutiveFailures > 0 && _consecutiveFailures < 5) {
-      if (_random.nextInt(_consecutiveFailures + 1) != 0) return;
+
+    final now = _now();
+    final wait = _waitBeforeSend(now);
+    if (wait > Duration.zero) {
+      if (force) {
+        await _persistOutbox();
+        _deferUrgent(wait);
+      }
+      return;
     }
 
     _flushing = true;
-    final batch = List<TelemetryRecord>.from(_queue);
+    _lastSendAt = now;
+    final batch = _queue.take(_maxPerSend).toList();
+    final hadMore = _queue.length > batch.length;
     try {
       final token = await _tokenProvider?.call();
       final response = await _dio!.post<dynamic>(
@@ -196,35 +218,76 @@ class BackendTelemetrySink {
       if (status >= 200 && status < 300) {
         _queue.removeRange(0, min(batch.length, _queue.length));
         _consecutiveFailures = 0;
+        _retryAt = null;
         await _persistOutbox();
+        if (hadMore && _queue.isNotEmpty) _deferUrgent(_minSendGap);
       } else if (status == 404 || status == 405 || status == 501) {
-        // Эндпоинт ещё не задеплоен — выключаемся до следующего запуска,
-        // чтобы не жечь трафик и не шуметь в логах.
         _enabled = false;
         _queue.clear();
         _timer?.cancel();
         await _clearOutbox();
       } else if (status == 401 || status == 403) {
-        // Гость или протухший токен: записи не наши — просто отбрасываем.
+        _queue.removeRange(0, min(batch.length, _queue.length));
+        await _persistOutbox();
+      } else if (status == 400 || status == 413 || status == 422) {
         _queue.removeRange(0, min(batch.length, _queue.length));
         await _persistOutbox();
       } else {
-        _consecutiveFailures++;
+        if (status == 429) {
+          final now = _now();
+          final asked = NetworkFailure.retryAfterOf(response, now);
+          _blockedUntil = now.add(asked ?? _rateLimitPause);
+        }
+        _registerFailure();
         await _persistOutbox();
       }
     } catch (_) {
-      _consecutiveFailures++;
+      _registerFailure();
       await _persistOutbox();
     } finally {
       _flushing = false;
     }
   }
 
-  /// Вызывается при уходе в фон — иначе последняя пачка (в т.ч. запись о
-  /// падении) может не пережить закрытие приложения.
   Future<void> flushOnPause() => flush(force: true);
 
+  Duration _waitBeforeSend(DateTime now) {
+    var until = now;
+    for (final moment in [
+      _retryAt,
+      _blockedUntil,
+      _lastSendAt?.add(_minSendGap),
+    ]) {
+      if (moment != null && moment.isAfter(until)) until = moment;
+    }
+    return until.difference(now);
+  }
+
+  void _registerFailure() {
+    _consecutiveFailures++;
+    final Duration pause;
+    if (_consecutiveFailures <= _retryPauses.length) {
+      pause = _retryPauses[_consecutiveFailures - 1];
+    } else {
+      pause = _exhaustedPause;
+      _consecutiveFailures = 0;
+    }
+    final factor = 0.8 + _random.nextDouble() * 0.4;
+    _retryAt = _now().add(
+      Duration(milliseconds: (pause.inMilliseconds * factor).round()),
+    );
+  }
+
+  void _deferUrgent(Duration wait) {
+    if (_deferred != null) return;
+    _deferred = Timer(wait, () {
+      _deferred = null;
+      unawaited(flush(force: true));
+    });
+  }
+
   Future<void> _persistOutbox() async {
+    _dirty = false;
     try {
       final prefs = await SharedPreferences.getInstance();
       if (_queue.isEmpty) {
@@ -239,7 +302,6 @@ class BackendTelemetrySink {
         jsonEncode(tail.map((r) => r.toJson()).toList()),
       );
     } catch (_) {
-      // Переполнение диска и т.п. — теряем буфер, но не приложение.
     }
   }
 
@@ -255,8 +317,6 @@ class BackendTelemetrySink {
           .map((m) => TelemetryRecord.fromJson(m.cast<String, Object?>()))
           .whereType<TelemetryRecord>()
           .toList();
-      // Прошлая сессия — вперёд очереди, чтобы отчёт о вчерашнем падении
-      // не вытеснился сегодняшними событиями.
       _queue.insertAll(0, restored);
     } catch (_) {
       await _clearOutbox();
@@ -279,5 +339,7 @@ class BackendTelemetrySink {
   void dispose() {
     _timer?.cancel();
     _timer = null;
+    _deferred?.cancel();
+    _deferred = null;
   }
 }

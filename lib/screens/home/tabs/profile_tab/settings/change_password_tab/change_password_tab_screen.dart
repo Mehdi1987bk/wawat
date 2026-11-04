@@ -54,9 +54,6 @@ class _ChangePasswordTabState
     final newPassword = _newPasswordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
-    // Новый пароль — минимум 8 символов (так требует бэкенд; 6 давал 422).
-    // Текущий оставляем ≥6, чтобы старые короткие пароли ещё можно было ввести
-    // для аутентификации — его всё равно проверяет сервер.
     final isValid = currentPassword.length >= 6 &&
         newPassword.length >= 8 &&
         confirmPassword.length >= 8 &&
@@ -67,7 +64,6 @@ class _ChangePasswordTabState
   }
 
   Future<void> _handleChangePassword() async {
-    // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
     FocusScope.of(context).unfocus();
 
     try {
@@ -77,7 +73,6 @@ class _ChangePasswordTabState
         confirmPassword: _confirmPasswordController.text.trim(),
       );
 
-      // 🔥 Проверяем что виджет еще существует
       if (!mounted) return;
 
       if (success) {
@@ -88,7 +83,6 @@ class _ChangePasswordTabState
         _validateForm();
       }
     } catch (e) {
-      // 🔥 Обрабатываем ошибки
       if (mounted) {
         showIOSStyleMessage(
           context,
@@ -129,7 +123,6 @@ class _ChangePasswordTabState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
                     Row(
                       children: [
                         Container(
@@ -182,7 +175,6 @@ class _ChangePasswordTabState
 
                     const SizedBox(height: 24),
 
-                    // Current password
                     _buildPasswordField(
                       label: t('auth.current_password'),
                       controller: _currentPasswordController,
@@ -197,7 +189,6 @@ class _ChangePasswordTabState
 
                     const SizedBox(height: 16),
 
-                    // New password
                     _buildPasswordField(
                       label: t('auth.new_password'),
                       controller: _newPasswordController,
@@ -213,7 +204,6 @@ class _ChangePasswordTabState
 
                     const SizedBox(height: 16),
 
-                    // Confirm password
                     _buildPasswordField(
                       label: t('auth.confirm_new_password'),
                       controller: _confirmPasswordController,
@@ -227,11 +217,8 @@ class _ChangePasswordTabState
                       hint: t('auth.repeat_new_password'),
                     ),
 
-                    // Password hints
-
                     const SizedBox(height: 24),
 
-                    // Submit button
                     ValueListenableBuilder<bool>(
                       valueListenable: _isFormValid,
                       builder: (_, isValid, __) {

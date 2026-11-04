@@ -3,6 +3,19 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="com.android.vending.BILLING" />
+    <!-- Verification selfie is shot in-app. Declaring CAMERA makes image_picker
+         require the runtime grant, so we can prompt on every tap and gate the
+         camera behind it (see camera_permission.dart). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Экран «Yaxınlıqda» в разделе рейсов: ближайшие аэропорты ищутся по
+         координатам, поэтому хватает грубой точности. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- CAMERA on its own makes Google Play require a rear camera with
+         autofocus. The app works without one (photos come from the gallery),
+         so those devices must keep getting it. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <!-- firebase-analytics подтягивает это разрешение транзитивно. Мы не
          показываем рекламу и не строим рекламные аудитории, а его наличие

@@ -16,6 +16,7 @@ import '../../../../../presentation/bloc/base_screen.dart';
 import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/localization_service.dart';
+import '../../../../../services/api_error.dart';
 import 'package:buking/services/date_labels.dart';
 import '../../../../../services/theme_aware_screen.dart';
 import '../../../../../services/theme_manager.dart';
@@ -127,8 +128,6 @@ Future<void> showListingProposalFlow(
       ),
     );
     if (!context.mounted) return;
-    // Предложение отправлено — человек ждёт ответа. Момент, когда уведомления
-    // ему очевидно нужны. См. services/push_permission_prompt.dart.
     await maybeAskPushPermission(context, PushPromptTrigger.proposalSent);
   } finally {
     _openingProposalListingIds.remove(listing.id);
@@ -234,9 +233,6 @@ class _ListingDetailsScreenState
   Map<String, String> _content = const {};
   bool _initialActionHandled = false;
   bool _allowRoutePop = false;
-  // Optimistic favorite state, so tapping the heart re-renders only the icon
-  // instead of re-running _detailsFuture (which would reload the whole page).
-  // Null = follow the loaded listing; cleared on every real _reload().
   bool? _favoritedOverride;
 
   @override
@@ -522,14 +518,12 @@ class _ListingDetailsScreenState
     }
     final current = _favoritedOverride ?? listing.isFavorited;
     final nextValue = !current;
-    // Flip the heart instantly and keep the loaded page as-is — no _reload(),
-    // which would re-run _detailsFuture and rebuild the whole screen.
     setState(() => _favoritedOverride = nextValue);
     try {
       await bloc.setFavorite(listing, nextValue);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _favoritedOverride = current); // revert on failure
+      setState(() => _favoritedOverride = current);
       _showError(tr('common.action_failed', 'Əməliyyat alınmadı.'));
       return;
     }
@@ -553,13 +547,12 @@ class _ListingDetailsScreenState
     try {
       final response = await bloc.pauseListing(listing.id);
       if (!mounted) return;
-      // Show the backend's (localized) message; reload picks up the new status.
       _showSuccess(response.message ??
           _t(_content, 'listing.paused', 'Elan dayandırıldı.'));
       _reload();
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      _showError(tr('common.action_failed', 'Əməliyyat alınmadı.'));
+      _showError(errorMessage(e, tr('common.action_failed', 'Əməliyyat alınmadı.')));
     }
   }
 
@@ -572,9 +565,6 @@ class _ListingDetailsScreenState
     );
     if (!confirmed) return;
     try {
-      // Resume does NOT always go back to `active`: a listing paused while on
-      // moderation returns to `moderation`. Trust the response — show its
-      // message and let _reload() refresh the UI by the real returned status.
       final response = await bloc.resumeListing(listing.id);
       if (!mounted) return;
       _showSuccess(
@@ -582,19 +572,13 @@ class _ListingDetailsScreenState
             _t(_content, 'listing.resumed', 'Elan yenidən aktivləşdirildi.'),
       );
       _reload();
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      _showError(tr('common.action_failed', 'Əməliyyat alınmadı.'));
+      _showError(errorMessage(e, tr('common.action_failed', 'Əməliyyat alınmadı.')));
     }
   }
 
   Future<void> _repost(Listing listing) async {
-    // Repost needs a NEW future date, so we don't fire /repost with the old
-    // (expired) date — that 422s. Instead open the publish form pre-filled from
-    // this listing (everything but the date); it submits POST /listings/{id}/
-    // repost and shows its own success (new listing → moderation). The form also
-    // surfaces the localized 4xx `message` (past date, …). With no listing
-    // slot left the limit gate opens instead of the form.
     await openRepostFlow(context, listing);
   }
 
@@ -606,7 +590,6 @@ class _ListingDetailsScreenState
       ),
     );
     if (!mounted || result == null) return;
-    // Any edit re-runs moderation — surface that and reload the fresh state.
     _showSuccess(
       result.message ??
           _t(_content, 'listing.updated_moderation',
@@ -620,7 +603,6 @@ class _ListingDetailsScreenState
   }
 
   void _shareListing(Listing listing) {
-    // Open the OS share sheet (WhatsApp, Telegram, …) instead of a bare copy.
     shareListing(listing, context);
   }
 
@@ -641,8 +623,6 @@ class _ListingDetailsScreenState
   }
 
   Future<void> _showProposalSheet(Listing listing) async {
-    // Full listing has no space left — block the flow even if it was reached via
-    // a deep-link initial action, not just the (already disabled) CTA.
     if (listing.isFull) {
       _snack(listing.statusLabel ??
           _t(_content, 'listing.fully_booked', 'Yer yoxdur.'));
@@ -1081,11 +1061,6 @@ class _RouteHero extends StatelessWidget {
                       content: content,
                       muted: muted,
                     ),
-                    // Show VIP / Featured on the owner's own view too — the buyer
-                    // side already gets it via the status column below. Without
-                    // this an owner couldn't tell a promoted listing apart. Match
-                    // the feed card's source of truth: promotion.type first, then
-                    // the flat promotion_type.
                     if (isOwner && _effectivePromotionType(listing) != null)
                       _PromotionBadge(
                         promotionType: _effectivePromotionType(listing)!,
@@ -2696,7 +2671,6 @@ class _ActionBar extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 2,
-                  // No space left on a full listing → the offer CTA is disabled.
                   child: listing.isFull
                       ? _ActionButton(
                           label: listing.statusLabel ??
@@ -2800,7 +2774,6 @@ class _ActionBar extends StatelessWidget {
             onTap: onEdit,
           ),
         ),
-        // Booked listings can't be paused (the backend answers 403).
         if (listing.canBePaused) ...[
           const SizedBox(width: 10),
           Expanded(
@@ -2966,7 +2939,7 @@ class _ProposalSheetState extends State<_ProposalSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const inset = 0.0; // keyboard inset handled by showAppBottomSheet
+    const inset = 0.0;
     final free = widget.listing.freeWeightKg;
     return Padding(
       padding: EdgeInsets.only(bottom: inset),
@@ -3446,9 +3419,6 @@ class _ProposalSuccessScreen extends StatelessWidget {
   }
 }
 
-/// The Wawat launcher mark (two-tone "W") on a white chip so the black+blue
-/// logo stays legible on ANY background — brand blue, dark or light. The soft
-/// shadow + hairline keep the chip delineated even on a white surface.
 class _BrandMark extends StatelessWidget {
   final double size;
 
@@ -3567,7 +3537,7 @@ class _ReasonSheetState extends State<_ReasonSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const inset = 0.0; // keyboard inset handled by showAppBottomSheet
+    const inset = 0.0;
     return Padding(
       padding: EdgeInsets.only(bottom: inset),
       child: _SheetShell(
@@ -3636,12 +3606,13 @@ class _ReasonSheetState extends State<_ReasonSheet> {
       );
       if (!mounted) return;
       Navigator.pop(context, true);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(tr('common.action_failed', 'Əməliyyat alınmadı.'))),
+            content: Text(
+                errorMessage(e, tr('common.action_failed', 'Əməliyyat alınmadı.')))),
       );
     }
   }
@@ -4177,9 +4148,6 @@ bool _isMutedOwnerStatus(String? status) {
   return status == 'paused' || status == 'expired';
 }
 
-/// The promotion type to badge, matching the feed card: the nested
-/// promotion.type (authoritative) wins, then the flat promotion_type. Null when
-/// the listing carries no promotion.
 String? _effectivePromotionType(Listing listing) {
   final nested = listing.promotion?.type;
   if (nested != null && nested.isNotEmpty) return nested;
@@ -4268,7 +4236,6 @@ String _formatDate(String? value) {
   return '${date.day} ${monthShort(date.month)}';
 }
 
-/// Normalises any time-ish string to `HH:mm` (drops seconds).
 String? _formatTime(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   final raw = value.trim();

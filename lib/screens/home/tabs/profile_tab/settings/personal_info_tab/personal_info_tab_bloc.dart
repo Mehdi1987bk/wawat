@@ -23,7 +23,6 @@ class PersonalInfoTabBloc extends BaseBloc {
     authRepository.addAvatar(images!);
   }
 
-  /// Получить список стран
   Future<CountriesResponse> getCountries() {
     return _authApi.getCountries();
   }

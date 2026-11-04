@@ -30,7 +30,7 @@ class _CitySelectorState extends State<CitySelector> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<City> _cities = [];
-  List<City> _cachedCities = []; // Кэш для плавности
+  List<City> _cachedCities = [];
   bool _isSearching = false;
   String? _errorMessage;
   Timer? _debounceTimer;
@@ -53,7 +53,6 @@ class _CitySelectorState extends State<CitySelector> {
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
 
-    // Если пустой запрос - сразу показываем начальный список
     if (query.isEmpty) {
       setState(() {
         _cities = widget.initialCities;
@@ -82,7 +81,6 @@ class _CitySelectorState extends State<CitySelector> {
     setState(() {
       _isSearching = true;
       _errorMessage = null;
-      // Не очищаем _cities - показываем старые данные пока грузятся новые
     });
 
     try {
@@ -99,12 +97,10 @@ class _CitySelectorState extends State<CitySelector> {
       if (mounted) {
         setState(() {
           _isSearching = false;
-          // При ошибке показываем кэшированные данные + сообщение
           _cities = _cachedCities;
           _errorMessage = e.toString();
         });
 
-        // Показываем снэкбар с ошибкой, но не блокируем UI
         _showErrorSnackBar();
       }
     }
@@ -145,7 +141,6 @@ class _CitySelectorState extends State<CitySelector> {
   }
 
   void _scrollToTop() {
-    // Прокручиваем список вверх после обновления UI
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -172,7 +167,6 @@ class _CitySelectorState extends State<CitySelector> {
           ),
           child: Column(
             children: [
-              // Handle bar
               Container(
                 margin: const EdgeInsets.only(top: 12),
                 width: 40,
@@ -183,7 +177,6 @@ class _CitySelectorState extends State<CitySelector> {
                 ),
               ),
 
-              // Header
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -212,7 +205,6 @@ class _CitySelectorState extends State<CitySelector> {
                 ),
               ),
 
-              // Search field
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
@@ -261,11 +253,9 @@ class _CitySelectorState extends State<CitySelector> {
 
               const SizedBox(height: 12),
 
-              // Cities list
               Expanded(
                 child: Stack(
                   children: [
-                    // Основной список
                     widget.isLoading && _cities.isEmpty
                         ? const Center(
                             child: CircularProgressIndicator(
@@ -276,7 +266,6 @@ class _CitySelectorState extends State<CitySelector> {
                             ? _buildEmptyWidget(isDark)
                             : _buildCitiesList(isDark),
 
-                    // Мини-индикатор загрузки сверху (не блокирует UI)
                     if (_isSearching)
                       Positioned(
                         top: 0,
@@ -361,9 +350,6 @@ class _CitySelectorState extends State<CitySelector> {
       opacity: _isSearching ? 0.6 : 1.0,
       child: ListView.separated(
         controller: _scrollController,
-        // Reserve the Android system-nav inset so the last city clears the
-        // gesture bar (the sheet's bottom edge sits on the screen bottom;
-        // showAppBottomSheet only pads for the keyboard, not this inset).
         padding: EdgeInsets.only(
           top: 8,
           bottom: 8 + MediaQuery.of(context).viewPadding.bottom,
@@ -449,7 +435,6 @@ class _CitySelectorState extends State<CitySelector> {
   }
 }
 
-/// Функция для показа City Selector Bottom Sheet
 Future<City?> showCitySelector({
   required BuildContext context,
   required List<City> initialCities,

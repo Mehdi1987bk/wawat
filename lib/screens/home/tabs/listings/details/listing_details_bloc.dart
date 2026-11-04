@@ -21,9 +21,6 @@ class ListingDetailsBloc extends BaseBloc {
 
   Future<ListingResponse> getDetails(String id) async {
     final response = await run(authRepository.getListingDetails(id));
-    // GA4 view_item — вершина всех воронок («посмотрел → написал»,
-    // «посмотрел → откликнулся»). Логируем здесь, а не в экране: сюда
-    // приходят все входы в карточку, включая переход из пуша и из поиска.
     final listing = response.data;
     Telemetry.instance.event(TelemetryEvents.viewItem, params: {
       TelemetryParams.itemId: listing.id,
@@ -59,7 +56,6 @@ class ListingDetailsBloc extends BaseBloc {
     try {
       await authRepository.customersMe();
     } catch (_) {
-      // The cache may still contain the last user; keep the detail page usable.
     }
     try {
       return await authRepository.userDetails

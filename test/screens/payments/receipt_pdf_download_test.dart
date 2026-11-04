@@ -13,7 +13,6 @@ import 'package:flutter_test/flutter_test.dart';
 const _pdfUrl = 'https://api.wawatair.com/api/v1/receipts/promotion/01M3/pdf';
 final _pdfBytes = Uint8List.fromList(utf8.encode('%PDF-1.7\n…receipt…'));
 
-/// Answers every request from [handler] and counts the calls.
 class _Adapter implements HttpClientAdapter {
   _Adapter(this.handler);
 
@@ -90,7 +89,11 @@ class _FakeStore extends ReceiptPdfStore {
   }
 
   @override
-  Future<void> share(ReceiptPdfFile file, {String? subject}) async {
+  Future<void> share(
+    ReceiptPdfFile file, {
+    String? subject,
+    Rect? sharePositionOrigin,
+  }) async {
     shareCalls++;
   }
 }
@@ -109,7 +112,6 @@ Future<void> _pumpReceipt(
   await tester.pumpAndSettle();
 }
 
-/// Taps [label] and lets the (real-async) Dio request finish.
 Future<void> _tapAndSettle(WidgetTester tester, Finder target) async {
   await tester.runAsync(() async {
     await tester.tap(target);
@@ -270,7 +272,6 @@ void main() {
       expect(store.saved.single.bytes, _pdfBytes);
       expect(store.saved.single.fileName, 'wawatair-receipt-WA-12345678.pdf');
       expect(store.openCalls, 1);
-      // The viewer is another app: the "saved" note waits for the return.
       expect(
         find.text('Qəbz «Yükləmələr» qovluğunda saxlanıldı.'),
         findsNothing,
@@ -292,7 +293,6 @@ void main() {
       );
       expect(find.text('PDF yaradıla bilmədi.'), findsNothing);
 
-      // Second tap reuses the downloaded bytes — no second request.
       ScaffoldMessenger.of(
         tester.element(find.byType(ReceiptScreen)),
       ).removeCurrentSnackBar();

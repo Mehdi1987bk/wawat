@@ -2,12 +2,6 @@ import 'package:buking/services/telemetry/telemetry_events.dart';
 import 'package:buking/services/telemetry/telemetry_redactor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Эти тесты защищают обещание, данное сторам.
-///
-/// В `ios/Runner/PrivacyInfo.xcprivacy` и в форме Data safety заявлено, что
-/// диагностика не содержит контактных данных, токенов и текстов сообщений.
-/// Если редактор перестанет их вычищать, приложение начнёт нарушать
-/// собственную декларацию — молча. Поэтому проверяем именно это.
 void main() {
   group('TelemetryRedactor.redact', () {
     test('вырезает Bearer-токен', () {

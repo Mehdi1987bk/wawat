@@ -12,22 +12,18 @@ import 'notification_visual.dart';
 
 const _brand = Color(0xFF017BFE);
 
-/// Which kind of live banner to render: a chat message (avatar + sender +
-/// preview) or a general notification (type-icon + title + body).
 enum BannerKind { chat, notification }
 
-/// The parsed payload the banner needs — unified over both the chat
-/// (`new_message_notification`) and all-types (`new_notification`) events.
 class NotificationBannerData {
   final BannerKind kind;
-  final String title; // sender name (chat) / notification title
-  final String subtitle; // message preview (chat) / notification body
-  final String? avatarUrl; // chat sender OR general-notification actor avatar
-  final String? notificationType; // notification only → drives the type icon
-  final bool hasActor; // notification with an actor → show avatar, not the icon
-  final String? actorName; // for avatar initials (title may not be the name)
-  final int? rating; // review_received → 1–5 stars
-  final String? reviewComment; // review_received → comment text
+  final String title;
+  final String subtitle;
+  final String? avatarUrl;
+  final String? notificationType;
+  final bool hasActor;
+  final String? actorName;
+  final int? rating;
+  final String? reviewComment;
 
   const NotificationBannerData._({
     required this.kind,
@@ -41,7 +37,6 @@ class NotificationBannerData {
     this.reviewComment,
   });
 
-  /// Chat banner from a `new_message_notification` payload (unchanged behavior).
   factory NotificationBannerData.fromMap(Map<String, dynamic> m) {
     String? s(String k) {
       final v = m[k]?.toString().trim() ?? '';
@@ -63,10 +58,6 @@ class NotificationBannerData {
     );
   }
 
-  /// General notification banner from a `new_notification` payload. When an
-  /// [actorName]/[actorAvatarUrl] is present the leading slot shows the actor's
-  /// avatar instead of the type icon; review notifications also carry
-  /// [rating]/[comment] to render stars + text.
   factory NotificationBannerData.notification({
     required String title,
     String? body,
@@ -95,8 +86,6 @@ class NotificationBannerData {
 
   bool get isChat => kind == BannerKind.chat;
 
-  /// Show the circular avatar (vs. the square type-icon) for chats and for any
-  /// notification that carries an actor.
   bool get showsAvatar => isChat || hasActor;
 
   String get initials {
@@ -115,9 +104,6 @@ class NotificationBannerData {
 
 OverlayEntry? _current;
 
-/// Shows the in-app banner above everything (via the root overlay), replacing
-/// any banner already on screen. Works for both chat and general notifications;
-/// [onTap] performs the kind-appropriate navigation.
 void showNotificationBanner(
   NotificationBannerData data, {
   required VoidCallback onTap,
@@ -228,10 +214,8 @@ class _NotificationBannerState extends State<_NotificationBanner>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onVerticalDragEnd: (details) {
-        if ((details.primaryVelocity ?? 0) < 0) _close(); // swipe up
+        if ((details.primaryVelocity ?? 0) < 0) _close();
       },
-      // A Material host gives the card proper text defaults (kills the "missing
-      // Material" yellow underline), an ink ripple on tap, and the elevation.
       child: Material(
         color: surface,
         elevation: d ? 0 : 12,
@@ -289,7 +273,6 @@ class _NotificationBannerState extends State<_NotificationBanner>
                           ),
                         ],
                       ),
-                      // review_received → a row of stars for the rating.
                       if (widget.data.rating != null) ...[
                         const SizedBox(height: 4),
                         Row(
@@ -334,8 +317,6 @@ class _NotificationBannerState extends State<_NotificationBanner>
     );
   }
 
-  /// Review notifications show the comment as the body; everything else shows
-  /// the server-provided subtitle.
   String get _subtitleText {
     final data = widget.data;
     if (data.rating != null && (data.reviewComment?.isNotEmpty ?? false)) {
@@ -344,9 +325,6 @@ class _NotificationBannerState extends State<_NotificationBanner>
     return data.subtitle;
   }
 
-  /// Chat / actor notifications → circular avatar with a small type badge;
-  /// system notification → rounded-square type-icon chip (same icon/color the
-  /// notification list uses).
   Widget _leading(bool d) {
     if (widget.data.showsAvatar) {
       return SizedBox(
@@ -373,8 +351,6 @@ class _NotificationBannerState extends State<_NotificationBanner>
     );
   }
 
-  /// The circular avatar: the actor's photo, or a brand-gradient chip with the
-  /// initials as a fallback (matches the design's gradient avatars).
   Widget _avatarCircle(bool d) {
     final url = widget.data.avatarUrl;
     final fallback = Container(
@@ -411,8 +387,6 @@ class _NotificationBannerState extends State<_NotificationBanner>
     );
   }
 
-  /// Small solid-colour badge on the avatar carrying the type icon (chat-circle
-  /// for messages, handshake/check/star/… for the notification type).
   Widget _badge(bool d) {
     final IconData icon;
     final Color color;
@@ -420,8 +394,6 @@ class _NotificationBannerState extends State<_NotificationBanner>
       icon = PhosphorIconsFill.chatCircle;
       color = _brand;
     } else {
-      // Always the saturated (light-theme) colour — a solid badge with a white
-      // glyph needs contrast in both themes, not the dark theme's pastel FG.
       final v = notificationVisual(widget.data.notificationType ?? '', false);
       icon = v.icon;
       color = v.color;

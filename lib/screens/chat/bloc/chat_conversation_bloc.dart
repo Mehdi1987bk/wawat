@@ -9,12 +9,28 @@ import '../../../data/network/response/review_submit_result.dart';
 import '../../../data/network/response/target_user_request.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
-import '../../../services/pusher_service.dart';
+import '../../../services/network_failure.dart';
+import 'chat_realtime.dart';
+import 'typing_signal.dart';
 
 class ChatConversationBloc extends BaseBloc {
-  final ChatApi _chatApi = ChatApi(sl.get<Dio>());
-  final PusherService _pusherService = PusherService();
-  final CacheManager _cacheManager = sl.get<CacheManager>();
+  ChatConversationBloc({
+    ChatApi? chatApi,
+    ChatRealtime? realtime,
+    CacheManager? cacheManager,
+    DateTime Function()? clock,
+  })  : _chatApi = chatApi ?? ChatApi(sl.get<Dio>()),
+        _realtime = realtime ??
+            (sl.isRegistered<ChatRealtime>()
+                ? sl.get<ChatRealtime>()
+                : PusherChatRealtime()),
+        _cacheManager = cacheManager ?? sl.get<CacheManager>(),
+        _now = clock ?? DateTime.now;
+
+  final ChatApi _chatApi;
+  final ChatRealtime _realtime;
+  final CacheManager _cacheManager;
+  final DateTime Function() _now;
 
   final BehaviorSubject<List<ChatMessage>> _messagesSubject =
       BehaviorSubject.seeded([]);
@@ -28,10 +44,6 @@ class ChatConversationBloc extends BaseBloc {
   final BehaviorSubject<bool> _otherUserTypingSubject =
       BehaviorSubject.seeded(false);
 
-  /// Chat header from `meta.conversation` of the messages response — the source
-  /// of truth for the other user's name/avatar/presence. Emitted after each
-  /// load so the screen can fill/refresh the header (esp. when opened from a
-  /// push with only the sender's name+avatar).
   final BehaviorSubject<Conversation?> _conversationSubject =
       BehaviorSubject.seeded(null);
   Stream<Conversation?> get conversationHeaderStream =>
@@ -46,14 +58,9 @@ class ChatConversationBloc extends BaseBloc {
       _activeShipmentSubject.stream;
   Stream<bool> get otherUserTypingStream => _otherUserTypingSubject.stream;
 
-  /// Surfaces the server error when a send fails (e.g. the peer blocked you),
-  /// so the UI can show its message instead of failing silently.
   final PublishSubject<Object> _sendErrorsSubject = PublishSubject<Object>();
   Stream<Object> get sendErrorsStream => _sendErrorsSubject.stream;
 
-  /// Statuses that keep a deal "active" for the pinned bar (§3A.2).
-  /// completed/auto_completed stay (review nudge); terminal declined/cancelled/
-  /// expired do not.
   static const _pinbarStatuses = {
     'proposal_pending',
     'accepted',
@@ -68,20 +75,54 @@ class ChatConversationBloc extends BaseBloc {
   int _currentPage = 1;
   int _lastPage = 1;
   bool _isLoadingMore = false;
+
+  int _loadSeq = 0;
+  int _appliedLoadSeq = 0;
+  int _minValidLoadSeq = 0;
+
+  final Map<String, String> _wantedShipmentSignatures = {};
+  final Map<String, String> _loadedShipmentSignatures = {};
+  final Map<String, String> _loadingShipmentSignatures = {};
   int? _myUserId;
   String? _myUserPublicId;
 
-  /// How far the peer has read this thread. Any of my messages at or before it
-  /// render as read (blue ✓✓). Advanced by the messages envelope and by live
-  /// `message.read` events; never moves backward.
   DateTime? _peerLastReadAt;
   final Map<String, _PendingMessage> _pendingMessages = {};
-  Timer? _typingStopTimer;
   Timer? _remoteTypingTimeout;
   Timer? _fallbackRefreshTimer;
   int _fallbackTick = 0;
-  DateTime? _lastTypingSentAt;
-  bool _typingActive = false;
+  bool _disposed = false;
+
+  late final ChatRealtimeHandlers _handlers = ChatRealtimeHandlers(
+    onMessage: _onNewMessage,
+    onTyping: _onTyping,
+    onRead: _onMessageRead,
+    onDeleted: _onMessageDeleted,
+  );
+
+  late final TypingSignal _typing =
+      TypingSignal(send: _sendTyping, clock: _now);
+
+  bool _refreshing = false;
+  bool _refreshWanted = false;
+
+  int _sendsInFlight = 0;
+
+  final List<String?> _undecidedEvents = [];
+
+  final List<DateTime> _owedEchoes = [];
+  static const _echoWindow = Duration(seconds: 10);
+
+  bool _readSent = false;
+  String? _readFor;
+
+  DateTime? _optionalPausedUntil;
+  static const _defaultRateLimitPause = Duration(seconds: 30);
+
+  DateTime? _sendBlockedUntil;
+  Object? _sendBlockAnswer;
+
+  static const _longestSendWait = Duration(seconds: 10);
 
   Future<void> initChat(String conversationId) async {
     _conversationId = conversationId;
@@ -92,47 +133,130 @@ class ChatConversationBloc extends BaseBloc {
     } catch (_) {}
 
     final token = await _cacheManager.getToken();
-    if (token != null) {
-      await _pusherService.initialize(token);
-      await _pusherService.subscribeToConversation(
-        conversationId,
-        _onNewMessage,
-      );
-      await _pusherService.subscribeToConversationTyping(
-        conversationId,
-        _onTyping,
-      );
-      await _pusherService.subscribeToConversationRead(
-        conversationId,
-        _onMessageRead,
-      );
-      await _pusherService.subscribeToConversationDeleted(
-        conversationId,
-        _onMessageDeleted,
-      );
+    if (token != null && !_disposed) {
+      await _realtime.join(token, conversationId, _handlers);
     }
-    // Новые сообщения приходят через Reverb. Перечитываем переписку целиком
-    // только когда сокет лежит, либо раз в минуту для подстраховки.
+    if (_disposed) return;
     _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 20), (_) {
       _fallbackTick++;
-      if (_pusherService.isConnected && _fallbackTick % 3 != 0) return;
-      unawaited(
-        loadMessages(
-          showLoading: false,
-          emitError: false,
-        ),
-      );
+      if (_realtime.isConnected && _fallbackTick % 3 != 0) return;
+      unawaited(_quietRefresh());
     });
   }
 
   void _onNewMessage(Map<String, dynamic> data) {
-    if (_isMyUser(data['sender_id'])) return;
-    unawaited(
-      loadMessages(
-        showLoading: false,
-        emitError: false,
-      ),
-    );
+    if (!_isSystemCard(data)) {
+      if (_isOwnEcho(data)) return;
+      _clearPeerTyping();
+    }
+    unawaited(_quietRefresh());
+  }
+
+  Future<void> _quietRefresh() async {
+    if (_refreshing) {
+      _refreshWanted = true;
+      return;
+    }
+    _refreshing = true;
+    try {
+      do {
+        _refreshWanted = false;
+        await loadMessages(showLoading: false, emitError: false);
+      } while (_refreshWanted && !_disposed);
+    } finally {
+      _refreshing = false;
+    }
+  }
+
+  bool _isOwnEcho(Map<String, dynamic> data) {
+    final id = _eventMessageId(data);
+    if (_eventAuthorIsMe(data) || (id != null && _hasMessage(id))) {
+      if (_owedEchoes.isNotEmpty) _owedEchoes.removeAt(0);
+      return true;
+    }
+    if (_sendsInFlight > 0) {
+      _undecidedEvents.add(id);
+      return true;
+    }
+    if (id != null) return false;
+    final now = _now();
+    _owedEchoes.removeWhere((deadline) => !deadline.isAfter(now));
+    if (_owedEchoes.isEmpty) return false;
+    _owedEchoes.removeAt(0);
+    return true;
+  }
+
+  void _sendFinished(String? savedId) {
+    _sendsInFlight--;
+    if (savedId != null) {
+      final echoed = _undecidedEvents.remove(savedId) ||
+          _undecidedEvents.remove(null);
+      if (!echoed) _owedEchoes.add(_now().add(_echoWindow));
+    }
+    if (_sendsInFlight > 0 || _undecidedEvents.isEmpty) return;
+    final foreign =
+        _undecidedEvents.any((id) => id == null || !_hasMessage(id));
+    _undecidedEvents.clear();
+    if (foreign) {
+      _clearPeerTyping();
+      unawaited(_quietRefresh());
+    }
+  }
+
+  bool _hasMessage(String id) =>
+      !_messagesSubject.isClosed &&
+      _messagesSubject.value.any((message) => message.id == id);
+
+  static String? _eventMessageId(Map<String, dynamic> data) {
+    final nested = data['message'];
+    final candidates = [
+      if (nested is Map) nested['id'],
+      data['message_id'],
+      data['messageId'],
+      data['id'],
+    ];
+    for (final candidate in candidates) {
+      final id = candidate?.toString() ?? '';
+      if (id.isNotEmpty) return id;
+    }
+    return null;
+  }
+
+  bool _eventAuthorIsMe(Map<String, dynamic> data) {
+    final nested = data['message'];
+    for (final source in [data, if (nested is Map) nested]) {
+      for (final key in const ['sender_id', 'senderId', 'user_id', 'userId']) {
+        if (_isMyUser(source[key])) return true;
+      }
+      for (final key in const ['sender', 'user']) {
+        final author = source[key];
+        if (author is Map &&
+            (_isMyUser(author['id']) || _isMyUser(author['public_id']))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  void _clearPeerTyping() {
+    _remoteTypingTimeout?.cancel();
+    if (!_otherUserTypingSubject.isClosed && _otherUserTypingSubject.value) {
+      _otherUserTypingSubject.add(false);
+    }
+  }
+
+  static bool _isSystemCard(Map<String, dynamic> data) {
+    final nested = data['message'];
+    for (final source in [data, if (nested is Map) nested]) {
+      if (source['type'] == 'system_card' ||
+          source['messageType'] == 'system_card' ||
+          source['message_type'] == 'system_card' ||
+          source['card'] is Map) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void _onTyping(Map<String, dynamic> data) {
@@ -152,8 +276,6 @@ class ChatConversationBloc extends BaseBloc {
     }
   }
 
-  /// Live read-receipt: the peer advanced their read cursor. Ignore my own
-  /// receipt (like typing), then repaint my messages up to the new cursor.
   void _onMessageRead(Map<String, dynamic> data) {
     if (_isMyUser(data['user_id'])) return;
     final raw = data['last_read_at']?.toString();
@@ -163,7 +285,6 @@ class ChatConversationBloc extends BaseBloc {
     _messagesSubject.add(_newestFirst(_messagesSubject.value));
   }
 
-  /// Moves the peer read cursor forward only. Returns whether it changed.
   bool _advancePeerLastReadAt(DateTime? value) {
     if (value == null) return false;
     final current = _peerLastReadAt;
@@ -172,9 +293,6 @@ class ChatConversationBloc extends BaseBloc {
     return true;
   }
 
-  /// Bakes the peer cursor into [ChatMessage.isRead] so the bubble/proposal
-  /// card render blue ✓✓ through the existing `isRead == true` check — no
-  /// widget wiring needed. Only promotes my messages; never demotes.
   List<ChatMessage> _applyPeerRead(List<ChatMessage> messages) {
     final cursor = _peerLastReadAt;
     if (cursor == null) return messages;
@@ -190,54 +308,59 @@ class ChatConversationBloc extends BaseBloc {
 
   void onComposerChanged(String value) {
     if (_conversationId == null) return;
-    _typingStopTimer?.cancel();
-
-    if (value.trim().isEmpty) {
-      unawaited(stopTyping());
-      return;
-    }
-
-    final now = DateTime.now();
-    final shouldSend = !_typingActive ||
-        _lastTypingSentAt == null ||
-        now.difference(_lastTypingSentAt!) >= const Duration(seconds: 2);
-    if (shouldSend) {
-      _typingActive = true;
-      _lastTypingSentAt = now;
-      unawaited(_sendTyping(true));
-    }
-
-    _typingStopTimer = Timer(
-      const Duration(seconds: 3),
-      () => unawaited(stopTyping()),
-    );
+    _typing.onInput(value);
   }
 
-  Future<void> stopTyping() async {
-    _typingStopTimer?.cancel();
-    _typingStopTimer = null;
-    if (!_typingActive) return;
-    _typingActive = false;
-    _lastTypingSentAt = null;
-    await _sendTyping(false);
-  }
+  Future<void> stopTyping() async => _typing.stop();
 
   Future<void> _sendTyping(bool typing) async {
     final conversationId = _conversationId;
-    if (conversationId == null) return;
+    if (conversationId == null || _optionalPaused) return;
     try {
       await _chatApi.sendTyping(conversationId, typing: typing);
-    } catch (_) {
-      // Typing is ephemeral and must never block message sending.
+    } catch (e) {
+      _noteRateLimit(e);
     }
+  }
+
+  bool get _optionalPaused {
+    final until = _optionalPausedUntil;
+    return until != null && _now().isBefore(until);
+  }
+
+  void _noteRateLimit(Object error) {
+    if (error is! DioException || error.response?.statusCode != 429) return;
+    _optionalPausedUntil =
+        _now().add(_retryAfterOf(error) ?? _defaultRateLimitPause);
+  }
+
+  Duration? _retryAfterOf(Object error) {
+    if (error is! DioException || error.response?.statusCode != 429) {
+      return null;
+    }
+    final response = error.response!;
+    final fromHeader = NetworkFailure.retryAfter(
+      response.headers.value('retry-after'),
+      _now(),
+    );
+    if (fromHeader != null) return fromHeader;
+    final data = response.data;
+    final raw = data is Map ? data['retry_after'] : null;
+    final seconds = raw is num ? raw.ceil() : int.tryParse('${raw ?? ''}');
+    if (seconds == null || seconds <= 0) return null;
+    final pause = Duration(seconds: seconds);
+    return pause > NetworkFailure.maxRetryAfter
+        ? NetworkFailure.maxRetryAfter
+        : pause;
   }
 
   Future<void> loadMessages({
     bool showLoading = true,
     bool emitError = true,
   }) async {
-    if (_conversationId == null) return;
+    if (_conversationId == null || _disposed) return;
 
+    final seq = ++_loadSeq;
     _currentPage = 1;
     if (showLoading && !_isLoadingSubject.isClosed) {
       _isLoadingSubject.add(true);
@@ -246,8 +369,9 @@ class ChatConversationBloc extends BaseBloc {
     try {
       final response =
           await _chatApi.getMessages(_conversationId!, 50, _currentPage);
+      if (seq < _appliedLoadSeq || seq < _minValidLoadSeq) return;
+      _appliedLoadSeq = seq;
       _advancePeerLastReadAt(response.meta.peerLastReadAt);
-      // Header source of truth — fills/refreshes name, avatar and presence.
       if (response.meta.conversation != null &&
           !_conversationSubject.isClosed) {
         _conversationSubject.add(response.meta.conversation);
@@ -263,20 +387,41 @@ class ChatConversationBloc extends BaseBloc {
         unawaited(_loadShipmentStates(messages));
       }
       _lastPage = response.meta.lastPage;
-      try {
-        await _chatApi.markConversationRead(_conversationId!);
-      } catch (_) {
-        // GET messages already marks the conversation as read.
-      }
+      await _markReadIfNeeded();
     } catch (e) {
       print('Error loading messages: $e');
-      if (emitError && !_messagesSubject.isClosed) {
+      final isStale = seq < _appliedLoadSeq || seq < _minValidLoadSeq;
+      if (emitError && !isStale && !_messagesSubject.isClosed) {
         _messagesSubject.addError(e);
       }
     } finally {
       if (showLoading && !_isLoadingSubject.isClosed) {
         _isLoadingSubject.add(false);
       }
+    }
+  }
+
+  Future<void> _markReadIfNeeded() async {
+    final conversationId = _conversationId;
+    if (conversationId == null || _messagesSubject.isClosed) return;
+    String? newestIncoming;
+    for (final message in _messagesSubject.value) {
+      if (message.id.startsWith('local-') || isMyMessage(message)) continue;
+      newestIncoming = message.id;
+      break;
+    }
+    if ((_readSent && _readFor == newestIncoming) || _optionalPaused) return;
+
+    final wasSent = _readSent;
+    final wasFor = _readFor;
+    _readSent = true;
+    _readFor = newestIncoming;
+    try {
+      await _chatApi.markConversationRead(conversationId);
+    } catch (e) {
+      _readSent = wasSent;
+      _readFor = wasFor;
+      _noteRateLimit(e);
     }
   }
 
@@ -324,11 +469,8 @@ class ChatConversationBloc extends BaseBloc {
     if (_conversationId == null) return;
     final text = body?.trim() ?? '';
     if (text.isEmpty && file == null) return;
-    unawaited(stopTyping());
+    _typing.onMessageSent();
 
-    // WhatsApp-style: an image + text is ONE message — the text becomes the
-    // image's caption (sent in the same request). Only text (no file) stays a
-    // plain text message. Never split a captioned photo into two bubbles.
     if (file != null) {
       await _queueImage(file,
           caption: text.isEmpty ? null : text, replyTo: replyTo);
@@ -351,7 +493,7 @@ class ChatConversationBloc extends BaseBloc {
     final pending = _PendingMessage(
       localId: _localId(),
       image: file,
-      body: caption, // rendered as the caption under the photo
+      body: caption,
       replyTo: replyTo,
     );
     return _sendPending(pending);
@@ -361,6 +503,15 @@ class ChatConversationBloc extends BaseBloc {
     _pendingMessages[pending.localId] = pending;
     _upsertMessage(pending.optimisticMessage());
 
+    final refusal = await _waitForSendLimit();
+    if (_disposed) return;
+    if (refusal != null) {
+      _failPending(pending, refusal);
+      return;
+    }
+
+    _sendsInFlight++;
+    String? savedId;
     try {
       final response = pending.image == null
           ? await _chatApi.sendTextMessage(
@@ -377,8 +528,8 @@ class ChatConversationBloc extends BaseBloc {
               caption: pending.body,
             );
       _pendingMessages.remove(pending.localId);
-      // Keep the quote visible even though the API doesn't echo reply_to yet.
       final saved = response.data;
+      if (saved.id.isNotEmpty) savedId = saved.id;
       _replaceMessage(
         pending.localId,
         pending.replyTo != null && saved.replyTo == null
@@ -386,14 +537,42 @@ class ChatConversationBloc extends BaseBloc {
             : saved,
       );
     } catch (e) {
-      _replaceMessage(
-        pending.localId,
-        pending.optimisticMessage(
-          status: ChatMessageDeliveryStatus.failed,
-        ),
-      );
-      if (!_sendErrorsSubject.isClosed) _sendErrorsSubject.add(e);
+      _rememberSendLimit(e);
+      _failPending(pending, e);
+    } finally {
+      _sendFinished(savedId);
     }
+  }
+
+  void _failPending(_PendingMessage pending, Object error) {
+    _replaceMessage(
+      pending.localId,
+      pending.optimisticMessage(
+        status: ChatMessageDeliveryStatus.failed,
+      ),
+    );
+    if (!_sendErrorsSubject.isClosed) _sendErrorsSubject.add(error);
+  }
+
+  void _rememberSendLimit(Object error) {
+    final pause = _retryAfterOf(error);
+    if (pause == null) return;
+    _sendBlockedUntil = _now().add(pause);
+    _sendBlockAnswer = error;
+  }
+
+  Future<Object?> _waitForSendLimit() async {
+    final until = _sendBlockedUntil;
+    if (until == null) return null;
+    final wait = until.difference(_now());
+    if (wait <= Duration.zero) {
+      _sendBlockedUntil = null;
+      _sendBlockAnswer = null;
+      return null;
+    }
+    if (wait > _longestSendWait) return _sendBlockAnswer;
+    await Future<void>.delayed(wait);
+    return null;
   }
 
   Future<void> retryMessage(String localId) async {
@@ -412,22 +591,15 @@ class ChatConversationBloc extends BaseBloc {
   }
 
   Future<void> deleteMessage(String messageId) async {
-    // Single mode — always "for everyone". Server enforces ownership and 204s.
-    // The bubble is NOT removed: it becomes a "deleted" tombstone in place, the
-    // same state the peer sees (via realtime / next load).
     await _chatApi.deleteMessage(messageId);
     _markMessageDeleted(messageId);
   }
 
-  /// Realtime `message.deleted` on `private-conversation.{id}`:
-  /// `{ id, conversation_id }`. Flip the matching bubble to its tombstone live.
   void _onMessageDeleted(Map<String, dynamic> data) {
     final id = data['id']?.toString();
     if (id != null && id.isNotEmpty) _markMessageDeleted(id);
   }
 
-  /// Replace the message with its local tombstone, keeping its slot. No-op when
-  /// the id isn't in the loaded window (a later fetch renders it deleted).
   void _markMessageDeleted(String messageId) {
     if (_messagesSubject.isClosed) return;
     final current = _messagesSubject.value;
@@ -471,13 +643,32 @@ class ChatConversationBloc extends BaseBloc {
 
   Future<String?> runShipmentAction(
     String shipmentId,
-    String action, {
+    String endpoint, {
     Map<String, dynamic>? body,
   }) async {
     final message =
-        await _chatApi.shipmentAction(shipmentId, action, body: body);
-    await loadMessages();
+        await _chatApi.shipmentAction(shipmentId, endpoint, body: body);
+    _minValidLoadSeq = _loadSeq + 1;
+    _loadedShipmentSignatures.remove(shipmentId);
+    _dropDealActions(shipmentId);
+    unawaited(loadMessages(showLoading: false, emitError: false));
     return message;
+  }
+
+  void _dropDealActions(String shipmentId) {
+    if (_messagesSubject.isClosed) return;
+    var changed = false;
+    final messages = _messagesSubject.value.map((message) {
+      final card = message.card;
+      if (card == null ||
+          card.shipmentId != shipmentId ||
+          card.actions.isEmpty) {
+        return message;
+      }
+      changed = true;
+      return message.copyWith(card: card.withoutActions());
+    }).toList();
+    if (changed) _messagesSubject.add(messages);
   }
 
   Future<ReviewSubmitResult> submitShipmentReview(
@@ -496,7 +687,6 @@ class ChatConversationBloc extends BaseBloc {
     if (_conversationId == null) return false;
     try {
       await run(_chatApi.sendReviews(TargetUserRequest(targetUserId: id)));
-      // Если дошли сюда без ошибки - значит успешно
       return true;
     } catch (e) {
       print('Error sending reviews: $e');
@@ -544,29 +734,51 @@ class ChatConversationBloc extends BaseBloc {
   }
 
   Future<void> _loadShipmentStates(List<ChatMessage> messages) async {
-    final ids = messages
-        .map((message) => message.card?.shipmentId)
-        .whereType<String>()
-        .where((id) => id.isNotEmpty)
-        .toSet();
-    if (ids.isEmpty || _shipmentsSubject.isClosed) return;
+    final signatures = <String, String>{};
+    for (final message in messages) {
+      final card = message.card;
+      final id = card?.shipmentId;
+      if (card == null || id == null || id.isEmpty) continue;
+      signatures.putIfAbsent(
+          id, () => '${message.id}|${card.shipmentStatus ?? ''}');
+    }
+    if (signatures.isEmpty || _shipmentsSubject.isClosed) return;
+    _wantedShipmentSignatures.addAll(signatures);
 
-    final states = Map<String, ShipmentData>.from(_shipmentsSubject.value);
+    final stale = [
+      for (final entry in signatures.entries)
+        if (_loadedShipmentSignatures[entry.key] != entry.value &&
+            _loadingShipmentSignatures[entry.key] != entry.value)
+          entry.key,
+    ];
+    final fetched = <String, ShipmentData>{};
     await Future.wait(
-      ids.map((id) async {
+      stale.map((id) async {
+        final signature = signatures[id]!;
+        _loadingShipmentSignatures[id] = signature;
         try {
           final response = await _chatApi.getShipment(id);
-          if (response.data != null) states[id] = response.data!;
-        } catch (_) {}
+          final data = response.data;
+          if (data == null || _wantedShipmentSignatures[id] != signature) {
+            return;
+          }
+          fetched[id] = data;
+          _loadedShipmentSignatures[id] = signature;
+        } catch (_) {
+        } finally {
+          if (_loadingShipmentSignatures[id] == signature) {
+            _loadingShipmentSignatures.remove(id);
+          }
+        }
       }),
     );
-    if (!_shipmentsSubject.isClosed) {
-      _shipmentsSubject.add(states);
+    if (_shipmentsSubject.isClosed) return;
+    if (fetched.isNotEmpty) {
+      _shipmentsSubject.add({..._shipmentsSubject.value, ...fetched});
     }
-    _recomputeActiveShipment(messages, states);
+    _recomputeActiveShipment(_messagesSubject.value, _shipmentsSubject.value);
   }
 
-  /// The pinned bar shows the deal from the newest live system card (§3A.2).
   void _recomputeActiveShipment(
     List<ChatMessage> messages,
     Map<String, ShipmentData> states,
@@ -591,60 +803,18 @@ class ChatConversationBloc extends BaseBloc {
   Future<void> reconnectRealtime() async {
     final token = await _cacheManager.getToken();
     if (token == null || _conversationId == null) return;
-    await _pusherService.initialize(token);
-    await _pusherService.subscribeToConversation(
-      _conversationId!,
-      _onNewMessage,
-    );
-    await _pusherService.subscribeToConversationTyping(
-      _conversationId!,
-      _onTyping,
-    );
-    await _pusherService.subscribeToConversationRead(
-      _conversationId!,
-      _onMessageRead,
-    );
-    await _pusherService.subscribeToConversationDeleted(
-      _conversationId!,
-      _onMessageDeleted,
-    );
+    await _realtime.join(token, _conversationId!, _handlers);
     await loadMessages();
   }
 
   @override
   void dispose() {
-    _typingStopTimer?.cancel();
+    _disposed = true;
+    _typing.dispose();
     _remoteTypingTimeout?.cancel();
     _fallbackRefreshTimer?.cancel();
-    if (_typingActive) {
-      _typingActive = false;
-      unawaited(_sendTyping(false));
-    }
     if (_conversationId != null) {
-      unawaited(
-        _pusherService.unsubscribeFromConversation(
-          _conversationId!,
-          _onNewMessage,
-        ),
-      );
-      unawaited(
-        _pusherService.unsubscribeFromConversationTyping(
-          _conversationId!,
-          _onTyping,
-        ),
-      );
-      unawaited(
-        _pusherService.unsubscribeFromConversationRead(
-          _conversationId!,
-          _onMessageRead,
-        ),
-      );
-      unawaited(
-        _pusherService.unsubscribeFromConversationDeleted(
-          _conversationId!,
-          _onMessageDeleted,
-        ),
-      );
+      unawaited(_realtime.leave(_conversationId!, _handlers));
     }
     _messagesSubject.close();
     _isLoadingMoreSubject.close();

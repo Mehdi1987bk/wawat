@@ -43,7 +43,7 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   late bool isVisible;
   bool _isExpanded = false;
   bool _isPackageTypeExpanded = false;
-  bool _isUpdating = false; // Флаг для предотвращения повторных нажатий
+  bool _isUpdating = false;
 
   @override
   void initState() {
@@ -54,7 +54,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   @override
   void didUpdateWidget(covariant WawatCourierCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Синхронизируем состояние при обновлении виджета
     if (oldWidget.courier.id != widget.courier.id ||
         oldWidget.courier.status != widget.courier.status ||
         oldWidget.courier.isFavourite != widget.courier.isFavourite) {
@@ -98,7 +97,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   }
 
   void _toggleVisibility() async {
-    // Предотвращаем повторные нажатия пока идёт обновление
     if (_isUpdating) return;
 
     final isLogged = await sl.get<AuthRepository>().isLogged();
@@ -110,8 +108,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
       _isUpdating = true;
     });
 
-    // Вызываем callback, НЕ меняя локальное состояние
-    // Состояние обновится автоматически через didUpdateWidget после обновления списка
     final newVisibility = !isVisible;
     widget.onVisibilityToggle?.call(newVisibility);
   }
@@ -255,7 +251,6 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
                                     widget.courier.user?.avatar) !=
                                 null
                             ? ClipOval(
-                                // Card avatar → cached thumbnail.
                                 child: CachedNetworkImage(
                                   imageUrl:
                                       widget.courier.user!.avatarThumbUrl ??
@@ -842,13 +837,11 @@ class _WawatCourierCardState extends State<WawatCourierCard> {
   String _formatTime(String? time) {
     if (time == null || time.trim().isEmpty) return '-';
     final raw = time.trim();
-    // Full ISO datetime.
     final dt = DateTime.tryParse(raw);
     if (dt != null) {
       return '${dt.hour.toString().padLeft(2, '0')}:'
           '${dt.minute.toString().padLeft(2, '0')}';
     }
-    // Bare time string like "09:15:00" or "9:15" → HH:mm (drop seconds).
     final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
     if (match != null) {
       return '${match.group(1)!.padLeft(2, '0')}:${match.group(2)}';

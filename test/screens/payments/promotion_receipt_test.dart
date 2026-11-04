@@ -7,7 +7,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Serves `GET /promotions/{id}` from memory and counts the calls.
 class _FakePromotionApi extends PromotionApi {
   _FakePromotionApi(this._response) : super(Dio());
 

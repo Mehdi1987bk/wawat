@@ -4,7 +4,6 @@ import 'package:buking/main.dart';
 import 'package:buking/screens/home/tabs/create_post/listing_limit_gate_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Only `/auth/me` is used by the repost entry; everything else is unexpected.
 class _FakeAuthRepository implements AuthRepository {
   _FakeAuthRepository(this._me);
 

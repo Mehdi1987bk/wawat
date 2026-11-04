@@ -29,7 +29,6 @@ mixin AuthModalMixin {
   }
 }
 
-// Использование:
 class AnyScreen extends StatelessWidget with AuthModalMixin {
   @override
   Widget build(BuildContext context) {

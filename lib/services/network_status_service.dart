@@ -5,11 +5,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
-/// Единый статус сети для всего приложения.
-///
-/// Connectivity даёт мгновенный статус интерфейса, а Dio уточняет реальную
-/// доступность интернета: Wi‑Fi без доступа в сеть тоже переводит приложение
-/// в offline после первой неудачной попытки API.
+import 'network_failure.dart';
+
 class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
   NetworkStatusService._();
 
@@ -30,7 +27,6 @@ class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
     try {
       _setFromConnectivity(await _connectivity.checkConnectivity());
     } catch (_) {
-      // Реальный сетевой запрос через Dio уточнит статус.
     }
 
     _subscription = _connectivity.onConnectivityChanged.listen(
@@ -43,10 +39,6 @@ class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
 
   void markOffline() => _setOffline(true);
 
-  /// Active re-probe for the manual "retry" button. The OS interface status can
-  /// report "connected" on a Wi‑Fi that actually has no internet, so when an
-  /// interface exists we confirm with a real reachability probe to the API host.
-  /// Returns the resolved online state and updates [isOffline] accordingly.
   Future<bool> recheck() async {
     try {
       final results = await _connectivity.checkConnectivity();
@@ -57,7 +49,6 @@ class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
         return false;
       }
     } catch (_) {
-      // Ignore and fall through to the real reachability probe.
     }
     final online = await _hasRealInternet();
     _setOffline(!online);
@@ -79,20 +70,27 @@ class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void handleDioError(DioException error) {
-    if (_isNetworkError(error)) {
+    final failure = NetworkFailure.of(error);
+    if (failure.provesOffline) {
+      if (_isImpatient(error)) return;
       markOffline();
-    } else if (error.response != null) {
-      // Сервер ответил, значит интернет физически доступен.
+    } else if (failure.provesOnline) {
       markOnline();
     }
   }
 
-  bool _isNetworkError(DioException error) {
-    return error.error is SocketException ||
-        error.type == DioExceptionType.connectionError ||
-        error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.sendTimeout ||
-        error.type == DioExceptionType.receiveTimeout;
+  bool _isImpatient(DioException error) {
+    if (!error.requestOptions.extra.containsKey(NetworkFailure.attemptKey)) {
+      return false;
+    }
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return true;
+      default:
+        return false;
+    }
   }
 
   void _setFromConnectivity(List<ConnectivityResult> results) {
@@ -118,7 +116,6 @@ class NetworkStatusService extends ChangeNotifier with WidgetsBindingObserver {
     try {
       _setFromConnectivity(await _connectivity.checkConnectivity());
     } catch (_) {
-      // Оставляем последний подтверждённый статус.
     }
   }
 

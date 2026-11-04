@@ -6,7 +6,6 @@ import 'package:buking/services/localization_service.dart';
 
 import 'app_review.dart';
 
-// ── palette (light from mock + navy dark) ────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _ink900 = Color(0xFF0F172A);
 const _ink800 = Color(0xFF1E293B);
@@ -22,7 +21,6 @@ const _dText = Color(0xFFEAF0FA);
 const _dMuted = Color(0xFF6B7B93);
 const _dBrandText = Color(0xFF7FB6FF);
 
-// success (toast + check)
 const _okGreen = Color(0xFF10B981);
 const _dOkGreen = Color(0xFF4FD6A0);
 
@@ -38,9 +36,6 @@ Color _cBrandSoft(bool d) =>
     d ? _brand.withValues(alpha: 0.14) : const Color(0xFFEAF3FE);
 Color _cStepBg(bool d) => d ? _dSurface : _ink900.withValues(alpha: 0.02);
 
-/// "Rate app" page. Pure rating: encourages the user, opens the Store listing,
-/// then thanks them. The promo-code reward is intentionally NOT shown or granted
-/// here — that whole feature is parked (see kPromoFeatureEnabled).
 class RateAppScreen extends StatefulWidget {
   const RateAppScreen({super.key});
 
@@ -52,8 +47,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
   bool _rated = false;
   bool _busy = false;
 
-  /// Opens the Store listing (no reward, no backend call), then shows a thanks
-  /// state on return.
   Future<void> _rate() async {
     if (_rated || _busy) return;
     setState(() => _busy = true);
@@ -102,7 +95,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
         ),
       );
 
-  // ── intro: informational + one button ───────────────────────────────────────
   Widget _introPage(bool d) {
     return ListView(
       padding: const EdgeInsets.only(bottom: 28),
@@ -175,7 +167,6 @@ class _RateAppScreenState extends State<RateAppScreen> {
     );
   }
 
-  // ── rated: thanks only ───────────────────────────────────────────────────────
   Widget _ratedPage(bool d) {
     return ListView(
       padding: const EdgeInsets.only(bottom: 28),

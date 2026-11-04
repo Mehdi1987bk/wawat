@@ -34,7 +34,6 @@ void main() {
       );
 
       expect(isDuplicateTransactionError(error), isTrue);
-      // A duplicate is not a user cancellation — the two must stay distinct.
       expect(isIapCancellationError(error), isFalse);
     });
 
@@ -75,8 +74,6 @@ void main() {
     });
 
     test('a quota receipt routes to the listing-quota order endpoint', () {
-      // This is the exact bug that stuck the spinner: a quota receipt sent to
-      // /promotions/{id} 404s forever. It must hit the quota order endpoint.
       expect(
         backendPayPath(base, 'wawat.app.quota.medium', 'order-42'),
         '$base/listing-quota/orders/order-42/pay',

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
@@ -17,13 +18,6 @@ import 'notification_socket_service.dart';
 import 'telemetry/telemetry.dart';
 import 'telemetry/telemetry_events.dart';
 
-// Android не позволяет менять звук уже созданного notification channel.
-// Новый id гарантирует, что после обновления канал создастся именно с
-// airplane.mp3, даже если старый канал был создан с default sound.
-// Канал ТАКЖЕ создаётся нативно в WawatApplication.onCreate() — до того как
-// FirebaseMessagingService успеет обработать пуш, — чтобы звук был правильным
-// даже для notification-пушей, пришедших пока приложение убито. Держи этот id в
-// синхроне с WawatApplication.kt и default_notification_channel_id в манифесте.
 const _androidChannelId = 'wawat_airplane_v5';
 const _legacyAndroidChannelIds = [
   'high_importance_channel',
@@ -31,26 +25,15 @@ const _legacyAndroidChannelIds = [
   'wawat_alerts',
   'wawat_airplane_v2',
   'wawat_airplane_v3',
-  // v4 was PINNED by the backend before the app guaranteed native channel
-  // creation, so on devices that received a v4 push first Android auto-created
-  // it with the DEFAULT sound (immutable). Escape to v5 and delete v4.
   'wawat_airplane_v4',
 ];
 const _androidChannelName = 'Wawat Air';
 const _androidChannelDescription = 'Уведомления Wawat Air';
 const _androidSound = 'airplane';
-// White silhouette shown as the (small) status-bar icon; res/drawable-*.
 const _androidSmallIcon = 'ic_stat_wawat';
-// Full-colour brand mark shown large on the right of app-built notifications;
-// res/drawable-nodpi. Only applies when the app builds the notification
-// (foreground, or every state once the backend switches to data-only pushes).
 const _androidLargeIcon = 'ic_notification_large';
-// Brand blue the system tints the small icon / header with.
 const _brandColor = Color(0xFF007AFE);
 
-/// Background FCM handler — MUST be a top-level function, registered in main()
-/// via FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler).
-/// Runs in a separate isolate; do NOT import main.dart state here.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
@@ -58,8 +41,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   );
   _logIncomingMessage('background', message);
 
-  // notification + data payloads are displayed by Android/iOS themselves.
-  // A data-only push needs a local notification to remain visible.
   if (!Platform.isAndroid || message.notification != null) return;
 
   final title = _firstNonEmpty([
@@ -111,11 +92,6 @@ String? _firstNonEmpty(Iterable<Object?> values) {
   return null;
 }
 
-/// TEMP push diagnostics — prints the channel/sound the backend actually routed
-/// this push to, plus its lifecycle phase. This is how we see the real on-device
-/// payload without backend access: if `android.channelId` is a legacy id (or
-/// `android.sound` is "default"), the backend is the fault, not the app. Never
-/// logs the FCM token. Remove once the sound is confirmed.
 void _logIncomingMessage(String phase, RemoteMessage message) {
   final android = message.notification?.android;
   debugPrint(
@@ -144,48 +120,38 @@ Future<void> _createAndroidNotificationChannels(
   );
   await android.createNotificationChannel(primaryChannel);
 
-  // The legacy channels have an IMMUTABLE sound on devices where they were first
-  // created with the system default (old builds / FCM auto-create) — recreating
-  // them can never change it. Delete them so any push the backend still routes
-  // to an old id falls back to the manifest default channel (wawat_airplane_v5),
-  // which carries the airplane sound. The definitive fix is native creation in
-  // WawatApplication.onCreate() (runs before FirebaseMessagingService); this is
-  // the Flutter-side mirror of the same channel.
   for (final channelId in _legacyAndroidChannelIds) {
     await android.deleteNotificationChannel(channelId);
   }
 }
 
-/// Сервис Firebase Push Notifications: инициализация, права, показ в foreground,
-/// обработка нажатий и получение FCM токена.
 class PushNotificationService with WidgetsBindingObserver {
   PushNotificationService._();
   static final PushNotificationService _instance = PushNotificationService._();
   factory PushNotificationService() => _instance;
 
-  /// Когда токен последний раз успешно ушёл на бэкенд. Лежит в
-  /// SharedPreferences, а не в Hive: Hive-бокс целиком чистится при выходе из
-  /// аккаунта, а нам нужно переживать и выход, и смену пользователя.
   static const _lastSyncKey = 'push_token_last_sync_ms';
 
-  /// На возврате из фона токен пересылаем не чаще раза в сутки — этого хватает,
-  /// чтобы на бэкенде было видно живые установки, и не создаёт лишних запросов.
   static const _resyncInterval = Duration(hours: 24);
+
+  static const _retryAfterFailure = Duration(minutes: 15);
+
+  static const _openChatChannel = MethodChannel('az.buking.buking/open_chat');
+
+  int _syncsInFlight = 0;
+  DateTime? _lastSendFailedAt;
 
   static final _logger = Logger(printer: SimplePrinter());
   final _messaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
 
-  /// FCM token для отправки на бэкенд (обновляется при refresh).
   String? get fcmToken => _fcmToken;
   String? _fcmToken;
 
-  /// Инициализация: канал уведомлений, локальные уведомления, FCM handlers, запрос прав, токен.
   Future<void> initialize() async {
     await _initLocalNotifications();
     await _createAndroidChannel();
     await _setForegroundPresentationOptions();
-    // onBackgroundMessage is registered in main() before runApp() — do not register again here.
 
     final launchDetails =
         await _localNotifications.getNotificationAppLaunchDetails();
@@ -201,34 +167,24 @@ class PushNotificationService with WidgetsBindingObserver {
     });
 
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
+    if (Platform.isIOS) {
+      NotificationSocketService.instance.activeConversation
+          .addListener(_syncOpenChat);
+    }
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpened);
 
-    // Разрешение НЕ спрашивается на первом экране.
-    //
-    // На iOS отказ необратим: без разрешения нет APNs-токена, а без APNs-токена
-    // getToken() возвращает null — устройство навсегда остаётся без пушей, и
-    // именно поэтому живых ios-токенов 16 против 400 android. Поэтому на iOS
-    // спрашиваем после осмысленного действия (maybeAskPushPermission), а здесь
-    // только синхронизируем токен, если разрешение уже выдано.
-    //
-    // На Android токен выдаётся и без разрешения, а системный диалог можно
-    // показать повторно — там поведение не меняем.
     if (Platform.isAndroid) {
       await requestPermission();
     }
     if (Platform.isAndroid || await hasPermission()) {
-      await syncToken(reason: 'cold_start');
+      unawaited(syncToken(reason: 'cold_start'));
     }
 
-    // Возврат из фона: FCM меняет токен сам (обновление приложения,
-    // восстановление из бэкапа, очистка данных), поэтому раз в сутки
-    // перепроверяем и переотправляем.
     WidgetsBinding.instance.addObserver(this);
 
     _messaging.onTokenRefresh.listen((token) {
       _fcmToken = token;
       _logger.d('FCM token refreshed');
-      // Старый токен на бэкенде уже мёртв — отправляем новый сразу.
       unawaited(_sendToBackend(token, reason: 'token_refresh'));
     });
   }
@@ -240,20 +196,21 @@ class PushNotificationService with WidgetsBindingObserver {
   }
 
   Future<void> _syncOnResume() async {
-    // На iOS без разрешения getToken() всё равно вернёт null — не дёргаем.
     if (Platform.isIOS && !await hasPermission()) return;
     final lastSync = await _lastSyncAt();
     if (lastSync != null &&
         DateTime.now().difference(lastSync) < _resyncInterval) {
       return;
     }
+    final failedAt = _lastSendFailedAt;
+    if (failedAt != null &&
+        DateTime.now().difference(failedAt) < _retryAfterFailure) {
+      return;
+    }
+    if (_syncsInFlight > 0) return;
     await syncToken(reason: 'resume');
   }
 
-  /// Отправка токена на бэкенд. Колбэк обязан вернуть Future, который падает
-  /// при неудаче: по нему сервис решает, помечать ли синхронизацию успешной.
-  /// Если отправка не удалась, метка не ставится и следующий возврат из фона
-  /// попробует снова.
   void setOnTokenUpdated(Future<void> Function(String token)? callback) {
     _onTokenUpdated = callback;
   }
@@ -273,10 +230,6 @@ class PushNotificationService with WidgetsBindingObserver {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // Разрешение здесь НЕ запрашивается: это делает requestPermission() через
-    // FirebaseMessaging (он же покрывает POST_NOTIFICATIONS на Android 13+).
-    // Раньше диалог всплывал прямо на первом кадре — ровно то поведение, из-за
-    // которого на iOS отказываются и устройство остаётся без пушей навсегда.
   }
 
   void _onNotificationTapped(NotificationResponse response) {
@@ -302,9 +255,6 @@ class PushNotificationService with WidgetsBindingObserver {
   }
 
   Future<void> _setForegroundPresentationOptions() {
-    // In-app (foreground): play the push sound but do NOT show the OS banner —
-    // the in-app banner handles the visual. `alert: false` drops the top
-    // drop-down; `sound: true` still plays it. Background/killed are unaffected.
     return _messaging.setForegroundNotificationPresentationOptions(
       alert: false,
       badge: true,
@@ -330,19 +280,10 @@ class PushNotificationService with WidgetsBindingObserver {
           message.data['notification_body'],
         ]);
     if (title == null && body == null) return;
+    if (_isOpenChat(message.data)) return;
 
-    // Foreground = inside the app. Show OUR in-app banner (the visual) and keep
-    // the OS/system notification suppressed. This guarantees the banner appears
-    // even if the realtime socket didn't deliver its own; showNotificationBanner
-    // replaces any current banner, so the two paths never stack.
     _showInAppBanner(message, title: title, body: body);
 
-    // Sound only — no OS notification:
-    //  • Android: FCM never auto-shows in foreground, so play the sound ourselves.
-    //  • iOS notification payload: the OS plays the sound via the presentation
-    //    options above (alert:false → no banner), so nothing to do here.
-    //  • iOS data-only: no OS notification exists, so a silent local one
-    //    (presentAlert:false) plays the sound without a banner.
     if (Platform.isAndroid) {
       _playForegroundSound();
     } else if (Platform.isIOS && notification == null) {
@@ -355,9 +296,6 @@ class PushNotificationService with WidgetsBindingObserver {
     }
   }
 
-  /// Builds and shows the in-app banner for a foreground push, from the FCM
-  /// `data` map. Mirrors the realtime-socket banner so both look identical; tap
-  /// routes by `target_type` via [handleNotificationNavigation].
   void _showInAppBanner(
     RemoteMessage message, {
     required String? title,
@@ -369,13 +307,6 @@ class PushNotificationService with WidgetsBindingObserver {
     final actorAvatar = _firstNonEmpty([data['actor_avatar_thumb_url']]);
 
     if (type == 'conversation') {
-      final convId =
-          _firstNonEmpty([data['conversation_id'], data['target_id']]);
-      // Already reading this thread → the chat updates live, no banner needed.
-      if (convId != null &&
-          NotificationSocketService.instance.activeConversationId == convId) {
-        return;
-      }
       showNotificationBanner(
         NotificationBannerData.notification(
           title: actorName ?? title ?? 'Wawat Air',
@@ -389,7 +320,6 @@ class PushNotificationService with WidgetsBindingObserver {
       return;
     }
 
-    // review_received carries stars + comment; other types use the type icon.
     final rating = int.tryParse(data['rating']?.toString() ?? '');
     showNotificationBanner(
       NotificationBannerData.notification(
@@ -405,11 +335,23 @@ class PushNotificationService with WidgetsBindingObserver {
     );
   }
 
+  bool _isOpenChat(Map<String, dynamic> data) {
+    final type = (data['target_type'] ?? data['type'] ?? '').toString().trim();
+    if (type != 'conversation') return false;
+    final convId = _firstNonEmpty([data['conversation_id'], data['target_id']]);
+    return convId != null &&
+        NotificationSocketService.instance.activeConversationId == convId;
+  }
+
+  void _syncOpenChat() {
+    unawaited(_openChatChannel
+        .invokeMethod<void>(
+            'set', NotificationSocketService.instance.activeConversationId)
+        .catchError((_) {}));
+  }
+
   final AudioPlayer _foregroundSoundPlayer = AudioPlayer();
 
-  /// Plays the push sound in-app (foreground) with NO OS notification. Routed to
-  /// the notification stream and requests no audio focus, so it's a short blip
-  /// that doesn't pause the user's music.
   Future<void> _playForegroundSound() async {
     try {
       await _foregroundSoundPlayer.setReleaseMode(ReleaseMode.stop);
@@ -450,15 +392,9 @@ class PushNotificationService with WidgetsBindingObserver {
       color: _brandColor,
     );
     const iosDetails = DarwinNotificationDetails(
-      // Foreground data-only push: sound only, no banner (the in-app banner is
-      // the visual). Background/killed pushes are notification payloads rendered
-      // by the OS, unaffected by this.
       presentAlert: false,
       presentBadge: true,
       presentSound: true,
-      // iOS only plays caf/aiff/wav for notifications (never mp3) and matches
-      // the file by exact name — this is the same airplane.caf the backend puts
-      // in apns.payload.aps.sound, bundled in the Runner target.
       sound: 'airplane.caf',
     );
     const details =
@@ -468,8 +404,6 @@ class PushNotificationService with WidgetsBindingObserver {
 
   void _handleMessageOpened(RemoteMessage message) {
     _logIncomingMessage('opened', message);
-    // Доля открытий по типу пуша — единственный способ понять, какие
-    // уведомления полезны, а какие люди просто смахивают.
     Telemetry.instance.event(TelemetryEvents.pushOpened, params: {
       TelemetryParams.source: message.data['type'] ?? 'unknown',
     });
@@ -478,23 +412,17 @@ class PushNotificationService with WidgetsBindingObserver {
     }
   }
 
-  /// Текущий статус системного разрешения — без показа диалога.
   Future<AuthorizationStatus> permissionStatus() async {
     final settings = await _messaging.getNotificationSettings();
     return settings.authorizationStatus;
   }
 
-  /// Разрешение уже выдано (в том числе provisional на iOS).
   Future<bool> hasPermission() async {
     final status = await permissionStatus();
     return status == AuthorizationStatus.authorized ||
         status == AuthorizationStatus.provisional;
   }
 
-  /// Показывает системный диалог разрешения (iOS и Android 13+).
-  ///
-  /// Сам токен НЕ отправляет — это делает вызывающая сторона через
-  /// [syncToken], чтобы на холодном старте не уходило два запроса.
   Future<bool> requestPermission() async {
     final settings = await _messaging.requestPermission(
       alert: true,
@@ -505,8 +433,6 @@ class PushNotificationService with WidgetsBindingObserver {
         settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional;
     _logger.d('Notification permission: ${settings.authorizationStatus}');
-    // Доля отказов — прямой ограничитель для всей пуш-механики; без этой
-    // цифры непонятно, почему падает доставка.
     Telemetry.instance.event(TelemetryEvents.pushPermissionResult, params: {
       TelemetryParams.result: settings.authorizationStatus.name,
     });
@@ -516,19 +442,13 @@ class PushNotificationService with WidgetsBindingObserver {
     return granted;
   }
 
-  /// Получить текущий FCM token (и сохранить в сервисе).
   Future<String?> refreshToken() async {
     await syncToken(reason: 'manual');
     return _fcmToken;
   }
 
-  /// Берёт текущий токен и отправляет его на бэкенд.
-  ///
-  /// Вызывается на каждом холодном старте, после логина и регистрации, при
-  /// onTokenRefresh и на возврате из фона (не чаще раза в сутки). Повторная
-  /// отправка того же токена безопасна — на бэкенде updateOrCreate — и именно
-  /// она двигает `updated_at`, по которому на сервере видно живые установки.
   Future<void> syncToken({required String reason}) async {
+    _syncsInFlight++;
     try {
       if (Platform.isIOS) {
         await _waitForApnsToken();
@@ -540,6 +460,8 @@ class PushNotificationService with WidgetsBindingObserver {
       await _sendToBackend(token, reason: reason);
     } catch (e, st) {
       _logger.e('FCM getToken error', e, st);
+    } finally {
+      _syncsInFlight--;
     }
   }
 
@@ -548,21 +470,19 @@ class PushNotificationService with WidgetsBindingObserver {
     if (send == null) return;
     try {
       await send(token);
+      _lastSendFailedAt = null;
       await _markSynced();
       _logger.d('FCM token sent to backend ($reason)');
     } catch (e) {
+      _lastSendFailedAt = DateTime.now();
       _logger.d('FCM token send failed ($reason): $e');
     }
   }
 
-  /// Выход из аккаунта: снимаем токен с устройства, чтобы следующий вход получил
-  /// новый. Иначе два аккаунта на одном телефоне остаются привязаны к одному
-  /// токену, и прежний владелец продолжает получать пуши на чужой телефон.
   Future<void> clearTokenAfterLogout() async {
     try {
       await _messaging.deleteToken();
     } catch (e) {
-      // iOS без APNs-токена здесь бросает — выход из аккаунта это не ломает.
       _logger.d('FCM deleteToken failed: $e');
     }
     _fcmToken = null;
@@ -585,7 +505,6 @@ class PushNotificationService with WidgetsBindingObserver {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_lastSyncKey, DateTime.now().millisecondsSinceEpoch);
     } catch (_) {
-      // Метка — только оптимизация частоты. Не смогли сохранить — переотправим.
     }
   }
 

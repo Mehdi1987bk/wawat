@@ -9,6 +9,7 @@ import 'package:buking/screens/payments/iap/iap_catalog.dart';
 import 'package:buking/screens/payments/iap/iap_service.dart';
 import 'package:buking/screens/payments/receipt_screen.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:buking/presentation/common/camera_permission.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,41 +44,21 @@ class _VerificationScreenState
   bool _isLoadingStatus = true;
   bool _isPaying = false;
 
-  /// Stable across retries so re-tapping the fee never double-charges once the
-  /// real gateway is wired (the mock ignores it). Seeded on the first pay.
   String? _payIdempotencyKey;
 
-  /// Current verification request (null when never submitted).
   VerificationState? _state;
 
-  /// Activation fee to advertise on the intro screen (from the request's
-  /// payment, or a top-level hint when there's no request yet). Null → intro
-  /// shows "paid" without a number.
   double? _feeAmount;
   String? _feeCurrency;
 
-  /// The document-upload step is a pushed sub-view reached from the intro
-  /// («Send documents») or the rejected screen («Resubmit»). Back returns to
-  /// the underlying state screen rather than leaving verification.
   bool _showUpload = false;
 
-  /// Whether the account is verified, from ANY authoritative source: an
-  /// approved-and-paid request OR the profile's `is_verified` flag. Admin-
-  /// verified accounts often have no verification *request*, so the state
-  /// endpoint says unpaid while the profile is already verified.
   bool _isVerified = false;
 
-  /// Accepted ID-document types from /document-types. Currently filtered to
-  /// passport only, so the type picker is hidden and the passport upload is the
-  /// single flow. Names still arrive localized from the backend.
   List<DocumentType> _idDocTypes = const [];
   String? _selectedType;
   bool _typesLoadFailed = false;
 
-  /// Store (App Store / Google Play) product for the verification badge, when
-  /// the backend catalog defines it AND the store returns its localized price.
-  /// Null until resolved — the store tile stays disabled while it is, exactly
-  /// like the promotion/quota flows do for a product not yet live in the store.
   IapCatalogProduct? _verificationCatalog;
   ProductDetails? _verificationStoreProduct;
 
@@ -91,9 +72,6 @@ class _VerificationScreenState
     _loadVerificationStoreProduct();
   }
 
-  /// Fetches the verification store product so the payment sheet can offer
-  /// App Store / Google Play. Best-effort: any failure just leaves the store
-  /// tile disabled and the card path fully usable.
   Future<void> _loadVerificationStoreProduct() async {
     if (!kIapEnabled) return;
     try {
@@ -119,9 +97,6 @@ class _VerificationScreenState
           break;
         }
       }
-      // Diagnostic: shows the exact id we asked the store for and whether it
-      // came back or landed in notFoundIDs — the fast way to spot an id mismatch
-      // or an ASC product that isn't queryable yet (store tile stays grey then).
       debugPrint(
         '[IAP][verify] catalogId=${catalog.productId} '
         'storeResolved=${store != null} '
@@ -134,7 +109,6 @@ class _VerificationScreenState
         _verificationStoreProduct = store;
       });
     } catch (error) {
-      // store unavailable — card path stays fully usable
       debugPrint('[IAP][verify] load store product failed: $error');
     }
   }
@@ -143,7 +117,6 @@ class _VerificationScreenState
     try {
       final types = await bloc.loadDocumentTypes();
       if (!mounted) return;
-      // Only passport is accepted for now → single option, no type picker shown.
       final idTypes = types.where((t) => t.isPassport).toList();
       setState(() {
         _idDocTypes = idTypes;
@@ -156,12 +129,7 @@ class _VerificationScreenState
   }
 
   Future<void> _loadVerificationStatus() async {
-    // Seed from the profile we were opened with — a verified account should
-    // never land on the upload flow.
     var verified = widget.user.isVerified ?? false;
-    // Seed from what we already know so a transient GET /verification failure
-    // (500/timeout) doesn't wipe a submitted/approved/just-paid request back to
-    // null → the paid intro. Only a SUCCESSFUL fetch overwrites these.
     VerificationState? state = _state;
     double? fee = _feeAmount;
     String? currency = _feeCurrency;
@@ -172,14 +140,11 @@ class _VerificationScreenState
       currency = snapshot.currency;
       if (state?.isPaidVerified ?? false) verified = true;
     } catch (_) {
-      /* keep the last known state/fee; profile flag still decides */
     }
-    // Fresh profile flag: catches admin-verified accounts that have no
-    // verification request (state endpoint → still unpaid).
     try {
       final me = await WawatProfileApi().me();
       verified = verified || me.isVerified;
-    } catch (_) {/* offline / failed — fall back to what we already have */}
+    } catch (_) { }
     if (!mounted) return;
     setState(() {
       _state = state;
@@ -207,34 +172,28 @@ class _VerificationScreenState
           );
         }
 
-        // Profile already verified (incl. admin-verified without a request).
         if (_isVerified) {
           return _buildVerifiedScreen(isDark);
         }
 
-        // The document-upload sub-view (first submit or free resubmit).
         if (_showUpload) {
           return _buildUploadDocumentsScreen(isDark);
         }
 
         final state = _state;
 
-        // Never submitted → paid intro that explains the two steps.
         if (state == null) {
           return _buildIntroScreen(isDark);
         }
 
-        // Rejected → show the reason, offer a free resubmit.
         if (state.isRejected) {
           return _buildRejectedScreen(isDark, state);
         }
 
-        // Documents under review → waiting, no payment yet.
         if (state.isPending) {
           return _buildPendingScreen(isDark);
         }
 
-        // Approved: pay to activate the badge, else already verified.
         if (state.isApproved) {
           if (state.awaitingPayment) {
             return _buildPaymentScreen(isDark, state);
@@ -242,7 +201,6 @@ class _VerificationScreenState
           return _buildVerifiedScreen(isDark);
         }
 
-        // Unknown/transitional status → treat as under review.
         return _buildPendingScreen(isDark);
       },
     );
@@ -285,8 +243,6 @@ class _VerificationScreenState
                   padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
                   child: Column(
                     children: [
-                      // Gradient "verified" badge with a soft halo and a gentle
-                      // entrance pop — the celebratory centrepiece of the screen.
                       TweenAnimationBuilder<double>(
                         duration: const Duration(milliseconds: 520),
                         curve: Curves.easeOutBack,
@@ -460,8 +416,6 @@ class _VerificationScreenState
                           ],
                         ),
                       ),
-                      // Paid through the app → its receipt (+ server PDF).
-                      // Admin-verified accounts have no paid request → none.
                       if (_state?.receipt?.isPaid ?? false) ...[
                         const SizedBox(height: 16),
                         _buildReceiptButton(isDark, _state!.receipt!),
@@ -700,11 +654,6 @@ class _VerificationScreenState
     );
   }
 
-  /// Let the user pick how to pay the activation fee — the store
-  /// (App Store / Google Play via IAP) or a bank card (Kapital 3-D Secure) —
-  /// exactly like the VIP/quota flows. The store tile is offered only once the
-  /// backend catalog + the store both expose the verification product; until
-  /// then it shows as coming soon and the card path handles payment.
   Future<void> _choosePaymentMethod(VerificationState state) async {
     if (_isPaying) return;
     final isDark = context.read<ThemeManager>().isDarkMode;
@@ -738,10 +687,6 @@ class _VerificationScreenState
     await _payWithStore(state);
   }
 
-  /// Buy the verification badge through the App Store / Google Play. The receipt
-  /// is validated by our backend inside [IapService.purchase] (routed to
-  /// `/verification/pay`); a confirmed purchase then refreshes the real state
-  /// and lands on the verified screen. Cancel is not a failure.
   Future<void> _payWithStore(VerificationState state) async {
     final catalog = _verificationCatalog;
     if (catalog == null) {
@@ -760,8 +705,6 @@ class _VerificationScreenState
       if (!mounted) return;
       if (result.outcome == IapOutcome.canceled) return;
       if (result.outcome == IapOutcome.pending) {
-        // A deferred store payment (Play pending / Ask to Buy) is not a failure:
-        // the store settles it later and the backend activates the badge then.
         _snack(
           tr(
             'common.payment_processing',
@@ -772,8 +715,6 @@ class _VerificationScreenState
         return;
       }
       if (!result.isSuccess) {
-        // Show the backend's own localized reason when it sent one, so
-        // "already redeemed" never reads the same as "store unreachable".
         final reason = result.message?.trim() ?? '';
         final hasCode = result.code?.trim().isNotEmpty ?? false;
         _snack(
@@ -784,11 +725,7 @@ class _VerificationScreenState
         );
         return;
       }
-      // Backend already validated the receipt → read the authoritative state.
       await _loadVerificationStatus();
-      // The backend already reported the badge as activated. A status read that
-      // has not caught up yet must NEVER be reported as a failed payment: the
-      // user was charged, and telling them it failed makes them pay again.
       if (mounted && !_isVerified && result.activated != true) {
         _snack(
           tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.'),
@@ -797,7 +734,6 @@ class _VerificationScreenState
       }
     } catch (error) {
       if (!mounted) return;
-      // Show the backend's own localized reason when it sent one.
       final reason = backendError(error).message?.trim() ?? '';
       _snack(
         reason.isNotEmpty
@@ -810,13 +746,6 @@ class _VerificationScreenState
     }
   }
 
-  /// Pay the activation fee with a bank card. Mirrors the VIP/quota card flow:
-  /// ask the backend to pay by `card`; if it hands back a Kapital hosted
-  /// `checkout_url`, open it in a WebView and confirm the real state afterwards
-  /// (the redirect is only a hint — the backend activates idempotently). While
-  /// the mock gateway is on there is no URL and the fee is already settled, so
-  /// we just refresh and land on the verified screen. No client change is needed
-  /// when the backend switches verification to the real gateway.
   Future<void> _pay() async {
     if (_isPaying) return;
     setState(() => _isPaying = true);
@@ -838,7 +767,6 @@ class _VerificationScreenState
           ),
         );
         if (!mounted) return;
-        // Closed the bank page without a verdict → let the user retry.
         if (outcome == null || outcome == CardCheckoutResult.abandoned) return;
         await _loadVerificationStatus();
         if (mounted && !_isVerified) {
@@ -849,7 +777,6 @@ class _VerificationScreenState
         }
         return;
       }
-      // Mock gateway: the fee is already settled server-side.
       final message = result.message;
       if (message != null && message.isNotEmpty) {
         showIOSStyleMessage(context, message);
@@ -857,7 +784,6 @@ class _VerificationScreenState
       await _loadVerificationStatus();
     } catch (e) {
       if (!mounted) return;
-      // Surface the server's localized reason (e.g. not_payable) when present.
       var message =
           tr('verification.pay_failed', 'Ödəniş alınmadı. Yenidən cəhd et.');
       if (e is DioException) {
@@ -881,8 +807,6 @@ class _VerificationScreenState
     return '$value $currency';
   }
 
-  /// Shared back-arrow header for the intro / payment / rejected screens (back
-  /// leaves verification).
   Widget _buildHeader(bool isDark, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1034,8 +958,6 @@ class _VerificationScreenState
     );
   }
 
-  /// Paid intro (data == null): says verification is a paid service, shows the
-  /// fee, explains the two steps, then sends the user to upload documents.
   Widget _buildIntroScreen(bool isDark) {
     final fee = _feeAmount;
     final currency = _feeCurrency ?? 'AZN';
@@ -1091,8 +1013,6 @@ class _VerificationScreenState
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Paid callout — amount is from payment.fee_amount, never
-                    // hardcoded; falls back to just "paid service" if unknown.
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -1173,7 +1093,6 @@ class _VerificationScreenState
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Two-step checklist.
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(18),
@@ -1228,9 +1147,6 @@ class _VerificationScreenState
     );
   }
 
-  /// Payment step (approved & payment.required): documents approved, pay the
-  /// fee to activate the badge. Payment is mock now — the button just calls
-  /// /verification/pay. A placeholder marks where the real provider widget goes.
   Widget _buildPaymentScreen(bool isDark, VerificationState state) {
     final green = isDark ? WawatDark.success : const Color(0xFF22C55E);
     return Scaffold(
@@ -1282,7 +1198,6 @@ class _VerificationScreenState
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Amount to pay — from payment.fee_amount.
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
@@ -1357,8 +1272,6 @@ class _VerificationScreenState
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // Placeholder where the real payment-provider widget will
-                    // mount once integrated. For now paying is a mock call.
                     if (state.payment.mock)
                       Container(
                         width: double.infinity,
@@ -1417,7 +1330,6 @@ class _VerificationScreenState
     );
   }
 
-  /// Rejected: show the reason and offer a free resubmit (POST /submit again).
   Widget _buildRejectedScreen(bool isDark, VerificationState state) {
     final red = isDark ? WawatDark.danger : const Color(0xFFEF4444);
     final reason = state.rejectionReason;
@@ -1549,8 +1461,6 @@ class _VerificationScreenState
                 child: Row(
                   children: [
                     GestureDetector(
-                      // The upload view is a sub-step: back returns to the intro
-                      // / rejected screen it was opened from, not out of KYC.
                       onTap: () => _showUpload
                           ? setState(() => _showUpload = false)
                           : Navigator.pop(context),
@@ -1655,8 +1565,6 @@ class _VerificationScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              // Type picker only makes sense with more than one option; with a
-              // single accepted type (passport) it's hidden.
               if (_idDocTypes.length > 1)
                 _buildTypePicker(isDark)
               else if (_typesLoadFailed)
@@ -1774,6 +1682,8 @@ class _VerificationScreenState
   }
 
   Future<void> _pickSelfieImage() async {
+    final allowed = await ensureCameraPermission(context);
+    if (!allowed || !mounted) return;
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null) {
       setState(() {
@@ -1843,8 +1753,6 @@ class _VerificationScreenState
       _snack(t('verification.both_documents_required'), Colors.orange);
       return;
     }
-    // Document type may be missing only because /document-types didn't load —
-    // retry once, then surface a clear (not "upload both") message.
     if (_selectedType == null) {
       await _loadDocumentTypes();
       if (_selectedType == null) {
@@ -1870,14 +1778,9 @@ class _VerificationScreenState
       if (mounted) {
         showIOSStyleMessage(context, t('verification.submit_success'));
         await _loadVerificationStatus();
-        // Leave the upload sub-view → land on the "under review" screen.
         if (mounted) setState(() => _showUpload = false);
       }
     } catch (e) {
-      // ErrorDispatcher уже показал 422 верхним снекбаром — причём текстом
-      // сервера («You already have a pending verification request»), который
-      // куда полезнее общей фразы. Своя плашка нужна только для остальных
-      // ошибок, иначе пользователь видит два уведомления об одном и том же.
       final alreadyShownByDispatcher =
           e is DioException && e.response?.statusCode == 422;
       if (mounted && !alreadyShownByDispatcher) {
@@ -2089,7 +1992,6 @@ class _VerificationScreenState
   }
 }
 
-/// Мягкая плашка под иконку в тёмной теме по цвету самой иконки.
 Color _darkIconBg(Color iconColor) {
   if (iconColor == const Color(0xFF4CAF50)) return WawatDark.successBg;
   if (iconColor == const Color(0xFFF5A623)) return WawatDark.warningBg;
@@ -2097,7 +1999,6 @@ Color _darkIconBg(Color iconColor) {
   return WawatDark.surfaceAlt;
 }
 
-/// Цвет иконки в тёмной теме (мягкие статусные/бренд-токены).
 Color _darkIconColor(Color iconColor) {
   if (iconColor == const Color(0xFF4CAF50)) return WawatDark.success;
   if (iconColor == const Color(0xFFF5A623)) return WawatDark.warning;
@@ -2164,10 +2065,6 @@ class DashedBorderPainter extends CustomPainter {
 
 enum _VerifyPayMethod { store, card }
 
-/// Payment-method chooser for the verification badge — the store
-/// (App Store / Google Play via IAP) or a bank card (Kapital 3-D Secure).
-/// Mirrors the promotion/quota sheet so paying feels the same everywhere. The
-/// store tile is dimmed and non-tappable until its store product is live.
 class _VerifyPaymentSheet extends StatelessWidget {
   final bool isDark;
   final String title;
@@ -2244,8 +2141,6 @@ class _VerifyPaymentSheet extends StatelessWidget {
                   ? () => Navigator.pop(context, _VerifyPayMethod.store)
                   : null,
             ),
-            // Bank card is offered on every platform by product-owner decision
-            // (on iOS this is outside Apple's IAP — kept intentionally).
             _tile(
               surface: surface,
               brand: brand,

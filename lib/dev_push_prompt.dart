@@ -5,14 +5,6 @@ import 'firebase_options.dart';
 import 'services/push_notification_service.dart';
 import 'services/push_permission_prompt.dart';
 
-/// Bildiriş icazəsi üçün hazırlanmış ekranı serverdən asılı olmadan yoxlamaq.
-///
-/// İşə salmaq:
-///   fvm flutter run -t lib/dev_push_prompt.dart
-///
-/// Hər düymə `maybeAskPushPermission()` çağırır — yəni real statusu oxuyur və
-/// lazım olanda öz izah listini göstərir. Sistem dialoqu da realdır: «icazə
-/// ver» deyəndən sonra status dəyişir və aşağıdaki sətir onu göstərir.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

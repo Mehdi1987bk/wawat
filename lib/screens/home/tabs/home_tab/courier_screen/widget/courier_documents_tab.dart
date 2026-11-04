@@ -111,7 +111,6 @@ class CourierDocumentsTab extends StatelessWidget {
     );
   }
 
-  /// Normalises a time string to `HH:mm` (drops seconds).
   String _hhmm(String? value) {
     if (value == null || value.trim().isEmpty) return '';
     final raw = value.trim();

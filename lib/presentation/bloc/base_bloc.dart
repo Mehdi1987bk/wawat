@@ -38,7 +38,6 @@ abstract class BaseBloc {
   }
 
   Future<T> run<T>(Future<T> future) async {
-    // loadingSink.add(++_taskCounter > 0); // ❌ Убрали индикатор загрузки
     ++_taskCounter;
     try {
       var result = await future;
@@ -50,19 +49,9 @@ abstract class BaseBloc {
       return Future.error(e);
     } finally {
       --_taskCounter;
-      // if (!_loadingIndicator.isClosed) {
-      //   _loadingIndicator.add(--_taskCounter > 0); // ❌ Убрали индикатор загрузки
-      // }
     }
   }
 
-  /// Отчёт об исключении, которое дошло до блока.
-  ///
-  /// `DioException` пропускаем: сетевые ошибки уже полностью описаны
-  /// `TelemetryInterceptor` (эндпоинт, код, длительность), и дублировать их
-  /// здесь означало бы удвоить счётчики в панели. Сюда падает то, что
-  /// действительно является багом клиента: ошибки парсинга ответа, `null`
-  /// там, где его не ждали, приведения типов.
   void _reportNonFatal(Object error, StackTrace stack, String reason) {
     if (error is DioException) return;
     Telemetry.instance.error(
@@ -75,7 +64,6 @@ abstract class BaseBloc {
 
   void _localeHandler<T>(
       Locale locale, EventSink<T> sink, AsyncBloc<T> bloc) async {
-    // loadingSink.add(++_taskCounter > 0); // ❌ Убрали индикатор загрузки
     ++_taskCounter;
     try {
       final value = await bloc();
@@ -86,9 +74,6 @@ abstract class BaseBloc {
       _reportNonFatal(e, st, 'bloc.localeHandler');
     } finally {
       --_taskCounter;
-      // if (!_loadingIndicator.isClosed) {
-      //   _loadingIndicator.add(--_taskCounter > 0); // ❌ Убрали индикатор загрузки
-      // }
     }
   }
 }

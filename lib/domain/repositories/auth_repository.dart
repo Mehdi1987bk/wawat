@@ -54,16 +54,19 @@ abstract class AuthRepository {
 
   Future<void> sendOtpLogin(int number, int otpCode);
 
-  /// Refetch /me, refresh the cached user, and return the fresh [User].
-  /// Returning it (rather than only saving) lets callers read server-updated
-  /// fields — e.g. a just-increased listing quota — without racing the Hive
-  /// `userDetails` stream. Callers that only need the cache refresh can ignore
-  /// the value (a `Future<User>` still satisfies a `Future<void>` wrapper).
   Future<User> customersMe();
 
   Future<ContentResponse> getContent({String? group, String? lang});
 
   Future<void> registration(RegistrationRequest request);
+
+  bool get awaitingEmailVerification;
+
+  Future<bool> holdSessionForEmailVerification();
+
+  Future<void> confirmSession();
+
+  void dropSession();
 
   Future<RegistrationResponse> otpVerify(
     OtpVerifyRequest request,
@@ -93,14 +96,11 @@ abstract class AuthRepository {
 
   Future<void> resendEmailVerification();
 
-
   Future<PackageTypesResponse> getPackageType();
 
   Future<CitiesResponse> getCities(String search);
 
-
   Future<void> createProfessional(CourierProfile request);
-
 
   Future<PrivacyPolicyResponse> privacyPolicy();
 
@@ -112,23 +112,12 @@ abstract class AuthRepository {
 
   Stream<AllrequestData> allRequest(String data);
 
-
-
   Future<bool> firstOpen();
 
   Future<void> setFavorites(OfferResponse request);
 
-  /// Current KYC verification state (`GET /verification`) + the fee to show on
-  /// the intro. `state` is null when the user has never submitted.
   Future<VerificationSnapshot> getVerification();
 
-  /// Pay the verification activation fee (`POST /verification/pay`). Works only
-  /// for an approved-and-unpaid request; returns the updated verification.
-  ///
-  /// [method] is the payment method (`card` today). [idempotencyKey] must stay
-  /// stable across retries of the same request so re-tapping never double-charges
-  /// once a real gateway is wired. The result carries a `checkoutUrl` when the
-  /// backend hands off to the Kapital hosted page (mock off).
   Future<VerificationPayResult> payVerification({
     String method,
     String? idempotencyKey,
@@ -153,11 +142,8 @@ abstract class AuthRepository {
     required File selfie,
   });
 
-  /// KYC document types (id_card/passport/driver_license/selfie) with localized
-  /// names — never hardcode the list.
   Future<List<DocumentType>> getDocumentTypes();
 
-  /// Submit an ID document of the chosen [idType] + a selfie in one request.
   Future<void> submitVerificationDocs({
     required String idType,
     required File idFile,

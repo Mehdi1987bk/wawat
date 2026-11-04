@@ -1,23 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-/// Result reported by the bank's hosted page via the app deep link
-/// `wawatair://payment/result?status=success|failed|pending`. The link also
-/// carries an id param that differs per feature (`?promotion=` for promos,
-/// `?order=` for listing-quota) — this screen ignores it and reads only
-/// `status`, so it works for both without change.
-///
-/// It is only a hint — the caller MUST confirm the real state server-side
-/// afterwards (`GET /promotions/{id}` or `GET /listing-quota/orders/{id}`),
-/// keyed by its own id, not by the deep link. [abandoned] means the user closed
-/// the WebView before the bank redirected (no verdict yet).
 enum CardCheckoutResult { success, failed, pending, abandoned }
 
-/// In-app WebView that hosts the Kapital 3-D Secure payment page.
-///
-/// The PAN is entered on the bank's own page — the app never touches card data.
-/// We watch navigation for the `wawatair://payment/result` deep link the bank
-/// redirects to when the flow ends, read its `status`, and pop with it.
 class CardCheckoutScreen extends StatefulWidget {
   final String checkoutUrl;
   final String title;
@@ -64,8 +49,6 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
       ..loadRequest(Uri.parse(widget.checkoutUrl));
   }
 
-  /// Maps the deep link's `status` query param to a [CardCheckoutResult] and
-  /// pops once. Guarded so a double redirect can't pop twice.
   void _finish(String url) {
     if (_finished) return;
     _finished = true;
@@ -83,7 +66,6 @@ class _CardCheckoutScreenState extends State<CardCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      // Closing without a bank redirect = the user abandoned the payment.
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;

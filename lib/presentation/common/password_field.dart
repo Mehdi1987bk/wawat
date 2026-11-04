@@ -46,7 +46,6 @@ class _PasswordFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    // ← ДОБАВЛЕНО: Определяем тему
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -76,22 +75,25 @@ class _PasswordFieldState extends State<PasswordField> {
               maxLines: 1,
               focusNode: _focusNode,
               cursorColor: AppColors.appColor,
-              keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО ДЛЯ КЛАВИАТУРЫ
+              keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
               style: TextStyle(
-                  color: isDark ? Colors.white : AppColors.darkBlue, // ← ИСПРАВЛЕНО
+                  color: isDark ? Colors.white : AppColors.darkBlue,
                   fontSize: 20
               ),
               decoration: InputDecoration(
                   suffixIconConstraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
                   labelStyle: TextStyle(
                       color: finKodNumberFocus || widget._cartController.text.trim().isEmpty
-                          ? (isDark ? Colors.white70 : Colors.black54) // ← ИСПРАВЛЕНО
+                          ? (isDark ? Colors.white70 : Colors.black54)
                           : Colors.transparent,
                       fontSize: 18),
                   hintText: '********',
                   hintStyle: TextStyle(
-                    color: isDark ? Colors.grey[600] : Colors.grey, // ← ДОБАВЛЕНО
+                    color: isDark ? Colors.grey[600] : Colors.grey,
                     letterSpacing: 2.0,
                   ),
                   contentPadding: EdgeInsets.only(top: 8),

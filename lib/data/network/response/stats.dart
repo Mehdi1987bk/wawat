@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 part 'stats.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-@HiveType(typeId: 99) // убедись что typeId уникальный
+@HiveType(typeId: 99)
 class Stats extends HiveObject {
   @HiveField(0)
   final int? offersTotal;

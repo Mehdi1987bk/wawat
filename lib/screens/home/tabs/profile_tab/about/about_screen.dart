@@ -9,7 +9,6 @@ import 'package:buking/services/localization_service.dart';
 import '../legal/legal_doc_screen.dart';
 import '../promo/rate_app_screen.dart';
 
-// ── palette ──────────────────────────────────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _ink900 = Color(0xFF0F172A);
 const _ink700 = Color(0xFF334155);
@@ -191,8 +190,6 @@ class _AboutScreenState extends State<AboutScreen> {
           padding: const EdgeInsets.all(14),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            // The brand mark is black+blue on transparent, so it sits on a white
-            // tile (matches the app-icon look) rather than the old blue chip.
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: _ink900.withValues(alpha: 0.06)),

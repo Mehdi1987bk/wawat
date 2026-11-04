@@ -10,26 +10,13 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../data/network/response/receipt.dart';
 
-/// The receipt PDF is rendered by the BACKEND (`receipt.pdf_url`) — the app only
-/// downloads it and puts it where the user can find it again:
-///  • Android 10+ → the public «Downloads» folder (MediaStore, no permission);
-///  • iOS → the app's Documents, opened in the system preview (QuickLook), from
-///    which the user saves it to «Files» or sends it on.
-/// Android 8–9 has no permission-free Downloads API → falls back to the share
-/// sheet.
-
-/// Why a download failed — each maps to its own user-facing text.
 enum ReceiptPdfFailure {
-  /// No connection / timeout: the request never got an answer.
   network,
 
-  /// The server answered with an error status (404 foreign/unpaid, 429, 5xx).
   server,
 
-  /// 200, but the body is not a PDF (HTML/JSON error page, empty body).
   notPdf,
 
-  /// Downloaded fine, but writing it to the device failed.
   save,
 }
 
@@ -37,7 +24,6 @@ class ReceiptPdfException implements Exception {
   final ReceiptPdfFailure failure;
   final int? statusCode;
 
-  /// The backend's own localized `message`, when an error body carried one.
   final String? serverMessage;
   final Object? cause;
 
@@ -55,7 +41,6 @@ class ReceiptPdfException implements Exception {
       '${cause == null ? '' : ', cause: $cause'})';
 }
 
-/// A downloaded receipt PDF, still in memory.
 class ReceiptPdfFile {
   final String fileName;
   final Uint8List bytes;
@@ -65,18 +50,15 @@ class ReceiptPdfFile {
 
 enum ReceiptPdfLocation { downloads, documents, temporary }
 
-/// Where [ReceiptPdfStore.save] put the file.
 class SavedReceiptPdf {
   final ReceiptPdfLocation location;
 
-  /// Android `content://` uri (downloads) or an absolute file path.
   final String target;
   final ReceiptPdfFile file;
 
   const SavedReceiptPdf(this.location, this.target, this.file);
 }
 
-/// Downloads `receipt.pdfUrl` with the app's authenticated [dio].
 Future<ReceiptPdfFile> downloadReceiptPdf(Dio dio, Receipt receipt) async {
   final url = receipt.pdfUrl;
   if (url == null || url.isEmpty) {
@@ -118,8 +100,6 @@ Future<ReceiptPdfFile> downloadReceiptPdf(Dio dio, Receipt receipt) async {
   );
 }
 
-/// File name from `Content-Disposition` (`attachment; filename="…"`), else
-/// `wawatair-receipt-<number>.pdf`. Always a bare, safe `*.pdf` name.
 @visibleForTesting
 String receiptPdfFileName(String? contentDisposition, String number) {
   String? name;
@@ -164,13 +144,11 @@ bool _isNetwork(DioException e) {
 
 bool _looksLikePdf(Uint8List bytes) =>
     bytes.length > 4 &&
-    bytes[0] == 0x25 && // %
-    bytes[1] == 0x50 && // P
-    bytes[2] == 0x44 && // D
-    bytes[3] == 0x46; // F
+    bytes[0] == 0x25 &&
+    bytes[1] == 0x50 &&
+    bytes[2] == 0x44 &&
+    bytes[3] == 0x46;
 
-/// The error body arrives as raw bytes (responseType.bytes) — decode Laravel's
-/// `{"message": "…"}` so the user sees the server's own localized reason.
 String? _serverMessage(Object? data) {
   try {
     Object? json = data;
@@ -181,13 +159,10 @@ String? _serverMessage(Object? data) {
       if (message != null && message.isNotEmpty) return message;
     }
   } catch (_) {
-    /* not JSON — no server message */
   }
   return null;
 }
 
-/// Saves / opens / shares a downloaded receipt. Native side: `MainActivity.kt`
-/// (MediaStore Downloads + ACTION_VIEW) and `AppDelegate.swift` (QuickLook).
 class ReceiptPdfStore {
   const ReceiptPdfStore();
 
@@ -203,7 +178,6 @@ class ReceiptPdfStore {
         if (uri != null && uri.isNotEmpty) {
           return SavedReceiptPdf(ReceiptPdfLocation.downloads, uri, file);
         }
-        // Android 8–9: no MediaStore Downloads → temp copy + share sheet.
         final dir = await getTemporaryDirectory();
         return SavedReceiptPdf(
           ReceiptPdfLocation.temporary,
@@ -224,8 +198,6 @@ class ReceiptPdfStore {
     }
   }
 
-  /// Shows the saved PDF. False when nothing on the device can display it
-  /// (Android without a PDF viewer) — the file is still saved.
   Future<bool> open(SavedReceiptPdf saved, {String? subject}) async {
     switch (saved.location) {
       case ReceiptPdfLocation.downloads:
@@ -244,7 +216,6 @@ class ReceiptPdfStore {
     }
   }
 
-  /// The system share sheet (mail, messengers, «Save to Files», …).
   Future<void> share(
     ReceiptPdfFile file, {
     String? subject,

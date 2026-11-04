@@ -22,9 +22,6 @@ const _stepKeys = [
 ];
 const _stepFallbacks = ['Təklif', 'Qəbul', 'Götürüldü', 'Çatdı', 'Bitdi'];
 
-/// The 5-node happy-path stepper (Təklif → Qəbul → Götürüldü → Çatdı → Bitdi).
-/// Only meaningful for the non-terminal-branch statuses; callers should hide
-/// this widget for disputed/cancelled/declined/expired.
 class DealStepper extends StatelessWidget {
   final String status;
   final Map<String, String> content;
@@ -54,15 +51,11 @@ class DealStepper extends StatelessWidget {
               ],
       ),
       child: Row(
-        // Align nodes and connectors to the top so the 2px line sits on the
-        // circle's vertical center (13px), not below it because of the labels.
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(_steps.length * 2 - 1, (i) {
           if (i.isOdd) {
             final segDone = (i ~/ 2) < activeIndex;
             return Expanded(
-              // Circle is 26px tall → center at 13; a 2px line at top:12 spans
-              // 12–14, centering it exactly on the node row.
               child: Container(
                 height: 2,
                 margin: const EdgeInsets.only(top: 12),

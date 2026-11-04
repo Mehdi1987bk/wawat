@@ -39,7 +39,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   late TextEditingController _priceFromController;
   late TextEditingController _priceToController;
 
-  double _selectedExperience = 0.5; // Изменено с int на double
+  double _selectedExperience = 0.5;
   String _selectedWorkTimeFrom = '00:00';
   String _selectedWorkTimeTo = '00:00';
   Set<String> _selectedLanguageCodes = {};
@@ -74,7 +74,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     _priceFromController.addListener(_validateForm);
     _priceToController.addListener(_validateForm);
 
-    // Инициализация опыта с поддержкой половинных значений
     if (professional?.workExperienceYears != null) {
       _selectedExperience =
           double.tryParse(professional!.workExperienceYears ?? "")!;
@@ -165,7 +164,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         _validateForm();
       }
     } catch (e, stackTrace) {
-      // 🔥 Проверяем mounted перед setState
       if (mounted) {
         setState(() {
           _isLoadingLanguages = false;
@@ -196,7 +194,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
         _validateForm();
       }
     } catch (e, stackTrace) {
-      // 🔥 Проверяем mounted перед setState
       if (mounted) {
         setState(() {
           _isLoadingPackageTypes = false;
@@ -313,7 +310,6 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
   }
 
   void _saveChanges() {
-    // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
     FocusScope.of(context).unfocus();
 
     if (_selectedLanguageCodes.isEmpty) {
@@ -349,13 +345,11 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
     );
 
     bloc.createProfessional(courierProfile).then((_) {
-      // 🔥 Проверяем что виджет еще существует
       if (!mounted) return;
 
       showIOSStyleMessage(context, t('courier.experience_saved'));
       bloc.customersMe();
     }).catchError((error) {
-      // 🔥 Обрабатываем ошибки
       if (mounted) {
         showIOSStyleMessage(
           context,
@@ -753,7 +747,7 @@ class _ExperienceTabState extends BaseState<ExperienceTab, ExperienceTabBloc>
               onChanged: (value) {
                 setState(() {
                   _selectedExperience =
-                      value.roundToDouble(); // Округляем до целого
+                      value.roundToDouble();
                 });
               },
             ),
@@ -873,9 +867,6 @@ void showIOSStyleMessage(
 }) {
   final isDark = Provider.of<ThemeManager>(context, listen: false).isDarkMode;
 
-  // barrierDismissible + tap-to-close are a hard safety net: even if the
-  // auto-dismiss timer somehow never fires, a tap always removes the barrier so
-  // the toast can NEVER trap the user on an unresponsive screen.
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -888,14 +879,6 @@ void showIOSStyleMessage(
   );
 }
 
-/// Self-dismissing toast. The auto-close timer lives in its own [State] so it is
-/// created exactly once (not re-armed on every dialog rebuild) and pops via the
-/// dialog's OWN context — which stays valid while the dialog is up and whose
-/// [State] is disposed (cancelling the timer) the moment the dialog closes, so a
-/// stray pop can never swallow the screen underneath. This replaces the old
-/// builder-scheduled `Future.delayed` guarded by `context.mounted`, which left
-/// the barrier up forever when the caller rebuilt the tree right after showing
-/// it (e.g. verification refreshing its status on success).
 class _IOSStyleMessage extends StatefulWidget {
   const _IOSStyleMessage({
     required this.message,

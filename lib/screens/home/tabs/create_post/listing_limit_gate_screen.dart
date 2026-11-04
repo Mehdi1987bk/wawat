@@ -28,9 +28,6 @@ const _ink600 = Color(0xFF475569);
 const _ink500 = Color(0xFF64748B);
 const _emerald = Color(0xFF059669);
 
-/// Fresh listing quota for [type] from `/auth/me` — the cached user is usually
-/// stale (a listing may have just been created or deleted). Null when /me
-/// can't be read.
 Future<ListingQuotaItem?> fetchListingQuota(String type) async {
   try {
     final me = await sl.get<AuthRepository>().customersMe();
@@ -40,21 +37,12 @@ Future<ListingQuotaItem?> fetchListingQuota(String type) async {
   }
 }
 
-/// A repost stops at the limit gate only when the fresh quota says no slot is
-/// left. An unreadable quota lets the form try: the server rejects an
-/// over-limit repost with 422 and the form then falls back to the gate.
 bool repostNeedsLimitGate(ListingQuotaItem? quota) =>
     quota != null && quota.remaining <= 0;
 
-/// «Repost» of an expired / rejected listing. No slot left (`remaining` is
-/// global) → the limit gate instead of the form, carrying the repost along so
-/// pausing a listing or buying more limit continues it. Otherwise — or when
-/// the quota can't be read, since the server still rejects an over-limit
-/// repost and the form falls back to this gate — the pre-filled repost form.
 Future<void> openRepostFlow(BuildContext context, Listing listing) async {
   final navigator = Navigator.of(context);
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  // Blocks double taps and shows progress while /me is re-read.
   final loader = OverlayEntry(
     builder: (_) => Stack(
       children: [
@@ -91,8 +79,6 @@ class ListingLimitGateScreen extends BaseScreen<ListingLimitGateBloc> {
   final String type;
   final ListingQuotaItem quota;
 
-  /// Set when the gate interrupted a repost: freeing a slot resumes that
-  /// repost instead of starting a brand-new listing.
   final Listing? repostListing;
 
   ListingLimitGateScreen({
@@ -118,8 +104,6 @@ class _ListingLimitGateScreenState
   @override
   void initState() {
     super.initState();
-    // Экран открывается только когда человек упёрся в лимит объявлений —
-    // это и есть событие воронки монетизации.
     Telemetry.instance.event(
       TelemetryEvents.quotaLimitHit,
       params: {TelemetryParams.listingType: widget.type},
@@ -241,8 +225,6 @@ class _ListingLimitGateScreenState
   Future<void> _pause(Listing listing) async {
     await bloc.pause(listing, widget.type);
     if (!mounted) return;
-    // A repost carries a pre-filled listing that has no type picker to fall back
-    // to, so it opens its own form (back leaves it directly — no duplication).
     if (widget.repostListing != null) {
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -252,10 +234,6 @@ class _ListingLimitGateScreenState
       );
       return;
     }
-    // New listing: a slot is free now. Hand the freed type back to the create
-    // screen that opened this gate so it advances its OWN wizard to the form.
-    // Pushing a second CreatePostScreen would stack another type picker behind
-    // the form, so backing out would pass through the picker twice.
     Navigator.of(context).pop(widget.type);
   }
 
@@ -497,7 +475,6 @@ class _ActiveListingTile extends StatelessWidget {
               ],
             ),
           ),
-          // Booked listings hold a slot but can't be paused (backend 403).
           if (listing.canBePaused) ...[
             const SizedBox(width: 8),
             GestureDetector(
@@ -600,7 +577,6 @@ class _BottomCta extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Primary paid path — "increase limit".
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onIncrease,
@@ -639,7 +615,6 @@ class _BottomCta extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Secondary — free path to pause a listing from "my listings".
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: onTap,

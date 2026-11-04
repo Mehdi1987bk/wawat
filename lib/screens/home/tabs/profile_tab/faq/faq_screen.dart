@@ -12,9 +12,6 @@ import '../../../../../services/theme_manager.dart';
 import '../support/support_screen.dart';
 import 'faq_bloc.dart';
 
-/// Фирменная заливка. Раньше экран брал `WawatColors.primary` — а это
-/// #5B4FFF из старой фиолетовой палитры, поэтому кнопка «Dəstək», рамка
-/// фокуса и плитка иконки выбивались из бренда в обеих темах.
 const _brand = Color(0xFF017BFE);
 const _brandHex = '#017BFE';
 
@@ -26,7 +23,6 @@ class FaqScreen extends BaseScreen {
 }
 
 class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
-  // Для отслеживания раскрытых элементов
   final Set<int> _expandedItems = {};
   String _query = '';
 
@@ -67,7 +63,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
           color: isDark ? cScreen(isDark) : const Color(0xFFF5F5F7),
           child: CustomScrollView(
             slivers: [
-              // Красивый header
               SliverToBoxAdapter(
                 child: Container(
                   decoration: BoxDecoration(
@@ -90,9 +85,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          // Бренд, а не фиолетовый из старой темы. Тот же
-                          // градиент, что у героя на «Dəvət et» — чтобы
-                          // фирменные блоки выглядели одинаково.
                           gradient: const LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -138,7 +130,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                 ),
               ),
 
-              // Поиск (клиентская фильтрация)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -184,7 +175,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                 ),
               ),
 
-              // FAQ список
               FutureBuilder<FaqResponse>(
                 future: bloc.faqs,
                 builder: (context, snapshot) {
@@ -336,7 +326,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                 },
               ),
 
-              // «Cavab tapmadın? → Dəstəyə yaz»
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
@@ -445,7 +434,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Вопрос
                   Row(
                     children: [
                       Expanded(
@@ -488,7 +476,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                     ],
                   ),
 
-                  // Ответ (анимированный)
                   AnimatedCrossFade(
                     firstChild: const SizedBox.shrink(),
                     secondChild: Column(
@@ -511,7 +498,6 @@ class _FaqScreenState extends BaseState<FaqScreen, FaqBloc> {
                                 : const Color(0xFF4B5563),
                           ),
                           customStylesBuilder: (element) {
-                            // Стили для разных HTML элементов
                             if (element.localName == 'a') {
                               return {
                                 'color': isDark ? '#7FB6FF' : _brandHex,

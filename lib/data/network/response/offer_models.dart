@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'offer_models.g.dart';
 
-// ================ Main Response Model with Pagination ================
 @JsonSerializable()
 class OfferListResponse {
   final List<OfferModel> data;
@@ -17,7 +16,6 @@ class OfferListResponse {
   Map<String, dynamic> toJson() => _$OfferListResponseToJson(this);
 }
 
-// ================ Offer Model ================
 @JsonSerializable()
 class OfferModel {
   @JsonKey(name: 'id')
@@ -117,7 +115,6 @@ class OfferModel {
   Map<String, dynamic> toJson() => _$OfferModelToJson(this);
 }
 
-// ================ Offer Type Model ================
 @JsonSerializable()
 class OfferTypeModel {
   @JsonKey(name: 'code')
@@ -137,7 +134,6 @@ class OfferTypeModel {
   Map<String, dynamic> toJson() => _$OfferTypeModelToJson(this);
 }
 
-// ================ City Model ================
 @JsonSerializable()
 class CityModel {
   @JsonKey(name: 'id')
@@ -161,7 +157,6 @@ class CityModel {
   Map<String, dynamic> toJson() => _$CityModelToJson(this);
 }
 
-// ================ Package Type Model ================
 @JsonSerializable()
 class PackageTypeModel {
   @JsonKey(name: 'code')
@@ -185,7 +180,6 @@ class PackageTypeModel {
   Map<String, dynamic> toJson() => _$PackageTypeModelToJson(this);
 }
 
-// ================ Language Model ================
 @JsonSerializable()
 class LanguageModel {
   @JsonKey(name: 'code')
@@ -205,7 +199,6 @@ class LanguageModel {
   Map<String, dynamic> toJson() => _$LanguageModelToJson(this);
 }
 
-// ================ User Model ================
 @JsonSerializable()
 class UserModel {
   @JsonKey(name: 'id')
@@ -217,7 +210,6 @@ class UserModel {
   @JsonKey(name: 'avatar')
   final String? avatar;
 
-  /// Full-size avatar (`avatar_url`) — for the large/tap-to-open view.
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
 

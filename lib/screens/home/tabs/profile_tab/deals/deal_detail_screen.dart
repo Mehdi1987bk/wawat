@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -10,8 +9,10 @@ import '../../../../../services/localization_service.dart';
 import '../../../../../services/wawat_content.dart';
 import '../../../../chat/chat/chat_conversation_screen.dart';
 import '../new_profile/new_profile_screen.dart';
+import 'deal_action_runner.dart';
 import 'deal_action_sheets.dart';
 import 'deal_detail_bloc.dart';
+import 'widgets/deal_action_buttons.dart';
 import 'widgets/deal_flightpath.dart';
 import 'widgets/deal_status.dart';
 import 'widgets/deal_stepper.dart';
@@ -24,8 +25,6 @@ const _stepperStatuses = [
   'completed',
 ];
 
-// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не
-// меняется), тёмная ветка = единый графит из [WawatDark].
 Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
 Color _cScreen(bool d) => d ? WawatDark.bg : dealScreenBg;
 Color _cTitle(bool d) => d ? WawatDark.textPrimary : dealInk900;
@@ -53,12 +52,18 @@ class DealDetailScreen extends BaseScreen<DealDetailBloc> {
 
 class _DealDetailScreenState
     extends BaseState<DealDetailScreen, DealDetailBloc> {
-  /// UI id of the deal action currently being sent to the backend (null = idle).
-  /// Drives the in-button loader and blocks repeat taps on the action bar.
-  String? _busyAction;
+  static const _actionScope = 'deal';
+
+  final DealActionController _dealActions = DealActionController();
 
   @override
   DealDetailBloc provideBloc() => DealDetailBloc(widget.shipmentId);
+
+  @override
+  void dispose() {
+    _dealActions.dispose();
+    super.dispose();
+  }
 
   @override
   Color? backgroundColor() =>
@@ -304,6 +309,7 @@ class _DealDetailScreenState
       MaterialPageRoute(
           builder: (_) => ChatConversationScreen(conversation: conversation)),
     );
+    if (mounted) bloc.load();
   }
 
   void _openProfile(ShipmentData shipment) {
@@ -341,7 +347,6 @@ class _DealDetailScreenState
         comment: result['comment'] as String?,
       );
       if (!mounted) return;
-      // approved → published now (green); pending → sent to moderation.
       final fallback = review.isApproved
           ? tr('deals.review.published', 'Rəyiniz yayımlandı')
           : tr('deals.review.pending_moderation',
@@ -351,7 +356,7 @@ class _DealDetailScreenState
         isSuccess: review.isApproved,
       );
     } catch (error) {
-      if (mounted) _toast(_extractError(error), isError: true);
+      if (mounted) _toast(dealActionErrorMessage(error), isError: true);
     }
   }
 
@@ -383,150 +388,52 @@ class _DealDetailScreenState
         final shipment = snapshot.data?.shipment;
         final content = snapshot.data?.content ?? const {};
         if (shipment == null) return const SizedBox.shrink();
-        // Completed deals: pin the star-rating prompt at the bottom. Tapping a
-        // star opens the review sheet directly (no separate submit button).
+        final actions = snapshot.data?.actionsStale == true
+            ? const <DealAction>[]
+            : dealActionsOf(shipment, content);
+        final buttons = actions.isEmpty
+            ? null
+            : ListenableBuilder(
+                listenable: _dealActions,
+                builder: (context, _) => DealActionButtons(
+                  actions: actions,
+                  busyKey: _dealActions.busyKey(_actionScope),
+                  locked: _dealActions.isLocked(_actionScope),
+                  onAction: (action) =>
+                      _runDealAction(action, shipment, content),
+                ),
+              );
         if (shipment.status == 'completed' ||
             shipment.status == 'auto_completed') {
           return _ReviewBar(
             shipment: shipment,
             content: content,
             onReview: (rating) => _openReview(shipment, content, rating),
+            footer: buttons,
           );
         }
-        if (dealIsTerminal(shipment.status)) return const SizedBox.shrink();
-        return _ActionBar(
-          shipment: shipment,
-          content: content,
-          busyAction: _busyAction,
-          onAction: (action) {
-            if (_busyAction != null) return;
-            _handleAction(action, shipment, content);
-          },
-        );
+        if (buttons == null) return const SizedBox.shrink();
+        return _BottomBar(children: [buttons]);
       },
     );
   }
 
-  Future<void> _handleAction(
-    String action,
+  void _runDealAction(
+    DealAction action,
     ShipmentData shipment,
     Map<String, String> content,
-  ) async {
-    switch (action) {
-      case 'accept':
-        await _runAction('accept');
-        break;
-      case 'decline':
-        await _runAction('decline');
-        break;
-      case 'counter':
-        final body = await showDealCounterOfferSheet(context,
-            content: content, shipment: shipment);
-        if (body != null) await _runAction('counter', body: body);
-        break;
-      case 'withdraw':
-      case 'cancel':
-        final body = await showDealCancelSheet(context, content: content);
-        if (body != null) {
-          await _runAction('cancel', body: body, uiAction: action);
-        }
-        break;
-      case 'picked-up':
-        final confirmed = await showDealConfirmDialog(
-          context,
-          icon: PhosphorIconsFill.package,
-          iconColor: dealBrand,
-          title: WawatContent.text(
-            content,
-            'deals.confirm.picked_up.title',
-            'Malı götürdüyünüzü təsdiqləyirsiniz?',
-          ),
-          body: WawatContent.text(
-            content,
-            'deals.confirm.irreversible_body',
-            'Bu əməldən sonra sövdələşmə tamamlanmış sayılacaq və geri qaytarıla bilməz.',
-          ),
-          content: content,
-        );
-        if (confirmed) await _runAction('picked-up');
-        break;
-      case 'delivered':
-        final confirmed = await showDealConfirmDialog(
-          context,
-          icon: PhosphorIconsFill.mapPinLine,
-          iconColor: dealBrand,
-          title: WawatContent.text(
-            content,
-            'deals.confirm.delivered.title',
-            'Çatdırdığınızı təsdiqləyirsiniz?',
-          ),
-          body: WawatContent.text(
-            content,
-            'deals.confirm.irreversible_body',
-            'Bu əməldən sonra sövdələşmə tamamlanmış sayılacaq və geri qaytarıla bilməz.',
-          ),
-          content: content,
-        );
-        if (confirmed) await _runAction('delivered');
-        break;
-      case 'complete':
-        final confirmed = await showDealConfirmDialog(
-          context,
-          icon: PhosphorIconsFill.sealCheck,
-          iconColor: dealBrand,
-          title: WawatContent.text(
-            content,
-            'deals.confirm.complete.title',
-            'Malı aldığınızı təsdiqləyirsiniz?',
-          ),
-          body: WawatContent.text(
-            content,
-            'deals.confirm.irreversible_body',
-            'Bu əməldən sonra sövdələşmə tamamlanmış sayılacaq və geri qaytarıla bilməz.',
-          ),
-          content: content,
-        );
-        if (confirmed) await _runAction('complete');
-        break;
-      case 'dispute':
-        final body = await showDealDisputeSheet(context, content: content);
-        if (body != null) await _runAction('dispute', body: body);
-        break;
-    }
-  }
-
-  Future<void> _runAction(
-    String action, {
-    Map<String, dynamic>? body,
-    String? uiAction,
-  }) async {
-    if (_busyAction != null) return;
-    setState(() => _busyAction = uiAction ?? action);
-    try {
-      final message = await bloc.runAction(action, body: body);
-      if (mounted && message != null) _toast(message);
-    } catch (error) {
-      if (mounted) _toast(_extractError(error), isError: true);
-    } finally {
-      if (mounted) setState(() => _busyAction = null);
-    }
-  }
-
-  String _extractError(Object error) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map) {
-        final message = data['message'];
-        if (message is String && message.isNotEmpty) return message;
-        final errors = data['errors'];
-        if (errors is Map && errors.isNotEmpty) {
-          final first = errors.values.first;
-          if (first is List && first.isNotEmpty) return first.first.toString();
-        }
-      }
-    }
-    return tr(
-        'deals.error.action_failed', 'Əməliyyat alınmadı. Yenidən cəhd edin.');
+  ) {
+    _dealActions.run(
+      context,
+      scope: _actionScope,
+      action: action,
+      content: content,
+      prefill: DealCounterPrefill.fromShipment(shipment),
+      execute: (body) => bloc.runAction(action.endpoint, body: body),
+      onMessage: (message, {required isError}) {
+        if (mounted) _toast(message, isError: isError);
+      },
+    );
   }
 }
 
@@ -867,7 +774,6 @@ class _CancelReasonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Soft red treatment so the cancellation reads clearly as "cancelled".
     final redFg = isDark ? WawatDark.danger : dealRed600;
     final redBg = isDark ? WawatDark.surfaceAlt : dealRed50;
     final redBorder = isDark
@@ -1145,18 +1051,18 @@ class _CounterpartCard extends StatelessWidget {
   }
 }
 
-/// Pinned bottom bar for completed deals: a star row that submits directly —
-/// tapping a star opens the review sheet with that rating pre-selected (no
-/// separate submit button).
 class _ReviewBar extends StatefulWidget {
   final ShipmentData shipment;
   final Map<String, String> content;
   final ValueChanged<int> onReview;
 
+  final Widget? footer;
+
   const _ReviewBar({
     required this.shipment,
     required this.content,
     required this.onReview,
+    this.footer,
   });
 
   @override
@@ -1164,7 +1070,6 @@ class _ReviewBar extends StatefulWidget {
 }
 
 class _ReviewBarState extends State<_ReviewBar> {
-  // Reflects the last tapped rating (kept if the user backs out of the sheet).
   int _rating = 0;
 
   @override
@@ -1178,300 +1083,60 @@ class _ReviewBarState extends State<_ReviewBar> {
       'deals.review.question_template',
       '{name} ilə təcrübən necə idi?',
     ).replaceAll('{name}', counterpart?.fullname ?? '');
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: BoxDecoration(
-        color: isDark
-            ? WawatDark.surface.withValues(alpha: 0.96)
-            : Colors.white.withValues(alpha: 0.96),
-        border: Border(top: BorderSide(color: _cLine(isDark))),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              question,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: _cTitle(isDark),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (i) {
-                final value = i + 1;
-                final active = value <= _rating;
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    setState(() => _rating = value);
-                    widget.onReview(value);
-                  },
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Icon(
-                      active
-                          ? PhosphorIconsFill.star
-                          : PhosphorIconsRegular.star,
-                      color: const Color(0xFFF5B301),
-                      size: 36,
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ],
+    final footer = widget.footer;
+    return _BottomBar(
+      children: [
+        Text(
+          question,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: _cTitle(isDark),
+              fontSize: 14,
+              fontWeight: FontWeight.w600),
         ),
-      ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(5, (i) {
+            final value = i + 1;
+            final active = value <= _rating;
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() => _rating = value);
+                widget.onReview(value);
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Icon(
+                  active
+                      ? PhosphorIconsFill.star
+                      : PhosphorIconsRegular.star,
+                  color: const Color(0xFFF5B301),
+                  size: 36,
+                ),
+              ),
+            );
+          }),
+        ),
+        if (footer != null) ...[
+          const SizedBox(height: 12),
+          footer,
+        ],
+      ],
     );
   }
 }
 
-class _ActionBar extends StatelessWidget {
-  final ShipmentData shipment;
-  final Map<String, String> content;
-  final ValueChanged<String> onAction;
-  final String? busyAction;
+class _BottomBar extends StatelessWidget {
+  final List<Widget> children;
 
-  const _ActionBar({
-    required this.shipment,
-    required this.content,
-    required this.onAction,
-    this.busyAction,
-  });
-
-  bool get _anyBusy => busyAction != null;
-
-  /// While any action is in flight, only the tapped button reacts (as a
-  /// spinner) and the rest go inert — one tap, one request.
-  VoidCallback? _tap(String action) => _anyBusy ? null : () => onAction(action);
-
-  static Widget _spinner(Color color) => SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2.4,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-        ),
-      );
+  const _BottomBar({required this.children});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final actions = dealSupportedActions(shipment.availableActions);
-
-    if (shipment.status == 'proposal_pending' && !shipment.isAwaitingMe) {
-      return _bar(isDark, [
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: _tap('withdraw'),
-            style: OutlinedButton.styleFrom(
-              backgroundColor: isDark ? WawatDark.surfaceAlt : dealRed50,
-              foregroundColor: isDark ? WawatDark.danger : dealRed600,
-              side: BorderSide.none,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-            ),
-            child: busyAction == 'withdraw'
-                ? _spinner(isDark ? WawatDark.danger : dealRed600)
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(PhosphorIconsBold.arrowUUpLeft, size: 17),
-                      const SizedBox(width: 8),
-                      Text(
-                        WawatContent.text(content, 'deals.action.withdraw',
-                            'Təklifi geri götür'),
-                        style: const TextStyle(
-                            fontSize: 13.5, fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-      ]);
-    }
-
-    if (shipment.status == 'proposal_pending' && shipment.isAwaitingMe) {
-      return _bar(isDark, [
-        Row(
-          children: [
-            if (actions.contains('counter'))
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _tap('counter'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: _cInk700(isDark),
-                    side: BorderSide(color: _cLine(isDark)),
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: busyAction == 'counter'
-                      ? _spinner(_cInk700(isDark))
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(PhosphorIconsBold.arrowUUpLeft,
-                                size: 16),
-                            const SizedBox(width: 8),
-                            Text(
-                              dealActionLabel(content, 'counter'),
-                              style: const TextStyle(
-                                  fontSize: 13, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-            if (actions.contains('counter') && actions.contains('accept'))
-              const SizedBox(width: 8),
-            if (actions.contains('accept'))
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: _tap('accept'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: dealBrand,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: busyAction == 'accept'
-                      ? _spinner(Colors.white)
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(PhosphorIconsBold.check, size: 16),
-                            const SizedBox(width: 8),
-                            Text(
-                              dealActionLabel(content, 'accept'),
-                              style: const TextStyle(
-                                  fontSize: 13.5, fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-          ],
-        ),
-        if (actions.contains('decline'))
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: TextButton(
-              onPressed: _tap('decline'),
-              child: busyAction == 'decline'
-                  ? _spinner(isDark ? WawatDark.danger : dealRed600)
-                  : Text(
-                      dealActionLabel(content, 'decline'),
-                      style: TextStyle(
-                          color: isDark ? WawatDark.danger : dealRed600,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600),
-                    ),
-            ),
-          ),
-      ]);
-    }
-
-    Widget? primary;
-    if (shipment.status == 'accepted' && actions.contains('picked-up')) {
-      primary = _primaryButton(PhosphorIconsFill.package,
-          dealActionLabel(content, 'picked_up'), 'picked-up');
-    } else if (shipment.status == 'picked_up' &&
-        actions.contains('delivered')) {
-      primary = _primaryButton(PhosphorIconsFill.mapPinLine,
-          dealActionLabel(content, 'delivered'), 'delivered');
-    } else if (shipment.status == 'delivered' && actions.contains('complete')) {
-      primary = _primaryButton(PhosphorIconsFill.sealCheck,
-          dealActionLabel(content, 'complete'), 'complete');
-    }
-
-    final textLinks = <Widget>[];
-    if (actions.contains('dispute')) {
-      textLinks.add(_textLink(content, 'dispute', _cInk500(isDark)));
-    }
-    if (actions.contains('cancel')) {
-      textLinks.add(
-          _textLink(content, 'cancel', isDark ? WawatDark.danger : dealRed600));
-    }
-
-    if (primary == null && textLinks.isEmpty) return const SizedBox.shrink();
-
-    return _bar(isDark, [
-      if (primary != null) SizedBox(width: double.infinity, child: primary),
-      if (textLinks.isNotEmpty)
-        Padding(
-          padding: EdgeInsets.only(top: primary != null ? 8 : 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              for (var i = 0; i < textLinks.length; i++) ...[
-                if (i > 0) const SizedBox(width: 20),
-                textLinks[i],
-              ],
-            ],
-          ),
-        ),
-    ]);
-  }
-
-  Widget _primaryButton(IconData icon, String label, String action) {
-    return ElevatedButton(
-      onPressed: _tap(action),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: dealBrand,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      child: busyAction == action
-          ? _spinner(Colors.white)
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 17),
-                const SizedBox(width: 8),
-                Text(label,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
-              ],
-            ),
-    );
-  }
-
-  Widget _textLink(Map<String, String> content, String action, Color color) {
-    if (busyAction == action) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: _spinner(color),
-      );
-    }
-    return TextButton.icon(
-      onPressed: _tap(action),
-      icon: Icon(
-          action == 'dispute'
-              ? PhosphorIconsRegular.warningOctagon
-              : PhosphorIconsRegular.prohibit,
-          size: 15,
-          color: color),
-      label: Text(
-        dealActionLabel(content, action),
-        style:
-            TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  Widget _bar(bool isDark, List<Widget> children) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       decoration: BoxDecoration(

@@ -21,7 +21,6 @@ abstract class CacheManager {
 
   Stream<User?> get userDetails;
 
-
   Future<bool> isFirstOpen();
 
   Future<void> setIsFirstOpen();
@@ -29,12 +28,11 @@ abstract class CacheManager {
   Future<int?> getUserId();
   Future<String?> getToken();
 
-
   Future<void> saveLocale(Locale locale);
 
   Stream<Locale?> get locale;
 
   Locale? getLocale();
 
-  Future<Locale?> getLocaleAsync();  // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+  Future<Locale?> getLocaleAsync();
 }

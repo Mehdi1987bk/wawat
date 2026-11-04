@@ -9,7 +9,6 @@ import 'package:buking/services/date_labels.dart';
 
 import 'legal_api.dart';
 
-// ── palette ──────────────────────────────────────────────────────────────────
 const _brand = Color(0xFF017BFE);
 const _ink900 = Color(0xFF0F172A);
 const _ink700 = Color(0xFF334155);
@@ -42,7 +41,7 @@ Color _cShimmer(bool d, bool hi) => d
 String _fmtDate(DateTime d) => '${d.day} ${monthFull(d.month)} ${d.year}';
 
 class LegalDocScreen extends StatefulWidget {
-  final String slug; // terms | privacy
+  final String slug;
   final String title;
 
   const LegalDocScreen({super.key, required this.slug, required this.title});
@@ -180,8 +179,6 @@ class _LegalDocScreenState extends State<LegalDocScreen> {
   }
 }
 
-/// Minimal markdown → widgets: `#`/`##`/`###` headings, `-`/`*` bullets,
-/// blank-line-separated paragraphs, inline `**bold**`. Enough for CMS legal copy.
 class _Markdown {
   static List<Widget> render(String body, bool d) {
     final widgets = <Widget>[];
@@ -274,7 +271,6 @@ class _Markdown {
         ),
       );
 
-  /// Splits on `**` toggling bold.
   static TextSpan _spans(String text, TextStyle base) {
     final parts = text.split('**');
     if (parts.length == 1) return TextSpan(text: text, style: base);

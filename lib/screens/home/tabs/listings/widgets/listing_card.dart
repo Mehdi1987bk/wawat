@@ -19,15 +19,10 @@ Future<Map<String, String>> _loadListingContent() {
   return _listingContentFuture ??= WawatContent.loadDefault();
 }
 
-/// The listing-feed API doesn't always embed the owner's avatar (name, rating
-/// and tier come through, but the photo is often missing). This resolves the
-/// avatar on demand from `GET /users/{id}` and caches it for the session so a
-/// given owner is fetched at most once, no matter how many cards show them.
 class _OwnerAvatarCache {
-  static final Map<String, String> _resolved = {}; // id -> url ('' = none)
+  static final Map<String, String> _resolved = {};
   static final Map<String, Future<String>> _inFlight = {};
 
-  /// Session-cached result, or null if this owner hasn't been resolved yet.
   static String? cached(String id) => _resolved[id];
 
   static Future<String> resolve(String id) {
@@ -39,7 +34,6 @@ class _OwnerAvatarCache {
   static Future<String> _load(String id) async {
     try {
       final user = await WawatProfileApi().user(id);
-      // Card avatar is small — prefer the 96×96 thumbnail.
       final full = user.avatarUrl?.trim() ?? '';
       final thumb = user.avatarThumbUrl?.trim() ?? '';
       final url = thumb.isNotEmpty ? thumb : full;
@@ -47,7 +41,7 @@ class _OwnerAvatarCache {
       return url;
     } catch (_) {
       _resolved[id] =
-          ''; // remember the miss so we don't refetch on every scroll
+          '';
       return '';
     } finally {
       _inFlight.remove(id);
@@ -112,7 +106,6 @@ class _ListingCardState extends State<ListingCard> {
   bool _isFavoriteBusy = false;
   late final Future<Map<String, String>> _contentFuture;
 
-  /// Owner avatar resolved lazily when the feed payload omits it.
   String? _resolvedOwnerAvatar;
 
   @override
@@ -137,8 +130,6 @@ class _ListingCardState extends State<ListingCard> {
     }
   }
 
-  /// Fills in a missing owner photo from the user endpoint (see
-  /// [_OwnerAvatarCache]). No-op when the feed already provided the avatar.
   void _resolveOwnerAvatar() {
     final owner = widget.listing.owner;
     if (owner == null || owner.avatarThumbUrl.isNotEmpty) return;
@@ -157,23 +148,15 @@ class _ListingCardState extends State<ListingCard> {
     });
   }
 
-  /// The avatar URL to render: the feed's own value, else the lazily resolved
-  /// one, else '' (initials fallback).
   String _ownerAvatarUrl(ListingOwner owner) {
-    // Thumbnail for the small card avatar (falls back to full when no thumb).
     if (owner.avatarThumbUrl.isNotEmpty) return owner.avatarThumbUrl;
     return _resolvedOwnerAvatar ?? '';
   }
 
   bool get _isTrip => widget.listing.isTrip;
 
-  /// Fully booked (no space) AND not my own listing → render read-only/greyed:
-  /// muted accents, grey card, disabled "send offer". Owners still see their
-  /// full listing in the normal style so they can manage it.
   bool get _readonly => widget.listing.isFull && !widget.isOwner;
 
-  /// Акцент как ТЕКСТ/ИКОНКА: бренд-синий (səfər) или янтарь (göndəriş).
-  /// В dark: trip → brandText, shipment → warning. Read-only → серый.
   Color _accentOf(bool isDark) {
     if (_readonly) {
       return isDark ? WawatDark.textMuted : const Color(0xFF94A3B8);
@@ -184,8 +167,6 @@ class _ListingCardState extends State<ListingCard> {
     return _isTrip ? const Color(0xFF0271EB) : const Color(0xFFF59E0B);
   }
 
-  /// Мягкая плашка под акцент. В dark: trip → brandChip, shipment → warningBg.
-  /// Read-only → серая.
   Color _accentSoftOf(bool isDark) {
     if (_readonly) {
       return isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9);
@@ -201,8 +182,6 @@ class _ListingCardState extends State<ListingCard> {
       widget.listing.promotion?.type ??
       widget.listing.promotionType;
 
-  /// A promotion is running on this listing → its status panel stays visible
-  /// even when the listing can no longer be promoted (only the CTAs go).
   bool get _hasRunningPromotion {
     final type = widget.listing.promotion?.type ?? widget.listing.promotionType;
     return type != null && type.isNotEmpty;
@@ -212,7 +191,6 @@ class _ListingCardState extends State<ListingCard> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final readonly = _readonly;
-    // Fully-booked (read-only) card: grey fill, muted title text, no gold ring.
     final cardColor = readonly
         ? (isDark ? WawatDark.surfaceAlt : const Color(0xFFF8FAFC))
         : cCard(isDark);
@@ -221,11 +199,7 @@ class _ListingCardState extends State<ListingCard> {
         : cText(isDark);
     final mutedColor = isDark ? WawatDark.textMuted : const Color(0xFF64748B);
     final isVipCard = _promotionType == 'vip' && !readonly;
-    // VIP → золотое кольцо, иначе тонкая обводка (в dark — карточная обводка).
     final borderColor = isVipCard
-        // Border matches the VIP badge fill exactly in both themes:
-        // dark → WawatDark.gold, light → 0xFFFBBF24 (same as the "VIP" chip),
-        // not the dimmer 0xFFF59E0B / 55% goldRing used before.
         ? (isDark ? WawatDark.gold : const Color(0xFFFBBF24))
         : readonly
             ? (isDark ? WawatDark.border : const Color(0x14000000))
@@ -382,7 +356,6 @@ class _ListingCardState extends State<ListingCard> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Share sits to the left of the like on every listing.
               _headerIcon(
                 icon: PhosphorIconsRegular.shareNetwork,
                 color: cFaint(isDark),
@@ -413,8 +386,6 @@ class _ListingCardState extends State<ListingCard> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      // 44×44 comfortable touch target — the bare glyph (~24px) was too small
-      // to hit reliably. The icon itself is unchanged; only the tap area grew.
       child: SizedBox(
         width: 44,
         height: 44,
@@ -424,7 +395,6 @@ class _ListingCardState extends State<ListingCard> {
   }
 
   void _shareListing() {
-    // Open the OS share sheet (WhatsApp, Telegram, …) instead of a bare copy.
     shareListing(widget.listing, context);
   }
 
@@ -462,9 +432,6 @@ class _ListingCardState extends State<ListingCard> {
   Widget _buildMainMeta(Color textColor, Color mutedColor, bool isDark) {
     return Row(
       children: [
-        // Date chip: natural width on the left (no flex, so the time is never
-        // truncated). The Spacer eats the free space so the price pill is pinned
-        // to the right edge — neither pill is flexible, so nothing gets capped.
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 9),
           decoration: BoxDecoration(
@@ -498,8 +465,6 @@ class _ListingCardState extends State<ListingCard> {
         const SizedBox(width: 10),
         const Spacer(),
         if (_isTrip && widget.listing.allowPriceNegotiation == true)
-          // Negotiable price → a polished accent pill (handshake + "kq/$"), so
-          // "by agreement" reads as a deliberate per-kg state, not a missing price.
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
             decoration: BoxDecoration(
@@ -748,8 +713,6 @@ class _ListingCardState extends State<ListingCard> {
                   backgroundImage: avatarUrl.isEmpty
                       ? null
                       : CachedNetworkImageProvider(avatarUrl),
-                  // Initials stay as the fallback until (or unless) the photo
-                  // loads (either from the feed or the lazy user fetch).
                   child: avatarUrl.isEmpty
                       ? Text(
                           initials,
@@ -881,9 +844,6 @@ class _ListingCardState extends State<ListingCard> {
   }
 
   Widget _buildPublicActions(Color textColor, bool isDark) {
-    // Основная CTA — сплошная акцент-ЗАЛИВКА (не меняем в dark): trip синий,
-    // göndəriş янтарь. Белый текст на ней остаётся.
-    // Полностью занятое объявление: CTA задизейблена (мест нет), «Mesaj» жив.
     final offerDisabled = _readonly;
     final ctaBackground = offerDisabled
         ? (isDark ? WawatDark.surfaceAlt : const Color(0xFFEDF1F5))
@@ -928,9 +888,6 @@ class _ListingCardState extends State<ListingCard> {
     );
   }
 
-  /// Only the actions the backend allows in the current status (see
-  /// [Listing.canBePaused] & co.) — a button that can only end in a 403 isn't
-  /// rendered. Empty for a deleted listing.
   List<Widget> _ownerActionButtons(bool isDark) {
     final listing = widget.listing;
     return [
@@ -999,10 +956,7 @@ class _ListingCardState extends State<ListingCard> {
     final promotionType = promotion?.type ?? widget.listing.promotionType;
     final isVip = promotionType == 'vip';
     final isFeatured = promotionType == 'featured';
-    // Only active / moderation listings get VIP / boost / extend CTAs.
     final canPromote = widget.listing.canBePromoted;
-    // VIP and boost are exclusive one way: a VIP listing gets no boost CTA, a
-    // boosted listing may still go VIP.
     final canBoost = widget.listing.canBuyBoost;
 
     if (promotionType == null || promotionType.isEmpty) {
@@ -1073,11 +1027,9 @@ class _ListingCardState extends State<ListingCard> {
     }
 
     final remaining = _promotionRemaining(promotion);
-    // Заливка активного промо-бейджа: VIP → золото, featured → бренд.
     final accent = isVip
         ? (isDark ? WawatDark.gold : const Color(0xFFFBBF24))
         : (isDark ? WawatDark.brand : const Color(0xFF0271EB));
-    // Тон текста/иконки на мягкой плашке промо.
     final accentTint = isVip
         ? (isDark ? WawatDark.goldSoftText : const Color(0xFFB45309))
         : (isDark ? WawatDark.brandText : const Color(0xFF0271EB));
@@ -1188,7 +1140,6 @@ class _ListingCardState extends State<ListingCard> {
               ],
             ],
           ),
-          // A boosted listing can still be upgraded to VIP.
           if (!isVip && widget.listing.canBuyVip) ...[
             const SizedBox(height: 10),
             _ActionButton(
@@ -1330,8 +1281,6 @@ class _ListingCardState extends State<ListingCard> {
     return DateFormat('d MMM', locale).format(date);
   }
 
-  /// Normalises any time-ish string to `HH:mm` (drops seconds).
-  /// Handles full ISO datetimes, `HH:mm:ss`, `HH:mm` and `H:mm`.
   String? _formatTime(String? value) {
     if (value == null || value.trim().isEmpty) return null;
     final raw = value.trim();
@@ -1429,8 +1378,6 @@ class _RouteLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Точки-города и пунктир — усиленный бренд-текст в dark (для səfər);
-    // для göndəriş остаётся акцент (янтарь).
     final dotColor = isDark && isTrip ? WawatDark.brandTextStrong : accent;
     final dashColor = isDark
         ? (isTrip
@@ -1475,7 +1422,6 @@ class _RouteDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Полая точка назначения: заливка карточкой + кольцо фокуса в dark.
     final outlineFill = isDark ? cCard(true) : Colors.white;
     final outlineRing = isDark ? WawatDark.focusRing : color;
     return Container(

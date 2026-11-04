@@ -1,9 +1,3 @@
-/// Result of `POST /shipments/{id}/review`.
-///
-/// The backend decides whether a review is published immediately or held for
-/// moderation and returns that in `data.status`:
-///   • "approved" → live now, target rating updated instantly (4–5★, no comment).
-///   • "pending"  → sent to moderation (1–3★, or 4–5★ with a comment).
 class ReviewSubmitResult {
   final String status;
   final String message;

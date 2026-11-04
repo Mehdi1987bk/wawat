@@ -16,9 +16,6 @@ class AuthModalUtils {
     );
   }
 
-  /// Opens registration directly, without the intermediate "authorization
-  /// required" choice. Used for guest-only navigation targets where the
-  /// product flow explicitly requires account creation.
   static Future<void> showRegistration(
     BuildContext context, {
     VoidCallback? onSuccess,

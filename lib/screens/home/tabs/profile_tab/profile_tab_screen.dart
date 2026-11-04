@@ -44,12 +44,9 @@ import 'tier/tier_badge.dart';
 import 'tier/tier_status_screen.dart';
 import 'verification/verification_screen.dart';
 
-const _brand = Color(0xFF017BFE); // бренд-заливка (кнопки/иконки) — не меняется
-const _ink900 = Color(0xFF0F172A); // светлый near-black (snackbar/danger light)
-const _ink700 = Color(0xFF334155); // светлый ink для отдельных light-веток
-
-// Тема-зависимые цвета вынесены в общий theme_colors.dart (c*(isDark)) —
-// одна navy-палитра на всё приложение.
+const _brand = Color(0xFF017BFE);
+const _ink900 = Color(0xFF0F172A);
+const _ink700 = Color(0xFF334155);
 
 String _text(Map<String, String> content, String key, String fallback) {
   return WawatContent.text(content, key, fallback);
@@ -70,8 +67,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
   late Future<int> _activeDealsCountFuture;
   late Future<int> _promoActiveCountFuture;
   String? _preferredLocaleOverride;
-  // Last successfully loaded bundle — kept so pull-to-refresh (and any reload)
-  // can leave the page on screen instead of flashing the full-screen skeleton.
   WawatProfileBundle? _lastBundle;
 
   @override
@@ -90,8 +85,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
 
   @override
   void onLocaleChanged() {
-    // Backend-localized profile data (tier, stats, verification labels) is
-    // cached in the loaded bundle — re-pull it in the new language.
     _reload();
   }
 
@@ -151,10 +144,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
     });
   }
 
-  /// Pull-to-refresh: refetch in the background while the page stays visible
-  /// (the `RefreshIndicator`'s own top spinner is the only progress shown — no
-  /// full-screen skeleton, thanks to [_lastBundle]). Awaits the main bundle so
-  /// the indicator stays until the data actually arrives.
   Future<void> _refresh() async {
     final bundleFuture = _load();
     setState(() {
@@ -326,12 +315,9 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                       Navigator.of(sheetContext).pop();
                       final localeCode = item.code == 'ua' ? 'uk' : item.code;
                       try {
-                        // 1) Локально сохраняем язык → Accept-Language-интерцептор
-                        //    и MaterialApp.locale переключаются (uk для украинского).
                         await sl
                             .get<CacheManager>()
                             .saveLocale(Locale(localeCode));
-                        // 2) Рефетч всей CMS-карты на новом языке (сброс ETag).
                         await LocalizationService.instance
                             .changeLocale(item.code);
                         if (mounted) {
@@ -343,8 +329,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
                         return;
                       }
 
-                      // 3) Сохраняем предпочтение в профиле. Ошибка синхронизации
-                      // не должна отменять уже применённый локально язык.
                       try {
                         await _api.updateProfile(
                           {'preferred_locale': item.code},
@@ -471,7 +455,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
     await sl.get<AuthRepository>().logout();
     await NotificationSocketService.instance.onLogout();
     if (!mounted) return;
-    // Clear the whole stack and drop back to a fresh (guest) home page.
     Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => HomeScreen()),
       (route) => false,
@@ -480,16 +463,11 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Смена языка обновляет строки, но не меняет _future: профиль не уходит в
-    // skeleton и не загружает заново пользовательские данные.
     context.watch<LocalizationService>();
     return FutureBuilder<WawatProfileBundle>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.hasData) _lastBundle = snapshot.data;
-        // While a refresh is in flight, keep the previously loaded page on
-        // screen; only the very first load (no cached bundle) shows the
-        // skeleton, and only a hard failure with nothing cached shows the error.
         final bundle = snapshot.data ?? _lastBundle;
         if (bundle == null) {
           if (snapshot.connectionState != ConnectionState.done) {
@@ -500,8 +478,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen>
         final content = bundle.content;
         final user = bundle.user;
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        // "Elanlarım" opens ALL my listings (any status), so the badge must be
-        // the total — not just the active count, which understated it.
         final myListingsCount = user.stats.listingsTotal ??
             user.stats.listingsActive ??
             bundle.listings.data.length;
@@ -1023,8 +999,6 @@ class _MenuAvatar extends StatelessWidget {
     final full = user.avatarUrl;
     Widget child;
     if (thumb != null && thumb.isNotEmpty) {
-      // Thumbnails may 404 (not generated) — fall back to the full image,
-      // then to initials, instead of rendering a broken-image icon.
       final hasFull = full != null && full.isNotEmpty && full != thumb;
       child = _image(thumb,
           onError: hasFull ? _image(full, onError: _initials()) : _initials());
@@ -1036,8 +1010,6 @@ class _MenuAvatar extends StatelessWidget {
     final avatar =
         ClipRRect(borderRadius: BorderRadius.circular(18), child: child);
 
-    // Tapping the photo opens it full-screen; the rest of the card still opens
-    // the profile (this inner gesture wins the tap over the card's).
     final viewUrl = (full != null && full.isNotEmpty)
         ? full
         : (thumb != null && thumb.isNotEmpty ? thumb : null);
@@ -1223,8 +1195,6 @@ class _MenuRow extends StatelessWidget {
   }
 }
 
-/// Menu row that toggles the app light/dark theme via [ThemeManager], with an
-/// animated day↔night switch (sliding sun/moon knob) as its trailing control.
 class _ThemeModeRow extends StatelessWidget {
   final String label;
 
@@ -1282,9 +1252,6 @@ class _ThemeModeRow extends StatelessWidget {
   }
 }
 
-/// Animated day/night toggle: a gradient track (sky blue ↔ night navy), a
-/// sliding white knob whose icon cross-fades sun ↔ moon, and stars that appear
-/// at night. Purely visual — the parent row owns the tap/toggle.
 class _ThemeSwitch extends StatelessWidget {
   final bool isDark;
 
@@ -1368,7 +1335,6 @@ class _ThemeSwitch extends StatelessWidget {
   }
 }
 
-/// Fades the three stars in (night) / out (day) together.
 class _StarLayer extends StatelessWidget {
   final bool show;
 

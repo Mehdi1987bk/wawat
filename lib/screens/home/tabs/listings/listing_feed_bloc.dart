@@ -19,15 +19,6 @@ import '../../../../services/telemetry/telemetry.dart';
 import '../../../../services/telemetry/telemetry_events.dart';
 import '../../../../services/wawat_content.dart';
 
-/// GA4-событие `search` для любой точки входа в поиск.
-///
-/// Живёт рядом с [ListingFilterState], а не в экранах: поиск запускается из
-/// формы, из популярных маршрутов и из повторного поиска в выдаче, и все три
-/// должны попадать в одну воронку с одинаковыми параметрами.
-///
-/// В `search_term` уходит маршрут («Баку → Стамбул»), а не свободный текст:
-/// он и есть запрос пользователя в этом приложении, и по нему сразу видно,
-/// какие направления реально ищут.
 void logSearchEvent(ListingFilterState filters, {required String source}) {
   Telemetry.instance.event(TelemetryEvents.search, params: {
     TelemetryParams.searchTerm:
@@ -56,9 +47,6 @@ class ListingFilterState {
   final double? priceMax;
   final double? ratingMin;
 
-  /// Minimum user tier ("this level and above"): null | new | standard |
-  /// bronze | silver | gold | platinum. Sent to the API as `tier_min`; the
-  /// server applies the threshold (e.g. silver → silver+gold+platinum only).
   final String? tierMin;
   final String sort;
 
@@ -312,12 +300,8 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
     return load(refresh: true, cancelable: true);
   }
 
-  /// Re-fetches the backend-localized labels (package-type names, listing CMS
-  /// strings) in the now-current language, WITHOUT touching the result list.
-  /// The feed lives in a kept-alive tab, so a language switch does not rebuild
-  /// it — call this to refresh the labels in place.
   Future<void> reloadLocalizedLabels() async {
-    _packageTypes = null; // drop the one-shot caches so the loaders refetch
+    _packageTypes = null;
     _listingContent = null;
     await Future.wait([
       loadPackageTypes(),
@@ -325,9 +309,6 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
     ]);
   }
 
-  /// Labels + the feed itself, in the now-current language. Used where the list
-  /// is always visible (Home). Search calls [reloadLocalizedLabels] and only
-  /// re-runs the query when results are already shown.
   Future<void> reloadForLocaleChange() async {
     await reloadLocalizedLabels();
     await refreshList();

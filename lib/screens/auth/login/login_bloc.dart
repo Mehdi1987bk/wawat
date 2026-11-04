@@ -27,9 +27,9 @@ class LoginBloc extends BaseBloc {
 
     try {
       await _authRepository.login(request);
-      // Access token уже сохранён репозиторием. До завершения login flow сразу
-      // регистрируем актуальный FCM token авторизованным запросом.
-      await _syncFcmTokenAfterAuth();
+      if (!_authRepository.awaitingEmailVerification) {
+        await _syncFcmTokenAfterAuth();
+      }
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);
@@ -84,8 +84,6 @@ class LoginBloc extends BaseBloc {
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {
-    // Отправляет сам сервис: он ставит метку времени, по которой возврат из
-    // фона решает, нужна ли переотправка, и логирует неудачу.
     await PushNotificationService().syncToken(reason: 'login');
   }
 }

@@ -1,11 +1,10 @@
-/// A single row of `GET /users/search`. Ids are string public_ids.
 class UserSearchItem {
   final String id;
   final String fullName;
   final String? username;
   final String? avatarThumbUrl;
   final bool isVerified;
-  final String? tier; // "gold"/... | null → no chip
+  final String? tier;
   final bool isOnline;
   final double? ratingAvg;
   final int ratingCount;
@@ -24,7 +23,6 @@ class UserSearchItem {
     this.completedShipments = 0,
   });
 
-  /// No ratings yet → the card shows "new user" instead of stars.
   bool get isNewUser => ratingCount <= 0;
 
   factory UserSearchItem.fromJson(Map<String, dynamic> json) {
@@ -64,7 +62,6 @@ class UserSearchItem {
     );
   }
 
-  /// Compact JSON for the local "recent searches" cache.
   Map<String, dynamic> toRecentJson() => {
         'id': id,
         'full_name': fullName,
@@ -75,7 +72,6 @@ class UserSearchItem {
       };
 }
 
-/// One page of user-search results plus the pagination meta.
 class UserSearchPage {
   final List<UserSearchItem> items;
   final int currentPage;

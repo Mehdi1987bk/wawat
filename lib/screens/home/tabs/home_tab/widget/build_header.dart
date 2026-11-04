@@ -45,7 +45,6 @@ Widget BuildHeader(
           ),
         ),
 
-        /// 🔔 Notifications
         GestureDetector(
           onTap: () async {
             final isLogged = await sl.get<AuthRepository>().isLogged();
@@ -63,7 +62,6 @@ Widget BuildHeader(
               ),
             );
 
-            /// 🔥 пользователь вернулся назад
             onNotificationsReturned();
           },
           child: Stack(
@@ -83,7 +81,6 @@ Widget BuildHeader(
                 ),
               ),
 
-              /// 🔴 BADGE
               if (unreadCount > 0)
                 Positioned(
                   right: -2,

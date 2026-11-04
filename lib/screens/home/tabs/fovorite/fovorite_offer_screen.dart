@@ -41,7 +41,6 @@ class _FovoriteOfferListScreenState
   @override
   void initState() {
     super.initState();
-    // Shared app-wide singleton — refresh its count on open, never dispose here.
     _notificationBloc = sl.get<UnreadNotificationBloc>()..fetchUnreadCount();
     bloc.loadPackageTypes();
     bloc.load();
@@ -138,7 +137,6 @@ class _FovoriteOfferListScreenState
   @override
   void dispose() {
     _scrollController.dispose();
-    // _notificationBloc is a shared singleton — do not dispose it here.
     super.dispose();
   }
 

@@ -65,7 +65,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
     WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
-    // Surface block/unblock failures (422, missing id, network) to the user.
     _actionErrorSubscription = bloc.actionErrorsStream.listen((error) {
       if (mounted) showTopSnackbar(_extractError(error), false, context);
     });
@@ -73,7 +72,7 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
     _lifecycleListener = AppLifecycleListener(
       onResume: () {
         bloc.reconnectRealtime();
-        bloc.refreshCurrent();
+        bloc.refreshIfVisible();
         sl.get<UnreadChatBloc>().fetchUnreadCount();
       },
     );
@@ -115,8 +114,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
     super.dispose();
   }
 
-  /// Pull a human message out of a Dio/validation error, mirroring the
-  /// conversation screen's extractor.
   String _extractError(Object error) {
     if (error is DioException) {
       final data = error.response?.data;
@@ -146,7 +143,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
     });
   }
 
-  /// Client-side filter over the loaded conversations by name / username.
   List<Conversation> _applySearch(List<Conversation> source) {
     final query = _searchQuery.trim().toLowerCase();
     if (query.isEmpty) return source;
@@ -200,10 +196,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
                         final conversations = List<Conversation>.from(
                           snapshot.data ?? const <Conversation>[],
                         );
-                        // The ARCHIVED list is already ordered by the server
-                        // (chats with unread on top by last-message time, then
-                        // by archive order) — keep it as-is. Only the main list
-                        // is sorted client-side (pins first, then recency).
                         if (!_showArchived) {
                           conversations.sort(_sortConversations);
                         }
@@ -281,10 +273,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
 
                               final conversation = visible[index];
                               return ConversationItem(
-                                // Stable identity so a reorder (new message
-                                // bumps a row up) moves the element instead of
-                                // rebuilding rows in place — no avatar flicker,
-                                // no scroll jump.
                                 key: ValueKey(conversation.id),
                                 conversation: conversation,
                                 deletedLabel:
@@ -321,9 +309,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
     } else if (aTime != null && bTime == null) {
       return -1;
     }
-    // Deterministic tiebreaker: equal-time (or timeless) rows must keep a stable
-    // order across the periodic re-sorts, otherwise Dart's unstable sort would
-    // swap them every refresh and the list would visibly jitter.
     return a.id.compareTo(b.id);
   }
 
@@ -334,8 +319,6 @@ class ChatListScreenState extends BaseState<ChatListScreen, ChatListBloc>
         builder: (_) => ChatConversationScreen(conversation: conversation),
       ),
     );
-    // Non-destructive: keeps the scroll position/pagination from before opening
-    // the chat (a full reload would snap the list back to the top).
     await bloc.refreshCurrent();
     sl.get<UnreadChatBloc>().fetchUnreadCount();
   }
@@ -626,7 +609,6 @@ class _TabChip extends StatelessWidget {
   final bool isDark;
   final VoidCallback onTap;
 
-  /// Unread count shown as a small bubble next to the label (0 → hidden).
   final int badge;
 
   const _TabChip({

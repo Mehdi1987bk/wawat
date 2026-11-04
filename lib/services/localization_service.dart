@@ -8,20 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import 'wawat_content.dart';
 
-/// Единый источник UI-текстов из CMS: GET /content?lang={locale}.
-///
-/// - Грузит ВСЮ карту key→value для текущего языка (источник истины по ключам —
-///   ответ бэка, список ключей не хардкодим).
-/// - Кэширует карту на диск (SharedPreferences) + ETag; при рефетче шлёт
-///   If-None-Match, на 304 оставляет кэш.
-/// - Рефетч ТОЛЬКО при смене языка ([changeLocale]) или явном force.
-/// - Глобальный доступ без context — функция [t] в конце файла.
 class LocalizationService extends ChangeNotifier {
   LocalizationService._();
   static final LocalizationService instance = LocalizationService._();
 
-  static const _mapPrefix = 'l10n.map.'; // + locale
-  static const _etagPrefix = 'l10n.etag.'; // + locale
+  static const _mapPrefix = 'l10n.map.';
+  static const _etagPrefix = 'l10n.etag.';
 
   Map<String, String> _map = const {};
   String _locale = 'az';
@@ -30,23 +22,17 @@ class LocalizationService extends ChangeNotifier {
   String get locale => _locale;
   bool get isLoaded => _loaded;
 
-  /// Нормализация кода языка. Псевдоним uk = ua. Поддерживаемые: az,en,ru,tr,ua,es.
   static String normalize(String code) {
     final c = code.trim().toLowerCase();
     if (c == 'uk') return 'ua';
     return c.isEmpty ? 'az' : c;
   }
 
-  /// Загрузка контента для [locale]: сначала мгновенно из диск-кэша, затем
-  /// сверка с сервером по ETag (в фоне; 304 → кэш актуален).
   Future<void> load(String locale, {bool force = false}) async {
     _locale = normalize(locale);
-    // Держим WawatContent в курсе языка: от него зависит ключ кэша групп и
-    // параметр lang группового запроса /content.
     WawatContent.locale = _locale;
     final prefs = await SharedPreferences.getInstance();
 
-    // 1) мгновенно из диска — чтобы UI не ждал сеть.
     final cached = prefs.getString('$_mapPrefix$_locale');
     if (cached != null && cached.isNotEmpty) {
       _map = _decode(cached);
@@ -55,7 +41,6 @@ class LocalizationService extends ChangeNotifier {
       notifyListeners();
     }
 
-    // 2) сверка с сервером (короткий таймаут — не вешаем старт офлайн).
     final etag = force ? null : prefs.getString('$_etagPrefix$_locale');
     try {
       final res = await sl
@@ -65,7 +50,6 @@ class LocalizationService extends ChangeNotifier {
             queryParameters: {'lang': _locale},
             options: Options(
               headers: {if (etag != null) 'If-None-Match': etag},
-              // 304 — валидный ответ (контент не изменился), не ошибка.
               validateStatus: (s) => s != null && s < 500,
               receiveTimeout: const Duration(seconds: 12),
             ),
@@ -74,7 +58,7 @@ class LocalizationService extends ChangeNotifier {
 
       if (res.statusCode == 304) {
         _loaded = true;
-        return; // диск-кэш актуален
+        return;
       }
       final raw = res.data?['data'];
       if (raw is Map) {
@@ -89,23 +73,15 @@ class LocalizationService extends ChangeNotifier {
         notifyListeners();
       }
     } catch (_) {
-      // офлайн/таймаут/ошибка — остаёмся на диск-кэше или AZ-фолбэках.
       _loaded = true;
     }
   }
 
-  /// Смена языка в рантайме: сбросить кэш контента (иначе экраны на
-  /// WawatContent.load/loadAll останутся на старом языке), рефетчить, перестроить UI.
   Future<void> changeLocale(String locale) {
     WawatContent.clearCache();
     return load(locale, force: true);
   }
 
-  /// Перевод ключа `group.key`. Подстановка {placeholder} из [params].
-  ///
-  /// Fallback: CMS-значение → аварийная AZ-строка из [WawatContent.fallbacks] →
-  /// пустая строка. Сам ключ пользователю НЕ показываем никогда (требование
-  /// владельца): лучше пусто, чем `search.post_opposite_soon` в тосте.
   String t(String key, [Map<String, String>? params]) {
     final raw = _map[key];
     var value = (raw == null || raw.trim().isEmpty || raw == key)
@@ -117,9 +93,6 @@ class LocalizationService extends ChangeNotifier {
     return value;
   }
 
-  /// Raw CMS value for [key], or null when the key isn't in the loaded map.
-  /// Unlike [t], never returns a humanized key or the [WawatContent.fallbacks]
-  /// entry — so callers can supply their own inline fallback.
   String? rawValue(String key) {
     final v = _map[key];
     if (v == null || v.trim().isEmpty || v == key) return null;
@@ -137,23 +110,9 @@ class LocalizationService extends ChangeNotifier {
   }
 }
 
-/// Глобальный перевод без BuildContext: `t('common.continue')`,
-/// `t('create.step_template', {'step': '2', 'total': '3'})`.
 String t(String key, [Map<String, String>? params]) =>
     LocalizationService.instance.t(key, params);
 
-/// CMS translation with an INLINE fallback — the primitive for migrating a
-/// hardcoded string. Returns the CMS value for [key] when the content is
-/// loaded, otherwise [fallback] (the original hardcoded text). Any
-/// `{placeholder}` tokens in the resulting string are filled from [params].
-///
-/// Migration examples:
-///   Text('Ləğv et')                    → Text(tr('common.cancel', 'Ləğv et'))
-///   Text('Salam, $name')               → Text(tr('home.greeting', 'Salam, {name}', {'name': name}))
-///   hintText: 'Axtar…'                  → hintText: tr('search.hint', 'Axtar…')
-///
-/// Because the fallback equals the original text, the screen looks identical
-/// before AND after the backend adds the key — only the localization improves.
 String tr(String key, String fallback, [Map<String, String>? params]) {
   final raw = LocalizationService.instance.rawValue(key);
   var value = raw ?? fallback;

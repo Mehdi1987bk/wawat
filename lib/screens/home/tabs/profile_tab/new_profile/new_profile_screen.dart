@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:buking/presentation/common/app_bottom_sheet.dart';
+import 'package:buking/presentation/common/camera_permission.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -52,8 +54,6 @@ const _amber = Color(0xFFE8A400);
 const _amber50 = Color(0xFFFEF6E7);
 const _emerald = Color(0xFF10B981);
 
-// Тема-зависимые цвета. Светлая ветка = точь-в-точь как было (белый режим не меняется),
-// тёмная ветка = единый графит из [WawatDark].
 Color _cScreen(bool d) => d ? WawatDark.bg : _screen;
 Color _cCard(bool d) => d ? WawatDark.surface : Colors.white;
 Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
@@ -95,7 +95,6 @@ class WawatProfileScreen extends StatefulWidget {
   final ListingOwner? initialOwner;
   final bool isSelf;
 
-  /// Tab to open on: 0 = listings, 1 = reviews.
   final int initialTab;
 
   const WawatProfileScreen({
@@ -126,10 +125,6 @@ class PublicProfileScreen extends StatefulWidget {
   State<PublicProfileScreen> createState() => _PublicProfileScreenState();
 }
 
-/// Central guest guard for every route that opens another user's profile.
-/// Keeping it here covers feed cards, listing details, search, chats, deals and
-/// notification deep links without relying on every caller to remember a
-/// separate authentication check.
 class _PublicProfileScreenState extends State<PublicProfileScreen> {
   late Future<bool> _isLogged = sl.get<AuthRepository>().isLogged();
   bool _openingRegistration = false;
@@ -503,9 +498,6 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
 
   bool get _isSelf => widget.isSelf || widget.userId == null;
 
-  /// The signed-in user's identity, read from cache. Used to recognise our own
-  /// profile when it is opened through the public route (by id), so the
-  /// follow/message bar stays hidden — you can't follow or message yourself.
   String? _myProfileId;
   String? _myUsername;
 
@@ -526,12 +518,9 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
         _myUsername = me.username;
       });
     } catch (_) {
-      // Not signed in / no cached user — treat as a public profile.
     }
   }
 
-  /// Whether the viewed profile belongs to the signed-in user. True for the
-  /// self tab, and also when a public profile resolves to our own id/username.
   bool _isOwnProfile(WawatProfileUser user) {
     if (_isSelf) return true;
     final id = _myProfileId;
@@ -611,8 +600,6 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
                           ? tr('profile.title', 'Profil')
                           : user.safeFullName,
                       showBack: !_isSelf,
-                      // On our own profile (incl. via the public route) show an
-                      // edit-profile action instead of the report/block menu.
                       trailingIcon: _isSelf
                           ? PhosphorIconsRegular.gearSix
                           : (_isOwnProfile(user)
@@ -766,9 +753,6 @@ class _WawatProfileScreenState extends State<WawatProfileScreen> {
     });
   }
 
-  /// Opens (or creates) the 1:1 conversation with [user] and pushes the chat —
-  /// same start-chat contract the listing detail uses. Guarded against
-  /// double-taps while the request is in flight.
   Future<void> _openChat(
     WawatProfileUser user,
     Map<String, String> content,
@@ -1214,8 +1198,6 @@ class _VerificationBanner extends StatelessWidget {
   }
 }
 
-/// Non-blocking "e-mail not verified" notice. Same amber style as
-/// [_VerificationBanner] (no new style introduced) — opens the OTP screen.
 class _EmailVerificationBanner extends StatelessWidget {
   final Map<String, String> content;
   final VoidCallback onTap;
@@ -2301,10 +2283,6 @@ class _FollowListScreenState extends State<_FollowListScreen> {
   late bool _followingTab = widget.following;
   late Future<List<WawatProfileUser>> _future = _load();
 
-  // Tab badges are driven by the SAME response as the list (meta.total), so a
-  // stale cached profile count can never disagree with what's on screen. Null
-  // until the relevant tab's list has loaded — then we fall back to the cached
-  // profile count only for the not-yet-loaded tab.
   int? _followersTotal;
   int? _followingTotal;
 
@@ -2751,13 +2729,8 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   bool _busy = false;
   bool _dirty = false;
 
-  /// Bumped on every avatar change to force the preview to rebuild — a same-URL
-  /// overwrite would otherwise keep the old image even after cache eviction.
   int _avatarVersion = 0;
 
-  /// The just-picked file — shown instantly as a local preview so the new photo
-  /// appears the moment it's chosen, independent of upload latency or whether
-  /// the server reuses the same avatar URL. Cleared only on delete or failure.
   File? _localAvatar;
 
   @override
@@ -2794,12 +2767,19 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
   }
 
   Future<void> _pickAvatar(ImageSource source) async {
+    if (source == ImageSource.camera &&
+        !await ensureCameraPermission(context)) {
+      return;
+    }
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: source, imageQuality: 88);
-    if (file == null) return;
+    final XFile? file;
+    try {
+      file = await picker.pickImage(source: source, imageQuality: 88);
+    } on PlatformException {
+      return;
+    }
+    if (file == null || !mounted) return;
     final picked = File(file.path);
-    // Show the chosen photo immediately — no waiting on the upload, no reliance
-    // on the server changing the avatar URL.
     setState(() => _localAvatar = picked);
     try {
       await widget.api.uploadAvatar(picked);
@@ -2812,7 +2792,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
       }
     } catch (_) {
       if (mounted) {
-        // Upload failed → drop the local preview, fall back to the real avatar.
         setState(() => _localAvatar = null);
         _showSnack(
           context,
@@ -2824,10 +2803,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     }
   }
 
-  /// After changing the avatar: drop stale cached image bytes (the server may
-  /// reuse the same URL), pull the fresh profile so this screen updates, and
-  /// refresh the cached [User] so every `userDetails` listener (menu tab, etc.)
-  /// shows the new photo immediately.
   Future<void> _syncAfterAvatarChange() async {
     WawatProfileUser fresh;
     try {
@@ -2851,7 +2826,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
     try {
       await sl.get<AuthRepository>().customersMe();
     } catch (_) {
-      // Cache refresh is best-effort; the upload already succeeded.
     }
   }
 
@@ -2867,8 +2841,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
             _ProfileTopBar(
               title: _tx(widget.content, 'profile.edit', 'Profili redaktə et'),
               trailingIcon: PhosphorIconsBold.x,
-              // Return the refreshed user when the avatar changed so the parent
-              // profile reloads even if nothing else was saved.
               onTrailing: () =>
                   Navigator.of(context).maybePop(_dirty ? _user : null),
             ),
@@ -2934,8 +2906,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
-                      // Left-align so the languages section lines up with the
-                      // fields instead of being centred (it is content-width).
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
@@ -3024,7 +2994,6 @@ class _EditProfileScreenState extends State<_EditProfileScreen> {
           Navigator.pop(context);
           try {
             await widget.api.deleteAvatar();
-            // Drop any local preview so the avatar reverts to initials.
             if (mounted) setState(() => _localAvatar = null);
             await _syncAfterAvatarChange();
             if (mounted) {
@@ -3716,10 +3685,8 @@ class _ProfileAvatar extends StatelessWidget {
   final WawatProfileUser user;
   final double size;
 
-  /// When true and a photo exists, tapping opens it full-screen.
   final bool tappable;
 
-  /// A just-picked local file to preview instead of the network avatar.
   final File? localFile;
 
   const _ProfileAvatar({
@@ -3767,7 +3734,6 @@ class _ProfileAvatar extends StatelessWidget {
     final full = user.avatarUrl;
     Widget child;
     if (localFile != null) {
-      // Instant local preview — takes priority over any network/cache state.
       child = Image.file(
         localFile!,
         width: size,
@@ -3776,8 +3742,6 @@ class _ProfileAvatar extends StatelessWidget {
         errorBuilder: (_, __, ___) => _initials(),
       );
     } else if (thumb != null && thumb.isNotEmpty) {
-      // Thumbnails may 404 (not generated) — fall back to the full image,
-      // then to initials, instead of rendering a broken-image icon.
       final hasFull = full != null && full.isNotEmpty && full != thumb;
       child = _image(thumb,
           onError: hasFull ? _image(full, onError: _initials()) : _initials());

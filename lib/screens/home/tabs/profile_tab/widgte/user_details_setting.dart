@@ -26,7 +26,7 @@ class _EditProfileScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this); // 🔥 Изменено на 4
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -50,7 +50,6 @@ class _EditProfileScreenState
                 body: SafeArea(
                   child: Column(
                     children: [
-                      // Header
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
@@ -79,7 +78,6 @@ class _EditProfileScreenState
                       ),
 
                       const SizedBox(height: 16),
-                      // Tab Bar
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -130,7 +128,6 @@ class _EditProfileScreenState
                                 child: Icon(Icons.shield, size: 24),
                               ),
                             ),
-                            // 🔥 Новая вкладка для пароля
                             Tab(
                               child: SizedBox(
                                 width: double.infinity,
@@ -141,7 +138,6 @@ class _EditProfileScreenState
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Tab Content
                       Expanded(
                         child: TabBarView(
                           controller: _tabController,

@@ -58,8 +58,6 @@ class _IntroPageState extends State<IntroPage> {
     );
   }
 
-  /// Opens Home on the backend-chosen landing tab (already cached by the splash
-  /// screen's fetch), falling back to Главная.
   Future<void> _goHome() async {
     final tab = await HomeConfig.instance.cachedDefaultTab();
     if (!mounted) return;
@@ -286,9 +284,6 @@ class _BrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // On a dark background the dark wordmark is invisible, so instead of wrapping
-    // it in a white chip, show the blue check mark — it reads cleanly on any
-    // background. Light keeps the full wordmark.
     if (isDark) {
       return const Image(
         image: AssetImage('asset/wawatair_mark.png'),

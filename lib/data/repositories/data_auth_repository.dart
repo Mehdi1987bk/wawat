@@ -6,9 +6,11 @@ import 'package:rxdart/rxdart.dart';
 import '../../domain/entities/pagination.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../main.dart';
+import '../../services/notification_socket_service.dart';
 import '../../services/push_notification_service.dart';
 import '../cache/cache_manager.dart';
 import '../network/api/auth_api.dart';
+import '../network/api/email_otp_api.dart';
 import '../network/request/create_listing_request.dart';
 import '../network/request/courier_offer_model.dart';
 import '../network/request/courier_profile.dart';
@@ -60,11 +62,60 @@ class DataAuthRepository implements AuthRepository {
   final AuthApi _authApi = sl.get<AuthApi>();
   final CacheManager _cacheManager = sl.get<CacheManager>();
 
+  String? _pendingToken;
+  User? _pendingUser;
+
   @override
   Future<void> login(LoginRequest request) async {
     final response = await _authApi.login(request);
-    await _cacheManager.saveUser(response.data.user);
-    return _cacheManager.saveAccessToken(response.data.token ?? "");
+    await _openSession(response.data.token ?? "", response.data.user);
+  }
+
+  Future<void> _openSession(String token, User user) async {
+    _hold(token, user);
+    try {
+      final status = await EmailOtpApi().getStatus();
+      if (status.required && !status.verified) return;
+    } catch (_) {}
+    await confirmSession();
+  }
+
+  void _hold(String token, User user) {
+    _pendingToken = token;
+    _pendingUser = user;
+    EmailOtpApi.pendingToken = token;
+  }
+
+  @override
+  bool get awaitingEmailVerification => _pendingToken != null;
+
+  @override
+  Future<bool> holdSessionForEmailVerification() async {
+    if (awaitingEmailVerification) return true;
+    final token = await _cacheManager.getAccessToken();
+    final user = await _cacheManager.userDetails.first;
+    if (token == null || token.isEmpty || user == null) return false;
+    _hold(token, user);
+    await _cacheManager.clear();
+    await NotificationSocketService.instance.onLogout();
+    return true;
+  }
+
+  @override
+  Future<void> confirmSession() async {
+    final token = _pendingToken;
+    final user = _pendingUser;
+    dropSession();
+    if (token == null || user == null) return;
+    await _cacheManager.saveUser(user);
+    await _cacheManager.saveAccessToken(token);
+  }
+
+  @override
+  void dropSession() {
+    _pendingToken = null;
+    _pendingUser = null;
+    EmailOtpApi.pendingToken = null;
   }
 
   @override
@@ -85,18 +136,12 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> sendRegistration(int number, int otpCode) async {
     final response = await _authApi.sendRegistration(number, otpCode);
-    // if (response != null) {
-    //   await _cacheManager.saveUser(response.user);
-    // }
     return _cacheManager.saveAccessToken(response.token);
   }
 
   @override
   Future<void> sendOtpLogin(int number, int otpCode) async {
     final response = await _authApi.sendOtpLogin(number, otpCode);
-    // if (response != null) {
-    //   await _cacheManager.saveUser(response.user);
-    // }
     return _cacheManager.saveAccessToken(response.token);
   }
 
@@ -105,14 +150,11 @@ class DataAuthRepository implements AuthRepository {
     try {
       final response = await _authApi.customersMe();
       await _cacheManager.saveUser(response.data);
-      // Return the fresh user straight from the API so callers get the updated
-      // fields immediately, instead of reading them back through the Hive
-      // `userDetails` stream (which is async and can hand back a stale frame).
       return response.data;
     } catch (e) {
-      // Если 401 - очищаем токен
       if (e is DioException && e.response?.statusCode == 401) {
         await _cacheManager.clear();
+        await NotificationSocketService.instance.onLogout();
         print('🔒 Token expired, cleared cache');
       }
       rethrow;
@@ -127,8 +169,7 @@ class DataAuthRepository implements AuthRepository {
   @override
   Future<void> registration(RegistrationRequest request) async {
     final response = await _authApi.register(request);
-    await _cacheManager.saveUser(response.data.user);
-    return _cacheManager.saveAccessToken(response.data.token ?? "");
+    await _openSession(response.data.token ?? "", response.data.user);
   }
 
   @override
@@ -198,23 +239,51 @@ class DataAuthRepository implements AuthRepository {
     return _authApi.resendEmailVerification();
   }
 
+  PackageTypesResponse? _packageTypes;
+  String? _packageTypesLang;
+  Future<PackageTypesResponse>? _packageTypesInFlight;
+  String? _packageTypesInFlightLang;
+
+  Future<PackageTypesResponse> _loadPackageTypes() async {
+    final lang = await _requestLanguage();
+    final cached = _packageTypes;
+    if (cached != null && _packageTypesLang == lang) return cached;
+    final inFlight = _packageTypesInFlight;
+    if (inFlight != null && _packageTypesInFlightLang == lang) return inFlight;
+
+    final future = _authApi.getListingPackageTypes();
+    _packageTypesInFlight = future;
+    _packageTypesInFlightLang = lang;
+    try {
+      final result = await future;
+      _packageTypes = result;
+      _packageTypesLang = lang;
+      return result;
+    } finally {
+      if (identical(_packageTypesInFlight, future)) {
+        _packageTypesInFlight = null;
+        _packageTypesInFlightLang = null;
+      }
+    }
+  }
+
+  Future<String> _requestLanguage() async {
+    final code = (await _cacheManager.getLocaleAsync())?.languageCode ?? 'az';
+    return code == 'uk' ? 'ua' : code;
+  }
 
   @override
-  Future<PackageTypesResponse> getPackageType() {
-    return _authApi.getPackageType();
-  }
+  Future<PackageTypesResponse> getPackageType() => _loadPackageTypes();
 
   @override
   Future<CitiesResponse> getCities(String search) {
     return _authApi.getCities(search, 200);
   }
 
-
   @override
   Future<void> createProfessional(CourierProfile request) {
     return _authApi.createProfessional(request);
   }
-
 
   @override
   Future<PrivacyPolicyResponse> privacyPolicy() {
@@ -240,8 +309,6 @@ class DataAuthRepository implements AuthRepository {
   Stream<AllrequestData> allRequest(String data) {
     return _authApi.allRequest(data);
   }
-
-
 
   @override
   Future<bool> firstOpen() {
@@ -270,13 +337,8 @@ class DataAuthRepository implements AuthRepository {
             fallbackReceipt: Receipt.fromResponse(body),
           )
         : null;
-    // Fee for the intro: the active request's payment when there is one, else a
-    // top-level hint if the backend exposes one for the not-submitted case.
     double? fee = state?.payment.feeAmount;
     String? currency = state?.payment.currency;
-    // String-tolerant parse: the backend may serialize money as a JSON string
-    // ("50.00"), same as the model's amount parsing — a hard `as num` cast would
-    // throw and drop the intro fee on an otherwise-valid response.
     if (fee == null && body['payment'] is Map) {
       final p = Map<String, dynamic>.from(body['payment'] as Map);
       fee = double.tryParse(p['fee_amount']?.toString() ?? '');
@@ -313,9 +375,6 @@ class DataAuthRepository implements AuthRepository {
       throw StateError('verification/pay returned no verification');
     }
     final dataMap = Map<String, dynamic>.from(data);
-    // The hosted-checkout URL can arrive on the payment block (like promo/quota)
-    // or at the response top level — accept either so no client change is needed
-    // when the backend switches verification to the real Kapital gateway.
     final payment = dataMap['payment'];
     final checkoutUrl = (payment is Map
                 ? payment['checkout_url']?.toString()
@@ -389,8 +448,6 @@ class DataAuthRepository implements AuthRepository {
     required File idFile,
     required File selfie,
   }) async {
-    // Dynamic document-type key — `documents[<code>]` — so any /document-types
-    // code (id_card/passport/driver_license) works without hardcoding.
     final form = FormData.fromMap({
       'documents[$idType]': await MultipartFile.fromFile(idFile.path),
       'documents[selfie]': await MultipartFile.fromFile(selfie.path),
@@ -423,7 +480,6 @@ class DataAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    // Снять токен пуша с бэка, чтобы на разлогиненное устройство не шли пуши.
     final token = PushNotificationService().fcmToken;
     if (token != null && token.isNotEmpty) {
       try {
@@ -432,21 +488,13 @@ class DataAuthRepository implements AuthRepository {
           data: {'token': token},
         );
       } catch (_) {
-        // best-effort — не блокируем выход из аккаунта.
       }
     }
-    // Снимаем токен и с самого устройства, чтобы следующий вход получил новый.
-    // Иначе второй аккаунт на том же телефоне остаётся привязан к тому же
-    // токену, и первый продолжает получать пуши на устройство, которым уже
-    // не владеет.
     await PushNotificationService().clearTokenAfterLogout();
-    // Личность сбрасываем здесь явно, а не полагаемся на поток `userDetails`:
-    // `clear()` чистит Hive-бокс целиком, и событие watch по конкретному ключу
-    // может не прийти. Иначе события гостя после выхода продолжали бы
-    // приписываться предыдущему пользователю.
     Telemetry.instance.event(TelemetryEvents.logout);
     await Telemetry.instance.clearIdentity();
-    return _cacheManager.clear();
+    await _cacheManager.clear();
+    await NotificationSocketService.instance.onLogout();
   }
 
   @override
@@ -610,9 +658,7 @@ class DataAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<PackageTypesResponse> getListingPackageTypes() {
-    return _authApi.getListingPackageTypes();
-  }
+  Future<PackageTypesResponse> getListingPackageTypes() => _loadPackageTypes();
 
   @override
   Future<CitiesResponse> getListingCities(String? search, {int limit = 20}) {

@@ -13,7 +13,7 @@ class CountryCodeSelector extends StatelessWidget {
   final List<Country> countries;
   final ValueChanged<Country> onChanged;
   final bool isLoading;
-  final bool enabled; // ✅ Добавлен параметр
+  final bool enabled;
 
   const CountryCodeSelector({
     Key? key,
@@ -21,7 +21,7 @@ class CountryCodeSelector extends StatelessWidget {
     required this.countries,
     required this.onChanged,
     this.isLoading = false,
-    this.enabled = true, // ✅ По умолчанию true
+    this.enabled = true,
   }) : super(key: key);
 
   @override
@@ -33,7 +33,7 @@ class CountryCodeSelector extends StatelessWidget {
         return GestureDetector(
           onTap: (isLoading || !enabled)
               ? null
-              : () => _showCountryPicker(context, isDark), // ✅ Проверка enabled
+              : () => _showCountryPicker(context, isDark),
           child: Container(
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -45,7 +45,6 @@ class CountryCodeSelector extends StatelessWidget {
               ),
             ),
             child: Opacity(
-              // ✅ Визуальная индикация disabled состояния
               opacity: enabled ? 1.0 : 0.5,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -170,7 +169,6 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
       ),
       child: Column(
         children: [
-          // Handle
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -181,7 +179,6 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             ),
           ),
 
-          // Header
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -204,7 +201,6 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             ),
           ),
 
-          // Search
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -239,7 +235,6 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
 
           const SizedBox(height: 12),
 
-          // List
           Expanded(
             child: ListView.builder(
               itemCount: _filteredCountries.length,

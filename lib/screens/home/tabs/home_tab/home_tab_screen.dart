@@ -80,8 +80,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
   @override
   void initState() {
     super.initState();
-    // Shared app-wide singleton (realtime new_notification updates its badge);
-    // refresh its count on open, but never dispose it here.
     _notificationBloc = sl.get<UnreadNotificationBloc>()..fetchUnreadCount();
     _listingBloc = ListingFeedBloc()..init();
     _listingBloc.refreshList();
@@ -300,7 +298,6 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
   @override
   void dispose() {
     _scrollController.dispose();
-    // _notificationBloc is a shared singleton — do not dispose it here.
     _listingBloc.dispose();
     super.dispose();
   }

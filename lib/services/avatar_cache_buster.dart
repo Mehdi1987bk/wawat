@@ -1,11 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 
-/// Invalidates avatar images whose backend URL stays unchanged after upload.
-///
-/// Removing the local file alone is insufficient when a CDN serves stale bytes
-/// for the same URL: the old image is downloaded and cached again immediately.
-/// After [invalidate], [resolve] appends an in-memory revision query parameter,
-/// producing a new URL/cache key while preserving all backend query parameters.
 class AvatarCacheBuster {
   AvatarCacheBuster._();
 
@@ -37,8 +31,6 @@ class AvatarCacheBuster {
         .toSet();
     if (uniqueUrls.isEmpty) return;
 
-    // Evict both the original URL and the previously versioned one. The latter
-    // matters when the user replaces the avatar more than once in one session.
     if (evictCachedFiles) {
       for (final url in uniqueUrls) {
         final previousResolvedUrl = resolve(url);
@@ -56,8 +48,6 @@ class AvatarCacheBuster {
   }
 
   static Future<void> _evict(String url) async {
-    // Invalidation is best-effort. A cache-manager failure must never turn an
-    // already successful avatar upload into an error shown to the user.
     try {
       await CachedNetworkImage.evictFromCache(url);
     } catch (_) {}

@@ -4,18 +4,6 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../services/avatar_cache_buster.dart';
 
-/// Full-screen avatar viewer: pinch-to-zoom photo with a close (X) button.
-///
-/// Push it over any screen; tapping the photo or the X dismisses it:
-/// ```dart
-/// Navigator.of(context).push(
-///   PageRouteBuilder<void>(
-///     opaque: false,
-///     barrierColor: Colors.black,
-///     pageBuilder: (_, __, ___) => AvatarViewer(url: url),
-///   ),
-/// );
-/// ```
 class AvatarViewer extends StatelessWidget {
   final String url;
 

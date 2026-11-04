@@ -4,6 +4,17 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../presentation/resourses/wawat_dark.dart';
 import '../../services/app_update_service.dart';
 import '../../services/localization_service.dart';
+import '../../wawat_app.dart';
+
+bool showForcedUpdateScreen(AppUpdateInfo info) {
+  final navigator = navigatorKey.currentState;
+  if (navigator == null) return false;
+  navigator.pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => ForcedUpdateScreen(info: info)),
+    (_) => false,
+  );
+  return true;
+}
 
 class ForcedUpdateScreen extends StatefulWidget {
   const ForcedUpdateScreen({super.key, required this.info});

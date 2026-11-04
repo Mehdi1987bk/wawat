@@ -58,7 +58,6 @@ class _PrivacyPolicyScreenState
             body: FutureBuilder<PrivacyPolicyResponse>(
               future: bloc.privacyPolicy,
               builder: (context, snapshot) {
-                // Loading state
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: CircularProgressIndicator(
@@ -69,7 +68,6 @@ class _PrivacyPolicyScreenState
                   );
                 }
 
-                // Error state
                 if (snapshot.hasError) {
                   return Center(
                     child: Padding(
@@ -143,7 +141,6 @@ class _PrivacyPolicyScreenState
                   );
                 }
 
-                // Data loaded
                 if (snapshot.hasData) {
                   final htmlContent = snapshot.data!.html;
 
@@ -168,7 +165,6 @@ class _PrivacyPolicyScreenState
                           color: isDark ? cText(isDark) : Colors.black87,
                         ),
                         customStylesBuilder: (element) {
-                          // Стилизация заголовков
                           if (element.localName == 'h1') {
                             return {
                               'color': isDark ? '#EAF0FA' : '#1A1A1A',
@@ -197,7 +193,6 @@ class _PrivacyPolicyScreenState
                             };
                           }
 
-                          // Стилизация параграфов
                           if (element.localName == 'p') {
                             return {
                               'color': isDark ? '#9FB0C7' : '#333333',
@@ -206,7 +201,6 @@ class _PrivacyPolicyScreenState
                             };
                           }
 
-                          // Стилизация списков
                           if (element.localName == 'ul' ||
                               element.localName == 'ol') {
                             return {
@@ -223,7 +217,6 @@ class _PrivacyPolicyScreenState
                             };
                           }
 
-                          // Стилизация ссылок
                           if (element.localName == 'a') {
                             return {
                               'color': '#5B4FFF',
@@ -231,7 +224,6 @@ class _PrivacyPolicyScreenState
                             };
                           }
 
-                          // Стилизация жирного текста
                           if (element.localName == 'strong' ||
                               element.localName == 'b') {
                             return {
@@ -247,7 +239,6 @@ class _PrivacyPolicyScreenState
                   );
                 }
 
-                // No data
                 return Center(
                   child: Text(
                     tr('privacy.no_content', 'No content available'),

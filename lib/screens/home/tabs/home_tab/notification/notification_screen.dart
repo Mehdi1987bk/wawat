@@ -45,8 +45,6 @@ class _NotificationScreenState
   Map<String, String> _content = const {};
   StreamSubscription<void>? _notifChangedSub;
 
-  /// Notifications whose inline accept/decline is mid-flight — their buttons
-  /// dim, ignore taps (no double-submit), and show a spinner.
   final Set<String> _actingItemIds = {};
 
   @override
@@ -66,9 +64,6 @@ class _NotificationScreenState
       }
     });
     bloc.errors.listen(_showError);
-    // A deal accepted/declined/confirmed elsewhere arrives as a general
-    // notification → refresh the live is_interactive flag IN PLACE so the inline
-    // buttons hide, without truncating the paginated list or jumping the scroll.
     _notifChangedSub =
         NotificationSocketService.instance.onNotificationsChanged.listen((_) {
       if (mounted) bloc.refreshInteractiveFlags();
@@ -77,8 +72,6 @@ class _NotificationScreenState
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Returning to the app refreshes is_interactive in place (non-destructive),
-    // so resolved deals hide their buttons without collapsing the loaded list.
     if (state == AppLifecycleState.resumed && mounted) {
       bloc.refreshInteractiveFlags();
     }
@@ -206,13 +199,8 @@ class _NotificationScreenState
   }
 
   Future<void> _openNotification(NotificationItem item) async {
-    // Mark read + refresh the unread badge, then route by the unified target
-    // (same router the push path uses). Navigation is driven strictly by
-    // target — never by type or raw data.
     if (item.isUnread) await bloc.markAsRead(item.id);
     if (!mounted) return;
-    // Level-up / milestone notifications carry no entity target — they open the
-    // Statusum (tier) page.
     const tierTypes = {
       'milestone_reached',
       'new_level',
@@ -270,19 +258,11 @@ class _NotificationScreenState
         break;
       case _InlineAction.view:
       case _InlineAction.complete:
-        // Confirm-receipt is irreversible and counter/other flows need the full
-        // deal UI (confirmation dialog, extra fields) — route to the deal screen
-        // where those live, rather than firing a bare one-tap action.
         _openNotification(item);
         break;
     }
   }
 
-  /// Runs the real proposal accept/decline for an inline button: the same
-  /// `shipmentAction` the chat deal card uses (no body needed). The button shows
-  /// a spinner while in flight; on success the item is resolved server-side so
-  /// its now-false is_interactive hides the buttons. If the notification has no
-  /// shipment id we open the deal screen instead of failing.
   Future<void> _runInlineDealAction(
     NotificationItem item,
     String action,
@@ -586,8 +566,6 @@ class _NotificationTile extends StatelessWidget {
     required this.isDark,
   });
 
-  /// Human types (with an actor) show the actor's avatar; system types show the
-  /// rounded type-icon chip. Falls back to the icon if the image fails.
   Widget _leadingVisual(NotificationVisual meta) {
     final iconChip = Container(
       width: 40,
@@ -784,7 +762,6 @@ class _InlineActions extends StatelessWidget {
           Opacity(
             opacity: busy ? 0.45 : 1,
             child: GestureDetector(
-              // Disable taps while an action is in flight — no double-submit.
               onTap: busy ? null : () => onAction(action.$2),
               child: Container(
                 padding:

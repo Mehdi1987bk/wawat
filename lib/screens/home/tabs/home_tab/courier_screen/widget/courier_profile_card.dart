@@ -68,8 +68,6 @@ class CourierProfileCard extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          // Large view → full-size avatar_url (falls back to
-                          // thumb/legacy). `avatar` may be null now.
                           final full = user.avatarUrl ??
                               user.avatarThumbUrl ??
                               user.avatar;
@@ -84,7 +82,6 @@ class CourierProfileCard extends StatelessWidget {
                                   true
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
-                                  // Card avatar (80px) → cached thumbnail.
                                   child: CachedNetworkImage(
                                     imageUrl:
                                         user.avatarThumbUrl ?? user.avatar!,
@@ -217,7 +214,7 @@ class CourierProfileCard extends StatelessWidget {
                           icon: Icons.schedule,
                           value: _formatResponseTime(
                               professional.responseTimeMinutes, context),
-                          label: /*t('profile.response')*/ "",
+                          label: "",
                           sublabel: '',
                           color: isDark ? cFill(true) : const Color(0xFFF5F8FD),
                           isDark: isDark,
@@ -548,11 +545,10 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.zero, // keyboard inset handled by showAppBottomSheet
+      padding: EdgeInsets.zero,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          // Закрываем клавиатуру при нажатии вне TextField
           FocusScope.of(context).unfocus();
         },
         child: AnimatedContainer(
@@ -678,6 +674,9 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
                               : WawatColors.textSecondary.withOpacity(0.5),
                         ),
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        filled: false,
                         contentPadding: const EdgeInsets.all(16),
                         counterStyle: WawatTextStyles.caption.copyWith(
                           color: widget.isDark
@@ -770,7 +769,6 @@ class _CourierReviewBottomSheetState extends State<_CourierReviewBottomSheet> {
           _isSubmitting = false;
         });
 
-        // ✅ Используем парсер
         showTopSnackbar(ErrorParser.parseDioError(e), false, context);
       }
     }

@@ -12,8 +12,6 @@ class OnboardingContents {
   });
 }
 
-// A getter (not a top-level constant) so tr() re-runs per access and reflects
-// runtime language changes instead of being evaluated once at startup.
 List<OnboardingContents> get contents => [
       OnboardingContents(
         title: tr('onboarding.stay_informed_title',

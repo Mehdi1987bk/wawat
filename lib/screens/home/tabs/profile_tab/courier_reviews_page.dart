@@ -273,7 +273,6 @@ class _MyRevievsScreenState
     );
   }
 
-  // Полученные отзывы (из data.reviewsReceived)
   Widget _buildReceivedReviews(List<ReviewModel> reviews, bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -297,7 +296,6 @@ class _MyRevievsScreenState
     );
   }
 
-  // Оставленные отзывы (из ReviewsResponse)
   Widget _buildLeftReviews(List<ReviewModel> reviews, bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -337,7 +335,6 @@ class _MyRevievsScreenState
     );
   }
 
-  // Карточка для полученных отзывов (Review)
   Widget _buildReceivedReviewCard(Review review, bool isDark) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),

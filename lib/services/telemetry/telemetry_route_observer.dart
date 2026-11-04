@@ -2,16 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import 'telemetry.dart';
 
-/// Навигационные хлебные крошки.
-///
-/// Точный `screen_view` логирует `BaseState.initState` — там известен реальный
-/// тип экрана. Наблюдатель нужен для другого: он видит то, чего не видит
-/// `BaseState`, — диалоги, боттом-шиты и `pushAndRemoveUntil`. Именно эта
-/// последовательность («открыл шит → нажал → упало») отвечает на вопрос
-/// «как воспроизвести» в отчёте Crashlytics.
-///
-/// Приложение почти не использует именованные маршруты, поэтому имя берём
-/// best-effort: `settings.name`, иначе тип маршрута.
 class TelemetryRouteObserver extends NavigatorObserver {
   int _depth = 0;
 

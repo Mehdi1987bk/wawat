@@ -11,7 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../data/network/response/chat_response.dart';
-import '../../../main.dart';
 import '../../../presentation/bloc/base_screen.dart';
 import '../../../presentation/bloc/error_dispatcher.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
@@ -21,10 +20,11 @@ import '../bloc/chat_conversation_bloc.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/deal_pin_bar.dart';
 import '../widgets/message_bubble.dart';
+import '../../home/tabs/profile_tab/deals/deal_action_runner.dart';
+import '../../home/tabs/profile_tab/deals/deal_action_sheets.dart';
 import '../../home/tabs/profile_tab/deals/deal_detail_screen.dart';
 import '../../home/tabs/profile_tab/new_profile/new_profile_screen.dart';
 import '../../home/tabs/profile_tab/support/support_screen.dart';
-import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -36,7 +36,6 @@ const _ink400 = Color(0xFF94A3B8);
 const _emerald = Color(0xFF22C55E);
 const _threadBg = Color(0xFFEAEEF4);
 
-// Тёмная ветка = единый графит из [WawatDark]; светлая часть остаётся как была.
 Color _cThreadBg(bool d) => d ? WawatDark.bg : _threadBg;
 Color _cSurface(bool d) => d ? WawatDark.surface : Colors.white;
 Color _cText(bool d) => d ? WawatDark.textPrimary : _ink900;
@@ -48,9 +47,6 @@ Color _cBrandSoft(bool d) => d ? WawatDark.brandSoft : _brand50;
 Color _cHeaderLine(bool d) =>
     d ? WawatDark.divider : _ink900.withValues(alpha: 0.06);
 
-/// Message ids of the newest proposal per shipment. Older proposals in the same
-/// deal were superseded by a counter-offer and must stay read-only (no
-/// accept/reject/change buttons), so only these ids remain actionable.
 Set<String> _currentProposalMessageIds(List<ChatMessage> messages) {
   final latest = <String, ChatMessage>{};
   for (final message in messages) {
@@ -90,9 +86,8 @@ class _ChatConversationScreenState
   ChatReplyRef? _replyTarget;
   AppLifecycleListener? _lifecycleListener;
 
-  /// Header source: starts from what opened the screen (list row, or the push's
-  /// sender name+avatar), then upgraded to the authoritative `meta.conversation`
-  /// once the messages load.
+  final DealActionController _dealActions = DealActionController();
+
   late Conversation _conversation;
   late bool _isBlockedByMe;
   late bool _isBlockedByOther;
@@ -108,44 +103,26 @@ class _ChatConversationScreenState
   void initState() {
     super.initState();
     _conversation = widget.conversation;
-    // Keep the latest header value for profile/typing reads, but do NOT
-    // setState here: the messages poll re-emits a fresh Conversation every ~10s,
-    // and a whole-screen rebuild would re-attach the still-focused composer and
-    // pop the keyboard back up on its own. The header renders from its own
-    // StreamBuilder (see body()), so it stays live without rebuilding the input.
     bloc.conversationHeaderStream.listen((conv) {
       if (conv != null) _conversation = conv;
     });
-    // Suppress the global new-message banner while this thread is open.
     NotificationSocketService.instance
-        .setActiveConversation(widget.conversation.id);
+        .enterConversation(widget.conversation.id);
     _isBlockedByMe = widget.conversation.isBlocked;
     _isBlockedByOther = widget.conversation.isBlockedByOther;
     _isPinned = widget.conversation.isPinned;
     _isArchived = widget.conversation.isArchived;
-    bloc.initChat(widget.conversation.id).then((_) async {
-      await bloc.loadMessages();
-      if (mounted) {
-        sl.get<UnreadChatBloc>().fetchUnreadCount();
-      }
-    });
+    bloc.initChat(widget.conversation.id).then((_) => bloc.loadMessages());
     WawatContent.loadDefault().then((content) {
       if (mounted) setState(() => _content = content);
     });
     _scrollController.addListener(_onScroll);
-    // Auto-scroll to the newest message: always when it's my own message (e.g.
-    // I just sent one while scrolled up), and for incoming messages only when
-    // I'm already near the bottom — so reading older history isn't interrupted.
     bloc.messagesStream.listen(_onMessagesChanged);
-    // Surface send failures (e.g. blocked by the peer) with the server message.
     bloc.sendErrorsStream.listen((error) {
       if (mounted) _showError(_extractError(error));
     });
     _lifecycleListener = AppLifecycleListener(
-      onResume: () {
-        bloc.reconnectRealtime();
-        sl.get<UnreadChatBloc>().fetchUnreadCount();
-      },
+      onResume: () => bloc.reconnectRealtime(),
       onInactive: () => bloc.stopTyping(),
       onPause: () => bloc.stopTyping(),
       onDetach: () => bloc.stopTyping(),
@@ -168,15 +145,12 @@ class _ChatConversationScreenState
     final grew = messages.length > _lastMessageCount;
     _lastMessageCount = messages.length;
     if (!grew) return;
-    // reverse:true → messages.first is the newest (rendered at the bottom).
     final newestIsMine = bloc.isMyMessage(messages.first);
     if (newestIsMine || _isNearBottom()) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     }
   }
 
-  /// In a reverse:true list the newest message sits at scroll offset 0, so
-  /// "near the bottom" means a small pixel offset, not near maxScrollExtent.
   bool _isNearBottom() {
     if (!_scrollController.hasClients) return true;
     return _scrollController.position.pixels <= 300;
@@ -193,13 +167,15 @@ class _ChatConversationScreenState
 
   @override
   void dispose() {
-    NotificationSocketService.instance.setActiveConversation(null);
+    NotificationSocketService.instance
+        .leaveConversation(widget.conversation.id);
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
     bloc.stopTyping();
     _messageController.dispose();
     _lifecycleListener?.dispose();
+    _dealActions.dispose();
     super.dispose();
   }
 
@@ -249,10 +225,6 @@ class _ChatConversationScreenState
             ),
           ),
           Expanded(
-            // Tap the thread to dismiss the keyboard AND clear the composer's
-            // focus (message long-press / card taps still win the gesture
-            // arena). Clearing focus — not just hiding the keyboard — is what
-            // stops a later rebuild from re-opening it.
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () => FocusScope.of(context).unfocus(),
@@ -309,11 +281,6 @@ class _ChatConversationScreenState
                                       index,
                                     );
                                     return Column(
-                                      // Stable identity so the list survives
-                                      // rebuilds/reorders on every WS or poll
-                                      // response without re-binding elements — this
-                                      // is what stops photo bubbles from flashing
-                                      // their placeholder and re-loading each time.
                                       key: ValueKey(message.id),
                                       children: [
                                         if (showDate)
@@ -335,8 +302,8 @@ class _ChatConversationScreenState
                                                   ? null
                                                   : shipmentSnapshot.data?[
                                                       message.card!.shipmentId],
-                                          onShipmentAction:
-                                              _handleShipmentAction,
+                                          onDealAction: _handleDealAction,
+                                          dealActions: _dealActions,
                                           onRetry: bloc.retryMessage,
                                           onLongPress: _showMessageOptions,
                                           onReview: _showReviewDialog,
@@ -408,7 +375,6 @@ class _ChatConversationScreenState
     );
   }
 
-  /// Unblock straight from the composer banner — direct, no confirmation.
   void _unblockUser() {
     _runConversationAction(() async {
       await bloc.setUserBlocked(_conversation.user.apiId, false);
@@ -436,7 +402,6 @@ class _ChatConversationScreenState
     return '${date.day}.${date.month}.${date.year}';
   }
 
-  /// Swipe (or long-press → reply) starts quoting [message] in the composer.
   void _startReply(ChatMessage message) {
     setState(() {
       _replyTarget = ChatReplyRef.fromMessage(
@@ -460,8 +425,6 @@ class _ChatConversationScreenState
       });
     await bloc.sendMessage(text, image, replyTo: reply);
     if (!mounted) return;
-    // Написал и ждёт ответа — лучший момент спросить про уведомления.
-    // См. services/push_permission_prompt.dart.
     await maybeAskPushPermission(context, PushPromptTrigger.messageSent);
   }
 
@@ -492,101 +455,36 @@ class _ChatConversationScreenState
     setState(() => _selectedFile = file);
   }
 
-  Future<void> _handleShipmentAction(
-    String shipmentId,
-    String action,
-  ) async {
-    try {
-      final body = await _shipmentActionBody(action);
-      if (body == null && {'counter', 'dispute', 'cancel'}.contains(action)) {
-        return;
-      }
-      final message =
-          await bloc.runShipmentAction(shipmentId, action, body: body);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message ?? _t('common.operation_completed'),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: _brand,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_extractError(e)),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFFEF4444),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        ),
-      );
-    }
-  }
-
-  Future<Map<String, dynamic>?> _shipmentActionBody(String action) async {
-    if (action == 'counter') {
-      return _showCounterDialog();
-    }
-    if (action == 'dispute') {
-      final reason = await _showTextPrompt(
-        title: _t('chat.shipment.dispute', 'Problem bildir'),
-        hint: _t('chat.shipment.reason', 'Səbəbi yaz'),
-        minLength: 5,
-      );
-      return reason == null ? null : {'reason': reason};
-    }
-    if (action == 'cancel') {
-      final note = await _showTextPrompt(
-        title: _t('chat.shipment.cancel', 'Sövdələşməni ləğv et'),
-        hint: _t('chat.shipment.reason', 'Səbəbi yaz'),
-      );
-      return note == null
-          ? null
-          : {
-              'reason_code': 'other',
-              if (note.isNotEmpty) 'reason_note': note,
-            };
-    }
-    return null;
-  }
-
-  Future<Map<String, dynamic>?> _showCounterDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return showAppBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: isDark ? WawatDark.scrim : _ink900.withValues(alpha: 0.4),
-      builder: (_) => _CounterSheet(content: _content),
+  void _handleDealAction(ChatMessage message, DealAction action) {
+    final card = message.card;
+    final shipmentId = card?.shipmentId;
+    if (card == null || shipmentId == null || shipmentId.isEmpty) return;
+    _dealActions.run(
+      context,
+      scope: message.id,
+      action: action,
+      content: _content,
+      prefill: DealCounterPrefill.fromPayload(card.payload),
+      execute: (body) =>
+          bloc.runShipmentAction(shipmentId, action.endpoint, body: body),
+      onMessage: _showDealActionMessage,
     );
   }
 
-  Future<String?> _showTextPrompt({
-    required String title,
-    required String hint,
-    int minLength = 0,
-    int maxLength = 1000,
-  }) {
-    // Same lifecycle rule as _editMessage: the dialog owns its controller and
-    // disposes it after full unmount, never synchronously on pop.
-    return showDialog<String>(
-      context: context,
-      builder: (_) => _TextPromptDialog(
-        title: title,
-        hint: hint,
-        minLength: minLength,
-        maxLength: maxLength,
-        cancelLabel: _t('common.cancel'),
-        confirmLabel: _t('common.confirm'),
-      ),
-    );
+  void _showDealActionMessage(String message, {required bool isError}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: isError ? const Color(0xFFEF4444) : _brand,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          duration: Duration(seconds: isError ? 4 : 2),
+        ),
+      );
   }
 
   Future<void> _showReviewDialog(String shipmentId) async {
@@ -607,7 +505,6 @@ class _ChatConversationScreenState
         comment: result.comment,
       );
       if (!mounted) return;
-      // approved → published instantly (green success); pending → moderation.
       final fallback = review.isApproved
           ? _t('review.published', 'Rəyiniz yayımlandı')
           : _t('review.pending', 'Rəyiniz moderasiyaya göndərildi');
@@ -657,17 +554,12 @@ class _ChatConversationScreenState
   }
 
   void _showMessageOptions(ChatMessage message) {
-    // A deleted tombstone has no content and no actions.
     if (message.isDeleted) return;
     final isMine = bloc.isMyMessage(message);
     final canEdit = isMine &&
         message.type == 'text' &&
         message.isRead != true &&
         !message.id.startsWith('local-');
-    // Single mode — always "for everyone", and only your OWN, still-UNREAD
-    // message can be deleted: once the peer has read it the server refuses with
-    // 422 (chat.delete_after_read). Gating the menu here means the user never
-    // hits that wall; the 422 is still surfaced as a toast if it races.
     final canDelete = isMine &&
         message.type != 'system_card' &&
         message.isRead != true &&
@@ -740,11 +632,6 @@ class _ChatConversationScreenState
   }
 
   Future<void> _editMessage(ChatMessage message) async {
-    // The dialog owns its TextEditingController and disposes it in its own
-    // State.dispose (after the route fully unmounts). Disposing a controller
-    // synchronously right after showDialog — while the TextField is still
-    // animating out — leaves the field's Focus InheritedElement with dangling
-    // dependents and trips `_dependents.isEmpty` (framework.dart:6079).
     final body = await showDialog<String>(
       context: context,
       builder: (_) => _EditMessageDialog(
@@ -763,8 +650,6 @@ class _ChatConversationScreenState
   }
 
   Future<void> _deleteMessage(ChatMessage message) async {
-    // One mode only — deletion is always "for everyone". The message won't
-    // disappear; it becomes a "deleted" tombstone for both sides.
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -931,11 +816,7 @@ class _ChatConversationScreenState
 
   void _openProfile() {
     final user = _conversation.user;
-    // Push/WS-seeded header carries only name+avatar (no id) until
-    // meta.conversation loads — stay inert rather than flashing a false error.
     if (!user.hasApiId) return;
-    // Prefer the public id (ULID), then username — both resolve on the profile
-    // endpoint; a bare numeric id is only a last resort (it can 404).
     final userId = _firstNonEmpty([
       user.publicId,
       user.username,
@@ -998,8 +879,6 @@ class _ConversationHeaderState extends State<_ConversationHeader> {
   @override
   void initState() {
     super.initState();
-    // Presence text is time-relative ("onlayn" → "3 dəq əvvəl"): tick so it
-    // decays on its own while the screen stays open, without new data.
     _ticker = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) setState(() {});
     });
@@ -1072,10 +951,6 @@ class _ConversationHeaderState extends State<_ConversationHeader> {
                             ],
                           ],
                         ),
-                        // Only render the status line when there is one — an
-                        // empty line would push the name off the avatar's
-                        // vertical centre. Green dot + "onlayn" when online,
-                        // muted last-seen otherwise.
                         if (lastSeen.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 2),
@@ -1353,8 +1228,6 @@ class _ThreadBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // ClipRect confines the painter to its own bounds so its background fill
-    // can never bleed over the header/composer painted around it.
     return ClipRect(
       child: CustomPaint(
         painter: _DotPainter(isDark: isDark),
@@ -1371,8 +1244,6 @@ class _DotPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Fill only this widget's rect — NOT canvas.drawColor(), which floods the
-    // whole canvas clip and would paint over sibling widgets.
     canvas.drawRect(Offset.zero & size, Paint()..color = _cThreadBg(isDark));
     final paint = Paint()
       ..color = isDark
@@ -1533,9 +1404,6 @@ class _FilePreview extends StatelessWidget {
   }
 }
 
-/// Edit-message dialog that owns its controller for its whole lifetime, so the
-/// controller (and the TextField's Focus dependents) are torn down in the right
-/// order — after the dialog route fully unmounts, not synchronously on pop.
 class _EditMessageDialog extends StatefulWidget {
   final String initialText;
   final String title;
@@ -1595,70 +1463,6 @@ class _EditMessageDialogState extends State<_EditMessageDialog> {
   }
 }
 
-/// Generic single-field prompt dialog (counter note, report reason, …). Owns
-/// its controller for the same lifecycle-safety reason as [_EditMessageDialog].
-class _TextPromptDialog extends StatefulWidget {
-  final String title;
-  final String hint;
-  final int minLength;
-  final int maxLength;
-  final String cancelLabel;
-  final String confirmLabel;
-
-  const _TextPromptDialog({
-    required this.title,
-    required this.hint,
-    required this.minLength,
-    required this.maxLength,
-    required this.cancelLabel,
-    required this.confirmLabel,
-  });
-
-  @override
-  State<_TextPromptDialog> createState() => _TextPromptDialogState();
-}
-
-class _TextPromptDialogState extends State<_TextPromptDialog> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final text = _controller.text.trim();
-    if (text.length < widget.minLength) return;
-    Navigator.pop(context, text);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.title),
-      content: TextField(
-        controller: _controller,
-        minLines: 2,
-        maxLines: 5,
-        maxLength: widget.maxLength,
-        autofocus: true,
-        decoration: InputDecoration(hintText: widget.hint),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(widget.cancelLabel),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(widget.confirmLabel),
-        ),
-      ],
-    );
-  }
-}
-
 class _SheetTile extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -1691,231 +1495,15 @@ class _SheetTile extends StatelessWidget {
   }
 }
 
-/// Counter-offer compose sheet (design screen 11): weight stepper, total price,
-/// optional note → returns the `POST /shipments/{id}/counter` body.
-class _CounterSheet extends StatefulWidget {
-  final Map<String, String> content;
-
-  const _CounterSheet({required this.content});
-
-  @override
-  State<_CounterSheet> createState() => _CounterSheetState();
-}
-
-class _CounterSheetState extends State<_CounterSheet> {
-  final TextEditingController _weight = TextEditingController(text: '1');
-  final TextEditingController _price = TextEditingController();
-  final TextEditingController _note = TextEditingController();
-
-  String _t(String key, String fallback) =>
-      WawatContent.text(widget.content, key, fallback);
-
-  @override
-  void dispose() {
-    _weight.dispose();
-    _price.dispose();
-    _note.dispose();
-    super.dispose();
-  }
-
-  void _bumpWeight(int delta) {
-    final current = double.tryParse(_weight.text.replaceAll(',', '.')) ?? 0;
-    final next = (current + delta).clamp(0, 999);
-    _weight.text = next % 1 == 0 ? next.toInt().toString() : next.toString();
-  }
-
-  void _submit() {
-    final body = <String, dynamic>{};
-    final weight = double.tryParse(_weight.text.replaceAll(',', '.'));
-    final price = double.tryParse(_price.text.replaceAll(',', '.'));
-    if (weight != null) body['weight_kg'] = weight;
-    if (price != null) body['price_total'] = price;
-    if (_note.text.trim().isNotEmpty) body['note'] = _note.text.trim();
-    Navigator.of(context).pop(body);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: EdgeInsets.zero, // keyboard inset handled by showAppBottomSheet
-      child: SafeArea(
-        top: false,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: BoxDecoration(
-            color: _cSurface(isDark),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: _cGrip(isDark),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-              Center(
-                child: Text(
-                  _t('chat.counter.title', 'Təklifi dəyiş'),
-                  style: TextStyle(
-                    color: _cText(isDark),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _label(_t('chat.counter.weight', 'Çəki'), isDark),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  _StepBtn(
-                    icon: PhosphorIconsBold.minus,
-                    background: isDark
-                        ? WawatDark.surfaceAlt
-                        : _ink900.withValues(alpha: 0.05),
-                    color: isDark ? WawatDark.textSecondary : _ink700,
-                    onTap: () => _bumpWeight(-1),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _CounterField(
-                      controller: _weight,
-                      suffix: 'kq',
-                      textAlign: TextAlign.center,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  _StepBtn(
-                    icon: PhosphorIconsBold.plus,
-                    background: _cBrandSoft(isDark),
-                    color: _brand,
-                    onTap: () => _bumpWeight(1),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              _label(_t('chat.counter.price', 'Ümumi qiymət'), isDark),
-              const SizedBox(height: 6),
-              _CounterField(
-                controller: _price,
-                suffix: '\$',
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  _label(_t('chat.counter.note', 'Qeyd'), isDark),
-                  const SizedBox(width: 6),
-                  Text(
-                    '· ${_t('chat.counter.note_optional', 'istəyə bağlı')}',
-                    style: TextStyle(
-                      color: _cMuted(isDark),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              _CounterField(
-                controller: _note,
-                hint: _t('chat.counter.note_hint', 'Şərti izah et...'),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _brand,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                  icon: const Icon(PhosphorIconsBold.paperPlaneTilt,
-                      size: 17, color: Colors.white),
-                  label: Text(
-                    _t('chat.counter.submit', 'Yeni təklif göndər'),
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _label(String text, bool isDark) => Text(
-        text,
-        style: TextStyle(
-          color: _cText2(isDark),
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-      );
-}
-
-class _StepBtn extends StatelessWidget {
-  final IconData icon;
-  final Color background;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _StepBtn({
-    required this.icon,
-    required this.background,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(icon, color: color, size: 18),
-      ),
-    );
-  }
-}
-
 class _CounterField extends StatelessWidget {
   final TextEditingController controller;
-  final String? suffix;
   final String? hint;
-  final TextAlign textAlign;
-  final TextInputType? keyboardType;
   final int? minLines;
   final int maxLines;
 
   const _CounterField({
     required this.controller,
-    this.suffix,
     this.hint,
-    this.textAlign = TextAlign.start,
-    this.keyboardType,
     this.minLines,
     this.maxLines = 1,
   });
@@ -1925,8 +1513,6 @@ class _CounterField extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextField(
       controller: controller,
-      keyboardType: keyboardType,
-      textAlign: textAlign,
       minLines: minLines,
       maxLines: maxLines,
       style: TextStyle(
@@ -1938,12 +1524,6 @@ class _CounterField extends StatelessWidget {
         hintText: hint,
         hintStyle:
             TextStyle(color: _cMuted(isDark), fontWeight: FontWeight.w500),
-        suffixText: suffix,
-        suffixStyle: TextStyle(
-          color: _cMuted(isDark),
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
         filled: true,
         fillColor:
             isDark ? WawatDark.surfaceAlt : _ink900.withValues(alpha: 0.02),
@@ -1990,7 +1570,6 @@ class _ReviewSheetState extends State<_ReviewSheet> {
   final TextEditingController _comment = TextEditingController();
   int _rating = 5;
 
-  /// 1–3★ require a comment (backend 422s otherwise); 4–5★ optional.
   bool get _requiresComment => _rating <= 3;
   bool get _canSubmit => !_requiresComment || _comment.text.trim().isNotEmpty;
 
@@ -2000,7 +1579,6 @@ class _ReviewSheetState extends State<_ReviewSheet> {
   @override
   void initState() {
     super.initState();
-    // Re-evaluate the submit button as the comment is typed.
     _comment.addListener(() => setState(() {}));
   }
 
@@ -2030,7 +1608,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const amber = Color(0xFFF59E0B);
     return Padding(
-      padding: EdgeInsets.zero, // keyboard inset handled by showAppBottomSheet
+      padding: EdgeInsets.zero,
       child: SafeArea(
         top: false,
         child: Container(

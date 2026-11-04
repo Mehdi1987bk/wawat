@@ -6,25 +6,11 @@ import '../../../../../presentation/resourses/theme_colors.dart';
 import '../../../../../presentation/resourses/wawat_dark.dart';
 import '../../../../../services/wawat_content.dart';
 
-/// The app's primary listing-type filter, rendered as a prominent trigger
-/// button that opens a bottom-sheet picker (Hamısı / Səfər / Göndəriş).
-///
-/// Data: `value` is null (all) | 'trip' | 'shipment_post'. Labels come from the
-/// CMS; per-type icons match the rest of the app (plane = blue, parcel = amber).
-///
-/// "All" shares the null value with the "not chosen yet" state, so the widget
-/// keeps an internal [_chosen] flag: until the user explicitly picks something
-/// the trigger shows a placeholder prompt and nothing is highlighted; picking
-/// "All" (also null) then reads as a real, highlighted selection.
 class ListingTypeFilter extends StatefulWidget {
   final String? value;
   final Map<String, String> content;
   final ValueChanged<String?> onChanged;
 
-  /// When true (home search form), a null value is the pristine "not chosen"
-  /// state and shows a placeholder prompt. When false (the filter sheet, which
-  /// always represents a concrete filter), null means "All" and is shown as a
-  /// real, highlighted selection.
   final bool showPlaceholder;
 
   const ListingTypeFilter({
@@ -40,15 +26,11 @@ class ListingTypeFilter extends StatefulWidget {
 }
 
 class _ListingTypeFilterState extends State<ListingTypeFilter> {
-  // Starts "chosen" when a concrete type was pre-set, or always when the
-  // placeholder is disabled (filter sheet → null = "All" is a real selection).
   late bool _chosen = widget.value != null || !widget.showPlaceholder;
 
   @override
   void didUpdateWidget(covariant ListingTypeFilter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-derive on an external change (parent reset/apply). A null→null no-op —
-    // the parent echoing our own "All" pick — is ignored so All stays selected.
     if (oldWidget.value != widget.value) {
       _chosen = widget.value != null || !widget.showPlaceholder;
     }
@@ -61,12 +43,6 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
           icon: PhosphorIconsBold.squaresFour,
           accent: _Accent.brand,
         ),
-        // Вопрос звучит «Кого вы ищете?», значит ответ — человек в винительном
-        // падеже: «Путешественника» / «Отправителя». Ключи search.type_* как раз
-        // в этом падеже и уже используются на вкладке поиска. Здесь по ошибке
-        // стояли enum.listing_type.*, то есть название типа объявления
-        // («Поездка» / «Отправление»), и на главном экране ответ не согласовался
-        // с вопросом.
         _TypeOption(
           value: 'trip',
           label: WawatContent.text(
@@ -110,8 +86,6 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final options = _options();
-    // Nothing chosen yet → show a placeholder prompt instead of defaulting to
-    // "Hamısı/All". Once a pick is made (including "All"), show it as selected.
     final isPlaceholder = widget.showPlaceholder && !_chosen;
     final active = isPlaceholder ? null : _active(options);
     final placeholderColor =
@@ -123,7 +97,6 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          // Brand-tinted so the primary filter reads as the important control.
           color: cBrandSoft(isDark),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
@@ -173,15 +146,11 @@ class _ListingTypeFilterState extends State<ListingTypeFilter> {
   }
 }
 
-// ── bottom-sheet picker ──
-
 class _TypeFilterSheet extends StatelessWidget {
   final Map<String, String> content;
   final List<_TypeOption> options;
   final String? activeValue;
 
-  /// Whether the current [activeValue] is an explicit choice. When false
-  /// (pristine state) no row is highlighted — not even "All" (null).
   final bool showSelection;
 
   const _TypeFilterSheet({
@@ -199,7 +168,6 @@ class _TypeFilterSheet extends StatelessWidget {
         color: cCard(isDark),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      // Reserve the OS navigation-bar inset (the sheet helper doesn't).
       padding: EdgeInsets.fromLTRB(
           20, 10, 20, 20 + MediaQuery.paddingOf(context).bottom),
       child: Column(
@@ -229,7 +197,6 @@ class _TypeFilterSheet extends StatelessWidget {
           for (final option in options)
             _TypeRow(
               option: option,
-              // Highlight only an explicit pick; "All" (null) counts once chosen.
               selected: showSelection && option.value == activeValue,
               isDark: isDark,
               onTap: () => Navigator.pop(context, _TypeResult(option.value)),
@@ -346,8 +313,6 @@ class _TypeOption {
   });
 }
 
-/// Wrapper so a null selection (Hamısı) can round-trip through the sheet's
-/// nullable `showAppBottomSheet<_TypeResult>` result.
 class _TypeResult {
   final String? value;
   const _TypeResult(this.value);

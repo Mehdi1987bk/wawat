@@ -1,14 +1,5 @@
 import 'telemetry_events.dart';
 
-/// Соответствие «эндпоинт → бизнес-событие».
-///
-/// Весь трафик приложения идёт через один [Dio], поэтому воронку выгоднее
-/// строить здесь, а не расставлять `logEvent` по тридцати экранам: событие
-/// «объявление создано» физически не может разойтись с фактом успешного
-/// `POST /listings`, а новый экран получает аналитику бесплатно.
-///
-/// Ручные вызовы остаются только там, где события нет в сети: просмотры экранов,
-/// применение фильтров, шаринг, тапы по баннерам.
 class ApiEventMapping {
   const ApiEventMapping({
     this.onSuccess,
@@ -16,10 +7,8 @@ class ApiEventMapping {
     this.extraParams = const {},
   });
 
-  /// Событие при 2xx. `null` — успех не логируем (GET-ы, поллинг).
   final String? onSuccess;
 
-  /// Событие при ошибке. `null` — хватит общего `api_failure`.
   final String? onFailure;
 
   final Map<String, Object?> extraParams;
@@ -30,15 +19,11 @@ class _Rule {
 
   final String method;
 
-  /// Матчится по **нормализованному** пути, где id уже схлопнуты в `{id}`
-  /// (см. `TelemetryRedactor.endpoint`).
   final String pattern;
   final ApiEventMapping mapping;
 }
 
-/// Таблица правил. Порядок значения не имеет — совпадение точное.
 const List<_Rule> _rules = [
-  // ── Аутентификация ──────────────────────────────────────────────────────
   _Rule('POST', '/auth/login',
       ApiEventMapping(
           onSuccess: TelemetryEvents.login,
@@ -74,7 +59,6 @@ const List<_Rule> _rules = [
   _Rule('POST', '/auth/email/resend',
       ApiEventMapping(onSuccess: 'email_verification_resent')),
 
-  // ── Профиль ─────────────────────────────────────────────────────────────
   _Rule('PUT', '/profile/personal',
       ApiEventMapping(
           onSuccess: TelemetryEvents.profileUpdated,
@@ -100,7 +84,6 @@ const List<_Rule> _rules = [
   _Rule('POST', '/verification/submit',
       ApiEventMapping(onSuccess: TelemetryEvents.verificationSubmitted)),
 
-  // ── Объявления ──────────────────────────────────────────────────────────
   _Rule('POST', '/listings',
       ApiEventMapping(
           onSuccess: TelemetryEvents.listingCreated,
@@ -136,13 +119,11 @@ const List<_Rule> _rules = [
   _Rule('POST', '/support',
       ApiEventMapping(onSuccess: TelemetryEvents.supportRequestSent)),
 
-  // ── Поиск ───────────────────────────────────────────────────────────────
   _Rule('POST', '/saved-searches',
       ApiEventMapping(onSuccess: TelemetryEvents.savedSearchCreated)),
   _Rule('DELETE', '/saved-searches/{id}',
       ApiEventMapping(onSuccess: TelemetryEvents.savedSearchDeleted)),
 
-  // ── Чат ─────────────────────────────────────────────────────────────────
   _Rule('POST', '/users/{id}/conversation',
       ApiEventMapping(onSuccess: TelemetryEvents.chatOpened)),
   _Rule('POST', '/conversations/{id}/messages',
@@ -150,18 +131,10 @@ const List<_Rule> _rules = [
           onSuccess: TelemetryEvents.chatMessageSent,
           onFailure: TelemetryEvents.chatMessageFailed)),
 
-  // ── Монетизация ─────────────────────────────────────────────────────────
-  // Сам факт покупки (`purchase` c value/currency) логирует экран оплаты —
-  // здесь только «платёж ушёл на сервер», чтобы видеть обрыв между попыткой
-  // и подтверждением.
   _Rule('POST', '/listings/{id}/promotions',
       ApiEventMapping(
           onSuccess: TelemetryEvents.promotionStarted,
           onFailure: TelemetryEvents.purchaseFailed)),
-  // Заказ создан на сервере. Не `begin_checkout` и не `purchase`: у GA4-событий
-  // покупки обязательны value+currency, а интерцептор суммы не знает — их
-  // логирует экран оплаты. Здесь фиксируем только серверный шаг, чтобы видеть
-  // обрыв между «заказ создан» и «оплачен».
   _Rule('POST', '/listing-quota/orders',
       ApiEventMapping(
           onSuccess: 'quota_order_created',
@@ -170,8 +143,6 @@ const List<_Rule> _rules = [
       ApiEventMapping(onSuccess: 'quota_order_paid')),
 ];
 
-/// Ищет правило для запроса. [method] — HTTP-метод, [normalizedPath] — путь,
-/// уже прошедший через `TelemetryRedactor.endpoint`.
 ApiEventMapping? mappingFor(String method, String normalizedPath) {
   final m = method.toUpperCase();
   for (final rule in _rules) {

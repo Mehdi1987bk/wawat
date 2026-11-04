@@ -42,11 +42,6 @@ class HomeStats {
       };
 }
 
-/// Loads the public home counters with stale-while-revalidate semantics.
-///
-/// The screen reads [loadCached] first and never waits for [refresh] before it
-/// renders. A successful network response replaces the last-known value on
-/// disk; an invalid/error response leaves that cached value untouched.
 class HomeStatsService {
   HomeStatsService({Dio? dio, SharedPreferences? preferences})
       : _dio = dio ?? sl.get<Dio>(),

@@ -5,6 +5,7 @@ import 'package:async/async.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../domain/entities/pagination.dart';
+import '../../services/retry_cooldown.dart';
 import 'base_bloc.dart';
 
 const initialPaginationPage = 1;
@@ -20,6 +21,8 @@ abstract class PaginableBloc<T> extends BaseBloc {
   int _page = initialPaginationPage;
   int _lastPage = initialLastPaginationPage;
   bool _isRunning = false;
+
+  final _cooldown = RetryCooldown();
   Completer<void> _refreshCompleter = Completer<void>();
 
   Future<Pagination<T>> provideSource(int page);
@@ -36,6 +39,11 @@ abstract class PaginableBloc<T> extends BaseBloc {
       _isRunning = false;
     }
     if (_isRunning) {
+      return;
+    }
+    if (refresh || cancelable) {
+      _cooldown.reset();
+    } else if (!_cooldown.ready) {
       return;
     }
     if (refresh) {
@@ -67,8 +75,12 @@ abstract class PaginableBloc<T> extends BaseBloc {
         _page++;
         _lastPage = pagination.lastPage;
         paginableList.add(data);
+        _cooldown.reset();
       }
-    }).catchError(dispatchError).whenComplete(() {
+    }).catchError((Object error) {
+      _cooldown.failed(error);
+      dispatchError(error);
+    }).whenComplete(() {
       _isRunning = false;
       loaderVisibility = false;
       loadingSink.add(false);

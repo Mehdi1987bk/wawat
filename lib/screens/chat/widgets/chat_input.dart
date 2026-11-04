@@ -24,12 +24,8 @@ class ChatInput extends StatefulWidget {
   final String? disabledText;
   final Map<String, String> content;
 
-  /// When non-null, the disabled (blocked-by-me) banner becomes tappable and
-  /// shows an "unblock" affordance that runs this — so the user can unblock
-  /// straight from the composer without opening the menu.
   final VoidCallback? onDisabledTap;
 
-  /// Active reply target — shows the quoted-message preview bar above the input.
   final ChatReplyRef? replyTo;
   final VoidCallback? onCancelReply;
 
@@ -172,9 +168,6 @@ class _ChatInputState extends State<ChatInput> {
       );
     }
 
-    // Send is available with typed text OR a pending attachment (e.g. a picked
-    // image sitting in the preview bar above). Attaching is reached only via the
-    // "+" button, so the right slot is purely a send affordance now.
     final canSend = _hasText || widget.hasAttachment;
 
     return ColoredBox(
@@ -213,9 +206,6 @@ class _ChatInputState extends State<ChatInput> {
                             ? WawatDark.surfaceAlt
                             : _ink900.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(22),
-                        // Focus highlight on the pill itself, so the blue outline
-                        // lands on the visual edge (radius 22) — not inset like the
-                        // theme's default InputDecorator border.
                         border: Border.all(
                           color: _focusNode.hasFocus
                               ? (isDark ? WawatDark.focusRing : _brand)
@@ -245,8 +235,6 @@ class _ChatInputState extends State<ChatInput> {
                             color: isDark ? WawatDark.textMuted : _ink400,
                             fontWeight: FontWeight.w500,
                           ),
-                          // Drop the theme's filled/outline borders — the container
-                          // owns the fill, shape and focus outline now.
                           filled: false,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,

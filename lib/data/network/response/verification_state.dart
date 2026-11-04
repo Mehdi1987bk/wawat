@@ -1,29 +1,18 @@
 import 'receipt.dart';
 
-/// State of the current user's KYC verification, from `GET /verification`.
-///
-/// Verification is a PAID, two-step flow: (1) submit documents → admin review,
-/// (2) once documents are `approved`, pay the fee → the `is_verified` badge
-/// activates. Document approval alone does NOT verify the account — payment
-/// does. A `rejected` request can be resubmitted for free.
 class VerificationState {
   final String id;
 
-  /// `pending` | `processing` | `approved` | `rejected`.
   final String status;
 
-  /// Server-localized status label (already in the request locale).
   final String statusLabel;
 
-  /// Present only when [status] is `rejected`.
   final String? rejectionReason;
   final String? submittedAt;
   final String? reviewedAt;
   final VerificationPayment payment;
   final List<VerificationDocument> documents;
 
-  /// Unified payment receipt (same block as promotions/quota) — «Qəbz» shows
-  /// only once it is paid.
   final Receipt? receipt;
 
   const VerificationState({
@@ -42,14 +31,10 @@ class VerificationState {
   bool get isApproved => status == 'approved';
   bool get isRejected => status == 'rejected';
 
-  /// Documents approved but the fee isn't paid yet → show the payment step.
   bool get awaitingPayment => isApproved && payment.required && !payment.paid;
 
-  /// Fully verified through this request (documents approved AND fee paid).
   bool get isPaidVerified => isApproved && payment.paid;
 
-  /// [fallbackReceipt] — the receipt when the backend put it at the response
-  /// root instead of inside the verification object.
   factory VerificationState.fromJson(
     Map<String, dynamic> json, {
     Receipt? fallbackReceipt,
@@ -72,14 +57,10 @@ class VerificationState {
   }
 }
 
-/// Fee + payment status for a verification request. Amount/currency are always
-/// taken from here (server-configured), never hardcoded. `mock` is true while
-/// the real payment provider isn't wired — paying just flips `paid` to true.
 class VerificationPayment {
   final double feeAmount;
   final String currency;
 
-  /// True ONLY when the request is `approved` and the fee is still unpaid.
   final bool required;
   final bool paid;
   final String? paidAt;
@@ -132,13 +113,6 @@ class VerificationDocument {
   }
 }
 
-/// What the verification screen needs on load: the current [state] (null when
-/// the user has never submitted) plus the fee to advertise on the intro screen.
-///
-/// The fee is read from the active request's `payment` when there is one; when
-/// there's no request yet the repository also looks for a top-level fee hint so
-/// the intro can still show "paid — {amount} {currency}". Null when the backend
-/// exposes no fee for the not-submitted case (intro then omits the number).
 class VerificationSnapshot {
   final VerificationState? state;
   final double? feeAmount;
@@ -151,13 +125,6 @@ class VerificationSnapshot {
   });
 }
 
-/// Result of `POST /verification/pay` — the updated verification plus the
-/// server's localized success message.
-///
-/// [checkoutUrl] is the Kapital hosted 3-D Secure page: present ONLY when the
-/// backend defers the charge to a real card gateway (mock off). While the mock
-/// gateway is on it is null and the fee is already settled server-side, exactly
-/// like the promotion/quota card flows.
 class VerificationPayResult {
   final VerificationState state;
   final String? message;

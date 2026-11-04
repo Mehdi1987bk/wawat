@@ -1,32 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_performance/firebase_performance.dart';
+import 'package:flutter/foundation.dart';
 
+import '../network_failure.dart';
 import 'api_event_map.dart';
 import 'telemetry.dart';
 import 'telemetry_events.dart';
 import 'telemetry_redactor.dart';
 
-/// Перехватчик Dio: превращает сетевой трафик в телеметрию.
-///
-/// Делает четыре вещи одновременно:
-///  1. **Воронка** — успешный `POST /listings` становится событием
-///     `listing_created` (таблица в [mappingFor]);
-///  2. **Здоровье API** — каждая ошибка уходит в панель с эндпоинтом, кодом и
-///     длительностью; 5xx дополнительно попадают в Crashlytics как non-fatal;
-///  3. **Производительность** — `HttpMetric` для Firebase Performance, потому
-///     что автоматическая инструментализация не видит трафик Dart;
-///  4. **Хлебные крошки** — последние запросы прикрепляются к отчёту о падении.
-///
-/// Ставится **последним** в цепочке, чтобы видеть запрос уже с заголовками,
-/// которые проставил `CallInterceptor`, и все ошибки, которые тот пропустил
-/// дальше по цепочке.
 class TelemetryInterceptor extends Interceptor {
   TelemetryInterceptor({this.slowRequestThreshold = const Duration(seconds: 3)});
 
-  /// Порог «медленного» запроса. 3 с — это уже заметная пауза в UI.
   final Duration slowRequestThreshold;
 
-  static const _startedAtKey = 'telemetry_started_at';
+  static const _startedAtKey = NetworkFailure.startedAtKey;
   static const _metricKey = 'telemetry_http_metric';
 
   @override
@@ -38,8 +25,6 @@ class TelemetryInterceptor extends Interceptor {
     );
     if (metric != null) {
       options.extra[_metricKey] = metric;
-      // start() асинхронный, но ждать его незачем — запрос не должен
-      // простаивать из-за метрики.
       metric.start().catchError((_) {});
     }
     handler.next(options);
@@ -85,8 +70,6 @@ class TelemetryInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Отмена — это всегда наше собственное решение (ушли с экрана, нет
-    // токена, перезапустили запрос), а не сбой. В панели ей не место.
     if (err.type == DioExceptionType.cancel) {
       handler.next(err);
       return;
@@ -96,7 +79,7 @@ class TelemetryInterceptor extends Interceptor {
     final duration = _durationOf(options);
     final endpoint = TelemetryRedactor.endpoint(options.path);
     final status = err.response?.statusCode ?? 0;
-    final isNetwork = _isNetworkProblem(err);
+    final verdict = verdictFor(err, duration);
 
     _stopMetric(options, status, err.response?.data);
 
@@ -110,15 +93,16 @@ class TelemetryInterceptor extends Interceptor {
       TelemetryParams.durationMs: duration.inMilliseconds,
       TelemetryParams.errorType: err.type.name,
       TelemetryParams.errorMessage: _shortMessage(err),
-      TelemetryParams.isOffline: isNetwork,
+      TelemetryParams.isOffline: verdict.isOffline,
+      TelemetryParams.failureKind: verdict.kind,
     };
+    final attempt = options.extra[NetworkFailure.attemptKey];
+    if (attempt is int) params[TelemetryParams.attempt] = attempt;
 
-    // Серверные 5xx — «чинить срочно», клиентские и обрывы связи — «смотреть».
-    // Панель ранжирует по этому весу, поэтому не оставляем всё как info.
     Telemetry.instance.event(
       TelemetryEvents.apiFailure,
       params: params,
-      severity: (status >= 500 || status == 0) && !isNetwork ? 'error' : 'warning',
+      severity: verdict.severity,
     );
 
     final mapping = mappingFor(options.method, endpoint);
@@ -136,12 +120,7 @@ class TelemetryInterceptor extends Interceptor {
           params: {TelemetryParams.endpoint: endpoint});
     }
 
-    // В Crashlytics отправляем только то, что действительно нужно чинить:
-    // серверные 5xx и неожиданные клиентские ошибки. Обрывы связи и 4xx —
-    // это состояние сети и валидация, они утопили бы отчёты в шуме.
-    final worthReporting =
-        !isNetwork && (status >= 500 || status == 0 || _isUnexpected(status));
-    if (worthReporting) {
+    if (verdict.report && options.extra[NetworkFailure.reportedKey] != true) {
       Telemetry.instance.error(
         err,
         err.stackTrace,
@@ -153,7 +132,22 @@ class TelemetryInterceptor extends Interceptor {
     handler.next(err);
   }
 
-  // ── Вспомогательное ─────────────────────────────────────────────────────
+  @visibleForTesting
+  static ({bool isOffline, String severity, bool report, String kind})
+      verdictFor(
+    DioException err,
+    Duration duration,
+  ) {
+    final failure = NetworkFailure.of(err, elapsed: duration);
+    return (
+      kind: failure.kind.name,
+      isOffline: failure.isOffline,
+      severity: failure.isRealFailure ? 'error' : 'warning',
+      report: failure.isRealFailure ||
+          (failure.kind == NetworkFailureKind.rejected &&
+              _isUnexpected(failure.statusCode)),
+    );
+  }
 
   Duration _durationOf(RequestOptions options) {
     final started = options.extra[_startedAtKey];
@@ -171,36 +165,18 @@ class TelemetryInterceptor extends Interceptor {
       }
       metric.stop().catchError((_) {});
     } catch (_) {
-      // Метрика — необязательная роскошь, ошибки в ней глотаем.
     } finally {
       options.extra.remove(_metricKey);
     }
   }
 
-  /// Пробрасывает id ресурса в событие: `/listings/8123/favorite` → 8123.
-  /// Без этого нельзя связать событие с конкретным объявлением в панели.
   Map<String, Object?> _idParams(String path) {
     final match = RegExp(r'/(?:listings|offers)/(\d+)').firstMatch(path);
     if (match == null) return const {};
     return {TelemetryParams.listingId: match.group(1)};
   }
 
-  bool _isNetworkProblem(DioException err) {
-    switch (err.type) {
-      case DioExceptionType.connectionError:
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  /// 4xx, которые не являются нормальной частью работы приложения.
-  /// 401/402 (сессия), 403, 404, 422 (валидация) — ожидаемы и обрабатываются
-  /// в UI, поэтому не считаются багом.
-  bool _isUnexpected(int status) =>
+  static bool _isUnexpected(int status) =>
       status >= 400 &&
       status < 500 &&
       status != 401 &&

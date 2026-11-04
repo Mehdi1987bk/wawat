@@ -54,8 +54,6 @@ class CreatePostBloc extends BaseBloc {
     return run(authRepository.createListing(request, idempotencyKey));
   }
 
-  /// Full update of an existing listing (PATCH /listings/{id}). The backend
-  /// re-runs moderation, so the returned listing comes back in `moderation`.
   Future<ListingResponse> updateListing(
     String id,
     CreateListingRequest request,
@@ -64,10 +62,6 @@ class CreatePostBloc extends BaseBloc {
     return run(authRepository.updateListing(id, request, idempotencyKey));
   }
 
-  /// Re-publish an expired/rejected listing (POST /listings/{id}/repost). Clones
-  /// a brand-new listing in `moderation` from the supplied request (which MUST
-  /// carry a fresh, future date); the old listing stays as history. Counts
-  /// against the active-listing quota — a 4xx `message` surfaces via [_submit].
   Future<ListingResponse> repostListing(
     String id,
     CreateListingRequest request,
@@ -76,16 +70,10 @@ class CreatePostBloc extends BaseBloc {
     return run(authRepository.repostListing(id, request, idempotencyKey));
   }
 
-  /// Fetch the full listing to pre-fill the repost form — list payloads can omit
-  /// flight_time / description. No `run()` wrapper: the screen keeps the fields
-  /// it already pre-filled from the passed-in listing if this fails.
   Future<ListingResponse> getListingDetails(String id) {
     return authRepository.getListingDetails(id);
   }
 
-  /// Top-level server `message` (403 permission/status, or a domain error such
-  /// as the verification-tier weight limit) — shown when there are no
-  /// field-level validation errors to attach.
   String? extractErrorMessage(Object error) {
     if (error is! DioException) return null;
     final data = error.response?.data;
@@ -96,7 +84,6 @@ class CreatePostBloc extends BaseBloc {
     return null;
   }
 
-  /// 422 — the server rejected the payload (validation or quota).
   bool isUnprocessable(Object error) =>
       error is DioException && error.response?.statusCode == 422;
 

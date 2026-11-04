@@ -44,8 +44,6 @@ String _contentText(Map<String, String> content, String key,
   return WawatContent.text(content, key, fallback);
 }
 
-/// Price fields show a per-kilogram price, so they go through the shared CMS
-/// normaliser: USD instead of any leftover ₼, and the unit as `kq/$`.
 String _priceLabel(Map<String, String> content, String key) =>
     WawatContent.priceLabel(content, key);
 
@@ -73,7 +71,6 @@ class _SearchOfferListScreenState
   final ScrollController _scrollController = ScrollController();
   bool _showResults = false;
   bool _currentSearchSaved = false;
-  // 0 = route search (untouched), 1 = people search.
   int _topTab = 0;
 
   void _onTopTabChanged(int i) {
@@ -92,8 +89,6 @@ class _SearchOfferListScreenState
   }
 
   bool _advancedOpen = false;
-  // True while editing the route from an existing results view — so the
-  // back button returns to those results instead of leaving the screen.
   bool _editingFromResults = false;
 
   @override
@@ -101,7 +96,6 @@ class _SearchOfferListScreenState
 
   @override
   void onLocaleChanged() {
-    // Refresh backend-localized labels; only re-run the query if results show.
     bloc.reloadLocalizedLabels();
     if (_showResults) bloc.refreshList();
   }
@@ -181,13 +175,9 @@ class _SearchOfferListScreenState
   Widget _buildEntry(Map<String, String> content) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return CustomScrollView(
-      // Same controller as the results view — only one is mounted at a time,
-      // so re-tapping the Search tab scrolls whichever is showing to the top.
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        // Tabs sit at the very top; the "Поиск" header is now part of the first
-        // tab's content (below the tabs), not above them.
         SliverToBoxAdapter(
           child: SearchSegmentTabs(index: 0, onChanged: _onTopTabChanged),
         ),
@@ -400,8 +390,6 @@ class _SearchOfferListScreenState
     });
   }
 
-  // Back from the route-edit view: return to the results we came from instead
-  // of leaving the screen. Only leaves when we opened straight into the form.
   void _backFromEntry() {
     if (_editingFromResults) {
       setState(() {
@@ -463,10 +451,6 @@ class _SearchOfferListScreenState
     }
   }
 
-  /// Saved searches opened as the entry point (from the profile menu): this
-  /// search form is only scaffolding for it. If the user backs out without
-  /// picking a search, pop the form too so we return straight to the profile
-  /// instead of exposing an empty search screen.
   Future<void> _openSavedSearchesAsEntry() async {
     if (!await _ensureAuth()) {
       if (mounted) Navigator.of(context).maybePop();
@@ -1544,8 +1528,6 @@ class _SearchEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Only the "create alert" suggestion is offered here — the reverse-listing
-    // ('post_opposite') and broaden-search ('broaden') actions were dropped.
     final filtered =
         suggestions.where((s) => s.action == 'create_alert').toList();
     final items = filtered.isEmpty
@@ -1603,13 +1585,9 @@ class _SearchEmpty extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(bottom: 10),
-                // Horizontal padding gives the label breathing room so long
-                // (localized) text wraps to a second line instead of running to
-                // the rounded edges.
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  // Solid brand fill → a prominent primary CTA, not a soft chip.
                   color: cBrandFill,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
@@ -1903,9 +1881,6 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: isDark ? WawatDark.bg : Colors.white,
-      // Tap anywhere outside a field to dismiss the (Done-less) numeric keyboard.
-      // A single handler here — instead of per-field onTapOutside, which made
-      // sibling fields unfocus each other and flicker the keyboard shut.
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
@@ -1954,7 +1929,6 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  // Swiping/scrolling the sheet also dismisses the keyboard.
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(20, 18, 20, 100),
@@ -1966,8 +1940,6 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
                       ListingTypeFilter(
                         value: _filters.type,
                         content: widget.content,
-                        // In the filter, null = "All" is a real, shown selection
-                        // (not a pristine placeholder).
                         showPlaceholder: false,
                         onChanged: (value) => setState(
                           () => _filters = _filters.copyWith(
@@ -2191,8 +2163,6 @@ class _SearchFilterScreenState extends State<_SearchFilterScreen> {
   }
 
   Widget _tier(String label, String? value) {
-    // Single-select minimum-tier threshold: "value and above". "Any" (null)
-    // clears it. The server enforces the threshold via `tier_min`.
     return _Pill(
       label: label,
       selected: _filters.tierMin == value,
@@ -2322,9 +2292,6 @@ class _SavedSearchesScreenState extends State<_SavedSearchesScreen> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _items = previous);
-      // Deletion can be rejected server-side (e.g. an active alert tied to
-      // this search); without this the row just silently snapped back with
-      // no explanation, which reads to the user as "delete doesn't work".
       _showError(_deleteErrorMessage(error));
     } finally {
       if (mounted) {
@@ -2888,19 +2855,11 @@ List<SavedSearch> _visibleSavedSearches(List<SavedSearch> items) {
 bool _isUnnamedIdOnlySearch(SavedSearch item) {
   final name = item.name?.trim() ?? '';
   if (name.isNotEmpty && !RegExp(r'^\d+$').hasMatch(name)) return false;
-  // An active alert is always a real, user-facing search — even one that
-  // was broadened to "any city" (both route fields cleared) — and must stay
-  // reachable so it can be turned off or deleted.
   if (item.notify) return false;
   final filters = item.filters;
   if (_hasSavedCityLabel(filters, 'from') || _hasSavedCityLabel(filters, 'to')) {
     return false;
   }
-  // No route set either: only treat this as a throwaway stub if it also
-  // carries none of the other filters a user could have picked when
-  // broadening a route-less search (weight/price/dates/etc). Otherwise a
-  // deliberately city-less search would be hidden from this screen with no
-  // way to reach its delete button.
   const otherFilterKeys = [
     'type',
     'package_types',

@@ -44,10 +44,8 @@ class _CitySelectorState extends State<CitySelector> {
   }
 
   void _onSearchChanged() {
-    // Отменяем предыдущий таймер если он есть
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-    // Создаем новый таймер на 500ms
     _debounce = Timer(const Duration(milliseconds: 500), () {
       final query = _searchController.text.trim();
       widget.onSearchChanged(query);
@@ -65,7 +63,6 @@ class _CitySelectorState extends State<CitySelector> {
       ),
       child: Column(
         children: [
-          // Handle bar
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -76,7 +73,6 @@ class _CitySelectorState extends State<CitySelector> {
             ),
           ),
 
-          // Header
           Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -106,7 +102,6 @@ class _CitySelectorState extends State<CitySelector> {
             ),
           ),
 
-          // Search field
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: AnimatedContainer(
@@ -176,7 +171,6 @@ class _CitySelectorState extends State<CitySelector> {
 
           const SizedBox(height: 12),
 
-          // Cities list
           Expanded(
             child: widget.isLoading && widget.cities.isEmpty
                 ? const Center(
@@ -215,8 +209,6 @@ class _CitySelectorState extends State<CitySelector> {
                         ),
                       )
                     : ListView.separated(
-                        // Reserve the Android system-nav inset so the last city
-                        // clears the gesture bar at the sheet's bottom edge.
                         padding: EdgeInsets.only(
                           top: 8,
                           bottom: 8 + MediaQuery.of(context).viewPadding.bottom,

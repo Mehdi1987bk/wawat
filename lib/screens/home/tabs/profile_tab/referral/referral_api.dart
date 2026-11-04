@@ -2,15 +2,11 @@ import 'package:dio/dio.dart';
 
 import '../../../../../main.dart';
 
-/// Data-layer for the "Dostunu dəvət et" (referral) feature, wired to the live
-/// API. Mirrors [BlockedUsersApi]: `sl.get<Dio>()`, global [baseUrl], manual
-/// `fromJson`, defensive on 404 (empty stats / empty invite list).
 class ReferralApi {
   ReferralApi({Dio? dio}) : _dio = dio ?? sl.get<Dio>();
 
   final Dio _dio;
 
-  /// GET /me/referral → code, share link, stats.
   Future<ReferralInfo> getInfo() async {
     try {
       final res = await _dio.get<Map<String, dynamic>>('$baseUrl/me/referral');
@@ -24,7 +20,6 @@ class ReferralApi {
     }
   }
 
-  /// GET /me/referral/invites → the people this user invited.
   Future<List<ReferralInvite>> getInvites() async {
     try {
       final res =
@@ -41,7 +36,6 @@ class ReferralApi {
     }
   }
 
-  /// Public pre-registration preview: GET /referral/{code} (no auth).
   Future<ReferralInviter?> getInviter(String code) async {
     try {
       final res =
@@ -115,7 +109,7 @@ class ReferralInvite {
   final String id;
   final String name;
   final String? avatar;
-  final String status; // rewarded | pending | joined | ...
+  final String status;
   final String statusLabel;
   final DateTime? invitedAt;
   final DateTime? rewardedAt;
@@ -146,7 +140,6 @@ class ReferralInvite {
     return ReferralInvite(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
-      // Ready thumbnail url (the old raw `avatar` path never rendered).
       avatar: json['avatar_thumb_url']?.toString() ??
           json['avatar_url']?.toString(),
       status: json['status']?.toString() ?? 'pending',
@@ -157,7 +150,6 @@ class ReferralInvite {
   }
 }
 
-/// Public inviter preview shown on the pre-registration landing.
 class ReferralInviter {
   final String code;
   final String referrerName;

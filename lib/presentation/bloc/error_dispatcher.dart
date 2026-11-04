@@ -25,7 +25,6 @@ mixin ErrorDispatcher<Page extends BaseScreen, Bloc extends BaseBloc>
       if (error is DioException) {
         final response = error.response;
 
-        // Показываем только ошибки со статусом 422
         if (response?.statusCode != 422) {
           return;
         }

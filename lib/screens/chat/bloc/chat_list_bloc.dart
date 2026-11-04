@@ -6,13 +6,23 @@ import '../../../data/network/api/chat_api.dart';
 import '../../../data/network/response/chat_response.dart';
 import '../../../main.dart';
 import '../../../presentation/bloc/base_bloc.dart';
+import '../../../services/notification_socket_service.dart';
 import '../../../services/pusher_service.dart';
-import '../../home/tabs/profile_tab/unread_chat_bloc.dart';
 
 class ChatListBloc extends BaseBloc {
-  final ChatApi _chatApi = ChatApi(sl.get<Dio>());
-  final PusherService _pusherService = PusherService();
-  final CacheManager _cacheManager = sl.get<CacheManager>();
+  ChatListBloc({
+    ChatApi? chatApi,
+    PusherService? pusher,
+    CacheManager? cacheManager,
+  })  : _chatApi = chatApi ?? ChatApi(sl.get<Dio>()),
+        _pusherService = pusher ?? PusherService(),
+        _cacheManager = cacheManager ?? sl.get<CacheManager>();
+
+  final ChatApi _chatApi;
+  final PusherService _pusherService;
+  final CacheManager _cacheManager;
+  final NotificationSocketService _notifications =
+      NotificationSocketService.instance;
 
   final BehaviorSubject<List<Conversation>> _conversationsSubject =
       BehaviorSubject.seeded([]);
@@ -26,8 +36,6 @@ class ChatListBloc extends BaseBloc {
   Stream<bool> get isLoadingMoreStream => _isLoadingMoreSubject.stream;
   Stream<bool> get isLoadingStream => _isLoadingSubject.stream;
 
-  /// Block/unblock failures (e.g. 422 "can't block yourself", missing id).
-  /// Surfaced so the list screen can show them instead of failing silently.
   Stream<Object> get actionErrorsStream => _actionErrorsSubject.stream;
 
   int _currentPage = 1;
@@ -36,11 +44,16 @@ class ChatListBloc extends BaseBloc {
   bool _showArchived = false;
   bool _isInitialized = false;
   bool _isFallbackRefreshing = false;
+  bool _refreshWanted = false;
   int? _myUserId;
-  final Set<String> _subscribedConversationIds = {};
   Timer? _realtimeRefreshTimer;
   Timer? _fallbackRefreshTimer;
   int _fallbackTick = 0;
+  final List<StreamSubscription<void>> _liveSubscriptions = [];
+
+  bool _staleUnderChat = false;
+
+  bool get _coveredByChat => _notifications.activeConversationId != null;
 
   Future<void> init() async {
     if (_isInitialized) return;
@@ -57,30 +70,53 @@ class ChatListBloc extends BaseBloc {
         );
       }
     }
-    // Список обновляется по событию из Reverb (_onConversationEvent).
-    // Опрос каждые 15 секунд поверх этого давал 1322 запроса к /conversations
-    // в сутки — почти все впустую.
+    _liveSubscriptions
+      ..add(_notifications.onChatActivity.listen((_) => _onLiveEvent()))
+      ..add(_notifications.onNotificationsChanged.listen((_) => _onLiveEvent()));
+    _notifications.activeConversation.addListener(_onActiveChatChanged);
     _fallbackRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       _fallbackTick++;
       if (!_pusherService.isConnected || _fallbackTick % 3 == 0) {
-        unawaited(_fallbackRefresh());
+        unawaited(refreshIfVisible());
       }
     });
   }
 
-  void _onConversationEvent(Map<String, dynamic> data) {
+  void _onConversationEvent(Map<String, dynamic> data) => _onLiveEvent();
+
+  void _onLiveEvent() {
+    if (_coveredByChat) {
+      _staleUnderChat = true;
+      return;
+    }
     _realtimeRefreshTimer?.cancel();
     _realtimeRefreshTimer = Timer(const Duration(milliseconds: 250), () {
-      unawaited(_fallbackRefresh());
+      unawaited(refreshIfVisible());
     });
   }
 
-  Future<void> _fallbackRefresh() async {
-    if (_isFallbackRefreshing) return;
+  void _onActiveChatChanged() {
+    if (_coveredByChat || !_staleUnderChat) return;
+    unawaited(refreshIfVisible());
+  }
+
+  Future<void> refreshIfVisible() async {
+    if (_coveredByChat) {
+      _staleUnderChat = true;
+      return;
+    }
+    if (_isFallbackRefreshing) {
+      _refreshWanted = true;
+      return;
+    }
     _isFallbackRefreshing = true;
     try {
-      await refreshCurrent();
-      await sl.get<UnreadChatBloc>().fetchUnreadCount();
+      do {
+        _refreshWanted = false;
+        await refreshCurrent();
+      } while (_refreshWanted &&
+          !_coveredByChat &&
+          !_conversationsSubject.isClosed);
     } finally {
       _isFallbackRefreshing = false;
     }
@@ -95,7 +131,6 @@ class ChatListBloc extends BaseBloc {
       final response = await _chatApi.getConversations(20, _currentPage);
       _conversationsSubject.add(response.data);
       _lastPage = response.meta.lastPage;
-      await _syncRealtimeSubscriptions(response.data);
     } catch (e) {
       print('Error loading conversations: $e');
       _conversationsSubject.addError(e);
@@ -132,7 +167,6 @@ class ChatListBloc extends BaseBloc {
           await _chatApi.getArchivedConversations(20, _currentPage);
       _conversationsSubject.add(response.data);
       _lastPage = response.meta.lastPage;
-      await _syncRealtimeSubscriptions(response.data);
     } catch (e) {
       print('Error loading archived conversations: $e');
       _conversationsSubject.addError(e);
@@ -157,7 +191,6 @@ class ChatListBloc extends BaseBloc {
       final conversations = [...currentConversations, ...response.data];
       _conversationsSubject.add(conversations);
       _lastPage = response.meta.lastPage;
-      await _syncRealtimeSubscriptions(conversations);
     } catch (e) {
       print('Error loading more: $e');
       _currentPage--;
@@ -218,17 +251,8 @@ class ChatListBloc extends BaseBloc {
     }
   }
 
-  /// Non-destructive refresh for the realtime / 15s-timer / app-resume paths and
-  /// when returning to the list from a chat. Unlike [loadConversations] it keeps
-  /// pagination and the current item count intact: it refetches the first page
-  /// and MERGES it into the already-loaded set (updating changed rows, adding
-  /// brand-new ones) rather than replacing everything with page 1. Replacing
-  /// used to shrink an 80-item paginated list back to 20 and yank a scrolled-down
-  /// user violently back up. Ordering is owned by the UI sort (pinned + recency),
-  /// so here we only preserve the count. Full resets stay on
-  /// [loadConversations]/[loadArchivedConversations] (tab switch, pull-to-refresh)
-  /// where the list is at the top anyway.
   Future<void> refreshCurrent() async {
+    _staleUnderChat = false;
     try {
       final response = _showArchived
           ? await _chatApi.getArchivedConversations(20, 1)
@@ -240,7 +264,6 @@ class ChatListBloc extends BaseBloc {
       if (existing.isEmpty) {
         _currentPage = 1;
         _conversationsSubject.add(fresh);
-        await _syncRealtimeSubscriptions(fresh);
         return;
       }
 
@@ -248,18 +271,14 @@ class ChatListBloc extends BaseBloc {
       final seen = <String>{};
       final merged = <Conversation>[];
       for (final c in existing) {
-        // Replace an already-loaded row with its fresh copy (new last message,
-        // unread count, pin state…); keep older paginated rows untouched.
         merged.add(freshById[c.id] ?? c);
         seen.add(c.id);
       }
-      // Conversations that appeared on page 1 since the last load.
       for (final c in fresh) {
         if (!seen.contains(c.id)) merged.add(c);
       }
 
       _conversationsSubject.add(merged);
-      await _syncRealtimeSubscriptions(merged);
     } catch (e) {
       print('Error refreshing conversations: $e');
     }
@@ -276,45 +295,15 @@ class ChatListBloc extends BaseBloc {
         _onConversationEvent,
       );
     }
-    await _syncRealtimeSubscriptions(_conversationsSubject.value);
-  }
-
-  Future<void> _syncRealtimeSubscriptions(
-    List<Conversation> conversations,
-  ) async {
-    final desiredIds = conversations.map((item) => item.id).toSet();
-    final removed = _subscribedConversationIds.difference(desiredIds);
-    final added = desiredIds.difference(_subscribedConversationIds);
-
-    for (final id in removed) {
-      await _pusherService.unsubscribeFromConversation(
-        id,
-        _onConversationEvent,
-      );
-    }
-    for (final id in added) {
-      await _pusherService.subscribeToConversation(
-        id,
-        _onConversationEvent,
-      );
-    }
-
-    _subscribedConversationIds
-      ..clear()
-      ..addAll(desiredIds);
   }
 
   @override
   void dispose() {
     _realtimeRefreshTimer?.cancel();
     _fallbackRefreshTimer?.cancel();
-    for (final id in _subscribedConversationIds) {
-      unawaited(
-        _pusherService.unsubscribeFromConversation(
-          id,
-          _onConversationEvent,
-        ),
-      );
+    _notifications.activeConversation.removeListener(_onActiveChatChanged);
+    for (final subscription in _liveSubscriptions) {
+      unawaited(subscription.cancel());
     }
     if (_myUserId != null) {
       unawaited(
@@ -324,7 +313,6 @@ class ChatListBloc extends BaseBloc {
         ),
       );
     }
-    _subscribedConversationIds.clear();
     _conversationsSubject.close();
     _isLoadingMoreSubject.close();
     _isLoadingSubject.close();

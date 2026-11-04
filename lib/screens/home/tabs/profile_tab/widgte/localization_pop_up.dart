@@ -28,9 +28,9 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
 
   @override
   Widget build(BuildContext context) {
-    final locales = getSupportedLocales(context); // Add this line
+    final locales = getSupportedLocales(context);
 
-    final currentSupportedLocale = locales // Changed from supportedLocales
+    final currentSupportedLocale = locales
         .firstWhereOrNull((element) => element.locale == _currentLocale);
 
     return Consumer<ThemeManager>(
@@ -59,7 +59,6 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Индикатор свайпа
                 Center(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
@@ -74,7 +73,6 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                   ),
                 ),
 
-                // Заголовок
                 Container(
                   margin: const EdgeInsets.only(top: 20, bottom: 16),
                   child: Row(
@@ -118,12 +116,10 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                   ),
                 ),
 
-                // Список языков
                 Expanded(
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
                     children: locales.map((e) {
-                      // Changed from supportedLocales
                       final isSelected = e == currentSupportedLocale;
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
@@ -165,7 +161,6 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                           ),
                           child: Row(
                             children: [
-                              // Флаг
                               Container(
                                 width: 36,
                                 height: 36,
@@ -188,7 +183,6 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                               ),
                               const SizedBox(width: 12),
 
-                              // Название языка
                               Expanded(
                                 child: AnimatedDefaultTextStyle(
                                   duration: const Duration(milliseconds: 200),
@@ -209,7 +203,6 @@ class _LocalizationPopUpState extends State<LocalizationPopUp> {
                                 ),
                               ),
 
-                              // Чекбокс/индикатор
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
                                 width: 22,

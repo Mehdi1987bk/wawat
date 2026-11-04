@@ -73,7 +73,7 @@ class _TextFilddState extends State<TextFildd> {
               maxLines: 1,
               focusNode: _focusNode,
               cursorColor: theme.primaryColor,
-              keyboardAppearance: isDark ? Brightness.dark : Brightness.light, // ← ДОБАВЛЕНО ДЛЯ КЛАВИАТУРЫ
+              keyboardAppearance: isDark ? Brightness.dark : Brightness.light,
               style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 20

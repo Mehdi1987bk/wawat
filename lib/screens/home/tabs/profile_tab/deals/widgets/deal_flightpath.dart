@@ -4,7 +4,6 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../../../presentation/resourses/wawat_dark.dart';
 import 'deal_status.dart';
 
-/// Route mini-widget: `cityFrom  ●┄┄(✈)┄┄○  cityTo`, matching the mockup's `.fp` block.
 class DealFlightPath extends StatelessWidget {
   final String cityFrom;
   final String cityTo;

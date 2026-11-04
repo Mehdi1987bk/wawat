@@ -1,9 +1,11 @@
+import 'package:buking/data/network/response/content_response.dart';
 import 'package:buking/data/network/response/listing_response.dart';
+import 'package:buking/domain/repositories/auth_repository.dart';
+import 'package:buking/main.dart' show sl;
 import 'package:buking/screens/home/tabs/listings/widgets/listing_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Every status the API sends for a listing.
 const _allStatuses = [
   'active',
   'moderation',
@@ -47,7 +49,19 @@ Future<void> _pumpOwnerCard(WidgetTester tester, Listing listing) async {
   await tester.pump();
 }
 
+class _NoContent implements AuthRepository {
+  @override
+  Future<ContentResponse> getContent({String? group, String? lang}) async =>
+      ContentResponse();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
+  setUpAll(() => sl.registerSingleton<AuthRepository>(_NoContent()));
+  tearDownAll(sl.reset);
+
   group('Listing.canBePromoted', () {
     for (final status in _allStatuses) {
       test(status, () {
@@ -82,10 +96,8 @@ void main() {
         tester,
       ) async {
         await _pumpOwnerCard(tester, _listing(status, promotion: vip));
-        // The status panel is information, not a CTA — it stays.
         expect(find.text('VİP aktiv'), findsOneWidget);
         expect(find.text('Uzat'), visible ? findsOneWidget : findsNothing);
-        // VIP and boost don't mix: no boost CTA of any kind on a VIP listing.
         expect(find.text('Önə də çək'), findsNothing);
         expect(find.text('Önə çək'), findsNothing);
         expect(find.text('Zolağı yüksəlt'), findsNothing);
@@ -103,7 +115,6 @@ void main() {
       ) async {
         await _pumpOwnerCard(tester, _listing(status, promotion: boost));
         final matcher = visible ? findsOneWidget : findsNothing;
-        // A boosted listing may still go VIP, and keeps its boost extension.
         expect(find.text('VİP et'), matcher);
         expect(find.text('Uzat'), matcher);
         expect(find.text('Zolağı yüksəlt'), matcher);
@@ -172,7 +183,6 @@ void main() {
     await _pumpOwnerCard(tester, _listing('active', id: 'same'));
     expect(find.text('Önə çək'), findsOneWidget);
 
-    // The list re-reads the listing after the purchase.
     await _pumpOwnerCard(
       tester,
       _listing('active', id: 'same', promotion: vip),
@@ -180,14 +190,12 @@ void main() {
     expect(find.text('Önə çək'), findsNothing);
     expect(find.text('Önə də çək'), findsNothing);
 
-    // Server cleared promotion_type once the VIP ran out.
     await _pumpOwnerCard(tester, _listing('active', id: 'same'));
     expect(find.text('Önə çək'), findsOneWidget);
     expect(find.text('VİP et'), findsOneWidget);
   });
 
   group('owner action row', () {
-    // Status → which of pause / resume / repost the backend allows.
     const expected = {
       'active': {'Dayandır'},
       'moderation': {'Dayandır'},
@@ -220,7 +228,6 @@ void main() {
   testWidgets('a listing that expires while shown loses the CTAs on refresh', (
     tester,
   ) async {
-    // Same listing, same card state — only the refreshed status changes.
     await _pumpOwnerCard(tester, _listing('active', id: 'same'));
     expect(find.text('VİP et'), findsOneWidget);
 

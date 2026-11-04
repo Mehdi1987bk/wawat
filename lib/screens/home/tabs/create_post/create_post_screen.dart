@@ -228,26 +228,49 @@ Future<TimeOfDay?> _showWawatTimePicker({
   );
 }
 
+/// Данные выбранного рейса для объявления-поездки.
+///
+/// Приходит из раздела рейсов: человек выбрал рейс в списке, и маршрут, дата,
+/// время и номер подставляются сами — заполнять их руками больше не нужно.
+/// [onCreated] вызывается сразу после успешного создания: раздел рейсов
+/// запоминает, какому объявлению какой рейс соответствует.
+class TripFlightPrefill {
+  const TripFlightPrefill({
+    this.fromCity,
+    this.toCity,
+    this.flightDate,
+    this.flightTime,
+    this.flightNumber,
+    this.onCreated,
+  });
+
+  final City? fromCity;
+  final City? toCity;
+  final DateTime? flightDate;
+  final TimeOfDay? flightTime;
+
+  /// Компактный номер, максимум 8 символов: `TK333`, не `TK 333`.
+  final String? flightNumber;
+
+  final void Function(Listing listing)? onCreated;
+}
+
 class CreatePostScreen extends BaseScreen<CreatePostBloc> {
   final String? initialType;
 
-  /// When set, the screen edits this listing instead of creating a new one:
-  /// the type picker is skipped, the form is pre-filled, and submit does a full
-  /// PATCH /listings/{id} (which sends the listing back to moderation).
   final Listing? editListing;
 
-  /// When set, the screen RE-PUBLISHES this expired/rejected listing: the form
-  /// is pre-filled from it (route, type, weight, price, flight time/number,
-  /// description) — but NOT the date, which must be picked anew (future only) —
-  /// and submit calls POST /listings/{id}/repost, cloning a NEW listing in
-  /// moderation. The old date is in the past and would 422, so it is dropped.
   final Listing? repostListing;
+
+  /// Рейс, выбранный в разделе рейсов.
+  final TripFlightPrefill? flightPrefill;
 
   CreatePostScreen({
     super.key,
     this.initialType,
     this.editListing,
     this.repostListing,
+    this.flightPrefill,
   });
 
   @override
@@ -293,8 +316,6 @@ class _CreatePostScreenState
 
   bool get _isReposting => widget.repostListing != null;
 
-  /// Both edit and repost open with a known type and pre-filled fields, so the
-  /// type picker is skipped and back at step 0 leaves the screen.
   bool get _isPrefilled => _isEditing || _isReposting;
 
   Color get _accent => _isTrip ? _brand : _amber;
@@ -311,33 +332,36 @@ class _CreatePostScreenState
     if (widget.editListing != null) {
       _prefillFromListing(widget.editListing!);
     } else if (widget.repostListing != null) {
-      // Pre-fill from what we already have (usable instantly), then hydrate from
-      // the full listing since a feed item can omit flight_time / description.
-      // Dates are intentionally left empty — the old date is in the past.
       _prefillFromListing(widget.repostListing!, keepDates: false);
       _hydrateRepostSource(widget.repostListing!.id);
+    } else if (widget.flightPrefill != null) {
+      _prefillFromFlight(widget.flightPrefill!);
     }
     _loadRefs();
     _refreshCurrentUser();
   }
 
-  /// Re-fill the form from the authoritative full listing (GET /listings/{id}).
-  /// Only applies while the user is still on step 0 so it never overwrites edits;
-  /// dates stay empty. Silent on failure — the initial pre-fill remains.
   Future<void> _hydrateRepostSource(String id) async {
     try {
       final response = await bloc.getListingDetails(id);
       if (!mounted || _step != 0) return;
       setState(() => _prefillFromListing(response.data, keepDates: false));
     } catch (_) {
-      // Keep the fields already pre-filled from the passed-in listing.
     }
   }
 
-  /// Seed every form field from the listing being edited/reposted. Only the id
-  /// is sent for cities, so the display-only country fields can be blank. When
-  /// [keepDates] is false (repost), the date fields are left empty so the user
-  /// must pick a fresh future date (the old one is in the past → 422).
+  void _prefillFromFlight(TripFlightPrefill prefill) {
+    _type = 'trip';
+    _step = 0;
+    if (prefill.fromCity != null) _fromCity = prefill.fromCity;
+    if (prefill.toCity != null) _toCity = prefill.toCity;
+    if (prefill.flightDate != null) _flightDate = prefill.flightDate;
+    if (prefill.flightTime != null) _flightTime = prefill.flightTime;
+    if (prefill.flightNumber != null) {
+      _flightNumber.text = prefill.flightNumber!;
+    }
+  }
+
   void _prefillFromListing(Listing l, {bool keepDates = true}) {
     _type = l.type;
     _step = 0;
@@ -520,7 +544,6 @@ class _CreatePostScreenState
           onBack: () {
             if (_step == 0) {
               if (_isPrefilled) {
-                // No type picker to fall back to when editing/reposting — leave.
                 Navigator.of(context).maybePop();
               } else {
                 setState(() {
@@ -666,9 +689,6 @@ class _CreatePostScreenState
 
   Future<void> _selectType(String type, [ListingQuotaItem? quota]) async {
     if (quota != null && quota.remaining <= 0) {
-      // The gate returns the type when it frees a slot (paused a listing); then
-      // continue THIS wizard into the form instead of stacking a second create
-      // screen, so backing out passes through the type picker only once.
       final freedType = await Navigator.of(context).push<String>(
         MaterialPageRoute(
           fullscreenDialog: true,
@@ -945,13 +965,10 @@ class _CreatePostScreenState
                 ),
           maxLines: _isTrip ? 4 : 3,
           error: _errors['description'],
-          // Hard cap at 2000 characters — the field can't exceed it.
           inputFormatters: [LengthLimitingTextInputFormatter(2000)],
         ),
         Align(
           alignment: Alignment.centerRight,
-          // Rebuild only the counter as the user types (the parent step build
-          // does not run on every keystroke, which is why it was stuck at 0).
           child: ValueListenableBuilder<TextEditingValue>(
             valueListenable: _description,
             builder: (context, value, _) => Text(
@@ -1038,15 +1055,10 @@ class _CreatePostScreenState
     );
   }
 
-  /// Created / reposted: promotable listings get the VIP / boost upsell; any
-  /// other status (see [Listing.canBePromoted]) skips it straight to my listings.
   void _showCreated(ListingResponse response) {
+    widget.flightPrefill?.onCreated?.call(response.data);
     if (response.data.canBePromoted) {
       setState(() => _successResponse = response);
-      // Объявление размещено, экран остаётся на месте — осмысленный момент,
-      // чтобы предложить уведомления: дальше человек ждёт первое предложение.
-      // Второй ветке (pushReplacement) предлагать нельзя: лист уедет вместе с
-      // экраном. См. services/push_permission_prompt.dart.
       unawaited(
         maybeAskPushPermission(context, PushPromptTrigger.listingCreated),
       );
@@ -1262,15 +1274,10 @@ class _CreatePostScreenState
           _idempotencyKey(),
         );
         if (!mounted) return;
-        // Return the updated listing so the caller can show the "back to
-        // moderation" message and refresh.
         Navigator.of(context).pop(response);
         return;
       }
       if (widget.repostListing != null) {
-        // Clone a fresh listing (with the new date) via /repost, then show the
-        // same success screen as a normal creation — it lands in moderation and
-        // the user can promote it right away.
         final response = await bloc.repostListing(
           widget.repostListing!.id,
           _request(),
@@ -1303,8 +1310,6 @@ class _CreatePostScreenState
           _step = parsed.keys.any(_isRouteField) ? 0 : 1;
         });
       } else {
-        // 403 (not owner / wrong status) or a domain error (e.g. weight over the
-        // verification-tier limit) — only a message, so surface it.
         final message = bloc.extractErrorMessage(error) ??
             _listingText('common.error', 'Xəta baş verdi. Yenidən cəhd edin.');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1319,9 +1324,6 @@ class _CreatePostScreenState
     }
   }
 
-  /// A spent quota makes /repost answer 422 with no machine code (the text
-  /// sits in `errors.type`). Don't parse the text: re-read the quota and, if no
-  /// slot is left, swap the form for the same limit gate as at creation.
   Future<bool> _openLimitGateIfExhausted() async {
     final listing = widget.repostListing!;
     final type = _type ?? listing.type;
@@ -1518,8 +1520,6 @@ class _CreateHeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Full-bleed blue header (no SafeArea), so offset the content below the
-    // status bar manually — otherwise the title collides with the clock/notch.
     final topInset = MediaQuery.of(context).padding.top;
     return Container(
       height: 140 + topInset,
@@ -1543,7 +1543,6 @@ class _CreateHeroHeader extends StatelessWidget {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: onClose,
-                  // Larger, comfortable 46×46 hit area (the bare glyph was ~28).
                   child: const SizedBox(
                     width: 46,
                     height: 46,
@@ -2518,7 +2517,6 @@ class _DateTile extends StatelessWidget {
           error: error,
           onTap: () async {
             final now = DateTime.now();
-            // Allow picking today as the departure date, not only tomorrow+.
             final today = DateTime(now.year, now.month, now.day);
             final initial =
                 (value != null && !value!.isBefore(today)) ? value! : today;
@@ -4314,8 +4312,6 @@ class _PackageTypeSheet extends StatelessWidget {
 }
 
 IconData _packageIconFor(PackageType item) {
-  // Ветвимся только по машинному code — локализованное name в других языках
-  // (ru/en/…) не содержит азербайджанских подстрок и иконка ломалась.
   final code = item.code.toLowerCase();
   if (code.contains('doc')) {
     return PhosphorIconsFill.fileText;
@@ -4434,8 +4430,6 @@ class _BottomCta extends StatelessWidget {
         ),
       ),
       child: Padding(
-        // Reserve the OS nav-bar / home-indicator inset (paddingOf), then add
-        // breathing room above it so the buttons never hug the system bar.
         padding: EdgeInsets.fromLTRB(
             16, 12, 16, MediaQuery.paddingOf(context).bottom + 24),
         child: Row(

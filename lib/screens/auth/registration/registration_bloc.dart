@@ -53,9 +53,9 @@ class RegistrationBloc extends BaseBloc {
 
     try {
       await _authRepository.registration(request);
-      // Access token уже сохранён репозиторием. До завершения регистрации сразу
-      // отправляем актуальный FCM token авторизованным запросом.
-      await _syncFcmTokenAfterAuth();
+      if (!_authRepository.awaitingEmailVerification) {
+        await _syncFcmTokenAfterAuth();
+      }
       return const AuthActionResult.success();
     } on DioException catch (e) {
       final result = _parseDioError(e);
@@ -130,7 +130,6 @@ class RegistrationBloc extends BaseBloc {
   }
 
   Future<void> _syncFcmTokenAfterAuth() async {
-    // См. login_bloc: отправку и логи берёт на себя PushNotificationService.
     await PushNotificationService().syncToken(reason: 'registration');
   }
 }

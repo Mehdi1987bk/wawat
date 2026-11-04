@@ -2,8 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'localization_service.dart';
+import 'network_failure.dart';
+import 'network_status_service.dart';
 
 typedef PusherMessageCallback = void Function(Map<String, dynamic> data);
 
@@ -16,34 +21,76 @@ class PusherService {
 
   factory PusherService() => _instance;
 
-  PusherService._internal();
+  PusherService._internal({
+    Uri? socketUri,
+    Uri? authUri,
+    Duration authRetryPause = const Duration(seconds: 5),
+  })  : _socketUriOverride = socketUri,
+        _authUri = authUri ?? Uri.parse(_authUrl),
+        _authRetryPause = authRetryPause;
+
+  @visibleForTesting
+  factory PusherService.forTest({
+    required Uri socketUri,
+    required Uri authUri,
+    Duration authRetryPause = const Duration(seconds: 5),
+  }) =>
+      PusherService._internal(
+        socketUri: socketUri,
+        authUri: authUri,
+        authRetryPause: authRetryPause,
+      );
+
+  final Uri? _socketUriOverride;
+  final Uri _authUri;
+
+  static const _stableConnection = Duration(seconds: 30);
+
+  static const _authRateLimitPause = Duration(minutes: 1);
+
+  static const _connectTimeout = Duration(seconds: 10);
+
+  static const _upgradeTimeout = Duration(seconds: 15);
+  static const _authTimeout = Duration(seconds: 15);
+
+  final Duration _authRetryPause;
+
+  static const _authRetryLimit = 3;
 
   final Map<String, Set<PusherMessageCallback>> _conversationCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _typingCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _readCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _deletedCallbacks = {};
   final Map<String, Set<PusherMessageCallback>> _userCallbacks = {};
-  // Global per-user notifications channel (private-notifications.{public_id}),
-  // event `new_message_notification`. Keyed by public_id.
   final Map<String, Set<PusherMessageCallback>> _notificationCallbacks = {};
   final Set<String> _activeChannels = {};
   final Set<String> _subscribingChannels = {};
+  final Map<String, DateTime> _authFailedAt = {};
+  final Map<String, int> _authFailures = {};
+  final Map<String, Timer> _authRetryTimers = {};
 
   WebSocket? _socket;
   StreamSubscription<dynamic>? _socketSubscription;
   Timer? _reconnectTimer;
+  Timer? _resubscribeTimer;
   String? _authToken;
   String? _socketId;
   bool _isConnecting = false;
   bool _manuallyDisconnected = false;
   int _reconnectAttempt = 0;
+  DateTime? _connectedAt;
+  DateTime? _authBlockedUntil;
+  bool _watchingNetwork = false;
+  final _random = Random();
 
   bool get isInitialized => _authToken != null;
 
   bool get isConnected =>
       _socket != null && _socketId != null && !_manuallyDisconnected;
 
-  Uri get socketUri => Uri(
+  Uri get socketUri =>
+      _socketUriOverride ??
+      Uri(
         scheme: 'wss',
         host: _host,
         port: 443,
@@ -57,24 +104,43 @@ class PusherService {
       );
 
   Future<void> initialize(String token) async {
-    if (_authToken != null && _authToken != token) {
+    final changed = _authToken != null && _authToken != token;
+    if (changed) {
       await _closeSocket();
       _activeChannels.clear();
       _subscribingChannels.clear();
+      _forgetAuthFailures();
+      _reconnectAttempt = 0;
     }
 
     _authToken = token;
     _manuallyDisconnected = false;
-    await reconnect();
+    _watchNetwork();
+    await reconnect(force: changed);
   }
 
-  Future<void> reconnect() async {
+  void _watchNetwork() {
+    if (_watchingNetwork || _socketUriOverride != null) return;
+    _watchingNetwork = true;
+    NetworkStatusService.instance.addListener(_onNetworkChanged);
+  }
+
+  void _onNetworkChanged() {
+    if (NetworkStatusService.instance.isOffline) return;
+    if (isConnected || _isConnecting) return;
+    _reconnectTimer?.cancel();
+    _reconnectAttempt = 0;
+    _scheduleReconnect();
+  }
+
+  Future<void> reconnect({bool force = false}) async {
     if (_authToken == null ||
         _authToken!.isEmpty ||
         _isConnecting ||
         isConnected) {
       return;
     }
+    if (!force && (_reconnectTimer?.isActive ?? false)) return;
 
     _reconnectTimer?.cancel();
     _isConnecting = true;
@@ -83,10 +149,27 @@ class PusherService {
     try {
       final uri = socketUri;
       _log('Connecting to $uri');
-      final socket = await WebSocket.connect(
+      final client = HttpClient()..connectionTimeout = _connectTimeout;
+      final pending = WebSocket.connect(
         uri.toString(),
         headers: const {'Origin': 'https://api.wawatair.com'},
+        customClient: client,
       );
+      final WebSocket socket;
+      try {
+        socket = await pending.timeout(_upgradeTimeout);
+      } on TimeoutException {
+        client.close(force: true);
+        unawaited(pending.then<void>(
+          (orphan) => orphan.close(),
+          onError: (Object _) {},
+        ));
+        rethrow;
+      }
+      if (_manuallyDisconnected) {
+        unawaited(socket.close().catchError((_) {}));
+        return;
+      }
       socket.pingInterval = const Duration(seconds: 20);
       _socket = socket;
       _socketSubscription = socket.listen(
@@ -109,7 +192,7 @@ class PusherService {
       );
 
       await connected.future.timeout(const Duration(seconds: 12));
-      _reconnectAttempt = 0;
+      _connectedAt = DateTime.now();
       _log('Connected');
     } catch (error, stackTrace) {
       _log('Connection failed', error: error, stackTrace: stackTrace);
@@ -155,15 +238,13 @@ class PusherService {
         final channel = envelope['channel']?.toString();
         if (channel != null) {
           _subscribingChannels.remove(channel);
+          _forgetAuthFailures(channel);
           _activeChannels.add(channel);
           _log('Subscribed to $channel');
         }
         return;
       }
 
-      // Personal notification channel: chat banner (new_message_notification)
-      // and the unified all-types banner (new_notification) share one callback
-      // set — the event name is tagged so the handler can branch.
       if (eventName == 'new_message_notification' ||
           eventName == 'new_notification') {
         final channel = envelope['channel']?.toString();
@@ -282,8 +363,6 @@ class PusherService {
     await _unsubscribe('private-conversation.$conversationId');
   }
 
-  /// Read-receipts ride the same `private-conversation.{id}` channel as
-  /// messages and typing — subscribing here is a no-op when already joined.
   Future<void> subscribeToConversationRead(
     String conversationId,
     PusherMessageCallback onRead,
@@ -311,9 +390,6 @@ class PusherService {
     await _unsubscribe('private-conversation.$conversationId');
   }
 
-  /// Message-deleted events (`message.deleted`) ride the same
-  /// `private-conversation.{id}` channel — subscribing here is a no-op when
-  /// already joined for messages/typing/read.
   Future<void> subscribeToConversationDeleted(
     String conversationId,
     PusherMessageCallback onDeleted,
@@ -369,8 +445,6 @@ class PusherService {
     await _unsubscribe('private-user.$userId');
   }
 
-  /// Global per-user notifications channel. Only ONE public_id is ever active,
-  /// but callbacks are keyed by it so a user switch stays clean.
   Future<void> subscribeToNotifications(
     String publicId,
     PusherMessageCallback onNotification,
@@ -399,7 +473,11 @@ class PusherService {
   Future<void> _resubscribeAll() async {
     _activeChannels.clear();
     _subscribingChannels.clear();
+    _forgetAuthFailures();
+    await _subscribeWanted();
+  }
 
+  Future<void> _subscribeWanted() async {
     final conversationIds = <String>{
       ..._conversationCallbacks.keys,
       ..._typingCallbacks.keys,
@@ -414,8 +492,23 @@ class PusherService {
       ..._notificationCallbacks.keys.map((id) => 'private-notifications.$id'),
     ];
     for (final channel in channels) {
+      if (!isConnected || _authPaused) break;
       await _subscribe(channel);
     }
+  }
+
+  bool get _authPaused {
+    final until = _authBlockedUntil;
+    return until != null && DateTime.now().isBefore(until);
+  }
+
+  void _pauseSubscriptions(Duration pause) {
+    _authBlockedUntil = DateTime.now().add(pause);
+    _resubscribeTimer?.cancel();
+    _resubscribeTimer = Timer(pause, () {
+      _authBlockedUntil = null;
+      unawaited(_subscribeWanted());
+    });
   }
 
   Future<void> _subscribe(String channelName) async {
@@ -423,10 +516,12 @@ class PusherService {
         _subscribingChannels.contains(channelName)) {
       return;
     }
-    if (!isConnected) {
-      await reconnect();
+    if (!isConnected || _authPaused) return;
+    final failedAt = _authFailedAt[channelName];
+    if (failedAt != null &&
+        DateTime.now().difference(failedAt) < _authRetryPause) {
+      return;
     }
-    if (!isConnected) return;
 
     _subscribingChannels.add(channelName);
     try {
@@ -440,6 +535,10 @@ class PusherService {
             'channel_data': auth['channel_data'],
         },
       });
+    } on _AuthRateLimited catch (limit) {
+      _log('Channel auth rate limited for ${limit.pause.inSeconds}s');
+      _subscribingChannels.remove(channelName);
+      _pauseSubscriptions(limit.pause);
     } catch (error, stackTrace) {
       _log(
         'Subscription failed for $channelName',
@@ -447,12 +546,45 @@ class PusherService {
         stackTrace: stackTrace,
       );
       _subscribingChannels.remove(channelName);
+      _authFailedAt[channelName] = DateTime.now();
+      _scheduleAuthRetry(channelName);
     }
+  }
+
+  void _scheduleAuthRetry(String channelName) {
+    final failures = (_authFailures[channelName] ?? 0) + 1;
+    _authFailures[channelName] = failures;
+    if (failures > _authRetryLimit) return;
+    _authRetryTimers[channelName]?.cancel();
+    _authRetryTimers[channelName] = Timer(
+      _authRetryPause * (1 << (failures - 1)),
+      () {
+        _authRetryTimers.remove(channelName);
+        _authFailedAt.remove(channelName);
+        unawaited(_subscribeWanted());
+      },
+    );
+  }
+
+  void _forgetAuthFailures([String? channelName]) {
+    if (channelName != null) {
+      _authRetryTimers.remove(channelName)?.cancel();
+      _authFailures.remove(channelName);
+      _authFailedAt.remove(channelName);
+      return;
+    }
+    for (final timer in _authRetryTimers.values) {
+      timer.cancel();
+    }
+    _authRetryTimers.clear();
+    _authFailures.clear();
+    _authFailedAt.clear();
   }
 
   Future<void> _unsubscribe(String channelName) async {
     _activeChannels.remove(channelName);
     _subscribingChannels.remove(channelName);
+    _forgetAuthFailures(channelName);
     if (!isConnected) return;
     _send({
       'event': 'pusher:unsubscribe',
@@ -467,9 +599,9 @@ class PusherService {
       throw StateError('Reverb is not connected');
     }
 
-    final client = HttpClient();
+    final client = HttpClient()..connectionTimeout = _connectTimeout;
     try {
-      final request = await client.postUrl(Uri.parse(_authUrl));
+      final request = await client.postUrl(_authUri);
       request.headers
         ..set(HttpHeaders.authorizationHeader, 'Bearer $token')
         ..set(HttpHeaders.acceptHeader, 'application/json')
@@ -480,12 +612,22 @@ class PusherService {
         'channel_name': channelName,
       }));
 
-      final response = await request.close();
-      final body = await utf8.decoder.bind(response).join();
+      final response = await request.close().timeout(_authTimeout);
+      final body =
+          await utf8.decoder.bind(response).join().timeout(_authTimeout);
+      if (response.statusCode == 429) {
+        throw _AuthRateLimited(
+          NetworkFailure.retryAfter(
+                response.headers['retry-after']?.firstOrNull,
+                DateTime.now(),
+              ) ??
+              _authRateLimitPause,
+        );
+      }
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw HttpException(
           'Broadcast auth failed (${response.statusCode}): $body',
-          uri: Uri.parse(_authUrl),
+          uri: _authUri,
         );
       }
       return _decodeMap(body);
@@ -502,22 +644,36 @@ class PusherService {
 
   void _handleDisconnect() {
     _log('Disconnected');
+    final connectedAt = _connectedAt;
+    _connectedAt = null;
+    if (connectedAt != null &&
+        DateTime.now().difference(connectedAt) >= _stableConnection) {
+      _reconnectAttempt = 0;
+    }
     _socketId = null;
     _activeChannels.clear();
     _subscribingChannels.clear();
+    _forgetAuthFailures();
     unawaited(_closeSocket());
     _scheduleReconnect();
   }
 
   void _scheduleReconnect() {
     if (_manuallyDisconnected || _authToken == null) return;
-    _reconnectTimer?.cancel();
+    if (_reconnectTimer?.isActive ?? false) return;
     _reconnectAttempt++;
-    final seconds = _reconnectAttempt.clamp(1, 10);
     _reconnectTimer = Timer(
-      Duration(seconds: seconds),
+      reconnectDelay(_reconnectAttempt, _random.nextDouble()),
       () => unawaited(reconnect()),
     );
+  }
+
+  @visibleForTesting
+  static Duration reconnectDelay(int attempt, double spread) {
+    final step = (attempt - 1).clamp(0, 5);
+    final seconds = min(1 << step, 30);
+    final factor = 0.7 + spread * 0.6;
+    return Duration(milliseconds: (seconds * 1000 * factor).round());
   }
 
   Future<void> _closeSocket() async {
@@ -535,9 +691,15 @@ class PusherService {
 
   Future<void> disconnect() async {
     _manuallyDisconnected = true;
+    _authToken = null;
     _reconnectTimer?.cancel();
+    _resubscribeTimer?.cancel();
+    _authBlockedUntil = null;
+    _reconnectAttempt = 0;
+    _connectedAt = null;
     _activeChannels.clear();
     _subscribingChannels.clear();
+    _forgetAuthFailures();
     _conversationCallbacks.clear();
     _typingCallbacks.clear();
     _readCallbacks.clear();
@@ -569,8 +731,6 @@ class PusherService {
   }
 
   String _languageCode() {
-    // Язык, выбранный в приложении (не язык телефона) — тот же, что уходит
-    // в остальных запросах.
     final code = LocalizationService.instance.locale;
     const supported = {'az', 'en', 'ru', 'tr', 'ua', 'es'};
     return supported.contains(code) ? code : 'az';
@@ -595,7 +755,12 @@ class PusherService {
     if (decoded is Map) {
       return decoded.map((key, value) => MapEntry('$key', value));
     }
-    // Mutable (not `const {}`): callers may add keys (e.g. the `_event` tag).
     return <String, dynamic>{};
   }
+}
+
+class _AuthRateLimited implements Exception {
+  const _AuthRateLimited(this.pause);
+
+  final Duration pause;
 }

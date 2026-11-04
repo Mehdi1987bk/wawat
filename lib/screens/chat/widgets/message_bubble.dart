@@ -8,6 +8,8 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../data/network/response/chat_response.dart';
 import '../../../presentation/resourses/wawat_dark.dart';
 import '../../../services/localization_service.dart';
+import '../../home/tabs/profile_tab/deals/deal_action_runner.dart';
+import '../../home/tabs/profile_tab/deals/widgets/deal_action_buttons.dart';
 
 const _brand = Color(0xFF0271EB);
 const _brand50 = Color(0xFFEAF3FE);
@@ -23,28 +25,22 @@ class MessageBubble extends StatelessWidget {
   final bool isMyMessage;
   final ShipmentData? shipment;
 
-  /// Whether this proposal is the newest one for its shipment. Older (superseded)
-  /// proposals are shown as plain cards without accept/reject/change buttons.
   final bool isCurrentOffer;
-  final Future<void> Function(String shipmentId, String action)?
-      onShipmentAction;
+
+  final void Function(ChatMessage message, DealAction action)? onDealAction;
+
+  final DealActionController? dealActions;
   final ValueChanged<String>? onRetry;
   final ValueChanged<ChatMessage>? onLongPress;
   final ValueChanged<String>? onReview;
   final VoidCallback? onSupport;
 
-  /// Swipe (or menu) reply — quote this message in the composer.
   final ValueChanged<ChatMessage>? onReply;
 
-  /// Tapping the incoming peer's avatar opens their profile.
   final VoidCallback? onOpenProfile;
 
-  /// Localized "edited" caption shown next to the time when the message has been
-  /// edited ([ChatMessage.editedAt] set). Falls back to AZ when not provided.
   final String? editedLabel;
 
-  /// Localized tombstone text for a deleted message — already resolved by the
-  /// caller to "you deleted this" / "message deleted" per authorship.
   final String? deletedLabel;
 
   const MessageBubble({
@@ -53,7 +49,8 @@ class MessageBubble extends StatelessWidget {
     required this.isMyMessage,
     this.shipment,
     this.isCurrentOffer = true,
-    this.onShipmentAction,
+    this.onDealAction,
+    this.dealActions,
     this.onRetry,
     this.onLongPress,
     this.onReview,
@@ -67,7 +64,6 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Deleted tombstone: no content, no long-press/swipe/edit — just the plate.
     if (message.isDeleted) {
       return _DeletedBubble(
         message: message,
@@ -84,7 +80,8 @@ class MessageBubble extends StatelessWidget {
         message: message,
         shipmentData: shipment,
         isCurrentOffer: isCurrentOffer,
-        onShipmentAction: onShipmentAction,
+        onDealAction: onDealAction,
+        dealActions: dealActions,
         onReview: onReview,
         onSupport: onSupport,
       );
@@ -118,10 +115,6 @@ class MessageBubble extends StatelessWidget {
                   if (hasImage || localImagePath != null)
                     _ImageBubble(
                       imageUrl: imageUrl,
-                      // Stable cache identity tied to the message, not the URL:
-                      // if the backend re-signs the same image on every fetch,
-                      // the query string changes but the cache key does not — so
-                      // it serves cached bytes instead of re-downloading.
                       cacheKey: 'chat-img-${message.id}',
                       localFile:
                           localImagePath == null ? null : File(localImagePath),
@@ -231,7 +224,6 @@ class MessageBubble extends StatelessWidget {
       ),
     );
 
-    // Swipe-right-to-reply (WhatsApp-style) on delivered text/image messages.
     if (onReply == null ||
         message.deliveryStatus != ChatMessageDeliveryStatus.sent) {
       return bubble;
@@ -245,9 +237,6 @@ class MessageBubble extends StatelessWidget {
   }
 }
 
-/// Tombstone for a deleted message: a muted, italic plate with a prohibit icon
-/// where the bubble used to be. Same left/right slot and avatar as a normal
-/// message, but no content, actions, edited label or delivery ticks.
 class _DeletedBubble extends StatelessWidget {
   final ChatMessage message;
   final bool isMyMessage;
@@ -340,8 +329,6 @@ class _DeletedBubble extends StatelessWidget {
   }
 }
 
-/// Wraps a bubble so dragging it right past a threshold triggers a reply and
-/// snaps back (via [Dismissible] with `confirmDismiss` returning false).
 class _SwipeToReply extends StatelessWidget {
   final Widget child;
   final String messageId;
@@ -365,7 +352,7 @@ class _SwipeToReply extends StatelessWidget {
       confirmDismiss: (_) async {
         HapticFeedback.selectionClick();
         onReply();
-        return false; // never actually dismiss — just bounce back
+        return false;
       },
       background: Padding(
         padding: const EdgeInsets.only(left: 10),
@@ -388,7 +375,6 @@ class _SwipeToReply extends StatelessWidget {
   }
 }
 
-/// The quoted-message block shown at the top of a reply bubble (design §7).
 class _ReplyQuote extends StatelessWidget {
   final ChatReplyRef reply;
   final bool onMyBubble;
@@ -716,8 +702,8 @@ class _SystemCardMessage extends StatelessWidget {
   final ChatMessage message;
   final ShipmentData? shipmentData;
   final bool isCurrentOffer;
-  final Future<void> Function(String shipmentId, String action)?
-      onShipmentAction;
+  final void Function(ChatMessage message, DealAction action)? onDealAction;
+  final DealActionController? dealActions;
   final ValueChanged<String>? onReview;
   final VoidCallback? onSupport;
 
@@ -725,7 +711,8 @@ class _SystemCardMessage extends StatelessWidget {
     required this.message,
     this.shipmentData,
     this.isCurrentOffer = true,
-    this.onShipmentAction,
+    this.onDealAction,
+    this.dealActions,
     this.onReview,
     this.onSupport,
   });
@@ -733,37 +720,170 @@ class _SystemCardMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final card = message.card!;
+    final actions = _CardActions(
+      message: message,
+      card: card,
+      controller: dealActions,
+      onDealAction: onDealAction,
+    );
     return switch (card.type) {
       'proposal' => _ProposalCard(
           message: message,
           card: card,
           shipment: shipmentData,
           isCurrentOffer: isCurrentOffer,
-          onShipmentAction: onShipmentAction,
+          actions: actions,
         ),
       'completed' => _CompletedCard(
           message: message,
           card: card,
           onReview: onReview,
+          actions: actions,
         ),
       'disputed' => _DisputedCard(
           message: message,
           card: card,
           shipment: shipmentData,
           onSupport: onSupport,
+          actions: actions,
         ),
       'cancelled' => _CancelledCard(
           message: message,
           card: card,
           shipment: shipmentData,
+          actions: actions,
         ),
-      _ => _PillCard(message: message, card: card),
+      _ => actions.isVisible
+          ? _ActionStatusCard(message: message, card: card, actions: actions)
+          : _PillCard(message: message, card: card),
     };
   }
 }
 
-/// Narrow centred status pill — accepted/picked_up/delivered/declined/expired/
-/// auto_completed (§13.1 compact).
+class _CardActions extends StatelessWidget {
+  final ChatMessage message;
+  final ChatCard card;
+  final DealActionController? controller;
+  final void Function(ChatMessage message, DealAction action)? onDealAction;
+
+  const _CardActions({
+    required this.message,
+    required this.card,
+    this.controller,
+    this.onDealAction,
+  });
+
+  bool get isVisible =>
+      card.actions.isNotEmpty &&
+      (card.shipmentId?.isNotEmpty ?? false) &&
+      onDealAction != null;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isVisible) return const SizedBox.shrink();
+    Widget buttons({String? busyKey, bool locked = false}) => DealCardActions(
+          actions: card.actions,
+          busyKey: busyKey,
+          locked: locked,
+          onAction: (action) => onDealAction!(message, action),
+        );
+    final controller = this.controller;
+    if (controller == null) return buttons();
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => buttons(
+        busyKey: controller.busyKey(message.id),
+        locked: controller.isLocked(message.id),
+      ),
+    );
+  }
+}
+
+class _ActionStatusCard extends StatelessWidget {
+  final ChatMessage message;
+  final ChatCard card;
+  final Widget actions;
+
+  const _ActionStatusCard({
+    required this.message,
+    required this.card,
+    required this.actions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final visual = _cardVisual(card.type);
+    final payload = card.payload;
+    final price = _formatValue(payload['price_total'], suffix: ' \$');
+    final subtitle = _dealSubtitle(payload);
+    return _DealCardShell(
+      time: message.timeString(context),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _DealAvatar(
+                icon: visual.icon,
+                color: isDark ? _darkCardColor(visual.color) : visual.color,
+                background: visual.background,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      card.label.isEmpty
+                          ? _fallbackCardLabel(card.type)
+                          : card.label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textPrimary : _ink900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? WawatDark.textMuted : _ink400,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (price.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  price,
+                  style: TextStyle(
+                    color: isDark ? WawatDark.brandText : _brand,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          actions,
+        ],
+      ),
+    );
+  }
+}
+
 class _PillCard extends StatelessWidget {
   final ChatMessage message;
   final ChatCard card;
@@ -774,8 +894,6 @@ class _PillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final visual = _cardVisual(card.type);
-    // On graphite, lift the deliberately-dark status hue to its palette
-    // equivalent so it stays legible on the dark pill; light keeps it exactly.
     final tone = isDark ? _darkCardColor(visual.color) : visual.color;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -818,7 +936,6 @@ class _PillCard extends StatelessWidget {
   }
 }
 
-/// Reusable compact card shell centred in the thread (§3A.4).
 class _DealCardShell extends StatelessWidget {
   final Widget child;
   final Color? borderColor;
@@ -883,7 +1000,6 @@ class _DealCardShell extends StatelessWidget {
   }
 }
 
-/// Icon tile at the head of a compact card.
 class _DealAvatar extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -915,40 +1031,28 @@ class _ProposalCard extends StatelessWidget {
   final ChatCard card;
   final ShipmentData? shipment;
   final bool isCurrentOffer;
-  final Future<void> Function(String shipmentId, String action)?
-      onShipmentAction;
+  final Widget actions;
 
   const _ProposalCard({
     required this.message,
     required this.card,
+    required this.actions,
     this.shipment,
     this.isCurrentOffer = true,
-    this.onShipmentAction,
   });
 
   @override
   Widget build(BuildContext context) {
     final payload = card.payload;
-    final weight = _formatValue(payload['weight_kg'], suffix: ' kq');
     final price = _formatValue(payload['price_total'], suffix: ' \$');
-    final from = _formatCity(payload['city_from'], payload['city_from_name']);
-    final to = _formatCity(payload['city_to'], payload['city_to_name']);
-    final route = [from, to].where((e) => e.isNotEmpty).join(' → ');
-    final packageType = _packageLabel(payload['package_type_code']);
-    final subtitle = [route, packageType, weight]
-        .where((e) => e.trim().isNotEmpty)
-        .join(' · ');
-    final awaitingMe = shipment?.isAwaitingMe == true;
-    final actions = awaitingMe
-        ? _supportedActions(shipment?.availableActions ?? const [])
-        : const <String>[];
-    // Only the newest proposal for this shipment is actionable. Older proposals
-    // were superseded by a newer counter-offer and must stay read-only.
-    final canAct = isCurrentOffer &&
-        actions.isNotEmpty &&
-        card.shipmentId != null &&
-        card.shipmentId!.isNotEmpty &&
-        onShipmentAction != null;
+    final subtitle = _dealSubtitle(payload);
+    final status = card.shipmentStatus ?? shipment?.status;
+    final awaitingAnswer = message.isMine &&
+        isCurrentOffer &&
+        shipment?.isAwaitingMe != true &&
+        (status == null
+            ? card.actions.isNotEmpty
+            : status == 'proposal_pending');
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return _DealCardShell(
@@ -994,9 +1098,7 @@ class _ProposalCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (message.isMine &&
-                            !awaitingMe &&
-                            isCurrentOffer) ...[
+                        if (awaitingAnswer) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -1051,55 +1153,7 @@ class _ProposalCard extends StatelessWidget {
               ],
             ],
           ),
-          if (canAct) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                if (actions.contains('decline'))
-                  Expanded(
-                    child: _DealButton(
-                      label: tr('deals.action_decline', 'Rədd'),
-                      background: isDark
-                          ? const Color(0xFF3A1E1E)
-                          : const Color(0xFFFEECEC),
-                      textColor: isDark
-                          ? const Color(0xFFF87171)
-                          : const Color(0xFFDC2626),
-                      onTap: () =>
-                          onShipmentAction!(card.shipmentId!, 'decline'),
-                    ),
-                  ),
-                if (actions.contains('decline') &&
-                    (actions.contains('counter') || actions.contains('accept')))
-                  const SizedBox(width: 6),
-                if (actions.contains('counter'))
-                  Expanded(
-                    child: _DealButton(
-                      label: tr('deals.action_counter', 'Dəyiş'),
-                      background: isDark ? WawatDark.brandSoft : _brand50,
-                      textColor: isDark ? WawatDark.brandText : _brand,
-                      onTap: () =>
-                          onShipmentAction!(card.shipmentId!, 'counter'),
-                    ),
-                  ),
-                if (actions.contains('counter') && actions.contains('accept'))
-                  const SizedBox(width: 6),
-                if (actions.contains('accept'))
-                  Expanded(
-                    flex: 3,
-                    child: _DealButton(
-                      label: tr('deals.action_accept', 'Qəbul'),
-                      icon: PhosphorIconsBold.check,
-                      background: _brand,
-                      textColor: Colors.white,
-                      shadow: true,
-                      onTap: () =>
-                          onShipmentAction!(card.shipmentId!, 'accept'),
-                    ),
-                  ),
-              ],
-            ),
-          ],
+          actions,
         ],
       ),
     );
@@ -1110,10 +1164,12 @@ class _CompletedCard extends StatelessWidget {
   final ChatMessage message;
   final ChatCard card;
   final ValueChanged<String>? onReview;
+  final Widget actions;
 
   const _CompletedCard({
     required this.message,
     required this.card,
+    required this.actions,
     this.onReview,
   });
 
@@ -1131,50 +1187,57 @@ class _CompletedCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return _DealCardShell(
       time: message.timeString(context),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DealAvatar(
-            icon: PhosphorIconsFill.sealCheck,
-            color: isDark ? WawatDark.success : const Color(0xFF10B981),
-            background: const Color(0xFFECFDF5),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tr('deals.deal_completed', 'Sövdələşmə tamamlandı'),
-                  style: TextStyle(
-                    color: isDark ? WawatDark.textPrimary : _ink900,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (subtitle.isNotEmpty)
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isDark ? WawatDark.textMuted : _ink400,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
+          Row(
+            children: [
+              _DealAvatar(
+                icon: PhosphorIconsFill.sealCheck,
+                color: isDark ? WawatDark.success : const Color(0xFF10B981),
+                background: const Color(0xFFECFDF5),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tr('deals.deal_completed', 'Sövdələşmə tamamlandı'),
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textPrimary : _ink900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textMuted : _ink400,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (card.shipmentId != null && onReview != null) ...[
+                const SizedBox(width: 8),
+                _SmallPill(
+                  label: tr('deals.action_review', 'Rəy'),
+                  icon: PhosphorIconsFill.star,
+                  background: isDark ? WawatDark.brandSoft : _brand50,
+                  textColor: isDark ? WawatDark.brandText : _brand,
+                  onTap: () => onReview!(card.shipmentId!),
+                ),
               ],
-            ),
+            ],
           ),
-          if (card.shipmentId != null && onReview != null) ...[
-            const SizedBox(width: 8),
-            _SmallPill(
-              label: tr('deals.action_review', 'Rəy'),
-              icon: PhosphorIconsFill.star,
-              background: isDark ? WawatDark.brandSoft : _brand50,
-              textColor: isDark ? WawatDark.brandText : _brand,
-              onTap: () => onReview!(card.shipmentId!),
-            ),
-          ],
+          actions,
         ],
       ),
     );
@@ -1186,10 +1249,12 @@ class _DisputedCard extends StatelessWidget {
   final ChatCard card;
   final ShipmentData? shipment;
   final VoidCallback? onSupport;
+  final Widget actions;
 
   const _DisputedCard({
     required this.message,
     required this.card,
+    required this.actions,
     this.shipment,
     this.onSupport,
   });
@@ -1202,51 +1267,58 @@ class _DisputedCard extends StatelessWidget {
       time: message.timeString(context),
       borderColor: const Color(0xFFFDE68A),
       background: const Color(0xFFFFFBEB),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DealAvatar(
-            icon: PhosphorIconsFill.warningOctagon,
-            color: isDark ? WawatDark.warning : const Color(0xFFD97706),
-            background: const Color(0xFFFDE68A),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tr('deals.disputed', 'Problem bildirildi'),
-                  style: TextStyle(
-                    color: isDark ? WawatDark.textPrimary : _ink900,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (reason.isNotEmpty)
-                  Text(
-                    reason,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isDark ? WawatDark.textSecondary : _ink500,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
+          Row(
+            children: [
+              _DealAvatar(
+                icon: PhosphorIconsFill.warningOctagon,
+                color: isDark ? WawatDark.warning : const Color(0xFFD97706),
+                background: const Color(0xFFFDE68A),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tr('deals.disputed', 'Problem bildirildi'),
+                      style: TextStyle(
+                        color: isDark ? WawatDark.textPrimary : _ink900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
+                    if (reason.isNotEmpty)
+                      Text(
+                        reason,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textSecondary : _ink500,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (onSupport != null) ...[
+                const SizedBox(width: 8),
+                _SmallPill(
+                  label: tr('deals.support', 'Dəstək'),
+                  icon: PhosphorIconsRegular.headset,
+                  background: isDark ? WawatDark.surface : Colors.white,
+                  textColor: isDark ? WawatDark.textSecondary : _ink600,
+                  bordered: true,
+                  onTap: onSupport!,
+                ),
               ],
-            ),
+            ],
           ),
-          if (onSupport != null) ...[
-            const SizedBox(width: 8),
-            _SmallPill(
-              label: tr('deals.support', 'Dəstək'),
-              icon: PhosphorIconsRegular.headset,
-              background: isDark ? WawatDark.surface : Colors.white,
-              textColor: isDark ? WawatDark.textSecondary : _ink600,
-              bordered: true,
-              onTap: onSupport!,
-            ),
-          ],
+          actions,
         ],
       ),
     );
@@ -1257,25 +1329,19 @@ class _CancelledCard extends StatelessWidget {
   final ChatMessage message;
   final ChatCard card;
   final ShipmentData? shipment;
+  final Widget actions;
 
   const _CancelledCard({
     required this.message,
     required this.card,
+    required this.actions,
     this.shipment,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Reason = localized label by cancel_reason_code (falls back to the
-    // backend-localized label / shipment). The free-text comment is a SEPARATE
-    // field — never fold it into the reason.
     final code = card.payload['cancel_reason_code']?.toString() ??
         card.payload['reason_code']?.toString();
-    // Blank-as-absent: the backend can send cancel_reason_label:"" (NOT NULL
-    // default / not-yet-backfilled), which a plain `??` chain would treat as
-    // present and then the isNotEmpty render guard would suppress — leaving a
-    // cancelled card with no reason despite a valid code. Skip blanks so the
-    // code-derived label is reached.
     final reasonLabel = _nonBlank(shipment?.cancelReasonLabel) ??
         _nonBlank(card.payload['reason_label']?.toString()) ??
         _cancelReasonLabel(code) ??
@@ -1287,68 +1353,71 @@ class _CancelledCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return _DealCardShell(
       time: message.timeString(context),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DealAvatar(
-            icon: PhosphorIconsFill.prohibit,
-            color: isDark ? WawatDark.icon : _ink500,
-            background: _ink900.withValues(alpha: 0.05),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tr('deals.deal_cancelled', 'Sövdələşmə ləğv edildi'),
-                  style: TextStyle(
-                    color: isDark ? WawatDark.textPrimary : _ink900,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (reasonLabel != null && reasonLabel.isNotEmpty)
-                  Text(
-                    tr('chat.cancel_reason_line', 'Səbəb: {reason}',
-                        {'reason': reasonLabel}),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isDark ? WawatDark.textMuted : _ink400,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                if (note != null && note.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      '«$note»',
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+          Row(
+            children: [
+              _DealAvatar(
+                icon: PhosphorIconsFill.prohibit,
+                color: isDark ? WawatDark.icon : _ink500,
+                background: _ink900.withValues(alpha: 0.05),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tr('deals.deal_cancelled', 'Sövdələşmə ləğv edildi'),
                       style: TextStyle(
-                        color: isDark ? WawatDark.textSecondary : _ink500,
-                        fontSize: 11.5,
-                        fontStyle: FontStyle.italic,
-                        height: 1.3,
+                        color: isDark ? WawatDark.textPrimary : _ink900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-              ],
-            ),
+                    if (reasonLabel != null && reasonLabel.isNotEmpty)
+                      Text(
+                        tr('chat.cancel_reason_line', 'Səbəb: {reason}',
+                            {'reason': reasonLabel}),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isDark ? WawatDark.textMuted : _ink400,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    if (note != null && note.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          '«$note»',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? WawatDark.textSecondary : _ink500,
+                            fontSize: 11.5,
+                            fontStyle: FontStyle.italic,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          actions,
         ],
       ),
     );
   }
 }
 
-/// Returns [s] only when it holds visible text; null for null/blank so a `??`
-/// fallback chain skips empty backend values instead of latching onto them.
 String? _nonBlank(String? s) => (s != null && s.trim().isNotEmpty) ? s : null;
 
-/// Local AZ labels for the cancel-reason codes (backend also sends a localized
-/// label; this covers the code-only payload).
 String? _cancelReasonLabel(String? code) {
   switch (code) {
     case 'plans_changed':
@@ -1364,65 +1433,6 @@ String? _cancelReasonLabel(String? code) {
       return tr('common.other', 'Digər');
     default:
       return null;
-  }
-}
-
-class _DealButton extends StatelessWidget {
-  final String label;
-  final IconData? icon;
-  final Color background;
-  final Color textColor;
-  final bool shadow;
-  final VoidCallback onTap;
-
-  const _DealButton({
-    required this.label,
-    required this.background,
-    required this.textColor,
-    required this.onTap,
-    this.icon,
-    this.shadow = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 38,
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: shadow
-              ? [
-                  BoxShadow(
-                    color: _brand.withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, color: textColor, size: 15),
-              const SizedBox(width: 4),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -1489,23 +1499,6 @@ class _SmallPill extends StatelessWidget {
   }
 }
 
-List<String> _supportedActions(List<String> actions) {
-  const supported = {
-    'accept',
-    'decline',
-    'counter',
-    'picked-up',
-    'delivered',
-    'complete',
-    'dispute',
-    'cancel',
-  };
-  return actions
-      .map((action) => action == 'picked_up' ? 'picked-up' : action)
-      .where(supported.contains)
-      .toList();
-}
-
 class _CardVisual {
   final IconData icon;
   final Color color;
@@ -1514,17 +1507,15 @@ class _CardVisual {
   const _CardVisual(this.icon, this.color, this.background);
 }
 
-/// Maps a light-mode status-pill hue to its graphite-palette equivalent so the
-/// icon and label stay legible on the dark pill. Brand blue → brand text.
 Color _darkCardColor(Color light) {
-  if (light == const Color(0xFF047857)) return WawatDark.success; // done green
-  if (light == const Color(0xFFDC2626)) return WawatDark.dangerText; // declined
-  if (light == const Color(0xFFD97706)) return WawatDark.warning; // disputed
+  if (light == const Color(0xFF047857)) return WawatDark.success;
+  if (light == const Color(0xFFDC2626)) return WawatDark.dangerText;
+  if (light == const Color(0xFFD97706)) return WawatDark.warning;
   if (light == const Color(0xFF4F46E5)) {
-    return WawatDark.tierPlatinumText; // delivered indigo
+    return WawatDark.tierPlatinumText;
   }
-  if (light == _brand) return WawatDark.brandText; // brand blue
-  if (light == _ink500) return WawatDark.textMuted; // cancelled/expired slate
+  if (light == _brand) return WawatDark.brandText;
+  if (light == _ink500) return WawatDark.textMuted;
   return light;
 }
 
@@ -1593,6 +1584,17 @@ String _formatValue(dynamic value, {required String suffix}) {
   final text = value.toString();
   if (text.isEmpty) return '';
   return '$text$suffix';
+}
+
+String _dealSubtitle(Map<String, dynamic> payload) {
+  final weight = _formatValue(payload['weight_kg'], suffix: ' kq');
+  final from = _formatCity(payload['city_from'], payload['city_from_name']);
+  final to = _formatCity(payload['city_to'], payload['city_to_name']);
+  final route = [from, to].where((e) => e.isNotEmpty).join(' → ');
+  final packageType = _packageLabel(payload['package_type_code']);
+  return [route, packageType, weight]
+      .where((e) => e.trim().isNotEmpty)
+      .join(' · ');
 }
 
 String _formatCity(dynamic city, dynamic fallback) {

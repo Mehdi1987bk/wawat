@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
 import 'wawat_colors.dart';
 
-/// Текстовые стили для приложения Wawat.
-///
-/// Иерархия по весу (умеренная, без «сверхжирного»):
-///   • w700 — только крупные заголовки (h1)
-///   • w600 — заголовки секций, лейблы, кнопки (semibold)
-///   • w500 — акцент во второстепенном тексте (medium)
-///   • w400 — основной текст и подписи (body/caption)
-/// Цвет: [WawatColors.textPrimary] — заголовки, [WawatColors.textSecondary] — второстепенное.
 class WawatTextStyles {
-  // Заголовки
   static const TextStyle h1 = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,
@@ -32,7 +23,6 @@ class WawatTextStyles {
     height: 1.4,
   );
 
-  // Основной текст
   static const TextStyle body = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
@@ -47,7 +37,6 @@ class WawatTextStyles {
     height: 1.5,
   );
 
-  // Вторичный текст
   static const TextStyle caption = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -62,7 +51,6 @@ class WawatTextStyles {
     height: 1.4,
   );
 
-  // Лейблы для полей
   static const TextStyle label = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w600,
@@ -70,7 +58,6 @@ class WawatTextStyles {
     height: 1.3,
   );
 
-  // Placeholder текст
   static const TextStyle placeholder = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
@@ -78,7 +65,6 @@ class WawatTextStyles {
     height: 1.5,
   );
 
-  // Кнопки
   static const TextStyle button = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -93,7 +79,6 @@ class WawatTextStyles {
     height: 1.2,
   );
 
-  // Ссылки
   static const TextStyle link = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
@@ -102,7 +87,6 @@ class WawatTextStyles {
     height: 1.5,
   );
 
-  // Чипы
   static const TextStyle chip = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,

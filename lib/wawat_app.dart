@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_bloc.dart';
 import 'main.dart';
+import 'ota_update_prompt.dart';
 import 'presentation/bloc/bloc_provider.dart';
 import 'presentation/resourses/app_colors.dart';
 import 'presentation/resourses/wawat_dark.dart';
@@ -52,7 +53,6 @@ class App extends StatelessWidget {
           }
           return Consumer<ThemeManager>(
             builder: (context, themeManager, child) {
-              // Пересобрать всё дерево, когда CMS-контент/язык загрузился/сменился.
               context.watch<LocalizationService>();
               final isDark = themeManager.isDarkMode;
 
@@ -73,10 +73,6 @@ class App extends StatelessWidget {
 
               return MaterialApp(
                 builder: (context, child) {
-                  // Cold-start push routing is flushed from HomeScreen.initState,
-                  // NOT here: at frame 1 the top route is SpleshScreen, and the
-                  // splash replaces the top route on its way to Home — which would
-                  // destroy any target pushed now. See notification_router.dart.
                   final isOffline =
                       context.watch<NetworkStatusService>().isOffline;
                   return MediaQuery(
@@ -85,10 +81,7 @@ class App extends StatelessWidget {
                     child: Stack(
                       children: [
                         child!,
-                        // Full-screen offline gate: covers the app while there's
-                        // no connection and disappears the moment it's restored,
-                        // so the user resumes exactly where they left off — the
-                        // Navigator underneath is never touched.
+                        const Positioned.fill(child: OtaUpdatePrompt()),
                         if (isOffline)
                           const Positioned.fill(child: _OfflineScreen()),
                       ],
@@ -103,21 +96,16 @@ class App extends StatelessWidget {
                 theme: isDark ? _buildDarkTheme() : _buildLightTheme(),
                 darkTheme: _buildDarkTheme(),
                 themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-                // UI-строки приходят из CMS через t()/tr(); здесь остаются
-                // только фреймворк-делегаты (системные строки Material/Cupertino).
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                 ],
-                // Локаль теперь всегда приходит из CacheManager (либо сохранённая, либо системная)
                 locale: snapshot.data,
                 localeResolutionCallback: (locale, supportedLocales) {
-                  // Если есть сохранённая локаль - используем её
                   if (snapshot.hasData && snapshot.data != null) {
                     return snapshot.data;
                   }
-                  // Проверяем системную локаль устройства
                   if (locale != null) {
                     for (var supportedLocale in supportedLocales) {
                       if (supportedLocale.languageCode == locale.languageCode) {
@@ -125,11 +113,8 @@ class App extends StatelessWidget {
                       }
                     }
                   }
-                  // Fallback на английский
                   return const Locale("en");
                 },
-                // az, en, ru, tr, ua(uk), es — es новый; фреймворк-строки берёт
-                // из GlobalMaterialLocalizations, UI-строки — из CMS через t().
                 supportedLocales: const [
                   Locale('az'),
                   Locale('en'),
@@ -320,11 +305,6 @@ class App extends StatelessWidget {
   }
 }
 
-/// Full-screen "no internet" gate. Rendered as an overlay above the app's
-/// Navigator while offline; restoring the connection simply removes it and the
-/// user continues from wherever they were. The retry button actively re-probes
-/// the network (not just the OS interface flag), so it also recovers from a
-/// Wi‑Fi that reports "connected" but has no real internet.
 class _OfflineScreen extends StatefulWidget {
   const _OfflineScreen();
 
@@ -338,9 +318,6 @@ class _OfflineScreenState extends State<_OfflineScreen> {
   @override
   void initState() {
     super.initState();
-    // Сколько пользователей упирается в эту заглушку и как часто — один из
-    // главных вопросов к качеству: всплеск здесь обычно означает не «плохой
-    // интернет у людей», а проблему с доступностью API.
     Telemetry.instance.event(TelemetryEvents.offlineGateShown);
   }
 
@@ -355,9 +332,6 @@ class _OfflineScreenState extends State<_OfflineScreen> {
     }
     if (!mounted) return;
     setState(() => _checking = false);
-    // If online, the app root rebuilds (isOffline=false) and this overlay is
-    // removed automatically — the user stays exactly where they were. If still
-    // offline, nudge them so the tap doesn't feel unresponsive.
     if (!online) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(

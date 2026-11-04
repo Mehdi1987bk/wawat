@@ -47,7 +47,6 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
   late bool showNewReviews;
   late bool showMarketing;
 
-  // Сохраняем исходные значения
   late bool _initialShowPhoneTab;
   late bool _initialShowEmailTab;
   late bool _initialShowActivityTime;
@@ -58,7 +57,6 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
   @override
   void initState() {
     super.initState();
-    // Инициализируем текущие значения из widget
     showPhoneTab = widget.showPhoneTab;
     showEmailTab = widget.showEmailTab;
     showActivityTime = widget.showActivityTime;
@@ -66,7 +64,6 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
     showNewReviews = widget.showNewReviews;
     showMarketing = widget.showMarketing;
 
-    // Сохраняем исходные значения
     _initialShowPhoneTab = widget.showPhoneTab;
     _initialShowEmailTab = widget.showEmailTab;
     _initialShowActivityTime = widget.showActivityTime;
@@ -267,15 +264,6 @@ class _PrivacyTabState extends BaseState<PrivacyTab, PrivacyTabBloc>
     );
   }
 
-  /// Диагностика и аналитика.
-  ///
-  /// Стоит отдельной карточкой и сохраняется мгновенно, без кнопки «Сохранить»:
-  /// это локальный выбор устройства, он не уходит на бэкенд вместе с настройками
-  /// приватности профиля и не должен зависеть от валидности той формы.
-  ///
-  /// Наличие этого переключателя — не украшение: без него нельзя заявить
-  /// «Data collection is optional» в Google Play Data safety и корректно
-  /// ответить на вопросы App Privacy в App Store Connect.
   Widget _buildDiagnosticsCard(bool isDark) {
     return AnimatedBuilder(
       animation: TelemetryConsent.instance,

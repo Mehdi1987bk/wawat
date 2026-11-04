@@ -17,8 +17,6 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
 
   PackageTypesResponse? _packageTypes;
 
-  // Data-driven filter state. `meta.filters` arrives only on page 1 and is kept
-  // for the lifetime of the screen; the active key drives the requery.
   final BehaviorSubject<String> _activeFilter = BehaviorSubject.seeded('all');
   final BehaviorSubject<List<ListingFilterOption>> _filters =
       BehaviorSubject.seeded(const []);
@@ -45,8 +43,6 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
     return {for (final item in data) item.code: item.name};
   }
 
-  // Tracks whether the most recent page-1 load failed, so a filter switch can
-  // revert its optimistic label change (PaginableBloc swallows load errors).
   bool _lastFirstPageFailed = false;
 
   @override
@@ -58,7 +54,6 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
       );
       if (page == 1) {
         _lastFirstPageFailed = false;
-        // Filter metadata is sent only on page 1 — capture it per requery.
         if (result.filters.isNotEmpty) _filters.add(result.filters);
       }
       return result.page;
@@ -68,9 +63,6 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
     }
   }
 
-  /// Switch the active filter and requery from page 1. No-op if unchanged.
-  /// Returns false if the reload failed — the active key is then reverted so
-  /// the dropdown label matches the still-shown data and a retry is possible.
   Future<bool> setFilter(String key) async {
     final previous = _activeFilter.value;
     if (key == previous) return true;
@@ -83,8 +75,6 @@ class DeliveryFullListBloc extends PaginableBloc<Listing> {
     return true;
   }
 
-  /// Returns the backend's (localized) message so the UI can surface it —
-  /// resume in particular may report a return to moderation, not `active`.
   Future<String?> pauseListing(Listing listing) async {
     final response =
         await _mutate(() => userRepository.pauseListing(listing.id));

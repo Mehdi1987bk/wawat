@@ -137,8 +137,6 @@ class _DealsListScreenState extends BaseState<DealsListScreen, DealsListBloc> {
       child: ListView.separated(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        // Reserve the OS navigation-bar inset so the last card isn't clipped by
-        // the Android gesture/back bar when scrolled to the bottom.
         padding: EdgeInsets.fromLTRB(
             16, 12, 16, 24 + MediaQuery.paddingOf(context).bottom),
         itemCount: state.items.length + (state.loadingMore ? 1 : 0),

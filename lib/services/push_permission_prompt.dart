@@ -11,20 +11,6 @@ import '../presentation/resourses/wawat_dark.dart';
 import 'localization_service.dart';
 import 'push_notification_service.dart';
 
-/// Запрос разрешения на уведомления — после осмысленного действия, а не на
-/// первом экране.
-///
-/// На iOS отказ необратим: без разрешения нет APNs-токена, без APNs-токена
-/// `getToken()` возвращает null, и устройство навсегда остаётся без пушей
-/// (16 живых ios-токенов против 400 android — это именно он). Поэтому диалог
-/// показывается только когда пользователю уже понятно, зачем ему уведомления:
-/// он разместил объявление, отправил предложение или открыл переписку. Перед
-/// системным
-/// диалогом показываем свой экран с объяснением — после него соглашаются
-/// заметно чаще, а если человек отказал нашему экрану, системный диалог не
-/// тратится и его можно будет предложить позже.
-
-/// Повод, по которому спрашиваем — от него зависит текст объяснения.
 enum PushPromptTrigger { listingCreated, proposalSent, messageSent }
 
 const _brand = Color(0xFF0271EB);
@@ -37,14 +23,9 @@ const _amber50 = Color(0xFFFEF6E7);
 const _promptCountKey = 'push_prompt_count';
 const _promptLastMsKey = 'push_prompt_last_ms';
 
-/// Не больше трёх предложений за всю жизнь установки и не чаще раза в 3 дня:
-/// иначе это превращается в попрошайничество, и человек жмёт «нет» уже на
-/// системном диалоге — то есть навсегда.
 const _maxPrompts = 3;
 const _promptCooldown = Duration(days: 3);
 
-/// Спрашивает разрешение, если это уместно. Безопасно вызывать часто — сама
-/// решает, промолчать или показать объяснение.
 Future<void> maybeAskPushPermission(
   BuildContext context,
   PushPromptTrigger trigger,
@@ -52,15 +33,11 @@ Future<void> maybeAskPushPermission(
   final service = PushNotificationService();
   final status = await service.permissionStatus();
 
-  // Уже разрешено — токен ушёл на бэкенд на старте, делать нечего.
   if (status == AuthorizationStatus.authorized ||
       status == AuthorizationStatus.provisional) {
     return;
   }
 
-  // Отказано: системный диалог больше не покажется, что бы мы ни делали.
-  // Подсказка со ссылкой в настройки телефона живёт на экране настроек
-  // уведомлений — здесь молчим, чтобы не раздражать.
   if (status == AuthorizationStatus.denied) return;
 
   if (!await _mayAskAgain()) return;
@@ -72,23 +49,17 @@ Future<void> maybeAskPushPermission(
 
   final granted = await service.requestPermission();
   if (granted) {
-    // Разрешение только что получено — на iOS это первый момент, когда вообще
-    // появляется APNs-токен, поэтому токен отправляем сразу.
     await service.syncToken(reason: 'permission_granted');
   }
 }
 
-/// Пользователь отказал в системном диалоге — экран настроек показывает
-/// подсказку со ссылкой в настройки телефона.
 Future<bool> pushPermissionDenied() async {
   final status = await PushNotificationService().permissionStatus();
   return status == AuthorizationStatus.denied;
 }
 
-/// Открывает системные настройки уведомлений приложения.
 Future<void> openSystemNotificationSettings() async {
   if (Platform.isIOS) {
-    // iOS: единственный разрешённый Apple путь — свой раздел в Настройках.
     await launchUrl(Uri.parse('app-settings:'));
     return;
   }
@@ -96,13 +67,9 @@ Future<void> openSystemNotificationSettings() async {
     await const MethodChannel('az.buking.buking/notification_settings')
         .invokeMethod<void>('open');
   } on PlatformException catch (_) {
-    // Нет такого экрана (очень старый Android) — молча ничего не делаем.
   } on MissingPluginException catch (_) {}
 }
 
-/// Системные уведомления выключены — тумблеры в настройках приложения уже
-/// ничего не изменят, пока человек не включит их в настройках телефона.
-/// Показывается на экране настроек уведомлений, когда [pushPermissionDenied].
 class PushPermissionDeniedBanner extends StatelessWidget {
   const PushPermissionDeniedBanner({super.key});
 
@@ -179,9 +146,6 @@ class PushPermissionDeniedBanner extends StatelessWidget {
   }
 }
 
-/// Только для dev-точки входа lib/dev_push_prompt.dart: забывает, сколько раз
-/// мы уже предлагали включить уведомления, чтобы лист можно было показать
-/// снова. В обычных экранах не вызывается.
 Future<void> resetPushPromptHistory() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove(_promptCountKey);
@@ -198,7 +162,6 @@ Future<bool> _mayAskAgain() async {
         .difference(DateTime.fromMillisecondsSinceEpoch(last));
     return since >= _promptCooldown;
   } catch (_) {
-    // Без prefs лучше спросить один раз, чем не спросить никогда.
     return true;
   }
 }

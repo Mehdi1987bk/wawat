@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 
 import 'data/cache/cache_manager.dart';
 import 'screens/auth/email_otp/email_otp_screen.dart';
+import 'services/app_update_service.dart';
 import 'services/network_status_service.dart';
+import 'services/notification_socket_service.dart';
 import 'wawat_app.dart';
 import 'main.dart';
 
@@ -24,12 +26,6 @@ class CallInterceptor extends Interceptor {
     if (token != null) {
       options.headers[HttpHeaders.authorizationHeader] = 'Bearer $token';
     } else if (_needsAuth(options.uri.path)) {
-      // Без токена эти эндпоинты могут ответить только 401. За месяц так
-      // ушло около 1400 запросов — ни один из них не мог быть успешным.
-      // Обрываем локально: ни сети, ни шума в панели.
-      // false — чтобы отмена не дошла до TelemetryInterceptor: иначе наш
-      // собственный пропуск улетел бы в панель как api_failure со status 0,
-      // то есть ровно как тот шум, который мы здесь убираем.
       return handler.reject(
         DioException(
           requestOptions: options,
@@ -41,7 +37,6 @@ class CallInterceptor extends Interceptor {
     }
     options.headers[HttpHeaders.acceptHeader] = 'application/json';
 
-    // Добавляем язык в header
     final locale = await _storage.getLocaleAsync();
     final storedLanguageCode = locale?.languageCode ?? 'az';
     final languageCode = storedLanguageCode == 'uk' ? 'ua' : storedLanguageCode;
@@ -85,10 +80,6 @@ class CallInterceptor extends Interceptor {
     }
   }
 
-  /// A blocked action (create listing / send proposal / send chat message) comes
-  /// back as 403 `EMAIL_NOT_VERIFIED`. Let the original call see its error, then
-  /// open the code screen once, globally. Ignore the e-mail endpoints themselves
-  /// so this can never recurse.
   Future<void> _handleEmailNotVerified(
     DioException err,
     ErrorInterceptorHandler handler,
@@ -102,9 +93,6 @@ class CallInterceptor extends Interceptor {
     }
   }
 
-  /// Пути, которые без токена заведомо вернут 401. Список намеренно явный:
-  /// если какой-то защищённый путь сюда не попал, поведение останется
-  /// прежним (один 401), а не сломается.
   static const _authOnlyPaths = [
     '/auth/me',
     '/auth/logout',
@@ -125,6 +113,10 @@ class CallInterceptor extends Interceptor {
     '/blocks',
     '/reviews/mine',
     '/referrals',
+    // Слежение за рейсами: гостю эти пути отправлять нельзя — 401 на них
+    // уводит сессию в выход, а подписка по замыслу предлагает экран входа.
+    '/me/flight-watches',
+    '/watch',
   ];
 
   bool _needsAuth(String path) {
@@ -134,10 +126,6 @@ class CallInterceptor extends Interceptor {
     return false;
   }
 
-  /// Истёкший токен раньше не обрабатывался вовсе — отлавливался только 402.
-  /// Поэтому на одну протухшую сессию прилетала серия из десятков 401.
-  /// Чистим хранилище один раз и уводим на вход; повторные 401, пока идёт
-  /// выход, просто пропускаем дальше.
   static bool _signingOut = false;
 
   Future<void> _handleUnauthorized(
@@ -147,8 +135,6 @@ class CallInterceptor extends Interceptor {
     final path = err.requestOptions.uri.path;
     handler.next(err);
 
-    // На самих эндпоинтах входа 401 означает «неверный пароль», а не
-    // «сессия истекла» — выходить оттуда некуда.
     if (path.contains('/auth/login') ||
         path.contains('/auth/register') ||
         path.contains('/auth/forgot-password')) {
@@ -159,6 +145,8 @@ class CallInterceptor extends Interceptor {
     _signingOut = true;
     try {
       await _storage.clear();
+      await NotificationSocketService.instance.onLogout();
+      if (AppUpdateService.instance.isBlocking) return;
       await navigatorKey.currentState?.pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => HomeScreen()), (route) => false);
     } finally {
@@ -172,6 +160,8 @@ class CallInterceptor extends Interceptor {
   ) async {
     handler.next(err);
     await _storage.clear();
+    await NotificationSocketService.instance.onLogout();
+    if (AppUpdateService.instance.isBlocking) return;
     await navigatorKey.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => HomeScreen()), (route) => false);
   }

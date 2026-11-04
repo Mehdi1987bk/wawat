@@ -36,7 +36,7 @@ class StartChatModal {
 class _StartChatContent extends StatefulWidget {
   final int userId;
   final String userName;
-  final Function(String message)? onSuccess; // ← Изменено
+  final Function(String message)? onSuccess;
 
   const _StartChatContent({
     Key? key,
@@ -84,11 +84,10 @@ class _StartChatContentState extends State<_StartChatContent> {
 
         return GestureDetector(
           onTap: () {
-            // Скрыть клавиатуру при тапе вне текстового поля
             FocusScope.of(context).unfocus();
           },
           child: Padding(
-            padding: EdgeInsets.zero, // keyboard inset via showAppBottomSheet
+            padding: EdgeInsets.zero,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
@@ -105,7 +104,6 @@ class _StartChatContentState extends State<_StartChatContent> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Handle bar
                       Center(
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
@@ -121,7 +119,6 @@ class _StartChatContentState extends State<_StartChatContent> {
                         ),
                       ),
 
-                      // Warning section
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.all(16),
@@ -167,7 +164,6 @@ class _StartChatContentState extends State<_StartChatContent> {
                       ),
 
                       const SizedBox(height: 24),
-                      // Title
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 300),
                         style: TextStyle(
@@ -182,7 +178,6 @@ class _StartChatContentState extends State<_StartChatContent> {
 
                       const SizedBox(height: 16),
 
-                      // Message input
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         decoration: BoxDecoration(
@@ -212,6 +207,9 @@ class _StartChatContentState extends State<_StartChatContent> {
                               fontSize: 14,
                             ),
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            filled: false,
                             contentPadding: const EdgeInsets.all(16),
                             counterStyle: TextStyle(
                               color: isDark
@@ -249,7 +247,6 @@ class _StartChatContentState extends State<_StartChatContent> {
 
                       const SizedBox(height: 24),
 
-                      // Send button
                       Container(
                         height: 56,
                         decoration: BoxDecoration(

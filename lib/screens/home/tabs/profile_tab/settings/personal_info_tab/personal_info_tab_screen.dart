@@ -36,7 +36,6 @@ class _PersonalInfoTabState
   late TextEditingController _fullNameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  // late TextEditingController _locationController;
   late TextEditingController _aboutController;
   File? _selectedImage;
 
@@ -46,7 +45,6 @@ class _PersonalInfoTabState
   late String _initialLocation;
   late String _initialAbout;
 
-  // Countries
   List<Country> _allCountries = [];
   Country? _selectedCountry;
   Country? _initialCountry;
@@ -68,13 +66,11 @@ class _PersonalInfoTabState
     _fullNameController = TextEditingController(text: _initialFullname);
     _emailController = TextEditingController(text: _initialEmail);
     _phoneController = TextEditingController(text: _initialPhone);
-    // _locationController = TextEditingController(text: _initialLocation);
     _aboutController = TextEditingController(text: _initialAbout);
 
     _fullNameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
-    // _locationController.addListener(_validateForm);
     _aboutController.addListener(_validateForm);
 
     _loadCountries();
@@ -87,7 +83,6 @@ class _PersonalInfoTabState
       if (mounted) {
         setState(() {
           _allCountries = response.data;
-          // Если у пользователя уже есть код - находим его в списке
           if (widget.user.country != null) {
             _selectedCountry = _allCountries.firstWhere(
               (c) => c.id == widget.user.country!.id,
@@ -99,7 +94,6 @@ class _PersonalInfoTabState
         });
       }
     } catch (_) {
-      // 🔥 Проверяем mounted перед setState
       if (mounted) {
         setState(() => _isLoadingCountries = false);
       }
@@ -164,12 +158,8 @@ class _PersonalInfoTabState
                         _emailController, isDark),
                     const SizedBox(height: 16),
 
-                    // 🔥 ТЕЛЕФОН С КОДОМ СТРАНЫ (РЕДАКТИРУЕМЫЙ)
                     _buildPhoneFieldWithCountry(isDark),
 
-                    // const SizedBox(height: 16),
-                    // _buildTextField(
-                    //     t('profile.location'), _locationController, isDark),
                     const SizedBox(height: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +279,6 @@ class _PersonalInfoTabState
     );
   }
 
-  // 🔥 Телефон с выбором кода страны
   Widget _buildPhoneFieldWithCountry(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +295,6 @@ class _PersonalInfoTabState
         const SizedBox(height: 8),
         Row(
           children: [
-            // Country code selector (editable)
             CountryCodeSelector(
               enabled: true,
               selectedCountry: _selectedCountry,
@@ -319,7 +307,6 @@ class _PersonalInfoTabState
             ),
             const SizedBox(width: 8),
 
-            // Phone number field (read-only)
             Expanded(
               child: TextField(
                 controller: _phoneController,
@@ -374,7 +361,6 @@ class _PersonalInfoTabState
 
       if (image != null) {
         try {
-          // Читаем оригинальное изображение
           final bytes = await image.readAsBytes();
           final originalImage = img.decodeImage(bytes);
 
@@ -388,10 +374,8 @@ class _PersonalInfoTabState
             return;
           }
 
-          // 🔥 Применяем EXIF ориентацию (исправляет поворот селфи)
           final fixedImage = img.bakeOrientation(originalImage);
 
-          // Сжимаем если нужно (максимум 1024px по большей стороне)
           final resizedImage = fixedImage.width > 1024 ||
                   fixedImage.height > 1024
               ? img.copyResize(
@@ -401,12 +385,10 @@ class _PersonalInfoTabState
                 )
               : fixedImage;
 
-          // Сохраняем в temp директорию
           final tempDir = await getTemporaryDirectory();
           final timestamp = DateTime.now().millisecondsSinceEpoch;
           final file = File('${tempDir.path}/profile_$timestamp.jpg');
 
-          // Кодируем в JPG с хорошим качеством
           await file.writeAsBytes(img.encodeJpg(resizedImage, quality: 85));
 
           if (!file.existsSync()) {
@@ -419,7 +401,6 @@ class _PersonalInfoTabState
 
           await bloc.onImageSelected(file);
 
-          // 🔥 Проверяем mounted после async операции
           if (!mounted) return;
 
           showIOSStyleMessage(context, t('common.saved'));
@@ -554,19 +535,16 @@ class _PersonalInfoTabState
     final currentFullname = _fullNameController.text.trim();
     final currentEmail = _emailController.text.trim();
     final currentPhone = _phoneController.text.trim();
-    // final currentLocation = _locationController.text.trim();
     final currentAbout = _aboutController.text.trim();
 
     final isRequiredFieldsFilled =
         currentFullname.isNotEmpty && currentEmail.isNotEmpty;
 
-    // Проверяем изменился ли код страны
     final isCountryChanged = _selectedCountry?.id != _initialCountry?.id;
 
     final isAnythingChanged = currentFullname != _initialFullname ||
         currentEmail != _initialEmail ||
         currentPhone != _initialPhone ||
-        // currentLocation != _initialLocation ||
         currentAbout != _initialAbout ||
         isCountryChanged;
 
@@ -575,13 +553,11 @@ class _PersonalInfoTabState
 
   Future<void> _addEmployer() async {
     if (_saving) return;
-    // 🔥 Закрываем клавиатуру ПЕРЕД любыми операциями
     FocusScope.of(context).unfocus();
 
     final String name = _fullNameController.text.trim();
     final String email = _emailController.text.trim();
     final String phone = _phoneController.text.trim();
-    // final String location = _locationController.text.trim();
     final String about = _aboutController.text.trim();
 
     setState(() => _saving = true);
@@ -590,18 +566,17 @@ class _PersonalInfoTabState
         name: name,
         email: email,
         phone: phone,
-        location: /*location*/ "",
+        location: "",
         about: about,
         callingCode: _selectedCountry?.callingCode,
       );
       if (!mounted) return;
 
-      // Обновляем initial значение после сохранения
       _initialCountry = _selectedCountry;
       bloc.customersMe();
 
       showIOSStyleMessage(context, t('common.saved'));
-      _validateForm(); // Пересчитываем валидацию
+      _validateForm();
     } catch (error) {
       if (mounted) {
         showIOSStyleMessage(
@@ -619,7 +594,6 @@ class _PersonalInfoTabState
     _fullNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    // _locationController.dispose();
     _aboutController.dispose();
     super.dispose();
   }

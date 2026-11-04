@@ -46,9 +46,6 @@ class WawatProfileApi {
     return Pagination<Listing>.fromJson(response.data ?? const {});
   }
 
-  /// `/listings/my` with the data-driven filter. Returns the page plus the
-  /// (page-1-only) `meta.filters` / `meta.active_filter`. An empty/`all` filter
-  /// is simply omitted → the server returns everything.
   Future<MyListingsResult> myListingsFiltered({
     int page = 1,
     String? filter,
@@ -100,10 +97,6 @@ class WawatProfileApi {
     return WawatReviewResponse.fromJson(response.data ?? const {});
   }
 
-  /// Followers / following list for a user, returned WITH `meta.total` so the
-  /// caller can drive the tab badge from the same response as the list. The
-  /// backend guarantees `meta.total` == the list length (inactive accounts are
-  /// excluded everywhere), so badge and list can never diverge.
   Future<({List<WawatProfileUser> items, int total})> followers(
     String userId, {
     bool following = false,
@@ -126,8 +119,6 @@ class WawatProfileApi {
     return (items: items, total: total);
   }
 
-  /// Elastic people search. `q` must already be ≥ 2 chars (caller-enforced).
-  /// The backend excludes self/system/blocked/inactive and sorts verified→rating.
   Future<UserSearchPage> searchUsers(
     String q, {
     int page = 1,
