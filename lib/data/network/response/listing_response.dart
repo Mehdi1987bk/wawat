@@ -136,6 +136,12 @@ class Listing {
   @JsonKey(name: 'is_favorited')
   final bool isFavorited;
 
+  /// Срок объявления прошёл (рейс уже вылетел / окно доставки закрыто).
+  /// Сервер выставляет это поле в момент вылета, а `status` переключает
+  /// крон раз в 15 минут — поэтому «просрочено» определяется только по нему.
+  @JsonKey(name: 'is_expired', fromJson: _boolFromJson)
+  final bool isExpired;
+
   final ListingOwner? owner;
 
   @JsonKey(name: 'owner_id')
@@ -191,6 +197,7 @@ class Listing {
     this.promotion,
     this.favoritesCount,
     this.isFavorited = false,
+    this.isExpired = false,
     this.owner,
     this.ownerId,
     this.flightDate,

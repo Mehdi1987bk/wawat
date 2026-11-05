@@ -315,6 +315,10 @@ class _HomeTabScreenState extends BaseState<HomeTabScreen, HomeTabBloc>
 }
 
 bool _isVipListing(Listing listing) {
+  // Просроченное стоит в хвосте ленты; даже если промо на нём ещё не
+  // снято, секцию VIP оно не открывает — иначе посреди серых карточек
+  // появился бы второй заголовок «Bütün elanlar».
+  if (listing.isExpired) return false;
   return (listing.promotion?.type ?? listing.promotionType) == 'vip';
 }
 

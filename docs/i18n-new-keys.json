@@ -12480,6 +12480,16 @@
     "es": ""
   },
   {
+    "key": "listing.expired_notice",
+    "group": "listing",
+    "az": "Bu elanın vaxtı keçib",
+    "en": "This listing has expired",
+    "ru": "Срок этого объявления истёк",
+    "tr": "Bu ilanın süresi doldu",
+    "ua": "Термін цього оголошення минув",
+    "es": "Este anuncio ha caducado"
+  },
+  {
     "key": "listing.favorites",
     "group": "listing",
     "az": "Sevimli",

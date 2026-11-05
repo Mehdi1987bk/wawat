@@ -27,6 +27,7 @@ import '../../create_post/listing_limit_gate_screen.dart';
 import '../../home_tab/widget/auth_modal_utils.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import '../../profile_tab/tier/tier_badge.dart';
+import '../widgets/listing_expired.dart';
 import 'listing_details_bloc.dart';
 
 const _brand = Color(0xFF0271EB);
@@ -60,6 +61,13 @@ Future<void> showListingProposalFlow(
   Map<String, String> content = const {},
 }) async {
   if (_openingProposalListingIds.contains(listing.id)) return;
+  // На просроченное сервер предложение не примет — не открываем форму.
+  // Кнопки на карточке и в деталях уже скрыты; это страховка для
+  // остальных входов (initialAction, будущие вызовы).
+  if (listing.isExpired) {
+    _showListingActionError(context, listingExpiredNotice());
+    return;
+  }
   final repository = sl.get<AuthRepository>();
   if (!await repository.isLogged()) {
     if (context.mounted) AuthModalUtils.showAuthRequiredModal(context);
@@ -623,6 +631,10 @@ class _ListingDetailsScreenState
   }
 
   Future<void> _showProposalSheet(Listing listing) async {
+    if (listing.isExpired) {
+      _snack(listingExpiredNotice());
+      return;
+    }
     if (listing.isFull) {
       _snack(listing.statusLabel ??
           _t(_content, 'listing.fully_booked', 'Yer yoxdur.'));
@@ -1031,7 +1043,11 @@ class _RouteHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isOwner && _isMutedOwnerStatus(listing.status);
+    // Посетитель смотрит просроченное: плашка статуса слева вверху,
+    // акценты серые, промо-бейдж не показываем. Текст остаётся
+    // читаемым — без затемнения маршрута.
+    final expired = listing.isExpired && !isOwner;
+    final muted = (isOwner && _isMutedOwnerStatus(listing.status)) || expired;
     final accent = muted
         ? (isDark ? WawatDark.textMuted : _ink400)
         : (listing.isTrip
@@ -1055,7 +1071,10 @@ class _RouteHero extends StatelessWidget {
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
+                    if (expired)
+                      ListingExpiredPill(label: listingExpiredLabel(listing)),
                     _TypeBadge(
                       listing: listing,
                       content: content,
@@ -1072,7 +1091,7 @@ class _RouteHero extends StatelessWidget {
               const SizedBox(width: 8),
               if (isOwner)
                 _StatusBadge(listing: listing, content: content)
-              else if (listing.promotionType != null)
+              else if (listing.promotionType != null && !expired)
                 _PromotionBadge(
                   promotionType: listing.promotionType!,
                   content: content,
@@ -1081,7 +1100,7 @@ class _RouteHero extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Opacity(
-            opacity: muted ? 0.7 : 1,
+            opacity: muted && !expired ? 0.7 : 1,
             child: _RouteLine(
                 listing: listing, accent: accent, accent50: accent50),
           ),
@@ -2671,20 +2690,22 @@ class _ActionBar extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 2,
-                  child: listing.isFull
-                      ? _ActionButton(
-                          label: listing.statusLabel ??
-                              tr('listing.no_space', 'Yer yoxdur'),
-                          icon: PhosphorIconsFill.prohibit,
-                          variant: _ActionVariant.disabled,
-                          onTap: () {},
-                        )
-                      : _ActionButton(
-                          label: tr('listing.send_offer', 'Təklif göndər'),
-                          icon: PhosphorIconsFill.paperPlaneTilt,
-                          variant: _ActionVariant.primary,
-                          onTap: onOffer,
-                        ),
+                  child: listing.isExpired
+                      ? _ExpiredStrip(label: listingExpiredNotice())
+                      : listing.isFull
+                          ? _ActionButton(
+                              label: listing.statusLabel ??
+                                  tr('listing.no_space', 'Yer yoxdur'),
+                              icon: PhosphorIconsFill.prohibit,
+                              variant: _ActionVariant.disabled,
+                              onTap: () {},
+                            )
+                          : _ActionButton(
+                              label: tr('listing.send_offer', 'Təklif göndər'),
+                              icon: PhosphorIconsFill.paperPlaneTilt,
+                              variant: _ActionVariant.primary,
+                              onTap: onOffer,
+                            ),
                 ),
               ],
             ),
@@ -2800,6 +2821,58 @@ class _ActionBar extends StatelessWidget {
 }
 
 enum _ActionVariant { primary, secondary, ghost, danger, disabled }
+
+/// Неактивная полоса вместо «Təklif göndər» у просроченного объявления:
+/// размер и форма кнопки, но без нажатия и без брендового цвета.
+/// Текст поясняющий, поэтому может уйти во вторую строку.
+class _ExpiredStrip extends StatelessWidget {
+  final String label;
+
+  const _ExpiredStrip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fg = isDark ? WawatDark.textSecondary : _ink500;
+    return Semantics(
+      container: true,
+      label: label,
+      excludeSemantics: true,
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isDark ? WawatDark.surfaceAlt : const Color(0xFFEDF1F5),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(PhosphorIconsFill.clockCountdown, color: fg, size: 18),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                // В две строки текст держится у иконки, а не растягивается
+                // на всю ширину полосы.
+                textWidthBasis: TextWidthBasis.longestLine,
+                style: TextStyle(
+                  color: fg,
+                  fontSize: 13,
+                  height: 1.25,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _ActionButton extends StatelessWidget {
   final String label;
