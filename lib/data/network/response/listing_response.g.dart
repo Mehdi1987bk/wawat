@@ -72,6 +72,7 @@ Listing _$ListingFromJson(Map<String, dynamic> json) => Listing(
               json['promotion'] as Map<String, dynamic>),
       favoritesCount: _intFromJson(json['favorites_count']),
       isFavorited: json['is_favorited'] as bool? ?? false,
+      isExpired: _boolFromJson(json['is_expired']),
       owner: json['owner'] == null
           ? null
           : ListingOwner.fromJson(json['owner'] as Map<String, dynamic>),
@@ -106,6 +107,7 @@ Map<String, dynamic> _$ListingToJson(Listing instance) => <String, dynamic>{
       'promotion': instance.promotion,
       'favorites_count': instance.favoritesCount,
       'is_favorited': instance.isFavorited,
+      'is_expired': instance.isExpired,
       'owner': instance.owner,
       'owner_id': instance.ownerId,
       'flight_date': instance.flightDate,

@@ -401,7 +401,31 @@ class ListingFeedBloc extends PaginableBloc<Listing> {
       _seed = response.seed ?? _seed;
     }
     suggestions.add(response.suggestions);
-    return response;
+    return _withoutRepeats(response, page);
+  }
+
+  /// Объявление, которое просрочилось между запросами страниц, сервер
+  /// переносит в хвост — и оно приходит второй раз на следующей странице.
+  /// Оставляем первое появление и уже показанное не трогаем: подменить его
+  /// серой копией значило бы поставить серую карточку выше живых (и сломать
+  /// заголовки VIP на главной). Копия наверху устарела так же, как любая
+  /// карточка до обновления ленты: экран объявления берёт свежие данные,
+  /// а предложение на просроченное сервер отклонит сам.
+  Pagination<Listing> _withoutRepeats(Pagination<Listing> page, int number) {
+    if (number <= initialPaginationPage || data.isEmpty) return page;
+    final shown = {for (final listing in data) listing.id};
+    final fresh =
+        page.data.where((listing) => !shown.contains(listing.id)).toList();
+    if (fresh.length == page.data.length) return page;
+    return Pagination<Listing>(
+      data: fresh,
+      lastPage: page.lastPage,
+      currentPage: page.currentPage,
+      perPage: page.perPage,
+      total: page.total,
+      seed: page.seed,
+      suggestions: page.suggestions,
+    );
   }
 
   Future<void> loadRecentSearches() async {

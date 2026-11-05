@@ -12,6 +12,7 @@ import '../../../../../services/wawat_content.dart';
 import '../../profile_tab/new_profile/new_profile_screen.dart';
 import '../../profile_tab/new_profile/profile_api.dart';
 import '../../profile_tab/tier/tier_badge.dart';
+import 'listing_expired.dart';
 
 Future<Map<String, String>>? _listingContentFuture;
 
@@ -155,20 +156,45 @@ class _ListingCardState extends State<ListingCard> {
 
   bool get _isTrip => widget.listing.isTrip;
 
-  bool get _readonly => widget.listing.isFull && !widget.isOwner;
+  /// Просроченное объявление в чужой ленте: карточка остаётся на месте,
+  /// но приглушена и без кнопки предложения. Владелец в «Elanlarım» видит
+  /// свою карточку как раньше — со статусом и кнопкой «Repost».
+  ///
+  /// Превью продвижения ([ListingCard.promotionTypeOverride]) показывает,
+  /// как объявление будет выглядеть с VIP, — его не серим.
+  bool get _expired =>
+      widget.listing.isExpired &&
+      !widget.isOwner &&
+      widget.promotionTypeOverride == null;
+
+  bool get _readonly => widget.listing.isFull && !widget.isOwner && !_expired;
+
+  /// Приглушённый акцент — и для «мест нет», и для просроченного.
+  bool get _muted => _readonly || _expired;
 
   Color _accentOf(bool isDark) {
-    if (_readonly) {
+    if (_muted) {
       return isDark ? WawatDark.textMuted : const Color(0xFF94A3B8);
     }
+    return _liveAccentOf(isDark);
+  }
+
+  Color _liveAccentOf(bool isDark) {
     if (isDark) {
       return _isTrip ? WawatDark.brandText : WawatDark.warning;
     }
     return _isTrip ? const Color(0xFF0271EB) : const Color(0xFFF59E0B);
   }
 
+  /// Цена и вес: у просроченного — нейтральный серый, чтобы карточка
+  /// не тянула взгляд.
+  Color _figureColor(Color textColor, bool isDark) {
+    if (!_expired) return textColor;
+    return isDark ? WawatDark.textSecondary : const Color(0xFF64748B);
+  }
+
   Color _accentSoftOf(bool isDark) {
-    if (_readonly) {
+    if (_muted) {
       return isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9);
     }
     if (isDark) {
@@ -191,14 +217,21 @@ class _ListingCardState extends State<ListingCard> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final readonly = _readonly;
+    final expired = _expired;
+    // Просроченная карточка — обычный белый фон, радиус и тень: она не
+    // «сломанная», а неактивная. Приглушается только содержимое.
     final cardColor = readonly
         ? (isDark ? WawatDark.surfaceAlt : const Color(0xFFF8FAFC))
         : cCard(isDark);
-    final textColor = readonly
-        ? (isDark ? WawatDark.textSecondary : const Color(0xFF64748B))
-        : cText(isDark);
-    final mutedColor = isDark ? WawatDark.textMuted : const Color(0xFF64748B);
-    final isVipCard = _promotionType == 'vip' && !readonly;
+    final textColor = expired
+        ? (isDark ? WawatDark.textSecondary : const Color(0xFF475569))
+        : readonly
+            ? (isDark ? WawatDark.textSecondary : const Color(0xFF64748B))
+            : cText(isDark);
+    final mutedColor = expired
+        ? (isDark ? WawatDark.textMuted : const Color(0xFF94A3B8))
+        : (isDark ? WawatDark.textMuted : const Color(0xFF64748B));
+    final isVipCard = _promotionType == 'vip' && !readonly && !expired;
     final borderColor = isVipCard
         ? (isDark ? WawatDark.gold : const Color(0xFFFBBF24))
         : readonly
@@ -297,7 +330,10 @@ class _ListingCardState extends State<ListingCard> {
           child: Wrap(
             spacing: 8,
             runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
+              if (_expired)
+                ListingExpiredPill(label: listingExpiredLabel(widget.listing)),
               _Badge(
                 icon: _isTrip
                     ? PhosphorIconsFill.airplaneTakeoff
@@ -324,7 +360,7 @@ class _ListingCardState extends State<ListingCard> {
                   background:
                       isDark ? WawatDark.elevated : const Color(0xFFE2E8F0),
                 ),
-              if (_promotionType == 'vip' && !_readonly)
+              if (_promotionType == 'vip' && !_muted)
                 _Badge(
                   icon: PhosphorIconsFill.sealCheck,
                   label: content['enum.promotion_type.vip'] ??
@@ -332,7 +368,7 @@ class _ListingCardState extends State<ListingCard> {
                   color: isDark ? WawatDark.onGold : const Color(0xFF0F172A),
                   background: isDark ? WawatDark.gold : const Color(0xFFFBBF24),
                 ),
-              if (_promotionType == 'featured' && !_readonly)
+              if (_promotionType == 'featured' && !_muted)
                 _Badge(
                   icon: PhosphorIconsFill.rocketLaunch,
                   label: content['enum.promotion_type.featured'] ??
@@ -367,7 +403,11 @@ class _ListingCardState extends State<ListingCard> {
                   icon: _isFavorited
                       ? PhosphorIconsFill.heart
                       : PhosphorIconsRegular.heart,
-                  color: _isFavorited ? _accentOf(isDark) : cFaint(isDark),
+                  // Избранное у просроченного работает (сервер принимает),
+                  // поэтому сердечко не гасим — оно остаётся живым цветом.
+                  color: _isFavorited
+                      ? (_expired ? _liveAccentOf(isDark) : _accentOf(isDark))
+                      : cFaint(isDark),
                   onTap: _toggleFavorite,
                 ),
             ],
@@ -415,6 +455,7 @@ class _ListingCardState extends State<ListingCard> {
           softAccent: _accentSoftOf(isDark),
           isTrip: _isTrip,
           isDark: isDark,
+          muted: _expired,
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -506,14 +547,17 @@ class _ListingCardState extends State<ListingCard> {
             TextSpan(
               text: _formatNumber(widget.listing.pricePerKg!),
               style: TextStyle(
-                color: textColor,
+                color: _figureColor(textColor, isDark),
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
               ),
               children: [
                 TextSpan(
                   text: ' \$',
-                  style: TextStyle(fontSize: 18, color: textColor),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: _figureColor(textColor, isDark),
+                  ),
                 ),
                 TextSpan(
                   text: ' /kq',
@@ -541,7 +585,7 @@ class _ListingCardState extends State<ListingCard> {
             icon: PhosphorIconsRegular.scales,
             label: tr('listing.weight', 'Çəki'),
             value: '${_formatNumber(widget.listing.weightKg!)} kq',
-            textColor: textColor,
+            textColor: _figureColor(textColor, isDark),
             mutedColor: mutedColor,
           ),
         if (_isTrip && widget.listing.flightNumber != null) ...[
@@ -615,7 +659,7 @@ class _ListingCardState extends State<ListingCard> {
             Text(
               '${_formatNumber(free)} / ${_formatNumber(max)} kq',
               style: TextStyle(
-                color: textColor,
+                color: _figureColor(textColor, isDark),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -629,7 +673,9 @@ class _ListingCardState extends State<ListingCard> {
             minHeight: 6,
             value: 1 - progress,
             color: isDark
-                ? (_isTrip ? WawatDark.brandTextStrong : _accentOf(true))
+                ? (_isTrip && !_expired
+                    ? WawatDark.brandTextStrong
+                    : _accentOf(true))
                 : _accentOf(false),
             backgroundColor: isDark ? cBorder(true) : const Color(0xFFE2E8F0),
           ),
@@ -707,7 +753,9 @@ class _ListingCardState extends State<ListingCard> {
             Builder(
               builder: (context) {
                 final avatarUrl = _ownerAvatarUrl(owner);
-                return CircleAvatar(
+                return ListingGrayscale(
+                  enabled: _expired,
+                  child: CircleAvatar(
                   radius: 21,
                   backgroundColor: _accentSoftOf(isDark),
                   backgroundImage: avatarUrl.isEmpty
@@ -723,6 +771,7 @@ class _ListingCardState extends State<ListingCard> {
                           ),
                         )
                       : null,
+                  ),
                 );
               },
             ),
@@ -749,15 +798,20 @@ class _ListingCardState extends State<ListingCard> {
                         const SizedBox(width: 5),
                         Icon(
                           PhosphorIconsFill.sealCheck,
-                          color: isDark
-                              ? WawatDark.brandText
-                              : const Color(0xFF0271EB),
+                          color: _expired
+                              ? mutedColor
+                              : isDark
+                                  ? WawatDark.brandText
+                                  : const Color(0xFF0271EB),
                           size: 16,
                         ),
                       ],
                       if (owner.tier != null && owner.tier!.isNotEmpty) ...[
                         const SizedBox(width: 6),
-                        TierBadge(tier: owner.tier!, content: content),
+                        ListingGrayscale(
+                          enabled: _expired,
+                          child: TierBadge(tier: owner.tier!, content: content),
+                        ),
                       ],
                     ],
                   ),
@@ -765,8 +819,11 @@ class _ListingCardState extends State<ListingCard> {
                   Row(
                     children: [
                       if (owner.ratingAvg != null) ...[
-                        const Icon(PhosphorIconsFill.star,
-                            color: Color(0xFFFBBF24), size: 15),
+                        Icon(PhosphorIconsFill.star,
+                            color: _expired
+                                ? mutedColor
+                                : const Color(0xFFFBBF24),
+                            size: 15),
                         const SizedBox(width: 4),
                         Text(
                           _formatNumber(owner.ratingAvg!),
@@ -844,6 +901,20 @@ class _ListingCardState extends State<ListingCard> {
   }
 
   Widget _buildPublicActions(Color textColor, bool isDark) {
+    if (_expired) {
+      // Предложение на просроченное сервер отклонит — кнопки нет совсем.
+      // Написать владельцу можно: чат открывается по пользователю, а не
+      // по объявлению. Кнопка нейтральная, без брендового цвета.
+      return _ActionButton(
+        label: tr('common.message', 'Mesaj'),
+        icon: PhosphorIconsRegular.chatCircle,
+        background: isDark ? WawatDark.surfaceAlt : const Color(0xFFF1F5F9),
+        color: isDark ? WawatDark.textSecondary : const Color(0xFF475569),
+        onTap: widget.onMessageTap == null
+            ? null
+            : () => widget.onMessageTap!(widget.listing),
+      );
+    }
     final offerDisabled = _readonly;
     final ctaBackground = offerDisabled
         ? (isDark ? WawatDark.surfaceAlt : const Color(0xFFEDF1F5))
@@ -1369,18 +1440,25 @@ class _RouteLine extends StatelessWidget {
   final bool isTrip;
   final bool isDark;
 
+  /// Просроченное объявление: в тёмной теме точки и пунктир тоже серые —
+  /// синий конец маршрута выглядел бы «живым» на приглушённой карточке.
+  /// В светлой теме они и так берут приглушённый [accent].
+  final bool muted;
+
   const _RouteLine({
     required this.accent,
     required this.softAccent,
     required this.isTrip,
     required this.isDark,
+    this.muted = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final dotColor = isDark && isTrip ? WawatDark.brandTextStrong : accent;
+    final brandDots = isDark && isTrip && !muted;
+    final dotColor = brandDots ? WawatDark.brandTextStrong : accent;
     final dashColor = isDark
-        ? (isTrip
+        ? (brandDots
             ? WawatDark.brandTextStrong.withValues(alpha: 0.40)
             : accent.withValues(alpha: 0.40))
         : accent.withValues(alpha: 0.28);
@@ -1403,7 +1481,12 @@ class _RouteLine extends StatelessWidget {
           ),
         ),
         _DashedLine(color: dashColor),
-        _RouteDot(color: dotColor, isOutlined: true, isDark: isDark),
+        _RouteDot(
+          color: dotColor,
+          isOutlined: true,
+          isDark: isDark,
+          muted: muted,
+        ),
       ],
     );
   }
@@ -1413,17 +1496,19 @@ class _RouteDot extends StatelessWidget {
   final Color color;
   final bool isOutlined;
   final bool isDark;
+  final bool muted;
 
   const _RouteDot({
     required this.color,
     required this.isOutlined,
     required this.isDark,
+    this.muted = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final outlineFill = isDark ? cCard(true) : Colors.white;
-    final outlineRing = isDark ? WawatDark.focusRing : color;
+    final outlineRing = isDark && !muted ? WawatDark.focusRing : color;
     return Container(
       width: 7,
       height: 7,
