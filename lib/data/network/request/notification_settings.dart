@@ -8,10 +8,6 @@ class NotificationSettings {
   final bool? notifyFollows;
   final bool? notifySavedSearch;
   final bool? notifyMarketing;
-
-  /// `notify_flights` — уведомления по отслеживаемым рейсам.
-  final bool? notifyFlights;
-
   final String? quietHoursStart;
   final String? quietHoursEnd;
   final bool clearQuietHours;
@@ -26,7 +22,6 @@ class NotificationSettings {
     this.notifyFollows,
     this.notifySavedSearch,
     this.notifyMarketing,
-    this.notifyFlights,
     this.quietHoursStart,
     this.quietHoursEnd,
     this.clearQuietHours = false,
@@ -44,7 +39,6 @@ class NotificationSettings {
       notifyFollows: _boolValue(json['notify_follows']),
       notifySavedSearch: _boolValue(json['notify_saved_search']),
       notifyMarketing: _boolValue(json['notify_marketing']),
-      notifyFlights: _boolValue(json['notify_flights']),
       quietHoursStart: json['quiet_hours_start']?.toString(),
       quietHoursEnd: json['quiet_hours_end']?.toString(),
     );
@@ -60,7 +54,6 @@ class NotificationSettings {
         if (notifyFollows != null) 'notify_follows': notifyFollows,
         if (notifySavedSearch != null) 'notify_saved_search': notifySavedSearch,
         if (notifyMarketing != null) 'notify_marketing': notifyMarketing,
-        if (notifyFlights != null) 'notify_flights': notifyFlights,
         if (clearQuietHours || quietHoursStart != null)
           'quiet_hours_start': quietHoursStart,
         if (clearQuietHours || quietHoursEnd != null)

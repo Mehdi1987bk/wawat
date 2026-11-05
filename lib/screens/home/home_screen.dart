@@ -12,7 +12,6 @@ import '../auth/email_otp/email_otp_screen.dart';
 import '../../services/notification_router.dart';
 import '../../presentation/resourses/theme_colors.dart';
 import '../chat/chat/chat_list_screen.dart';
-import '../flight/screens/flight_home_screen.dart';
 import 'bottom_bar.dart';
 import 'home_bloc.dart';
 import 'scrollable_tab.dart';
@@ -81,9 +80,7 @@ class _HomeScreenState extends BaseState<HomeScreen, HomeBloc> {
                   return;
                 }
                 final isLogged = await sl.get<AuthRepository>().isLogged();
-                // Раздел рейсов открыт и гостю: вход нужен только подпискам,
-                // и о нём просит уже сам раздел.
-                if ((index != 0 && index != 1 && index != 5) && !isLogged) {
+                if ((index != 0 && index != 1) && !isLogged) {
                   return AuthModalUtils.showAuthRequiredModal(context);
                 }
                 if (index == 2) {
@@ -148,9 +145,6 @@ class __TabsState extends State<_Tabs> {
       const SizedBox.shrink(),
       ChatListScreen(key: _chatKey),
       ProfileTabScreen(key: _profileKey),
-      // Раздел рейсов — обычная вкладка: свой корневой экран без стрелки
-      // назад, внутренние экраны открываются поверх, как везде.
-      const FlightHomeScreen(asTab: true),
     ];
   }
 

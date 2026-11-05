@@ -5,9 +5,6 @@ import '../data/network/response/user.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../main.dart';
 import '../screens/chat/chat/chat_conversation_screen.dart';
-import '../screens/flight/data/models/flight.dart';
-import '../screens/flight/flight_text.dart';
-import '../screens/flight/screens/flight/flight_card_screen.dart';
 import '../screens/home/tabs/home_tab/notification/notification_screen.dart';
 import '../screens/home/tabs/listings/details/listing_details_screen.dart';
 import '../screens/home/tabs/profile_tab/deals/deal_detail_screen.dart';
@@ -89,29 +86,6 @@ void openNotification(
         nav,
         id == null ? NotificationScreen() : ListingDetailsScreen(listingId: id),
         identity: id == null ? 'notifications' : 'listing:$id',
-      );
-      break;
-    case 'flight':
-      // A flight is the triple number + date + departure airport: without the
-      // params the card would open some other leg of the same number.
-      final number = id ?? extra('number');
-      // A payload without the date is not expected; today keeps the card
-      // openable instead of building a broken address.
-      final flightDate = extra('flight_date') ?? fApiDate(DateTime.now());
-      _push(
-        nav,
-        number == null
-            ? NotificationScreen()
-            : FlightCardScreen(
-                flightKey: FlightKey(
-                  number: number,
-                  flightDate: flightDate,
-                  departureCode: extra('departure_code'),
-                ),
-              ),
-        identity: number == null
-            ? 'notifications'
-            : 'flight:$number:$flightDate:${extra('departure_code') ?? ''}',
       );
       break;
     case 'review':

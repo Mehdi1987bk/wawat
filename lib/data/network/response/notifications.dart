@@ -40,12 +40,6 @@ class Notifications extends HiveObject {
   @HiveField(10)
   final String? quietHoursEnd;
 
-  /// Уведомления по отслеживаемым рейсам (`notify_flights`). Этот ключ
-  /// выключает все девять типов раздела рейсов сразу — и push, и значок
-  /// внутри приложения.
-  @HiveField(11)
-  final bool? notifyFlights;
-
   bool? get notifyNewReviews => notifyReviews;
 
   Notifications({
@@ -60,7 +54,6 @@ class Notifications extends HiveObject {
     this.notifySavedSearch,
     this.quietHoursStart,
     this.quietHoursEnd,
-    this.notifyFlights,
   });
 
   factory Notifications.fromJson(Map<String, dynamic> json) =>
