@@ -7,10 +7,6 @@
          require the runtime grant, so we can prompt on every tap and gate the
          camera behind it (see camera_permission.dart). -->
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- Экран «Yaxınlıqda» в разделе рейсов: ближайшие аэропорты ищутся по
-         координатам, поэтому хватает грубой точности. -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- CAMERA on its own makes Google Play require a rear camera with
          autofocus. The app works without one (photos come from the gallery),
          so those devices must keep getting it. -->
